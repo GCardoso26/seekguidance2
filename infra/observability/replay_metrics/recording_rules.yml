@@ -1,0 +1,10 @@
+# Prometheus recording rules (examples) — replay
+groups:
+  - name: tcg_replay_recording
+    interval: 30s
+    rules:
+      - record: job:tcg_replay_amplification:ratio5m
+        expr: |
+          sum(rate(tcg_replay_events_total[5m]))
+            /
+          sum(rate(tcg_replay_unique_hashes_total[5m]))

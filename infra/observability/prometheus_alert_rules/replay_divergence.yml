@@ -1,0 +1,9 @@
+groups:
+  - name: tcg_assistant_replay
+    rules:
+      - alert: ReplayDeterministicMismatch
+        expr: 'increase(tcg_replay_deterministic_mismatch_total[10m]) > 0'
+        labels:
+          severity: info
+        annotations:
+          summary: "Replay digest mismatch — review assistant explanation paths"

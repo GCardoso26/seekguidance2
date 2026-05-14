@@ -1,0 +1,80 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: tcg-judge-postgres
+    environment:
+      POSTGRES_USER: tcgjudge
+      POSTGRES_PASSWORD: tcgjudge_dev
+      POSTGRES_DB: tcg_judge
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infra/db/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+      - ./infra/db/02_rag_mtg.sql:/docker-entrypoint-initdb.d/02-rag-mtg.sql:ro
+      - ./infra/db/03_temporal_graph.sql:/docker-entrypoint-initdb.d/03-temporal-graph.sql:ro
+      - ./infra/db/04_retrieval_feedback.sql:/docker-entrypoint-initdb.d/04-retrieval-feedback.sql:ro
+      - ./infra/db/05_multi_tcg_fab.sql:/docker-entrypoint-initdb.d/05-multi-tcg-fab.sql:ro
+      - ./infra/db/06_ingestion_production.sql:/docker-entrypoint-initdb.d/06-ingestion-production.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tcgjudge -d tcg_judge"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: tcg-judge-redis
+    # Host 6380 evita conflito com outro Redis já em 6379 na máquina
+    ports:
+      - "6380:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: services/api/Dockerfile
+    container_name: tcg-judge-api
+    environment:
+      DATABASE_URL: postgresql+asyncpg://tcgjudge:tcgjudge_dev@postgres:5432/tcg_judge
+      REDIS_URL: redis://redis:6379/0
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_EMBEDDING_MODEL: ${OPENAI_EMBEDDING_MODEL:-text-embedding-3-large}
+      OPENAI_EMBEDDING_DIMENSIONS: ${OPENAI_EMBEDDING_DIMENSIONS:-1536}
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./services/api/app:/app/app:ro
+
+  worker:
+    build:
+      context: .
+      dockerfile: services/workers/Dockerfile
+    container_name: tcg-judge-worker
+    environment:
+      DATABASE_URL: postgresql+asyncpg://tcgjudge:tcgjudge_dev@postgres:5432/tcg_judge
+      REDIS_URL: redis://redis:6379/0
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_EMBEDDING_MODEL: ${OPENAI_EMBEDDING_MODEL:-text-embedding-3-large}
+      OPENAI_EMBEDDING_DIMENSIONS: ${OPENAI_EMBEDDING_DIMENSIONS:-1536}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  redis_data:

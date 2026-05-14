@@ -1,0 +1,7 @@
+{
+  "question": "Cleanup with hidden priority pass trap",
+  "expected_reasoning_chain": [],
+  "difficulty": "judge",
+  "game": "mtg",
+  "retrieval_stubs": []
+}

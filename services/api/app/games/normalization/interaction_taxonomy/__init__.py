@@ -1,0 +1,1 @@
+"""Taxonomia de interações."""

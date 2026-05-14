@@ -1,0 +1,10 @@
+{
+  "question": "What happens when multiple mandatory triggers activate simultaneously?",
+  "expected_reasoning_chain": ["ordering"],
+  "expected_citations": [],
+  "expected_ordering": ["mandatory", "simultaneous"],
+  "expected_conflict_types": ["simultaneous_mandatory_triggers"],
+  "difficulty": "judge",
+  "game": "mtg",
+  "retrieval_stubs": []
+}

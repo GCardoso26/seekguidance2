@@ -1,0 +1,9 @@
+{
+  "question": "Two simultaneous mandatory triggers ordering",
+  "valid_chain": ["triggered", "priority"],
+  "invalid_chains": [["priority", "triggered"]],
+  "constraint_expectations": [],
+  "timing_requirements": [],
+  "difficulty": "expert_judge",
+  "game": "mtg"
+}

@@ -1,0 +1,13 @@
+{
+  "ruling_id": "stub_ruling_lineage_root",
+  "children": [
+    {
+      "ruling_id": "stub_errata_override_01",
+      "relation": "temporal_supersedes",
+      "effective_from": "2026-04-01"
+    }
+  ],
+  "conflict_flags": ["semantic_contradiction_candidate"],
+  "replay_index": ["replay_stub_segoc_001"],
+  "assistant_note": "Lineage conflict-aware: juiz resolve contradição aparente com fonte primária."
+}

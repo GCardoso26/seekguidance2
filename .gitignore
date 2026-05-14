@@ -1,0 +1,44 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.py[cod]
+.Python
+.venv/
+venv/
+env/
+
+# Build / caches
+.expo/
+dist/
+build/
+*.egg-info/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+coverage/
+htmlcov/
+
+# Env & secrets
+.env
+.env.*
+!.env.example
+
+# IDE
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+# Logs
+*.log
+logs/
+
+# OS
+Thumbs.db
+
+# Mobile
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision

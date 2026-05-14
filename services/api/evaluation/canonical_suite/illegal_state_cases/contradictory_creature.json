@@ -1,0 +1,6 @@
+{
+  "id": "illegal_creature",
+  "flags": {"creature_destroyed": true, "creature_alive_same_ref": true},
+  "expect_state_legality": false,
+  "game": "mtg"
+}

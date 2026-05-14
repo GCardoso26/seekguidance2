@@ -1,0 +1,1 @@
+"""Diff semântico por secção."""

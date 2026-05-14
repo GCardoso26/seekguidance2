@@ -1,0 +1,7 @@
+# Prometheus recording rules (examples) — semantic pipeline
+groups:
+  - name: tcg_semantic_recording
+    interval: 30s
+    rules:
+      - record: job:tcg_reasoning_latency:p95_5m
+        expr: 'histogram_quantile(0.95, sum(rate(tcg_reasoning_duration_bucket[5m])) by (le))'

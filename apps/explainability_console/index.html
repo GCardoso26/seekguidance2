@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Explainability Console</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 0; padding: 1rem; background: #0b0d10; color: #e6edf3; }
+    .grid { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+    .card { border: 1px solid #30363d; border-radius: 8px; padding: 0.75rem; min-height: 100px; }
+  </style>
+</head>
+<body>
+  <h1>Explainability console</h1>
+  <p>Grafos de retrieval, dependências, provas de legalidade e drift — dados via API (contratos reasoning_v* preservados).</p>
+  <div class="grid">
+    <div class="card">Retrieval graph</div>
+    <div class="card">Ontology explorer</div>
+    <div class="card">Legality proof explorer</div>
+    <div class="card">Drift explorer</div>
+  </div>
+</body>
+</html>

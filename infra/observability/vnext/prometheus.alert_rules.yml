@@ -1,0 +1,18 @@
+# Alertas VNext — ajustar thresholds por ambiente
+groups:
+  - name: judge_replay_legality_slo
+    rules:
+      - alert: JudgeReplayIntegrityLow
+        expr: job:judge_replay_integrity:avg5m < 0.85
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Integridade de replay abaixo do SLO interno"
+      - alert: JudgeLegalityConfidenceLow
+        expr: job:judge_legality_confidence:avg5m < 0.75
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Confiança de legalidade assistente baixa — rever casos e drift"

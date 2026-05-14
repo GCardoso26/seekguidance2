@@ -1,0 +1,10 @@
+{
+  "question": "How does SEGOC ordering work in Yu-Gi-Oh?",
+  "expected_reasoning_chain": ["segoc"],
+  "expected_citations": [],
+  "expected_ordering": ["SEGOC", "chain"],
+  "expected_conflict_types": ["mandatory_optional_timing"],
+  "difficulty": "judge",
+  "game": "yugioh",
+  "retrieval_stubs": []
+}

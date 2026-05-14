@@ -1,0 +1,1 @@
+"""Parsers Yu-Gi-Oh."""

@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GoldenAnswer",
+  "type": "object",
+  "required": ["game_slug", "question", "expected_citations_min"],
+  "properties": {
+    "game_slug": {"type": "string"},
+    "question": {"type": "string"},
+    "gold_answer": {"type": "string"},
+    "expected_citations_min": {"type": "integer", "minimum": 0},
+    "expected_reasoning_keys": {"type": "array", "items": {"type": "string"}},
+    "replay_expectation": {"type": "object"}
+  }
+}

@@ -1,0 +1,1 @@
+{"case_id": "sample-001", "game_slug": "mtg", "review_status": "draft", "canonical_legality_chain": ["502"], "canonical_timing_windows": ["priority_pass"], "expected_replay_path": [], "ontology_mappings": [], "annotator": "stub", "notes": "Exemplo mínimo"}

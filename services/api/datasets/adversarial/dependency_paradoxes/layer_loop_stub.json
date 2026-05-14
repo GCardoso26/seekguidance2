@@ -1,0 +1,9 @@
+{
+  "question": "Circular layer dependency paradox (synthetic)",
+  "valid_chain": ["layer"],
+  "invalid_chains": [["layer", "layer"]],
+  "constraint_expectations": ["duplicate_role"],
+  "timing_requirements": [],
+  "difficulty": "expert_judge",
+  "game": "mtg"
+}

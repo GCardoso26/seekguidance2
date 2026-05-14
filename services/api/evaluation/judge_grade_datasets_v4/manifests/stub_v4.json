@@ -1,0 +1,17 @@
+{
+  "dataset_id": "judge_grade_v4_stub",
+  "game_slug": "yugioh",
+  "version": "0.0.1-stub",
+  "replay_refs": [{ "replay_id": "r_v4_stub", "snapshot_id": "snap_v4_stub" }],
+  "legality_expectations": [],
+  "timing_expectations": [],
+  "deterministic_expectations": { "hash_mode": "stub" },
+  "contradiction_expectations": [],
+  "solver_expectations": [],
+  "lineage_metadata": { "policy_version": "stub", "supersedes": [] },
+  "replay_lineage_metadata": { "bundle": "stub_bundle" },
+  "replay_snapshots": [{ "snapshot_id": "snap_v4_stub" }],
+  "ontology_drift_metadata": { "score": 0.05 },
+  "branch_divergence_metadata": { "max_width": 16 },
+  "assistant_notes": ["Dataset v4 stub para CI judge-grade."]
+}

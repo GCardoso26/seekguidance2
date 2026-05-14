@@ -1,0 +1,11 @@
+# Recording rules VNext — runtime/replay/legality SLO helpers
+groups:
+  - name: judge_runtime_vnext
+    interval: 30s
+    rules:
+      - record: job:judge_replay_integrity:avg5m
+        expr: avg_over_time(judge_replay_integrity_score[5m])
+      - record: job:judge_legality_confidence:avg5m
+        expr: avg_over_time(judge_legality_confidence[5m])
+      - record: job:judge_operational_confidence:avg5m
+        expr: avg_over_time(judge_operational_confidence[5m])

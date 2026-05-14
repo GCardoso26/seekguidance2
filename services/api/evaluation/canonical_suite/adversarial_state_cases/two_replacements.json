@@ -1,0 +1,7 @@
+{
+  "id": "adv_two_replacement",
+  "question": "What happens if two replacement effects modify the same event?",
+  "game": "mtg",
+  "expect_branching": true,
+  "difficulty": "expert_judge"
+}

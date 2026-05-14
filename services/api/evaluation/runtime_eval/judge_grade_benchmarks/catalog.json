@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "description": "Judge-grade benchmark catalog (incremental; assistant-focused).",
+  "bundles": [
+    "multiplayer_edge_cases",
+    "replacement_paradoxes",
+    "historical_rulings",
+    "timing_traps",
+    "chain_conflicts",
+    "tournament_disputes",
+    "replay_regressions",
+    "semantic_drift_cases"
+  ],
+  "note": "Populate each directory with curated JSON/YAML cases; keep language player-facing in fixtures."
+}

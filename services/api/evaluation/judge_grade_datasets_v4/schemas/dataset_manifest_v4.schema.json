@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "JudgeGradeDatasetManifestV4",
+  "type": "object",
+  "required": ["dataset_id", "game_slug", "replay_refs"],
+  "properties": {
+    "dataset_id": { "type": "string" },
+    "game_slug": { "type": "string" },
+    "version": { "type": "string" },
+    "replay_refs": { "type": "array" },
+    "legality_expectations": { "type": "array" },
+    "timing_expectations": { "type": "array" },
+    "deterministic_expectations": { "type": "object" },
+    "contradiction_expectations": { "type": "array" },
+    "solver_expectations": { "type": "array" },
+    "lineage_metadata": { "type": "object" },
+    "replay_lineage_metadata": { "type": "object" },
+    "replay_snapshots": { "type": "array" },
+    "ontology_drift_metadata": { "type": "object" },
+    "branch_divergence_metadata": { "type": "object" },
+    "assistant_notes": { "type": "array", "items": { "type": "string" } }
+  }
+}

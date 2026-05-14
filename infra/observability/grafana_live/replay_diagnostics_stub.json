@@ -1,0 +1,10 @@
+{
+  "title": "Replay diagnostics (live)",
+  "panels": [
+    {
+      "type": "text",
+      "title": "Stub",
+      "content": "Ligar a métricas replay_diagnostics_live e replay_consistency_monitoring."
+    }
+  ]
+}

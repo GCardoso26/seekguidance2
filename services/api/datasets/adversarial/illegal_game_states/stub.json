@@ -1,0 +1,9 @@
+{
+  "question": "Illegal game state recovery stub",
+  "valid_chain": [],
+  "invalid_chains": [],
+  "constraint_expectations": [],
+  "timing_requirements": [],
+  "difficulty": "expert_judge",
+  "game": "pokemon"
+}

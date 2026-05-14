@@ -1,0 +1,4 @@
+{
+  "title": "Judge runtime overview",
+  "panels": [{ "type": "text", "title": "Stub", "content": "Ligar a prometheus_runtime_metrics e otel_live_export." }]
+}

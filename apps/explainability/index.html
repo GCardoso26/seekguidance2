@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Explainability (judge-grade)</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 0; padding: 1rem; background: #0f1115; color: #e8eaed; }
+    .grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+    .card { border: 1px solid #30343c; border-radius: 8px; padding: 0.75rem; min-height: 120px; background: #161b22; }
+    h1 { font-size: 1.1rem; }
+    code { color: #79c0ff; }
+  </style>
+</head>
+<body>
+  <h1>Explainability — grafos de retrieval, semântica, provas de legalidade</h1>
+  <p>UI estática: ligar a payloads de explainability da API (sem alterar contratos <code>reasoning_v1</code>–<code>reasoning_v11</code>).</p>
+  <div class="grid">
+    <div class="card" id="retrieval">Retrieval graph</div>
+    <div class="card" id="semantic">Semantic graph</div>
+    <div class="card" id="legality">Legality proof graph</div>
+    <div class="card" id="timing">Timing graph</div>
+    <div class="card" id="replay">Replay equivalence / drift</div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,7 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+exporters:
+  debug:
+    verbosity: basic

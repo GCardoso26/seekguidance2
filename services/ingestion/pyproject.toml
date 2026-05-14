@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tcg-judge-ingestion"
+version = "0.1.0"
+description = "MTG rules ingestion, hierarchical chunking, embeddings (TCG Judge)"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "httpx>=0.27,<0.28",
+  "beautifulsoup4>=4.12,<5",
+  "lxml>=5.3,<6",
+  "pymupdf>=1.24,<2",
+  "pdfplumber>=0.11,<0.12",
+  "asyncpg>=0.30,<0.31",
+  "redis>=5.2,<6",
+  "arq>=0.26,<0.27",
+  "openai>=1.59,<2",
+  "structlog>=24.4,<25",
+  "tiktoken>=0.8,<0.9",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["tcg_judge_ingestion*"]

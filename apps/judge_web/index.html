@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TCG Judge — Web</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 1.5rem; max-width: 52rem; }
+    label { display: block; margin-top: 0.75rem; font-weight: 600; }
+    textarea, input, select { width: 100%; margin-top: 0.25rem; }
+    pre { background: #111; color: #e8e8e8; padding: 1rem; overflow: auto; border-radius: 6px; }
+    button { margin-top: 1rem; padding: 0.5rem 1rem; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h1>TCG Judge (MVP UI)</h1>
+  <p>Cliente estático — apontar <code>API_BASE</code> no código ou via proxy reverso.</p>
+  <label>Jogo (slug)</label>
+  <input id="game" value="mtg" />
+  <label>Pergunta</label>
+  <textarea id="q" rows="4">How do replacement effects interact with state-based actions?</textarea>
+  <label><input type="checkbox" id="reasoning" checked /> Incluir reasoning engine (V1–V11)</label>
+  <button id="go">Perguntar</button>
+  <h2>Resposta</h2>
+  <pre id="out">{}</pre>
+  <script>
+    const API_BASE = localStorage.getItem("TCG_JUDGE_API") || "http://127.0.0.1:8000";
+    document.getElementById("go").onclick = async () => {
+      const payload = {
+        game_slug: document.getElementById("game").value.trim(),
+        question: document.getElementById("q").value.trim(),
+        mode: "judge",
+        include_reasoning_engine: document.getElementById("reasoning").checked,
+        explain_retrieval: true,
+      };
+      const r = await fetch(API_BASE + "/v1/chat/ask", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await r.json();
+      document.getElementById("out").textContent = JSON.stringify(data, null, 2);
+    };
+  </script>
+</body>
+</html>

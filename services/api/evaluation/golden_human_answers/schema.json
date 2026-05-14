@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GoldenHumanAnswer",
+  "type": "object",
+  "required": ["case_id", "game_slug", "review_status"],
+  "properties": {
+    "case_id": {"type": "string"},
+    "game_slug": {"type": "string"},
+    "review_status": {"type": "string", "enum": ["draft", "expert", "head_judge"]},
+    "canonical_legality_chain": {"type": "array", "items": {"type": "string"}},
+    "canonical_timing_windows": {"type": "array", "items": {"type": "string"}},
+    "expected_replay_path": {"type": "array", "items": {"type": "object"}},
+    "ontology_mappings": {"type": "array", "items": {"type": "object"}},
+    "annotator": {"type": "string"},
+    "notes": {"type": "string"}
+  },
+  "additionalProperties": true
+}

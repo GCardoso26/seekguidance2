@@ -1,0 +1,14 @@
+{
+  "title": "Replay stability (live)",
+  "schemaVersion": 39,
+  "panels": [
+    {
+      "type": "text",
+      "title": "Queries",
+      "gridPos": { "h": 4, "w": 24, "x": 0, "y": 0 },
+      "options": {
+        "content": "tcg_replay_deterministic_mismatch_total, tcg_replay_latency_bucket — ligar ao Prometheus real."
+      }
+    }
+  ]
+}

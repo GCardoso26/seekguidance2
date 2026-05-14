@@ -1,0 +1,16 @@
+{
+  "question": "How does APNAP affect triggered abilities?",
+  "expected_reasoning_chain": ["triggered", "priority"],
+  "expected_citations": ["603.1", "117.1"],
+  "expected_ordering": ["trigger", "priority"],
+  "expected_conflict_types": ["apnap_trigger_order"],
+  "difficulty": "judge",
+  "game": "mtg",
+  "retrieval_stubs": [
+    {
+      "rule_path": "603.2",
+      "text": "Whenever a game event happens, triggered abilities may trigger.",
+      "document_title": "CR"
+    }
+  ]
+}

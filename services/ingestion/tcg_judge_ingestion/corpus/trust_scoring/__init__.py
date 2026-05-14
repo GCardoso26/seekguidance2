@@ -1,0 +1,1 @@
+"""Trust scoring no corpus."""

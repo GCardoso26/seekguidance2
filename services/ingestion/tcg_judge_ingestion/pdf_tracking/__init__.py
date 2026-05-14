@@ -1,0 +1,1 @@
+"""Rastreio de páginas PDF."""

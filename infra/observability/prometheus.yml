@@ -1,0 +1,9 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: tcg-judge-api
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["api:8000"]
+    # Ativar quando o exporter Prometheus estiver ligado à API

@@ -1,0 +1,17 @@
+{
+  "title": "TCG Judge — Operational Stability (skeleton)",
+  "uid": "tcgjudge-op-stab",
+  "schemaVersion": 39,
+  "version": 1,
+  "panels": [
+    {
+      "type": "text",
+      "title": "Notes",
+      "gridPos": { "h": 4, "w": 24, "x": 0, "y": 0 },
+      "options": {
+        "content": "Wire Prometheus/Tempo queries to app metrics + OTEL span names (see tracing_queries/). Gaps: real exporters not bundled in API process."
+      }
+    }
+  ],
+  "templating": { "list": [] }
+}

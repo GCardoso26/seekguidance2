@@ -1,0 +1,9 @@
+{
+  "question": "SEGOC vs spell speed conflict (stub)",
+  "valid_chain": ["segoc_ordering", "chain_resolution"],
+  "invalid_chains": [["chain_resolution", "segoc_ordering"]],
+  "constraint_expectations": ["ordering_violation"],
+  "timing_requirements": ["open_window"],
+  "difficulty": "expert_judge",
+  "game": "yugioh"
+}

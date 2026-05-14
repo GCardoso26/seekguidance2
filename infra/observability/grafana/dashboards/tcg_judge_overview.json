@@ -1,0 +1,17 @@
+{
+  "title": "TCG Judge — Overview",
+  "uid": "tcgjudge-overview",
+  "schemaVersion": 38,
+  "version": 1,
+  "panels": [
+    {
+      "type": "text",
+      "title": "Notas",
+      "gridPos": {"h": 4, "w": 24, "x": 0, "y": 0},
+      "options": {
+        "content": "Ligar Prometheus (`/metrics`) e preencher queries reais: retrieval p95, graph expansion, replay determinism, DLQ rate, ingestão."
+      }
+    }
+  ],
+  "time": {"from": "now-6h", "to": "now"}
+}

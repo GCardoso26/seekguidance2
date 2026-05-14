@@ -1,0 +1,8 @@
+{
+  "id": "mtg_replacement_sba_cleanup",
+  "question": "How do replacement effects interact with SBA during cleanup?",
+  "game": "mtg",
+  "expected_roles_prefix": ["event", "replacement", "sba"],
+  "expect_state_legality": true,
+  "difficulty": "judge"
+}

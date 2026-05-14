@@ -1,0 +1,4 @@
+{
+  "title": "Replay stability",
+  "panels": [{ "type": "text", "title": "Stub", "content": "Replay stability SLOs e replay_entropy_live." }]
+}

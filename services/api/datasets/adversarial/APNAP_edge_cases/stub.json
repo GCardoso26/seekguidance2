@@ -1,0 +1,9 @@
+{
+  "question": "APNAP with uneven triggers",
+  "valid_chain": ["triggered", "priority"],
+  "invalid_chains": [],
+  "constraint_expectations": [],
+  "timing_requirements": [],
+  "difficulty": "expert_judge",
+  "game": "mtg"
+}

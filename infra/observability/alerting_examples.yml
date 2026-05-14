@@ -1,0 +1,18 @@
+# Alertmanager / Prometheus alert examples (not wired by default)
+groups:
+  - name: tcg_operational_examples
+    rules:
+      - alert: HighDLQRate
+        expr: 'rate(tcg_dlq_messages_total[15m]) > 0.05'
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "DLQ rate elevated"
+      - alert: ReplayInstability
+        expr: 'tcg_replay_instability_index > 0.35'
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Replay instability index high"

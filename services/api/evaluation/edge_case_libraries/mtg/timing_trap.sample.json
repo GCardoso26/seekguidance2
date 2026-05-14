@@ -1,0 +1,7 @@
+{
+  "id": "mtg_timing_trap_001",
+  "game_slug": "mtg",
+  "category": "timing_trap",
+  "prompt": "Two abilities trigger at the same time — what is the APNAP order?",
+  "tags": ["apnap", "multiplayer"]
+}

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Judge Replay</title>
+  <style>
+    :root { color-scheme: dark light; }
+    body { font-family: system-ui, sans-serif; margin: 0; padding: 1rem; line-height: 1.4; }
+    h1 { font-size: 1.15rem; }
+    h2 { font-size: 1rem; margin-top: 1.25rem; }
+    .lane { border: 1px solid #ccc; border-radius: 6px; padding: 0.5rem; margin: 0.5rem 0; min-height: 2.5rem; }
+    .controls { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin: 0.75rem 0; }
+    input[type="range"] { flex: 1 1 200px; min-width: 160px; touch-action: manipulation; }
+    button { padding: 0.35rem 0.65rem; border-radius: 6px; border: 1px solid #888; background: #f4f4f4; cursor: pointer; touch-action: manipulation; }
+    .meta { font-size: 0.85rem; opacity: 0.85; }
+    @media (max-width: 600px) {
+      body { padding: 0.65rem; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Replay visual (scrubber + timeline)</h1>
+  <p class="meta">Áreas para timeline, stack/chain, APNAP e exploração de ramos — ligar à API de replay (V11+). Layout responsivo e modo compacto para mesa de juiz.</p>
+  <div class="controls">
+    <label for="scrub">Scrub</label>
+    <input type="range" id="scrub" min="0" max="100" value="0" aria-label="Posição do replay" />
+    <button type="button" id="play">Play</button>
+    <button type="button" id="rollback">Rollback 1</button>
+  </div>
+  <h2>Timeline</h2>
+  <div class="lane" id="timeline">Passo <span id="step">0</span> / 100</div>
+  <h2>Stack / Chain</h2>
+  <div class="lane" id="stack">(vazio — injetar eventos)</div>
+  <h2>Prioridade / APNAP</h2>
+  <div class="lane" id="priority">(vazio — ordem NAP / SEGOC)</div>
+  <h2>Ramo ativo</h2>
+  <div class="lane" id="branch">main</div>
+  <h2>Replacement propagation</h2>
+  <div class="lane" id="replacement">(vazio — árvore de instead / redirect)</div>
+  <h2>SBA / limpeza automática</h2>
+  <div class="lane" id="sba">(vazio — janela 704)</div>
+  <h2>Multi-jogador</h2>
+  <div class="lane" id="multiplayer">(vazio — filas APNAP por jogador)</div>
+  <h2>Estado semântico</h2>
+  <div class="lane" id="semantic">(vazio — object graph / zonas)</div>
+  <h2>Comparação determinística</h2>
+  <div class="lane" id="diff">hash A vs hash B (stub)</div>
+    (function () {
+      var scrub = document.getElementById("scrub");
+      var step = document.getElementById("step");
+      var playBtn = document.getElementById("play");
+      var timer = null;
+      scrub.addEventListener("input", function () {
+        step.textContent = String(scrub.value);
+      });
+      playBtn.addEventListener("click", function () {
+        if (timer) {
+          clearInterval(timer);
+          timer = null;
+          playBtn.textContent = "Play";
+          return;
+        }
+        playBtn.textContent = "Pause";
+        timer = setInterval(function () {
+          var v = (parseInt(scrub.value, 10) + 1) % 101;
+          scrub.value = String(v);
+          step.textContent = String(v);
+        }, 120);
+      });
+      document.getElementById("rollback").addEventListener("click", function () {
+        var v = Math.max(0, parseInt(scrub.value, 10) - 5);
+        scrub.value = String(v);
+        step.textContent = String(v);
+      });
+    })();
+  </script>
+</body>
+</html>

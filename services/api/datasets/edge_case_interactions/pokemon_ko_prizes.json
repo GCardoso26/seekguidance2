@@ -1,0 +1,9 @@
+{
+  "question": "Simultaneous Knocked Out with uneven prizes",
+  "expected_reasoning_chain": [],
+  "expected_citations": [],
+  "expected_ordering": [],
+  "difficulty": "judge",
+  "game": "pokemon",
+  "retrieval_stubs": []
+}

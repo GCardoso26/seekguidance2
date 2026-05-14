@@ -1,0 +1,1 @@
+"""Equivalências cross-game (soft)."""

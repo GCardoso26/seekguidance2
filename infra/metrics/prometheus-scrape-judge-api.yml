@@ -1,0 +1,5 @@
+# Exemplo: adicionar ao scrape_configs do Prometheus
+# - job_name: tcg_judge_api
+#   metrics_path: /metrics
+#   static_configs:
+#     - targets: ["api:8000"]

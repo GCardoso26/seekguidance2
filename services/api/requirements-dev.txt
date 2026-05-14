@@ -1,0 +1,3 @@
+# Dev / integração (opcional)
+psycopg[binary]>=3.2,<4
+testcontainers[postgres]>=4.7,<5

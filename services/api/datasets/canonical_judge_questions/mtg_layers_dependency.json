@@ -1,0 +1,16 @@
+{
+  "question": "How do layers interact with dependency?",
+  "expected_reasoning_chain": ["layer"],
+  "expected_citations": ["613.1"],
+  "expected_ordering": ["layer", "dependency"],
+  "expected_conflict_types": ["layer_dependency"],
+  "difficulty": "judge",
+  "game": "mtg",
+  "retrieval_stubs": [
+    {
+      "rule_path": "613.1",
+      "text": "Continuous effects are applied in layer order.",
+      "document_title": "CR"
+    }
+  ]
+}

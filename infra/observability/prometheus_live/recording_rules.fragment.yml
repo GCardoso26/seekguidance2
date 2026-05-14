@@ -1,0 +1,5 @@
+groups:
+  - name: judge_replay_live
+    rules:
+      - record: job:judge_replay_drift:mean5m
+        expr: avg_over_time(judge_replay_drift_score[5m])

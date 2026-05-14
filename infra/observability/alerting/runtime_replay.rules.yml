@@ -1,0 +1,6 @@
+groups:
+  - name: runtime_replay
+    rules:
+      - alert: ReplayDriftHigh
+        expr: judge_replay_drift_score > 0.5
+        for: 5m

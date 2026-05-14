@@ -1,0 +1,7 @@
+# Prometheus recording rules (examples) — branch / graph pressure
+groups:
+  - name: tcg_branch_recording
+    interval: 30s
+    rules:
+      - record: job:tcg_branch_pressure:avg5m
+        expr: 'avg_over_time(tcg_branch_pressure[5m])'

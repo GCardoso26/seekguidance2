@@ -1,0 +1,7 @@
+{
+  "question": "Slow play vs chess clock policy",
+  "expected_reasoning_chain": [],
+  "difficulty": "judge",
+  "game": "mtg",
+  "retrieval_stubs": []
+}

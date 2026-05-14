@@ -1,0 +1,14 @@
+{
+  "title": "TCG Judge Assistant — live overview",
+  "schemaVersion": 39,
+  "panels": [
+    {
+      "type": "text",
+      "title": "Assistant metrics",
+      "gridPos": { "h": 5, "w": 24, "x": 0, "y": 0 },
+      "options": {
+        "content": "Wire: replay_diagnostics, branch_explosion_alerts, semantic drift. Product is assistant, not legal system."
+      }
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "question": "How do replacement effects interact with SBA during cleanup?",
+  "expected_reasoning_chain": [
+    "replacement",
+    "sba"
+  ],
+  "expected_citations": ["614.1", "704.5"],
+  "expected_ordering": [
+    "replacement",
+    "state-based"
+  ],
+  "expected_conflict_types": ["replacement_precedence"],
+  "difficulty": "judge",
+  "game": "mtg",
+  "retrieval_stubs": [
+    {
+      "rule_path": "614.1",
+      "text": "Some events are replaced.",
+      "document_title": "CR"
+    },
+    {
+      "rule_path": "704.5",
+      "text": "State-based actions are performed.",
+      "document_title": "CR"
+    }
+  ]
+}

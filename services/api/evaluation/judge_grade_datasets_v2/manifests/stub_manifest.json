@@ -1,0 +1,30 @@
+{
+  "dataset_id": "judge_grade_v2_stub_ygo_timing",
+  "game_slug": "yugioh",
+  "version": "0.0.1-stub",
+  "description": "Stub SEGOC/timing para CI; substituir por corpus auditado.",
+  "replay_refs": [
+    {
+      "replay_id": "replay_stub_segoc_001",
+      "snapshot_id": "corpus_snap_2026_05_stub",
+      "corpus_slice": "tcg_judge_ingestion/timing_edgecase_repositories"
+    }
+  ],
+  "lineage_metadata": {
+    "policy_version": "publisher_stub_v1",
+    "supersedes": [],
+    "temporal_window": { "effective_from": "2026-05-01", "effective_to": null }
+  },
+  "legality_expectations": [
+    { "case_id": "segoc_mandatory_first", "expected": "assist_review", "rationale_hint": "Judge assistant — validar mandatory vs optional na fonte." }
+  ],
+  "timing_expectations": [
+    { "case_id": "simultaneous_optional", "ordering_tags": ["segoc", "chain_build"] }
+  ],
+  "deterministic_expectations": {
+    "must_match_hash": "stub_hash_determinism_only",
+    "tolerance": "bounded"
+  },
+  "contradiction_expectations": [],
+  "solver_expectations": []
+}

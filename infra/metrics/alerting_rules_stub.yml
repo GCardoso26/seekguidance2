@@ -1,0 +1,10 @@
+groups:
+  - name: judge_grade_stub
+    rules:
+      - alert: ReplayDeterminismLow
+        expr: vector(0) # substituir por métrica real replay_determinism_score
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Substituir expr por métrica exportada pela API"

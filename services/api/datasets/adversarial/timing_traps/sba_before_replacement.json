@@ -1,0 +1,9 @@
+{
+  "question": "SBA before replacement completes (invalid teaching case)",
+  "valid_chain": ["event", "replacement", "sba"],
+  "invalid_chains": [["sba", "replacement", "event"], ["replacement", "event"]],
+  "constraint_expectations": ["ordering_violation"],
+  "timing_requirements": ["cleanup_step"],
+  "difficulty": "expert_judge",
+  "game": "mtg"
+}

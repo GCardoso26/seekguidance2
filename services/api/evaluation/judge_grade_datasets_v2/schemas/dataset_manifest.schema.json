@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "JudgeGradeDatasetManifestV2",
+  "type": "object",
+  "required": ["dataset_id", "game_slug", "version", "replay_refs", "lineage_metadata"],
+  "properties": {
+    "dataset_id": { "type": "string" },
+    "game_slug": {
+      "type": "string",
+      "enum": ["mtg", "yugioh", "pokemon", "onepiece", "digimon", "fab", "lorcana", "riftbound"]
+    },
+    "version": { "type": "string" },
+    "description": { "type": "string" },
+    "replay_refs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["replay_id", "snapshot_id"],
+        "properties": {
+          "replay_id": { "type": "string" },
+          "snapshot_id": { "type": "string" },
+          "corpus_slice": { "type": "string" }
+        }
+      }
+    },
+    "lineage_metadata": {
+      "type": "object",
+      "properties": {
+        "policy_version": { "type": "string" },
+        "supersedes": { "type": "array", "items": { "type": "string" } },
+        "temporal_window": {
+          "type": "object",
+          "properties": {
+            "effective_from": { "type": "string" },
+            "effective_to": { "type": ["string", "null"] }
+          }
+        }
+      }
+    },
+    "legality_expectations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "case_id": { "type": "string" },
+          "expected": { "type": "string", "enum": ["legal", "illegal", "assist_review"] },
+          "rationale_hint": { "type": "string" }
+        }
+      }
+    },
+    "timing_expectations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "case_id": { "type": "string" },
+          "ordering_tags": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "deterministic_expectations": {
+      "type": "object",
+      "properties": {
+        "must_match_hash": { "type": "string" },
+        "tolerance": { "type": "string", "enum": ["strict", "bounded", "semantic_only"] }
+      }
+    },
+    "contradiction_expectations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "case_id": { "type": "string" },
+          "expect_contradiction": { "type": "boolean" },
+          "rationale_hint": { "type": "string" }
+        }
+      }
+    },
+    "solver_expectations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "case_id": { "type": "string" },
+          "mode": { "type": "string", "enum": ["sat", "unsat", "bounded", "assist_review"] },
+          "confidence_min": { "type": "number" }
+        }
+      }
+    }
+  }
+}
