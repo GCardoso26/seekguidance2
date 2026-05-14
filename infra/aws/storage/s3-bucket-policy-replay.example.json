@@ -1,0 +1,22 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "DenyInsecureTransport",
+      "Effect": "Deny",
+      "Principal": "*",
+      "Action": "s3:*",
+      "Resource": ["arn:aws:s3:::REPLACE_BUCKET", "arn:aws:s3:::REPLACE_BUCKET/*"],
+      "Condition": {
+        "Bool": { "aws:SecureTransport": "false" }
+      }
+    },
+    {
+      "Sid": "AllowApiRoleReadWrite",
+      "Effect": "Allow",
+      "Principal": { "AWS": "arn:aws:iam::REPLACE_ACCOUNT:role/REPLACE_IRSA_ROLE" },
+      "Action": ["s3:GetObject", "s3:PutObject", "s3:ListBucket"],
+      "Resource": ["arn:aws:s3:::REPLACE_BUCKET", "arn:aws:s3:::REPLACE_BUCKET/*"]
+    }
+  ]
+}

@@ -122,6 +122,50 @@ class Settings(BaseSettings):
     # Replay integrity (HMAC opcional; sem segredo = apenas hashing interno desativado)
     replay_signing_secret: str | None = None
 
+    # --- AWS / EKS (opcional; docker-compose local inalterado; extra="ignore" já ativo) ---
+    aws_platform_enabled: bool = False
+    aws_region: str | None = None
+    aws_account_id: str | None = None
+    eks_cluster_name: str | None = None
+    eks_oidc_issuer: str | None = None
+    eks_namespace_api: str = "api"
+    eks_namespace_workers: str = "workers"
+    eks_namespace_replay: str = "replay"
+    eks_namespace_observability: str = "observability"
+    eks_namespace_evaluation: str = "evaluation"
+    eks_namespace_ingestion: str = "ingestion"
+    s3_replay_archive_bucket: str | None = None
+    s3_ontology_snapshot_bucket: str | None = None
+    s3_runtime_snapshot_bucket: str | None = None
+    s3_semantic_lineage_bucket: str | None = None
+    s3_judge_datasets_bucket: str | None = None
+    s3_ingestion_corpus_bucket: str | None = None
+    s3_proof_artifacts_bucket: str | None = None
+    s3_glacier_transition_days: int | None = None
+    rds_proxy_enabled: bool = False
+    rds_proxy_endpoint: str | None = None
+    elasticache_cluster_id: str | None = None
+    replay_storage_backend: str = "postgres"  # postgres | s3 | dual_write_stub
+    semantic_storage_backend: str = "postgres"
+    kms_key_id: str | None = None
+    secrets_manager_prefix: str | None = None
+    waf_web_acl_arn: str | None = None
+    api_gateway_stage_url: str | None = None
+    cloudfront_distribution_id: str | None = None
+    cloudwatch_log_group_api: str | None = None
+    aws_xray_enabled: bool = False
+    prometheus_remote_write_url: str | None = None
+    grafana_workspace_url: str | None = None
+    otel_resource_attributes: str | None = None
+    solver_runtime_gpu_enabled: bool = False
+    solver_runtime_worker_affinity: str | None = None
+    worker_runtime_queue_name: str | None = None
+    worker_runtime_dlq_sqs_url: str | None = None
+    ingestion_aws_massive_enabled: bool = False
+    ingestion_checkpoint_s3_prefix: str | None = None
+    cost_governance_monthly_budget_usd: float | None = None
+    branch_entropy_emergency_cap: float | None = None
+
 
 @lru_cache
 def get_settings() -> Settings:

@@ -2,7 +2,11 @@
 
 from __future__ import annotations
 
-from executable_datasets import executable_case_bundle_stub
+from executable_datasets import (
+    dataset_lineage_runtime_stub,
+    executable_case_bundle_stub,
+    runtime_dataset_execution_stub,
+)
 from executable_datasets.executable_apnap_cases import executable_apnap_case_stub
 from executable_datasets.executable_combat_chain_cases import executable_combat_chain_case_stub
 from executable_datasets.executable_cross_version_legality_cases import executable_cross_version_legality_stub
@@ -58,3 +62,13 @@ def test_replay_divergence() -> None:
 
 def test_cross_version() -> None:
     assert executable_cross_version_legality_stub("v0", "v1")["to"] == "v1"
+
+
+def test_runtime_dataset_execution_package() -> None:
+    out = runtime_dataset_execution_stub("x")
+    assert out["replay_summary"]["layer"] == "runtime_dataset_execution"
+
+
+def test_dataset_lineage_runtime_stub() -> None:
+    out = dataset_lineage_runtime_stub("y")
+    assert out["lineage_runtime"]["stub"] is True

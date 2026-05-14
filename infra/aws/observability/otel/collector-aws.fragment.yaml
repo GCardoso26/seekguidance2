@@ -1,0 +1,20 @@
+# OTEL — fragmento AWS (ADOT / collector sidecar)
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+      http:
+
+exporters:
+  awsxray: {}
+  awsemf: {}
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      exporters: [awsxray]
+    metrics:
+      receivers: [otlp]
+      exporters: [awsemf]

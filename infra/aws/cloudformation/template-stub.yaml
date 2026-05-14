@@ -1,0 +1,14 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: TCG Judge — stub CloudFormation (substituir por stacks reais incrementais)
+
+Parameters:
+  ProjectName:
+    Type: String
+    Default: tcg-judge
+
+Resources:
+  # Placeholder: adicionar VPC, S3, etc. em PRs incrementais.
+
+Outputs:
+  ProjectName:
+    Value: !Ref ProjectName

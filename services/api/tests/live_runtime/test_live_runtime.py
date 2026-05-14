@@ -9,6 +9,7 @@ from app.observability.live_runtime import (
     legality_replay_diff_stub,
     live_metrics_registry_status,
     live_trace_pipeline_stub,
+    mobile_runtime_metrics_stub,
     replay_runtime_trace_stub,
     solver_runtime_trace_stub,
 )
@@ -16,6 +17,11 @@ from app.observability.live_runtime import (
 
 def test_live_pipeline() -> None:
     assert live_trace_pipeline_stub(["a", "b"])["live"] is True
+
+
+def test_mobile_runtime_metrics() -> None:
+    out = mobile_runtime_metrics_stub("sess-1")
+    assert "replay_summary" in out and "assistant_notes" in out
 
 
 def test_replay_trace_stub() -> None:

@@ -1,0 +1,13 @@
+version: 0.2
+phases:
+  pre_build:
+    commands:
+      - echo "Login ECR + assume role via OIDC na pipeline real"
+  build:
+    commands:
+      - docker build -f services/api/Dockerfile -t tcg-judge-api:$CODEBUILD_RESOLVED_SOURCE_VERSION .
+  post_build:
+    commands:
+      - echo "docker push + helm upgrade em conta real"
+artifacts:
+  files: []

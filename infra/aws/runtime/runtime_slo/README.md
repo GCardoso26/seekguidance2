@@ -1,0 +1,4 @@
+# Runtime SLO
+
+- `SLO_RETRIEVAL_P95_MS_TARGET`, `SLO_REASONING_P95_MS_TARGET`, `SLO_REPLAY_DETERMINISM_MIN_SCORE` (já na API).
+- Error budget tracking em Grafana.

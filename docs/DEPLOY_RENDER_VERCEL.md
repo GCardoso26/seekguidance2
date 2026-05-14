@@ -33,7 +33,7 @@ Este monorepo tem a **API FastAPI** em `services/api/` (Dockerfile com contexto 
 
 ### URL pública
 
-Após o deploy, anota a URL (ex.: `https://tcg-judge-api.onrender.com`). Usa-a na Vercel (CORS já permite `*` no MVP; em produção podes restringir origens no código).
+Após o deploy, anota a URL (ex.: `https://seekguidance.onrender.com`). Usa-a na Vercel (CORS já permite `*` no MVP; em produção podes restringir origens no código).
 
 ## 3. Front (Vercel)
 

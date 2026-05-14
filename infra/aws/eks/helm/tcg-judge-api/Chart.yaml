@@ -1,0 +1,6 @@
+apiVersion: v2
+name: tcg-judge-api
+description: TCG Judge API (FastAPI) — Helm mínimo para EKS
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

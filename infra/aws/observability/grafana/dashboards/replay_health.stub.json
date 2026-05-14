@@ -1,0 +1,7 @@
+{
+  "title": "TCG Judge — Replay health (stub)",
+  "panels": [],
+  "schemaVersion": 39,
+  "tags": ["tcg-judge", "replay"],
+  "timezone": "browser"
+}

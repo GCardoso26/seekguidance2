@@ -1,6 +1,7 @@
 """Formal solver V6 — explainability operacional (sem CNF bruto)."""
 
 from app.verification.formal_solver_v6.apnap_formal_runtime import apnap_formal_runtime_payload
+from app.verification.formal_solver_v6.aws_solver_runtime import aws_solver_runtime_v6_payload
 from app.verification.formal_solver_v6.bounded_multiplayer_solver import bounded_multiplayer_solver_payload
 from app.verification.formal_solver_v6.combat_chain_legality_runtime import combat_chain_legality_runtime_payload
 from app.verification.formal_solver_v6.cross_runtime_legality_analysis import cross_runtime_legality_analysis_payload
@@ -23,6 +24,7 @@ from app.verification.formal_solver_v6.temporal_legality_proofs import temporal_
 
 __all__ = [
     "apnap_formal_runtime_payload",
+    "aws_solver_runtime_v6_payload",
     "bounded_multiplayer_solver_payload",
     "combat_chain_legality_runtime_payload",
     "cross_runtime_legality_analysis_payload",
