@@ -24,7 +24,7 @@ jobs:
           pip install ../ingestion
           pip install -r requirements.txt
       - name: Ruff check
-        run: ruff check app tests
+        run: ruff check app tests evaluation
       - name: Pytest
         run: pytest -q -m "not integration and not e2e"
 
@@ -47,13 +47,20 @@ jobs:
       - name: Judge-grade gates
         run: pytest -q -m judge_grade
 
+  # apps/mobile está como gitlink (submódulo) sem .gitmodules no monorepo: o checkout no
+  # GitHub não traz ficheiros. Ative só depois de:
+  # 1) adicionar .gitmodules + URL do submódulo, e 2) definir a variável ENABLE_MOBILE_CI=true
+  # em Settings → Secrets and variables → Actions → Variables.
   mobile:
+    if: ${{ vars.ENABLE_MOBILE_CI == 'true' }}
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: apps/mobile
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: true
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
