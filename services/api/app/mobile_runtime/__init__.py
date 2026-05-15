@@ -26,10 +26,19 @@ from app.mobile_runtime.runtime_modes import (
     hybrid_runtime_mode_stub,
     offline_runtime_mode_stub,
 )
+from app.mobile_runtime.runtime_sync_v2.deterministic_mobile_alignment import deterministic_mobile_alignment_v2_stub
+from app.mobile_runtime.runtime_sync_v2.mobile_replay_lineage import mobile_replay_lineage_v2_stub
+from app.mobile_runtime.runtime_sync_v2.mobile_runtime_entropy import mobile_runtime_entropy_v2_stub
+from app.mobile_runtime.runtime_sync_v2.mobile_runtime_reconciliation import mobile_runtime_reconciliation_v2_stub
+from app.mobile_runtime.runtime_sync_v2.mobile_snapshot_diff import mobile_snapshot_diff_v2_stub
+from app.mobile_runtime.runtime_sync_v2.replay_delta_merge import replay_delta_merge_v2_stub
+from app.mobile_runtime.runtime_sync_v2.replay_runtime_compaction import replay_runtime_compaction_v2_stub
+from app.mobile_runtime.runtime_sync_v2.replay_sync_conflicts import replay_sync_conflicts_v2_stub
 from app.mobile_runtime.storage import mobile_local_storage_stub
 
 __all__ = [
     "cloud_runtime_mode_stub",
+    "deterministic_mobile_alignment_v2_stub",
     "hybrid_runtime_mode_stub",
     "incremental_sync_runtime_stub",
     "lightweight_reasoning_runtime_stub",
@@ -45,13 +54,20 @@ __all__ = [
     "mobile_observability_stub",
     "mobile_replay_alignment_stub",
     "mobile_replay_chunk_stub",
+    "mobile_replay_lineage_v2_stub",
     "mobile_replay_snapshot_stub",
+    "mobile_runtime_entropy_v2_stub",
     "mobile_runtime_governance_stub",
+    "mobile_runtime_reconciliation_v2_stub",
     "mobile_runtime_recovery_stub",
     "mobile_semantic_cache_stub",
+    "mobile_snapshot_diff_v2_stub",
     "mobile_temporal_runtime_stub",
     "offline_dataset_runtime_stub",
     "offline_replay_mode_stub",
     "offline_replay_runtime_stub",
     "offline_runtime_mode_stub",
+    "replay_delta_merge_v2_stub",
+    "replay_runtime_compaction_v2_stub",
+    "replay_sync_conflicts_v2_stub",
 ]

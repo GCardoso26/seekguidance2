@@ -1,0 +1,19 @@
+{
+  "title": "Runtime Entropy",
+  "uid": "runtime-entropy",
+  "schemaVersion": 39,
+  "version": 1,
+  "panels": [],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "tags": [
+    "tcg-judge",
+    "operational",
+    "replay"
+  ]
+}

@@ -11,6 +11,7 @@ from app.offline_runtime.offline_dataset_runtime import offline_dataset_runtime_
 from app.offline_runtime.offline_governance import offline_governance_stub
 from app.offline_runtime.offline_reasoning import offline_reasoning_stub
 from app.offline_runtime.offline_replay_execution import offline_replay_execution_stub
+from app.offline_runtime.offline_replay_lineage_v2 import offline_replay_lineage_v2_stub
 from app.offline_runtime.offline_runtime_degradation import offline_runtime_degradation_stub
 from app.offline_runtime.offline_runtime_health import offline_runtime_health_stub
 from app.offline_runtime.offline_semantic_cache import offline_semantic_cache_stub
@@ -30,6 +31,7 @@ __all__ = [
     "offline_governance_stub",
     "offline_reasoning_stub",
     "offline_replay_execution_stub",
+    "offline_replay_lineage_v2_stub",
     "offline_runtime_degradation_stub",
     "offline_runtime_health_stub",
     "offline_semantic_cache_stub",

@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from runtime_execution.runtime_dataset_runner import runtime_dataset_runner_stub
+
 from .incremental_dataset_sync import incremental_dataset_sync_stub
 from .mobile_dataset_compaction import mobile_dataset_compaction_stub
 from .mobile_dataset_compaction_v2 import mobile_dataset_compaction_v2_stub
@@ -50,5 +52,6 @@ __all__ = [
     "offline_dataset_snapshot_stub",
     "offline_dataset_validation_stub",
     "runtime_dataset_execution_stub",
+    "runtime_dataset_runner_stub",
     "v4_dataset_stub",
 ]

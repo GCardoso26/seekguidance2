@@ -15,4 +15,10 @@ Modelos vivos recomendados (importar JSON existentes em `infra/observability/gra
 - **Reconciliation dashboards**: `replay_reconciliation`, consenso e repair hints determinísticos.
 - **CI / governance dashboards**: gates `continuous_v8` ligados a datasets executáveis e regressões temporais.
 
+## JSON stub (Grafana vNext)
+
+Ficheiros mínimos na mesma pasta, prontos a importar e enriquecer:
+
+- `replay_runtime.json`, `replay_governance.json`, `runtime_entropy.json`, `mobile_runtime.json`, `offline_sync.json`, `lineage_runtime.json`, `dataset_runtime.json`, `ontology_runtime.json`, `multiplayer_runtime.json`.
+
 Importar também fragmentos em `prometheus.recording_rules.yml` e `prometheus.alert_rules.yml` desta pasta ao compor o Prometheus final.

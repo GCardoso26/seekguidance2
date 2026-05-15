@@ -11,6 +11,7 @@ from app.mobile_security.offline_runtime_attestation import offline_runtime_atte
 from app.mobile_security.offline_runtime_consensus import offline_runtime_consensus_stub
 from app.mobile_security.offline_session_validation import offline_session_validation_stub
 from app.mobile_security.replay_attestation import replay_attestation_stub
+from app.mobile_security.replay_delta_trust_v2 import replay_delta_trust_v2_stub
 from app.mobile_security.replay_governance_signatures import replay_governance_signatures_stub
 from app.mobile_security.replay_signature_consensus import replay_signature_consensus_stub
 from app.mobile_security.replay_signature_rotation import replay_signature_rotation_stub
@@ -35,6 +36,7 @@ __all__ = [
     "offline_runtime_consensus_stub",
     "offline_session_validation_stub",
     "replay_attestation_stub",
+    "replay_delta_trust_v2_stub",
     "replay_governance_signatures_stub",
     "replay_signature_consensus_stub",
     "replay_signature_rotation_stub",
