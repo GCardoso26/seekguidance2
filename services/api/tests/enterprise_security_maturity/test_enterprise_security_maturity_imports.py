@@ -1,0 +1,25 @@
+"""enterprise_security_maturity."""
+from __future__ import annotations
+
+from app.runtime.security_compliance.runtime_enterprise_security_summary_v1 import (
+    runtime_enterprise_security_summary_v1_stub,
+)
+
+_KEYS = (
+    "assistant_notes",
+    "deterministic_alignment",
+    "runtime_confidence",
+    "governance_summary",
+    "lifecycle_summary",
+    "operational_notes",
+    "divergence_summary",
+    "replay_summary",
+    "integrity_status",
+)
+
+
+def test_enterprise_security_maturity_payload() -> None:
+    p = runtime_enterprise_security_summary_v1_stub("om31-sec")
+    assert p["runtime_confidence"] > 0
+    for k in _KEYS:
+        assert k in p

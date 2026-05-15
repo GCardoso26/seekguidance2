@@ -1,0 +1,19 @@
+{
+  "title": "AWS Hybrid Mobile Runtime",
+  "uid": "aws_hybrid_mobile_runtime",
+  "schemaVersion": 39,
+  "version": 1,
+  "panels": [],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "tags": [
+    "tcg-judge",
+    "aws",
+    "mobile"
+  ]
+}

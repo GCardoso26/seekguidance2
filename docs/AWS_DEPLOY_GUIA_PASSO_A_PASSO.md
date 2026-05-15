@@ -8,6 +8,12 @@ Documentação de apoio:
 - `infra/aws/README.md` — mapa de pastas (Terraform, EKS, CI/CD).
 - `services/api/.env.example` — variáveis (incluindo `AWS_*`, `S3_*`, `EKS_*`, …).
 
+{
+    "UserId": "AIDA6NSI3A6DHHEKL4HWQ",
+    "Account": "991216469894",
+    "Arn": "arn:aws:iam::991216469894:user/Adm_Judge"
+}
+
 ---
 
 ## Fase 0 — Decisão de alvo

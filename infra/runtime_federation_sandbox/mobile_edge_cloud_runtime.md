@@ -1,0 +1,3 @@
+# Coordenação
+
+Sync determinístico assistido.

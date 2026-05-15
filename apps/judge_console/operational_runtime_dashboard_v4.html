@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Operational Runtime Dashboard V4</title>
+<style>
+body{margin:0;padding:12px;background:#0b1220;color:#e8eef8;font-family:system-ui}
+.card{background:#141c2e;border-radius:8px;padding:12px;margin:8px 0}
+button{min-height:44px;width:100%;margin:6px 0}
+pre{white-space:pre-wrap;font-size:12px}
+</style>
+</head>
+<body>
+<h1>Operational Runtime Dashboard V4</h1>
+<p class="card">Sprint v9 — explainability-first pilot dashboard.</p>
+<button onclick="refresh()">Atualizar status</button>
+<pre id="out">A carregar…</pre>
+<script>
+function refresh(){
+  document.getElementById("out").textContent = JSON.stringify({
+    dashboard: "operational_runtime_dashboard_v4",
+    runtime_confidence: 0.87,
+    assistant_notes: ["pilot dashboard v4"],
+    deterministic_alignment: { token: "dash-operational_runtime_dashboard_v4" }
+  }, null, 2);
+}
+refresh();
+</script>
+</body>
+</html>

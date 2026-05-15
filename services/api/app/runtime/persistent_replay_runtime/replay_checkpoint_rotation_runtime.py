@@ -1,0 +1,21 @@
+"""replay_checkpoint_rotation_runtime"""
+
+from __future__ import annotations
+
+from typing import Any
+
+
+def replay_checkpoint_rotation_runtime_stub(scope: str, *, storage_path: str | None = None) -> dict[str, Any]:
+    return {
+        "scope": scope,
+        "storage_path": storage_path or "default",
+        "assistant_notes": ["replay_checkpoint_rotation_runtime_stub: pre-production v3; explainability-first."],
+        "deterministic_alignment": {"token": f"v3-{scope}"},
+        "runtime_confidence": 0.8,
+"storage_meta": {},
+        
+        
+        "replay_summary": {},
+        "lineage_summary": {},
+        "integrity_status": {"ok": True},
+    }

@@ -1,0 +1,46 @@
+"""external_pilot_program."""
+from __future__ import annotations
+
+from .external_pilot_dataset_runtime_v2 import external_pilot_dataset_runtime_v2_stub
+from .external_pilot_federation_runtime_v2 import external_pilot_federation_runtime_v2_stub
+from .external_pilot_federation_topology_v1 import external_pilot_federation_topology_v1_stub
+from .external_pilot_governance_runtime_v2 import external_pilot_governance_runtime_v2_stub
+from .external_pilot_incident_summaries_v1 import external_pilot_incident_summaries_v1_stub
+from .external_pilot_observability_runtime_v2 import external_pilot_observability_runtime_v2_stub
+from .external_pilot_operational_monitoring_v1 import external_pilot_operational_monitoring_v1_stub
+from .external_pilot_operational_summary_v2 import external_pilot_operational_summary_v2_stub
+from .external_pilot_operator_registry_v1 import external_pilot_operator_registry_v1_stub
+from .external_pilot_operator_runtime_v2 import external_pilot_operator_runtime_v2_stub
+from .external_pilot_reliability_runtime_v2 import external_pilot_reliability_runtime_v2_stub
+from .external_pilot_replay_datasets_v1 import external_pilot_replay_datasets_v1_stub
+from .external_pilot_rollout_orchestration_v1 import external_pilot_rollout_orchestration_v1_stub
+from .external_pilot_runtime_governance_v1 import external_pilot_runtime_governance_v1_stub
+from .external_pilot_runtime_scoring_v1 import external_pilot_runtime_scoring_v1_stub
+from .external_pilot_support_runtime_v2 import external_pilot_support_runtime_v2_stub
+from .external_pilot_tenant_registry_v1 import external_pilot_tenant_registry_v1_stub
+from .external_pilot_tenant_runtime_v2 import external_pilot_tenant_runtime_v2_stub
+from .external_pilot_workload_orchestration_v1 import external_pilot_workload_orchestration_v1_stub
+from .external_production_pilot_engine_v2 import external_production_pilot_engine_v2_stub
+
+__all__ = [
+    "external_pilot_operator_registry_v1_stub",
+    "external_pilot_tenant_registry_v1_stub",
+    "external_pilot_workload_orchestration_v1_stub",
+    "external_pilot_replay_datasets_v1_stub",
+    "external_pilot_runtime_scoring_v1_stub",
+    "external_pilot_rollout_orchestration_v1_stub",
+    "external_pilot_operational_monitoring_v1_stub",
+    "external_pilot_incident_summaries_v1_stub",
+    "external_pilot_federation_topology_v1_stub",
+    "external_pilot_runtime_governance_v1_stub",    "external_production_pilot_engine_v2_stub",
+    "external_pilot_operator_runtime_v2_stub",
+    "external_pilot_tenant_runtime_v2_stub",
+    "external_pilot_dataset_runtime_v2_stub",
+    "external_pilot_federation_runtime_v2_stub",
+    "external_pilot_observability_runtime_v2_stub",
+    "external_pilot_governance_runtime_v2_stub",
+    "external_pilot_reliability_runtime_v2_stub",
+    "external_pilot_support_runtime_v2_stub",
+    "external_pilot_operational_summary_v2_stub",
+
+]

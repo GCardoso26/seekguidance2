@@ -1,0 +1,19 @@
+{
+  "title": "Distributed Replay Lineage",
+  "uid": "distributed_replay_lineage",
+  "schemaVersion": 39,
+  "version": 1,
+  "panels": [],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "tags": [
+    "tcg-judge",
+    "replay",
+    "lineage"
+  ]
+}

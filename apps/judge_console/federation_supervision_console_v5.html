@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Federation Supervision Console V5</title>
+<style>
+body{margin:0;padding:12px;background:#0b1220;color:#e8eef8;font-family:system-ui}
+.card{background:#141c2e;border-radius:8px;padding:12px;margin:8px 0}
+button{min-height:44px;width:100%;margin:6px 0}
+pre{white-space:pre-wrap;font-size:12px}
+</style>
+</head>
+<body>
+<h1>Federation Supervision Console V5</h1>
+<p class="card">Sprint v10 — beta operacional controlado.</p>
+<button onclick="refresh()">Atualizar</button>
+<pre id="out">…</pre>
+<script>
+function refresh(){
+  document.getElementById("out").textContent = JSON.stringify({
+    dashboard: "federation_supervision_console_v5",
+    runtime_confidence: 0.88,
+    assistant_notes: ["operational console v5"],
+    deterministic_alignment: { token: "dash-federation_supervision_console_v5" },
+    governance_summary: {},
+    replay_summary: {},
+    divergence_summary: {},
+    operational_notes: []
+  }, null, 2);
+}
+refresh();
+</script>
+</body>
+</html>

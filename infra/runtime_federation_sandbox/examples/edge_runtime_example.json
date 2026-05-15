@@ -1,0 +1,7 @@
+{
+  "example": "edge_runtime_example",
+  "federation_ready": true,
+  "assistant_notes": [
+    "edge_runtime_example: sandbox topology stub."
+  ]
+}

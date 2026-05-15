@@ -7,6 +7,10 @@ from app.runtime.replay_governance_v2.cross_version_replay_diff import cross_ver
 from app.runtime.replay_governance_v2.deterministic_replay_hashing import deterministic_replay_hashing_stub
 from app.runtime.replay_governance_v2.distributed_replay_reconciliation import distributed_replay_reconciliation_stub
 from app.runtime.replay_governance_v2.distributed_replay_validation import distributed_replay_validation_stub
+from app.runtime.replay_governance_v2.executable_replay_governance import (
+    executable_replay_governance_run,
+    executable_replay_governance_stub,
+)
 from app.runtime.replay_governance_v2.mobile_replay_alignment_governance import mobile_replay_alignment_governance_stub
 from app.runtime.replay_governance_v2.mobile_replay_branch_governance import mobile_replay_branch_governance_stub
 from app.runtime.replay_governance_v2.mobile_replay_bridge import mobile_replay_bridge_stub
@@ -47,6 +51,8 @@ __all__ = [
     "deterministic_replay_hashing_stub",
     "distributed_replay_reconciliation_stub",
     "distributed_replay_validation_stub",
+    "executable_replay_governance_run",
+    "executable_replay_governance_stub",
     "mobile_replay_alignment_governance_stub",
     "mobile_replay_branch_governance_stub",
     "mobile_replay_bridge_stub",

@@ -1,0 +1,11 @@
+{
+  "title": "Replay Federation Health",
+  "uid": "replay_federation_health",
+  "schemaVersion": 39,
+  "version": 1,
+  "panels": [],
+  "tags": [
+    "tcg-judge",
+    "federation"
+  ]
+}

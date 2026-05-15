@@ -1,0 +1,19 @@
+{
+  "title": "Replay Sync Conflicts",
+  "uid": "replay_sync_conflicts",
+  "schemaVersion": 39,
+  "version": 1,
+  "panels": [],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "tags": [
+    "tcg-judge",
+    "sync",
+    "replay"
+  ]
+}

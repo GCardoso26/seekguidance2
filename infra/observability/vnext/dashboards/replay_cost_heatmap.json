@@ -1,0 +1,11 @@
+{
+  "title": "Replay Cost Heatmap",
+  "uid": "replay_cost_heatmap",
+  "schemaVersion": 39,
+  "version": 1,
+  "panels": [],
+  "tags": [
+    "tcg-judge",
+    "federation"
+  ]
+}

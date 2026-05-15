@@ -20,5 +20,8 @@ Modelos vivos recomendados (importar JSON existentes em `infra/observability/gra
 Ficheiros mínimos na mesma pasta, prontos a importar e enriquecer:
 
 - `replay_runtime.json`, `replay_governance.json`, `runtime_entropy.json`, `mobile_runtime.json`, `offline_sync.json`, `lineage_runtime.json`, `dataset_runtime.json`, `ontology_runtime.json`, `multiplayer_runtime.json`.
+- `runtime_governance.json`, `replay_health.json`, `runtime_ci.json` (governança operacional + saúde de replay + gates de CI).
+- `aws_hybrid_mobile_runtime.json`, `distributed_replay_lineage.json`, `replay_sync_conflicts.json` (híbrido AWS/mobile + lineage distribuído + conflitos de sync).
+- `replay_federation_health.json`, `runtime_alignment.json`, `mobile_runtime_health.json`, `replay_cost_heatmap.json`, `runtime_drift_governance.json` (federation vNext).
 
 Importar também fragmentos em `prometheus.recording_rules.yml` e `prometheus.alert_rules.yml` desta pasta ao compor o Prometheus final.

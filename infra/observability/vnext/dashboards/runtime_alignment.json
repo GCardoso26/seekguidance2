@@ -1,0 +1,11 @@
+{
+  "title": "Runtime Alignment",
+  "uid": "runtime_alignment",
+  "schemaVersion": 39,
+  "version": 1,
+  "panels": [],
+  "tags": [
+    "tcg-judge",
+    "federation"
+  ]
+}

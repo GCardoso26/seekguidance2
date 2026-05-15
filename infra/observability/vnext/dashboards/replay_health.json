@@ -1,0 +1,18 @@
+{
+  "title": "Replay Health",
+  "uid": "replay_health",
+  "schemaVersion": 39,
+  "version": 1,
+  "panels": [],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "tags": [
+    "tcg-judge",
+    "operational"
+  ]
+}

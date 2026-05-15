@@ -1,0 +1,8 @@
+services:
+  api:
+    image: python:3.12-slim
+    working_dir: /app
+    volumes:
+      - ../../services/api:/app
+    command: ["python", "-c", "print('federation sandbox stub')"]
+    profiles: ["sandbox"]
