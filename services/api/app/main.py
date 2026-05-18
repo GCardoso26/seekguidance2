@@ -7,6 +7,8 @@ from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1.router import api_router
+from app.api.v1.runtime_minimal import router as runtime_minimal_router
+from app.api.v1.runtime_operational import router as runtime_operational_router
 from app.core.config import get_settings
 from app.core.logging import configure_logging
 
@@ -63,6 +65,8 @@ async def logging_middleware(request: Request, call_next: Callable[[Request], Re
 
 
 app.include_router(api_router)
+app.include_router(runtime_minimal_router)
+app.include_router(runtime_operational_router)
 
 
 @app.get("/")

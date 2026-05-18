@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>replay console v1</title>
+<style>
+body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:#0f1419;color:#e6edf3}
+.card{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:1rem;margin:.5rem 0}
+pre{overflow:auto;font-size:.85rem}
+h1{font-size:1.25rem}
+</style>
+</head>
+<body>
+<h1>replay console v1</h1>
+<div class="card"><pre id="data"></pre></div>
+<script>
+const DATA = {"integrity_status": "ok", "runtime_confidence": 0.94, "platform": "minimal_real_operational", "console": "replay_console_v1.html"};
+document.getElementById("data").textContent = JSON.stringify(DATA, null, 2);
+</script>
+</body>
+</html>

@@ -23,7 +23,7 @@ def _doc_type_sql_filter(doc_types: tuple[str, ...] | list[str] | None) -> str:
     if not safe:
         return ""
     inner = ",".join("'" + d.replace("'", "") + "'" for d in safe)
-    return f" AND d.doc_type IN ({inner}) "
+    return f" AND lower(d.doc_type) IN ({inner}) "
 
 
 async def search_vector_hits(

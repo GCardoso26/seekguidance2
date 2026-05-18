@@ -1,0 +1,90 @@
+# Produção EC2 — TCG Judge + Minimal Real Operational Runtime
+# Uso: docker compose -f docker-compose.production.yml --env-file .env.production up -d --build
+#
+# Postgres: RDS externo (DATABASE_URL no .env.production)
+# Runtime pilot: volume runtime_data + variáveis RUNTIME_*
+
+name: tcg-judge-production
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: tcg-judge-redis
+    restart: unless-stopped
+    ports:
+      - "6380:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: services/api/Dockerfile.production
+    container_name: tcg-judge-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env.production
+    environment:
+      ENVIRONMENT: production
+      DATABASE_URL: ${DATABASE_URL}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_EMBEDDING_MODEL: ${OPENAI_EMBEDDING_MODEL:-text-embedding-3-large}
+      OPENAI_EMBEDDING_DIMENSIONS: ${OPENAI_EMBEDDING_DIMENSIONS:-1536}
+      RUNTIME_AUTH_SECRET: ${RUNTIME_AUTH_SECRET:?RUNTIME_AUTH_SECRET required}
+      RUNTIME_DATA_DIR: /data/runtime
+      RUNTIME_DATABASE_URL: ${RUNTIME_DATABASE_URL:-}
+      RUNTIME_PROMETHEUS: ${RUNTIME_PROMETHEUS:-false}
+      RUNTIME_OTLP: ${RUNTIME_OTLP:-false}
+    volumes:
+      - runtime_data:/data/runtime
+    depends_on:
+      redis:
+        condition: service_healthy
+    dns:
+      - 172.31.0.2
+      - 169.254.169.253
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -sf http://127.0.0.1:8000/health && curl -sf http://127.0.0.1:8000/runtime/health",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  worker:
+    build:
+      context: .
+      dockerfile: services/workers/Dockerfile
+    container_name: tcg-judge-worker
+    restart: unless-stopped
+    env_file:
+      - .env.production
+    environment:
+      ENVIRONMENT: production
+      DATABASE_URL: ${DATABASE_URL}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_EMBEDDING_MODEL: ${OPENAI_EMBEDDING_MODEL:-text-embedding-3-large}
+      OPENAI_EMBEDDING_DIMENSIONS: ${OPENAI_EMBEDDING_DIMENSIONS:-1536}
+    depends_on:
+      redis:
+        condition: service_healthy
+    dns:
+      - 172.31.0.2
+      - 169.254.169.253
+
+volumes:
+  redis_data:
+  runtime_data:
