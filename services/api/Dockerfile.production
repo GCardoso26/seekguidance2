@@ -1,3 +1,4 @@
+# Imagem API produção — sem ingestão (só worker precisa) para build leve em EC2.
 FROM python:3.12-slim
 
 WORKDIR /app
@@ -7,16 +8,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1 \
     PYTHONPATH=/app
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
-
-COPY services/ingestion /ingestion
-RUN pip install /ingestion
-
 COPY services/api/requirements.txt /app/requirements.txt
-RUN pip install -r /app/requirements.txt
+RUN pip install --no-cache-dir -r /app/requirements.txt
 
 COPY services/api/app /app/app
 COPY services/api/sdk /app/sdk
@@ -24,6 +17,6 @@ COPY services/api/sdk /app/sdk
 EXPOSE 8000
 
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 --start-period=40s \
-  CMD curl -sf http://127.0.0.1:8000/health || exit 1
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/v1/health', timeout=5)"
 
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

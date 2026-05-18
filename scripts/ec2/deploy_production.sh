@@ -33,11 +33,19 @@ TAG="${DEPLOY_TAG:-$(date +%Y%m%d-%H%M%S)}"
 echo "$TAG" > .deploy-last-tag
 echo "Tag deploy: $TAG"
 
-echo "==> Build imagens"
-docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" build api worker
+echo "==> Liberar espaço em disco (Docker)"
+docker system prune -f >/dev/null 2>&1 || true
+docker builder prune -f >/dev/null 2>&1 || true
+df -h / /var/lib/docker 2>/dev/null || df -h /
 
-echo "==> Subir stack"
-docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d
+echo "==> Build imagens"
+if [[ "${SKIP_WORKER_BUILD:-0}" == "1" ]]; then
+  docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" build api
+  docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d api redis
+else
+  docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" build api worker
+  docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d
+fi
 
 echo "==> Aguardar health"
 sleep 8

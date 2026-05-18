@@ -40,6 +40,16 @@ Opcional: `RUNTIME_DATABASE_URL` em `postgresql://` (sem `+asyncpg`) para persis
 
 **Senha com caracteres especiais:** use URL-encoding na password (`@`, `#`, etc.).
 
+## Espaço em disco (EC2 pequena)
+
+Se o build falhar com `no space left on device`:
+
+```bash
+./scripts/ec2/free_disk.sh
+export SKIP_WORKER_BUILD=1   # só API (menos espaço); worker depois
+./scripts/ec2/start-api.sh
+```
+
 ## Deploy
 
 ```bash
