@@ -8,6 +8,10 @@ cd "$REPO_ROOT"
 COMPOSE_FILE="${COMPOSE_FILE:-docker-compose.production.yml}"
 ENV_FILE="${ENV_FILE:-.env.production}"
 
+compose() {
+  docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" "$@"
+}
+
 echo "==> TCG Judge production deploy"
 echo "    compose: $COMPOSE_FILE"
 echo "    env:     $ENV_FILE"
@@ -15,7 +19,6 @@ echo "    env:     $ENV_FILE"
 if [[ ! -f "$ENV_FILE" ]]; then
   echo "Arquivo $ENV_FILE não encontrado."
   echo "Execute: ./scripts/ec2/load_secrets.sh"
-  echo "Ou copie: cp .env.production.example .env.production"
   exit 1
 fi
 
@@ -40,11 +43,11 @@ df -h / /var/lib/docker 2>/dev/null || df -h /
 
 echo "==> Build imagens"
 if [[ "${SKIP_WORKER_BUILD:-0}" == "1" ]]; then
-  docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" build api
-  docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d api redis
+  compose build api
+  compose up -d api redis
 else
-  docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" build api worker
-  docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d
+  compose build api worker
+  compose up -d
 fi
 
 echo "==> Aguardar health"
@@ -52,4 +55,4 @@ sleep 8
 ./scripts/ec2/healthcheck.sh
 
 echo "==> Deploy concluído ($TAG)"
-docker compose -f "$COMPOSE_FILE" ps
+compose ps
