@@ -1,0 +1,12 @@
+{
+  "scope": "v30fca",
+  "domains": [
+    "execution",
+    "replay",
+    "federation",
+    "observability",
+    "governance",
+    "persistence"
+  ],
+  "routed": true
+}

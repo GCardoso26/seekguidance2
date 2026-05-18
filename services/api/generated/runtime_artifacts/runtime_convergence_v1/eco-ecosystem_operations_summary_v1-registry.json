@@ -1,0 +1,12 @@
+{
+  "scope": "eco-ecosystem_operations_summary_v1",
+  "domains": [
+    "execution",
+    "replay",
+    "federation",
+    "observability",
+    "governance",
+    "persistence"
+  ],
+  "routed": true
+}

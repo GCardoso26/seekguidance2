@@ -1,0 +1,6 @@
+{
+  "scope": "obs-sum",
+  "trace_token": "trace-obs-sum",
+  "otlp_fallback": true,
+  "packaging": "stdlib-bundle"
+}

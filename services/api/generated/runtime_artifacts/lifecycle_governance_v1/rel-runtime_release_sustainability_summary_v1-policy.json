@@ -1,0 +1,10 @@
+{
+  "scope": "rel-runtime_release_sustainability_summary_v1",
+  "freeze": {
+    "api": "gradual",
+    "sdk": "gradual"
+  },
+  "release_cadence": "monthly",
+  "compatibility": "backward",
+  "deprecation_notice_days": 90
+}

@@ -1,0 +1,5 @@
+{
+  "scope": "sor-art",
+  "resilience": "self_organizing",
+  "network": true
+}

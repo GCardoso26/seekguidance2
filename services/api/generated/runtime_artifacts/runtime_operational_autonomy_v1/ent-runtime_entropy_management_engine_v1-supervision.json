@@ -1,0 +1,5 @@
+{
+  "scope": "ent-runtime_entropy_management_engine_v1",
+  "supervised": true,
+  "manual_intervention": "reduced"
+}

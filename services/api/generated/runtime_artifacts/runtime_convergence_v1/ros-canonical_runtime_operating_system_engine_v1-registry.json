@@ -1,0 +1,12 @@
+{
+  "scope": "ros-canonical_runtime_operating_system_engine_v1",
+  "domains": [
+    "execution",
+    "replay",
+    "federation",
+    "observability",
+    "governance",
+    "persistence"
+  ],
+  "routed": true
+}

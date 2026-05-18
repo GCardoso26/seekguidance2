@@ -1,0 +1,12 @@
+{
+  "scope": "mx-runtime_operational_survivability",
+  "domains": [
+    "execution",
+    "replay",
+    "federation",
+    "observability",
+    "governance",
+    "persistence"
+  ],
+  "routed": true
+}

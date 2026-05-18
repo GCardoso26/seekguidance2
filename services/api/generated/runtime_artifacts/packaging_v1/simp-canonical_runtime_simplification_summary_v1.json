@@ -1,0 +1,6 @@
+{
+  "scope": "simp-canonical_runtime_simplification_summary_v1",
+  "trace_token": "trace-simp-canonical_runtime_simplification_summary_v1",
+  "otlp_fallback": true,
+  "packaging": "stdlib-bundle"
+}

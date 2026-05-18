@@ -1,0 +1,12 @@
+{
+  "scope": "ns2-runtime_nervous_mesh_engine_v2",
+  "domains": [
+    "execution",
+    "replay",
+    "federation",
+    "observability",
+    "governance",
+    "persistence"
+  ],
+  "routed": true
+}

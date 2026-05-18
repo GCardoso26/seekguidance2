@@ -1,0 +1,12 @@
+{
+  "scope": "v33gcr",
+  "domains": [
+    "execution",
+    "replay",
+    "federation",
+    "observability",
+    "governance",
+    "persistence"
+  ],
+  "routed": true
+}

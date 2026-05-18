@@ -1,0 +1,5 @@
+{
+  "scope": "v27",
+  "network": true,
+  "coordination": "adaptive"
+}

@@ -1,0 +1,6 @@
+{
+  "scope": "ep18-cons",
+  "trace_token": "trace-ep18-cons",
+  "otlp_fallback": true,
+  "packaging": "stdlib-bundle"
+}

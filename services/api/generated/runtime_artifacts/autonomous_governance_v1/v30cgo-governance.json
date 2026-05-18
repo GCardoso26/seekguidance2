@@ -1,0 +1,5 @@
+{
+  "scope": "v30cgo",
+  "entropy_reduced": true,
+  "adaptive": true
+}

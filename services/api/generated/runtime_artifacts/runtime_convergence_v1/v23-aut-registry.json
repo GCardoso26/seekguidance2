@@ -1,0 +1,12 @@
+{
+  "scope": "v23-aut",
+  "domains": [
+    "execution",
+    "replay",
+    "federation",
+    "observability",
+    "governance",
+    "persistence"
+  ],
+  "routed": true
+}

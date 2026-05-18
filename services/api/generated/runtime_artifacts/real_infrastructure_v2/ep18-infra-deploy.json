@@ -1,0 +1,5 @@
+{
+  "scope": "ep18-infra",
+  "mode": "smoke",
+  "bootstrap": true
+}

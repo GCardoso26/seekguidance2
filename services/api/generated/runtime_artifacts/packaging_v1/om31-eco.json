@@ -1,0 +1,6 @@
+{
+  "scope": "om31-eco",
+  "trace_token": "trace-om31-eco",
+  "otlp_fallback": false,
+  "packaging": "stdlib-bundle"
+}

@@ -1,0 +1,12 @@
+{
+  "scope": "mx-runtime_failure_isolation",
+  "domains": [
+    "execution",
+    "replay",
+    "federation",
+    "observability",
+    "governance",
+    "persistence"
+  ],
+  "routed": true
+}

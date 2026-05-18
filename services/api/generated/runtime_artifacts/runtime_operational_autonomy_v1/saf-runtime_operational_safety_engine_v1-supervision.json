@@ -1,0 +1,5 @@
+{
+  "scope": "saf-runtime_operational_safety_engine_v1",
+  "supervised": true,
+  "manual_intervention": "reduced"
+}

@@ -1,0 +1,6 @@
+{
+  "scope": "ga19-api",
+  "trace_token": "trace-ga19-api",
+  "otlp_fallback": true,
+  "packaging": "stdlib-bundle"
+}

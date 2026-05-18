@@ -1,0 +1,5 @@
+{
+  "scope": "v33",
+  "sdk_governed": true,
+  "api_lifecycle": "semantic"
+}

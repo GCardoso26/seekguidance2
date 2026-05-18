@@ -1,0 +1,12 @@
+{
+  "scope": "v22-adopt",
+  "domains": [
+    "execution",
+    "replay",
+    "federation",
+    "observability",
+    "governance",
+    "persistence"
+  ],
+  "routed": true
+}

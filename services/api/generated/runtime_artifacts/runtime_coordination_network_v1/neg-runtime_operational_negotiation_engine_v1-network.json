@@ -1,0 +1,5 @@
+{
+  "scope": "neg-runtime_operational_negotiation_engine_v1",
+  "network": true,
+  "coordination": "adaptive"
+}

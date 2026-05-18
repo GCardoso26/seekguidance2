@@ -1,0 +1,6 @@
+{
+  "scope": "om20-m",
+  "semver": "1.0.0",
+  "channel": "ga-candidate",
+  "rollback_ready": true
+}

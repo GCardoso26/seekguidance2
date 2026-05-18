@@ -1,0 +1,5 @@
+{
+  "scope": "saut-runtime_sustainability_autotuning_engine_v1",
+  "retention_days": 90,
+  "filesystem": true
+}

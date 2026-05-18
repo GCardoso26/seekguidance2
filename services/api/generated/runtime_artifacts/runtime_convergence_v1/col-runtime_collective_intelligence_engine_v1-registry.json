@@ -1,0 +1,12 @@
+{
+  "scope": "col-runtime_collective_intelligence_engine_v1",
+  "domains": [
+    "execution",
+    "replay",
+    "federation",
+    "observability",
+    "governance",
+    "persistence"
+  ],
+  "routed": true
+}

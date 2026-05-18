@@ -1,0 +1,5 @@
+{
+  "scope": "govc-runtime_governance_convergence_engine_v1",
+  "supervised": true,
+  "manual_intervention": "reduced"
+}

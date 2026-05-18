@@ -1,0 +1,12 @@
+{
+  "scope": "pic-runtime_public_institutional_continuity_engine_v1",
+  "domains": [
+    "execution",
+    "replay",
+    "federation",
+    "observability",
+    "governance",
+    "persistence"
+  ],
+  "routed": true
+}

@@ -1,0 +1,5 @@
+{
+  "scope": "cons-runtime_operational_consensus_engine_v1",
+  "supervised": true,
+  "manual_intervention": "reduced"
+}

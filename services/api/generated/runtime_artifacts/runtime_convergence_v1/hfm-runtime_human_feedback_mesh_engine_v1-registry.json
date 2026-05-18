@@ -1,0 +1,12 @@
+{
+  "scope": "hfm-runtime_human_feedback_mesh_engine_v1",
+  "domains": [
+    "execution",
+    "replay",
+    "federation",
+    "observability",
+    "governance",
+    "persistence"
+  ],
+  "routed": true
+}

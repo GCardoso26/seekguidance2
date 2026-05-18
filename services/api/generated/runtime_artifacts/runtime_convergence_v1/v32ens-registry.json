@@ -1,0 +1,12 @@
+{
+  "scope": "v32ens",
+  "domains": [
+    "execution",
+    "replay",
+    "federation",
+    "observability",
+    "governance",
+    "persistence"
+  ],
+  "routed": true
+}

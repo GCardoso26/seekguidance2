@@ -1,0 +1,5 @@
+{
+  "scope": "v27rc",
+  "resilience": "distributed",
+  "fabric": true
+}

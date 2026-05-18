@@ -1,0 +1,6 @@
+{
+  "scope": "om31-poc",
+  "trace_token": "trace-om31-poc",
+  "otlp_fallback": true,
+  "packaging": "stdlib-bundle"
+}

@@ -1,0 +1,6 @@
+{
+  "scope": "pcv1-pilot",
+  "trace_token": "trace-pcv1-pilot",
+  "otlp_fallback": false,
+  "packaging": "stdlib-bundle"
+}

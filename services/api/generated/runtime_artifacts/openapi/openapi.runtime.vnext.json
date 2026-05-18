@@ -1,0 +1,897 @@
+{
+  "assistant_notes": [
+    "build_runtime_openapi_bundle: modular; reasoning_v1\u2026v11 inalterados."
+  ],
+  "components": {
+    "schemas": {
+      "ChatCitation": {
+        "properties": {
+          "chunk_content_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Chunk Content Sha256"
+          },
+          "document_hash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document Hash"
+          },
+          "document_title": {
+            "title": "Document Title",
+            "type": "string"
+          },
+          "excerpt": {
+            "title": "Excerpt",
+            "type": "string"
+          },
+          "page_number": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Page Number"
+          },
+          "retrieval_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Retrieval Score"
+          },
+          "rule_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rule Path"
+          },
+          "section_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Section Path"
+          },
+          "source_url": {
+            "title": "Source Url",
+            "type": "string"
+          },
+          "version_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Version Label"
+          }
+        },
+        "required": [
+          "document_title",
+          "source_url",
+          "excerpt"
+        ],
+        "title": "ChatCitation",
+        "type": "object"
+      },
+      "ChatRequest": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Data ISO (YYYY-MM-DD) para futura filtragem expl\u00edcita por vers\u00e3o.",
+            "title": "As Of"
+          },
+          "conversation_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Conversation Id"
+          },
+          "explain_retrieval": {
+            "default": false,
+            "description": "Se true, devolve raz\u00f5es leg\u00edveis do retrieval (debug / tuning).",
+            "title": "Explain Retrieval",
+            "type": "boolean"
+          },
+          "game_slug": {
+            "examples": [
+              "mtg"
+            ],
+            "title": "Game Slug",
+            "type": "string"
+          },
+          "include_reasoning_engine": {
+            "default": false,
+            "description": "Se true, executa o motor de consist\u00eancia (cadeia, conflitos, timing, valida\u00e7\u00e3o).",
+            "title": "Include Reasoning Engine",
+            "type": "boolean"
+          },
+          "mode": {
+            "default": "player",
+            "pattern": "^(player|judge)$",
+            "title": "Mode",
+            "type": "string"
+          },
+          "prefer_historical": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Se true, prioriza texto indexado mais antigo e notas temporais.",
+            "title": "Prefer Historical"
+          },
+          "question": {
+            "maxLength": 4000,
+            "minLength": 1,
+            "title": "Question",
+            "type": "string"
+          }
+        },
+        "required": [
+          "game_slug",
+          "question"
+        ],
+        "title": "ChatRequest",
+        "type": "object"
+      },
+      "ChatResponse": {
+        "properties": {
+          "answer": {
+            "title": "Answer",
+            "type": "string"
+          },
+          "citations": {
+            "items": {
+              "$ref": "#/components/schemas/ChatCitation"
+            },
+            "title": "Citations",
+            "type": "array"
+          },
+          "confidence": {
+            "title": "Confidence",
+            "type": "number"
+          },
+          "disclaimer": {
+            "title": "Disclaimer",
+            "type": "string"
+          },
+          "explainability": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Explainability v2: retrieval_reason, reasoning_path, graph_confidence.",
+            "title": "Explainability"
+          },
+          "model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model"
+          },
+          "reasoning_v10": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Explainability v10: semantic_memory, temporal_reasoning, semantic_lineage, ontology_evolution, drift_analytics, replay_history e bifurcation_analysis.",
+            "title": "Reasoning V10"
+          },
+          "reasoning_v11": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Explainability v11: distributed_state, judge_session, timeline_analysis, multiplayer_resolution, tournament_operations, persistent_memory, distributed_replay, runtime_observability.",
+            "title": "Reasoning V11"
+          },
+          "reasoning_v3": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Explainability v3: interaction_chain, conflicts_detected, timing_analysis, validation.",
+            "title": "Reasoning V3"
+          },
+          "reasoning_v4": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Explainability v4: validated_chain, constraint_analysis, rejected_paths, propagation.",
+            "title": "Reasoning V4"
+          },
+          "reasoning_v5": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Explainability v5: symbolic_state_transition, state_legality, structured_rules, state_graph.",
+            "title": "Reasoning V5"
+          },
+          "reasoning_v6": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Explainability v6: causal_chain, semantic objects, layers, lineage, semantic_conflicts.",
+            "title": "Reasoning V6"
+          },
+          "reasoning_v7": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Explainability v7: compiled_ir, runtime_execution_order, formal_mutations, deterministic_replay_hash, sandbox events, verification_results.",
+            "title": "Reasoning V7"
+          },
+          "reasoning_v8": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Explainability v8: formal_verification, differential_analysis, replay_validation, drift_detection e fuzzing_results.",
+            "title": "Reasoning V8"
+          },
+          "reasoning_v9": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Explainability v9: semantic_compilation, ontology_analysis, ambiguity_detection, dependency_inference, semantic_graph e rule_evolution.",
+            "title": "Reasoning V9"
+          },
+          "retrieval_reasons": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Explicabilidade do retrieval (opcional; ver explain_retrieval no pedido).",
+            "title": "Retrieval Reasons"
+          }
+        },
+        "required": [
+          "answer",
+          "disclaimer",
+          "citations",
+          "confidence"
+        ],
+        "title": "ChatResponse",
+        "type": "object"
+      },
+      "GameResponse": {
+        "properties": {
+          "display_name": {
+            "title": "Display Name",
+            "type": "string"
+          },
+          "enabled": {
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "publisher": {
+            "title": "Publisher",
+            "type": "string"
+          },
+          "slug": {
+            "title": "Slug",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "slug",
+          "display_name",
+          "publisher",
+          "enabled"
+        ],
+        "title": "GameResponse",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "ReplayRefBody": {
+        "additionalProperties": false,
+        "description": "Corpo base para opera\u00e7\u00f5es de replay.",
+        "properties": {
+          "replay_lineage_id": {
+            "anyOf": [
+              {
+                "maxLength": 256,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Replay Lineage Id"
+          },
+          "replay_ref": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Replay Ref",
+            "type": "string"
+          },
+          "replay_request_id": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Replay Request Id"
+          }
+        },
+        "required": [
+          "replay_ref"
+        ],
+        "title": "ReplayRefBody",
+        "type": "object"
+      },
+      "ReplayValidateIn": {
+        "additionalProperties": false,
+        "description": "Entrada de valida\u00e7\u00e3o assistida.",
+        "properties": {
+          "payload_hints": {
+            "title": "Payload Hints",
+            "type": "object"
+          },
+          "replay_lineage_id": {
+            "anyOf": [
+              {
+                "maxLength": 256,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Replay Lineage Id"
+          },
+          "replay_ref": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Replay Ref",
+            "type": "string"
+          },
+          "replay_request_id": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Replay Request Id"
+          }
+        },
+        "required": [
+          "replay_ref"
+        ],
+        "title": "ReplayValidateIn",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "title": "TCG Judge API",
+    "version": "0.1.0-mvp"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/": {
+      "get": {
+        "operationId": "root__get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Root  Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Root"
+      }
+    },
+    "/v1/chat/ask": {
+      "post": {
+        "operationId": "ask_rules_v1_chat_ask_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChatRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Ask Rules",
+        "tags": [
+          "chat"
+        ]
+      }
+    },
+    "/v1/games": {
+      "get": {
+        "operationId": "list_games_v1_games_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/GameResponse"
+                  },
+                  "title": "Response List Games V1 Games Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "List Games",
+        "tags": [
+          "games"
+        ]
+      }
+    },
+    "/v1/health": {
+      "get": {
+        "operationId": "health_v1_health_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Health V1 Health Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Health",
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/v1/mobile/auth/session-hints": {
+      "get": {
+        "operationId": "mobile_auth_session_hints_v1_mobile_auth_session_hints_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response Mobile Auth Session Hints V1 Mobile Auth Session Hints Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Mobile Auth Session Hints",
+        "tags": [
+          "mobile"
+        ]
+      }
+    },
+    "/v1/mobile/sync/replay-delta": {
+      "post": {
+        "operationId": "mobile_sync_replay_delta_v1_mobile_sync_replay_delta_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response Mobile Sync Replay Delta V1 Mobile Sync Replay Delta Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Mobile Sync Replay Delta",
+        "tags": [
+          "mobile"
+        ]
+      }
+    },
+    "/v1/mobile/sync/status": {
+      "get": {
+        "operationId": "mobile_sync_status_v1_mobile_sync_status_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response Mobile Sync Status V1 Mobile Sync Status Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Mobile Sync Status",
+        "tags": [
+          "mobile"
+        ]
+      }
+    },
+    "/v1/replay/diff": {
+      "post": {
+        "operationId": "replay_diff_v1_replay_diff_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReplayRefBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response Replay Diff V1 Replay Diff Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Replay Diff",
+        "tags": [
+          "replay"
+        ]
+      }
+    },
+    "/v1/replay/health": {
+      "get": {
+        "summary": "replay health"
+      }
+    },
+    "/v1/replay/lineage": {
+      "post": {
+        "operationId": "replay_lineage_v1_replay_lineage_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReplayRefBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response Replay Lineage V1 Replay Lineage Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Replay Lineage",
+        "tags": [
+          "replay"
+        ]
+      }
+    },
+    "/v1/replay/reconcile": {
+      "post": {
+        "operationId": "replay_reconcile_v1_replay_reconcile_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReplayRefBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response Replay Reconcile V1 Replay Reconcile Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Replay Reconcile",
+        "tags": [
+          "replay"
+        ]
+      }
+    },
+    "/v1/replay/runtime-summary": {
+      "post": {
+        "operationId": "replay_runtime_summary_v1_replay_runtime_summary_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReplayRefBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response Replay Runtime Summary V1 Replay Runtime Summary Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Replay Runtime Summary",
+        "tags": [
+          "replay"
+        ]
+      }
+    },
+    "/v1/replay/validate": {
+      "post": {
+        "summary": "replay validate"
+      }
+    }
+  }
+}

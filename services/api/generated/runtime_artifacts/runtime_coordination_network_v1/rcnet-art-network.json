@@ -1,0 +1,5 @@
+{
+  "scope": "rcnet-art",
+  "network": true,
+  "coordination": "adaptive"
+}

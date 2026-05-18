@@ -1,0 +1,5 @@
+{
+  "scope": "ac-runtime_autonomous_coordination_engine_v1",
+  "supervised": true,
+  "manual_intervention": "reduced"
+}

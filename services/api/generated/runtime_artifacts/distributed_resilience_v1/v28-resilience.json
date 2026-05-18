@@ -1,0 +1,5 @@
+{
+  "scope": "v28",
+  "resilience": "distributed",
+  "fabric": true
+}

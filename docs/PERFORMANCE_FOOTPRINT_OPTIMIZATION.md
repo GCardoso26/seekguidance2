@@ -1,0 +1,1 @@
+# Performance footprint optimization

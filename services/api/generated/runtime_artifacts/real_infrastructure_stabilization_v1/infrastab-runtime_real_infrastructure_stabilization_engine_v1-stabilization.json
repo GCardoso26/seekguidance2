@@ -1,0 +1,8 @@
+{
+  "scope": "infrastab-runtime_real_infrastructure_stabilization_engine_v1",
+  "smoke": {
+    "ok": true,
+    "stdout": "ok"
+  },
+  "staged": true
+}

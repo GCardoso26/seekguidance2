@@ -1,0 +1,6 @@
+{
+  "scope": "epv2-infra",
+  "trace_token": "trace-epv2-infra",
+  "otlp_fallback": true,
+  "packaging": "stdlib-bundle"
+}

@@ -1,0 +1,5 @@
+{
+  "scope": "susi-runtime_sustainability_summary_v1",
+  "retention_days": 90,
+  "filesystem": true
+}

@@ -1,0 +1,12 @@
+{
+  "scope": "ns5-runtime_nervous_system_engine_v5",
+  "domains": [
+    "execution",
+    "replay",
+    "federation",
+    "observability",
+    "governance",
+    "persistence"
+  ],
+  "routed": true
+}

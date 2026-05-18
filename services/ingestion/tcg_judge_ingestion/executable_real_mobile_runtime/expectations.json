@@ -1,0 +1,10 @@
+{
+  "legality_expectations": [],
+  "replay_expectations": [],
+  "deterministic_expectations": [],
+  "drift_expectations": [],
+  "federation_expectations": [],
+  "assistant_notes": [
+    "estabilidade v2; explainability-first."
+  ]
+}

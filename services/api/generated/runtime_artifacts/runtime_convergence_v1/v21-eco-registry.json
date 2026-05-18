@@ -1,0 +1,12 @@
+{
+  "scope": "v21-eco",
+  "domains": [
+    "execution",
+    "replay",
+    "federation",
+    "observability",
+    "governance",
+    "persistence"
+  ],
+  "routed": true
+}

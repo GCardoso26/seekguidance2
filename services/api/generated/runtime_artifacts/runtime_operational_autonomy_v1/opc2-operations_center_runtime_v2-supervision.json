@@ -1,0 +1,5 @@
+{
+  "scope": "opc2-operations_center_runtime_v2",
+  "supervised": true,
+  "manual_intervention": "reduced"
+}

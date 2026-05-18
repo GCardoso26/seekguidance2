@@ -1,0 +1,12 @@
+{
+  "scope": "v30rsk",
+  "domains": [
+    "execution",
+    "replay",
+    "federation",
+    "observability",
+    "governance",
+    "persistence"
+  ],
+  "routed": true
+}

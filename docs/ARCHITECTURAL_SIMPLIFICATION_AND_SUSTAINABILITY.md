@@ -1,0 +1,1 @@
+# Architectural simplification and sustainability

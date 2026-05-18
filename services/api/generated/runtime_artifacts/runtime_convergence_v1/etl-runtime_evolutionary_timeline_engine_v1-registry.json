@@ -1,0 +1,12 @@
+{
+  "scope": "etl-runtime_evolutionary_timeline_engine_v1",
+  "domains": [
+    "execution",
+    "replay",
+    "federation",
+    "observability",
+    "governance",
+    "persistence"
+  ],
+  "routed": true
+}

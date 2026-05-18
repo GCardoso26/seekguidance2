@@ -1,0 +1,12 @@
+{
+  "files": {
+    "ci": "S:\\tcg-judge\\services\\api\\generated\\runtime_artifacts\\ci\\runtime.ci.vnext.json",
+    "integrity": "S:\\tcg-judge\\services\\api\\generated\\runtime_artifacts\\integrity\\runtime.integrity.vnext.json",
+    "lineage": "S:\\tcg-judge\\services\\api\\generated\\runtime_artifacts\\lineage\\runtime.lineage.vnext.json",
+    "manifest": "S:\\tcg-judge\\services\\api\\generated\\runtime_artifacts\\manifests\\runtime.manifest.vnext.json",
+    "openapi": "S:\\tcg-judge\\services\\api\\generated\\runtime_artifacts\\openapi\\openapi.runtime.vnext.json",
+    "snapshot": "S:\\tcg-judge\\services\\api\\generated\\runtime_artifacts\\snapshots\\schema.snapshot.vnext.json"
+  },
+  "run_id": "run6",
+  "schema_hash": "68509f78f40e8f9d"
+}

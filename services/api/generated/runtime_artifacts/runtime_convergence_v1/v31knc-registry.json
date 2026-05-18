@@ -1,0 +1,12 @@
+{
+  "scope": "v31knc",
+  "domains": [
+    "execution",
+    "replay",
+    "federation",
+    "observability",
+    "governance",
+    "persistence"
+  ],
+  "routed": true
+}

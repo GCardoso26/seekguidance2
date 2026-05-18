@@ -1,0 +1,6 @@
+{
+  "scope": "rpo-sum",
+  "trace_token": "trace-rpo-sum",
+  "otlp_fallback": true,
+  "packaging": "stdlib-bundle"
+}

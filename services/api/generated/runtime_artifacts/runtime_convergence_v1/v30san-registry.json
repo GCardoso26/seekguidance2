@@ -1,0 +1,12 @@
+{
+  "scope": "v30san",
+  "domains": [
+    "execution",
+    "replay",
+    "federation",
+    "observability",
+    "governance",
+    "persistence"
+  ],
+  "routed": true
+}

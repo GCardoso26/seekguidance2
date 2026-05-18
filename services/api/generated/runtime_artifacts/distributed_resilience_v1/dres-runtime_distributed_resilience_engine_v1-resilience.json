@@ -1,0 +1,5 @@
+{
+  "scope": "dres-runtime_distributed_resilience_engine_v1",
+  "resilience": "distributed",
+  "fabric": true
+}

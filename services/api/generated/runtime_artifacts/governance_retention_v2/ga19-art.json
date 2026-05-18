@@ -1,0 +1,5 @@
+{
+  "scope": "ga19-art",
+  "retention_days": 90,
+  "filesystem": true
+}

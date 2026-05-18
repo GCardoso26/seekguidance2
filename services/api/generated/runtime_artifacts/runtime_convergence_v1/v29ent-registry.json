@@ -1,0 +1,12 @@
+{
+  "scope": "v29ent",
+  "domains": [
+    "execution",
+    "replay",
+    "federation",
+    "observability",
+    "governance",
+    "persistence"
+  ],
+  "routed": true
+}

@@ -1,0 +1,12 @@
+{
+  "version": "runtime-snapshot-v1",
+  "replay_refs": [
+    "placeholder-ref-001"
+  ],
+  "deterministic_expectations": {
+    "alignment_token": "stub"
+  },
+  "assistant_notes": [
+    "Manifest placeholder; corpus real externo."
+  ]
+}

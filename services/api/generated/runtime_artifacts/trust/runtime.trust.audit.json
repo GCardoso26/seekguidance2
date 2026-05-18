@@ -1,0 +1,86 @@
+{
+  "audit_trail": {
+    "audit_score": 0.95,
+    "integrity": {
+      "checkpoint_ok": true,
+      "consistency_score": 0.95,
+      "corruption_detected": false,
+      "executed": {
+        "assistant_notes": [
+          "execute_deterministic_replay_runtime: parcial stdlib."
+        ],
+        "checkpoint": {
+          "assistant_notes": [
+            "sqlite_checkpoint_runtime_write: checkpoint real opcional."
+          ],
+          "deterministic_alignment": {
+            "token": "chk-susi-runtime_sustainability_summary_v1-rel"
+          },
+          "integrity_status": {
+            "ok": true
+          },
+          "lineage_summary": {},
+          "replay_ref": "susi-runtime_sustainability_summary_v1-rel",
+          "replay_summary": {
+            "checkpointed_at": "2026-05-18T00:32:16Z"
+          },
+          "storage_path": "S:\\tcg-judge\\services\\api\\var\\replay_sqlite"
+        },
+        "deterministic_alignment": {
+          "token": "231f4be66bded9c1cc8526e4"
+        },
+        "journal": {
+          "entry": {
+            "at": "2026-05-18T00:32:16Z",
+            "event": "executed",
+            "replay_ref": "susi-runtime_sustainability_summary_v1-rel"
+          },
+          "journal_path": "S:\\tcg-judge\\services\\api\\var\\replay_sqlite\\replay_execution_journal\\susi-runtime_sustainability_summary_v1-rel.jsonl"
+        },
+        "lock_acquired": true,
+        "replay_execution_token": "231f4be66bded9c1cc8526e4",
+        "replay_ref": "susi-runtime_sustainability_summary_v1-rel",
+        "snapshot": {
+          "assistant_notes": [
+            "sqlite_snapshot_store: persist\u00eancia local opcional; juiz audita conte\u00fado."
+          ],
+          "integrity_hash": "d86e6df0ba417dbad8a7c0d2f8e59eb07327968458ae18736abba374d9f33b72",
+          "replay_ref": "susi-runtime_sustainability_summary_v1-rel",
+          "storage": "sqlite",
+          "version": 1216
+        }
+      },
+      "integrity_hash": "1cf208c38ca0b3dafa7bfa3b341a90c823fc3ada77037ab9189cf2104c3bf380",
+      "repair_hints": [
+        "none_required"
+      ],
+      "replay_ref": "susi-runtime_sustainability_summary_v1-rel",
+      "restore": {
+        "integrity_ok": true,
+        "replay_ref": "susi-runtime_sustainability_summary_v1-rel",
+        "restored": true,
+        "version": 1216
+      }
+    },
+    "journal": {
+      "entry": {
+        "at": "2026-05-18T00:32:16Z",
+        "event": "audit_v3",
+        "replay_ref": "susi-runtime_sustainability_summary_v1-rel"
+      },
+      "journal_path": "S:\\tcg-judge\\services\\api\\var\\replay_sqlite\\replay_execution_journal\\susi-runtime_sustainability_summary_v1-rel.jsonl"
+    },
+    "repair_hints": [
+      "none_required"
+    ],
+    "replay_ref": "susi-runtime_sustainability_summary_v1-rel",
+    "restore": {
+      "integrity_ok": true,
+      "replay_ref": "susi-runtime_sustainability_summary_v1-rel",
+      "restored": true,
+      "version": 1216
+    },
+    "rollback_traceable": true,
+    "trace_token": "51eb3674bb17ef1057e9"
+  }
+}

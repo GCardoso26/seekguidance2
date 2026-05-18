@@ -1,0 +1,10 @@
+{
+  "scope": "om31-lc",
+  "freeze": {
+    "api": "gradual",
+    "sdk": "gradual"
+  },
+  "release_cadence": "monthly",
+  "compatibility": "backward",
+  "deprecation_notice_days": 90
+}

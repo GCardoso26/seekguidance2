@@ -1,0 +1,17 @@
+{
+  "legality_expectations": [],
+  "replay_expectations": [],
+  "deterministic_expectations": [],
+  "drift_expectations": [],
+  "federation_expectations": [],
+  "replay_refs": [],
+  "lineage_refs": [],
+  "snapshot_refs": [],
+  "deterministic_alignment": {
+    "token": "dataset-real"
+  },
+  "assistant_notes": [
+    "estabilidade operacional; explainability-first."
+  ],
+  "dataset": "executable_real_segoc_cases"
+}

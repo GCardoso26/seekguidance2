@@ -1,0 +1,12 @@
+{
+  "scope": "opt-runtime_operational_transition_engine_v1",
+  "domains": [
+    "execution",
+    "replay",
+    "federation",
+    "observability",
+    "governance",
+    "persistence"
+  ],
+  "routed": true
+}

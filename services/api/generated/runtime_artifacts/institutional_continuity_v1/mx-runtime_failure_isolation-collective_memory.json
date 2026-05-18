@@ -1,0 +1,5 @@
+{
+  "scope": "mx-runtime_failure_isolation",
+  "artifact": "collective_memory.json",
+  "continuity": true
+}

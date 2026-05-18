@@ -1,0 +1,1 @@
+# Collective equilibrium and forecasting

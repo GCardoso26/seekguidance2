@@ -1,0 +1,12 @@
+{
+  "scope": "mx-runtime_historical_reasoning",
+  "domains": [
+    "execution",
+    "replay",
+    "federation",
+    "observability",
+    "governance",
+    "persistence"
+  ],
+  "routed": true
+}

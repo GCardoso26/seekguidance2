@@ -1,0 +1,17 @@
+{
+  "artifact_version": "runtime-vnext",
+  "assistant_notes": [
+    "openapi_runtime_ci_enforcement_v2: hash registry para CI."
+  ],
+  "paths": {
+    "ci": "S:\\tcg-judge\\services\\api\\generated\\runtime_artifacts\\ci\\runtime.ci.vnext.json",
+    "integrity": "S:\\tcg-judge\\services\\api\\generated\\runtime_artifacts\\integrity\\runtime.integrity.vnext.json",
+    "lineage": "S:\\tcg-judge\\services\\api\\generated\\runtime_artifacts\\lineage\\runtime.lineage.vnext.json",
+    "manifest": "S:\\tcg-judge\\services\\api\\generated\\runtime_artifacts\\manifests\\runtime.manifest.vnext.json",
+    "openapi": "S:\\tcg-judge\\services\\api\\generated\\runtime_artifacts\\openapi\\openapi.runtime.vnext.json",
+    "snapshot": "S:\\tcg-judge\\services\\api\\generated\\runtime_artifacts\\snapshots\\schema.snapshot.vnext.json"
+  },
+  "registry_hash": "b814401f150ff3e8589758ca70f9ffb37c1e933e610511254164259843734522",
+  "run_id": "run1",
+  "schema_hash": "68509f78f40e8f9d"
+}

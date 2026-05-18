@@ -1,0 +1,5 @@
+{
+  "scope": "om31-poc",
+  "retention_days": 90,
+  "filesystem": true
+}

@@ -1,0 +1,5 @@
+{
+  "scope": "arec-runtime_adaptive_recovery_engine_v1",
+  "resilience": "self_organizing",
+  "network": true
+}

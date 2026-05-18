@@ -1,0 +1,6 @@
+{
+  "scope": "pc-infra2",
+  "trace_token": "trace-pc-infra2",
+  "otlp_fallback": true,
+  "packaging": "stdlib-bundle"
+}

@@ -1,0 +1,5 @@
+{
+  "scope": "rcg-runtime_cognitive_grid_engine_v1",
+  "cognition": "distributed",
+  "mesh": true
+}

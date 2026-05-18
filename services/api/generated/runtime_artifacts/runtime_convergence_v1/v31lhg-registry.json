@@ -1,0 +1,12 @@
+{
+  "scope": "v31lhg",
+  "domains": [
+    "execution",
+    "replay",
+    "federation",
+    "observability",
+    "governance",
+    "persistence"
+  ],
+  "routed": true
+}

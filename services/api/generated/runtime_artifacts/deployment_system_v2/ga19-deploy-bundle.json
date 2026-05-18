@@ -1,0 +1,6 @@
+{
+  "scope": "ga19-deploy",
+  "semver": "1.0.0",
+  "channel": "ga-candidate",
+  "rollback_ready": true
+}

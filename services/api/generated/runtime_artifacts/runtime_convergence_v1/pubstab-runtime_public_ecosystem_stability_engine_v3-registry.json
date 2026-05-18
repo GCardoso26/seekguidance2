@@ -1,0 +1,12 @@
+{
+  "scope": "pubstab-runtime_public_ecosystem_stability_engine_v3",
+  "domains": [
+    "execution",
+    "replay",
+    "federation",
+    "observability",
+    "governance",
+    "persistence"
+  ],
+  "routed": true
+}

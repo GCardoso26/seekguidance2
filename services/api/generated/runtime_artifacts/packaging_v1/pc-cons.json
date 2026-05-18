@@ -1,0 +1,6 @@
+{
+  "scope": "pc-cons",
+  "trace_token": "trace-pc-cons",
+  "otlp_fallback": true,
+  "packaging": "stdlib-bundle"
+}

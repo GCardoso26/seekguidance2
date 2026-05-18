@@ -1,0 +1,6 @@
+{
+  "scope": "prov1-infra",
+  "trace_token": "trace-prov1-infra",
+  "otlp_fallback": true,
+  "packaging": "stdlib-bundle"
+}

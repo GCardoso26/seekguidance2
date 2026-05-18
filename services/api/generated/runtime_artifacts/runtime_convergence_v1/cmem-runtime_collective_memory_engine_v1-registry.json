@@ -1,0 +1,12 @@
+{
+  "scope": "cmem-runtime_collective_memory_engine_v1",
+  "domains": [
+    "execution",
+    "replay",
+    "federation",
+    "observability",
+    "governance",
+    "persistence"
+  ],
+  "routed": true
+}

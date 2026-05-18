@@ -1,0 +1,12 @@
+{
+  "scope": "v27neg",
+  "domains": [
+    "execution",
+    "replay",
+    "federation",
+    "observability",
+    "governance",
+    "persistence"
+  ],
+  "routed": true
+}

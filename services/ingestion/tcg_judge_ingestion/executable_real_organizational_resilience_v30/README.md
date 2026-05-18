@@ -1,0 +1,1 @@
+# executable_real_organizational_resilience_v30

@@ -1,0 +1,5 @@
+{
+  "scope": "ga30-x",
+  "retention_days": 90,
+  "filesystem": true
+}

@@ -1,0 +1,11 @@
+{
+  "bundle": "ga-runtime-bundle",
+  "channel": "ga",
+  "scope": "ga-pkg",
+  "signing_hint": "sha256-optional",
+  "targets": [
+    "docker",
+    "compose",
+    "k8s-optional"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "scope": "v31cou",
+  "domains": [
+    "execution",
+    "replay",
+    "federation",
+    "observability",
+    "governance",
+    "persistence"
+  ],
+  "routed": true
+}

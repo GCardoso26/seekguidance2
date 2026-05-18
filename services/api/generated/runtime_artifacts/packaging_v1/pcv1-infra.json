@@ -1,0 +1,6 @@
+{
+  "scope": "pcv1-infra",
+  "trace_token": "trace-pcv1-infra",
+  "otlp_fallback": true,
+  "packaging": "stdlib-bundle"
+}

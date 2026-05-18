@@ -1,0 +1,7 @@
+{
+  "snapshot_kind": "runtime_alignment",
+  "artifact_version": "runtime-ci-vnext",
+  "assistant_notes": [
+    "runtime_ci_snapshots/runtime_alignment: placeholder CI."
+  ]
+}

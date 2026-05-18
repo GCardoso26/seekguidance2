@@ -1,0 +1,12 @@
+{
+  "scope": "toc-runtime_temporal_operations_center_engine_v4",
+  "domains": [
+    "execution",
+    "replay",
+    "federation",
+    "observability",
+    "governance",
+    "persistence"
+  ],
+  "routed": true
+}

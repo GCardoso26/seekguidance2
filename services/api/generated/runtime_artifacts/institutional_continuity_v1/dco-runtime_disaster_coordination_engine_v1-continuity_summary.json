@@ -1,0 +1,5 @@
+{
+  "scope": "dco-runtime_disaster_coordination_engine_v1",
+  "artifact": "continuity_summary.json",
+  "continuity": true
+}

@@ -1,0 +1,12 @@
+{
+  "scope": "bulk-runtime_cross_ecosystem_alignment_engine_v1",
+  "domains": [
+    "execution",
+    "replay",
+    "federation",
+    "observability",
+    "governance",
+    "persistence"
+  ],
+  "routed": true
+}

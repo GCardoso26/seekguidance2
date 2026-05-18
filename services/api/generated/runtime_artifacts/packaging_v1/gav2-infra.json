@@ -1,0 +1,6 @@
+{
+  "scope": "gav2-infra",
+  "trace_token": "trace-gav2-infra",
+  "otlp_fallback": true,
+  "packaging": "stdlib-bundle"
+}

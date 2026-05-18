@@ -1,0 +1,6 @@
+{
+  "scope": "pc-keys",
+  "trace_token": "trace-pc-keys",
+  "otlp_fallback": true,
+  "packaging": "stdlib-bundle"
+}

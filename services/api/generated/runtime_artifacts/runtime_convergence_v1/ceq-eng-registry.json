@@ -1,0 +1,12 @@
+{
+  "scope": "ceq-eng",
+  "domains": [
+    "execution",
+    "replay",
+    "federation",
+    "observability",
+    "governance",
+    "persistence"
+  ],
+  "routed": true
+}

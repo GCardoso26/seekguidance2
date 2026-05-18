@@ -1,0 +1,7 @@
+{
+  "snapshot_kind": "replay",
+  "artifact_version": "runtime-ci-vnext",
+  "assistant_notes": [
+    "runtime_ci_snapshots/replay: placeholder CI."
+  ]
+}

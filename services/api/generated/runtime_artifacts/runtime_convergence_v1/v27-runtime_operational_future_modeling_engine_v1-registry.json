@@ -1,0 +1,12 @@
+{
+  "scope": "v27-runtime_operational_future_modeling_engine_v1",
+  "domains": [
+    "execution",
+    "replay",
+    "federation",
+    "observability",
+    "governance",
+    "persistence"
+  ],
+  "routed": true
+}

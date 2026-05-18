@@ -1,0 +1,5 @@
+{
+  "scope": "topo-runtime_topology_cognition_engine_v1",
+  "topology": "mesh",
+  "optional": true
+}

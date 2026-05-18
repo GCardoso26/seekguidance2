@@ -1,0 +1,5 @@
+{
+  "scope": "aut-runtime_operational_autonomy_summary_v1",
+  "supervised": true,
+  "manual_intervention": "reduced"
+}

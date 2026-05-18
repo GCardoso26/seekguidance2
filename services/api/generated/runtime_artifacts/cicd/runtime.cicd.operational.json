@@ -1,0 +1,10 @@
+{
+  "gates": [
+    "legality",
+    "integrity",
+    "federation",
+    "readiness"
+  ],
+  "operational_ready": true,
+  "run_id": "ci10"
+}

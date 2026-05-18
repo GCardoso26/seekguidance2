@@ -1,0 +1,6 @@
+{
+  "scope": "susi-runtime_sustainability_summary_v1",
+  "trace_token": "trace-susi-runtime_sustainability_summary_v1",
+  "otlp_fallback": true,
+  "packaging": "stdlib-bundle"
+}

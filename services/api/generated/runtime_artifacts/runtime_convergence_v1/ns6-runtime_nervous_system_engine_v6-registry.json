@@ -1,0 +1,12 @@
+{
+  "scope": "ns6-runtime_nervous_system_engine_v6",
+  "domains": [
+    "execution",
+    "replay",
+    "federation",
+    "observability",
+    "governance",
+    "persistence"
+  ],
+  "routed": true
+}

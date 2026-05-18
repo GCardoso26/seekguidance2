@@ -1,0 +1,106 @@
+{
+  "artifacts": {
+    "hashes": [
+      "821d3e20b7854def96d611e20fac7641cae4609210c98f925178f185b38618c1",
+      "c9bebc8b6a5e93a0942b69c5904040d254c2bc7cc78ea6cd9925b3591ce2451a",
+      "2f7ab1911aa5687c86b2aff6026b9bf3e0fd8c464324291f91001dcb73e2e36e",
+      "c8f048c3433fa8baa874f9159f0d428e3a81103922af2ac4c4126ec957993dc8"
+    ],
+    "replay_ref": "ga19-art-cert"
+  },
+  "audit_trail": {
+    "audit_score": 0.95,
+    "integrity": {
+      "checkpoint_ok": true,
+      "consistency_score": 0.95,
+      "corruption_detected": false,
+      "executed": {
+        "assistant_notes": [
+          "execute_deterministic_replay_runtime: parcial stdlib."
+        ],
+        "checkpoint": {
+          "assistant_notes": [
+            "sqlite_checkpoint_runtime_write: checkpoint real opcional."
+          ],
+          "deterministic_alignment": {
+            "token": "chk-ga19-art-cert"
+          },
+          "integrity_status": {
+            "ok": true
+          },
+          "lineage_summary": {},
+          "replay_ref": "ga19-art-cert",
+          "replay_summary": {
+            "checkpointed_at": "2026-05-17T23:59:21Z"
+          },
+          "storage_path": "S:\\tcg-judge\\services\\api\\var\\replay_sqlite"
+        },
+        "deterministic_alignment": {
+          "token": "4c682e70e5b0b7d8f2495fd0"
+        },
+        "journal": {
+          "entry": {
+            "at": "2026-05-17T23:59:21Z",
+            "event": "executed",
+            "replay_ref": "ga19-art-cert"
+          },
+          "journal_path": "S:\\tcg-judge\\services\\api\\var\\replay_sqlite\\replay_execution_journal\\ga19-art-cert.jsonl"
+        },
+        "lock_acquired": true,
+        "replay_execution_token": "4c682e70e5b0b7d8f2495fd0",
+        "replay_ref": "ga19-art-cert",
+        "snapshot": {
+          "assistant_notes": [
+            "sqlite_snapshot_store: persist\u00eancia local opcional; juiz audita conte\u00fado."
+          ],
+          "integrity_hash": "a29f7ad55c24c7a0900d202c10610d5bc91aae9701e911938fd80b8e86cfcce2",
+          "replay_ref": "ga19-art-cert",
+          "storage": "sqlite",
+          "version": 5468
+        }
+      },
+      "integrity_hash": "e559f6bf2ffac541a4b65d7ce1a23e3f74ce71cd1e1c35bed661e6d5149135de",
+      "repair_hints": [
+        "none_required"
+      ],
+      "replay_ref": "ga19-art-cert",
+      "restore": {
+        "integrity_ok": true,
+        "replay_ref": "ga19-art-cert",
+        "restored": true,
+        "version": 5468
+      }
+    },
+    "journal": {
+      "entry": {
+        "at": "2026-05-17T23:59:21Z",
+        "event": "audit_v3",
+        "replay_ref": "ga19-art-cert"
+      },
+      "journal_path": "S:\\tcg-judge\\services\\api\\var\\replay_sqlite\\replay_execution_journal\\ga19-art-cert.jsonl"
+    },
+    "repair_hints": [
+      "none_required"
+    ],
+    "replay_ref": "ga19-art-cert",
+    "restore": {
+      "integrity_ok": true,
+      "replay_ref": "ga19-art-cert",
+      "restored": true,
+      "version": 5468
+    },
+    "rollback_traceable": true,
+    "trace_token": "9637bbd4e2da1390ee07"
+  },
+  "certification_score": 0.975,
+  "divergence_score": 0.05,
+  "integrity_status": "ok",
+  "replay_ref": "ga19-art-cert",
+  "reproducibility_score": 0.95,
+  "runtime_confidence": 0.975,
+  "summary": {
+    "certification_score": 0.975,
+    "integrity_status": "ok",
+    "replay_ref": "ga19-art-cert"
+  }
+}

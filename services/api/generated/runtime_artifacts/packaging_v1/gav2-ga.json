@@ -1,0 +1,6 @@
+{
+  "scope": "gav2-ga",
+  "trace_token": "trace-gav2-ga",
+  "otlp_fallback": true,
+  "packaging": "stdlib-bundle"
+}

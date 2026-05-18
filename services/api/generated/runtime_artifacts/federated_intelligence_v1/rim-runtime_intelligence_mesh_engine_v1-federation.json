@@ -1,0 +1,5 @@
+{
+  "scope": "rim-runtime_intelligence_mesh_engine_v1",
+  "topology": "mesh",
+  "optional": true
+}

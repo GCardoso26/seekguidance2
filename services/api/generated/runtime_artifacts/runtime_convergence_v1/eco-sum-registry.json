@@ -1,0 +1,12 @@
+{
+  "scope": "eco-sum",
+  "domains": [
+    "execution",
+    "replay",
+    "federation",
+    "observability",
+    "governance",
+    "persistence"
+  ],
+  "routed": true
+}

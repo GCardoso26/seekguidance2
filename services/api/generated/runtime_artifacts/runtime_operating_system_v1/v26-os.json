@@ -1,0 +1,12 @@
+{
+  "scope": "v26",
+  "domains": [
+    "execution",
+    "replay",
+    "federation",
+    "observability",
+    "governance"
+  ],
+  "capability_graph": true,
+  "topology_aware": true
+}

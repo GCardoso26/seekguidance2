@@ -1,0 +1,12 @@
+{
+  "scope": "occ-runtime_operational_complexity_control_engine_v1",
+  "domains": [
+    "execution",
+    "replay",
+    "federation",
+    "observability",
+    "governance",
+    "persistence"
+  ],
+  "routed": true
+}

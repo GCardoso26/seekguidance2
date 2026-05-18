@@ -1,0 +1,5 @@
+{
+  "scope": "orch-runtime_adaptive_orchestration_engine_v1",
+  "fabric": true,
+  "adaptive": true
+}

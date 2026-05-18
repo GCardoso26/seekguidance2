@@ -1,0 +1,12 @@
+{
+  "scope": "v28pol",
+  "domains": [
+    "execution",
+    "replay",
+    "federation",
+    "observability",
+    "governance",
+    "persistence"
+  ],
+  "routed": true
+}

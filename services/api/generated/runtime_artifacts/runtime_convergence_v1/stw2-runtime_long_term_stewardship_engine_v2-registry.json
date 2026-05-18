@@ -1,0 +1,12 @@
+{
+  "scope": "stw2-runtime_long_term_stewardship_engine_v2",
+  "domains": [
+    "execution",
+    "replay",
+    "federation",
+    "observability",
+    "governance",
+    "persistence"
+  ],
+  "routed": true
+}

@@ -1,0 +1,12 @@
+{
+  "scope": "pubmat-runtime_public_ecosystem_maturity_engine_v2",
+  "domains": [
+    "execution",
+    "replay",
+    "federation",
+    "observability",
+    "governance",
+    "persistence"
+  ],
+  "routed": true
+}

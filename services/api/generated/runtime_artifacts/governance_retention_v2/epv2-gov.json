@@ -1,0 +1,5 @@
+{
+  "scope": "epv2-gov",
+  "retention_days": 90,
+  "filesystem": true
+}

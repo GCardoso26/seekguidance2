@@ -1,0 +1,6 @@
+{
+  "scope": "ep18-pilot",
+  "trace_token": "trace-ep18-pilot",
+  "otlp_fallback": true,
+  "packaging": "stdlib-bundle"
+}

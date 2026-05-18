@@ -1,0 +1,12 @@
+{
+  "scope": "vrg-runtime_verifiable_governance_engine_v1",
+  "domains": [
+    "execution",
+    "replay",
+    "federation",
+    "observability",
+    "governance",
+    "persistence"
+  ],
+  "routed": true
+}

@@ -1,0 +1,14 @@
+{
+  "artifact_version": "runtime-vnext",
+  "assistant_notes": [
+    "runtime.manifest.vnext: versionado para CI incremental."
+  ],
+  "compatibility_summary": {
+    "breaking_change_policy": "additive_only_stub",
+    "reasoning_v1_v11_unchanged": true
+  },
+  "lineage_summary": {
+    "reasoning_v1_v11": "preserved"
+  },
+  "schema_hash": "68509f78f40e8f9d"
+}

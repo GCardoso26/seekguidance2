@@ -1,0 +1,5 @@
+{
+  "scope": "mx-runtime_operational_survivability",
+  "entropy_reduced": true,
+  "adaptive": true
+}

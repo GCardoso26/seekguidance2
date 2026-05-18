@@ -1,0 +1,5 @@
+{
+  "scope": "dcoord-runtime_distributed_coordination_engine_v1",
+  "topology": "mesh",
+  "optional": true
+}

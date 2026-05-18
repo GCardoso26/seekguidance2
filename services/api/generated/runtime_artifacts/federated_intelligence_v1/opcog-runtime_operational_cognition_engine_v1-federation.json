@@ -1,0 +1,5 @@
+{
+  "scope": "opcog-runtime_operational_cognition_engine_v1",
+  "topology": "mesh",
+  "optional": true
+}

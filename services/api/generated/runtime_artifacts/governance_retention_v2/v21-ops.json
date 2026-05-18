@@ -1,0 +1,5 @@
+{
+  "scope": "v21-ops",
+  "retention_days": 90,
+  "filesystem": true
+}

@@ -1,0 +1,6 @@
+{
+  "scope": "ga19-canon",
+  "trace_token": "trace-ga19-canon",
+  "otlp_fallback": true,
+  "packaging": "stdlib-bundle"
+}

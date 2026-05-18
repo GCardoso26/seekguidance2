@@ -1,0 +1,6 @@
+{
+  "scope": "v24",
+  "trace_token": "trace-v24",
+  "otlp_fallback": true,
+  "packaging": "stdlib-bundle"
+}

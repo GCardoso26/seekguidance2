@@ -1,0 +1,11 @@
+{
+  "bundle": "runtime-stdlib-bundle",
+  "channel": "production",
+  "cli": {
+    "command": "judge-runtime"
+  },
+  "docker": {
+    "image": "judge-runtime:stub"
+  },
+  "scope": "prov1-dist"
+}
