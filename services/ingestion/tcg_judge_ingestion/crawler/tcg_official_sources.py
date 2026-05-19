@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from pathlib import Path
 
 # Warmup play.pokemon.com antes de PDFs em pokemon.com (reduz bloqueio Incapsula em alguns IPs).
 POKEMON_PLAY_DOCUMENTS = "https://play.pokemon.com/en-us/resources/documents/"
