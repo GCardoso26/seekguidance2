@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 
 
 def html_to_text(html: str) -> str:
-    soup = BeautifulSoup(html, "lxml")
+    soup = BeautifulSoup(html, "html.parser")
     for tag in soup(["script", "style", "nav", "footer", "header"]):
         tag.decompose()
     return soup.get_text("\n", strip=True)

@@ -48,14 +48,20 @@ bash scripts/ec2/ingest-tcg-batch.sh
 
 Se aparecer `externally-managed-environment`, **não** use `sudo pip`; use o venv acima.
 
-Dependências de sistema (uma vez, antes do venv):
+**Python 3.14 no Ubuntu não serve** para ingestão local (lxml/tiktoken sem wheels). Use **3.12**:
 
 ```bash
 sudo apt-get update
-sudo apt-get install -y python3-venv python3-full python3-dev build-essential \
-  libxml2-dev libxslt1-dev zlib1g-dev
-# opcional, wheels melhores:
 sudo apt-get install -y python3.12 python3.12-venv
+rm -rf .venv-ingest
+bash scripts/ec2/setup-ingest-venv.sh
+```
+
+**Alternativa (recomendada se 3.12 der trabalho):** ingestão no Docker worker (Python 3.12):
+
+```bash
+bash scripts/ec2/ingest-via-docker.sh
+# ou um jogo: bash scripts/ec2/ingest-via-docker.sh pokemon
 ```
 
 ## Frontend

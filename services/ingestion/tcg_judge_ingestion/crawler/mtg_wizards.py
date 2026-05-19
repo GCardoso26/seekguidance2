@@ -58,7 +58,7 @@ async def discover_mtg_official_pdfs(
         resp.raise_for_status()
         html = resp.text
 
-    soup = BeautifulSoup(html, "lxml")
+    soup = BeautifulSoup(html, "html.parser")
     seen: set[str] = set()
     out: list[DiscoveredDocument] = []
 
