@@ -48,6 +48,16 @@ bash scripts/ec2/ingest-tcg-batch.sh
 
 Se aparecer `externally-managed-environment`, **não** use `sudo pip`; use o venv acima.
 
+Dependências de sistema (uma vez, antes do venv):
+
+```bash
+sudo apt-get update
+sudo apt-get install -y python3-venv python3-full python3-dev build-essential \
+  libxml2-dev libxslt1-dev zlib1g-dev
+# opcional, wheels melhores:
+sudo apt-get install -y python3.12 python3.12-venv
+```
+
 ## Frontend
 
 `/judge` — dropdown de TCG; jogos acima activos após ingestão com embeddings.
