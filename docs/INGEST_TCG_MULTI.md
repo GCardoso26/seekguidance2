@@ -8,7 +8,7 @@ Pipeline igual ao MTG: PDF oficial → parse → chunk → RDS → embeddings Op
 
 | Jogo | `games.slug` | Documentos |
 |------|----------------|------------|
-| Pokémon | `pokemon` | CR, FORMAT_STANDARD, FORMAT_EXPANDED, MTR, FORMAT_NOTES (HTML) |
+| Pokémon | `pokemon` | CR (rulebook), MTR (tournament handbook; PDF local na EC2) |
 | Lorcana | `lorcana` | CR, MTR (PDF em files.disneylorcana.com) |
 | Yu-Gi-Oh! | `yugioh` | CR (PDF EU mirror), MTR |
 | One Piece | `onepiece` | CR, MTR, IPG (floor rules) |
@@ -77,7 +77,7 @@ Quando a publisher publicar nova edição, editar `tcg_official_sources.py` e re
 Notas:
 
 - **Pokémon CR:** CDN `assets.pokemon.com` (evita Incapsula em `pokemon.com`); fallbacks no catálogo.
-- **Pokémon formatos/MTR:** Incapsula bloqueia EC2. Coloque PDFs em `data/ingest/pokemon/` (ver README) e re-corra `ingest-via-docker.sh pokemon` ou `bash scripts/ec2/ingest-pokemon-local.sh`. CLI: `--file path.pdf --doc-type FORMAT_STANDARD`.
+- **Pokémon MTR:** handbook em `data/ingest/pokemon/play-pokemon-tcg-tournament-handbook-en.pdf` (ver README). Deck lists não entram no catálogo.
 - **Yu-Gi-Oh! CR:** mirror EU `img.yugioh-card.com/eu/wp-content/uploads/...` (NA `/ygo_cms/` costuma 404).
 - **Lorcana MTR:** `Disney Lorcana TCG Tournament Rules S2_09-Sep-25.pdf` (página resources em disneylorcana.com).
 - Downloads validam cabeçalho `%PDF-` antes do parse.

@@ -47,22 +47,6 @@ TCG_OFFICIAL_PDFS: dict[str, list[OfficialPdf]] = {
             publisher="The Pokémon Company International",
         ),
         _pokemon_pdf(
-            "play-pokemon-deck-list-a4-tef.pdf",
-            fallback_urls=(
-                f"{POKEMON_PLAY_RULES}play-pokemon-deck-list-a4-dri.pdf",
-            ),
-            doc_type="FORMAT_STANDARD",
-            title="Play! Pokémon TCG Standard Format — Regulation & Deck List (TEf)",
-        ),
-        _pokemon_pdf(
-            "play-pokemon-deck-list-85x11-tef.pdf",
-            fallback_urls=(
-                f"{POKEMON_PLAY_RULES}play-pokemon-deck-list-85x11-dri.pdf",
-            ),
-            doc_type="FORMAT_EXPANDED",
-            title="Play! Pokémon TCG Expanded Format — Regulation & Deck List (TEf)",
-        ),
-        _pokemon_pdf(
             "play-pokemon-tcg-tournament-handbook-en.pdf",
             fallback_urls=(
                 f"{POKEMON_PLAY_RULES}play-pokemon-tournament-rules-handbook-en.pdf",
@@ -70,14 +54,6 @@ TCG_OFFICIAL_PDFS: dict[str, list[OfficialPdf]] = {
             ),
             doc_type="MTR",
             title="Play! Pokémon TCG Tournament Handbook",
-        ),
-        # Resumo HTML (rotation / legality) quando PDFs em pokemon.com estiverem bloqueados.
-        OfficialPdf(
-            url="https://play.pokemon.com/en-us/resources/rules/?category=tcg",
-            kind="html",
-            doc_type="FORMAT_NOTES",
-            title="Play! Pokémon TCG — Competitive formats overview",
-            publisher="The Pokémon Company International",
         ),
     ],
     "lorcana": [
@@ -140,8 +116,6 @@ def list_official_pdfs(game_slug: str) -> list[OfficialPdf]:
 
 # PDFs em data/ingest/<game>/ (Incapsula bloqueia download automático em datacenters).
 LOCAL_PDF_FILENAMES: dict[tuple[str, str], tuple[str, ...]] = {
-    ("pokemon", "FORMAT_STANDARD"): ("play-pokemon-deck-list-a4-tef.pdf",),
-    ("pokemon", "FORMAT_EXPANDED"): ("play-pokemon-deck-list-85x11-tef.pdf",),
     ("pokemon", "MTR"): (
         "play-pokemon-tcg-tournament-handbook-en.pdf",
         "play-pokemon-tournament-rules-handbook-en.pdf",

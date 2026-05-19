@@ -1,34 +1,31 @@
-# PDFs Play! Pokémon (ingestão manual)
+# Play! Pokémon — Tournament Handbook (ingestão manual)
 
-A Incapsula bloqueia downloads automáticos de `pokemon.com` a partir da EC2.  
-Baixe estes PDFs no browser (logado ou não) e coloque-os **nesta pasta** com os nomes exactos:
+A Incapsula bloqueia o download automático do handbook em `pokemon.com` na EC2.
+
+Coloque **apenas** este ficheiro nesta pasta:
 
 | Ficheiro | Documento |
 |----------|-----------|
-| `play-pokemon-deck-list-a4-tef.pdf` | Standard — regulation & deck list |
-| `play-pokemon-deck-list-85x11-tef.pdf` | Expanded — regulation & deck list |
-| `play-pokemon-tcg-tournament-handbook-en.pdf` | Tournament handbook (MTR) |
+| `play-pokemon-tcg-tournament-handbook-en.pdf` | Tournament Handbook (MTR) |
 
 Origem: [play.pokemon.com — Documents](https://play.pokemon.com/en-us/resources/documents/)
+
+O **rulebook (CR)** ingere via CDN `assets.pokemon.com` sem ficheiro local.  
+Deck lists (Standard/Expanded) **não** fazem parte do catálogo de ruling base.
 
 ## Na EC2
 
 ```bash
-# No seu PC (exemplo scp)
-scp play-pokemon-deck-list-a4-tef.pdf ubuntu@<EC2>:~/seekguidance2/data/ingest/pokemon/
-scp play-pokemon-deck-list-85x11-tef.pdf ubuntu@<EC2>:~/seekguidance2/data/ingest/pokemon/
-scp play-pokemon-tcg-tournament-handbook-en.pdf ubuntu@<EC2>:~/seekguidance2/data/ingest/pokemon/
-
-# Na EC2 — re-ingestão (usa PDFs locais automaticamente)
 cd ~/seekguidance2
-bash scripts/ec2/ingest-via-docker.sh pokemon
+bash scripts/ec2/ingest-pokemon-local.sh
 ```
 
-Ou um ficheiro de cada vez:
+Ou:
 
 ```bash
-bash scripts/ec2/ingest-via-docker.sh
-# dentro do worker:
-python scripts/ingest_tcg.py --game pokemon --file data/ingest/pokemon/play-pokemon-deck-list-a4-tef.pdf \
-  --doc-type FORMAT_STANDARD --title "Play! Pokémon TCG Standard Format — Regulation & Deck List (TEf)"
+docker compose -f docker-compose.production.yml --env-file .env.production run --rm \
+  -v "$(pwd):/repo" -w /repo \
+  -e PYTHONPATH=/repo/services/ingestion \
+  worker \
+  python scripts/ingest_tcg.py --game pokemon --all
 ```
