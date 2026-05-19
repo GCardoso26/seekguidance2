@@ -125,6 +125,18 @@ O compose define DNS da VPC (`172.31.0.2`, `169.254.169.253`) para resolver o ho
 | `/runtime/health` 404 | Imagem antiga; `docker compose build --no-cache api` |
 | Secrets KMS denied | IAM role EC2 + política KMS |
 | Login 401 | Primeiro deploy cria admin/admin; alterar em produção |
+| Console: `Network error — API unreachable` | Browser chamava `127.0.0.1:8000`. Na EC2: `git pull`, apague `.env.local` com URL errada, reinicie `npm run dev` (usa `/api/proxy`). No PC: `NEXT_PUBLIC_API_URL=http://IP_EC2:8000` e SG porta 8000 |
+
+## Runtime Console (frontend na EC2)
+
+```bash
+cd ~/seekguidance2/frontend/runtime_console_v3
+# Opcional: sem .env.local — o browser usa /api/proxy (Next → API em 127.0.0.1:8000)
+npm install
+npm run dev -- -H 0.0.0.0 -p 3000
+```
+
+Acesso: `http://<IP_PUBLICO>:3000` — credenciais piloto: `admin` / `admin`.
 
 ## Arquivos
 
