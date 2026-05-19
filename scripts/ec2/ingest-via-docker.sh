@@ -22,6 +22,7 @@ run_ingest() {
   $COMPOSE run --rm \
     -v "${REPO_ROOT}:/repo" \
     -w /repo \
+    -e PYTHONPATH=/repo/services/ingestion \
     worker \
     python scripts/ingest_tcg.py --game "$g" --all || echo "AVISO: falhou $g"
 }

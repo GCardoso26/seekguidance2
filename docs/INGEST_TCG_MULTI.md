@@ -64,6 +64,8 @@ bash scripts/ec2/ingest-via-docker.sh
 # ou um jogo: bash scripts/ec2/ingest-via-docker.sh pokemon
 ```
 
+Os scripts definem `PYTHONPATH=/repo/services/ingestion` para usar o código do `git pull`, não só o pacote instalado na imagem. Se mudar código de ingestão, faça `git pull` e volte a correr o script (rebuild automático no `ingest-pokemon-local.sh`).
+
 ## Frontend
 
 `/judge` — dropdown de TCG; jogos acima activos após ingestão com embeddings.

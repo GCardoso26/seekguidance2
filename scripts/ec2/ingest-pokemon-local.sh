@@ -25,6 +25,9 @@ fi
 
 COMPOSE="docker compose -f docker-compose.production.yml --env-file .env.production"
 
+echo "==> Build imagem worker (código de ingestão do repo)"
+$COMPOSE build worker
+
 echo "==> PDFs encontrados:"
 ls -la "$DIR"/*.pdf
 
@@ -32,6 +35,7 @@ echo "==> Re-ingestão pokemon (catálogo + ficheiros locais)"
 $COMPOSE run --rm \
   -v "${REPO_ROOT}:/repo" \
   -w /repo \
+  -e PYTHONPATH=/repo/services/ingestion \
   worker \
   python scripts/ingest_tcg.py --game pokemon --all
 
