@@ -1,0 +1,9 @@
+services:
+  runtime-console:
+    build:
+      context: ../..
+      dockerfile: infra/runtime_console_v3/Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://host.docker.internal:8000}
