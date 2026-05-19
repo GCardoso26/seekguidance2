@@ -91,7 +91,13 @@ def looks_like_pdf(data: bytes) -> bool:
     return len(data) >= 5 and data[:5] == b"%PDF-"
 
 
-async def download_bytes(url: str, *, timeout: float = 120.0) -> tuple[bytes, str]:
+async def download_bytes(
+    url: str,
+    *,
+    timeout: float = 120.0,
+    referer: str | None = None,
+    warmup_url: str | None = None,
+) -> tuple[bytes, str]:
     headers = {
         "User-Agent": (
             "Mozilla/5.0 (compatible; TCGJudgeBot/0.1; +rules-ingestion) "
@@ -99,7 +105,14 @@ async def download_bytes(url: str, *, timeout: float = 120.0) -> tuple[bytes, st
         ),
         "Accept": "application/pdf,text/html,application/xhtml+xml;q=0.9,*/*;q=0.8",
     }
+    if referer:
+        headers["Referer"] = referer
     async with httpx.AsyncClient(follow_redirects=True, headers=headers, timeout=timeout) as client:
+        if warmup_url:
+            try:
+                await client.get(warmup_url)
+            except Exception as e:
+                logger.warning("download.warmup_failed", url=warmup_url, error=str(e))
         resp = await client.get(url)
         resp.raise_for_status()
         data = resp.content
@@ -112,12 +125,19 @@ async def download_pdf_bytes(
     *,
     fallback_urls: tuple[str, ...] = (),
     timeout: float = 120.0,
+    referer: str | None = None,
+    warmup_url: str | None = None,
 ) -> tuple[bytes, str]:
     """Baixa bytes e exige cabeçalho PDF (%PDF-). Tenta fallbacks em ordem."""
     last_err: Exception | None = None
-    for candidate in (url, *fallback_urls):
+    for i, candidate in enumerate((url, *fallback_urls)):
         try:
-            data, mime = await download_bytes(candidate, timeout=timeout)
+            data, mime = await download_bytes(
+                candidate,
+                timeout=timeout,
+                referer=referer,
+                warmup_url=warmup_url if i == 0 else None,
+            )
             if looks_like_pdf(data):
                 return data, mime
             preview = data[:80].decode("utf-8", errors="replace")

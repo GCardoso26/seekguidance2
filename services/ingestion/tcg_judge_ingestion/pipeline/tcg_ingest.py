@@ -32,6 +32,8 @@ async def ingest_pdf_url(
     publisher: str,
     ingestion_tag: str | None = None,
     fallback_urls: tuple[str, ...] = (),
+    download_referer: str | None = None,
+    download_warmup_url: str | None = None,
 ) -> str:
     conn = await repo.connect(dsn.replace("+asyncpg", ""))
     tag = ingestion_tag or f"tcg_{game_slug}"
@@ -40,7 +42,12 @@ async def ingest_pdf_url(
         if gid is None:
             raise RuntimeError(f"game not found in DB (seed games.slug): {game_slug}")
 
-        data, mime = await download_pdf_bytes(url, fallback_urls=fallback_urls)
+        data, mime = await download_pdf_bytes(
+            url,
+            fallback_urls=fallback_urls,
+            referer=download_referer,
+            warmup_url=download_warmup_url,
+        )
         h = sha256_hex(data)
         doc_id = await repo.insert_document(
             conn,
@@ -187,4 +194,6 @@ async def ingest_official(
         publisher=source.publisher,
         ingestion_tag=ingestion_tag,
         fallback_urls=source.fallback_urls,
+        download_referer=source.download_referer,
+        download_warmup_url=source.download_warmup_url,
     )
