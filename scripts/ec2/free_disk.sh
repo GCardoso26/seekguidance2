@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Libera espaço na EC2 antes de docker build (uso: ./scripts/ec2/free_disk.sh)
+# ATENÇÃO: derruba todos os containers. Preferir: bash scripts/ec2/cleanup_disk.sh
 set -euo pipefail
 
 echo "Antes:"

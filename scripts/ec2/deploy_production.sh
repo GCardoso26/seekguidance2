@@ -36,10 +36,16 @@ TAG="${DEPLOY_TAG:-$(date +%Y%m%d-%H%M%S)}"
 echo "$TAG" > .deploy-last-tag
 echo "Tag deploy: $TAG"
 
-echo "==> Liberar espaço em disco (Docker)"
-docker system prune -f >/dev/null 2>&1 || true
-docker builder prune -f >/dev/null 2>&1 || true
-df -h / /var/lib/docker 2>/dev/null || df -h /
+AVAIL_KB=$(df --output=avail / | tail -1 | tr -d ' ')
+echo "==> Disco disponível: ${AVAIL_KB}KB"
+if [[ "${AVAIL_KB}" -lt 800000 ]]; then
+  echo "AVISO: pouco espaço. Rode: bash scripts/ec2/cleanup_disk.sh"
+  echo "      (não usa docker compose down da API em execução)"
+fi
+if [[ "${DOCKER_PRUNE_ON_DEPLOY:-0}" == "1" ]]; then
+  docker builder prune -f >/dev/null 2>&1 || true
+fi
+df -h /
 
 echo "==> Build imagens"
 if [[ "${SKIP_WORKER_BUILD:-0}" == "1" ]]; then
