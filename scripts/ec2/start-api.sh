@@ -12,9 +12,9 @@ export AWS_REGION="${AWS_REGION:-us-east-1}"
 echo "==> start-api: $REPO_ROOT"
 
 if command -v aws >/dev/null 2>&1; then
-  ./scripts/ec2/load_secrets.sh
+  bash scripts/ec2/load_secrets.sh
 else
   echo "aws CLI indisponível; usando .env.production existente"
 fi
 
-exec ./scripts/ec2/deploy_production.sh
+exec bash scripts/ec2/deploy_production.sh

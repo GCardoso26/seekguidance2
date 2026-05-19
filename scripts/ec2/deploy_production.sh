@@ -52,7 +52,7 @@ fi
 
 echo "==> Aguardar health"
 sleep 8
-./scripts/ec2/healthcheck.sh
+bash scripts/ec2/healthcheck.sh
 
 echo "==> Deploy concluído ($TAG)"
 compose ps
