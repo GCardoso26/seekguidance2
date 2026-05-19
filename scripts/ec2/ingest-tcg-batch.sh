@@ -4,11 +4,19 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$REPO_ROOT"
+VENV="${REPO_ROOT}/.venv-ingest"
 
 if [[ ! -f .env.production ]]; then
   echo "Execute: bash scripts/ec2/load_secrets.sh"
   exit 1
 fi
+
+if [[ ! -x "${VENV}/bin/python" ]]; then
+  echo "Venv de ingestão não encontrado. Rode:"
+  echo "  bash scripts/ec2/setup-ingest-venv.sh"
+  exit 1
+fi
+
 set -a
 # shellcheck disable=SC1091
 source .env.production
@@ -19,12 +27,11 @@ if [[ -z "${OPENAI_API_KEY:-}" ]]; then
   exit 1
 fi
 
-pip install -q -e services/ingestion 2>/dev/null || pip install -e services/ingestion
-pip install -q -r services/api/requirements.txt 2>/dev/null || true
+PY="${VENV}/bin/python"
 
 for GAME in pokemon lorcana yugioh onepiece; do
   echo "========== $GAME =========="
-  python scripts/ingest_tcg.py --game "$GAME" --all || {
+  "$PY" scripts/ingest_tcg.py --game "$GAME" --all || {
     echo "AVISO: ingestão $GAME falhou (ver URL/PDF/rede)"
   }
 done

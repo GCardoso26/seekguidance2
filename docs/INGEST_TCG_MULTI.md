@@ -13,13 +13,15 @@ Pipeline igual ao MTG: PDF oficial → parse → chunk → RDS → embeddings Op
 | Yu-Gi-Oh! | `yugioh` | CR, MTR |
 | One Piece | `onepiece` | CR, MTR, IPG (floor rules) |
 
-## CLI
+## CLI (Ubuntu / EC2 — use venv, não `pip` no sistema)
 
 ```bash
-export DATABASE_URL="postgresql+asyncpg://..."
-export OPENAI_API_KEY="sk-..."
+cd ~/seekguidance2
+bash scripts/ec2/setup-ingest-venv.sh
+source .venv-ingest/bin/activate
 
-pip install -e services/ingestion
+export DATABASE_URL="postgresql+asyncpg://..."   # ou: source .env.production
+export OPENAI_API_KEY="sk-..."
 
 # Todos os PDFs do catálogo
 python scripts/ingest_tcg.py --game pokemon --all
@@ -36,7 +38,15 @@ python scripts/ingest_tcg.py --game mtg --mtg-discover --mtg-only CR
 
 ## EC2
 
-Ver `scripts/ec2/ingest-tcg-batch.sh`.
+```bash
+cd ~/seekguidance2
+git pull
+bash scripts/ec2/load_secrets.sh
+bash scripts/ec2/setup-ingest-venv.sh    # uma vez
+bash scripts/ec2/ingest-tcg-batch.sh
+```
+
+Se aparecer `externally-managed-environment`, **não** use `sudo pip`; use o venv acima.
 
 ## Frontend
 
