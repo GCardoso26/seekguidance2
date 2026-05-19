@@ -7,8 +7,9 @@ from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1.router import api_router
-from app.api.v1.runtime_minimal import router as runtime_minimal_router
 from app.api.v1.runtime_deployments import router as runtime_deployments_router
+from app.api.v1.runtime_judge import router as runtime_judge_router
+from app.api.v1.runtime_minimal import router as runtime_minimal_router
 from app.api.v1.runtime_operational import router as runtime_operational_router
 from app.core.config import get_settings
 from app.core.logging import configure_logging
@@ -69,6 +70,7 @@ app.include_router(api_router)
 app.include_router(runtime_minimal_router)
 app.include_router(runtime_operational_router)
 app.include_router(runtime_deployments_router)
+app.include_router(runtime_judge_router)
 
 
 @app.get("/")
