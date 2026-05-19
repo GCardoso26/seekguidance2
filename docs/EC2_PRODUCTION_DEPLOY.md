@@ -75,6 +75,11 @@ curl -s http://127.0.0.1:8000/runtime/health | jq .
 curl -s -X POST http://127.0.0.1:8000/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username":"admin","password":"admin"}'
+
+# RAG MTG (rota correta: /v1/chat/ask, não /v1/chat)
+curl -s -X POST http://127.0.0.1:8000/v1/chat/ask \
+  -H "Content-Type: application/json" \
+  -d '{"game_slug":"mtg","question":"How does trample work?","mode":"player"}'
 ```
 
 ## Volumes
