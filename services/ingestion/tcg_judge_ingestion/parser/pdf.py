@@ -35,8 +35,18 @@ def extract_text_pdfplumber_fallback(data: bytes) -> str:
 
 
 def extract_pdf_text(data: bytes) -> str:
+    if not data.startswith(b"%PDF-"):
+        raise ValueError("Not a valid PDF (missing %PDF- header)")
     primary = extract_text_pymupdf(data)
-    if len(primary.strip()) < 200:
-        logger.warning("pdf.fallback_pdfplumber", reason="low_text_from_pymupdf")
-        return extract_text_pdfplumber_fallback(data)
-    return primary
+    if len(primary.strip()) >= 200:
+        return primary
+    logger.warning("pdf.fallback_pdfplumber", reason="low_text_from_pymupdf")
+    try:
+        fallback = extract_text_pdfplumber_fallback(data)
+        if len(fallback.strip()) >= 50:
+            return fallback
+    except Exception as e:
+        logger.warning("pdf.pdfplumber_failed", error=str(e))
+    if len(primary.strip()) > 0:
+        return primary
+    raise ValueError("PDF sem texto extraível (pymupdf e pdfplumber falharam)")

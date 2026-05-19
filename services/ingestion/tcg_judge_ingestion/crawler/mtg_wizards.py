@@ -87,14 +87,49 @@ async def discover_mtg_official_pdfs(
     return out
 
 
+def looks_like_pdf(data: bytes) -> bool:
+    return len(data) >= 5 and data[:5] == b"%PDF-"
+
+
 async def download_bytes(url: str, *, timeout: float = 120.0) -> tuple[bytes, str]:
-    headers = {"User-Agent": USER_AGENT}
+    headers = {
+        "User-Agent": (
+            "Mozilla/5.0 (compatible; TCGJudgeBot/0.1; +rules-ingestion) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        ),
+        "Accept": "application/pdf,text/html,application/xhtml+xml;q=0.9,*/*;q=0.8",
+    }
     async with httpx.AsyncClient(follow_redirects=True, headers=headers, timeout=timeout) as client:
         resp = await client.get(url)
         resp.raise_for_status()
         data = resp.content
     mime = resp.headers.get("content-type", "application/octet-stream").split(";")[0].strip()
     return data, mime
+
+
+async def download_pdf_bytes(
+    url: str,
+    *,
+    fallback_urls: tuple[str, ...] = (),
+    timeout: float = 120.0,
+) -> tuple[bytes, str]:
+    """Baixa bytes e exige cabeçalho PDF (%PDF-). Tenta fallbacks em ordem."""
+    last_err: Exception | None = None
+    for candidate in (url, *fallback_urls):
+        try:
+            data, mime = await download_bytes(candidate, timeout=timeout)
+            if looks_like_pdf(data):
+                return data, mime
+            preview = data[:80].decode("utf-8", errors="replace")
+            last_err = ValueError(
+                f"Resposta não é PDF de {candidate!r} (mime={mime!r}, len={len(data)}, "
+                f"preview={preview!r})"
+            )
+            logger.warning("download.not_pdf", url=candidate, mime=mime, size=len(data))
+        except Exception as e:
+            last_err = e
+            logger.warning("download.failed", url=candidate, error=str(e))
+    raise RuntimeError(f"Nenhum URL devolveu PDF válido (último erro: {last_err})") from last_err
 
 
 def sha256_hex(data: bytes) -> str:

@@ -12,7 +12,7 @@ import structlog
 
 from tcg_judge_ingestion.crawler.mtg_wizards import discover_mtg_official_pdfs
 from tcg_judge_ingestion.crawler.tcg_official_sources import list_official_pdfs
-from tcg_judge_ingestion.pipeline.tcg_ingest import ingest_pdf_url
+from tcg_judge_ingestion.pipeline.tcg_ingest import ingest_official, ingest_pdf_url
 
 SUPPORTED = ("mtg", "pokemon", "lorcana", "yugioh", "onepiece")
 
@@ -27,18 +27,24 @@ async def _ingest_catalog(game: str, dsn: str, key: str, only: str | None) -> No
         pdfs = [p for p in pdfs if p.doc_type == only]
     if not pdfs:
         raise SystemExit(f"Nenhum PDF no catálogo para game={game} only={only}")
+    failed = 0
     for p in pdfs:
         print(f"==> {p.doc_type}: {p.title}")
-        doc_id = await ingest_pdf_url(
-            dsn,
-            game_slug=game,
-            doc_type=p.doc_type,
-            title=p.title,
-            url=p.url,
-            openai_api_key=key,
-            publisher=p.publisher,
-        )
-        print(f"    OK document_id={doc_id}")
+        try:
+            doc_id = await ingest_official(
+                dsn,
+                game_slug=game,
+                source=p,
+                openai_api_key=key,
+            )
+            print(f"    OK document_id={doc_id}")
+        except Exception as exc:
+            failed += 1
+            print(f"    AVISO: falhou ({exc})")
+    if failed == len(pdfs):
+        raise SystemExit(f"Todos os {failed} documento(s) falharam para game={game}")
+    if failed:
+        print(f"AVISO: {failed}/{len(pdfs)} documento(s) falharam para game={game}")
 
 
 async def _main() -> None:

@@ -9,8 +9,8 @@ Pipeline igual ao MTG: PDF oficial → parse → chunk → RDS → embeddings Op
 | Jogo | `games.slug` | Documentos |
 |------|----------------|------------|
 | Pokémon | `pokemon` | CR, FORMAT_STANDARD, FORMAT_EXPANDED, MTR |
-| Lorcana | `lorcana` | CR, MTR |
-| Yu-Gi-Oh! | `yugioh` | CR, MTR |
+| Lorcana | `lorcana` | CR (PDF), MTR (HTML oficial) |
+| Yu-Gi-Oh! | `yugioh` | CR (PDF EU mirror), MTR |
 | One Piece | `onepiece` | CR, MTR, IPG (floor rules) |
 
 ## CLI (Ubuntu / EC2 — use venv, não `pip` no sistema)
@@ -71,3 +71,10 @@ bash scripts/ec2/ingest-via-docker.sh
 ## Atualizar URLs
 
 Quando a publisher publicar nova edição, editar `tcg_official_sources.py` e re-correr `--all` para o jogo.
+
+Notas:
+
+- **Pokémon CR:** CDN `assets.pokemon.com` (evita Incapsula em `pokemon.com`); fallbacks no catálogo.
+- **Yu-Gi-Oh! CR:** mirror EU `img.yugioh-card.com/eu/wp-content/uploads/...` (NA `/ygo_cms/` costuma 404).
+- **Lorcana MTR:** PDF antigo em `files.disneylorcana.com` foi removido; ingestão via HTML em `disneylorcanas.com`.
+- Downloads validam cabeçalho `%PDF-` antes do parse.
