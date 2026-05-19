@@ -12,7 +12,7 @@ import structlog
 
 from tcg_judge_ingestion.crawler.mtg_wizards import discover_mtg_official_pdfs
 from tcg_judge_ingestion.crawler.tcg_official_sources import list_official_pdfs
-from tcg_judge_ingestion.pipeline.tcg_ingest import ingest_official, ingest_pdf_url
+from tcg_judge_ingestion.pipeline.tcg_ingest import ingest_official, ingest_pdf_file, ingest_pdf_url
 
 SUPPORTED = ("mtg", "pokemon", "lorcana", "yugioh", "onepiece")
 
@@ -21,7 +21,9 @@ def _to_asyncpg_dsn(url: str) -> str:
     return url.replace("postgresql+asyncpg://", "postgresql://")
 
 
-async def _ingest_catalog(game: str, dsn: str, key: str, only: str | None) -> None:
+async def _ingest_catalog(
+    game: str, dsn: str, key: str, only: str | None, *, ingest_root: str
+) -> None:
     pdfs = list_official_pdfs(game)
     if only:
         pdfs = [p for p in pdfs if p.doc_type == only]
@@ -36,6 +38,7 @@ async def _ingest_catalog(game: str, dsn: str, key: str, only: str | None) -> No
                 game_slug=game,
                 source=p,
                 openai_api_key=key,
+                ingest_root=ingest_root,
             )
             print(f"    OK document_id={doc_id}")
         except Exception as exc:
@@ -54,6 +57,8 @@ async def _main() -> None:
     p.add_argument("--all", action="store_true", help="Ingerir todos os PDFs do catálogo")
     p.add_argument("--only", help="Filtrar doc_type (CR, MTR, FORMAT_STANDARD, …)")
     p.add_argument("--url", help="PDF directo (ignora catálogo)")
+    p.add_argument("--file", help="PDF local (ignora download; usa com --doc-type e --title)")
+    p.add_argument("--ingest-root", default="data/ingest", help="Raiz para PDFs locais (data/ingest/<game>/)")
     p.add_argument("--doc-type", default="CR")
     p.add_argument("--title", default="")
     p.add_argument("--publisher", default="")
@@ -88,6 +93,21 @@ async def _main() -> None:
             )
         return
 
+    if args.file:
+        title = args.title or args.doc_type
+        publisher = args.publisher or "The Pokémon Company International"
+        doc_id = await ingest_pdf_file(
+            dsn_pg,
+            path=args.file,
+            game_slug=game,
+            doc_type=args.doc_type,
+            title=title,
+            openai_api_key=key,
+            publisher=publisher,
+        )
+        print(f"OK document_id={doc_id}")
+        return
+
     if args.url:
         title = args.title or args.doc_type
         publisher = args.publisher or "Official Publisher"
@@ -103,7 +123,7 @@ async def _main() -> None:
         return
 
     if args.all or args.only:
-        await _ingest_catalog(game, dsn_pg, key, args.only)
+        await _ingest_catalog(game, dsn_pg, key, args.only, ingest_root=args.ingest_root)
         return
 
     p.print_help()

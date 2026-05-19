@@ -23,6 +23,9 @@ htmlcov/
 .env.*
 !.env.example
 
+# Ingestão manual (PDFs oficiais — não versionar binários)
+data/ingest/**/*.pdf
+
 # IDE
 .idea/
 .vscode/

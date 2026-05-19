@@ -135,3 +135,31 @@ TCG_OFFICIAL_PDFS: dict[str, list[OfficialPdf]] = {
 
 def list_official_pdfs(game_slug: str) -> list[OfficialPdf]:
     return list(TCG_OFFICIAL_PDFS.get(game_slug, []))
+
+
+# PDFs em data/ingest/<game>/ (Incapsula bloqueia download automático em datacenters).
+LOCAL_PDF_FILENAMES: dict[tuple[str, str], tuple[str, ...]] = {
+    ("pokemon", "FORMAT_STANDARD"): ("play-pokemon-deck-list-a4-tef.pdf",),
+    ("pokemon", "FORMAT_EXPANDED"): ("play-pokemon-deck-list-85x11-tef.pdf",),
+    ("pokemon", "MTR"): (
+        "play-pokemon-tcg-tournament-handbook-en.pdf",
+        "play-pokemon-tournament-rules-handbook-en.pdf",
+    ),
+}
+
+
+def resolve_local_pdf(
+    game_slug: str,
+    doc_type: str,
+    *,
+    ingest_root: str | Path = "data/ingest",
+) -> Path | None:
+    names = LOCAL_PDF_FILENAMES.get((game_slug, doc_type))
+    if not names:
+        return None
+    base = Path(ingest_root) / game_slug
+    for name in names:
+        path = base / name
+        if path.is_file():
+            return path.resolve()
+    return None

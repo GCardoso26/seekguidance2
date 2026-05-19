@@ -75,7 +75,7 @@ Quando a publisher publicar nova edição, editar `tcg_official_sources.py` e re
 Notas:
 
 - **Pokémon CR:** CDN `assets.pokemon.com` (evita Incapsula em `pokemon.com`); fallbacks no catálogo.
-- **Pokémon formatos/MTR:** PDFs TEf em `pokemon.com` com warmup `play.pokemon.com`; se Incapsula bloquear na EC2, `FORMAT_NOTES` (HTML) ainda ingere; deck lists podem exigir `--url` com PDF baixado manualmente.
+- **Pokémon formatos/MTR:** Incapsula bloqueia EC2. Coloque PDFs em `data/ingest/pokemon/` (ver README) e re-corra `ingest-via-docker.sh pokemon` ou `bash scripts/ec2/ingest-pokemon-local.sh`. CLI: `--file path.pdf --doc-type FORMAT_STANDARD`.
 - **Yu-Gi-Oh! CR:** mirror EU `img.yugioh-card.com/eu/wp-content/uploads/...` (NA `/ygo_cms/` costuma 404).
 - **Lorcana MTR:** `Disney Lorcana TCG Tournament Rules S2_09-Sep-25.pdf` (página resources em disneylorcana.com).
 - Downloads validam cabeçalho `%PDF-` antes do parse.

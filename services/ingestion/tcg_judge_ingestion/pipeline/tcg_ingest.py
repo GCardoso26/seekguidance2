@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import structlog
 
 from tcg_judge_ingestion.chunker.hierarchical_generic import chunk_generic_hierarchical
@@ -21,44 +23,40 @@ def _chunker_for_game(game_slug: str):
     return lambda text, title: chunk_generic_hierarchical(text, document_title=title)
 
 
-async def ingest_pdf_url(
+async def _ingest_pdf_data(
     dsn: str,
     *,
     game_slug: str,
     doc_type: str,
     title: str,
-    url: str,
+    data: bytes,
+    source_url: str,
     openai_api_key: str,
     publisher: str,
+    mime: str = "application/pdf",
     ingestion_tag: str | None = None,
-    fallback_urls: tuple[str, ...] = (),
-    download_referer: str | None = None,
-    download_warmup_url: str | None = None,
+    extra_metadata: dict | None = None,
 ) -> str:
     conn = await repo.connect(dsn.replace("+asyncpg", ""))
     tag = ingestion_tag or f"tcg_{game_slug}"
+    meta = {"ingestion": tag, "game_slug": game_slug, **(extra_metadata or {})}
     try:
         gid = await repo.get_game_id(conn, game_slug)
         if gid is None:
             raise RuntimeError(f"game not found in DB (seed games.slug): {game_slug}")
 
-        data, mime = await download_pdf_bytes(
-            url,
-            fallback_urls=fallback_urls,
-            referer=download_referer,
-            warmup_url=download_warmup_url,
-        )
         h = sha256_hex(data)
+        meta["sha256"] = h
         doc_id = await repo.insert_document(
             conn,
             game_id=gid,
             doc_type=doc_type,
             title=title,
-            source_url=url,
+            source_url=source_url,
             publisher=publisher,
             content_hash=h,
             raw_mime=mime,
-            metadata={"ingestion": tag, "sha256": h, "game_slug": game_slug},
+            metadata=meta,
         )
         await repo.delete_chunks_for_document(conn, doc_id)
         text = extract_pdf_text(data)
@@ -92,6 +90,72 @@ async def ingest_pdf_url(
         return str(doc_id)
     finally:
         await conn.close()
+
+
+async def ingest_pdf_file(
+    dsn: str,
+    *,
+    path: str | Path,
+    game_slug: str,
+    doc_type: str,
+    title: str,
+    openai_api_key: str,
+    publisher: str,
+    source_url: str | None = None,
+    ingestion_tag: str | None = None,
+) -> str:
+    file_path = Path(path).expanduser().resolve()
+    if not file_path.is_file():
+        raise FileNotFoundError(f"PDF não encontrado: {file_path}")
+    data = file_path.read_bytes()
+    if not data.startswith(b"%PDF-"):
+        raise ValueError(f"Ficheiro não é PDF válido: {file_path}")
+    return await _ingest_pdf_data(
+        dsn,
+        game_slug=game_slug,
+        doc_type=doc_type,
+        title=title,
+        data=data,
+        source_url=source_url or f"file://{file_path}",
+        openai_api_key=openai_api_key,
+        publisher=publisher,
+        ingestion_tag=ingestion_tag,
+        extra_metadata={"local_path": str(file_path)},
+    )
+
+
+async def ingest_pdf_url(
+    dsn: str,
+    *,
+    game_slug: str,
+    doc_type: str,
+    title: str,
+    url: str,
+    openai_api_key: str,
+    publisher: str,
+    ingestion_tag: str | None = None,
+    fallback_urls: tuple[str, ...] = (),
+    download_referer: str | None = None,
+    download_warmup_url: str | None = None,
+) -> str:
+    data, mime = await download_pdf_bytes(
+        url,
+        fallback_urls=fallback_urls,
+        referer=download_referer,
+        warmup_url=download_warmup_url,
+    )
+    return await _ingest_pdf_data(
+        dsn,
+        game_slug=game_slug,
+        doc_type=doc_type,
+        title=title,
+        data=data,
+        source_url=url,
+        openai_api_key=openai_api_key,
+        publisher=publisher,
+        mime=mime,
+        ingestion_tag=ingestion_tag,
+    )
 
 
 async def ingest_html_url(
@@ -172,7 +236,25 @@ async def ingest_official(
     source: OfficialPdf,
     openai_api_key: str,
     ingestion_tag: str | None = None,
+    ingest_root: str | Path = "data/ingest",
 ) -> str:
+    if source.kind == "pdf":
+        from tcg_judge_ingestion.crawler.tcg_official_sources import resolve_local_pdf
+
+        local = resolve_local_pdf(game_slug, source.doc_type, ingest_root=ingest_root)
+        if local is not None:
+            logger.info("ingest.local_pdf", path=str(local), doc_type=source.doc_type)
+            return await ingest_pdf_file(
+                dsn,
+                path=local,
+                game_slug=game_slug,
+                doc_type=source.doc_type,
+                title=source.title,
+                openai_api_key=openai_api_key,
+                publisher=source.publisher,
+                source_url=source.url,
+                ingestion_tag=ingestion_tag,
+            )
     if source.kind == "html":
         return await ingest_html_url(
             dsn,
