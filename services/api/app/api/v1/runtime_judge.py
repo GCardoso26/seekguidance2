@@ -19,23 +19,27 @@ router = APIRouter(tags=["runtime-judge"])
 TCG_GAME_SLUG: dict[str, str] = {
     "magic": "mtg",
     "mtg": "mtg",
+    "pokemon": "pokemon",
+    "lorcana": "lorcana",
+    "yugioh": "yugioh",
+    "onepiece": "onepiece",
+    "one_piece": "onepiece",
 }
 
-# UI futura — ainda sem corpus
+# Sem corpus indexado ainda
 TCG_COMING_SOON: frozenset[str] = frozenset(
     {
-        "pokemon",
-        "yugioh",
-        "lorcana",
-        "one_piece",
         "flesh_and_blood",
+        "fab",
         "gundam",
         "digimon",
         "dragon_ball",
+        "dbfw",
         "sorcery",
         "vanguard",
         "riftbound",
         "union_arena",
+        "swu",
     }
 )
 

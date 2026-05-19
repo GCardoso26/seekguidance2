@@ -16,7 +16,7 @@ client = TestClient(app)
 def test_judge_query_unsupported_tcg() -> None:
     r = client.post(
         "/runtime/judge/query",
-        json={"tcg": "pokemon", "question": "How do energies work?"},
+        json={"tcg": "digimon", "question": "How do digivolve?"},
     )
     assert r.status_code == 200
     data = r.json()

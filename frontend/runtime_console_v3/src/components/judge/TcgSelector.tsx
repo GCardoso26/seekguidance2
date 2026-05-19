@@ -10,25 +10,36 @@ type Props = {
 };
 
 export function TcgSelector({ value, onChange, disabled }: Props) {
+  const selected = TCG_OPTIONS.find((o) => o.id === value);
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-      {TCG_OPTIONS.map((opt) => (
-        <button
-          key={opt.id}
-          type="button"
-          disabled={disabled || !opt.enabled}
-          onClick={() => opt.enabled && onChange(opt.id)}
-          className={cn(
-            "rounded-lg border px-3 py-2.5 text-left text-sm transition hover:border-primary/50 hover:bg-muted/50",
-            value === opt.id && "border-primary bg-primary/10 text-primary",
-            !opt.enabled && "opacity-50 cursor-not-allowed",
-            disabled && "opacity-60 cursor-not-allowed",
-          )}
-        >
-          <span className="font-medium block">{opt.label}</span>
-          {!opt.enabled && <span className="text-xs text-muted-foreground">Em breve</span>}
-        </button>
-      ))}
+    <div className="space-y-2">
+      <label htmlFor="tcg-select" className="text-sm font-medium text-muted-foreground">
+        Jogo (TCG)
+      </label>
+      <select
+        id="tcg-select"
+        value={value}
+        disabled={disabled}
+        onChange={(e) => onChange(e.target.value as TcgType)}
+        className={cn(
+          "w-full max-w-md rounded-xl border border-border bg-card px-4 py-2.5 text-sm",
+          "focus:outline-none focus:ring-2 focus:ring-primary/40",
+          disabled && "opacity-60 cursor-not-allowed",
+        )}
+      >
+        {TCG_OPTIONS.map((opt) => (
+          <option key={opt.id} value={opt.id} disabled={!opt.enabled}>
+            {opt.label}
+            {!opt.enabled ? " (em breve)" : ""}
+          </option>
+        ))}
+      </select>
+      {selected?.enabled && (
+        <p className="text-xs text-muted-foreground">
+          Consulta baseada nas regras oficiais indexadas para {selected.label}.
+        </p>
+      )}
     </div>
   );
 }

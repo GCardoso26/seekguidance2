@@ -21,10 +21,10 @@ export type TcgOption = {
 
 export const TCG_OPTIONS: TcgOption[] = [
   { id: "magic", label: "Magic: The Gathering", enabled: true },
-  { id: "pokemon", label: "Pokémon TCG", enabled: false },
-  { id: "yugioh", label: "Yu-Gi-Oh!", enabled: false },
-  { id: "lorcana", label: "Lorcana", enabled: false },
-  { id: "one_piece", label: "One Piece TCG", enabled: false },
+  { id: "pokemon", label: "Pokémon TCG", enabled: true },
+  { id: "lorcana", label: "Disney Lorcana", enabled: true },
+  { id: "yugioh", label: "Yu-Gi-Oh!", enabled: true },
+  { id: "one_piece", label: "One Piece TCG", enabled: true },
   { id: "flesh_and_blood", label: "Flesh and Blood", enabled: false },
   { id: "gundam", label: "Gundam", enabled: false },
   { id: "digimon", label: "Digimon TCG", enabled: false },

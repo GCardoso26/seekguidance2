@@ -95,7 +95,6 @@ export default function JudgePage() {
     >
       <div className="max-w-3xl mx-auto space-y-6">
         <section className="space-y-3">
-          <h2 className="text-xl font-semibold">Escolha o TCG</h2>
           <TcgSelector value={tcg} onChange={setTcg} disabled={loading} />
         </section>
 

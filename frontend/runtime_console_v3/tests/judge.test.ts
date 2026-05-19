@@ -50,9 +50,12 @@ describe("judgeApi helpers", () => {
 });
 
 describe("tcg options", () => {
-  it("only magic enabled", () => {
-    const enabled = TCG_OPTIONS.filter((o) => o.enabled);
-    expect(enabled).toHaveLength(1);
-    expect(enabled[0].id).toBe("magic");
+  it("core tcgs enabled", () => {
+    const enabled = TCG_OPTIONS.filter((o) => o.enabled).map((o) => o.id);
+    expect(enabled).toContain("magic");
+    expect(enabled).toContain("pokemon");
+    expect(enabled).toContain("lorcana");
+    expect(enabled).toContain("yugioh");
+    expect(enabled).toContain("one_piece");
   });
 });

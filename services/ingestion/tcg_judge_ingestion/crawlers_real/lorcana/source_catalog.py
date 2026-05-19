@@ -3,12 +3,19 @@ from __future__ import annotations
 
 from typing import Any
 
-GAME_SLUG = 'lorcana'
+GAME_SLUG = "lorcana"
 
 
 def catalog_entries() -> list[dict[str, Any]]:
+    from tcg_judge_ingestion.crawler.tcg_official_sources import list_official_pdfs
+
     return [
-        {"kind": "comprehensive_rules", "game": GAME_SLUG, "priority": 1.0, "url_template": None},
-        {"kind": "rulings_archive", "game": GAME_SLUG, "priority": 0.95, "url_template": None},
-        {"kind": "errata", "game": GAME_SLUG, "priority": 0.9, "url_template": None},
+        {
+            "kind": p.doc_type.lower(),
+            "game": GAME_SLUG,
+            "priority": 1.0,
+            "url": p.url,
+            "title": p.title,
+        }
+        for p in list_official_pdfs(GAME_SLUG)
     ]
