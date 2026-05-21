@@ -136,9 +136,13 @@ bash scripts/ec2/start-api.sh
 
 ---
 
-## 8. Próximo passo (UI)
+## 8. Migração para Supabase
 
-Com domínio estável, sprint de UI/UX em `/judge` (estilo app TCG+, mobile-first). Ver roadmap no chat / `docs/JUDGE_FRONTEND_UI.md`.
+Se a infra passar a Supabase + Vercel/Render, o domínio **judgetcg.com.br** aponta para a Vercel (não EC2). Ver **[SUPABASE_MIGRATION.md](./SUPABASE_MIGRATION.md)**.
+
+## 9. Próximo passo (UI)
+
+Com domínio estável, sprint de UI/UX em `/judge` (estilo app TCG+, mobile-first). Ver `docs/JUDGE_FRONTEND_UI.md`.
 
 ---
 

@@ -23,6 +23,7 @@ htmlcov/
 .env.*
 !.env.example
 !.env.production.example
+!.env.supabase.example
 
 # Ingestão manual (PDFs oficiais — não versionar binários)
 data/ingest/**/*.pdf

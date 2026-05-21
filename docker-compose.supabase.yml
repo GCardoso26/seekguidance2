@@ -1,0 +1,46 @@
+# API + Redis local — Postgres na Supabase (DATABASE_URL externo).
+# Uso: docker compose -f docker-compose.supabase.yml --env-file .env.supabase up -d --build
+#
+# Não inclui Postgres. Defina DATABASE_URL (pooler Supabase) no .env.
+
+name: tcg-judge-supabase
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: tcg-judge-redis
+    restart: unless-stopped
+    ports:
+      - "6380:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: services/api/Dockerfile.production
+    container_name: tcg-judge-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env.supabase
+    environment:
+      ENVIRONMENT: production
+      DATABASE_URL: ${DATABASE_URL}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      RUNTIME_AUTH_SECRET: ${RUNTIME_AUTH_SECRET}
+      RUNTIME_DATA_DIR: /data/runtime
+    volumes:
+      - runtime_data:/data/runtime
+    depends_on:
+      redis:
+        condition: service_healthy
+
+volumes:
+  runtime_data:
