@@ -1,6 +1,6 @@
 -- Extensões (pgvector)
 CREATE EXTENSION IF NOT EXISTS vector;
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+-- UUID: gen_random_uuid() (Supabase/RDS PG13+); evita uuid-ossp em schema extensions
 
 -- Schema inicial alinhado a multi-tenant / jogos dinâmicos
 CREATE SCHEMA IF NOT EXISTS tcg_judge;
@@ -8,14 +8,14 @@ CREATE SCHEMA IF NOT EXISTS tcg_judge;
 SET search_path TO tcg_judge, public;
 
 CREATE TABLE IF NOT EXISTS tenants (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     slug TEXT NOT NULL UNIQUE,
     name TEXT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 CREATE TABLE IF NOT EXISTS games (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
     slug TEXT NOT NULL,
     display_name TEXT NOT NULL,
@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS games (
 );
 
 CREATE TABLE IF NOT EXISTS documents (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     game_id UUID NOT NULL REFERENCES games(id) ON DELETE CASCADE,
     doc_type TEXT NOT NULL,
     title TEXT NOT NULL,
@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS documents (
 );
 
 CREATE TABLE IF NOT EXISTS document_versions (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     document_id UUID NOT NULL REFERENCES documents(id) ON DELETE CASCADE,
     version_label TEXT,
     effective_from DATE,
@@ -63,7 +63,7 @@ CREATE INDEX IF NOT EXISTS idx_document_versions_effective
     ON document_versions (document_id, effective_from, effective_to);
 
 CREATE TABLE IF NOT EXISTS rule_graph_edges (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     game_id UUID NOT NULL REFERENCES games(id) ON DELETE CASCADE,
     src_rule TEXT NOT NULL,
     dst_rule TEXT NOT NULL,
@@ -77,7 +77,7 @@ CREATE INDEX IF NOT EXISTS idx_rule_graph_src ON rule_graph_edges (game_id, src_
 CREATE INDEX IF NOT EXISTS idx_rule_graph_dst ON rule_graph_edges (game_id, dst_rule);
 
 CREATE TABLE IF NOT EXISTS rule_graph_edge_quality (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     game_id UUID NOT NULL REFERENCES games(id) ON DELETE CASCADE,
     src_rule TEXT NOT NULL,
     dst_rule TEXT NOT NULL,
@@ -96,7 +96,7 @@ CREATE INDEX IF NOT EXISTS idx_edge_quality_game_score
     ON rule_graph_edge_quality (game_id, reinforcement_score DESC);
 
 CREATE TABLE IF NOT EXISTS retrieval_feedback (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     game_id UUID NOT NULL REFERENCES games(id) ON DELETE CASCADE,
     query_id UUID,
     query TEXT NOT NULL,
@@ -121,7 +121,7 @@ CREATE INDEX IF NOT EXISTS idx_retrieval_feedback_query_id
 
 -- Dimensão 1536 = text-embedding-3-large com parâmetro dimensions=1536 (Matryoshka)
 CREATE TABLE IF NOT EXISTS chunks (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     document_id UUID NOT NULL REFERENCES documents(id) ON DELETE CASCADE,
     chunk_index INT NOT NULL,
     section_path TEXT,
@@ -154,7 +154,7 @@ CREATE INDEX IF NOT EXISTS idx_chunks_fts ON chunks USING gin (to_tsvector('engl
 -- Ex.: CREATE INDEX idx_chunks_embedding_hnsw ON chunks USING hnsw (embedding vector_cosine_ops);
 
 CREATE TABLE IF NOT EXISTS users (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     email TEXT UNIQUE,
     display_name TEXT,
     auth_provider TEXT,
@@ -166,7 +166,7 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 CREATE TABLE IF NOT EXISTS conversations (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES users(id) ON DELETE SET NULL,
     game_id UUID NOT NULL REFERENCES games(id) ON DELETE CASCADE,
     mode TEXT NOT NULL DEFAULT 'player',
@@ -174,7 +174,7 @@ CREATE TABLE IF NOT EXISTS conversations (
 );
 
 CREATE TABLE IF NOT EXISTS messages (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     conversation_id UUID NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
     role TEXT NOT NULL,
     content TEXT NOT NULL,
@@ -185,7 +185,7 @@ CREATE TABLE IF NOT EXISTS messages (
 );
 
 CREATE TABLE IF NOT EXISTS ingestion_jobs (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     game_id UUID NOT NULL REFERENCES games(id) ON DELETE CASCADE,
     status TEXT NOT NULL DEFAULT 'pending',
     crawler_key TEXT NOT NULL,

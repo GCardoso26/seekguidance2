@@ -42,9 +42,9 @@ https://judgetcg.com.br  (Vercel — Next.js /judge)
 
 Dashboard → **New project** → anota:
 
-- **Project URL** (API Auth — se usares depois)
-- **Database password**
-- **Connection string** (Settings → Database)
+- **Project URL** (API Auth — se usares depois) https://udtpsgdhknlanyndilyo.supabase.co
+- **Database password** Sirius#huaky93
+- **Connection string** (Settings → Database) postgresql://postgres:[Sirius#husky93]@db.udtpsgdhknlanyndilyo.supabase.co:5432/postgres
 
 ### 1.2 Extensões
 
@@ -52,8 +52,9 @@ No SQL Editor:
 
 ```sql
 CREATE EXTENSION IF NOT EXISTS vector;
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 ```
+
+As migrations do repo usam `gen_random_uuid()` (não `uuid_generate_v4()`), porque no Supabase a extensão `uuid-ossp` vive no schema `extensions` e não está no `search_path` por defeito.
 
 (Confirma que `vector` está activo — Supabase suporta pgvector.)
 
@@ -63,7 +64,7 @@ Opção A — ficheiro do repo:
 
 ```bash
 # Com Supabase CLI ligado ao projeto
-supabase link --project-ref <PROJECT_REF>
+supabase link --project-ref <PROJECT_REF> udtpsgdhknlanyndilyo
 supabase db push
 ```
 
