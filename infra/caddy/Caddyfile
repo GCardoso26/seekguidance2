@@ -1,0 +1,11 @@
+# Reverse proxy — TLS automático (Let's Encrypt).
+# Next.js em 127.0.0.1:3000; API só via /api/proxy (não expor :8000 publicamente).
+
+judgetcg.com.br, www.judgetcg.com.br {
+	encode gzip zstd
+
+	@www host www.judgetcg.com.br
+	redir @www https://judgetcg.com.br{uri} permanent
+
+	reverse_proxy 127.0.0.1:3000
+}

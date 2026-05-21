@@ -1,0 +1,20 @@
+[Unit]
+Description=Judge TCG Runtime Console (Next.js)
+After=network.target docker.service
+Wants=docker.service
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=REPO_ROOT_PLACEHOLDER/frontend/runtime_console_v3
+Environment=JUDGETCG_DOMAIN=judgetcg.com.br
+Environment=API_PROXY_TARGET=http://127.0.0.1:8000
+Environment=NEXT_PUBLIC_APP_URL=https://judgetcg.com.br
+Environment=CONSOLE_PORT=3000
+Environment=CONSOLE_BIND=127.0.0.1
+ExecStart=REPO_ROOT_PLACEHOLDER/scripts/ec2/start-console-prod.sh
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

@@ -134,14 +134,19 @@ O compose define DNS da VPC (`172.31.0.2`, `169.254.169.253`) para resolver o ho
 
 ## Runtime Console (frontend na EC2)
 
+**Produção com domínio:** ver **[DOMAIN_JUDGETCG.md](./DOMAIN_JUDGETCG.md)** (`https://judgetcg.com.br`).
+
 ```bash
-cd ~/seekguidance2/frontend/runtime_console_v3
-# Opcional: sem .env.local — o browser usa /api/proxy (Next → API em 127.0.0.1:8000)
-npm install
-npm run dev -- -H 0.0.0.0 -p 3000
+bash scripts/ec2/setup-domain-judgetcg.sh
 ```
 
-Acesso: `http://<IP_PUBLICO>:3000` — credenciais piloto: `admin` / `admin`.
+Dev rápido (sem TLS):
+
+```bash
+bash scripts/ec2/start-console.sh   # npm run dev :3000
+```
+
+Acesso dev: `http://<IP_PUBLICO>:3000` — produção: `https://judgetcg.com.br/judge`.
 
 ## Arquivos
 
