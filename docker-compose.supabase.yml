@@ -7,6 +7,7 @@ name: tcg-judge-supabase
 
 services:
   redis:
+    profiles: ["local-redis"]
     image: redis:7-alpine
     container_name: tcg-judge-redis
     restart: unless-stopped
@@ -31,16 +32,11 @@ services:
       - .env.supabase
     environment:
       ENVIRONMENT: production
-      DATABASE_URL: ${DATABASE_URL}
-      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       RUNTIME_AUTH_SECRET: ${RUNTIME_AUTH_SECRET}
       RUNTIME_DATA_DIR: /data/runtime
     volumes:
       - runtime_data:/data/runtime
-    depends_on:
-      redis:
-        condition: service_healthy
 
 volumes:
   runtime_data:

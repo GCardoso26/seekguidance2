@@ -104,7 +104,7 @@ Supabase oferece várias URLs. Para **FastAPI + asyncpg** (ligações longas, RA
 Formato para a app (exemplo):
 
 ```env
-DATABASE_URL=postgresql+asyncpg://postgres.[PROJECT_REF]:[PASSWORD]@aws-0-[REGION].pooler.supabase.com:5432/postgres
+DATABASE_URL=postgresql+asyncpg://postgres.udtpsgdhknlanyndilyo:Sirius#husky93@aws-0-sa-east-1.pooler.supabase.com:5432/postgres
 ```
 
 Adiciona SSL se necessário:
@@ -157,9 +157,11 @@ Para **só Judge público**, SQLite no API host ou Supabase Auth no futuro chega
 
 ## Fase 4 — API fora da EC2
 
-### Render (já documentado)
+### Render + Vercel + Upstash (guia completo)
 
-Ver `docs/DEPLOY_RENDER_VERCEL.md`.
+Ver **`docs/DEPLOY_SEM_EC2_RENDER_VERCEL.md`** (plano sem EC2, domínio judgetcg.com.br).
+
+Resumo antigo: `docs/DEPLOY_RENDER_VERCEL.md`.
 
 Variáveis mínimas:
 

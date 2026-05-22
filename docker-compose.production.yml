@@ -1,13 +1,13 @@
-# Produção EC2 — TCG Judge + Minimal Real Operational Runtime
-# Uso: docker compose -f docker-compose.production.yml --env-file .env.production up -d --build
+# Produção EC2 — API + worker opcional; Postgres Supabase; Redis Upstash (recomendado).
+# Uso: docker compose -f docker-compose.production.yml --env-file .env.production up -d api
 #
-# Postgres: RDS externo (DATABASE_URL no .env.production)
-# Runtime pilot: volume runtime_data + variáveis RUNTIME_*
+# Redis local (legado): docker compose -f docker-compose.production.yml --profile local-redis up -d
 
 name: tcg-judge-production
 
 services:
   redis:
+    profiles: ["local-redis"]
     image: redis:7-alpine
     container_name: tcg-judge-redis
     restart: unless-stopped
@@ -34,21 +34,16 @@ services:
       - .env.production
     environment:
       ENVIRONMENT: production
-      DATABASE_URL: ${DATABASE_URL}
-      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      # Segredos (DATABASE_URL, REDIS_URL, …) só via env_file — evita export do shell sobrescrever
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       OPENAI_EMBEDDING_MODEL: ${OPENAI_EMBEDDING_MODEL:-text-embedding-3-large}
       OPENAI_EMBEDDING_DIMENSIONS: ${OPENAI_EMBEDDING_DIMENSIONS:-1536}
       RUNTIME_AUTH_SECRET: ${RUNTIME_AUTH_SECRET}
       RUNTIME_DATA_DIR: /data/runtime
-      RUNTIME_DATABASE_URL: ${RUNTIME_DATABASE_URL:-}
       RUNTIME_PROMETHEUS: ${RUNTIME_PROMETHEUS:-false}
       RUNTIME_OTLP: ${RUNTIME_OTLP:-false}
     volumes:
       - runtime_data:/data/runtime
-    depends_on:
-      redis:
-        condition: service_healthy
     dns:
       - 172.31.0.2
       - 169.254.169.253
@@ -73,14 +68,9 @@ services:
       - .env.production
     environment:
       ENVIRONMENT: production
-      DATABASE_URL: ${DATABASE_URL}
-      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       OPENAI_EMBEDDING_MODEL: ${OPENAI_EMBEDDING_MODEL:-text-embedding-3-large}
       OPENAI_EMBEDDING_DIMENSIONS: ${OPENAI_EMBEDDING_DIMENSIONS:-1536}
-    depends_on:
-      redis:
-        condition: service_healthy
     dns:
       - 172.31.0.2
       - 169.254.169.253

@@ -20,11 +20,14 @@ def _redis_settings() -> RedisSettings:
     db = 0
     if u.path and u.path != "/":
         db = int(u.path.strip("/").split("/")[0] or "0")
+    use_tls = u.scheme in ("rediss", "redis+ssl")
     return RedisSettings(
         host=u.hostname or "localhost",
         port=u.port or 6379,
+        username=u.username,
         password=u.password,
         database=db,
+        ssl=use_tls,
     )
 
 

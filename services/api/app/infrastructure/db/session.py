@@ -1,6 +1,6 @@
 import os
 from collections.abc import AsyncGenerator
-from urllib.parse import urlparse
+from urllib.parse import parse_qs, urlparse, urlunparse
 
 from app.core.config import get_settings
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
@@ -10,12 +10,33 @@ _session_factory: async_sessionmaker[AsyncSession] | None = None
 
 
 def _connect_args_for_database_url(database_url: str) -> dict:
-    """RDS exige TLS; SQLAlchemy/asyncpg não aplica ?ssl= na URL sozinho."""
+    """RDS e Supabase exigem TLS; asyncpg ignora ?sslmode= na URL sem connect_args."""
+    clean = database_url.replace("+asyncpg", "")
+    parsed = urlparse(clean)
+    query = parse_qs(parsed.query)
+    qs_ssl = (query.get("sslmode", [None])[0] or "").strip().lower()
+
     ssl_mode = os.environ.get("DATABASE_SSL", "").strip().lower()
-    host = (urlparse(database_url.replace("+asyncpg", "")).hostname or "").lower()
-    if ssl_mode in ("require", "true", "1") or host.endswith(".rds.amazonaws.com"):
+    host = (parsed.hostname or "").lower()
+
+    needs_ssl = (
+        ssl_mode in ("require", "true", "1")
+        or qs_ssl in ("require", "verify-ca", "verify-full")
+        or host.endswith(".rds.amazonaws.com")
+        or host.endswith(".supabase.co")
+        or "pooler.supabase.com" in host
+    )
+    if needs_ssl:
         return {"ssl": "require"}
     return {}
+
+
+def _async_engine_url(database_url: str) -> str:
+    """asyncpg não aceita ?sslmode= na URL (TypeError); SSL vai em connect_args."""
+    parsed = urlparse(database_url)
+    if not parsed.query:
+        return database_url
+    return urlunparse(parsed._replace(query=""))
 
 
 def get_engine():
@@ -24,7 +45,7 @@ def get_engine():
         settings = get_settings()
         connect_args = _connect_args_for_database_url(settings.database_url)
         _engine = create_async_engine(
-            settings.database_url,
+            _async_engine_url(settings.database_url),
             echo=settings.environment == "development",
             pool_pre_ping=True,
             connect_args=connect_args,
