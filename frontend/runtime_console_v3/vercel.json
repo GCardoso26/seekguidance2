@@ -3,8 +3,11 @@
   "framework": "nextjs",
   "buildCommand": "npm run build",
   "installCommand": "npm install",
-  "env": {
-    "API_PROXY_TARGET": "https://seekguidance.onrender.com"
-  }
+  "rewrites": [
+    {
+      "source": "/api/proxy/:path*",
+      "destination": "https://seekguidance.onrender.com/:path*"
+    }
+  ]
 }
 
