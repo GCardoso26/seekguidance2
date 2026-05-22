@@ -7,11 +7,11 @@ import { useAuthStore } from "@/stores/auth-store";
 
 export default function Page() {
   const auth = useAuthStore((s) => s.accessToken || s.apiKey);
-  const q = useQuery({ queryKey: ["onboarding"], queryFn: async () => {
-    const api = runtimeApi as Record<string, (t?: string | null) => Promise<unknown>>;
-    const fn = api.onboarding || api.status;
-    return typeof fn === "function" ? fn(auth) : {};
-  }, enabled: !!auth });
+  const q = useQuery({
+    queryKey: ["onboarding"],
+    queryFn: () => runtimeApi.onboarding(auth).catch(() => runtimeApi.status(auth)),
+    enabled: !!auth,
+  });
   return (
     <AppShell>
       <h1 className="text-2xl font-semibold mb-4">Onboarding</h1>
