@@ -17,7 +17,7 @@ export function mapHealthStatus(data?: HealthPayload | null): BackendHealthState
 
 export async function getJudgeHealth(): Promise<BackendHealthState> {
   try {
-    const data = await apiFetch<HealthPayload>("/health");
+    const data = await apiFetch<HealthPayload>("/v1/health");
     return mapHealthStatus(data);
   } catch {
     return "offline";

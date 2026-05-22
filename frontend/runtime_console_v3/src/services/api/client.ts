@@ -1,8 +1,8 @@
-/** Browser: proxy same-origin (/api/proxy → API no host do Next). Override com NEXT_PUBLIC_API_URL. */
+/** Browser: sempre same-origin via /api/proxy (evita CORS e URL Render exposta). */
 const API_BASE =
   typeof window !== "undefined"
-    ? process.env.NEXT_PUBLIC_API_URL || "/api/proxy"
-    : process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+    ? "/api/proxy"
+    : process.env.API_PROXY_TARGET || process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
 export type RequestOptions = {
   method?: string;
