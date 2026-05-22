@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 
-function resolveApiTarget(): string | null {
+/** API Render em produção (override com API_PROXY_TARGET na Vercel). */
+const RENDER_API_DEFAULT = "https://seekguidance.onrender.com";
+
+function resolveApiTarget(): string {
   const raw = process.env.API_PROXY_TARGET?.trim();
-  return raw ? raw.replace(/\/$/, "") : null;
+  if (raw) return raw.replace(/\/$/, "");
+  if (process.env.VERCEL === "1") return RENDER_API_DEFAULT;
+  return "http://127.0.0.1:8000";
 }
 
 /** Mensagem clara em vez de DNS_HOSTNAME_RESOLVED_PRIVATE da Vercel. */
@@ -31,16 +36,6 @@ function validateApiTarget(target: string): string | null {
 
 async function proxy(request: NextRequest, path: string[]): Promise<NextResponse> {
   const API_TARGET = resolveApiTarget();
-  if (!API_TARGET) {
-    return NextResponse.json(
-      {
-        error: "api_proxy_not_configured",
-        detail:
-          "Set API_PROXY_TARGET=https://seekguidance.onrender.com in Vercel → Settings → Environment Variables (Production), then redeploy.",
-      },
-      { status: 500 },
-    );
-  }
   const targetError = validateApiTarget(API_TARGET);
   if (targetError) {
     return NextResponse.json({ error: "api_proxy_misconfigured", detail: targetError }, { status: 500 });
