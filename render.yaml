@@ -1,27 +1,28 @@
-# Blueprint Render: API FastAPI (Docker com contexto na raiz do repositório).
-# Criar na dashboard: Postgres + Redis (ou externos) e copiar DATABASE_URL / REDIS_URL para o serviço.
+# Blueprint Render — API FastAPI (Docker, monorepo na raiz).
+# Docs: docs/DEPLOY_SEM_EC2_RENDER_VERCEL.md
 #
-# Documentação: docs/DEPLOY_RENDER_VERCEL.md
+# No 1º deploy o Render pede valores para variáveis sync: false (DATABASE_URL, REDIS_URL, OPENAI_API_KEY).
 
 services:
   - type: web
     name: tcg-judge-api
     runtime: docker
-    dockerfilePath: ./services/api/Dockerfile
-    dockerContext: .
-    healthCheckPath: /
+    plan: free
+    region: oregon
+    dockerfilePath: services/api/Dockerfile.production
+    healthCheckPath: /v1/health
     envVars:
       - key: ENVIRONMENT
         value: production
       - key: LOG_LEVEL
         value: INFO
+      - key: DATABASE_SSL
+        value: require
+      - key: RUNTIME_AUTH_SECRET
+        generateValue: true
       - key: DATABASE_URL
         sync: false
       - key: REDIS_URL
         sync: false
       - key: OPENAI_API_KEY
-        sync: false
-      - key: ANTHROPIC_API_KEY
-        sync: false
-      - key: GEMINI_API_KEY
         sync: false
