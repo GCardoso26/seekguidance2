@@ -2,7 +2,27 @@ import { NextRequest, NextResponse } from "next/server";
 
 const API_TARGET = (process.env.API_PROXY_TARGET || "http://127.0.0.1:8000").replace(/\/$/, "");
 
+function misconfiguredTarget(): boolean {
+  try {
+    const u = new URL(API_TARGET);
+    return u.pathname.includes("/api/proxy");
+  } catch {
+    return API_TARGET.includes("/api/proxy");
+  }
+}
+
 async function proxy(request: NextRequest, path: string[]): Promise<NextResponse> {
+  if (misconfiguredTarget()) {
+    return NextResponse.json(
+      {
+        error: "api_proxy_misconfigured",
+        detail:
+          "API_PROXY_TARGET must be the Render API root (e.g. https://seekguidance.onrender.com), not /api/proxy on this domain.",
+      },
+      { status: 500 },
+    );
+  }
+
   const pathname = path.join("/");
   const search = request.nextUrl.search;
   const target = `${API_TARGET}/${pathname}${search}`;

@@ -191,7 +191,16 @@ O repo inclui `render.yaml`. Podes usar **New → Blueprint** e depois preencher
 
 **Não** definas `NEXT_PUBLIC_API_URL` em produção — o browser usa `/api/proxy` (mesmo origin, sem CORS).
 
-O ficheiro `src/app/api/proxy/[...path]/route.ts` reencaminha para `API_PROXY_TARGET`.
+**Nunca** uses `API_PROXY_TARGET` ou `NEXT_PUBLIC_API_URL` com caminho `/api/proxy` nem com `https://judgetcg.com.br` — isso causa **508 Loop Detected**.
+
+| Errado | Certo |
+|--------|--------|
+| `API_PROXY_TARGET=https://judgetcg.com.br/api/proxy` | `https://seekguidance.onrender.com` |
+| `NEXT_PUBLIC_API_URL=/api/proxy/v1/health` | *(apagar variável)* |
+
+O ficheiro `src/app/api/proxy/[...path]/route.ts` reencaminha para `API_PROXY_TARGET` (só o host da API Render). **Não** há rewrites em `next.config.mjs`.
+
+Login: `POST /api/proxy/auth/login` (não `/api/proxy/v1/health/auth/login`).
 
 ### 4.3 Deploy de teste
 
