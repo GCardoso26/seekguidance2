@@ -186,7 +186,7 @@ O repo inclui `render.yaml`. Podes usar **New → Blueprint** e depois preencher
 
 | Key | Valor |
 |-----|--------|
-| `API_PROXY_TARGET` | `https://tcg-judge-api.onrender.com` |
+| `API_PROXY_TARGET` | `https://seekguidance.onrender.com` |
 | `NEXT_PUBLIC_APP_URL` | `https://judgetcg.com.br` |
 
 **Não** definas `NEXT_PUBLIC_API_URL` em produção — o browser usa `/api/proxy` (mesmo origin, sem CORS).
@@ -237,6 +237,7 @@ curl -sI "https://judgetcg.com.br/judge" | head -5
 | Erro | Solução |
 |------|---------|
 | 502 em `/api/proxy/...` | `API_PROXY_TARGET` errado ou API Render down |
+| `DNS_HOSTNAME_RESOLVED_PRIVATE` | `API_PROXY_TARGET` em falta → default `127.0.0.1`, ou IP privado/EC2 — usa URL pública Render |
 | CORS | Usar proxy (`/api/proxy`), não chamar Render directo do browser |
 | Build Next falha | `Root Directory` = `frontend/runtime_console_v3` |
 | Domínio não resolve | DNS ainda a propagar; confere Registro.br |

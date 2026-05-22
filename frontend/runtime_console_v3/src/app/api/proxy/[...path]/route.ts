@@ -1,26 +1,49 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const API_TARGET = (process.env.API_PROXY_TARGET || "http://127.0.0.1:8000").replace(/\/$/, "");
+function resolveApiTarget(): string | null {
+  const raw = process.env.API_PROXY_TARGET?.trim();
+  return raw ? raw.replace(/\/$/, "") : null;
+}
 
-function misconfiguredTarget(): boolean {
+/** Mensagem clara em vez de DNS_HOSTNAME_RESOLVED_PRIVATE da Vercel. */
+function validateApiTarget(target: string): string | null {
+  let u: URL;
   try {
-    const u = new URL(API_TARGET);
-    return u.pathname.includes("/api/proxy");
+    u = new URL(target);
   } catch {
-    return API_TARGET.includes("/api/proxy");
+    return "API_PROXY_TARGET is not a valid URL";
   }
+  if (!["http:", "https:"].includes(u.protocol)) {
+    return "API_PROXY_TARGET must use http or https";
+  }
+  const host = u.hostname.toLowerCase();
+  if (host === "localhost" || host === "127.0.0.1" || host.endsWith(".local")) {
+    return "API_PROXY_TARGET cannot be localhost on Vercel — set https://seekguidance.onrender.com";
+  }
+  if (/^(10\.|172\.(1[6-9]|2\d|3[01])\.|192\.168\.)/.test(host)) {
+    return "API_PROXY_TARGET cannot be a private IP — use the public Render URL";
+  }
+  if (u.pathname.includes("/api/proxy") || host === "judgetcg.com.br") {
+    return "API_PROXY_TARGET must be the Render API root only (e.g. https://seekguidance.onrender.com)";
+  }
+  return null;
 }
 
 async function proxy(request: NextRequest, path: string[]): Promise<NextResponse> {
-  if (misconfiguredTarget()) {
+  const API_TARGET = resolveApiTarget();
+  if (!API_TARGET) {
     return NextResponse.json(
       {
-        error: "api_proxy_misconfigured",
+        error: "api_proxy_not_configured",
         detail:
-          "API_PROXY_TARGET must be the Render API root (e.g. https://seekguidance.onrender.com), not /api/proxy on this domain.",
+          "Set API_PROXY_TARGET=https://seekguidance.onrender.com in Vercel → Settings → Environment Variables (Production), then redeploy.",
       },
       { status: 500 },
     );
+  }
+  const targetError = validateApiTarget(API_TARGET);
+  if (targetError) {
+    return NextResponse.json({ error: "api_proxy_misconfigured", detail: targetError }, { status: 500 });
   }
 
   const pathname = path.join("/");
