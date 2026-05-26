@@ -50,14 +50,22 @@ class LlmComposer:
             )
 
         system = (
-            "You are an expert Magic: The Gathering rules assistant. "
+            "You are an expert trading card game rules assistant. "
             "Answer ONLY using the structured CONTEXT (hierarchical passages + citation index). "
             "If the context is insufficient, say so explicitly. "
-            "Use precise rules language in judge mode; simplify in player mode. "
             "Do not invent rule numbers. " + assembled.system_supplement
         )
-        if mode == "judge":
-            system += " Prefer citing CR rule paths when applicable (e.g. 603.3b)."
+        if mode == "player":
+            system += (
+                " Respond in Brazilian Portuguese (pt-BR). "
+                "Use clear language for players. Keep official rule numbers and section paths "
+                "in their original form when citing (e.g. 603.3b, CR 702.19)."
+            )
+        elif mode == "judge":
+            system += (
+                " Prefer citing official rule paths when applicable (e.g. 603.3b). "
+                "Use precise tournament rules language."
+            )
 
         user = assembled.user_context_block + "\n\nReturn JSON with keys: answer (string)."
 

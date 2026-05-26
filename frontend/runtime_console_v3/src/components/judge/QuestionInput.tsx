@@ -1,4 +1,5 @@
 "use client";
+
 import { useRef } from "react";
 import { cn } from "@/lib/utils";
 
@@ -28,11 +29,11 @@ export function QuestionInput({ value, onChange, onSubmit, disabled, placeholder
       onKeyDown={onKeyDown}
       disabled={disabled}
       rows={4}
-      placeholder={placeholder ?? "Ex.: Como funciona a mecânica trample no Magic?"}
+      placeholder={placeholder ?? "Ex.: O que acontece na fase de manutenção no Magic?"}
       className={cn(
-        "w-full resize-none rounded-xl border border-border bg-card/80 px-4 py-3 text-sm",
-        "placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40",
-        "min-h-[120px] max-h-[280px]",
+        "w-full resize-none rounded-2xl border border-[hsl(var(--border))] bg-white px-4 py-3.5 text-sm shadow-sm",
+        "placeholder:text-[hsl(222_15%_55%)] focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))]/35",
+        "min-h-[128px] max-h-[280px]",
       )}
     />
   );

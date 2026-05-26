@@ -93,16 +93,16 @@ export default function JudgePage() {
         />
       }
     >
-      <div className="max-w-3xl mx-auto space-y-6">
-        <section className="space-y-3">
+      <div className="mx-auto max-w-3xl space-y-6">
+        <section className="judge-card rounded-2xl border border-[hsl(var(--border))] p-4 sm:p-5">
           <TcgSelector value={tcg} onChange={setTcg} disabled={loading} />
         </section>
 
-        <section className="space-y-3">
-          <h2 className="text-lg font-semibold">A sua dúvida</h2>
+        <section className="judge-card space-y-4 rounded-2xl border border-[hsl(var(--border))] p-4 sm:p-5">
+          <h2 className="text-base font-bold">A sua dúvida</h2>
           <QuestionInput value={question} onChange={setQuestion} onSubmit={submit} disabled={loading} />
-          <div className="flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-between">
-            <p className="text-xs text-muted-foreground">Enter envia · Shift+Enter nova linha</p>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-xs text-[hsl(222_15%_50%)]">Enter envia · Shift+Enter nova linha</p>
             <AskButton loading={loading} disabled={!question.trim()} onClick={submit} />
           </div>
         </section>
@@ -112,15 +112,19 @@ export default function JudgePage() {
         {error && <ErrorPanel message={error} onRetry={submit} />}
 
         {showEmpty && (
-          <div className="rounded-xl border border-dashed border-border p-8 text-center text-muted-foreground">
-            <p className="text-sm">Faça uma pergunta sobre as regras oficiais do Magic.</p>
-            <p className="text-xs mt-2">Ex.: &quot;Como funciona trample com múltiplos bloqueadores?&quot;</p>
+          <div className="judge-card rounded-2xl border border-dashed border-[hsl(var(--border))] p-10 text-center">
+            <p className="text-sm font-medium text-[hsl(222_20%_35%)]">
+              Faça uma pergunta sobre as regras oficiais do jogo seleccionado.
+            </p>
+            <p className="mt-2 text-xs text-[hsl(222_15%_50%)]">
+              Ex.: &quot;O que acontece na fase de manutenção?&quot; ou &quot;Como funciona trample?&quot;
+            </p>
           </div>
         )}
 
         {response && !loading && (
           <section className="space-y-2">
-            <h2 className="text-lg font-semibold">Resposta</h2>
+            <h2 className="text-base font-bold">Resposta</h2>
             <ResponseCard response={response} question={lastQuestion} />
           </section>
         )}

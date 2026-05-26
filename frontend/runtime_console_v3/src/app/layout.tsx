@@ -1,4 +1,5 @@
 import "@/styles/globals.css";
+import "@/styles/judge-tcg.css";
 import { QueryProvider } from "@/providers/query-provider";
 import { ThemeProvider } from "@/providers/theme-provider";
 

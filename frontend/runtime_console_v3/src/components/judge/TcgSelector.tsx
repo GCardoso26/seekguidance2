@@ -1,45 +1,56 @@
 "use client";
-import { TCG_OPTIONS } from "@/types/judge";
-import type { TcgType } from "@/types/judge";
+
 import { cn } from "@/lib/utils";
+import { TCG_OPTIONS, type TcgType } from "@/types/judge";
 
 type Props = {
   value: TcgType;
-  onChange: (tcg: TcgType) => void;
+  onChange: (v: TcgType) => void;
   disabled?: boolean;
 };
 
 export function TcgSelector({ value, onChange, disabled }: Props) {
-  const selected = TCG_OPTIONS.find((o) => o.id === value);
+  const selected = TCG_OPTIONS.find((g) => g.id === value);
 
   return (
     <div className="space-y-2">
-      <label htmlFor="tcg-select" className="text-sm font-medium text-muted-foreground">
-        Jogo (TCG)
-      </label>
-      <select
-        id="tcg-select"
-        value={value}
-        disabled={disabled}
-        onChange={(e) => onChange(e.target.value as TcgType)}
-        className={cn(
-          "w-full max-w-md rounded-xl border border-border bg-card px-4 py-2.5 text-sm",
-          "focus:outline-none focus:ring-2 focus:ring-primary/40",
-          disabled && "opacity-60 cursor-not-allowed",
-        )}
+      <p className="text-xs font-semibold uppercase tracking-wide text-[hsl(222_15%_45%)]">
+        Jogo
+      </p>
+      <div
+        className="flex gap-2 overflow-x-auto pb-1"
+        role="tablist"
+        aria-label="Selecionar jogo"
       >
-        {TCG_OPTIONS.map((opt) => (
-          <option key={opt.id} value={opt.id} disabled={!opt.enabled}>
-            {opt.label}
-            {!opt.enabled ? " (em breve)" : ""}
-          </option>
-        ))}
-      </select>
-      {selected?.enabled && (
-        <p className="text-xs text-muted-foreground">
-          Consulta baseada nas regras oficiais indexadas para {selected.label}.
-        </p>
-      )}
+        {TCG_OPTIONS.map((g) => {
+          const active = value === g.id;
+          return (
+            <button
+              key={g.id}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              disabled={disabled || !g.enabled}
+              onClick={() => g.enabled && onChange(g.id)}
+              title={g.enabled ? g.label : `${g.label} — em breve`}
+              className={cn(
+                "shrink-0 rounded-full border px-3.5 py-2 text-xs font-bold transition sm:px-4 sm:text-sm",
+                "border-[hsl(var(--border))] bg-white",
+                !g.enabled && "cursor-not-allowed opacity-40",
+                g.enabled && "hover:border-[hsl(var(--primary))]/40",
+                active && g.enabled && "judge-chip-active",
+                active && !g.enabled && "border-[hsl(var(--border))] bg-[hsl(var(--muted))]",
+              )}
+            >
+              {g.label.split(/[:\s]/)[0]}
+            </button>
+          );
+        })}
+      </div>
+      <p className="text-xs text-[hsl(222_15%_45%)]">
+        {selected?.label}
+        {selected && !selected.enabled && " · em breve"}
+      </p>
     </div>
   );
 }

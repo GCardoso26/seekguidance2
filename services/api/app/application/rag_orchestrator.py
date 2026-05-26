@@ -147,8 +147,8 @@ class RagOrchestrator:
         answer = result.answer
         if conf < thr:
             answer += (
-                "\n\nThis interaction may require official judge interpretation; "
-                "retrieval confidence is below the usual threshold."
+                "\n\nEsta situação pode exigir interpretação de um juiz de torneio; "
+                "a confiança da recuperação está abaixo do habitual."
             )
 
         explain_v2 = outcome.explainability if payload.explain_retrieval else None

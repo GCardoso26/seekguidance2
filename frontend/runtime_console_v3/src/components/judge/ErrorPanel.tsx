@@ -1,5 +1,6 @@
 "use client";
-import { Button } from "@/components/ui/button";
+
+import { cn } from "@/lib/utils";
 
 type Props = {
   message: string;
@@ -8,12 +9,21 @@ type Props = {
 
 export function ErrorPanel({ message, onRetry }: Props) {
   return (
-    <div className="rounded-xl border border-danger/40 bg-danger/10 p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-      <p className="text-sm text-danger">{message}</p>
+    <div
+      className={cn(
+        "judge-card flex flex-col gap-3 rounded-2xl border border-[hsl(var(--danger))]/30 p-4 sm:flex-row sm:items-center sm:justify-between",
+        "bg-[hsl(var(--danger))]/5",
+      )}
+    >
+      <p className="text-sm text-[hsl(var(--danger))]">{message}</p>
       {onRetry && (
-        <Button type="button" variant="outline" size="sm" onClick={onRetry} className="shrink-0">
+        <button
+          type="button"
+          onClick={onRetry}
+          className="shrink-0 rounded-full border border-[hsl(var(--border))] bg-white px-4 py-2 text-xs font-semibold hover:bg-[hsl(var(--muted))]"
+        >
           Tentar novamente
-        </Button>
+        </button>
       )}
     </div>
   );

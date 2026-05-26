@@ -76,14 +76,42 @@ def _mock_answer(question: str, tcg: str) -> str | None:
     return None
 
 
+_TITLE_PT: list[tuple[re.Pattern[str], str]] = [
+    (re.compile(r"comprehensive rules", re.I), "Regras Abrangentes (Comprehensive Rules)"),
+    (re.compile(r"tournament rules", re.I), "Regras de Torneio"),
+    (re.compile(r"infraction procedure", re.I), "Procedimentos de Infração (IPG)"),
+]
+
+
+def _title_for_display(raw: str) -> str:
+    title = (raw or "").strip() or "Fonte oficial"
+    if title.lower() in ("source", "document"):
+        return "Fonte oficial"
+    for pattern, label in _TITLE_PT:
+        if pattern.search(title):
+            return pattern.sub(label, title, count=1)
+    return title
+
+
+def _section_for_display(section: str | None) -> str | None:
+    if not section or not str(section).strip():
+        return None
+    s = str(section).strip()
+    if re.match(r"^\d", s):
+        return f"Secção {s}"
+    return s
+
+
 def _sources_from_citations(citations: list[Any]) -> list[JudgeSource]:
     out: list[JudgeSource] = []
     for c in citations[:8]:
+        raw_title = getattr(c, "document_title", "") or ""
+        section = getattr(c, "section_path", None) or getattr(c, "rule_path", None)
         out.append(
             JudgeSource(
-                title=getattr(c, "document_title", "") or "Source",
+                title=_title_for_display(raw_title),
                 url=getattr(c, "source_url", "") or "",
-                section=getattr(c, "section_path", None) or getattr(c, "rule_path", None),
+                section=_section_for_display(section),
                 excerpt=(getattr(c, "excerpt", None) or "")[:280] or None,
             )
         )

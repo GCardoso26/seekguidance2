@@ -1,76 +1,83 @@
 "use client";
+
 import Link from "next/link";
-import { useState } from "react";
+import type { ReactNode } from "react";
 import type { BackendHealthState } from "@/types/judge";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
-const HEALTH_LABEL: Record<BackendHealthState, string> = {
-  online: "Online",
-  degraded: "Degraded",
-  offline: "Offline",
-};
-
-const HEALTH_VARIANT: Record<BackendHealthState, "success" | "warning" | "danger"> = {
-  online: "success",
-  degraded: "warning",
-  offline: "danger",
-};
-
 type Props = {
-  health: BackendHealthState;
-  children: React.ReactNode;
-  sidebar?: React.ReactNode;
+  children: ReactNode;
+  sidebar?: ReactNode;
+  health?: BackendHealthState;
 };
 
-export function JudgeLayout({ health, children, sidebar }: Props) {
-  const [open, setOpen] = useState(false);
+const HEALTH_LABEL: Record<BackendHealthState, string> = {
+  online: "Serviço online",
+  degraded: "Serviço degradado",
+  offline: "Serviço offline",
+};
 
+const HEALTH_DOT: Record<BackendHealthState, string> = {
+  online: "bg-emerald-400",
+  degraded: "bg-amber-300",
+  offline: "bg-red-300",
+};
+
+export function JudgeLayout({ children, sidebar, health = "offline" }: Props) {
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <header className="sticky top-0 z-20 border-b border-border bg-card/80 backdrop-blur px-4 py-3 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            className="md:hidden rounded-md border border-border px-2 py-1 text-xs"
-            onClick={() => setOpen((v) => !v)}
-            aria-label="Menu"
-          >
-            ☰
-          </button>
-          <div>
-            <p className="text-xs uppercase tracking-wider text-muted-foreground">TCG Judge</p>
-            <h1 className="text-lg font-semibold">Consulta de regras</h1>
+    <div className="judge-app min-h-screen bg-[hsl(var(--background))] text-[hsl(var(--foreground))]">
+      <header className="judge-header-bar sticky top-0 z-20 border-b border-white/10 shadow-md">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
+          <div className="flex items-center gap-3">
+            <div
+              className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/15 text-lg font-bold text-white backdrop-blur-sm"
+              aria-hidden
+            >
+              J
+            </div>
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/80">
+                Judge TCG
+              </p>
+              <h1 className="text-base font-bold leading-tight text-white sm:text-lg">
+                Consulta de Regras
+              </h1>
+            </div>
           </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <Badge variant={HEALTH_VARIANT[health]}>{HEALTH_LABEL[health]}</Badge>
-          <Link href="/dashboard" className="text-xs text-muted-foreground hover:text-primary hidden sm:inline">
-            Console
-          </Link>
+          <div className="flex items-center gap-3">
+            <span
+              className="hidden items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-medium text-white/90 sm:inline-flex"
+              title={HEALTH_LABEL[health]}
+            >
+              <span className={cn("h-2 w-2 rounded-full", HEALTH_DOT[health])} aria-hidden />
+              {HEALTH_LABEL[health]}
+            </span>
+            <Link
+              href="/"
+              className="rounded-full border border-white/25 bg-white/10 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-white/20"
+            >
+              Console
+            </Link>
+          </div>
         </div>
       </header>
 
-      <div className="flex flex-1 max-w-7xl mx-auto w-full">
-        <aside
-          className={cn(
-            "border-r border-border bg-card/30 p-4 w-72 shrink-0",
-            "fixed md:static inset-y-0 left-0 z-10 pt-16 md:pt-0 transform transition md:translate-x-0",
-            open ? "translate-x-0" : "-translate-x-full md:translate-x-0",
+      <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
+        <div className="grid gap-6 lg:grid-cols-[1fr_280px] lg:gap-8">
+          <div className="min-w-0 space-y-5">{children}</div>
+          {sidebar && (
+            <aside className="lg:sticky lg:top-24 lg:self-start">
+              <div className="judge-card rounded-2xl border border-[hsl(var(--border))] p-4">
+                {sidebar}
+              </div>
+            </aside>
           )}
-        >
-          {sidebar}
-        </aside>
-        {open && (
-          <button
-            type="button"
-            className="fixed inset-0 z-[5] bg-black/40 md:hidden"
-            aria-label="Fechar menu"
-            onClick={() => setOpen(false)}
-          />
-        )}
-        <main className="flex-1 p-4 md:p-6 overflow-hidden">{children}</main>
-      </div>
+        </div>
+      </main>
+
+      <footer className="border-t border-[hsl(var(--border))] py-4 text-center text-xs text-[hsl(222_15%_45%)]">
+        Fontes oficiais indexadas · Respostas em português quando possível
+      </footer>
     </div>
   );
 }
