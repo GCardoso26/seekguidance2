@@ -1,13 +1,25 @@
-{
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": "nextjs",
-  "buildCommand": "npm run build",
-  "installCommand": "npm install",
-  "rewrites": [
-    {
-      "source": "/api/proxy/:path*",
-      "destination": "https://seekguidance.onrender.com/:path*"
-    }
-  ]
-}
-
+{
+
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+
+  "framework": "nextjs",
+
+  "buildCommand": "npm run build",
+
+  "installCommand": "npm install",
+
+  "rewrites": [
+
+    {
+
+      "source": "/api/proxy/:path*",
+
+      "destination": "https://seekguidance.onrender.com/:path*"
+
+    }
+
+  ]
+
+}
+
+
