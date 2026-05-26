@@ -1,0 +1,12 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "cd frontend/runtime_console_v3 && npm install",
+  "buildCommand": "cd frontend/runtime_console_v3 && npm run build",
+  "framework": "nextjs",
+  "rewrites": [
+    {
+      "source": "/api/proxy/:path*",
+      "destination": "https://seekguidance.onrender.com/:path*"
+    }
+  ]
+}

@@ -9,7 +9,7 @@ Utilizador
 https://judgetcg.com.br          (Vercel — Next.js runtime_console_v3)
    │
    ├─► páginas /judge, …
-   └─► /api/proxy/*  ──►  https://tcg-judge-api.onrender.com  (Render — FastAPI)
+   └─► /api/proxy/*  ──►  https://seekguidance.onrender.com  (Render — FastAPI)
                               │
                               ├─► Supabase Postgres (schema tcg_judge, pgvector)
                               └─► Upstash Redis (rediss:// — workers / futuro cache)
@@ -198,7 +198,16 @@ O repo inclui `render.yaml`. Podes usar **New → Blueprint** e depois preencher
 | `API_PROXY_TARGET=https://judgetcg.com.br/api/proxy` | `https://seekguidance.onrender.com` |
 | `NEXT_PUBLIC_API_URL=/api/proxy/v1/health` | *(apagar variável)* |
 
-O ficheiro `src/app/api/proxy/[...path]/route.ts` reencaminha para `API_PROXY_TARGET` (só o host da API Render). **Não** há rewrites em `next.config.mjs`.
+Proxy via **rewrites** em `vercel.json` + `next.config.mjs` (edge → Render). **Não** usar route handler serverless (causava `DNS_HOSTNAME_RESOLVED_PRIVATE`).
+
+**Root Directory na Vercel:**
+
+| Repo ligado | Root Directory |
+|-------------|----------------|
+| Monorepo `seekguidance2` (raiz) | `frontend/runtime_console_v3` **ou** `./` com `vercel.json` na raiz do repo |
+| Só pasta Next (≈57 ficheiros na raiz) | `./` (vazio) |
+
+Se `frontend/runtime_console_v3` der "does not exist", o repo na Vercel **não é** o monorepo — confirma em Settings → Git.
 
 Login: `POST /api/proxy/auth/login` (não `/api/proxy/v1/health/auth/login`).
 
