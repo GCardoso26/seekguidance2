@@ -204,8 +204,10 @@ Proxy via **rewrites** em `vercel.json` + `next.config.mjs` (edge → Render). *
 
 | Repo ligado | Root Directory |
 |-------------|----------------|
-| Monorepo `seekguidance2` (raiz) | `frontend/runtime_console_v3` **ou** `./` com `vercel.json` na raiz do repo |
+| Monorepo `seekguidance2` (raiz) | `frontend/runtime_console_v3` — **não** uses `./` com `cd` no build |
 | Só pasta Next (≈57 ficheiros na raiz) | `./` (vazio) |
+
+**Output Directory** na Vercel: deixa **vazio** (não coloques `.next`). Se aparecer erro `routes-manifest.json couldn't be found`, o Root Directory ou Output Directory está errado.
 
 Se `frontend/runtime_console_v3` der "does not exist", o repo na Vercel **não é** o monorepo — confirma em Settings → Git.
 
