@@ -16,14 +16,16 @@ from app.runtime.runtime_restore_system.engine import runtime_restore_engine_v1
 from app.runtime.runtime_support_operations_v2.engine import runtime_support_operations_engine_v2
 from app.runtime.runtime_usage_analytics.engine import runtime_usage_analytics_engine_v1
 from app.runtime.runtime_user_onboarding.engine import runtime_user_onboarding_engine_v1
-from fastapi import APIRouter, Response
+from app.core.security.deps import required_auth
+from app.core.security.tenant import tenant_from_auth
+from fastapi import APIRouter, Depends, HTTPException, Response
 from pydantic import BaseModel
+from typing import Annotated, Any
 
 router = APIRouter(tags=["runtime-operational"])
 
 
 class IncidentBody(BaseModel):
-    tenant_id: str = "default"
     summary: str
     severity: str = "medium"
     notes: str | None = None
@@ -31,7 +33,6 @@ class IncidentBody(BaseModel):
 
 class PilotEnrollBody(BaseModel):
     user_id: str
-    tenant_id: str = "default"
     operator: str | None = None
 
 
@@ -93,13 +94,16 @@ async def runtime_pilot_status() -> dict[str, Any]:
 
 
 @router.post("/runtime/pilot")
-async def runtime_pilot_enroll(body: PilotEnrollBody) -> dict[str, Any]:
+async def runtime_pilot_enroll(
+    body: PilotEnrollBody,
+    auth: Annotated[dict[str, Any], Depends(required_auth)],
+) -> dict[str, Any]:
     record("pilot.enroll", 1.0)
     return runtime_real_pilot_engine_v2(
         "pilot",
         action="enroll",
         user_id=body.user_id,
-        tenant_id=body.tenant_id,
+        tenant_id=tenant_from_auth(auth),
         operator=body.operator,
     )
 
@@ -110,12 +114,15 @@ async def runtime_incidents_list() -> dict[str, Any]:
 
 
 @router.post("/runtime/incidents")
-async def runtime_incidents_report(body: IncidentBody) -> dict[str, Any]:
+async def runtime_incidents_report(
+    body: IncidentBody,
+    auth: Annotated[dict[str, Any], Depends(required_auth)],
+) -> dict[str, Any]:
     record("incidents.report", 1.0)
     return runtime_incident_collection_engine_v1(
         "incidents",
         action="report",
-        tenant_id=body.tenant_id,
+        tenant_id=tenant_from_auth(auth),
         summary=body.summary,
         severity=body.severity,
         notes=body.notes,

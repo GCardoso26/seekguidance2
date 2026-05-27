@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from app.core.security.redaction import mask_mapping
 from app.runtime.runtime_real_replay import store
 
 
@@ -34,10 +35,11 @@ def runtime_real_replay_engine_v1(
         rec = store.get_replay(replay_id, storage_path=storage_path)
         if not rec:
             return _fail(scope, "not_found")
-        return _ok(scope, {"action": "get", "record": rec})
+        return _ok(scope, {"action": "get", "record": mask_mapping(rec)})
 
     if action == "export":
-        return _ok(scope, {"action": "export", "records": store.export_replays(storage_path=storage_path)})
+        records = [mask_mapping(r) for r in store.export_replays(storage_path=storage_path)]
+        return _ok(scope, {"action": "export", "records": records})
 
     if action == "import" and payload and "records" in payload:
         n = store.import_replays(payload["records"], storage_path=storage_path)

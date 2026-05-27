@@ -7,12 +7,10 @@ import { runtimeApi } from "@/services/api/runtime";
 import { useAuthStore } from "@/stores/auth-store";
 
 export default function DashboardPage() {
-  const token = useAuthStore((s) => s.accessToken);
-  const apiKey = useAuthStore((s) => s.apiKey);
-  const auth = token || apiKey;
-  const health = useQuery({ queryKey: ["health"], queryFn: () => runtimeApi.health(auth), enabled: !!auth });
-  const metrics = useQuery({ queryKey: ["metrics"], queryFn: () => runtimeApi.metrics(auth), enabled: !!auth });
-  const incidents = useQuery({ queryKey: ["incidents"], queryFn: () => runtimeApi.incidents(auth), enabled: !!auth });
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const health = useQuery({ queryKey: ["health"], queryFn: () => runtimeApi.health(), enabled: isAuthenticated });
+  const metrics = useQuery({ queryKey: ["metrics"], queryFn: () => runtimeApi.metrics(), enabled: isAuthenticated });
+  const incidents = useQuery({ queryKey: ["incidents"], queryFn: () => runtimeApi.incidents(), enabled: isAuthenticated });
 
   return (
     <AppShell>

@@ -15,6 +15,7 @@ def runtime_real_auth_engine_v1(
     username: str | None = None,
     password: str | None = None,
     refresh_token: str | None = None,
+    access_token: str | None = None,
     api_key: str | None = None,
 ) -> dict[str, Any]:
     store.init_db(storage_path)
@@ -36,10 +37,14 @@ def runtime_real_auth_engine_v1(
         )
 
     if action == "refresh" and refresh_token:
-        tok = tokens.refresh_access(refresh_token)
+        tok = tokens.refresh_access(refresh_token, storage_path=storage_path)
         if not tok:
             return _fail(scope, "invalid_refresh_token")
         return _ok(scope, {"refreshed": True, "tokens": tok})
+
+    if action == "revoke" and (access_token or refresh_token):
+        revoked = tokens.revoke_token(access_token or refresh_token or "")
+        return _ok(scope, {"revoked": revoked})
 
     if action == "api_key" and api_key:
         key_user = store.verify_api_key(api_key, storage_path=storage_path)
@@ -56,7 +61,7 @@ def runtime_real_auth_engine_v1(
             "auth_ready": True,
             "modes": ["jwt", "api_key", "session"],
             "roles": ["admin", "operator", "viewer"],
-            "default_admin": "admin / admin (change in production)",
+            "default_admin": "disabled in production unless RUNTIME_DEFAULT_ADMIN_PASSWORD is set",
         },
     )
 

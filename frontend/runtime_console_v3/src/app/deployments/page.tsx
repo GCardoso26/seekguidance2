@@ -7,8 +7,8 @@ import { runtimeApi } from "@/services/api/runtime";
 import { useAuthStore } from "@/stores/auth-store";
 
 export default function DeploymentsPage() {
-  const auth = useAuthStore((s) => s.accessToken || s.apiKey);
-  const q = useQuery({ queryKey: ["deployments"], queryFn: () => runtimeApi.deployments(auth), enabled: !!auth });
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const q = useQuery({ queryKey: ["deployments"], queryFn: () => runtimeApi.deployments(), enabled: isAuthenticated });
   const status = (q.data as { deployments?: { status?: string }[] })?.deployments?.[0]?.status;
   return (
     <AppShell>

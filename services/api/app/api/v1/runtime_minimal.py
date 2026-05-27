@@ -2,16 +2,18 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Annotated, Any
 
+from app.core.security.deps import optional_auth, required_auth
+from app.core.security.rbac import has_permission
+from app.core.security.tenant import require_auth_tenant, tenant_from_auth
 from app.runtime.runtime_minimal_federation.engine import runtime_minimal_federation_engine_v1
-from app.runtime.runtime_real_auth import tokens
 from app.runtime.runtime_real_auth.engine import runtime_real_auth_engine_v1
 from app.runtime.runtime_real_minimal.api_engine import runtime_real_api_engine_v1
 from app.runtime.runtime_real_observability.engine import runtime_real_observability_engine_v1
 from app.runtime.runtime_real_replay.engine import runtime_real_replay_engine_v1
 from app.runtime.runtime_real_tenant.engine import runtime_real_tenant_engine_v1
-from fastapi import APIRouter, Header, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
 router = APIRouter(tags=["runtime-minimal"])
@@ -26,30 +28,20 @@ class RefreshBody(BaseModel):
     refresh_token: str
 
 
+class LogoutBody(BaseModel):
+    access_token: str | None = None
+    refresh_token: str | None = None
+
+
 class ReplayAppendBody(BaseModel):
-    tenant_id: str = "default"
     scope: str = "default"
     payload: dict[str, Any] = Field(default_factory=dict)
     compress: bool = False
 
 
 class EventBody(BaseModel):
-    tenant_id: str = "default"
     event_type: str
     payload: dict[str, Any] = Field(default_factory=dict)
-
-
-def _tenant_from_auth(authorization: str | None, x_api_key: str | None) -> str:
-    if x_api_key:
-        r = runtime_real_auth_engine_v1("auth", action="api_key", api_key=x_api_key)
-        if r.get("authenticated"):
-            return str(r.get("api_key", {}).get("tenant_id", "default"))
-    if authorization and authorization.lower().startswith("bearer "):
-        tok = authorization.split(" ", 1)[1]
-        payload = tokens.decode_access(tok)
-        if payload:
-            return str(payload.get("tenant_id", "default"))
-    return "default"
 
 
 @router.get("/health")
@@ -79,30 +71,46 @@ async def auth_refresh(body: RefreshBody) -> dict[str, Any]:
     return r
 
 
+@router.post("/auth/logout")
+async def auth_logout(body: LogoutBody) -> dict[str, Any]:
+    if not body.access_token and not body.refresh_token:
+        raise HTTPException(status_code=400, detail="token_required")
+    r = runtime_real_auth_engine_v1(
+        "logout",
+        action="revoke",
+        access_token=body.access_token,
+        refresh_token=body.refresh_token,
+    )
+    return {"revoked": bool(r.get("revoked"))}
+
+
 @router.get("/runtime/status")
 async def runtime_status(
-    authorization: str | None = Header(default=None),
-    x_api_key: str | None = Header(default=None, alias="X-API-Key"),
+    auth: Annotated[dict[str, Any] | None, Depends(optional_auth)],
 ) -> dict[str, Any]:
-    tenant = _tenant_from_auth(authorization, x_api_key)
+    tenant = require_auth_tenant(auth, allow_anonymous=True)
     return runtime_real_api_engine_v1("status", tenant_id=tenant)
 
 
 @router.get("/runtime/replay")
 async def runtime_replay_list(
-    tenant_id: str | None = None,
-    authorization: str | None = Header(default=None),
-    x_api_key: str | None = Header(default=None, alias="X-API-Key"),
+    auth: Annotated[dict[str, Any] | None, Depends(optional_auth)],
 ) -> dict[str, Any]:
-    tid = tenant_id or _tenant_from_auth(authorization, x_api_key)
-    return runtime_real_replay_engine_v1("replay", tenant_id=tid, action="list")
+    tenant = require_auth_tenant(auth, allow_anonymous=True)
+    return runtime_real_replay_engine_v1("replay", tenant_id=tenant, action="list")
 
 
 @router.post("/runtime/replay")
-async def runtime_replay_append(body: ReplayAppendBody) -> dict[str, Any]:
+async def runtime_replay_append(
+    body: ReplayAppendBody,
+    auth: Annotated[dict[str, Any], Depends(required_auth)],
+) -> dict[str, Any]:
+    if not has_permission(str(auth.get("role", "viewer")), "replay"):
+        raise HTTPException(status_code=403, detail="Permissão replay necessária")
+    tenant = tenant_from_auth(auth)
     return runtime_real_replay_engine_v1(
         body.scope,
-        tenant_id=body.tenant_id,
+        tenant_id=tenant,
         action="append",
         payload=body.payload,
         compress=body.compress,
@@ -110,12 +118,21 @@ async def runtime_replay_append(body: ReplayAppendBody) -> dict[str, Any]:
 
 
 @router.get("/runtime/tenants")
-async def runtime_tenants() -> dict[str, Any]:
+async def runtime_tenants(
+    auth: Annotated[dict[str, Any] | None, Depends(optional_auth)],
+) -> dict[str, Any]:
+    require_auth_tenant(auth, allow_anonymous=True)
     return runtime_real_tenant_engine_v1("tenants")
 
 
 @router.post("/runtime/tenants")
-async def runtime_tenant_create(tenant_id: str, name: str) -> dict[str, Any]:
+async def runtime_tenant_create(
+    tenant_id: str,
+    name: str,
+    auth: Annotated[dict[str, Any], Depends(required_auth)],
+) -> dict[str, Any]:
+    if not has_permission(str(auth.get("role", "viewer")), "tenant_admin"):
+        raise HTTPException(status_code=403, detail="Permissão tenant_admin necessária")
     return runtime_real_tenant_engine_v1("tenants", action="create", tenant_id=tenant_id, name=name)
 
 
@@ -125,7 +142,11 @@ async def runtime_events() -> dict[str, Any]:
 
 
 @router.post("/runtime/events")
-async def runtime_events_post(body: EventBody) -> dict[str, Any]:
+async def runtime_events_post(
+    body: EventBody,
+    auth: Annotated[dict[str, Any], Depends(required_auth)],
+) -> dict[str, Any]:
+    tenant = tenant_from_auth(auth)
     runtime_real_observability_engine_v1(
         body.event_type,
         action="metric",
@@ -133,12 +154,15 @@ async def runtime_events_post(body: EventBody) -> dict[str, Any]:
     )
     return {
         "accepted": True,
-        "tenant_id": body.tenant_id,
+        "tenant_id": tenant,
         "event_type": body.event_type,
         "integrity_status": "ok",
     }
 
 
 @router.get("/runtime/federation")
-async def runtime_federation() -> dict[str, Any]:
+async def runtime_federation(
+    auth: Annotated[dict[str, Any] | None, Depends(optional_auth)],
+) -> dict[str, Any]:
+    require_auth_tenant(auth, allow_anonymous=True)
     return runtime_minimal_federation_engine_v1("federation")

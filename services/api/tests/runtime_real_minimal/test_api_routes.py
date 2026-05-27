@@ -28,8 +28,11 @@ def test_runtime_status_route() -> None:
 
 
 def test_runtime_replay_post() -> None:
+    login = client.post("/auth/login", json={"username": "admin", "password": "admin"})
+    tok = login.json()["tokens"]["access_token"]
     r = client.post(
         "/runtime/replay",
-        json={"tenant_id": "default", "scope": "api-test", "payload": {"x": 1}},
+        json={"scope": "api-test", "payload": {"x": 1}},
+        headers={"Authorization": f"Bearer {tok}"},
     )
     assert r.status_code == 200

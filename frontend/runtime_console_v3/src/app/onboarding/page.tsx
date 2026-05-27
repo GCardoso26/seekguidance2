@@ -6,11 +6,11 @@ import { runtimeApi } from "@/services/api/runtime";
 import { useAuthStore } from "@/stores/auth-store";
 
 export default function Page() {
-  const auth = useAuthStore((s) => s.accessToken || s.apiKey);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const q = useQuery({
     queryKey: ["onboarding"],
-    queryFn: () => runtimeApi.onboarding(auth).catch(() => runtimeApi.status(auth)),
-    enabled: !!auth,
+    queryFn: () => runtimeApi.onboarding().catch(() => runtimeApi.status()),
+    enabled: isAuthenticated,
   });
   return (
     <AppShell>

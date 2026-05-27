@@ -7,9 +7,9 @@ import { runtimeApi } from "@/services/api/runtime";
 import { useAuthStore } from "@/stores/auth-store";
 
 export default function ObservabilityPage() {
-  const auth = useAuthStore((s) => s.accessToken || s.apiKey);
-  const health = useQuery({ queryKey: ["health"], queryFn: () => runtimeApi.health(auth), enabled: !!auth });
-  const metrics = useQuery({ queryKey: ["metrics"], queryFn: () => runtimeApi.metrics(auth), enabled: !!auth });
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const health = useQuery({ queryKey: ["health"], queryFn: () => runtimeApi.health(), enabled: isAuthenticated });
+  const metrics = useQuery({ queryKey: ["metrics"], queryFn: () => runtimeApi.metrics(), enabled: isAuthenticated });
   return (
     <AppShell>
       <h1 className="text-2xl font-semibold mb-4">Observability Center</h1>

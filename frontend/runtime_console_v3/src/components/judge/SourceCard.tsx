@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { CSSProperties } from "react";
 import { formatJudgeSource } from "@/lib/judge-sources";
-import { highlightExcerptHtml } from "@/lib/highlight-excerpt";
+import { highlightExcerptHtml, sanitizeSourceUrl } from "@/lib/highlight-excerpt";
 import { cn } from "@/lib/utils";
 import type { JudgeSource } from "@/types/judge";
 import { ChevronDown, ExternalLink } from "lucide-react";
@@ -18,6 +18,7 @@ type Props = {
 export function SourceCard({ source, index, highlightTerms = [], accent }: Props) {
   const [open, setOpen] = useState(index === 0);
   const f = formatJudgeSource(source, index);
+  const safeUrl = sanitizeSourceUrl(f.url);
   const panelId = `judge-source-${index}`;
 
   return (
@@ -48,9 +49,9 @@ export function SourceCard({ source, index, highlightTerms = [], accent }: Props
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-1">
-          {f.hasLink && f.url && (
+          {f.hasLink && safeUrl && (
             <a
-              href={f.url}
+              href={safeUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="rounded-md p-1 text-[hsl(var(--tcg-accent))] hover:bg-[hsl(var(--tcg-accent)/0.08)]"

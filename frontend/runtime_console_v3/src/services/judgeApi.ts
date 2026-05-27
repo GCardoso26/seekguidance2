@@ -17,11 +17,11 @@ export function mapHealthStatus(data?: JudgeHealthPayload | null): BackendHealth
 
 export async function getJudgeHealth(): Promise<BackendHealthState> {
   try {
-    const data = await apiFetch<JudgeHealthPayload>("/runtime/judge/health");
+    const data = await apiFetch<JudgeHealthPayload>("/runtime/judge/health", { publicRoute: true });
     return mapHealthStatus(data);
   } catch {
     try {
-      const data = await apiFetch<JudgeHealthPayload>("/v1/health");
+      const data = await apiFetch<JudgeHealthPayload>("/v1/health", { publicRoute: true });
       return mapHealthStatus(data);
     } catch {
       return "offline";
@@ -30,13 +30,16 @@ export async function getJudgeHealth(): Promise<BackendHealthState> {
 }
 
 export async function getJudgeGames(): Promise<JudgeGameCatalogItem[]> {
-  const data = await apiFetch<{ games: JudgeGameCatalogItem[] }>("/runtime/judge/games");
+  const data = await apiFetch<{ games: JudgeGameCatalogItem[] }>("/runtime/judge/games", {
+    publicRoute: true,
+  });
   return data.games ?? [];
 }
 
 export async function askJudgeQuestion(payload: JudgeQuestionPayload): Promise<JudgeResponse> {
   return apiFetch<JudgeResponse>("/runtime/judge/query", {
     method: "POST",
+    publicRoute: true,
     body: {
       tcg: payload.tcg,
       question: payload.question,
@@ -72,7 +75,7 @@ export async function askJudgeQuestionStream(
   callbacks: JudgeStreamCallbacks,
   signal?: AbortSignal,
 ): Promise<boolean> {
-  const url = resolveApiUrl("/runtime/judge/query/stream");
+  const url = resolveApiUrl("/runtime/judge/query/stream", { publicRoute: true });
   let res: Response;
 
   try {

@@ -8,6 +8,8 @@ class Settings(BaseSettings):
 
     app_name: str = "TCG Judge API"
     environment: str = "development"
+    cors_allowed_origins: str = "*"
+    api_docs_enabled: bool = True
     log_level: str = "INFO"
 
     database_url: str
@@ -103,6 +105,19 @@ class Settings(BaseSettings):
     judge_rate_limit_requests_per_minute: int = 24
     judge_rate_limit_window_seconds: float = 60.0
     judge_rate_limit_enabled: bool = True
+    judge_trust_proxy_headers: bool = False
+
+    # --- Segurança (TLS, headers, auth, criptografia) ---
+    security_force_https: bool = False
+    security_hsts_enabled: bool = True
+    security_hsts_max_age: int = 31_536_000
+    security_csp_policy: str = "default-src 'none'; frame-ancestors 'none'; base-uri 'none'"
+    security_protect_operational_routes: bool = True
+    runtime_auth_secret: str | None = None
+    runtime_access_ttl_sec: int = 900
+    runtime_refresh_ttl_sec: int = 86_400
+    runtime_default_admin_password: str | None = None
+    field_encryption_key_b64: str | None = None
 
     ingestion_default_host_rps: float = 1.0
     ingestion_max_concurrent_downloads: int = 4

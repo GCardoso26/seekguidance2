@@ -6,8 +6,8 @@ import { runtimeApi } from "@/services/api/runtime";
 import { useAuthStore } from "@/stores/auth-store";
 
 export default function TenantsPage() {
-  const auth = useAuthStore((s) => s.accessToken || s.apiKey);
-  const q = useQuery({ queryKey: ["tenants"], queryFn: () => runtimeApi.tenants(auth), enabled: !!auth });
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const q = useQuery({ queryKey: ["tenants"], queryFn: () => runtimeApi.tenants(), enabled: isAuthenticated });
   return (
     <AppShell>
       <h1 className="text-2xl font-semibold mb-4">Tenants</h1>

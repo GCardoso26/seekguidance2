@@ -7,6 +7,8 @@ import shutil
 from pathlib import Path
 from typing import Any
 
+from app.core.security.paths import resolve_allowed_backup_path
+
 _DATA = Path("generated/runtime_real_minimal")
 
 
@@ -16,10 +18,10 @@ def runtime_restore_engine_v1(
     backup_path: str,
     dry_run: bool = False,
 ) -> dict[str, Any]:
-    src = Path(backup_path)
+    src = resolve_allowed_backup_path(backup_path)
+    if src is None:
+        return _fail(scope, "backup_path_not_allowed")
     manifest_path = src / "manifest.json"
-    if not manifest_path.is_file():
-        return _fail(scope, "manifest_missing")
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     if dry_run:
         return _ok(scope, {"dry_run": True, "manifest": manifest, "would_restore": True})

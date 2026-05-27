@@ -9,10 +9,9 @@ import { useAuthStore } from "@/stores/auth-store";
 
 export default function LoginPage() {
   const router = useRouter();
-  const setSession = useAuthStore((s) => s.setSession);
-  const setApiKey = useAuthStore((s) => s.setApiKey);
-  const [username, setUsername] = useState("admin");
-  const [password, setPassword] = useState("admin");
+  const setAuthenticated = useAuthStore((s) => s.setAuthenticated);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [apiKey, setKey] = useState("");
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
@@ -22,13 +21,24 @@ export default function LoginPage() {
     setLoading(true);
     setErr("");
     try {
-      if (apiKey.trim()) { setApiKey(apiKey.trim()); router.push("/dashboard"); return; }
+      if (apiKey.trim()) {
+        await runtimeApi.setApiKey(apiKey.trim());
+        setAuthenticated({ username: "api_key", tenantId: "default" });
+        router.push("/dashboard");
+        return;
+      }
       const r = await runtimeApi.login(username, password);
       if (!r.authenticated) throw new Error("Invalid credentials");
-      setSession({ accessToken: r.tokens.access_token, refreshToken: r.tokens.refresh_token, username });
+      setAuthenticated({
+        username: r.user?.username ?? username,
+        tenantId: r.tenant_id ?? "default",
+      });
       router.push("/dashboard");
-    } catch (ex) { setErr(ex instanceof Error ? ex.message : "Login failed"); }
-    finally { setLoading(false); }
+    } catch (ex) {
+      setErr(ex instanceof Error ? ex.message : "Login failed");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -37,9 +47,9 @@ export default function LoginPage() {
         <CardHeader><CardTitle>Runtime Console</CardTitle></CardHeader>
         <CardContent>
           <form onSubmit={onLogin} className="space-y-3">
-            <Input placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} />
-            <Input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
-            <Input placeholder="API Key (optional)" value={apiKey} onChange={(e) => setKey(e.target.value)} />
+            <Input placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="username" />
+            <Input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" />
+            <Input placeholder="API Key (optional)" value={apiKey} onChange={(e) => setKey(e.target.value)} autoComplete="off" />
             {err && <p className="text-sm text-danger">{err}</p>}
             <Button type="submit" className="w-full" disabled={loading}>{loading ? "..." : "Sign in"}</Button>
           </form>

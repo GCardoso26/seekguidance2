@@ -42,9 +42,10 @@ https://judgetcg.com.br  (Vercel — Next.js /judge)
 
 Dashboard → **New project** → anota:
 
-- **Project URL** (API Auth — se usares depois) https://udtpsgdhknlanyndilyo.supabase.co
-- **Database password** Sirius#huaky93
-- **Connection string** (Settings → Database) postgresql://postgres:[Sirius#husky93]@db.udtpsgdhknlanyndilyo.supabase.co:5432/postgres
+- **Project URL** (API Auth — se usares depois) `https://[PROJECT_REF].supabase.co`
+- **Database password** — guardar apenas em gestor de segredos / variáveis de ambiente (nunca no Git)
+- **Connection string** (Settings → Database) `postgresql://postgres:[YOUR_PASSWORD]@db.[PROJECT_REF].supabase.co:5432/postgres`  
+  Se a senha tiver `#`, use `%23` na URL (ex.: `minha%23senha`).
 
 ### 1.2 Extensões
 
@@ -104,7 +105,7 @@ Supabase oferece várias URLs. Para **FastAPI + asyncpg** (ligações longas, RA
 Formato para a app (exemplo):
 
 ```env
-DATABASE_URL=postgresql+asyncpg://postgres.udtpsgdhknlanyndilyo:Sirius#husky93@aws-0-sa-east-1.pooler.supabase.com:5432/postgres
+DATABASE_URL=postgresql+asyncpg://postgres.[PROJECT_REF]:[YOUR_PASSWORD]@aws-0-[REGION].pooler.supabase.com:5432/postgres
 ```
 
 Adiciona SSL se necessário:

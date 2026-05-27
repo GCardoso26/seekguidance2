@@ -6,8 +6,8 @@ import { runtimeApi } from "@/services/api/runtime";
 import { useAuthStore } from "@/stores/auth-store";
 
 export default function FederationPage() {
-  const auth = useAuthStore((s) => s.accessToken || s.apiKey);
-  const q = useQuery({ queryKey: ["federation"], queryFn: () => runtimeApi.federation(auth), enabled: !!auth });
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const q = useQuery({ queryKey: ["federation"], queryFn: () => runtimeApi.federation(), enabled: isAuthenticated });
   return (
     <AppShell>
       <h1 className="text-2xl font-semibold mb-4">Federation</h1>
