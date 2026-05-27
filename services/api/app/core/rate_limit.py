@@ -33,10 +33,11 @@ def _get_redis(redis_url: str | None):
         return None
 
 
-def client_key(request) -> str:
-    forwarded = request.headers.get("x-forwarded-for")
-    if forwarded:
-        return forwarded.split(",")[0].strip()
+def client_key(request, *, trust_proxy: bool = False) -> str:
+    if trust_proxy:
+        forwarded = request.headers.get("x-forwarded-for")
+        if forwarded:
+            return forwarded.split(",")[0].strip()
     if request.client:
         return request.client.host
     return "unknown"
