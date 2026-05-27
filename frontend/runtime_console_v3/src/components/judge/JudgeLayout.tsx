@@ -3,13 +3,15 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { JudgeLogo } from "@/components/judge/JudgeLogo";
-import type { BackendHealthState } from "@/types/judge";
+import { getTcgBrand, tcgThemeStyle } from "@/lib/tcg-brand";
+import type { BackendHealthState, TcgType } from "@/types/judge";
 import { cn } from "@/lib/utils";
 
 type Props = {
   children: ReactNode;
   sidebar?: ReactNode;
   health?: BackendHealthState;
+  tcg: TcgType;
 };
 
 const HEALTH_LABEL: Record<BackendHealthState, string> = {
@@ -24,10 +26,17 @@ const HEALTH_DOT: Record<BackendHealthState, string> = {
   offline: "bg-red-300",
 };
 
-export function JudgeLayout({ children, sidebar, health = "offline" }: Props) {
+export function JudgeLayout({ children, sidebar, health = "offline", tcg }: Props) {
+  const brand = getTcgBrand(tcg);
+
   return (
-    <div className="judge-app min-h-screen bg-[hsl(var(--background))] text-[hsl(var(--foreground))]">
-      <header className="judge-header-bar sticky top-0 z-20 border-b border-white/10 shadow-md">
+    <div
+      className="judge-app min-h-screen text-[hsl(var(--foreground))]"
+      data-tcg={tcg}
+      data-pattern={brand.pattern}
+      style={tcgThemeStyle(tcg)}
+    >
+      <header className="judge-header-bar judge-header-bar--dynamic sticky top-0 z-20 border-b border-white/10 shadow-md transition-[background] duration-300">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
           <div className="flex items-center gap-3">
             <JudgeLogo size={40} />

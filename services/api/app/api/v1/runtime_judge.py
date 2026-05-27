@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
+import asyncio
+import json
 import re
+from collections.abc import AsyncIterator
 from typing import Any
 
 import structlog
@@ -10,6 +13,7 @@ from app.api.deps import DbSession, get_rag_orchestrator
 from app.application.rag_orchestrator import RagOrchestrator
 from app.schemas.chat import ChatRequest
 from fastapi import APIRouter, Depends
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
 logger = structlog.get_logger(__name__)
@@ -51,6 +55,7 @@ TCG_COMING_SOON: frozenset[str] = frozenset(
 class JudgeQueryBody(BaseModel):
     tcg: str = Field(..., examples=["magic"])
     question: str = Field(..., min_length=1, max_length=4000)
+    context: str | None = Field(default=None, max_length=8000)
 
 
 class JudgeSource(BaseModel):
@@ -67,17 +72,30 @@ class JudgeQueryResponse(BaseModel):
     sources: list[JudgeSource] = Field(default_factory=list)
     runtime_confidence: float = 0.94
     integrity_status: str = "ok"
+    verdict: str | None = None
+    rule_applied: str | None = None
+    explanation: str | None = None
+    exceptions: str | None = None
 
 
-def _mock_answer(question: str, tcg: str) -> str | None:
+def _mock_answer(
+    question: str, tcg: str
+) -> tuple[str, str | None, str | None, str | None, str | None]:
     q = question.lower()
     if tcg in ("magic", "mtg") and "trample" in q:
-        return (
+        explanation = (
             "Trample é uma habilidade estática que altera como o dano de combate é atribuído. "
             "O controlador do atacante com trample atribui primeiro dano letal aos bloqueadores; "
             "o excesso pode ir para o jogador/planeswalker atacado (regras 702.19a–702.19d)."
         )
-    return None
+        return (
+            explanation,
+            "Informação",
+            "CR 702.19 — Trample",
+            explanation,
+            None,
+        )
+    return ("", None, None, None, None)
 
 
 _TITLE_PT: list[tuple[re.Pattern[str], str]] = [
@@ -122,14 +140,25 @@ def _sources_from_citations(citations: list[Any]) -> list[JudgeSource]:
     return out
 
 
-@router.post("/runtime/judge/query", response_model=JudgeQueryResponse)
-async def runtime_judge_query(
+def _normalize_tcg(raw: str) -> str:
+    return re.sub(r"[^a-z0-9_]", "", raw.lower().strip().replace("-", "_"))
+
+
+def _compose_question(body: JudgeQueryBody) -> str:
+    question = body.question.strip()
+    ctx = (body.context or "").strip()
+    if not ctx:
+        return question
+    return f"Contexto da conversa anterior:\n{ctx}\n\nNova pergunta: {question}"
+
+
+async def _execute_judge_query(
     body: JudgeQueryBody,
     session: DbSession,
-    orchestrator: RagOrchestrator = Depends(get_rag_orchestrator),
+    orchestrator: RagOrchestrator,
 ) -> JudgeQueryResponse:
-    tcg = re.sub(r"[^a-z0-9_]", "", body.tcg.lower().strip().replace("-", "_"))
-    question = body.question.strip()
+    tcg = _normalize_tcg(body.tcg)
+    question = _compose_question(body)
 
     if tcg in TCG_COMING_SOON:
         label = tcg.replace("_", " ").title()
@@ -152,7 +181,12 @@ async def runtime_judge_query(
     try:
         chat = await orchestrator.ask(
             session,
-            ChatRequest(game_slug=game_slug, question=question, mode="player"),
+            ChatRequest(
+                game_slug=game_slug,
+                question=question,
+                mode="player",
+                verdict_format=True,
+            ),
         )
         return JudgeQueryResponse(
             success=True,
@@ -160,17 +194,26 @@ async def runtime_judge_query(
             confidence=float(chat.confidence),
             sources=_sources_from_citations(chat.citations),
             runtime_confidence=0.94,
+            verdict=chat.verdict,
+            rule_applied=chat.rule_applied,
+            explanation=chat.explanation,
+            exceptions=chat.exceptions,
         )
     except Exception:
         logger.exception("runtime_judge_query_failed", tcg=tcg)
-        fallback = _mock_answer(question, tcg)
-        if fallback:
+        mock = _mock_answer(question, tcg)
+        answer, verdict, rule_applied, explanation, exceptions = mock
+        if answer:
             return JudgeQueryResponse(
                 success=True,
-                answer=fallback,
+                answer=answer,
                 confidence=0.55,
                 sources=[],
                 runtime_confidence=0.94,
+                verdict=verdict,
+                rule_applied=rule_applied,
+                explanation=explanation,
+                exceptions=exceptions,
             )
         return JudgeQueryResponse(
             success=False,
@@ -178,3 +221,59 @@ async def runtime_judge_query(
             confidence=0.0,
             sources=[],
         )
+
+
+@router.post("/runtime/judge/query", response_model=JudgeQueryResponse)
+async def runtime_judge_query(
+    body: JudgeQueryBody,
+    session: DbSession,
+    orchestrator: RagOrchestrator = Depends(get_rag_orchestrator),
+) -> JudgeQueryResponse:
+    return await _execute_judge_query(body, session, orchestrator)
+
+
+def _sse_payload(data: dict[str, Any]) -> str:
+    return f"data: {json.dumps(data, ensure_ascii=False)}\n\n"
+
+
+async def _stream_judge_response(result: JudgeQueryResponse) -> AsyncIterator[str]:
+    text = result.answer or result.explanation or ""
+    chunk_size = 28
+    for i in range(0, len(text), chunk_size):
+        yield _sse_payload({"type": "token", "text": text[i : i + chunk_size]})
+        await asyncio.sleep(0.018)
+
+    payload = result.model_dump()
+    payload["type"] = "done"
+    yield _sse_payload(payload)
+
+
+@router.post("/runtime/judge/query/stream")
+async def runtime_judge_query_stream(
+    body: JudgeQueryBody,
+    session: DbSession,
+    orchestrator: RagOrchestrator = Depends(get_rag_orchestrator),
+) -> StreamingResponse:
+    async def generate() -> AsyncIterator[str]:
+        try:
+            result = await _execute_judge_query(body, session, orchestrator)
+            async for chunk in _stream_judge_response(result):
+                yield chunk
+        except Exception:
+            logger.exception("runtime_judge_stream_failed", tcg=body.tcg)
+            yield _sse_payload(
+                {
+                    "type": "error",
+                    "message": "Não foi possível processar a consulta agora. Tente novamente.",
+                }
+            )
+
+    return StreamingResponse(
+        generate(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )

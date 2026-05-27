@@ -101,3 +101,14 @@ def test_judge_query_digimon_rag_slug() -> None:
     mock.ask.assert_awaited_once()
     req = mock.ask.await_args.args[1]
     assert req.game_slug == "digimon"
+
+
+def test_judge_query_stream_returns_sse() -> None:
+    r = client.post(
+        "/runtime/judge/query/stream",
+        json={"tcg": "magic", "question": "Como funciona trample?"},
+    )
+    assert r.status_code == 200
+    assert "text/event-stream" in (r.headers.get("content-type") or "")
+    body = r.text
+    assert '"type": "token"' in body or '"type": "done"' in body

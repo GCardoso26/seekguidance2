@@ -45,6 +45,10 @@ class ChatRequest(BaseModel):
         default=False,
         description="Se true, executa o motor de consistência (cadeia, conflitos, timing, validação).",
     )
+    verdict_format: bool = Field(
+        default=False,
+        description="Se true, resposta estruturada tipo veredito (UI Judge TCG).",
+    )
 
 
 class ChatResponse(BaseModel):
@@ -112,3 +116,7 @@ class ChatResponse(BaseModel):
             "tournament_operations, persistent_memory, distributed_replay, runtime_observability."
         ),
     )
+    verdict: str | None = None
+    rule_applied: str | None = None
+    explanation: str | None = None
+    exceptions: str | None = None

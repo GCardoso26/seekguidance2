@@ -54,6 +54,14 @@ export type JudgeResponse = {
   sources: JudgeSource[];
   runtime_confidence: number;
   integrity_status?: string;
+  verdict?: string | null;
+  rule_applied?: string | null;
+  explanation?: string | null;
+  exceptions?: string | null;
+};
+
+export type JudgeQuestionPayload = JudgeQuestion & {
+  context?: string;
 };
 
 export type JudgeHistoryItem = {
@@ -65,6 +73,10 @@ export type JudgeHistoryItem = {
   confidence: number;
   sources?: JudgeSource[];
   runtime_confidence?: number;
+  verdict?: string | null;
+  rule_applied?: string | null;
+  explanation?: string | null;
+  exceptions?: string | null;
   createdAt: string;
 };
 

@@ -1,14 +1,25 @@
 "use client";
 
-export function LoadingPanel() {
+import type { CSSProperties } from "react";
+
+type Props = {
+  accent?: string;
+};
+
+export function LoadingPanel({ accent }: Props) {
+  const style = {
+    "--tcg-accent": accent ?? "0 82% 52%",
+  } as CSSProperties;
+
   return (
     <div
       className="judge-card overflow-hidden rounded-2xl border border-[hsl(var(--border))]"
       role="status"
       aria-live="polite"
       aria-label="A consultar as regras oficiais"
+      style={style}
     >
-      <div className="h-1 animate-pulse bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(0_70%_40%)]" />
+      <div className="h-1 animate-pulse bg-gradient-to-r from-[hsl(var(--tcg-accent))] to-[hsl(var(--tcg-accent)/0.55)]" />
 
       <div className="space-y-4 p-5 sm:p-6">
         <div className="h-3 w-3/4 max-w-md animate-pulse rounded bg-[hsl(var(--muted))]" />

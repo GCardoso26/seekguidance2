@@ -21,6 +21,10 @@ logger = structlog.get_logger(__name__)
 class LlmResult:
     answer: str
     model: str
+    verdict: str | None = None
+    rule_applied: str | None = None
+    explanation: str | None = None
+    exceptions: str | None = None
 
 
 class LlmComposer:
@@ -34,6 +38,7 @@ class LlmComposer:
         hits: list[ChunkHit],
         mode: str,
         assembled: AssembledPrompt | None = None,
+        verdict_format: bool = False,
     ) -> LlmResult:
         if not self._settings.openai_api_key:
             raise RuntimeError("OPENAI_API_KEY ausente")
@@ -61,6 +66,11 @@ class LlmComposer:
                 "Use clear language for players. Keep official rule numbers and section paths "
                 "in their original form when citing (e.g. 603.3b, CR 702.19)."
             )
+            if verdict_format:
+                system += (
+                    " Structure the ruling as a tournament judge would: state a clear verdict, "
+                    "cite the applicable rule, explain briefly, and note exceptions if any."
+                )
         elif mode == "judge":
             system += (
                 " Prefer citing official rule paths when applicable (e.g. 603.3b). "
@@ -68,6 +78,11 @@ class LlmComposer:
             )
 
         user = assembled.user_context_block + "\n\nReturn JSON with keys: answer (string)."
+        if verdict_format and mode == "player":
+            user += (
+                " Also include: verdict (one of Permitido, Não permitido, Depende, Informação), "
+                "rule_applied (string), explanation (string), exceptions (string or null)."
+            )
 
         client = AsyncOpenAI(api_key=self._settings.openai_api_key)
         model = self._settings.default_chat_model
@@ -84,9 +99,24 @@ class LlmComposer:
         try:
             data = json.loads(raw)
             answer = str(data.get("answer", "")).strip()
+            verdict = str(data.get("verdict", "")).strip() or None
+            rule_applied = str(data.get("rule_applied", "")).strip() or None
+            explanation = str(data.get("explanation", "")).strip() or None
+            exceptions_raw = data.get("exceptions")
+            exceptions = (
+                str(exceptions_raw).strip()
+                if exceptions_raw is not None and str(exceptions_raw).strip()
+                else None
+            )
         except json.JSONDecodeError:
             answer = raw.strip()
+            verdict = None
+            rule_applied = None
+            explanation = None
+            exceptions = None
 
+        if not answer and explanation:
+            answer = explanation
         if not answer:
             answer = "Não foi possível gerar uma resposta a partir do contexto recuperado."
 
@@ -96,4 +126,11 @@ class LlmComposer:
             n_context_chunks=len(hits),
             prompt_ctx_tokens_est=assembled.metrics.get("prompt_context_tokens_est"),
         )
-        return LlmResult(answer=answer, model=model)
+        return LlmResult(
+            answer=answer,
+            model=model,
+            verdict=verdict,
+            rule_applied=rule_applied,
+            explanation=explanation,
+            exceptions=exceptions,
+        )

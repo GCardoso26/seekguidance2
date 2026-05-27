@@ -127,6 +127,7 @@ class RagOrchestrator:
                 hits=hits,
                 mode=payload.mode,
                 assembled=assembled,
+                verdict_format=payload.verdict_format,
             )
         except Exception as exc:  # pragma: no cover
             logger.exception("llm.failed", error=str(exc))
@@ -242,6 +243,10 @@ class RagOrchestrator:
             citations=cites,
             confidence=round(float(conf), 4),
             model=result.model,
+            verdict=result.verdict,
+            rule_applied=result.rule_applied,
+            explanation=result.explanation,
+            exceptions=result.exceptions,
             retrieval_reasons=outcome.retrieval_reasons if payload.explain_retrieval else None,
             explainability=explain_v2,
             reasoning_v3=reasoning_v3,

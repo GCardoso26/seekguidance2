@@ -4,7 +4,7 @@ const BROWSER_PROXY = "/api/proxy";
 
 
 
-function resolveApiUrl(path: string): string {
+export function resolveApiUrl(path: string): string {
 
   if (path.startsWith("http://") || path.startsWith("https://")) return path;
 
