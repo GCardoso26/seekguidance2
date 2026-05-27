@@ -56,3 +56,46 @@
     min-height: 112px;
   }
 }
+
+/* Carrossel desktop — fade e botões de scroll */
+.judge-app .judge-tcg-scroll-fade {
+  background: linear-gradient(to right, hsl(var(--judge-surface)) 0%, transparent 100%);
+}
+
+.judge-app .judge-tcg-scroll-fade--right {
+  background: linear-gradient(to left, hsl(var(--judge-surface)) 0%, transparent 100%);
+}
+
+.judge-app .judge-tcg-scroll-btn {
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 9999px;
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--judge-surface));
+  color: hsl(var(--foreground));
+  box-shadow: 0 2px 8px hsl(222 30% 20% / 0.1);
+  transition: box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.judge-app .judge-tcg-scroll-btn:hover {
+  background: hsl(var(--muted));
+  box-shadow: 0 4px 12px hsl(222 30% 20% / 0.12);
+}
+
+.judge-app .judge-tcg-scroll-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px hsl(var(--primary) / 0.35);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .judge-app .judge-tcg-card--selected {
+    transform: none;
+  }
+
+  .judge-app .judge-tcg-card,
+  .judge-app .judge-tcg-scroll-btn {
+    transition: none;
+  }
+}

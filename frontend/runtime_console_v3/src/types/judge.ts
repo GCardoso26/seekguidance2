@@ -63,6 +63,8 @@ export type JudgeHistoryItem = {
   answer: string;
   success: boolean;
   confidence: number;
+  sources?: JudgeSource[];
+  runtime_confidence?: number;
   createdAt: string;
 };
 

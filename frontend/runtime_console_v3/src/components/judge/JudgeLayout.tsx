@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { JudgeLogo } from "@/components/judge/JudgeLogo";
 import type { BackendHealthState } from "@/types/judge";
 import { cn } from "@/lib/utils";
 
@@ -29,12 +30,7 @@ export function JudgeLayout({ children, sidebar, health = "offline" }: Props) {
       <header className="judge-header-bar sticky top-0 z-20 border-b border-white/10 shadow-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
           <div className="flex items-center gap-3">
-            <div
-              className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/15 text-lg font-bold text-white backdrop-blur-sm"
-              aria-hidden
-            >
-              J
-            </div>
+            <JudgeLogo size={40} />
             <div>
               <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/80">
                 Judge TCG
