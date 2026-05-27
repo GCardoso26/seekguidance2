@@ -45,6 +45,21 @@ export type JudgeSource = {
   url: string;
   section?: string | null;
   excerpt?: string | null;
+  rule_path?: string | null;
+  page_number?: number | null;
+  chunk_id?: string | null;
+};
+
+export type JudgeGameCatalogItem = {
+  tcg_id: TcgType;
+  game_slug: string;
+  display_name: string;
+  enabled: boolean;
+  coming_soon: boolean;
+  rag_ready: boolean;
+  chunk_count: number;
+  last_indexed_at?: string | null;
+  last_chunk_at?: string | null;
 };
 
 export type JudgeResponse = {

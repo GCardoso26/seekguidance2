@@ -5,17 +5,24 @@ import type { CSSProperties } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { getTcgBrand } from "@/lib/tcg-brand";
 import { cn } from "@/lib/utils";
-import { TCG_OPTIONS, type TcgType } from "@/types/judge";
+import { TCG_OPTIONS, type TcgOption, type TcgType } from "@/types/judge";
 
 type Props = {
   value: TcgType;
   onChange: (v: TcgType) => void;
   disabled?: boolean;
   responsePanelId?: string;
+  options?: TcgOption[];
 };
 
-export function TcgSelector({ value, onChange, disabled, responsePanelId }: Props) {
-  const selected = TCG_OPTIONS.find((g) => g.id === value);
+export function TcgSelector({
+  value,
+  onChange,
+  disabled,
+  responsePanelId,
+  options = TCG_OPTIONS,
+}: Props) {
+  const selected = options.find((g) => g.id === value);
   const selectedBrand = selected ? getTcgBrand(selected.id) : null;
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -109,7 +116,7 @@ export function TcgSelector({ value, onChange, disabled, responsePanelId }: Prop
           role="tablist"
           aria-label="Selecionar jogo"
         >
-          {TCG_OPTIONS.map((g) => {
+          {options.map((g) => {
             const active = value === g.id;
             const brand = getTcgBrand(g.id);
             const canSelect = g.enabled && !disabled;

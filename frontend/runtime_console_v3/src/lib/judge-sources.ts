@@ -45,6 +45,8 @@ export function formatJudgeSource(source: JudgeSource, index: number) {
     excerpt,
     url: source.url?.trim() || null,
     hasLink: Boolean(source.url?.trim()),
+    rulePath: source.rule_path?.trim() || null,
+    pageNumber: source.page_number ?? null,
   };
 }
 

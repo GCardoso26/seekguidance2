@@ -23,8 +23,9 @@ import {
 } from "@/lib/judge-thread";
 import { buildJudgeUrlParams, parseJudgeSearchParams } from "@/lib/judge-url";
 import { getTcgBrand } from "@/lib/tcg-brand";
-import { askJudgeQuestionPreferStream, getJudgeHealth, judgeErrorMessage } from "@/services/judgeApi";
-import type { BackendHealthState, JudgeHistoryItem, JudgeResponse, TcgType } from "@/types/judge";
+import { askJudgeQuestionPreferStream, getJudgeGames, getJudgeHealth, judgeErrorMessage } from "@/services/judgeApi";
+import type { BackendHealthState, JudgeHistoryItem, JudgeResponse, TcgOption, TcgType } from "@/types/judge";
+import { TCG_OPTIONS } from "@/types/judge";
 
 const RESPONSE_PANEL_ID = "judge-response-panel";
 
@@ -38,6 +39,7 @@ export function JudgePageClient() {
   const [history, setHistory] = useState<JudgeHistoryItem[]>([]);
   const [threads, setThreads] = useState<JudgeThreads>({});
   const [health, setHealth] = useState<BackendHealthState>("offline");
+  const [tcgOptions, setTcgOptions] = useState<TcgOption[]>(TCG_OPTIONS);
   const bottomRef = useRef<HTMLDivElement>(null);
   const autoSubmitDone = useRef(false);
   const tcgBrand = getTcgBrand(tcg);
@@ -60,6 +62,20 @@ export function JudgePageClient() {
     setHistory(loadJudgeHistory());
     setThreads(loadJudgeThreads());
     getJudgeHealth().then(setHealth);
+    getJudgeGames()
+      .then((games) => {
+        if (games.length === 0) return;
+        setTcgOptions(
+          games.map((g) => ({
+            id: g.tcg_id,
+            label: g.display_name,
+            enabled: g.enabled && g.rag_ready,
+          })),
+        );
+      })
+      .catch(() => {
+        /* mantém lista local */
+      });
     const t = setInterval(() => getJudgeHealth().then(setHealth), 30_000);
     return () => clearInterval(t);
   }, []);
@@ -237,6 +253,7 @@ export function JudgePageClient() {
             onChange={handleTcgChange}
             disabled={submitting}
             responsePanelId={RESPONSE_PANEL_ID}
+            options={tcgOptions}
           />
         </section>
 

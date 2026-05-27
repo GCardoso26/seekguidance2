@@ -1,11 +1,6 @@
-import time
-from collections import defaultdict
 from collections.abc import Callable
 
 import structlog
-from fastapi import FastAPI, Request, Response
-from fastapi.middleware.cors import CORSMiddleware
-
 from app.api.v1.router import api_router
 from app.api.v1.runtime_deployments import router as runtime_deployments_router
 from app.api.v1.runtime_judge import router as runtime_judge_router
@@ -13,15 +8,14 @@ from app.api.v1.runtime_minimal import router as runtime_minimal_router
 from app.api.v1.runtime_operational import router as runtime_operational_router
 from app.core.config import get_settings
 from app.core.logging import configure_logging
+from app.core.rate_limit import allow_request, build_rate_limit_response, client_key
+from fastapi import FastAPI, Request, Response
+from fastapi.middleware.cors import CORSMiddleware
 
 configure_logging()
 logger = structlog.get_logger(__name__)
 
-settings = get_settings()
-app = FastAPI(title=settings.app_name, version="0.1.0-mvp")
-
-# Rate limit in-memory (MVP; produção: Redis + token bucket)
-_rate: dict[str, list[float]] = defaultdict(list)
+app = FastAPI(title=get_settings().app_name, version="0.1.0-mvp")
 
 app.add_middleware(
     CORSMiddleware,
@@ -32,20 +26,37 @@ app.add_middleware(
 )
 
 
+def _rate_limit_bucket(path: str, cfg) -> str | None:
+    if path.startswith("/v1/chat"):
+        return "chat"
+    if cfg.judge_rate_limit_enabled and path.startswith("/runtime/judge/query"):
+        return "judge"
+    return None
+
+
 @app.middleware("http")
 async def rate_limit_middleware(request: Request, call_next: Callable[[Request], Response]) -> Response:
-    if request.url.path.startswith("/v1/chat"):
-        client = request.client.host if request.client else "unknown"
-        now = time.monotonic()
-        window = float(settings.api_rate_limit_window_seconds)
-        limit = int(settings.api_rate_limit_requests_per_minute)
-        window_start = now - window
-        hits = _rate[client]
-        while hits and hits[0] < window_start:
-            hits.pop(0)
-        if len(hits) >= limit:
-            return Response(status_code=429, content="Rate limit exceeded")
-        hits.append(now)
+    cfg = get_settings()
+    bucket = _rate_limit_bucket(request.url.path, cfg)
+    if bucket:
+        limit = (
+            int(cfg.judge_rate_limit_requests_per_minute)
+            if bucket == "judge"
+            else int(cfg.api_rate_limit_requests_per_minute)
+        )
+        window = (
+            float(cfg.judge_rate_limit_window_seconds)
+            if bucket == "judge"
+            else float(cfg.api_rate_limit_window_seconds)
+        )
+        if not allow_request(
+            bucket,
+            client_key(request),
+            limit=limit,
+            window_seconds=window,
+            redis_url=cfg.redis_url,
+        ):
+            return build_rate_limit_response()
     return await call_next(request)
 
 
@@ -75,4 +86,4 @@ app.include_router(runtime_judge_router)
 
 @app.get("/")
 async def root() -> dict[str, str]:
-    return {"service": settings.app_name, "docs": "/docs"}
+    return {"service": get_settings().app_name, "docs": "/docs"}

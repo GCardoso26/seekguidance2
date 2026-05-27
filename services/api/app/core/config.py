@@ -100,6 +100,9 @@ class Settings(BaseSettings):
 
     api_rate_limit_requests_per_minute: int = 60
     api_rate_limit_window_seconds: float = 60.0
+    judge_rate_limit_requests_per_minute: int = 24
+    judge_rate_limit_window_seconds: float = 60.0
+    judge_rate_limit_enabled: bool = True
 
     ingestion_default_host_rps: float = 1.0
     ingestion_max_concurrent_downloads: int = 4

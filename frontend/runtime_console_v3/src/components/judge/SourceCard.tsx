@@ -38,9 +38,14 @@ export function SourceCard({ source, index, highlightTerms = [], accent }: Props
         </span>
         <div className="min-w-0 flex-1">
           <p className="text-sm font-semibold leading-snug">{f.title}</p>
-          {f.section && (
-            <p className="mt-0.5 text-xs text-[hsl(222_15%_45%)]">{f.section}</p>
-          )}
+          <div className="mt-0.5 flex flex-wrap gap-x-2 gap-y-0.5 text-[10px] text-[hsl(222_15%_45%)]">
+            {f.rulePath && <span>Regra {f.rulePath}</span>}
+            {f.pageNumber != null && <span>Pág. {f.pageNumber}</span>}
+            {f.section && !f.rulePath && <span>{f.section}</span>}
+            {f.section && f.rulePath && f.section !== `Secção ${f.rulePath}` && (
+              <span>{f.section}</span>
+            )}
+          </div>
         </div>
         <div className="flex shrink-0 items-center gap-1">
           {f.hasLink && f.url && (

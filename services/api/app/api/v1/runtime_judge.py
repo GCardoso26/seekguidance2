@@ -1,16 +1,23 @@
-"""POST /runtime/judge/query — consulta de regras TCG para UI do usuário final."""
+"""Endpoints públicos Judge TCG — consulta, catálogo e health."""
 
 from __future__ import annotations
 
 import asyncio
 import json
-import re
 from collections.abc import AsyncIterator
 from typing import Any
 
 import structlog
 from app.api.deps import DbSession, get_rag_orchestrator
 from app.application.rag_orchestrator import RagOrchestrator
+from app.core.config import get_settings
+from app.judge.catalog import judge_health_payload, list_judge_games
+from app.judge.registry import (
+    TCG_COMING_SOON,
+    game_slug_for_tcg,
+    normalize_tcg,
+)
+from app.judge.sources import JudgeSource, sources_from_citations
 from app.schemas.chat import ChatRequest
 from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
@@ -18,51 +25,13 @@ from pydantic import BaseModel, Field
 
 logger = structlog.get_logger(__name__)
 router = APIRouter(tags=["runtime-judge"])
-
-# Slug da API RAG (games.slug)
-TCG_GAME_SLUG: dict[str, str] = {
-    "magic": "mtg",
-    "mtg": "mtg",
-    "pokemon": "pokemon",
-    "lorcana": "lorcana",
-    "yugioh": "yugioh",
-    "onepiece": "onepiece",
-    "one_piece": "onepiece",
-    "flesh_and_blood": "fab",
-    "fab": "fab",
-    "gundam": "gundam",
-    "digimon": "digimon",
-    "dragon_ball": "dbfw",
-    "dragon_ball_super_fusion_world": "dbfw",
-    "dbfw": "dbfw",
-    "sorcery": "sorcery",
-    "sorcery_contested_realm": "sorcery",
-    "vanguard": "vanguard",
-    "cardfight_vanguard": "vanguard",
-    "riftbound": "riftbound",
-    "union_arena": "union_arena",
-}
-
-# Jogos sem corpus / fora do escopo do judge público
-TCG_COMING_SOON: frozenset[str] = frozenset(
-    {
-        "swu",
-        "star_wars_unlimited",
-    }
-)
+settings = get_settings()
 
 
 class JudgeQueryBody(BaseModel):
     tcg: str = Field(..., examples=["magic"])
     question: str = Field(..., min_length=1, max_length=4000)
     context: str | None = Field(default=None, max_length=8000)
-
-
-class JudgeSource(BaseModel):
-    title: str
-    url: str
-    section: str | None = None
-    excerpt: str | None = None
 
 
 class JudgeQueryResponse(BaseModel):
@@ -76,6 +45,33 @@ class JudgeQueryResponse(BaseModel):
     rule_applied: str | None = None
     explanation: str | None = None
     exceptions: str | None = None
+
+
+class JudgeGameCatalogItem(BaseModel):
+    tcg_id: str
+    game_slug: str
+    display_name: str
+    enabled: bool
+    coming_soon: bool = False
+    rag_ready: bool
+    chunk_count: int = 0
+    last_indexed_at: str | None = None
+    last_chunk_at: str | None = None
+
+
+class JudgeGamesResponse(BaseModel):
+    games: list[JudgeGameCatalogItem]
+
+
+class JudgeHealthResponse(BaseModel):
+    status: str
+    integrity_status: str
+    database: str
+    openai_configured: bool
+    rag_ready_games: int
+    total_games: int
+    default_chat_model: str
+    games: list[JudgeGameCatalogItem]
 
 
 def _mock_answer(
@@ -98,52 +94,6 @@ def _mock_answer(
     return ("", None, None, None, None)
 
 
-_TITLE_PT: list[tuple[re.Pattern[str], str]] = [
-    (re.compile(r"comprehensive rules", re.I), "Regras Abrangentes (Comprehensive Rules)"),
-    (re.compile(r"tournament rules", re.I), "Regras de Torneio"),
-    (re.compile(r"infraction procedure", re.I), "Procedimentos de Infração (IPG)"),
-]
-
-
-def _title_for_display(raw: str) -> str:
-    title = (raw or "").strip() or "Fonte oficial"
-    if title.lower() in ("source", "document"):
-        return "Fonte oficial"
-    for pattern, label in _TITLE_PT:
-        if pattern.search(title):
-            return pattern.sub(label, title, count=1)
-    return title
-
-
-def _section_for_display(section: str | None) -> str | None:
-    if not section or not str(section).strip():
-        return None
-    s = str(section).strip()
-    if re.match(r"^\d", s):
-        return f"Secção {s}"
-    return s
-
-
-def _sources_from_citations(citations: list[Any]) -> list[JudgeSource]:
-    out: list[JudgeSource] = []
-    for c in citations[:8]:
-        raw_title = getattr(c, "document_title", "") or ""
-        section = getattr(c, "section_path", None) or getattr(c, "rule_path", None)
-        out.append(
-            JudgeSource(
-                title=_title_for_display(raw_title),
-                url=getattr(c, "source_url", "") or "",
-                section=_section_for_display(section),
-                excerpt=(getattr(c, "excerpt", None) or "")[:280] or None,
-            )
-        )
-    return out
-
-
-def _normalize_tcg(raw: str) -> str:
-    return re.sub(r"[^a-z0-9_]", "", raw.lower().strip().replace("-", "_"))
-
-
 def _compose_question(body: JudgeQueryBody) -> str:
     question = body.question.strip()
     ctx = (body.context or "").strip()
@@ -157,7 +107,7 @@ async def _execute_judge_query(
     session: DbSession,
     orchestrator: RagOrchestrator,
 ) -> JudgeQueryResponse:
-    tcg = _normalize_tcg(body.tcg)
+    tcg = normalize_tcg(body.tcg)
     question = _compose_question(body)
 
     if tcg in TCG_COMING_SOON:
@@ -169,7 +119,7 @@ async def _execute_judge_query(
             sources=[],
         )
 
-    game_slug = TCG_GAME_SLUG.get(tcg)
+    game_slug = game_slug_for_tcg(tcg)
     if not game_slug:
         return JudgeQueryResponse(
             success=False,
@@ -192,7 +142,7 @@ async def _execute_judge_query(
             success=True,
             answer=chat.answer,
             confidence=float(chat.confidence),
-            sources=_sources_from_citations(chat.citations),
+            sources=sources_from_citations(chat.citations),
             runtime_confidence=0.94,
             verdict=chat.verdict,
             rule_applied=chat.rule_applied,
@@ -221,6 +171,18 @@ async def _execute_judge_query(
             confidence=0.0,
             sources=[],
         )
+
+
+@router.get("/runtime/judge/health", response_model=JudgeHealthResponse)
+async def runtime_judge_health(session: DbSession) -> JudgeHealthResponse:
+    payload = await judge_health_payload(session, settings)
+    return JudgeHealthResponse(**payload)
+
+
+@router.get("/runtime/judge/games", response_model=JudgeGamesResponse)
+async def runtime_judge_games(session: DbSession) -> JudgeGamesResponse:
+    games = await list_judge_games(session, settings)
+    return JudgeGamesResponse(games=[JudgeGameCatalogItem(**g) for g in games])
 
 
 @router.post("/runtime/judge/query", response_model=JudgeQueryResponse)

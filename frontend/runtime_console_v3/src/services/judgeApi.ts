@@ -1,12 +1,12 @@
 import { apiFetch, ApiError, resolveApiUrl } from "@/services/api/client";
-import type { BackendHealthState, JudgeQuestionPayload, JudgeResponse } from "@/types/judge";
+import type { BackendHealthState, JudgeGameCatalogItem, JudgeQuestionPayload, JudgeResponse } from "@/types/judge";
 
-type HealthPayload = {
+type JudgeHealthPayload = {
   status?: string;
   integrity_status?: string;
 };
 
-export function mapHealthStatus(data?: HealthPayload | null): BackendHealthState {
+export function mapHealthStatus(data?: JudgeHealthPayload | null): BackendHealthState {
   if (!data) return "offline";
   const status = (data.status || "").toLowerCase();
   const integrity = (data.integrity_status || "").toLowerCase();
@@ -17,11 +17,21 @@ export function mapHealthStatus(data?: HealthPayload | null): BackendHealthState
 
 export async function getJudgeHealth(): Promise<BackendHealthState> {
   try {
-    const data = await apiFetch<HealthPayload>("/v1/health");
+    const data = await apiFetch<JudgeHealthPayload>("/runtime/judge/health");
     return mapHealthStatus(data);
   } catch {
-    return "offline";
+    try {
+      const data = await apiFetch<JudgeHealthPayload>("/v1/health");
+      return mapHealthStatus(data);
+    } catch {
+      return "offline";
+    }
   }
+}
+
+export async function getJudgeGames(): Promise<JudgeGameCatalogItem[]> {
+  const data = await apiFetch<{ games: JudgeGameCatalogItem[] }>("/runtime/judge/games");
+  return data.games ?? [];
 }
 
 export async function askJudgeQuestion(payload: JudgeQuestionPayload): Promise<JudgeResponse> {
