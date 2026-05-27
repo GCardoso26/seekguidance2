@@ -239,15 +239,21 @@ async def ingest_official(
     ingest_root: str | Path = "data/ingest",
 ) -> str:
     if source.kind == "pdf":
-        from tcg_judge_ingestion.crawler.tcg_official_sources import resolve_local_pdf
+        from tcg_judge_ingestion.crawler.tcg_official_sources import (
+            LOCAL_PDF_ONLY,
+            local_ingest_hint,
+            resolve_ingest_game_slug,
+            resolve_local_pdf,
+        )
 
-        local = resolve_local_pdf(game_slug, source.doc_type, ingest_root=ingest_root)
+        slug = resolve_ingest_game_slug(game_slug)
+        local = resolve_local_pdf(slug, source.doc_type, ingest_root=ingest_root)
         if local is not None:
             logger.info("ingest.local_pdf", path=str(local), doc_type=source.doc_type)
             return await ingest_pdf_file(
                 dsn,
                 path=local,
-                game_slug=game_slug,
+                game_slug=slug,
                 doc_type=source.doc_type,
                 title=source.title,
                 openai_api_key=openai_api_key,
@@ -255,6 +261,8 @@ async def ingest_official(
                 source_url=source.url,
                 ingestion_tag=ingestion_tag,
             )
+        if (slug, source.doc_type) in LOCAL_PDF_ONLY:
+            raise FileNotFoundError(local_ingest_hint(slug, source.doc_type, ingest_root=ingest_root))
     if source.kind == "html":
         return await ingest_html_url(
             dsn,

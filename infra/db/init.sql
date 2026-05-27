@@ -222,7 +222,11 @@ CROSS JOIN (VALUES
     ('digimon', 'Digimon Card Game', 'Bandai', '{"tcg":true}'),
     ('dbfw', 'Dragon Ball Super Fusion World', 'Bandai', '{"tcg":true}'),
     ('gundam', 'Gundam Card Game', 'Bandai', '{"tcg":true}'),
-    ('riftbound', 'Riftbound', 'Unknown Publisher', '{"tcg":true}')
+    ('riftbound', 'Riftbound', 'Riot Games', '{"tcg":true}'),
+    ('fab', 'Flesh and Blood', 'Legend Story Studios', '{"tcg":true}'),
+    ('sorcery', 'Sorcery: Contested Realm', 'Erik''s Curiosa', '{"tcg":true}'),
+    ('vanguard', 'Cardfight!! Vanguard', 'Bushiroad', '{"tcg":true}'),
+    ('union_arena', 'Union Arena', 'Bandai', '{"tcg":true}')
 ) AS v(slug, display_name, publisher, metadata)
 WHERE t.slug = 'default'
 ON CONFLICT (tenant_id, slug) DO NOTHING;

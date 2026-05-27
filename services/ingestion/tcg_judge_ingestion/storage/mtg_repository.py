@@ -3,48 +3,20 @@
 from __future__ import annotations
 
 import json
-import os
-import ssl as ssl_mod
 from typing import Any
-from urllib.parse import parse_qs, urlparse, urlunparse
 from uuid import UUID
 
 import asyncpg
 import structlog
 
 from tcg_judge_ingestion.chunker.hierarchical_mtg import HierarchicalChunk
+from tcg_judge_ingestion.storage.dsn import asyncpg_connect_kwargs
 
 logger = structlog.get_logger(__name__)
 
 
-def _asyncpg_connect_kwargs(dsn: str) -> tuple[str, dict[str, Any]]:
-    """RDS exige TLS; asyncpg ignora ?ssl=require na URL sem kwarg explícito."""
-    parsed = urlparse(dsn)
-    query = parse_qs(parsed.query, keep_blank_values=True)
-
-    ssl_mode = os.environ.get("DATABASE_SSL", "").strip().lower()
-    qs_ssl = (query.pop("ssl", [None])[0] or "").strip().lower()
-    if qs_ssl in ("require", "true", "1"):
-        ssl_mode = ssl_mode or "require"
-    host = (parsed.hostname or "").lower()
-    if not ssl_mode and host.endswith(".rds.amazonaws.com"):
-        ssl_mode = "require"
-
-    clean = urlunparse(parsed._replace(query=""))
-    if not ssl_mode or ssl_mode in ("disable", "false", "0"):
-        return clean, {}
-
-    if ssl_mode in ("verify-full", "verify_full"):
-        cert = os.environ.get("DATABASE_SSL_ROOT_CERT", "").strip()
-        if cert:
-            return clean, {"ssl": ssl_mod.create_default_context(cafile=cert)}
-        return clean, {"ssl": "require"}
-
-    return clean, {"ssl": "require"}
-
-
 async def connect(dsn: str) -> asyncpg.Connection:
-    clean, kwargs = _asyncpg_connect_kwargs(dsn)
+    clean, kwargs = asyncpg_connect_kwargs(dsn)
     return await asyncpg.connect(clean, **kwargs)
 
 

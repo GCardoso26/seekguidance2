@@ -18,6 +18,16 @@ SLUG_ALIASES: Final[dict[str, str]] = {
     "digimon tcg": "digimon",
     "lorcana tcg": "lorcana",
     "rift": "riftbound",
+    "dragon_ball": "dbfw",
+    "dragon_ball_super_fusion_world": "dbfw",
+    "dbfw": "dbfw",
+    "gundam": "gundam",
+    "gundam_card_game": "gundam",
+    "sorcery": "sorcery",
+    "sorcery_contested_realm": "sorcery",
+    "vanguard": "vanguard",
+    "cardfight_vanguard": "vanguard",
+    "union_arena": "union_arena",
 }
 
 # Jogos do sprint multi-TCG (subset; o seed completo pode incluir mais linhas)
@@ -30,6 +40,11 @@ SPRINT_MULTI_TCG_SLUGS: Final[tuple[str, ...]] = (
     "fab",
     "lorcana",
     "riftbound",
+    "gundam",
+    "dbfw",
+    "sorcery",
+    "vanguard",
+    "union_arena",
 )
 
 

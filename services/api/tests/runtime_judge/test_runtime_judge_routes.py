@@ -13,10 +13,10 @@ from fastapi.testclient import TestClient
 client = TestClient(app)
 
 
-def test_judge_query_unsupported_tcg() -> None:
+def test_judge_query_coming_soon_tcg() -> None:
     r = client.post(
         "/runtime/judge/query",
-        json={"tcg": "digimon", "question": "How do digivolve?"},
+        json={"tcg": "swu", "question": "How do you win?"},
     )
     assert r.status_code == 200
     data = r.json()
@@ -51,6 +51,7 @@ def test_judge_query_magic_rag() -> None:
             confidence=0.88,
         )
     )
+
     async def _db():
         yield AsyncMock()
 
@@ -69,3 +70,34 @@ def test_judge_query_magic_rag() -> None:
     assert data["answer"] == "Priority rules apply."
     assert data["confidence"] == 0.88
     assert len(data["sources"]) >= 1
+
+
+def test_judge_query_digimon_rag_slug() -> None:
+    mock = AsyncMock()
+    mock.ask = AsyncMock(
+        return_value=ChatResponse(
+            answer="Digivolution rules.",
+            disclaimer="test",
+            citations=[],
+            confidence=0.7,
+        )
+    )
+
+    async def _db():
+        yield AsyncMock()
+
+    app.dependency_overrides[get_rag_orchestrator] = lambda: mock
+    app.dependency_overrides[get_db_session] = _db
+    try:
+        r = client.post(
+            "/runtime/judge/query",
+            json={"tcg": "digimon", "question": "How does digivolution work?"},
+        )
+    finally:
+        app.dependency_overrides.clear()
+    assert r.status_code == 200
+    data = r.json()
+    assert data["success"] is True
+    mock.ask.assert_awaited_once()
+    req = mock.ask.await_args.args[1]
+    assert req.game_slug == "digimon"

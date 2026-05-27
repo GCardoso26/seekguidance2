@@ -24,22 +24,26 @@ TCG_GAME_SLUG: dict[str, str] = {
     "yugioh": "yugioh",
     "onepiece": "onepiece",
     "one_piece": "onepiece",
+    "flesh_and_blood": "fab",
+    "fab": "fab",
+    "gundam": "gundam",
+    "digimon": "digimon",
+    "dragon_ball": "dbfw",
+    "dragon_ball_super_fusion_world": "dbfw",
+    "dbfw": "dbfw",
+    "sorcery": "sorcery",
+    "sorcery_contested_realm": "sorcery",
+    "vanguard": "vanguard",
+    "cardfight_vanguard": "vanguard",
+    "riftbound": "riftbound",
+    "union_arena": "union_arena",
 }
 
-# Sem corpus indexado ainda
+# Jogos sem corpus / fora do escopo do judge público
 TCG_COMING_SOON: frozenset[str] = frozenset(
     {
-        "flesh_and_blood",
-        "fab",
-        "gundam",
-        "digimon",
-        "dragon_ball",
-        "dbfw",
-        "sorcery",
-        "vanguard",
-        "riftbound",
-        "union_arena",
         "swu",
+        "star_wars_unlimited",
     }
 )
 

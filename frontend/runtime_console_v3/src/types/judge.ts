@@ -25,14 +25,14 @@ export const TCG_OPTIONS: TcgOption[] = [
   { id: "lorcana", label: "Disney Lorcana", enabled: true },
   { id: "yugioh", label: "Yu-Gi-Oh!", enabled: true },
   { id: "one_piece", label: "One Piece TCG", enabled: true },
-  { id: "flesh_and_blood", label: "Flesh and Blood", enabled: false },
-  { id: "gundam", label: "Gundam", enabled: false },
-  { id: "digimon", label: "Digimon TCG", enabled: false },
-  { id: "dragon_ball", label: "Dragon Ball Super Fusion World", enabled: false },
-  { id: "sorcery", label: "Sorcery: Contested Realm", enabled: false },
-  { id: "vanguard", label: "Cardfight!! Vanguard", enabled: false },
-  { id: "riftbound", label: "Riftbound — League of Legends", enabled: false },
-  { id: "union_arena", label: "Union Arena", enabled: false },
+  { id: "flesh_and_blood", label: "Flesh and Blood", enabled: true },
+  { id: "gundam", label: "Gundam Card Game", enabled: true },
+  { id: "digimon", label: "Digimon TCG", enabled: true },
+  { id: "dragon_ball", label: "Dragon Ball Super Fusion World", enabled: true },
+  { id: "sorcery", label: "Sorcery: Contested Realm", enabled: true },
+  { id: "vanguard", label: "Cardfight!! Vanguard", enabled: true },
+  { id: "riftbound", label: "Riftbound — League of Legends", enabled: true },
+  { id: "union_arena", label: "Union Arena", enabled: true },
 ];
 
 export type JudgeQuestion = {

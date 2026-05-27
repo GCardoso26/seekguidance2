@@ -29,7 +29,7 @@ fi
 
 PY="${VENV}/bin/python"
 
-for GAME in pokemon lorcana yugioh onepiece; do
+for GAME in pokemon lorcana yugioh onepiece fab digimon gundam dbfw sorcery vanguard riftbound union_arena; do
   echo "========== $GAME =========="
   "$PY" scripts/ingest_tcg.py --game "$GAME" --all || {
     echo "AVISO: ingestão $GAME falhou (ver URL/PDF/rede)"

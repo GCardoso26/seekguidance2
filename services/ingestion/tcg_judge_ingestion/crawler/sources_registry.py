@@ -51,9 +51,44 @@ OFFICIAL_SOURCES: tuple[SourceSpec, ...] = (
     SourceSpec(
         "riftbound",
         "CR",
-        "Riftbound Rules",
-        "https://riftbound.leagueoflegends.com/en-us/",
-        "URL a confirmar",
+        "Riftbound Core Rules",
+        "https://riftbound.leagueoflegends.com/en-us/rules-hub/",
+        "PDF via catálogo tcg_official_sources",
+    ),
+    SourceSpec(
+        "gundam",
+        "CR",
+        "Gundam Card Game Comprehensive Rules",
+        "https://www.gundam-gcg.com/en/rules/",
+        "",
+    ),
+    SourceSpec(
+        "dbfw",
+        "CR",
+        "Dragon Ball Super Fusion World Rules",
+        "https://www.dbs-cardgame.com/fw/en/news/01_31.html",
+        "",
+    ),
+    SourceSpec(
+        "sorcery",
+        "CR",
+        "Sorcery: Contested Realm Rulebook",
+        "https://sorcerytcg.com/how-to-play",
+        "PDF local em data/ingest/sorcery/",
+    ),
+    SourceSpec(
+        "vanguard",
+        "CR",
+        "Cardfight!! Vanguard Comprehensive Rules",
+        "https://en.cf-vanguard.com/howto/",
+        "",
+    ),
+    SourceSpec(
+        "union_arena",
+        "CR",
+        "Union Arena Official Rule Manual",
+        "https://www.unionarena-tcg.com/na/rules/",
+        "",
     ),
 )
 

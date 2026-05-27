@@ -5,7 +5,7 @@
 ## Fluxo
 
 1. Aceder `http://<host>:3000/judge`
-2. Selecionar TCG (apenas **Magic** ativo)
+2. Selecionar TCG (Magic, Pokémon, Lorcana, Yu-Gi-Oh!, One Piece e mais)
 3. Digitar pergunta → **Perguntar** ou Enter
 4. `POST /runtime/judge/query` via proxy `/api/proxy`
 5. Resposta com texto, confiança e fontes
@@ -29,8 +29,8 @@
 }
 ```
 
-- **magic** → RAG real (`/v1/chat/ask` internamente, `game_slug=mtg`)
-- Outros TCG → `success: false` com mensagem "em breve"
+- TCGs com corpus indexado → RAG real (`game_slug` em Postgres: `mtg`, `pokemon`, `fab`, `digimon`, etc.)
+- **swu** (Star Wars: Unlimited) → `success: false` com mensagem "em breve"
 - Fallback local se RAG falhar e pergunta contiver "trample"
 
 ### Health badge

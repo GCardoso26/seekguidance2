@@ -79,7 +79,10 @@ class Settings(BaseSettings):
     constraint_max_propagation_cap: int = 48
 
     # Multi-TCG RAG: lista separada por vírgulas, alinhada a `games.slug` no Postgres
-    rag_allowed_game_slugs: str = "mtg,pokemon,yugioh,onepiece,digimon,lorcana,riftbound,fab"
+    rag_allowed_game_slugs: str = (
+        "mtg,pokemon,yugioh,onepiece,digimon,lorcana,riftbound,fab,"
+        "gundam,dbfw,sorcery,vanguard,union_arena"
+    )
 
     def rag_allowed_game_slug_set(self) -> set[str]:
         return {s.strip().lower() for s in self.rag_allowed_game_slugs.split(",") if s.strip()}

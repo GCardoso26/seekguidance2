@@ -107,20 +107,138 @@ TCG_OFFICIAL_PDFS: dict[str, list[OfficialPdf]] = {
             publisher="Bandai",
         ),
     ],
+    "fab": [
+        OfficialPdf(
+            url="https://dhhim4ltzu1pj.cloudfront.net/media/documents/FaB_Comprehensive_Rules_v2_10_1_access.pdf",
+            fallback_urls=(
+                "https://rules.fabtcg.com/en-fab-cr.pdf",
+            ),
+            doc_type="CR",
+            title="Flesh and Blood Comprehensive Rules",
+            publisher="Legend Story Studios",
+            download_referer="https://rules.fabtcg.com/",
+        ),
+    ],
+    "digimon": [
+        OfficialPdf(
+            url="https://world.digimoncard.com/rule/pdf/manual.pdf?20260401=",
+            doc_type="CR",
+            title="Digimon Card Game Official Rule Manual",
+            publisher="Bandai",
+        ),
+        OfficialPdf(
+            url="https://world.digimoncard.com/rule/pdf/general_rule.pdf?20260401=",
+            doc_type="CR_ADV",
+            title="Digimon Card Game Comprehensive Rules Manual",
+            publisher="Bandai",
+        ),
+        OfficialPdf(
+            url="https://world.digimoncard.com/event/online_event/pdf/tournament_rules.pdf?20240606=",
+            doc_type="MTR",
+            title="Digimon Card Game Tournament Rules Manual",
+            publisher="Bandai",
+        ),
+    ],
+    "gundam": [
+        OfficialPdf(
+            url="https://www.gundam-gcg.com/en/pdf/comprehensiverules_en.pdf",
+            doc_type="CR",
+            title="Gundam Card Game Comprehensive Rules",
+            publisher="Bandai",
+        ),
+        OfficialPdf(
+            url="https://www.gundam-gcg.com/en/pdf/floor_rule_en.pdf?2508291=",
+            doc_type="MTR",
+            title="Gundam Card Game Tournament Rules Manual",
+            publisher="Bandai",
+        ),
+    ],
+    "dbfw": [
+        OfficialPdf(
+            url="https://www.dbs-cardgame.com/fw/pdf/rules/fw_comprehensive_rules_en.pdf",
+            doc_type="CR",
+            title="Dragon Ball Super Card Game Fusion World Rule Manual",
+            publisher="Bandai",
+        ),
+    ],
+    "sorcery": [
+        # Download automático bloqueado (redirect HTML). Usar PDF em data/ingest/sorcery/.
+        OfficialPdf(
+            url="https://sorcerytcg.com/how-to-play",
+            doc_type="CR",
+            title="Sorcery: Contested Realm Rulebook",
+            publisher="Erik's Curiosa",
+        ),
+    ],
+    "vanguard": [
+        OfficialPdf(
+            url="https://en.cf-vanguard.com/wordpress/wp-content/uploads/Cardfight-Vanguard-Comprehensive-Rules-4.52.pdf",
+            fallback_urls=(
+                "https://en.cf-vanguard.com/wordpress/wp-content/uploads/Cardfight-Vanguard-Comprehensive-Rules-4.42.pdf",
+            ),
+            doc_type="CR",
+            title="Cardfight!! Vanguard Comprehensive Rules",
+            publisher="Bushiroad",
+        ),
+    ],
+    "riftbound": [
+        OfficialPdf(
+            url="https://riftbound.gg/wp-content/uploads/sites/67/2025/06/Riftbound-Core-Rules-2025-06-02.pdf",
+            doc_type="CR",
+            title="Riftbound Core Rules",
+            publisher="Riot Games",
+        ),
+    ],
+    "union_arena": [
+        OfficialPdf(
+            url="https://www.unionarena-tcg.com/na/pdf/rule_manual.pdf",
+            doc_type="CR",
+            title="Union Arena Official Rule Manual",
+            publisher="Bandai",
+        ),
+        OfficialPdf(
+            url="https://www.unionarena-tcg.com/na/pdf/tournament_rules_manual.pdf?v20250522=",
+            doc_type="MTR",
+            title="Union Arena Tournament Rules Manual",
+            publisher="Bandai",
+        ),
+    ],
+}
+
+# Alias de slug Postgres → chave do catálogo (ingest_tcg --game)
+INGEST_GAME_ALIASES: dict[str, str] = {
+    "flesh_and_blood": "fab",
+    "dragon_ball": "dbfw",
+    "dragon_ball_super_fusion_world": "dbfw",
 }
 
 
+def resolve_ingest_game_slug(raw: str) -> str:
+    g = raw.strip().lower().replace("-", "_")
+    return INGEST_GAME_ALIASES.get(g, g)
+
+
 def list_official_pdfs(game_slug: str) -> list[OfficialPdf]:
-    return list(TCG_OFFICIAL_PDFS.get(game_slug, []))
+    slug = resolve_ingest_game_slug(game_slug)
+    return list(TCG_OFFICIAL_PDFS.get(slug, []))
 
 
-# PDFs em data/ingest/<game>/ (Incapsula bloqueia download automático em datacenters).
+# PDFs em data/ingest/<game>/ (download automático bloqueado ou indisponível).
 LOCAL_PDF_FILENAMES: dict[tuple[str, str], tuple[str, ...]] = {
     ("pokemon", "MTR"): (
         "play-pokemon-tcg-tournament-handbook-en.pdf",
         "play-pokemon-tournament-rules-handbook-en.pdf",
     ),
+    ("sorcery", "CR"): (
+        "Sorcery-Contested-Realm-Rulebook-October-2024.pdf",
+        "Sorcery-Contested-Realm-Rulebook.pdf",
+        "Sorcery-Rulebook.pdf",
+        "sorcery-rulebook.pdf",
+    ),
 }
+
+# Não tentar download HTTP — só ficheiro local (ver LOCAL_PDF_FILENAMES).
+LOCAL_PDF_ONLY: frozenset[tuple[str, str]] = frozenset({("sorcery", "CR")})
 
 
 def resolve_local_pdf(
@@ -129,12 +247,34 @@ def resolve_local_pdf(
     *,
     ingest_root: str | Path = "data/ingest",
 ) -> Path | None:
-    names = LOCAL_PDF_FILENAMES.get((game_slug, doc_type))
+    slug = resolve_ingest_game_slug(game_slug)
+    names = LOCAL_PDF_FILENAMES.get((slug, doc_type))
     if not names:
         return None
-    base = Path(ingest_root) / game_slug
+    base = Path(ingest_root) / slug
     for name in names:
         path = base / name
         if path.is_file():
             return path.resolve()
     return None
+
+
+def local_ingest_hint(
+    game_slug: str,
+    doc_type: str,
+    *,
+    ingest_root: str | Path = "data/ingest",
+) -> str:
+    slug = resolve_ingest_game_slug(game_slug)
+    names = LOCAL_PDF_FILENAMES.get((slug, doc_type), ())
+    folder = (Path(ingest_root) / slug).resolve()
+    names_txt = ", ".join(names) if names else "rulebook.pdf"
+    origin = "https://sorcerytcg.com/how-to-play"
+    if slug == "sorcery":
+        origin = "https://sorcerytcg.com/how-to-play (link «Rulebook» / December 2025 update)"
+    return (
+        f"PDF local obrigatório para {slug}/{doc_type}. "
+        f"Coloque um destes ficheiros em {folder}: {names_txt}. "
+        f"Origem: {origin}. "
+        f"Depois: python scripts/ingest_tcg.py --game {slug} --all"
+    )
