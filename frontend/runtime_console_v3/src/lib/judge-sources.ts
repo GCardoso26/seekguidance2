@@ -8,6 +8,14 @@ const TITLE_PT: [RegExp, string][] = [
   [/game rules/i, "Regras do Jogo"],
   [/rulebook/i, "Livro de Regras"],
   [/official rulebook/i, "Livro de Regras Oficial"],
+  [/flesh and blood/i, "Flesh and Blood"],
+  [/digimon card game/i, "Digimon Card Game"],
+  [/gundam card game/i, "Gundam Card Game"],
+  [/fusion world/i, "Dragon Ball Super Fusion World"],
+  [/sorcery: contested realm/i, "Sorcery: Contested Realm"],
+  [/cardfight!! vanguard/i, "Cardfight!! Vanguard"],
+  [/riftbound/i, "Riftbound"],
+  [/union arena/i, "Union Arena"],
 ];
 
 /** Rótulos e metadados das fontes sempre em português; trecho mantém texto original indexado. */

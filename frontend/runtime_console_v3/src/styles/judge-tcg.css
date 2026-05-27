@@ -29,3 +29,30 @@
   border-color: hsl(var(--primary));
   box-shadow: 0 2px 8px hsl(var(--primary) / 0.35);
 }
+
+/* Cartões de seleção de jogo (Bandai TCG+ style) */
+.judge-app .judge-tcg-card {
+  border-color: hsl(var(--border));
+  box-shadow: 0 1px 2px hsl(222 30% 20% / 0.04);
+}
+
+.judge-app .judge-tcg-card--selected {
+  border-color: hsl(var(--tcg-accent));
+  box-shadow:
+    0 0 0 3px hsl(var(--tcg-accent) / 0.18),
+    0 8px 24px hsl(var(--tcg-accent) / 0.22);
+  transform: translateY(-2px);
+}
+
+.judge-app .judge-tcg-card:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 3px hsl(var(--tcg-accent) / 0.35),
+    0 4px 16px hsl(var(--tcg-accent) / 0.15);
+}
+
+@media (min-width: 1024px) {
+  .judge-app .judge-tcg-card {
+    min-height: 112px;
+  }
+}

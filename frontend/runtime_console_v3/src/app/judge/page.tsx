@@ -94,7 +94,7 @@ export default function JudgePage() {
       }
     >
       <div className="mx-auto max-w-3xl space-y-6">
-        <section className="judge-card rounded-2xl border border-[hsl(var(--border))] p-4 sm:p-5">
+        <section className="judge-card rounded-2xl border border-[hsl(var(--border))] p-4 sm:p-5 lg:max-w-none">
           <TcgSelector value={tcg} onChange={setTcg} disabled={loading} />
         </section>
 
