@@ -120,3 +120,7 @@ class ChatResponse(BaseModel):
     rule_applied: str | None = None
     explanation: str | None = None
     exceptions: str | None = None
+    confidence_notice_threshold: float = Field(
+        default=0.42,
+        description="Limiar (0-1) abaixo do qual a UI mostra aviso de baixa confiança de retrieval.",
+    )

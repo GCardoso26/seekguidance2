@@ -5,6 +5,7 @@ from __future__ import annotations
 from uuid import uuid4
 
 from app.retrieval.confidence import ConfidenceSignals, compute_confidence, vec_lex_agreement
+from app.retrieval.confidence_profiles import get_confidence_profile
 from app.retrieval.deduplication import deduplicate_by_embedding
 from app.retrieval.diversification import diversify_hits, rule_chapter
 from app.retrieval.fusion import cosine_distance_to_similarity, merge_rrf_and_weighted, weighted_hybrid_scores
@@ -129,27 +130,32 @@ def test_vec_lex_agreement() -> None:
 
 
 def test_compute_confidence_not_constant() -> None:
+    profile = get_confidence_profile("mtg")
     low = ConfidenceSignals(
         mean_fused=0.1,
+        top1_fused=0.1,
         mean_rerank=None,
         top1_rerank=None,
         vec_lex_overlap=0.0,
         score_spread=0.05,
         n_sources=1,
+        n_rule_sources=1,
         n_chunks=2,
         n_expansion_parents=1,
     )
     high = ConfidenceSignals(
         mean_fused=0.85,
+        top1_fused=0.92,
         mean_rerank=0.9,
         top1_rerank=0.95,
         vec_lex_overlap=0.8,
         score_spread=0.4,
         n_sources=3,
+        n_rule_sources=5,
         n_chunks=5,
         n_expansion_parents=1,
     )
-    assert compute_confidence(high) > compute_confidence(low)
+    assert compute_confidence(high, profile) > compute_confidence(low, profile)
 
 
 def _hit(rule: str, score: float, doc_id) -> ChunkHit:

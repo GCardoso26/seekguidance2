@@ -64,9 +64,4 @@ export function stripEnglishJudgeDisclaimer(answer: string): string {
   return out;
 }
 
-export function lowConfidenceNoticePt(confidence: number): string | null {
-  if (confidence >= 0.55) return null;
-  return (
-    "A confiança da recuperação está abaixo do habitual. Confirme com as fontes oficiais ou um juiz de torneio."
-  );
-}
+export { lowConfidenceNoticePt, confidenceLabel } from "@/lib/judge-confidence";

@@ -21,9 +21,11 @@ from app.query_understanding.semantic_router import RetrievalHint, route_query
 from app.retrieval.confidence import (
     ConfidenceSignals,
     compute_confidence,
+    count_distinct_rule_sources,
     score_spread_from_list,
     vec_lex_agreement,
 )
+from app.retrieval.confidence_profiles import get_confidence_profile
 from app.retrieval.deduplication import deduplicate_by_embedding
 from app.retrieval.diversification import diversify_hits
 from app.retrieval.expansion import expand_context, fetch_chunk_rows, fetch_embeddings_for
@@ -385,19 +387,24 @@ class RetrievalPipeline:
         spread = score_spread_from_list([h.effective_score for h in final])
         overlap = vec_lex_agreement(vec_ids, lex_ids, k=12)
         n_sources = len({h.document_id for h in final})
+        n_rule_sources = count_distinct_rule_sources(final)
         n_parents = sum(1 for h in final if h.expansion_source == "parent")
+        top1_fused = max((h.fused_score for h in final), default=0.0)
+        profile = get_confidence_profile(game_slug)
 
         sig = ConfidenceSignals(
             mean_fused=sum(h.fused_score for h in final) / len(final) if final else 0.0,
+            top1_fused=top1_fused,
             mean_rerank=rr_mean,
             top1_rerank=rr_top,
             vec_lex_overlap=overlap,
             score_spread=spread,
             n_sources=n_sources,
+            n_rule_sources=n_rule_sources,
             n_chunks=len(final),
             n_expansion_parents=n_parents,
         )
-        conf = compute_confidence(sig)
+        conf = compute_confidence(sig, profile)
 
         ms_total = (time.perf_counter() - t0) * 1000.0
         temporal_mean = sum(h.temporal_score for h in final) / len(final) if final else 0.0

@@ -152,6 +152,7 @@ export function JudgePageClient() {
           rule_applied: res.rule_applied,
           explanation: res.explanation,
           exceptions: res.exceptions,
+          confidence_notice_threshold: res.confidence_notice_threshold,
           createdAt: new Date().toISOString(),
         };
         setHistory(saveJudgeHistoryItem(item));
@@ -211,6 +212,7 @@ export function JudgePageClient() {
         rule_applied: item.rule_applied,
         explanation: item.explanation,
         exceptions: item.exceptions,
+        confidence_notice_threshold: item.confidence_notice_threshold,
       } satisfies JudgeResponse,
       createdAt: item.createdAt,
     };

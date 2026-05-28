@@ -1,7 +1,8 @@
 "use client";
 
 import type { CSSProperties } from "react";
-import { lowConfidenceNoticePt, stripEnglishJudgeDisclaimer } from "@/lib/judge-sources";
+import { confidenceLabel, lowConfidenceNoticePt } from "@/lib/judge-confidence";
+import { stripEnglishJudgeDisclaimer } from "@/lib/judge-sources";
 import {
   extractHighlightTerms,
   parseJudgeVerdict,
@@ -24,12 +25,6 @@ type Props = {
   isStreaming?: boolean;
 };
 
-function confidenceLabel(confidence: number): string {
-  if (confidence >= 0.7) return "Alta";
-  if (confidence >= 0.45) return "Média";
-  return "Baixa";
-}
-
 export function ResponseCard({
   response,
   question,
@@ -44,8 +39,9 @@ export function ResponseCard({
   const displayExplanation = isStreaming
     ? stripEnglishJudgeDisclaimer(streamingText ?? parsed.explanation)
     : parsed.explanation;
+  const noticeThr = response.confidence_notice_threshold;
   const confPct = Math.round((response.confidence ?? 0) * 100);
-  const lowNotice = lowConfidenceNoticePt(response.confidence ?? 0);
+  const lowNotice = lowConfidenceNoticePt(response.confidence ?? 0, noticeThr);
   const sources = response.sources ?? [];
   const highlightTerms = extractHighlightTerms(parsed.ruleApplied, parsed.explanation);
   const themeStyle = {
@@ -82,7 +78,7 @@ export function ResponseCard({
           </span>
           {!isStreaming && response.success && (
             <span className="rounded-full bg-[hsl(var(--muted))] px-2.5 py-0.5 text-xs font-medium text-[hsl(222_20%_35%)]">
-              Confiança: {confPct}% ({confidenceLabel(response.confidence ?? 0)})
+              Confiança: {confPct}% ({confidenceLabel(response.confidence ?? 0, noticeThr)})
             </span>
           )}
           {isStreaming && (

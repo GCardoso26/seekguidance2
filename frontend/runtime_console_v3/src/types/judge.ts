@@ -60,6 +60,7 @@ export type JudgeGameCatalogItem = {
   chunk_count: number;
   last_indexed_at?: string | null;
   last_chunk_at?: string | null;
+  confidence_notice_threshold?: number;
 };
 
 export type JudgeResponse = {
@@ -73,6 +74,7 @@ export type JudgeResponse = {
   rule_applied?: string | null;
   explanation?: string | null;
   exceptions?: string | null;
+  confidence_notice_threshold?: number;
 };
 
 export type JudgeQuestionPayload = JudgeQuestion & {
@@ -92,6 +94,7 @@ export type JudgeHistoryItem = {
   rule_applied?: string | null;
   explanation?: string | null;
   exceptions?: string | null;
+  confidence_notice_threshold?: number;
   createdAt: string;
 };
 

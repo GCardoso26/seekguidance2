@@ -17,6 +17,7 @@ from app.judge.registry import (
     game_slug_for_tcg,
     normalize_tcg,
 )
+from app.retrieval.confidence_profiles import get_confidence_profile
 from app.judge.sources import JudgeSource, sources_from_citations
 from app.schemas.chat import ChatRequest
 from fastapi import APIRouter, Depends
@@ -45,6 +46,7 @@ class JudgeQueryResponse(BaseModel):
     rule_applied: str | None = None
     explanation: str | None = None
     exceptions: str | None = None
+    confidence_notice_threshold: float = 0.42
 
 
 class JudgeGameCatalogItem(BaseModel):
@@ -57,6 +59,7 @@ class JudgeGameCatalogItem(BaseModel):
     chunk_count: int = 0
     last_indexed_at: str | None = None
     last_chunk_at: str | None = None
+    confidence_notice_threshold: float = 0.42
 
 
 class JudgeGamesResponse(BaseModel):
@@ -148,6 +151,9 @@ async def _execute_judge_query(
             rule_applied=chat.rule_applied,
             explanation=chat.explanation,
             exceptions=chat.exceptions,
+            confidence_notice_threshold=float(
+                chat.confidence_notice_threshold or get_confidence_profile(game_slug).ui_notice_threshold
+            ),
         )
     except Exception:
         logger.exception("runtime_judge_query_failed", tcg=tcg)

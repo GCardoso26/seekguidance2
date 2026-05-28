@@ -7,6 +7,7 @@ from typing import Any
 
 from app.core.config import Settings
 from app.judge.registry import CANONICAL_TCG_BY_GAME_SLUG, TCG_COMING_SOON
+from app.retrieval.confidence_profiles import get_confidence_profile
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -44,6 +45,7 @@ async def list_judge_games(session: AsyncSession, settings: Settings) -> list[di
         coming_soon = canonical in TCG_COMING_SOON
         rag_ready = rag_allowed and chunk_count >= _MIN_CHUNKS_RAG_READY and not coming_soon
 
+        conf_profile = get_confidence_profile(game_slug)
         catalog.append(
             {
                 "tcg_id": canonical,
@@ -55,6 +57,7 @@ async def list_judge_games(session: AsyncSession, settings: Settings) -> list[di
                 "chunk_count": chunk_count,
                 "last_indexed_at": _iso(row.get("last_indexed_at")),
                 "last_chunk_at": _iso(row.get("last_chunk_at")),
+                "confidence_notice_threshold": conf_profile.ui_notice_threshold,
             }
         )
 

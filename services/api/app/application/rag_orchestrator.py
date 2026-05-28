@@ -14,6 +14,7 @@ from app.reasoning import run_reasoning_engine
 from app.reasoning.formal_response_addon import augment_reasoning_v8_to_v11
 from app.retrieval.citation_service import citations_from_hits
 from app.retrieval.confidence import citation_consistency_bonus
+from app.retrieval.confidence_profiles import get_confidence_profile
 from app.retrieval.hybrid import HybridRetriever
 from app.retrieval.llm_openai import LlmComposer
 from app.schemas.chat import ChatRequest, ChatResponse
@@ -37,14 +38,19 @@ class RagOrchestrator:
     async def ask(self, session: AsyncSession, payload: ChatRequest) -> ChatResponse:
         game_slug = normalize_game_slug(payload.game_slug)
         game = await self.resolve_game(session, game_slug)
+
         if game is None:
+            profile = get_confidence_profile(game_slug)
             return ChatResponse(
                 answer="Jogo não encontrado ou desabilitado para este tenant.",
                 disclaimer=self._settings.official_sources_disclaimer,
                 citations=[],
                 confidence=0.0,
                 model=None,
+                confidence_notice_threshold=profile.ui_notice_threshold,
             )
+
+        profile = get_confidence_profile(game.slug)
 
         if not self._settings.is_rag_enabled_for_game(game.slug):
             return ChatResponse(
@@ -56,6 +62,7 @@ class RagOrchestrator:
                 citations=[],
                 confidence=0.1,
                 model=None,
+                confidence_notice_threshold=profile.ui_notice_threshold,
             )
 
         if not self._settings.openai_api_key:
@@ -68,6 +75,7 @@ class RagOrchestrator:
                 citations=[],
                 confidence=0.05,
                 model=None,
+                confidence_notice_threshold=profile.ui_notice_threshold,
             )
 
         hint = route_query(payload.question, prefer_historical=payload.prefer_historical)
@@ -144,7 +152,7 @@ class RagOrchestrator:
             1.0,
             base_conf + citation_consistency_bonus(len(cites), n_docs),
         )
-        thr = self._settings.confidence_low_threshold
+        thr = profile.ui_notice_threshold
         answer = result.answer
         if conf < thr:
             answer += (
@@ -258,4 +266,5 @@ class RagOrchestrator:
             reasoning_v9=reasoning_v9,
             reasoning_v10=reasoning_v10,
             reasoning_v11=reasoning_v11,
+            confidence_notice_threshold=profile.ui_notice_threshold,
         )
