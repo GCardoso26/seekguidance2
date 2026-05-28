@@ -47,3 +47,19 @@ Thumbs.db
 *.p12
 *.key
 *.mobileprovision
+
+# Runtime local / artefactos (não versionar)
+services/api/generated/
+services/api/var/
+
+# Chaves SSH/TLS locais — nunca commitar
+*.pem
+judge-tcg-key.pem
+keysson.pem
+sgka.pem
+
+# Supabase CLI temp
+supabase/.temp/
+
+# Next.js gerado localmente
+frontend/**/next-env.d.ts
