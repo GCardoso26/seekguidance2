@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "cases": [
+    {
+      "id": "mtg-trample",
+      "game_slug": "mtg",
+      "question": "Como funciona trample em combate?",
+      "expected_rule": "702.19",
+      "top1_rule": "702.19a",
+      "confidence": 0.78,
+      "n_sources": 3
+    },
+    {
+      "id": "mtg-stack",
+      "game_slug": "mtg",
+      "question": "O que é a pilha?",
+      "expected_rule": "405",
+      "top1_rule": "405.1",
+      "confidence": 0.71,
+      "n_sources": 2
+    },
+    {
+      "id": "pokemon-poison",
+      "game_slug": "pokemon",
+      "question": "Como funciona o condição Envenenado?",
+      "expected_rule": "4",
+      "top1_rule": "4.1",
+      "confidence": 0.62,
+      "n_sources": 2
+    },
+    {
+      "id": "yugioh-chain",
+      "game_slug": "yugioh",
+      "question": "Quando posso activar uma Chain Link?",
+      "expected_rule": "9",
+      "top1_rule": "9.1",
+      "confidence": 0.58,
+      "n_sources": 1
+    },
+    {
+      "id": "lorcana-shift",
+      "game_slug": "lorcana",
+      "question": "O que é shift?",
+      "expected_rule": "10",
+      "top1_rule": "10.2",
+      "confidence": 0.61,
+      "n_sources": 2
+    },
+    {
+      "id": "onepiece-don",
+      "game_slug": "onepiece",
+      "question": "Como funciona DON!!?",
+      "expected_rule": "5",
+      "top1_rule": "5.1",
+      "confidence": 0.59,
+      "n_sources": 2
+    }
+  ]
+}

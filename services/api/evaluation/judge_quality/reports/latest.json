@@ -1,0 +1,40 @@
+{
+  "integrity_status": "ok",
+  "games": {
+    "mtg": {
+      "accuracy_at_1": 1.0,
+      "confidence_avg": 0.745,
+      "source_coverage": 1.0,
+      "n_cases": 2,
+      "integrity_status": "ok"
+    },
+    "pokemon": {
+      "accuracy_at_1": 1.0,
+      "confidence_avg": 0.62,
+      "source_coverage": 1.0,
+      "n_cases": 1,
+      "integrity_status": "ok"
+    },
+    "yugioh": {
+      "accuracy_at_1": 1.0,
+      "confidence_avg": 0.58,
+      "source_coverage": 1.0,
+      "n_cases": 1,
+      "integrity_status": "ok"
+    },
+    "lorcana": {
+      "accuracy_at_1": 1.0,
+      "confidence_avg": 0.61,
+      "source_coverage": 1.0,
+      "n_cases": 1,
+      "integrity_status": "ok"
+    },
+    "onepiece": {
+      "accuracy_at_1": 1.0,
+      "confidence_avg": 0.59,
+      "source_coverage": 1.0,
+      "n_cases": 1,
+      "integrity_status": "ok"
+    }
+  }
+}

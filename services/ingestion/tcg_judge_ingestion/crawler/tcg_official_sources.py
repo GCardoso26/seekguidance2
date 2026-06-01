@@ -203,6 +203,15 @@ TCG_OFFICIAL_PDFS: dict[str, list[OfficialPdf]] = {
             publisher="Bandai",
         ),
     ],
+    "swu": [
+        OfficialPdf(
+            url="https://starwarsunlimited.com/rules",
+            doc_type="CR",
+            title="Star Wars: Unlimited Rules",
+            publisher="Fantasy Flight Games",
+            kind="html",
+        ),
+    ],
 }
 
 # Alias de slug Postgres → chave do catálogo (ingest_tcg --game)
@@ -210,6 +219,7 @@ INGEST_GAME_ALIASES: dict[str, str] = {
     "flesh_and_blood": "fab",
     "dragon_ball": "dbfw",
     "dragon_ball_super_fusion_world": "dbfw",
+    "star_wars_unlimited": "swu",
 }
 
 

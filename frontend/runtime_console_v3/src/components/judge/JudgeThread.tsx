@@ -3,17 +3,20 @@
 import type { CSSProperties } from "react";
 import { ResponseCard } from "@/components/judge/ResponseCard";
 import { ErrorPanel } from "@/components/judge/ErrorPanel";
-import { LoadingPanel } from "@/components/judge/LoadingPanel";
+import { ResponseSkeleton } from "@/components/judge/ResponseSkeleton";
+import { StreamingIndicator } from "@/components/judge/StreamingIndicator";
 import { getTcgBrand } from "@/lib/tcg-brand";
 import type { JudgeThreadTurn } from "@/lib/judge-thread";
-import type { TcgType } from "@/types/judge";
+import type { JudgeHistoryItem, TcgType } from "@/types/judge";
 
 type Props = {
   tcg: TcgType;
   turns: JudgeThreadTurn[];
+  onRelatedSelect?: (question: string) => void;
+  historyByTurnId?: Record<string, JudgeHistoryItem>;
 };
 
-export function JudgeThread({ tcg, turns }: Props) {
+export function JudgeThread({ tcg, turns, onRelatedSelect, historyByTurnId }: Props) {
   const brand = getTcgBrand(tcg);
 
   if (turns.length === 0) return null;
@@ -37,7 +40,12 @@ export function JudgeThread({ tcg, turns }: Props) {
             <p className="mt-1 text-sm leading-relaxed text-[hsl(var(--foreground))]">{turn.question}</p>
           </div>
 
-          {turn.loading && !turn.response && <LoadingPanel accent={brand.accent} />}
+          {turn.loading && !turn.response && !turn.streamingPhase && !turn.streamingText && (
+            <ResponseSkeleton />
+          )}
+          {turn.loading && turn.streamingPhase && (
+            <StreamingIndicator phase={turn.streamingPhase} />
+          )}
 
           {turn.error && !turn.loading && <ErrorPanel message={turn.error} />}
 
@@ -58,6 +66,8 @@ export function JudgeThread({ tcg, turns }: Props) {
               accentFg={brand.accentFg}
               streamingText={turn.loading ? turn.streamingText : undefined}
               isStreaming={turn.loading}
+              onRelatedSelect={onRelatedSelect}
+              historyItem={historyByTurnId?.[turn.id]}
             />
           )}
         </article>

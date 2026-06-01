@@ -3,6 +3,8 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { JudgeLogo } from "@/components/judge/JudgeLogo";
+import { LoginButton } from "@/features/auth/LoginButton";
+import { UserMenu } from "@/features/auth/UserMenu";
 import { getTcgBrand, tcgThemeStyle } from "@/lib/tcg-brand";
 import type { BackendHealthState, TcgType } from "@/types/judge";
 import { cn } from "@/lib/utils";
@@ -50,6 +52,8 @@ export function JudgeLayout({ children, sidebar, health = "offline", tcg }: Prop
             </div>
           </div>
           <div className="flex items-center gap-3">
+            <LoginButton />
+            <UserMenu />
             <span
               className="hidden items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-medium text-white/90 sm:inline-flex"
               title={HEALTH_LABEL[health]}

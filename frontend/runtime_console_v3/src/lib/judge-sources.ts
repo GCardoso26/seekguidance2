@@ -38,16 +38,47 @@ export function formatJudgeSource(source: JudgeSource, index: number) {
     ? source.excerpt
     : null;
 
+  const rulePath = source.rule_path?.trim() || null;
+  const ruleAtom = rulePath;
+  const pageNumber = source.page_number ?? null;
+  let url = source.url?.trim() || null;
+  if (url && pageNumber != null && !url.includes("#page=")) {
+    url = `${url}#page=${pageNumber}`;
+  }
+
+  const titleLower = title.toLowerCase();
+  let sourceType: "official" | "faq" | "errata" = "official";
+  if (/faq|perguntas frequentes/i.test(titleLower)) sourceType = "faq";
+  else if (/errata|corrigendum|atualiza/i.test(titleLower)) sourceType = "errata";
+
   return {
     index: index + 1,
     title,
     section,
     excerpt,
-    url: source.url?.trim() || null,
-    hasLink: Boolean(source.url?.trim()),
-    rulePath: source.rule_path?.trim() || null,
-    pageNumber: source.page_number ?? null,
+    url,
+    hasLink: Boolean(url),
+    rulePath,
+    ruleAtom,
+    pageNumber,
+    sourceType,
+    tooltipTitle: title,
+    tooltipSection: section || (rulePath ? `Regra ${rulePath}` : null),
   };
+}
+
+export function sourceTypeBadge(sourceType: "official" | "faq" | "errata"): {
+  label: string;
+  className: string;
+} {
+  switch (sourceType) {
+    case "faq":
+      return { label: "FAQ", className: "bg-amber-100 text-amber-800 border-amber-200" };
+    case "errata":
+      return { label: "Errata", className: "bg-violet-100 text-violet-800 border-violet-200" };
+    default:
+      return { label: "Regra Oficial", className: "bg-sky-100 text-sky-800 border-sky-200" };
+  }
 }
 
 /** Remove aviso duplicado (backend ou versão antiga em inglês). */

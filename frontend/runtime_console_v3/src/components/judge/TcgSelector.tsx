@@ -160,6 +160,11 @@ export function TcgSelector({
                 <span className="line-clamp-2 text-xs font-semibold leading-snug text-[hsl(var(--foreground))] sm:text-[13px]">
                   {g.label}
                 </span>
+                {g.beta && g.enabled && (
+                  <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[9px] font-bold uppercase text-amber-800">
+                    Beta
+                  </span>
+                )}
                 {!g.enabled && (
                   <span className="text-[10px] font-medium text-[hsl(222_15%_50%)]">Em breve</span>
                 )}

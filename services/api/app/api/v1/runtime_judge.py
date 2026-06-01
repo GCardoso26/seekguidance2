@@ -5,24 +5,33 @@ from __future__ import annotations
 import asyncio
 import json
 from collections.abc import AsyncIterator
-from typing import Any
+from typing import Any, Literal
 
 import structlog
 from app.api.deps import DbSession, get_rag_orchestrator
 from app.application.rag_orchestrator import RagOrchestrator
 from app.core.config import get_settings
 from app.judge.catalog import judge_health_payload, list_judge_games
+from app.judge.growth_metrics import record_growth_metric
+from app.judge.observability import judge_quality_payload
 from app.judge.registry import (
     TCG_COMING_SOON,
     game_slug_for_tcg,
     normalize_tcg,
 )
-from app.retrieval.confidence_profiles import get_confidence_profile
+from app.judge.related_questions import generate_related_questions
 from app.judge.sources import JudgeSource, sources_from_citations
+from app.retrieval.confidence_profiles import get_confidence_profile
+from app.retrieval.stream_phases import reset_phase_callback, set_phase_callback
+from app.runtime_judge_semantic_cache.cache import (
+    embed_question,
+    get_semantic_cache,
+)
 from app.schemas.chat import ChatRequest
 from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
+from sqlalchemy import text
 
 logger = structlog.get_logger(__name__)
 router = APIRouter(tags=["runtime-judge"])
@@ -47,6 +56,7 @@ class JudgeQueryResponse(BaseModel):
     explanation: str | None = None
     exceptions: str | None = None
     confidence_notice_threshold: float = 0.42
+    related_questions: list[str] = Field(default_factory=list)
 
 
 class JudgeGameCatalogItem(BaseModel):
@@ -55,6 +65,7 @@ class JudgeGameCatalogItem(BaseModel):
     display_name: str
     enabled: bool
     coming_soon: bool = False
+    beta: bool = False
     rag_ready: bool
     chunk_count: int = 0
     last_indexed_at: str | None = None
@@ -66,6 +77,15 @@ class JudgeGamesResponse(BaseModel):
     games: list[JudgeGameCatalogItem]
 
 
+class JudgeFeedbackRequest(BaseModel):
+    question: str = Field(..., min_length=3, max_length=500)
+    game_slug: str
+    verdict: str | None = None
+    rating: Literal["positive", "negative"]
+    comment: str | None = Field(None, max_length=500)
+    chunk_ids: list[str] | None = None
+
+
 class JudgeHealthResponse(BaseModel):
     status: str
     integrity_status: str
@@ -74,6 +94,8 @@ class JudgeHealthResponse(BaseModel):
     rag_ready_games: int
     total_games: int
     default_chat_model: str
+    cache_hit_rate: float = 0.0
+    cache_stats: dict[str, Any] | None = None
     games: list[JudgeGameCatalogItem]
 
 
@@ -131,7 +153,16 @@ async def _execute_judge_query(
             sources=[],
         )
 
+    cfg = get_settings()
+    cache = get_semantic_cache(cfg)
+    embedding: list[float] | None = None
     try:
+        if cfg.judge_semantic_cache_enabled and cfg.openai_api_key:
+            embedding = await embed_question(cfg, question)
+            cached = await cache.lookup(game_slug, embedding)
+            if cached:
+                return JudgeQueryResponse(**cached)
+
         chat = await orchestrator.ask(
             session,
             ChatRequest(
@@ -141,7 +172,31 @@ async def _execute_judge_query(
                 verdict_format=True,
             ),
         )
-        return JudgeQueryResponse(
+        rule_path = None
+        rule_atom = None
+        rule_section = None
+        if chat.citations:
+            top = chat.citations[0]
+            rule_path = getattr(top, "rule_path", None) or (
+                top.get("rule_path") if isinstance(top, dict) else None
+            )
+            rule_atom = getattr(top, "rule_atom", None) or (
+                top.get("rule_atom") if isinstance(top, dict) else None
+            )
+            rule_section = getattr(top, "section", None) or (
+                top.get("section") if isinstance(top, dict) else None
+            )
+
+        related = generate_related_questions(
+            question,
+            game_slug,
+            rule_applied=chat.rule_applied,
+            rule_path=rule_path,
+            rule_atom=rule_atom,
+            rule_section=rule_section,
+        )
+
+        response = JudgeQueryResponse(
             success=True,
             answer=chat.answer,
             confidence=float(chat.confidence),
@@ -154,7 +209,20 @@ async def _execute_judge_query(
             confidence_notice_threshold=float(
                 chat.confidence_notice_threshold or get_confidence_profile(game_slug).ui_notice_threshold
             ),
+            related_questions=related,
         )
+        if cfg.judge_semantic_cache_enabled and cfg.openai_api_key and embedding is not None:
+            await cache.store(game_slug, embedding, response.model_dump())
+        try:
+            await record_growth_metric(
+                session,
+                "judge_question_sent",
+                game=game_slug,
+                details={"tcg": tcg},
+            )
+        except Exception:
+            pass
+        return response
     except Exception:
         logger.exception("runtime_judge_query_failed", tcg=tcg)
         mock = _mock_answer(question, tcg)
@@ -183,6 +251,12 @@ async def _execute_judge_query(
 async def runtime_judge_health(session: DbSession) -> JudgeHealthResponse:
     payload = await judge_health_payload(session, settings)
     return JudgeHealthResponse(**payload)
+
+
+@router.get("/runtime/judge/quality")
+async def runtime_judge_quality(session: DbSession, days: int = 7) -> dict[str, Any]:
+    """Métricas de qualidade para dashboard (feedback, cache, latência)."""
+    return await judge_quality_payload(session, days=days)
 
 
 @router.get("/runtime/judge/games", response_model=JudgeGamesResponse)
@@ -216,6 +290,31 @@ async def _stream_judge_response(result: JudgeQueryResponse) -> AsyncIterator[st
     yield _sse_payload(payload)
 
 
+@router.post("/runtime/judge/feedback", status_code=202)
+async def submit_judge_feedback(body: JudgeFeedbackRequest, session: DbSession) -> dict[str, str]:
+    """Feedback do utilizador (best-effort, 202 Accepted)."""
+    chunk_ids_json = json.dumps(body.chunk_ids or [])
+    await session.execute(
+        text(
+            """
+            INSERT INTO tcg_judge.judge_user_feedback
+              (game_slug, question, verdict, rating, comment, chunk_ids)
+            VALUES (:game_slug, :question, :verdict, :rating, :comment, CAST(:chunk_ids AS jsonb))
+            """
+        ),
+        {
+            "game_slug": body.game_slug.strip().lower(),
+            "question": body.question.strip(),
+            "verdict": body.verdict,
+            "rating": body.rating,
+            "comment": body.comment,
+            "chunk_ids": chunk_ids_json,
+        },
+    )
+    await session.commit()
+    return {"status": "accepted"}
+
+
 @router.post("/runtime/judge/query/stream")
 async def runtime_judge_query_stream(
     body: JudgeQueryBody,
@@ -223,18 +322,41 @@ async def runtime_judge_query_stream(
     orchestrator: RagOrchestrator = Depends(get_rag_orchestrator),
 ) -> StreamingResponse:
     async def generate() -> AsyncIterator[str]:
+        phase_queue: asyncio.Queue[dict[str, str]] = asyncio.Queue()
+
+        async def phase_cb(phase: str, label: str) -> None:
+            await phase_queue.put({"type": "phase", "phase": phase, "label": label})
+
+        token = set_phase_callback(phase_cb)
+        task = asyncio.create_task(_execute_judge_query(body, session, orchestrator))
+
         try:
-            result = await _execute_judge_query(body, session, orchestrator)
+            while True:
+                if task.done() and phase_queue.empty():
+                    break
+                try:
+                    item = await asyncio.wait_for(phase_queue.get(), timeout=0.05)
+                    yield _sse_payload(item)
+                except TimeoutError:
+                    if task.done():
+                        break
+                    continue
+
+            result = await task
             async for chunk in _stream_judge_response(result):
                 yield chunk
         except Exception:
             logger.exception("runtime_judge_stream_failed", tcg=body.tcg)
+            if not task.done():
+                task.cancel()
             yield _sse_payload(
                 {
                     "type": "error",
                     "message": "Não foi possível processar a consulta agora. Tente novamente.",
                 }
             )
+        finally:
+            reset_phase_callback(token)
 
     return StreamingResponse(
         generate(),

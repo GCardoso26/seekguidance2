@@ -80,7 +80,12 @@ async def fetch_graph_edges_extra_heads(
     extra_sql = ""
     params: dict[str, object] = {"gid": game_id, "seeds": list(dict.fromkeys(seed_heads)), "lim": limit}
     if min_relationship_score is not None:
-        extra_sql = " AND COALESCE(NULLIF(e.metadata->>'relationship_score','')::float, 0.52) >= :min_rs "
+        extra_sql = (
+            " AND COALESCE("
+            "NULLIF(e.metadata->>'confidence','')::float, "
+            "NULLIF(e.metadata->>'relationship_score','')::float, "
+            "0.52) >= :min_rs "
+        )
         params["min_rs"] = float(min_relationship_score)
     q = text(
         f"""
@@ -121,7 +126,12 @@ async def fetch_graph_edge_trace_strings(
     extra_sql = ""
     params: dict[str, object] = {"gid": game_id, "seeds": list(dict.fromkeys(seed_heads)), "lim": limit}
     if min_relationship_score is not None:
-        extra_sql = " AND COALESCE(NULLIF(e.metadata->>'relationship_score','')::float, 0.52) >= :min_rs "
+        extra_sql = (
+            " AND COALESCE("
+            "NULLIF(e.metadata->>'confidence','')::float, "
+            "NULLIF(e.metadata->>'relationship_score','')::float, "
+            "0.52) >= :min_rs "
+        )
         params["min_rs"] = float(min_relationship_score)
     q = text(
         f"""

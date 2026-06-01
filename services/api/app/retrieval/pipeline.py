@@ -30,11 +30,15 @@ from app.retrieval.deduplication import deduplicate_by_embedding
 from app.retrieval.diversification import diversify_hits
 from app.retrieval.expansion import expand_context, fetch_chunk_rows, fetch_embeddings_for
 from app.retrieval.explanations import build_explainability_v2, build_retrieval_explanations
+from app.judge.registry import corpus_language_for_game_slug, display_name_for_game_slug
 from app.retrieval.fusion import (
     cosine_distance_to_similarity,
     merge_rrf_and_weighted,
     normalize_lexical_ranks,
+    weighted_rrf_merge_two_lists,
 )
+from app.retrieval.hyde import generate_hypothetical_document
+from app.retrieval.stream_phases import emit_judge_phase
 from app.retrieval.outcome import RetrievalOutcome
 from app.retrieval.rerank import RankedChunk, build_reranker
 from app.retrieval.sql_retrieval import search_lexical_hits, search_vector_hits, vec_literal
@@ -103,6 +107,8 @@ class RetrievalPipeline:
             enabled=settings.reranker_enabled,
             model_name=settings.reranker_model,
             batch_size=settings.reranker_batch_size,
+            provider=settings.reranker_provider,
+            cohere_api_key=settings.cohere_api_key,
         )
 
     async def _embed_query(self, question: str) -> list[float]:
@@ -140,8 +146,12 @@ class RetrievalPipeline:
             quality_ema = None
 
         t0 = time.perf_counter()
+        await emit_judge_phase("embedding", "Analisando a pergunta...")
         emb = await self._embed_query(question)
         vec_lit = vec_literal(emb)
+
+        game_label = display_name_for_game_slug(game_slug)
+        await emit_judge_phase("retrieving", f"Buscando regras de {game_label}...")
 
         doc_types = rh.doc_types
         lex_base = rh.lexical_query
@@ -161,6 +171,31 @@ class RetrievalPipeline:
         )
         ms_vec = (time.perf_counter() - t_vec) * 1000.0
 
+        hyde_vec_ids: list[UUID] = []
+        if (
+            self._settings.hyde_enabled
+            and self._settings.openai_api_key
+            and corpus_language_for_game_slug(game_slug) == "en"
+        ):
+            hypothetical = await generate_hypothetical_document(
+                question,
+                game_label,
+                openai_api_key=self._settings.openai_api_key,
+                model=self._settings.hyde_model,
+            )
+            if hypothetical:
+                hyde_emb = await self._embed_query(hypothetical)
+                hyde_rows = await search_vector_hits(
+                    self._session,
+                    self._game_id,
+                    vec_literal(hyde_emb),
+                    limit=self._settings.retrieval_vector_candidate_limit,
+                    doc_types=doc_types,
+                    as_of=t_as_of,
+                    prefer_historical=t_hist,
+                )
+                hyde_vec_ids = [r[0] for r in hyde_rows]
+
         t_lex = time.perf_counter()
         lex_rows = await search_lexical_hits(
             self._session,
@@ -174,6 +209,12 @@ class RetrievalPipeline:
         ms_lex = (time.perf_counter() - t_lex) * 1000.0
 
         vec_ids = [r[0] for r in vec_rows]
+        if hyde_vec_ids:
+            vec_ids = weighted_rrf_merge_two_lists(
+                vec_ids,
+                hyde_vec_ids,
+                weight_b=self._settings.hyde_weight,
+            )
         lex_ids = [r[0] for r in lex_rows]
 
         vec_dist = {r[0]: float(r[1]) for r in vec_rows}
@@ -265,7 +306,11 @@ class RetrievalPipeline:
 
         eff_mins = [
             x
-            for x in (self._settings.graph_edge_min_relationship_score, strategy.edge_min_relationship_score)
+            for x in (
+                self._settings.rule_graph_min_edge_confidence,
+                self._settings.graph_edge_min_relationship_score,
+                strategy.edge_min_relationship_score,
+            )
             if x is not None
         ]
         eff_edge_min = max(eff_mins) if eff_mins else None
@@ -329,7 +374,10 @@ class RetrievalPipeline:
             for h in rerank_pool
         ]
         t_rr = time.perf_counter()
-        ranked_out = await self._reranker.rerank(question, ranked_in, top_n=max(top_k, 12))
+        if self._settings.reranker_enabled:
+            await emit_judge_phase("reranking", "Verificando fontes oficiais...")
+        rr_top_n = max(top_k, self._settings.reranker_top_k) if self._settings.reranker_enabled else max(top_k, 12)
+        ranked_out = await self._reranker.rerank(question, ranked_in, top_n=rr_top_n)
         ms_rerank = (time.perf_counter() - t_rr) * 1000.0
 
         by_id = {h.chunk_id: h for h in deduped}

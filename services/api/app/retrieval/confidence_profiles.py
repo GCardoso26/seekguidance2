@@ -74,6 +74,15 @@ _PROFILES: dict[str, ConfidenceProfile] = {
     "vanguard": _STRUCTURED,
     "riftbound": _DEFAULT,
     "union_arena": _DEFAULT,
+    "swu": ConfidenceProfile(
+        w_overlap=0.15,
+        w_fused=0.15,
+        w_top1=0.25,
+        w_rerank=0.22,
+        w_spread=0.10,
+        w_sources=0.13,
+        ui_notice_threshold=0.43,
+    ),
 }
 
 

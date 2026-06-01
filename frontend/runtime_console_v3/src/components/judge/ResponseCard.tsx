@@ -11,7 +11,11 @@ import {
 import { cn } from "@/lib/utils";
 import type { JudgeResponse } from "@/types/judge";
 import { SourceCard } from "@/components/judge/SourceCard";
-import { ShareVerdictButton } from "@/components/judge/ShareVerdictButton";
+import { FeedbackButtons } from "@/components/judge/FeedbackButtons";
+import { RelatedQuestions } from "@/components/judge/RelatedQuestions";
+import { QuickActions } from "@/components/judge/QuickActions";
+import type { JudgeHistoryItem } from "@/types/judge";
+import { gameSlugFromTcg } from "@/lib/judge-game-slug";
 import type { TcgType } from "@/types/judge";
 
 type Props = {
@@ -23,6 +27,8 @@ type Props = {
   accentFg?: string;
   streamingText?: string;
   isStreaming?: boolean;
+  onRelatedSelect?: (question: string) => void;
+  historyItem?: JudgeHistoryItem;
 };
 
 export function ResponseCard({
@@ -34,6 +40,8 @@ export function ResponseCard({
   accentFg,
   streamingText,
   isStreaming,
+  onRelatedSelect,
+  historyItem,
 }: Props) {
   const parsed = parseJudgeVerdict(response);
   const displayExplanation = isStreaming
@@ -128,12 +136,7 @@ export function ResponseCard({
 
         {sources.length > 0 && !isStreaming && (
           <section className="space-y-3 border-t border-[hsl(var(--border))] pt-4">
-            <div className="flex items-center justify-between gap-2">
-              <h3 className="text-sm font-bold">Fontes da pesquisa</h3>
-              {question && tcg && (
-                <ShareVerdictButton tcg={tcg} question={question} />
-              )}
-            </div>
+            <h3 className="text-sm font-bold">Fontes da pesquisa</h3>
             <ul className="space-y-3">
               {sources.map((src, i) => (
                 <SourceCard
@@ -146,6 +149,31 @@ export function ResponseCard({
               ))}
             </ul>
           </section>
+        )}
+
+        {question && tcg && !isStreaming && response.related_questions?.length && onRelatedSelect && (
+          <RelatedQuestions
+            tcg={tcg}
+            sourceQuestion={question}
+            suggestions={response.related_questions}
+            onSelect={onRelatedSelect}
+          />
+        )}
+
+        {question && tcg && !isStreaming && response.success && (
+          <>
+            <QuickActions
+              tcg={tcg}
+              question={question}
+              response={response}
+              historyItem={historyItem}
+            />
+            <FeedbackButtons
+              question={question}
+              gameSlug={gameSlugFromTcg(tcg)}
+              verdict={parsed.label}
+            />
+          </>
         )}
       </div>
     </article>

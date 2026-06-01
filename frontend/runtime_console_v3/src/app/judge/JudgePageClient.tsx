@@ -1,312 +1,741 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+
+
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+
 import { useRouter, useSearchParams } from "next/navigation";
+
 import { AskButton } from "@/components/judge/AskButton";
+
 import { ErrorPanel } from "@/components/judge/ErrorPanel";
+
 import { JudgeEmptyState } from "@/components/judge/JudgeEmptyState";
+
 import { JudgeHistory } from "@/components/judge/JudgeHistory";
+
 import { JudgeLayout } from "@/components/judge/JudgeLayout";
+
 import { JudgeThread } from "@/components/judge/JudgeThread";
+
 import { QuestionInput } from "@/components/judge/QuestionInput";
+
 import { TcgSelector } from "@/components/judge/TcgSelector";
-import { clearJudgeHistory, loadJudgeHistory, saveJudgeHistoryItem } from "@/lib/judge-history";
+
+import { useJudgeAuth } from "@/features/auth/AuthProvider";
+
+import { loadJudgeHistoryHybrid, persistJudgeHistoryItem } from "@/lib/judge-cloud-history";
+
+import { clearJudgeHistory } from "@/lib/judge-history";
+
 import {
+
   buildThreadContext,
+
   clearThreadForTcg,
+
   getThreadForTcg,
+
   loadJudgeThreads,
+
   updateThreadTurn,
+
   upsertThreadTurn,
+
   type JudgeThreadTurn,
+
   type JudgeThreads,
+
 } from "@/lib/judge-thread";
-import { buildJudgeUrlParams, parseJudgeSearchParams } from "@/lib/judge-url";
+
+import { buildJudgeUrlParams, isValidTcgType, parseJudgeSearchParams } from "@/lib/judge-url";
+
 import { getTcgBrand } from "@/lib/tcg-brand";
+
+import { fetchJudgeShare } from "@/services/judgeShareApi";
+
 import { askJudgeQuestionPreferStream, getJudgeGames, getJudgeHealth, judgeErrorMessage } from "@/services/judgeApi";
+
+import { recordGrowthEvent } from "@/services/judgeGrowthApi";
+
 import type { BackendHealthState, JudgeHistoryItem, JudgeResponse, TcgOption, TcgType } from "@/types/judge";
+
 import { TCG_OPTIONS } from "@/types/judge";
+
+
 
 const RESPONSE_PANEL_ID = "judge-response-panel";
 
+
+
 export function JudgePageClient() {
+
   const router = useRouter();
+
   const searchParams = useSearchParams();
+
+  const { user } = useJudgeAuth();
+
   const [tcg, setTcg] = useState<TcgType>("magic");
+
   const [question, setQuestion] = useState("");
+
   const [submitting, setSubmitting] = useState(false);
+
   const [error, setError] = useState<string | null>(null);
+
   const [history, setHistory] = useState<JudgeHistoryItem[]>([]);
+
+  const [historyByTurnId, setHistoryByTurnId] = useState<Record<string, JudgeHistoryItem>>({});
+
   const [threads, setThreads] = useState<JudgeThreads>({});
+
   const [health, setHealth] = useState<BackendHealthState>("offline");
+
   const [tcgOptions, setTcgOptions] = useState<TcgOption[]>(TCG_OPTIONS);
+
   const bottomRef = useRef<HTMLDivElement>(null);
+
   const autoSubmitDone = useRef(false);
+
+  const deepLinkDone = useRef(false);
+
   const tcgBrand = getTcgBrand(tcg);
+
   const currentTurns = getThreadForTcg(threads, tcg);
+
   const activeLoading = currentTurns.some((t) => t.loading);
 
+
+
   const syncUrl = useCallback(
-    (nextTcg: TcgType, q?: string) => {
+
+    (nextTcg: TcgType, q?: string, extra?: Record<string, string>) => {
+
       const params = buildJudgeUrlParams(nextTcg, q);
+
+      if (extra) {
+
+        Object.entries(extra).forEach(([k, v]) => params.set(k, v));
+
+      }
+
       router.replace(`/judge?${params.toString()}`, { scroll: false });
+
     },
+
     [router],
+
   );
+
+
 
   const scrollToBottom = useCallback(() => {
+
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+
   }, []);
 
-  useEffect(() => {
-    setHistory(loadJudgeHistory());
-    setThreads(loadJudgeThreads());
-    getJudgeHealth().then(setHealth);
-    getJudgeGames()
-      .then((games) => {
-        if (games.length === 0) return;
-        setTcgOptions(
-          games.map((g) => ({
-            id: g.tcg_id,
-            label: g.display_name,
-            enabled: g.enabled && g.rag_ready,
-          })),
-        );
-      })
-      .catch(() => {
-        /* mantém lista local */
-      });
-    const t = setInterval(() => getJudgeHealth().then(setHealth), 30_000);
-    return () => clearInterval(t);
-  }, []);
+
 
   useEffect(() => {
+
     const parsed = parseJudgeSearchParams(searchParams);
+
+    void (async () => {
+
+      const items = await loadJudgeHistoryHybrid(user?.id, parsed.sessionId);
+
+      setHistory(items);
+
+    })();
+
+    setThreads(loadJudgeThreads());
+
+    getJudgeHealth().then(setHealth);
+
+    getJudgeGames()
+
+      .then((games) => {
+
+        if (games.length === 0) return;
+
+        setTcgOptions(
+
+          games.map((g) => ({
+
+            id: g.tcg_id,
+
+            label: g.display_name,
+
+            enabled: g.enabled && g.rag_ready,
+
+            beta: g.beta,
+
+          })),
+
+        );
+
+      })
+
+      .catch(() => {
+
+        /* mantém lista local */
+
+      });
+
+    const t = setInterval(() => getJudgeHealth().then(setHealth), 30_000);
+
+    return () => clearInterval(t);
+
+  }, [searchParams, user?.id]);
+
+
+
+  useEffect(() => {
+
+    const parsed = parseJudgeSearchParams(searchParams);
+
     if (parsed.tcg) setTcg(parsed.tcg);
+
     if (parsed.question) setQuestion(parsed.question);
+
   }, [searchParams]);
 
-  const runQuestion = useCallback(
-    async (q: string, game: TcgType) => {
-      if (!q.trim() || submitting) return;
 
-      const turnId = `${Date.now()}`;
-      let conversationContext: string | undefined;
 
-      const loadingTurn: JudgeThreadTurn = {
-        id: turnId,
-        question: q.trim(),
-        response: null,
-        streamingText: "",
-        loading: true,
-        error: null,
+  useEffect(() => {
+
+    if (deepLinkDone.current) return;
+
+    const parsed = parseJudgeSearchParams(searchParams);
+
+    if (!parsed.shareId) return;
+
+    deepLinkDone.current = true;
+
+
+
+    void (async () => {
+
+      const share = await fetchJudgeShare(parsed.shareId!, parsed.shareSig);
+
+      if (!share) return;
+
+      const shareTcg = isValidTcgType(share.tcg) ? share.tcg : tcg;
+
+      setTcg(shareTcg);
+
+      setQuestion(share.question);
+
+      const restored: JudgeThreadTurn = {
+
+        id: `share-${share.id}`,
+
+        question: share.question,
+
+        response: share.response,
+
         createdAt: new Date().toISOString(),
+
       };
 
-      setThreads((prev) => {
-        conversationContext = buildThreadContext(getThreadForTcg(prev, game));
-        return upsertThreadTurn(prev, game, loadingTurn);
+      setThreads((prev) => upsertThreadTurn(prev, shareTcg, restored));
+
+      void recordGrowthEvent({
+
+        metric_type: "share_opened",
+
+        game: share.tcg,
+
+        details: { share_id: share.id },
+
       });
 
+      setTimeout(scrollToBottom, 100);
+
+    })();
+
+  }, [searchParams, scrollToBottom, tcg]);
+
+
+
+  const runQuestion = useCallback(
+
+    async (q: string, game: TcgType) => {
+
+      if (!q.trim() || submitting) return;
+
+
+
+      const turnId = `${Date.now()}`;
+
+      let conversationContext: string | undefined;
+
+
+
+      const loadingTurn: JudgeThreadTurn = {
+
+        id: turnId,
+
+        question: q.trim(),
+
+        response: null,
+
+        streamingText: "",
+
+        loading: true,
+
+        error: null,
+
+        createdAt: new Date().toISOString(),
+
+      };
+
+
+
+      setThreads((prev) => {
+
+        conversationContext = buildThreadContext(getThreadForTcg(prev, game));
+
+        return upsertThreadTurn(prev, game, loadingTurn);
+
+      });
+
+
+
       setSubmitting(true);
+
       setError(null);
+
       setQuestion("");
+
       syncUrl(game, q.trim());
 
+
+
       try {
+
         const res = await askJudgeQuestionPreferStream(
+
           { tcg: game, question: q.trim(), context: conversationContext },
+
           {
-            onToken: (text) => {
-              setThreads((prev) => {
-                const turns = getThreadForTcg(prev, game);
-                const current = turns.find((t) => t.id === turnId);
-                if (!current) return prev;
-                return updateThreadTurn(prev, game, turnId, {
-                  streamingText: `${current.streamingText ?? ""}${text}`,
-                });
-              });
-            },
-            onDone: (response) => {
+
+            onPhase: (phase) => {
+
               setThreads((prev) =>
+
                 updateThreadTurn(prev, game, turnId, {
-                  response,
-                  loading: false,
-                  streamingText: undefined,
+
+                  streamingPhase: phase.label,
+
                 }),
+
               );
+
             },
+
+            onToken: (text) => {
+
+              setThreads((prev) => {
+
+                const turns = getThreadForTcg(prev, game);
+
+                const current = turns.find((t) => t.id === turnId);
+
+                if (!current) return prev;
+
+                return updateThreadTurn(prev, game, turnId, {
+
+                  streamingText: `${current.streamingText ?? ""}${text}`,
+
+                  streamingPhase: null,
+
+                });
+
+              });
+
+            },
+
+            onDone: (response) => {
+
+              setThreads((prev) =>
+
+                updateThreadTurn(prev, game, turnId, {
+
+                  response,
+
+                  loading: false,
+
+                  streamingText: undefined,
+
+                  streamingPhase: null,
+
+                }),
+
+              );
+
+            },
+
           },
+
         );
+
+
 
         const item: JudgeHistoryItem = {
+
           id: turnId,
+
           tcg: game,
+
           question: q.trim(),
+
           answer: res.answer,
+
           success: res.success,
+
           confidence: res.confidence,
+
           sources: res.sources ?? [],
+
           runtime_confidence: res.runtime_confidence,
+
           verdict: res.verdict,
+
           rule_applied: res.rule_applied,
+
           explanation: res.explanation,
+
           exceptions: res.exceptions,
+
           confidence_notice_threshold: res.confidence_notice_threshold,
+
           createdAt: new Date().toISOString(),
+
         };
-        setHistory(saveJudgeHistoryItem(item));
+
+        const nextHistory = await persistJudgeHistoryItem(item, user?.id);
+
+        setHistory(nextHistory);
+
+        setHistoryByTurnId((prev) => ({ ...prev, [turnId]: item }));
+
         setTimeout(scrollToBottom, 120);
+
       } catch (e) {
+
         const message = judgeErrorMessage(e);
+
         setError(message);
+
         setThreads((prev) =>
+
           updateThreadTurn(prev, game, turnId, {
+
             loading: false,
+
             error: message,
+
           }),
+
         );
+
       } finally {
+
         setSubmitting(false);
+
       }
+
     },
-    [submitting, syncUrl, scrollToBottom],
+
+    [submitting, syncUrl, scrollToBottom, user?.id],
+
   );
 
+
+
   useEffect(() => {
+
     if (autoSubmitDone.current) return;
+
     const parsed = parseJudgeSearchParams(searchParams);
+
+    if (parsed.sessionId || parsed.shareId) return;
+
     if (!parsed.question?.trim()) return;
+
     autoSubmitDone.current = true;
+
     const game = parsed.tcg ?? "magic";
+
     void runQuestion(parsed.question, game);
+
     // eslint-disable-next-line react-hooks/exhaustive-deps -- auto-submit único via URL
+
   }, [searchParams]);
 
+
+
   const submit = useCallback(() => {
+
     void runQuestion(question, tcg);
+
   }, [question, tcg, runQuestion]);
 
+
+
   function handleTcgChange(next: TcgType) {
+
     setTcg(next);
+
     setError(null);
+
     syncUrl(next, question.trim() || undefined);
+
   }
+
+
 
   function loadFromHistory(item: JudgeHistoryItem) {
+
     setTcg(item.tcg);
+
     setQuestion(item.question);
+
     setError(null);
+
     syncUrl(item.tcg, item.question);
 
+
+
     const restored: JudgeThreadTurn = {
+
       id: `restore-${item.id}`,
+
       question: item.question,
+
       response: {
+
         success: item.success,
+
         answer: item.answer,
+
         confidence: item.confidence,
+
         sources: item.sources ?? [],
+
         runtime_confidence: item.runtime_confidence ?? 0.94,
+
         verdict: item.verdict,
+
         rule_applied: item.rule_applied,
+
         explanation: item.explanation,
+
         exceptions: item.exceptions,
+
         confidence_notice_threshold: item.confidence_notice_threshold,
+
       } satisfies JudgeResponse,
+
       createdAt: item.createdAt,
+
     };
+
     setThreads((prev) => upsertThreadTurn(prev, item.tcg, restored));
+
     setTimeout(scrollToBottom, 100);
+
   }
+
+
+
+  const handleRelatedSelect = useCallback((q: string) => {
+
+    setQuestion(q);
+
+  }, []);
+
+
 
   const showEmpty = currentTurns.length === 0 && !submitting && !error;
 
+
+
+  const sidebarHistory = useMemo(
+
+    () => (
+
+      <JudgeHistory
+
+        items={history}
+
+        onSelect={loadFromHistory}
+
+        onClear={() => {
+
+          clearJudgeHistory();
+
+          setHistory([]);
+
+        }}
+
+      />
+
+    ),
+
+    [history],
+
+  );
+
+
+
   return (
+
     <JudgeLayout
+
       tcg={tcg}
+
       health={health}
-      sidebar={
-        <div className="space-y-4">
-          <JudgeHistory
-            items={history}
-            onSelect={loadFromHistory}
-            onClear={() => {
-              clearJudgeHistory();
-              setHistory([]);
-            }}
-          />
-          {currentTurns.length > 0 && (
-            <button
-              type="button"
-              onClick={() => setThreads((prev) => clearThreadForTcg(prev, tcg))}
-              className="w-full rounded-xl border border-[hsl(var(--border))] px-3 py-2 text-xs font-semibold text-[hsl(222_20%_35%)] transition hover:bg-[hsl(var(--muted))]"
-            >
-              Limpar conversa deste jogo
-            </button>
-          )}
-        </div>
-      }
+
+      sidebar={<div className="space-y-4">{sidebarHistory}</div>}
+
     >
+
       <div className="mx-auto max-w-3xl space-y-6">
+
         <section className="judge-card rounded-2xl border border-[hsl(var(--border))] p-4 sm:p-5 lg:max-w-none">
+
           <TcgSelector
+
             value={tcg}
+
             onChange={handleTcgChange}
+
             disabled={submitting}
+
             responsePanelId={RESPONSE_PANEL_ID}
+
             options={tcgOptions}
+
           />
+
         </section>
+
+
 
         <div
+
           id={RESPONSE_PANEL_ID}
+
           role="tabpanel"
+
           aria-labelledby={`judge-tcg-tab-${tcg}`}
+
           className="space-y-6"
+
         >
+
           {currentTurns.length > 0 && (
+
             <section className="space-y-3">
+
               <div className="flex items-center justify-between gap-2">
+
                 <h2 className="text-base font-bold">Conversa · {tcgBrand.icon}</h2>
+
               </div>
-              <JudgeThread tcg={tcg} turns={currentTurns} />
+
+              <JudgeThread
+
+                tcg={tcg}
+
+                turns={currentTurns}
+
+                onRelatedSelect={handleRelatedSelect}
+
+                historyByTurnId={historyByTurnId}
+
+              />
+
             </section>
+
           )}
+
+
 
           {error && currentTurns.every((t) => !t.error) && (
+
             <ErrorPanel message={error} onRetry={submit} />
+
           )}
+
+
 
           {showEmpty && (
+
             <JudgeEmptyState tcg={tcg} onExampleClick={(example) => setQuestion(example)} />
+
           )}
+
         </div>
 
+
+
         <section className="judge-card space-y-4 rounded-2xl border border-[hsl(var(--border))] p-4 sm:p-5">
+
           <h2 className="text-base font-bold">A sua dúvida</h2>
+
           <QuestionInput
+
             value={question}
+
             onChange={setQuestion}
+
             onSubmit={submit}
+
             disabled={submitting}
+
           />
+
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+
             <p className="text-xs text-[hsl(222_15%_50%)]">
+
               Enter envia · Shift+Enter nova linha · conversa mantém contexto do jogo
+
             </p>
+
             <AskButton
+
               loading={submitting}
+
               disabled={!question.trim() || activeLoading}
+
               onClick={submit}
+
               accent={tcgBrand.accent}
+
               accentFg={tcgBrand.accentFg}
+
             />
+
           </div>
+
         </section>
 
+
+
         <div ref={bottomRef} />
+
       </div>
+
     </JudgeLayout>
+
   );
+
 }
+
+

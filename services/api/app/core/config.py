@@ -41,9 +41,25 @@ class Settings(BaseSettings):
     retrieval_dedup_threshold: float = 0.93
     retrieval_rerank_pool_size: int = 28
     reranker_enabled: bool = False
+    reranker_provider: str = "local"  # local | cohere
     reranker_model: str = "BAAI/bge-reranker-large"
     reranker_batch_size: int = 8
+    reranker_top_k: int = 5
+    cohere_api_key: str | None = None
     confidence_low_threshold: float = 0.42
+
+    # HyDE — query expansion cross-lingual (pergunta PT → documento hipotético EN)
+    hyde_enabled: bool = True
+    hyde_weight: float = 0.5
+    hyde_model: str = "gpt-4o-mini"
+
+    # Cache semântico Judge (Redis)
+    judge_semantic_cache_enabled: bool = True
+    judge_semantic_cache_ttl_seconds: int = 86_400
+    judge_semantic_cache_similarity: float = 0.97
+
+    # Rule graph automático
+    rule_graph_min_edge_confidence: float = 0.45
 
     # Scoring composto (híbrido + temporal + rerank) e pesos temporais pós-fetch
     score_weight_hybrid: float = 1.0
@@ -142,6 +158,9 @@ class Settings(BaseSettings):
 
     # Replay integrity (HMAC opcional; sem segredo = apenas hashing interno desativado)
     replay_signing_secret: str | None = None
+
+    # Partilha de vereditos Judge (HMAC; sem segredo = links sem assinatura)
+    judge_share_secret: str | None = None
 
     # --- AWS / EKS (opcional; docker-compose local inalterado; extra="ignore" já ativo) ---
     aws_platform_enabled: bool = False
