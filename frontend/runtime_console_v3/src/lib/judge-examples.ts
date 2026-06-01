@@ -54,6 +54,10 @@ export const JUDGE_EXAMPLES: Record<TcgType, [string, string]> = {
     "Como funcionam as cartas de personagem?",
     "O que significa activar uma habilidade?",
   ],
+  star_wars_unlimited: [
+    "Como funciona o sistema de recursos?",
+    "Quando posso atacar com uma unidade?",
+  ],
 };
 
 export function getJudgeExamples(tcg: TcgType): [string, string] {

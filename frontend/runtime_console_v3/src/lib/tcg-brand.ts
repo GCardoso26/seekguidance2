@@ -132,6 +132,15 @@ export const TCG_BRAND: Record<TcgType, TcgBrand> = {
     icon: "UA",
     publisher: "Bandai",
   },
+  star_wars_unlimited: {
+    accent: "210 65% 42%",
+    accentFg: "0 0% 100%",
+    headerFrom: "210 62% 36%",
+    headerTo: "215 55% 26%",
+    pattern: "hex",
+    icon: "SWU",
+    publisher: "Fantasy Flight Games",
+  },
 };
 
 export function getTcgBrand(id: TcgType): TcgBrand {

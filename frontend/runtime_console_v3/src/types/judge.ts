@@ -11,12 +11,14 @@ export type TcgType =
   | "sorcery"
   | "vanguard"
   | "riftbound"
-  | "union_arena";
+  | "union_arena"
+  | "star_wars_unlimited";
 
 export type TcgOption = {
   id: TcgType;
   label: string;
   enabled: boolean;
+  beta?: boolean;
 };
 
 export const TCG_OPTIONS: TcgOption[] = [
@@ -33,6 +35,7 @@ export const TCG_OPTIONS: TcgOption[] = [
   { id: "vanguard", label: "Cardfight!! Vanguard", enabled: true },
   { id: "riftbound", label: "Riftbound — League of Legends", enabled: true },
   { id: "union_arena", label: "Union Arena", enabled: true },
+  { id: "star_wars_unlimited", label: "Star Wars: Unlimited", enabled: true, beta: true },
 ];
 
 export type JudgeQuestion = {
@@ -56,6 +59,7 @@ export type JudgeGameCatalogItem = {
   display_name: string;
   enabled: boolean;
   coming_soon: boolean;
+  beta?: boolean;
   rag_ready: boolean;
   chunk_count: number;
   last_indexed_at?: string | null;
@@ -75,6 +79,7 @@ export type JudgeResponse = {
   explanation?: string | null;
   exceptions?: string | null;
   confidence_notice_threshold?: number;
+  related_questions?: string[];
 };
 
 export type JudgeQuestionPayload = JudgeQuestion & {
