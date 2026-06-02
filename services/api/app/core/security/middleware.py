@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-import structlog
 from collections.abc import Callable
 
+import structlog
 from app.core.config import get_settings
 from app.core.security.headers import apply_security_headers
 from app.core.security.rbac import has_permission

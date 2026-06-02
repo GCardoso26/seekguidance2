@@ -1,5 +1,5 @@
-from evaluation.judge_quality.metrics import aggregate_results, compare_to_baseline, score_case
-from evaluation.judge_quality.runner import run_fixture_evaluation, load_baseline
+from evaluation.judge_quality.metrics import compare_to_baseline, score_case
+from evaluation.judge_quality.runner import load_baseline, run_fixture_evaluation
 
 
 def test_score_case_accuracy():

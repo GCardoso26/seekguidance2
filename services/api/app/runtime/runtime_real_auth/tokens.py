@@ -132,7 +132,7 @@ def decode_access(access_token: str, *, secret: str | None = None) -> dict[str, 
 
 
 def revoke_token(token: str, *, secret: str | None = None) -> bool:
-    sec = secret or _settings_secret()
+    _ = secret  # API symmetry with encode/decode; revocation uses jti + redis only
     try:
         body, _ = token.rsplit(".", 1)
         payload = json.loads(_b64url_decode(body))

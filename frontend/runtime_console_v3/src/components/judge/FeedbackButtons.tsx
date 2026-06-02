@@ -2,7 +2,11 @@
 
 import { useState } from "react";
 import { ThumbsDown, ThumbsUp } from "lucide-react";
+import confetti from "canvas-confetti";
 import { submitJudgeFeedback, type JudgeFeedbackPayload } from "@/services/judgeApi";
+import { hapticFeedback } from "@/utils/haptic";
+import { showToast } from "@/lib/toast";
+import { cn } from "@/lib/utils";
 
 interface FeedbackButtonsProps {
   question: string;
@@ -12,6 +16,24 @@ interface FeedbackButtonsProps {
 
 type FeedbackState = "idle" | "positive" | "negative" | "submitted";
 
+function firePositiveConfetti() {
+  const root = typeof document !== "undefined" ? getComputedStyle(document.documentElement) : null;
+  const color =
+    root?.getPropertyValue("--tcg-primary-light").trim() ||
+    root?.getPropertyValue("--tcg-primary").trim() ||
+    "#4A90D9";
+
+  void confetti({
+    particleCount: 28,
+    spread: 60,
+    origin: { y: 0.75 },
+    colors: [color, "#ffffff", "#facc15"],
+    disableForReducedMotion: true,
+    gravity: 1.2,
+    scalar: 0.85,
+  });
+}
+
 export function FeedbackButtons({ question, gameSlug, verdict }: FeedbackButtonsProps) {
   const [state, setState] = useState<FeedbackState>("idle");
   const [comment, setComment] = useState("");
@@ -20,6 +42,11 @@ export function FeedbackButtons({ question, gameSlug, verdict }: FeedbackButtons
   const handleRating = async (rating: "positive" | "negative") => {
     setState(rating);
     setShowComment(rating === "negative");
+    hapticFeedback(rating === "positive" ? "light" : "medium");
+
+    if (rating === "positive") {
+      firePositiveConfetti();
+    }
 
     const payload: JudgeFeedbackPayload = {
       question,
@@ -32,6 +59,7 @@ export function FeedbackButtons({ question, gameSlug, verdict }: FeedbackButtons
 
     if (rating === "positive") {
       setState("submitted");
+      showToast("Obrigado pelo feedback!", "success");
     }
   };
 
@@ -50,41 +78,44 @@ export function FeedbackButtons({ question, gameSlug, verdict }: FeedbackButtons
     });
     setState("submitted");
     setShowComment(false);
+    showToast("Feedback enviado", "info");
   };
 
   if (state === "submitted") {
-    return <p className="mt-2 text-xs text-muted-foreground">Obrigado pelo feedback!</p>;
+    return <p className="mt-2 text-xs text-[var(--tcg-text-secondary)]">Obrigado pelo feedback!</p>;
   }
 
   return (
     <div className="mt-3 space-y-2">
-      <div className="flex items-center gap-2">
-        <span className="text-xs text-muted-foreground">Esta resposta foi útil?</span>
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-xs text-[var(--tcg-text-secondary)]">Esta resposta foi útil?</span>
         <button
           type="button"
           onClick={() => void handleRating("positive")}
           disabled={state !== "idle"}
           aria-label="Resposta útil"
-          className={`rounded-md border p-1.5 transition-colors ${
+          className={cn(
+            "verdict-card min-h-12 min-w-12 rounded-lg border p-2.5 transition-colors",
             state === "positive"
-              ? "border-green-300 bg-green-50 text-green-600"
-              : "border-border text-muted-foreground hover:border-green-300 hover:text-green-600"
-          }`}
+              ? "border-green-500/50 bg-green-500/15 text-green-400"
+              : "border-[var(--tcg-border)] text-[var(--tcg-text-secondary)] hover:border-green-500/40 hover:text-green-400",
+          )}
         >
-          <ThumbsUp size={14} />
+          <ThumbsUp size={18} aria-hidden />
         </button>
         <button
           type="button"
           onClick={() => void handleRating("negative")}
           disabled={state !== "idle"}
           aria-label="Resposta não útil"
-          className={`rounded-md border p-1.5 transition-colors ${
+          className={cn(
+            "verdict-card min-h-12 min-w-12 rounded-lg border p-2.5 transition-colors",
             state === "negative"
-              ? "border-red-300 bg-red-50 text-red-600"
-              : "border-border text-muted-foreground hover:border-red-300 hover:text-red-600"
-          }`}
+              ? "border-red-500/50 bg-red-500/15 text-red-400"
+              : "border-[var(--tcg-border)] text-[var(--tcg-text-secondary)] hover:border-red-500/40 hover:text-red-400",
+          )}
         >
-          <ThumbsDown size={14} />
+          <ThumbsDown size={18} aria-hidden />
         </button>
       </div>
 
@@ -97,13 +128,13 @@ export function FeedbackButtons({ question, gameSlug, verdict }: FeedbackButtons
             onKeyDown={(e) => e.key === "Enter" && void handleCommentSubmit()}
             placeholder="O que estava errado? (opcional)"
             maxLength={500}
-            className="flex-1 rounded-md border border-border bg-background px-2 py-1.5 text-xs"
+            className="flex-1 rounded-md border border-[var(--tcg-border)] bg-[var(--tcg-surface)] px-2 py-2 text-xs text-[var(--tcg-text-primary)]"
             autoFocus
           />
           <button
             type="button"
             onClick={() => void handleCommentSubmit()}
-            className="rounded-md border border-border px-3 py-1.5 text-xs transition-colors hover:bg-muted"
+            className="verdict-card min-h-12 rounded-md border border-[var(--tcg-border)] px-3 text-xs font-medium hover:bg-white/5"
           >
             Enviar
           </button>

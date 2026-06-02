@@ -5,8 +5,6 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-import pytest
-
 INGEST_ROOT = Path(__file__).resolve().parents[3] / "ingestion"
 if str(INGEST_ROOT) not in sys.path:
     sys.path.insert(0, str(INGEST_ROOT))
@@ -16,7 +14,6 @@ from tcg_judge_ingestion.chunking.rule_parser import (  # noqa: E402
     _merge_short_chunks,
     chunk_by_rule_hierarchy,
 )
-
 
 MTG_SAMPLE = """
 702.9 Flying

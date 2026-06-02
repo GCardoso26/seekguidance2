@@ -1,5 +1,4 @@
 import structlog
-
 from app.core.security.redaction import mask_mapping
 
 

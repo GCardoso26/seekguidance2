@@ -8,19 +8,24 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 import { AskButton } from "@/components/judge/AskButton";
 
-import { ErrorPanel } from "@/components/judge/ErrorPanel";
 
-import { JudgeEmptyState } from "@/components/judge/JudgeEmptyState";
+import { EmptyTableState } from "@/components/judge/EmptyTableState";
+import { ErrorCardState } from "@/components/judge/ErrorCardState";
+import { JudgeToast } from "@/components/judge/JudgeToast";
 
-import { JudgeHistory } from "@/components/judge/JudgeHistory";
+import { GameMatSelector } from "@/components/judge/GameMatSelector";
+
+import { GameTableLayout } from "@/components/judge/GameTableLayout";
 
 import { JudgeLayout } from "@/components/judge/JudgeLayout";
 
 import { JudgeThread } from "@/components/judge/JudgeThread";
 
+import { MatchLog } from "@/components/judge/MatchLog";
+
 import { QuestionInput } from "@/components/judge/QuestionInput";
 
-import { TcgSelector } from "@/components/judge/TcgSelector";
+import { RuleSourcesPanel } from "@/components/judge/RuleSourcesPanel";
 
 import { useJudgeAuth } from "@/features/auth/AuthProvider";
 
@@ -48,7 +53,11 @@ import {
 
 } from "@/lib/judge-thread";
 
+import { appendQuestionToRound, ensureActiveRound, getRoundById } from "@/lib/match-log";
 import { buildJudgeUrlParams, isValidTcgType, parseJudgeSearchParams } from "@/lib/judge-url";
+import { hapticFeedback } from "@/utils/haptic";
+
+import { extractHighlightTerms, parseJudgeVerdict } from "@/lib/judge-verdict";
 
 import { getTcgBrand } from "@/lib/tcg-brand";
 
@@ -193,13 +202,20 @@ export function JudgePageClient() {
 
 
   useEffect(() => {
-
     const parsed = parseJudgeSearchParams(searchParams);
-
     if (parsed.tcg) setTcg(parsed.tcg);
-
     if (parsed.question) setQuestion(parsed.question);
-
+    if (parsed.roundId) {
+      const round = getRoundById(parsed.roundId);
+      const firstId = round?.questions[0]?.historyId;
+      if (firstId) {
+        void loadJudgeHistoryHybrid(user?.id).then((items) => {
+          const hit = items.find((i) => i.id === firstId);
+          if (hit) loadFromHistory(hit);
+        });
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- deep link round
   }, [searchParams]);
 
 
@@ -418,6 +434,9 @@ export function JudgePageClient() {
 
         const nextHistory = await persistJudgeHistoryItem(item, user?.id);
 
+        appendQuestionToRound(game, { ...item, id: turnId, createdAt: item.createdAt });
+        hapticFeedback("medium");
+
         setHistory(nextHistory);
 
         setHistoryByTurnId((prev) => ({ ...prev, [turnId]: item }));
@@ -487,13 +506,11 @@ export function JudgePageClient() {
 
 
   function handleTcgChange(next: TcgType) {
-
+    hapticFeedback("light");
+    ensureActiveRound(next);
     setTcg(next);
-
     setError(null);
-
     syncUrl(next, question.trim() || undefined);
-
   }
 
 
@@ -564,176 +581,116 @@ export function JudgePageClient() {
 
 
 
-  const sidebarHistory = useMemo(
+  const activeTurn = useMemo(() => {
+    for (let i = currentTurns.length - 1; i >= 0; i -= 1) {
+      const t = currentTurns[i];
+      if (t.response?.sources?.length) return t;
+    }
+    return currentTurns[currentTurns.length - 1] ?? null;
+  }, [currentTurns]);
 
-    () => (
+  const activeSources = activeTurn?.response?.sources ?? [];
+  const highlightTerms = useMemo(() => {
+    if (!activeTurn?.response) return [];
+    const parsed = parseJudgeVerdict(activeTurn.response);
+    return extractHighlightTerms(parsed.ruleApplied, parsed.explanation);
+  }, [activeTurn]);
 
-      <JudgeHistory
-
-        items={history}
-
-        onSelect={loadFromHistory}
-
-        onClear={() => {
-
-          clearJudgeHistory();
-
-          setHistory([]);
-
-        }}
-
-      />
-
-    ),
-
-    [history],
-
+  const matchLog = (
+    <MatchLog
+      tcg={tcg}
+      items={history}
+      onSelect={loadFromHistory}
+      onClear={() => {
+        clearJudgeHistory();
+        setHistory([]);
+      }}
+    />
   );
 
-
-
-  return (
-
-    <JudgeLayout
-
-      tcg={tcg}
-
-      health={health}
-
-      sidebar={<div className="space-y-4">{sidebarHistory}</div>}
-
-    >
-
-      <div className="mx-auto max-w-3xl space-y-6">
-
-        <section className="judge-card rounded-2xl border border-[hsl(var(--border))] p-4 sm:p-5 lg:max-w-none">
-
-          <TcgSelector
-
-            value={tcg}
-
-            onChange={handleTcgChange}
-
-            disabled={submitting}
-
-            responsePanelId={RESPONSE_PANEL_ID}
-
-            options={tcgOptions}
-
-          />
-
-        </section>
-
-
-
-        <div
-
-          id={RESPONSE_PANEL_ID}
-
-          role="tabpanel"
-
-          aria-labelledby={`judge-tcg-tab-${tcg}`}
-
-          className="space-y-6"
-
-        >
-
-          {currentTurns.length > 0 && (
-
-            <section className="space-y-3">
-
-              <div className="flex items-center justify-between gap-2">
-
-                <h2 className="text-base font-bold">Conversa · {tcgBrand.icon}</h2>
-
-              </div>
-
-              <JudgeThread
-
-                tcg={tcg}
-
-                turns={currentTurns}
-
-                onRelatedSelect={handleRelatedSelect}
-
-                historyByTurnId={historyByTurnId}
-
-              />
-
-            </section>
-
-          )}
-
-
-
-          {error && currentTurns.every((t) => !t.error) && (
-
-            <ErrorPanel message={error} onRetry={submit} />
-
-          )}
-
-
-
-          {showEmpty && (
-
-            <JudgeEmptyState tcg={tcg} onExampleClick={(example) => setQuestion(example)} />
-
-          )}
-
-        </div>
-
-
-
-        <section className="judge-card space-y-4 rounded-2xl border border-[hsl(var(--border))] p-4 sm:p-5">
-
-          <h2 className="text-base font-bold">A sua dúvida</h2>
-
-          <QuestionInput
-
-            value={question}
-
-            onChange={setQuestion}
-
-            onSubmit={submit}
-
-            disabled={submitting}
-
-          />
-
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-
-            <p className="text-xs text-[hsl(222_15%_50%)]">
-
-              Enter envia · Shift+Enter nova linha · conversa mantém contexto do jogo
-
-            </p>
-
-            <AskButton
-
-              loading={submitting}
-
-              disabled={!question.trim() || activeLoading}
-
-              onClick={submit}
-
-              accent={tcgBrand.accent}
-
-              accentFg={tcgBrand.accentFg}
-
+  const centerZone = (
+    <>
+      <section className="judge-card rounded-2xl border p-4 sm:p-5">
+        <GameMatSelector
+          value={tcg}
+          onChange={handleTcgChange}
+          disabled={submitting}
+          responsePanelId={RESPONSE_PANEL_ID}
+          options={tcgOptions}
+        />
+      </section>
+
+      <div
+        id={RESPONSE_PANEL_ID}
+        role="tabpanel"
+        aria-labelledby={`judge-tcg-tab-${tcg}`}
+        className="relative space-y-6"
+      >
+        {currentTurns.length > 0 && (
+          <section className="space-y-3">
+            <h2 className="text-base font-bold text-[var(--tcg-text-primary)]">
+              Mesa · {tcgBrand.emoji} {tcgBrand.icon}
+            </h2>
+            <JudgeThread
+              tcg={tcg}
+              turns={currentTurns}
+              onRelatedSelect={handleRelatedSelect}
+              historyByTurnId={historyByTurnId}
+              hideSources
             />
+          </section>
+        )}
 
-          </div>
+        {error && currentTurns.every((t) => !t.error) && (
+          <ErrorCardState message={error} onRetry={submit} />
+        )}
 
-        </section>
-
-
-
-        <div ref={bottomRef} />
-
+        {showEmpty && (
+          <EmptyTableState tcg={tcg} onExampleClick={(example) => setQuestion(example)} />
+        )}
       </div>
 
-    </JudgeLayout>
+      <section className="judge-card space-y-4 rounded-2xl border p-4 sm:p-5">
+        <h2 className="text-base font-bold text-[var(--tcg-text-primary)]">A sua dúvida</h2>
+        <QuestionInput
+          value={question}
+          onChange={setQuestion}
+          onSubmit={submit}
+          disabled={submitting}
+        />
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-xs text-[var(--tcg-text-secondary)]">
+            Enter envia · Shift+Enter nova linha · contexto da partida mantido
+          </p>
+          <AskButton
+            loading={submitting}
+            disabled={!question.trim() || activeLoading}
+            onClick={submit}
+            accent={tcgBrand.accent}
+            accentFg={tcgBrand.accentFg}
+          />
+        </div>
+      </section>
 
+      <div ref={bottomRef} />
+    </>
+  );
+
+  return (
+    <JudgeLayout tcg={tcg} health={health} warmupReady={health !== "offline"}>
+      <JudgeToast />
+      <GameTableLayout
+        left={matchLog}
+        center={centerZone}
+        right={
+          <RuleSourcesPanel
+            sources={activeSources}
+            tcg={tcg}
+            highlightTerms={highlightTerms}
+          />
+        }
+      />
+    </JudgeLayout>
   );
 
 }

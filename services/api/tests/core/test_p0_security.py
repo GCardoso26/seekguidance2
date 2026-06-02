@@ -2,14 +2,11 @@
 
 from __future__ import annotations
 
-import os
 from pathlib import Path
 
 import pytest
 from app.core.security.paths import resolve_allowed_backup_path
-from app.core.security.tenant import resolve_auth, tenant_from_auth
 from app.main import app
-from app.runtime.runtime_real_auth import tokens
 from app.runtime.runtime_real_auth.engine import runtime_real_auth_engine_v1
 from fastapi.testclient import TestClient
 

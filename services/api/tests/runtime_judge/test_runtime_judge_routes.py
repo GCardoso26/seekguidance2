@@ -208,9 +208,10 @@ def test_judge_health_endpoint() -> None:
 
 
 def test_judge_rate_limit_returns_429(monkeypatch) -> None:
-    from app.core.config import get_settings
     import importlib
+
     import app.main as main_module
+    from app.core.config import get_settings
 
     monkeypatch.setenv("JUDGE_RATE_LIMIT_REQUESTS_PER_MINUTE", "1")
     monkeypatch.setenv("JUDGE_RATE_LIMIT_ENABLED", "true")

@@ -1,9 +1,18 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { JetBrains_Mono, Plus_Jakarta_Sans } from "next/font/google";
+
+import "@/styles/judge-table.css";
 
 const plusJakarta = Plus_Jakarta_Sans({
   subsets: ["latin", "latin-ext"],
   display: "swap",
+  variable: "--font-judge-sans",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin", "latin-ext"],
+  display: "swap",
+  variable: "--font-judge-mono",
 });
 
 const title = "Judge TCG — Consulta de Regras Oficiais";
@@ -32,5 +41,9 @@ export const metadata: Metadata = {
 };
 
 export default function JudgeRouteLayout({ children }: { children: React.ReactNode }) {
-  return <div className={plusJakarta.className}>{children}</div>;
+  return (
+    <div className={`${plusJakarta.variable} ${jetbrainsMono.variable} ${plusJakarta.className}`}>
+      {children}
+    </div>
+  );
 }

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from app.api.v1.runtime_judge import TCG_COMING_SOON, TCG_GAME_SLUG
+from app.judge.registry import TCG_COMING_SOON, TCG_GAME_SLUG
 
 
 def test_judge_slug_mapping_multi_tcg() -> None:

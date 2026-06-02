@@ -4,15 +4,15 @@ from __future__ import annotations
 
 import importlib
 import logging
-from typing import Callable
+from collections.abc import Callable
 
-from app.judge_prompts.types import GamePromptBundle
 from app.judge_prompts import lorcana as lorcana_prompt
 from app.judge_prompts import mtg as mtg_prompt
 from app.judge_prompts import onepiece as onepiece_prompt
 from app.judge_prompts import pokemon as pokemon_prompt
 from app.judge_prompts import swu as swu_prompt
 from app.judge_prompts import yugioh as yugioh_prompt
+from app.judge_prompts.types import GamePromptBundle
 
 logger = logging.getLogger(__name__)
 

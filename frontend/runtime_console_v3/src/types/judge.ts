@@ -77,6 +77,7 @@ export type JudgeResponse = {
   answer: string;
   confidence: number;
   sources: JudgeSource[];
+  cache_hit?: boolean;
   runtime_confidence: number;
   integrity_status?: string;
   verdict?: string | null;

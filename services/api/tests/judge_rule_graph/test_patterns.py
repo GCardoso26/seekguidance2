@@ -1,4 +1,3 @@
-import re
 
 from jobs.rule_graph_builder import REFERENCE_PATTERNS
 

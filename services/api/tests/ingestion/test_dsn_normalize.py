@@ -11,12 +11,12 @@ from tcg_judge_ingestion.storage.dsn import (
 
 def test_repair_password_with_hash() -> None:
     broken = (
-        "postgresql+asyncpg://postgres.ref:Sirius#husky93@"
+        "postgresql+asyncpg://postgres.ref:MyPass#word@"
         "aws-1-sa-east-1.pooler.supabase.com:5432/postgres"
     )
     fixed = repair_unencoded_hash_in_dsn(broken)
-    assert "Sirius%23husky93" in fixed
-    assert "#husky93@" not in fixed
+    assert "MyPass%23word" in fixed
+    assert "#word@" not in fixed
     parsed = normalize_asyncpg_dsn(fixed)
     assert "pooler.supabase.com:5432" in parsed
 

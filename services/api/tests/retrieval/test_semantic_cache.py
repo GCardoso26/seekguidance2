@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import pytest
-
 from app.retrieval.semantic_cache import (
     _model_slug,
     _normalize_question,
