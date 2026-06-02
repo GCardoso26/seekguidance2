@@ -13,6 +13,7 @@ export function parseJudgeSearchParams(params: URLSearchParams): {
   sessionId: string | null;
   shareId: string | null;
   shareSig: string | null;
+  roundId: string | null;
 } {
   const gameRaw = params.get("game") ?? params.get("tcg");
   const qRaw = params.get("q") ?? params.get("question");
@@ -22,6 +23,7 @@ export function parseJudgeSearchParams(params: URLSearchParams): {
     sessionId: params.get("session")?.trim() || null,
     shareId: params.get("share")?.trim() || null,
     shareSig: params.get("sig")?.trim() || null,
+    roundId: params.get("round")?.trim() || null,
   };
 }
 

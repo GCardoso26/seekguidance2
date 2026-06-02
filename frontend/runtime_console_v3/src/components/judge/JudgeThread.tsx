@@ -4,7 +4,7 @@ import type { CSSProperties } from "react";
 import { ResponseCard } from "@/components/judge/ResponseCard";
 import { ErrorPanel } from "@/components/judge/ErrorPanel";
 import { ResponseSkeleton } from "@/components/judge/ResponseSkeleton";
-import { StreamingIndicator } from "@/components/judge/StreamingIndicator";
+import { PipelineOrb } from "@/components/judge/PipelineOrb";
 import { getTcgBrand } from "@/lib/tcg-brand";
 import type { JudgeThreadTurn } from "@/lib/judge-thread";
 import type { JudgeHistoryItem, TcgType } from "@/types/judge";
@@ -14,9 +14,10 @@ type Props = {
   turns: JudgeThreadTurn[];
   onRelatedSelect?: (question: string) => void;
   historyByTurnId?: Record<string, JudgeHistoryItem>;
+  hideSources?: boolean;
 };
 
-export function JudgeThread({ tcg, turns, onRelatedSelect, historyByTurnId }: Props) {
+export function JudgeThread({ tcg, turns, onRelatedSelect, historyByTurnId, hideSources }: Props) {
   const brand = getTcgBrand(tcg);
 
   if (turns.length === 0) return null;
@@ -26,7 +27,7 @@ export function JudgeThread({ tcg, turns, onRelatedSelect, historyByTurnId }: Pr
       {turns.map((turn) => (
         <article key={turn.id} className="space-y-3">
           <div
-            className="ml-auto max-w-[92%] rounded-2xl rounded-br-md border border-[hsl(var(--border))] bg-white px-4 py-3 shadow-sm sm:max-w-[85%]"
+            className="ml-auto max-w-[92%] rounded-2xl rounded-br-md border border-[var(--tcg-border)] bg-[var(--tcg-surface-elevated)] px-4 py-3 shadow-sm sm:max-w-[85%]"
             style={
               {
                 "--tcg-accent": brand.accent,
@@ -44,7 +45,7 @@ export function JudgeThread({ tcg, turns, onRelatedSelect, historyByTurnId }: Pr
             <ResponseSkeleton />
           )}
           {turn.loading && turn.streamingPhase && (
-            <StreamingIndicator phase={turn.streamingPhase} />
+            <PipelineOrb phase={turn.streamingPhase} overlay />
           )}
 
           {turn.error && !turn.loading && <ErrorPanel message={turn.error} />}
@@ -68,6 +69,7 @@ export function JudgeThread({ tcg, turns, onRelatedSelect, historyByTurnId }: Pr
               isStreaming={turn.loading}
               onRelatedSelect={onRelatedSelect}
               historyItem={historyByTurnId?.[turn.id]}
+              hideSources={hideSources}
             />
           )}
         </article>

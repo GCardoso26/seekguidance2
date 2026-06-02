@@ -6,6 +6,7 @@ import type { JudgeResponse, TcgType } from "@/types/judge";
 import { createJudgeShare, buildSignedShareUrl } from "@/services/judgeShareApi";
 import { buildJudgeShareUrl } from "@/lib/judge-url";
 import { isJudgeFavorite, toggleJudgeFavorite } from "@/lib/judge-favorites";
+import { showToast } from "@/lib/toast";
 import type { JudgeHistoryItem } from "@/types/judge";
 
 type Props = {
@@ -25,6 +26,7 @@ export function QuickActions({ tcg, question, response, historyItem, onFavoriteC
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);
+      showToast("Resposta copiada!", "success");
       setTimeout(() => setCopied(false), 2000);
     } catch {
       window.prompt("Copie a resposta:", text);

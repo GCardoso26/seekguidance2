@@ -11,6 +11,7 @@ import {
 import { cn } from "@/lib/utils";
 import type { JudgeResponse } from "@/types/judge";
 import { SourceCard } from "@/components/judge/SourceCard";
+import { verdictColorVar } from "@/styles/tcg-theme";
 import { FeedbackButtons } from "@/components/judge/FeedbackButtons";
 import { RelatedQuestions } from "@/components/judge/RelatedQuestions";
 import { QuickActions } from "@/components/judge/QuickActions";
@@ -29,6 +30,8 @@ type Props = {
   isStreaming?: boolean;
   onRelatedSelect?: (question: string) => void;
   historyItem?: JudgeHistoryItem;
+  /** Fontes exibidas na zona direita da mesa — oculta lista inline */
+  hideSources?: boolean;
 };
 
 export function ResponseCard({
@@ -42,6 +45,7 @@ export function ResponseCard({
   isStreaming,
   onRelatedSelect,
   historyItem,
+  hideSources = false,
 }: Props) {
   const parsed = parseJudgeVerdict(response);
   const displayExplanation = isStreaming
@@ -60,12 +64,46 @@ export function ResponseCard({
   return (
     <article
       className={cn(
-        "judge-card judge-response-card overflow-hidden rounded-2xl border border-[hsl(var(--border))]",
+        "judge-card judge-verdict-card judge-response-card overflow-hidden rounded-2xl border",
         className,
       )}
-      style={themeStyle}
+      style={
+        {
+          ...themeStyle,
+          "--verdict-color": verdictColorVar(parsed.label),
+        } as CSSProperties
+      }
     >
-      <div className="judge-response-accent h-1 bg-gradient-to-r from-[hsl(var(--tcg-accent))] to-[hsl(var(--tcg-accent)/0.55)]" />
+      <header
+        className="judge-verdict-header flex items-center gap-3 border-b border-[var(--tcg-border)] px-5 py-4"
+        style={{ borderColor: "var(--tcg-border)" }}
+      >
+        <span
+          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-xl"
+          style={{
+            background: "color-mix(in srgb, var(--verdict-color) 35%, var(--tcg-surface-elevated))",
+          }}
+          aria-hidden
+        >
+          ⚖️
+        </span>
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-[var(--tcg-text-secondary)]">
+            Veredito
+          </p>
+          <p
+            className="text-2xl font-bold leading-tight text-[var(--tcg-text-primary)]"
+            style={{ textShadow: "0 1px 2px rgba(0,0,0,0.35)" }}
+          >
+            {parsed.label}
+          </p>
+        </div>
+        {parsed.ruleApplied && (
+          <span className="judge-rule-atom-badge ml-auto hidden rounded-full px-3 py-1.5 text-sm font-semibold sm:inline">
+            {parsed.ruleApplied.replace(/^.*?(CR\s)?/i, "").slice(0, 12) || "Regra"}
+          </span>
+        )}
+      </header>
 
       <div className="space-y-4 p-5 sm:p-6">
         {question && (
@@ -75,14 +113,20 @@ export function ResponseCard({
           </p>
         )}
 
-        <div className="flex flex-wrap items-center gap-2">
+        {response.cache_hit && !isStreaming && (
+          <span className="inline-flex items-center gap-1 rounded-full border border-[var(--tcg-primary-light)]/40 bg-[var(--tcg-primary)]/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-[var(--tcg-primary-light)]">
+            ⚡ Resposta instantânea
+          </span>
+        )}
+
+        <div className="flex flex-wrap items-center gap-2 md:hidden">
           <span
             className={cn(
               "rounded-full px-2.5 py-0.5 text-xs font-semibold",
               verdictBadgeClass(parsed.kind),
             )}
           >
-            Veredito: {parsed.label}
+            {parsed.label}
           </span>
           {!isStreaming && response.success && (
             <span className="rounded-full bg-[hsl(var(--muted))] px-2.5 py-0.5 text-xs font-medium text-[hsl(222_20%_35%)]">
@@ -134,7 +178,7 @@ export function ResponseCard({
           </section>
         )}
 
-        {sources.length > 0 && !isStreaming && (
+        {sources.length > 0 && !isStreaming && !hideSources && (
           <section className="space-y-3 border-t border-[hsl(var(--border))] pt-4">
             <h3 className="text-sm font-bold">Fontes da pesquisa</h3>
             <ul className="space-y-3">
@@ -179,3 +223,5 @@ export function ResponseCard({
     </article>
   );
 }
+
+export { ResponseCard as VerdictCard };
