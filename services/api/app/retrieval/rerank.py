@@ -28,6 +28,10 @@ class BaseReranker(ABC):
     async def rerank(self, query: str, candidates: list[RankedChunk], top_n: int) -> list[RankedChunk]:
         raise NotImplementedError
 
+    async def health_check(self) -> bool:
+        """Verifica operacionalidade sem lançar exceção."""
+        return True
+
 
 class IdentityReranker(BaseReranker):
     async def rerank(self, query: str, candidates: list[RankedChunk], top_n: int) -> list[RankedChunk]:
@@ -89,10 +93,83 @@ class BGEReranker(BaseReranker):
         )
         return decorated[:top_n]
 
+    async def health_check(self) -> bool:
+        try:
+            await asyncio.to_thread(self._ensure_model)
+            return self._model is not None
+        except Exception:
+            return False
 
-def build_reranker(*, enabled: bool, model_name: str, batch_size: int) -> BaseReranker:
+
+class CohereReranker(BaseReranker):
+    """Cohere Rerank API — serverless, ideal para Render sem GPU."""
+
+    def __init__(self, api_key: str, model: str = "rerank-multilingual-v3.0") -> None:
+        self._api_key = api_key
+        self._model = model
+
+    async def rerank(self, query: str, candidates: list[RankedChunk], top_n: int) -> list[RankedChunk]:
+        if not candidates:
+            return []
+        try:
+            import cohere
+        except ImportError as exc:  # pragma: no cover
+            raise RuntimeError("cohere não instalado. Adiciona 'cohere' ao requirements.txt.") from exc
+
+        client = cohere.AsyncClient(self._api_key)
+        documents = [c.text[:8000] for c in candidates]
+        response = await client.rerank(
+            query=query,
+            documents=documents,
+            model=self._model,
+            top_n=min(top_n, len(documents)),
+        )
+        ranked: list[RankedChunk] = []
+        for result in response.results:
+            base = candidates[result.index]
+            ranked.append(
+                RankedChunk(
+                    chunk_id=base.chunk_id,
+                    text=base.text,
+                    rule_path=base.rule_path,
+                    semantic_path=base.semantic_path,
+                    document_title=base.document_title,
+                    source_url=base.source_url,
+                    score=float(result.relevance_score),
+                )
+            )
+        return ranked
+
+    async def health_check(self) -> bool:
+        try:
+            import cohere
+
+            client = cohere.AsyncClient(self._api_key)
+            await client.rerank(
+                query="warmup",
+                documents=["warmup"],
+                model=self._model,
+                top_n=1,
+            )
+            return True
+        except Exception:
+            return False
+
+
+def build_reranker(
+    *,
+    enabled: bool,
+    model_name: str,
+    batch_size: int,
+    provider: str = "local",
+    cohere_api_key: str | None = None,
+) -> BaseReranker:
     if not enabled:
         return IdentityReranker()
+    if provider.strip().lower() == "cohere":
+        if not cohere_api_key:
+            raise ValueError("COHERE_API_KEY obrigatório quando RERANKER_PROVIDER=cohere")
+        return CohereReranker(api_key=cohere_api_key, model=model_name)
     return BGEReranker(model_name, batch_size=batch_size)
 
 
@@ -108,3 +185,14 @@ class RerankerProvider:
 
     async def rerank(self, query: str, candidates: list[RankedChunk], top_n: int) -> list[RankedChunk]:
         return await self._impl.rerank(query, candidates, top_n)
+
+
+def get_reranker(settings: Any) -> BaseReranker:
+    """Factory usada no warmup e no pipeline."""
+    return build_reranker(
+        enabled=settings.reranker_enabled,
+        model_name=settings.reranker_model,
+        batch_size=settings.reranker_batch_size,
+        provider=settings.reranker_provider,
+        cohere_api_key=settings.cohere_api_key,
+    )

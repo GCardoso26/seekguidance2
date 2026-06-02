@@ -29,6 +29,61 @@ export async function getJudgeHealth(): Promise<BackendHealthState> {
   }
 }
 
+export type JudgeQualityPayload = {
+  integrity_status: string;
+  window_days: number;
+  games: Array<{
+    game_slug: string;
+    thumbs_up_pct?: number | null;
+    thumbs_down_pct?: number | null;
+    questions_per_day?: number;
+    confidence_avg?: number | null;
+    alert?: string;
+    alert_active?: boolean;
+  }>;
+  trends?: Record<string, { label: string; games_tracked?: number }>;
+  cache: { cache_hit_rate?: number; hits?: number; misses?: number };
+  latency: Record<string, { p50: number; p95: number; p99: number }>;
+};
+
+export async function getJudgeQuality(days = 7): Promise<JudgeQualityPayload> {
+  return apiFetch<JudgeQualityPayload>(`/runtime/judge/quality?days=${days}`, {
+    publicRoute: true,
+  });
+}
+
+export type JudgeQualityMetricsPayload = {
+  generated_at: string;
+  games: Record<
+    string,
+    {
+      queries_24h?: number;
+      thumbs_up_pct?: number | null;
+      thumbs_down_pct?: number | null;
+      confidence_avg?: number | null;
+      cache_hit_rate?: number;
+      alert_active?: boolean;
+      latency_p50_ms?: number;
+      latency_p95_ms?: number;
+      latency_p99_ms?: number;
+      latency_by_phase?: {
+        embedding_ms?: number;
+        hyde_ms?: number;
+        retrieval_ms?: number;
+        reranking_ms?: number;
+        generation_ms?: number;
+      };
+    }
+  >;
+  alerts: string[];
+};
+
+export async function getJudgeQualityMetrics(days = 7): Promise<JudgeQualityMetricsPayload> {
+  return apiFetch<JudgeQualityMetricsPayload>(`/runtime/judge/quality-metrics?days=${days}`, {
+    publicRoute: true,
+  });
+}
+
 export async function getJudgeGames(): Promise<JudgeGameCatalogItem[]> {
   const data = await apiFetch<{ games: JudgeGameCatalogItem[] }>("/runtime/judge/games", {
     publicRoute: true,
@@ -48,10 +103,37 @@ export async function askJudgeQuestion(payload: JudgeQuestionPayload): Promise<J
   });
 }
 
+export type JudgePhaseEvent = {
+  type: "phase";
+  phase: "embedding" | "retrieving" | "reranking" | "generating";
+  label: string;
+};
+
+export interface JudgeFeedbackPayload {
+  question: string;
+  game_slug: string;
+  verdict?: string;
+  rating: "positive" | "negative";
+  comment?: string;
+}
+
+export async function submitJudgeFeedback(payload: JudgeFeedbackPayload): Promise<void> {
+  try {
+    await fetch(resolveApiUrl("/runtime/judge/feedback", { publicRoute: true }), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+  } catch {
+    /* best-effort */
+  }
+}
+
 export type JudgeStreamCallbacks = {
   onToken: (text: string) => void;
   onDone: (response: JudgeResponse) => void;
   onError: (message: string) => void;
+  onPhase?: (event: JudgePhaseEvent) => void;
 };
 
 function parseSseBlock(block: string): Record<string, unknown> | null {
@@ -117,7 +199,13 @@ export async function askJudgeQuestionStream(
       const event = parseSseBlock(part);
       if (!event) continue;
 
-      if (event.type === "token" && typeof event.text === "string") {
+      if (event.type === "phase" && typeof event.label === "string") {
+        callbacks.onPhase?.({
+          type: "phase",
+          phase: (event.phase as JudgePhaseEvent["phase"]) || "retrieving",
+          label: String(event.label),
+        });
+      } else if (event.type === "token" && typeof event.text === "string") {
         callbacks.onToken(event.text);
       } else if (event.type === "done") {
         const { type: _t, ...rest } = event;
@@ -136,7 +224,7 @@ export async function askJudgeQuestionStream(
 /** Tenta streaming; se indisponível, usa POST JSON clássico. */
 export async function askJudgeQuestionPreferStream(
   payload: JudgeQuestionPayload,
-  callbacks: Pick<JudgeStreamCallbacks, "onToken" | "onDone">,
+  callbacks: Pick<JudgeStreamCallbacks, "onToken" | "onDone" | "onPhase">,
   signal?: AbortSignal,
 ): Promise<JudgeResponse> {
   let finalResponse: JudgeResponse | null = null;
@@ -146,6 +234,7 @@ export async function askJudgeQuestionPreferStream(
       payload,
       {
         onToken: callbacks.onToken,
+        onPhase: callbacks.onPhase,
         onDone: (response) => {
           finalResponse = response;
           callbacks.onDone(response);

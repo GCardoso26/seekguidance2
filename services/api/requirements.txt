@@ -1,6 +1,7 @@
 # API
 fastapi>=0.115.0,<0.116.0
 uvicorn[standard]>=0.32.0,<0.33.0
+python-multipart>=0.0.9,<0.1.0
 pydantic>=2.9.0,<3.0.0
 pydantic-settings>=2.6.0,<3.0.0
 openai>=1.59.0,<2.0.0
@@ -24,6 +25,10 @@ lxml>=5.3.0,<6.0.0
 pymupdf>=1.24.0,<2.0.0
 pdfplumber>=0.11.0,<0.12.0
 tiktoken>=0.8.0,<0.9.0
+
+# Reranker — descomentar conforme RERANKER_PROVIDER
+# sentence-transformers>=2.7.0,<3.0.0   # RERANKER_PROVIDER=local
+# cohere>=5.0.0,<6.0.0                  # RERANKER_PROVIDER=cohere (recomendado no Render)
 
 # Dev
 pytest>=8.3.0,<9.0.0

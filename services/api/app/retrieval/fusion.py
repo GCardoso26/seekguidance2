@@ -109,3 +109,27 @@ def merge_rrf_and_weighted(
 def normalize_lexical_ranks(scores: dict[UUID, float]) -> dict[UUID, float]:
     """ts_rank_cd: maior = melhor."""
     return _normalize_map(scores, higher_is_better=True)
+
+
+def weighted_rrf_merge_two_lists(
+    results_a: list[UUID],
+    results_b: list[UUID],
+    *,
+    weight_b: float = 0.5,
+    k: int = 60,
+) -> list[UUID]:
+    """
+    RRF com peso diferenciado entre duas listas ordenadas (ex.: query original vs HyDE).
+    weight_b: peso do segundo ramo (HyDE); (1 - weight_b) para o primeiro.
+    """
+    scores: dict[UUID, float] = {}
+    w_b = max(0.0, min(1.0, float(weight_b)))
+    w_a = 1.0 - w_b
+
+    for rank, uid in enumerate(results_a):
+        scores[uid] = scores.get(uid, 0.0) + w_a / (k + rank + 1)
+
+    for rank, uid in enumerate(results_b):
+        scores[uid] = scores.get(uid, 0.0) + w_b / (k + rank + 1)
+
+    return sorted(scores.keys(), key=lambda u: scores[u], reverse=True)

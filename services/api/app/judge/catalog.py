@@ -6,8 +6,9 @@ from datetime import datetime
 from typing import Any
 
 from app.core.config import Settings
-from app.judge.registry import CANONICAL_TCG_BY_GAME_SLUG, TCG_COMING_SOON
+from app.judge.registry import CANONICAL_TCG_BY_GAME_SLUG, TCG_BETA, TCG_COMING_SOON
 from app.retrieval.confidence_profiles import get_confidence_profile
+from app.runtime_judge_semantic_cache.cache import cache_stats_snapshot
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -42,7 +43,8 @@ async def list_judge_games(session: AsyncSession, settings: Settings) -> list[di
         row = stats.get(game_slug, {})
         chunk_count = int(row.get("chunk_count") or 0)
         rag_allowed = game_slug in allowed
-        coming_soon = canonical in TCG_COMING_SOON
+        coming_soon = canonical in TCG_COMING_SOON or game_slug in TCG_COMING_SOON
+        beta = canonical in TCG_BETA or game_slug in TCG_BETA
         rag_ready = rag_allowed and chunk_count >= _MIN_CHUNKS_RAG_READY and not coming_soon
 
         conf_profile = get_confidence_profile(game_slug)
@@ -53,6 +55,7 @@ async def list_judge_games(session: AsyncSession, settings: Settings) -> list[di
                 "display_name": _display_name(canonical, game_slug),
                 "enabled": rag_allowed and not coming_soon,
                 "coming_soon": coming_soon,
+                "beta": beta,
                 "rag_ready": rag_ready,
                 "chunk_count": chunk_count,
                 "last_indexed_at": _iso(row.get("last_indexed_at")),
@@ -81,6 +84,22 @@ async def judge_health_payload(session: AsyncSession, settings: Settings) -> dic
     elif not openai_configured or rag_ready_count == 0:
         status = "degraded"
 
+    cache_stats = cache_stats_snapshot()
+    from app.retrieval.semantic_cache import hash_cache_stats
+
+    hash_stats = hash_cache_stats()
+    provider = settings.semantic_cache_provider
+    cache_enabled = settings.semantic_cache_enabled or settings.judge_semantic_cache_enabled
+
+    from app.runtime.runtime_warmup import get_warmup_status
+
+    warmup = get_warmup_status()
+    components_ready = sum(
+        1
+        for key in ("embedding_ready", "reranker_ready", "cache_ready", "judge_ready")
+        if warmup.get(key)
+    )
+
     return {
         "status": status,
         "integrity_status": "ok" if db_ok else "degraded",
@@ -89,6 +108,19 @@ async def judge_health_payload(session: AsyncSession, settings: Settings) -> dic
         "rag_ready_games": rag_ready_count,
         "total_games": len(games),
         "default_chat_model": settings.default_chat_model,
+        "cache_hit_rate": cache_stats.get("cache_hit_rate", 0.0),
+        "cache_stats": cache_stats,
+        "semantic_cache": {
+            "enabled": cache_enabled,
+            "provider": provider,
+            "hit_rate_1h": hash_stats.get("hit_rate") or cache_stats.get("cache_hit_rate", 0.0),
+        },
+        "warmup": {
+            "completed": warmup.get("completed", False),
+            "duration_ms": warmup.get("warmup_duration_ms", 0.0),
+            "components_ready": components_ready,
+            "components_total": 4,
+        },
         "games": games,
     }
 
@@ -108,6 +140,7 @@ def _display_name(tcg_id: str, game_slug: str) -> str:
         "vanguard": "Cardfight!! Vanguard",
         "riftbound": "Riftbound — League of Legends",
         "union_arena": "Union Arena",
+        "star_wars_unlimited": "Star Wars: Unlimited",
     }
     return names.get(tcg_id, game_slug.replace("_", " ").title())
 

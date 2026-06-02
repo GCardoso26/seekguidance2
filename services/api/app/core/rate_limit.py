@@ -33,6 +33,31 @@ def _get_redis(redis_url: str | None):
         return None
 
 
+def judge_query_client_key(request, *, trust_proxy: bool = False) -> tuple[str, bool]:
+    """
+    Chave e flag de autenticação para rate limit do Judge query.
+    Autenticado: Bearer JWT (sub) ou header X-Judge-User-Id.
+    """
+    auth = request.headers.get("Authorization", "")
+    if auth.startswith("Bearer "):
+        try:
+            import base64
+            import json
+
+            part = auth[7:].split(".")[1]
+            padded = part + "=" * (-len(part) % 4)
+            payload = json.loads(base64.urlsafe_b64decode(padded))
+            sub = str(payload.get("sub") or "").strip()
+            if sub:
+                return f"auth:{sub}", True
+        except Exception:
+            pass
+    uid = (request.headers.get("X-Judge-User-Id") or "").strip()
+    if uid:
+        return f"auth:{uid}", True
+    return f"anon:{client_key(request, trust_proxy=trust_proxy)}", False
+
+
 def client_key(request, *, trust_proxy: bool = False) -> str:
     if trust_proxy:
         forwarded = request.headers.get("x-forwarded-for")

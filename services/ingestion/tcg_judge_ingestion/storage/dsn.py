@@ -12,8 +12,8 @@ def repair_unencoded_hash_in_dsn(dsn: str) -> str:
     """
     Repara URLs onde `#` na senha foi interpretado como fragmento.
 
-    Ex.: postgresql://user:Sirius#husky93@host:5432/db
-         → postgresql://user:Sirius%23husky93@host:5432/db
+    Ex.: postgresql://user:pass#word@host:5432/db
+         → postgresql://user:pass%23word@host:5432/db
     """
     parsed = urlparse(dsn)
     if not parsed.fragment or "@" not in parsed.fragment:

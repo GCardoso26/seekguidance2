@@ -3,17 +3,21 @@
 import type { CSSProperties } from "react";
 import { ResponseCard } from "@/components/judge/ResponseCard";
 import { ErrorPanel } from "@/components/judge/ErrorPanel";
-import { LoadingPanel } from "@/components/judge/LoadingPanel";
+import { ResponseSkeleton } from "@/components/judge/ResponseSkeleton";
+import { PipelineOrb } from "@/components/judge/PipelineOrb";
 import { getTcgBrand } from "@/lib/tcg-brand";
 import type { JudgeThreadTurn } from "@/lib/judge-thread";
-import type { TcgType } from "@/types/judge";
+import type { JudgeHistoryItem, TcgType } from "@/types/judge";
 
 type Props = {
   tcg: TcgType;
   turns: JudgeThreadTurn[];
+  onRelatedSelect?: (question: string) => void;
+  historyByTurnId?: Record<string, JudgeHistoryItem>;
+  hideSources?: boolean;
 };
 
-export function JudgeThread({ tcg, turns }: Props) {
+export function JudgeThread({ tcg, turns, onRelatedSelect, historyByTurnId, hideSources }: Props) {
   const brand = getTcgBrand(tcg);
 
   if (turns.length === 0) return null;
@@ -23,7 +27,7 @@ export function JudgeThread({ tcg, turns }: Props) {
       {turns.map((turn) => (
         <article key={turn.id} className="space-y-3">
           <div
-            className="ml-auto max-w-[92%] rounded-2xl rounded-br-md border border-[hsl(var(--border))] bg-white px-4 py-3 shadow-sm sm:max-w-[85%]"
+            className="ml-auto max-w-[92%] rounded-2xl rounded-br-md border border-[var(--tcg-border)] bg-[var(--tcg-surface-elevated)] px-4 py-3 shadow-sm sm:max-w-[85%]"
             style={
               {
                 "--tcg-accent": brand.accent,
@@ -37,7 +41,12 @@ export function JudgeThread({ tcg, turns }: Props) {
             <p className="mt-1 text-sm leading-relaxed text-[hsl(var(--foreground))]">{turn.question}</p>
           </div>
 
-          {turn.loading && !turn.response && <LoadingPanel accent={brand.accent} />}
+          {turn.loading && !turn.response && !turn.streamingPhase && !turn.streamingText && (
+            <ResponseSkeleton />
+          )}
+          {turn.loading && turn.streamingPhase && (
+            <PipelineOrb phase={turn.streamingPhase} overlay />
+          )}
 
           {turn.error && !turn.loading && <ErrorPanel message={turn.error} />}
 
@@ -58,6 +67,9 @@ export function JudgeThread({ tcg, turns }: Props) {
               accentFg={brand.accentFg}
               streamingText={turn.loading ? turn.streamingText : undefined}
               isStreaming={turn.loading}
+              onRelatedSelect={onRelatedSelect}
+              historyItem={historyByTurnId?.[turn.id]}
+              hideSources={hideSources}
             />
           )}
         </article>

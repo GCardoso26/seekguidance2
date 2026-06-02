@@ -12,6 +12,7 @@ from app.context.assembler import AssembledPrompt, ContextAssemblyEngine
 from app.context.temporal import TemporalHint
 from app.core.config import Settings
 from app.query_understanding.semantic_router import route_query
+from app.judge_prompts.registry import get_game_prompt_bundle
 from app.retrieval.types import ChunkHit
 
 logger = structlog.get_logger(__name__)
@@ -39,6 +40,7 @@ class LlmComposer:
         mode: str,
         assembled: AssembledPrompt | None = None,
         verdict_format: bool = False,
+        game_slug: str | None = None,
     ) -> LlmResult:
         if not self._settings.openai_api_key:
             raise RuntimeError("OPENAI_API_KEY ausente")
@@ -54,12 +56,15 @@ class LlmComposer:
                 temporal=temporal,
             )
 
+        prompt_bundle = get_game_prompt_bundle(game_slug or "mtg")
         system = (
-            "You are an expert trading card game rules assistant. "
-            "Answer ONLY using the structured CONTEXT (hierarchical passages + citation index). "
+            prompt_bundle.system_prompt
+            + " Answer ONLY using the structured CONTEXT (hierarchical passages + citation index). "
             "If the context is insufficient, say so explicitly. "
-            "Do not invent rule numbers. " + assembled.system_supplement
+            + assembled.system_supplement
         )
+        if prompt_bundle.few_shot_block:
+            system += "\n\nFew-shot examples:\n" + prompt_bundle.few_shot_block
         if mode == "player":
             system += (
                 " Respond in Brazilian Portuguese (pt-BR). "
@@ -77,11 +82,11 @@ class LlmComposer:
                 "Use precise tournament rules language."
             )
 
-        user = assembled.user_context_block + "\n\nReturn JSON with keys: answer (string)."
+        user = assembled.user_context_block + "\n\n" + prompt_bundle.response_format
         if verdict_format and mode == "player":
             user += (
-                " Also include: verdict (one of Permitido, Não permitido, Depende, Informação), "
-                "rule_applied (string), explanation (string), exceptions (string or null)."
+                " Verdict must be one of: Permitido, Não permitido, Depende, Informação. "
+                "Include rule_applied, explanation, exceptions (or null)."
             )
 
         client = AsyncOpenAI(api_key=self._settings.openai_api_key)

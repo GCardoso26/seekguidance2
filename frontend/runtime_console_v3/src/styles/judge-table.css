@@ -1,0 +1,161 @@
+/**
+ * Card Table Interface — mesa de jogo (Judge TCG v2)
+ */
+
+.judge-app {
+  --background: var(--tcg-surface);
+  --foreground: var(--tcg-text-primary);
+  --card: var(--tcg-surface-elevated);
+  --muted: color-mix(in srgb, var(--tcg-surface-elevated) 85%, var(--tcg-text-secondary));
+  --border: var(--tcg-border);
+  --primary: var(--tcg-primary-light);
+  --judge-surface: var(--tcg-surface-elevated);
+  color: var(--tcg-text-primary);
+  background-color: var(--tcg-surface);
+  color-scheme: dark;
+  transition:
+    background-color 0.35s ease,
+    color 0.25s ease;
+}
+
+.judge-app .judge-card,
+.judge-app .judge-verdict-card,
+.judge-app .judge-rule-source-card {
+  background: var(--tcg-card-bg);
+  border-color: var(--tcg-border);
+  box-shadow: var(--tcg-glow);
+}
+
+.judge-app .judge-header-bar--dynamic {
+  background: linear-gradient(
+    135deg,
+    hsl(var(--judge-header-from)) 0%,
+    hsl(var(--judge-header-to)) 100%
+  );
+}
+
+.judge-app .judge-game-mat {
+  background: var(--mat-gradient, var(--tcg-card-bg));
+  border: 2px solid transparent;
+  min-height: 5.5rem;
+  touch-action: manipulation;
+}
+
+.judge-app .judge-game-mat--selected {
+  border-color: var(--tcg-primary-light);
+  box-shadow: var(--tcg-glow), 0 8px 28px color-mix(in srgb, var(--tcg-primary-light) 35%, transparent);
+  transform: translateY(-3px);
+}
+
+.judge-app .judge-game-mat:not(:disabled):hover {
+  border-color: color-mix(in srgb, var(--tcg-primary-light) 55%, transparent);
+}
+
+.judge-app .judge-verdict-header {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--verdict-color, var(--tcg-verdict-permitido)) 35%, transparent),
+    transparent 70%
+  );
+}
+
+.judge-app .judge-rule-atom-badge {
+  font-family: var(--font-judge-mono), ui-monospace, monospace;
+  background: color-mix(in srgb, var(--tcg-primary) 40%, var(--tcg-surface-elevated));
+  border: 1px solid var(--tcg-border);
+  color: var(--tcg-text-primary);
+}
+
+.judge-app .judge-pipeline-orb {
+  backdrop-filter: blur(12px);
+  background: color-mix(in srgb, var(--tcg-surface-elevated) 88%, transparent);
+  border: 1px solid var(--tcg-border);
+  box-shadow: var(--tcg-glow);
+}
+
+.judge-app .judge-match-round {
+  border-color: var(--tcg-border);
+  background: color-mix(in srgb, var(--tcg-surface-elevated) 90%, transparent);
+}
+
+.judge-app .judge-table-zone {
+  border: 1px solid var(--tcg-border);
+  border-radius: 1rem;
+  background: color-mix(in srgb, var(--tcg-surface-elevated) 65%, transparent);
+}
+
+.judge-app .judge-mobile-tab--active {
+  color: var(--tcg-text-primary);
+  border-top: 2px solid var(--tcg-primary-light);
+  background: color-mix(in srgb, var(--tcg-primary) 12%, transparent);
+}
+
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+@keyframes flip-in {
+  from {
+    transform: rotateY(90deg);
+    opacity: 0;
+  }
+  to {
+    transform: rotateY(0);
+    opacity: 1;
+  }
+}
+
+.judge-app .skip-to-main {
+  position: absolute;
+  top: -48px;
+  left: 0;
+  z-index: 100;
+  padding: 8px 16px;
+  background: var(--tcg-primary);
+  color: var(--tcg-text-primary);
+  font-weight: 600;
+  border-radius: 0 0 8px 0;
+}
+
+.judge-app .skip-to-main:focus {
+  top: 0;
+  outline: 2px solid var(--tcg-primary-light);
+  outline-offset: 2px;
+}
+
+.judge-app .judge-game-mat:focus-visible,
+.judge-app .judge-verdict-card button:focus-visible,
+.judge-app .judge-rule-source-card:focus-visible,
+.judge-app .verdict-card:focus-visible {
+  outline: 2px solid var(--tcg-primary-light);
+  outline-offset: 2px;
+}
+
+.judge-app .judge-header-bar--degraded {
+  filter: saturate(0.85) brightness(0.92);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .judge-app *,
+  .judge-app *::before,
+  .judge-app *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .judge-app .judge-pipeline-orb,
+  .judge-app .judge-game-mat,
+  .judge-app .judge-verdict-card,
+  .judge-app .judge-game-mat--selected {
+    transform: none !important;
+  }
+}

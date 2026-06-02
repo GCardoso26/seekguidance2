@@ -13,15 +13,11 @@ from fastapi.testclient import TestClient
 client = TestClient(app)
 
 
-def test_judge_query_coming_soon_tcg() -> None:
-    r = client.post(
-        "/runtime/judge/query",
-        json={"tcg": "swu", "question": "How do you win?"},
-    )
-    assert r.status_code == 200
-    data = r.json()
-    assert data["success"] is False
-    assert "em breve" in data["answer"].lower() or "breve" in data["answer"].lower()
+def test_judge_query_swu_tcg_recognized() -> None:
+    from app.judge.registry import game_slug_for_tcg
+
+    assert game_slug_for_tcg("swu") == "swu"
+    assert game_slug_for_tcg("star_wars_unlimited") == "swu"
 
 
 def test_judge_query_trample_mock_fallback() -> None:

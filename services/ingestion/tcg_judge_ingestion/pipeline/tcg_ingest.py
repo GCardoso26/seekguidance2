@@ -13,11 +13,28 @@ from tcg_judge_ingestion.crawler.tcg_official_sources import OfficialPdf
 from tcg_judge_ingestion.embeddings.openai_provider import OpenAIEmbeddingProvider
 from tcg_judge_ingestion.parser.html import html_to_text
 from tcg_judge_ingestion.parser.pdf import extract_pdf_text
+from tcg_judge_ingestion.cache_invalidation import invalidate_judge_semantic_cache
 from tcg_judge_ingestion.storage import mtg_repository as repo
 
 logger = structlog.get_logger(__name__)
 
+_STRUCTURED_RULE_GAMES = frozenset(
+    {"mtg", "pokemon", "yugioh", "lorcana", "onepiece", "fab", "vanguard", "digimon"}
+)
+
+
 def _chunker_for_game(game_slug: str):
+    if game_slug in _STRUCTURED_RULE_GAMES:
+        from tcg_judge_ingestion.chunking.rule_parser import (
+            chunk_by_rule_hierarchy,
+            rule_chunks_to_hierarchical,
+        )
+
+        def _structured(text: str, title: str) -> list[HierarchicalChunk]:
+            rules = chunk_by_rule_hierarchy(text, game_slug)
+            return rule_chunks_to_hierarchical(rules, document_title=title)
+
+        return _structured
     if game_slug == "mtg":
         return lambda text, title: chunk_mtg_hierarchical(text, document_title=title)
     return lambda text, title: chunk_generic_hierarchical(text, document_title=title)
@@ -80,6 +97,7 @@ async def _ingest_pdf_data(
                 await repo.update_chunk_embedding(conn, chunk_id=cid, embedding=vec)
 
         await repo.mark_document_indexed(conn, doc_id)
+        invalidate_judge_semantic_cache(game_slug)
         logger.info(
             "ingest.complete",
             game_slug=game_slug,

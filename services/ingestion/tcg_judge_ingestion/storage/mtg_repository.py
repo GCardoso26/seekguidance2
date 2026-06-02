@@ -99,14 +99,20 @@ async def insert_chunks(
             "parent_rule_path": ch.parent_rule_path,
             "semantic_path": ch.semantic_path,
         }
+        rule_section = meta.pop("rule_section", None)
+        rule_subsection = meta.pop("rule_subsection", None)
+        rule_atom = meta.pop("rule_atom", None) or ch.rule_path
+        rule_depth = meta.pop("rule_depth", ch.hierarchy_level)
+        rule_title = meta.pop("rule_title", None) or ch.title
         row = await conn.fetchrow(
             """
             INSERT INTO tcg_judge.chunks (
                 document_id, chunk_index, section_path, text, token_count,
                 metadata, rule_path, parent_rule_path, hierarchy_level,
-                title, subsection, semantic_path, content_sha256, version_label
+                title, subsection, semantic_path, content_sha256, version_label,
+                rule_section, rule_subsection, rule_atom, rule_depth, rule_title
             ) VALUES (
-                $1,$2,$3,$4,$5,$6::jsonb,$7,$8,$9,$10,$11,$12,$13,$14
+                $1,$2,$3,$4,$5,$6::jsonb,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19
             )
             RETURNING id
             """,
@@ -120,10 +126,15 @@ async def insert_chunks(
             ch.parent_rule_path,
             ch.hierarchy_level,
             ch.title,
-            None,
+            rule_subsection,
             ch.semantic_path,
             ch.content_sha256,
             version_label,
+            rule_section,
+            rule_subsection,
+            rule_atom,
+            rule_depth,
+            rule_title,
         )
         assert row is not None
         ids.append(row["id"])

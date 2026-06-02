@@ -51,4 +51,20 @@ def prometheus_text() -> str:
         safe = name.replace(".", "_").replace("-", "_")
         lines.append(f"# TYPE {safe} counter")
         lines.append(f"runtime_{safe}_total {data.get('sum', 0)}")
+    try:
+        from app.runtime.runtime_judge_tracing.tracer import judge_metrics_snapshot
+
+        jm = judge_metrics_snapshot()
+        lines.append("# TYPE judge_requests_total counter")
+        lines.append(f"judge_requests_total {jm.get('judge_requests_total', 0)}")
+        lines.append("# TYPE judge_confidence_avg gauge")
+        lines.append(f"judge_confidence_avg {jm.get('judge_confidence_avg', 0)}")
+        lines.append("# TYPE judge_cache_hit_rate gauge")
+        lines.append(f"judge_cache_hit_rate {jm.get('judge_cache_hit_rate', 0)}")
+        for phase, stats in jm.get("judge_phase_duration_seconds", {}).items():
+            safe = phase.replace(".", "_")
+            lines.append(f"# TYPE judge_phase_{safe}_duration_seconds gauge")
+            lines.append(f"judge_phase_{safe}_duration_seconds{{quantile=\"p95\"}} {stats.get('p95', 0)}")
+    except Exception:
+        pass
     return "\n".join(lines) + "\n"

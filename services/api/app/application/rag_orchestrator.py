@@ -17,6 +17,7 @@ from app.retrieval.confidence import citation_consistency_bonus
 from app.retrieval.confidence_profiles import get_confidence_profile
 from app.retrieval.hybrid import HybridRetriever
 from app.retrieval.llm_openai import LlmComposer
+from app.retrieval.stream_phases import emit_judge_phase
 from app.schemas.chat import ChatRequest, ChatResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -129,6 +130,7 @@ class RagOrchestrator:
 
         cites = citations_from_hits(hits)
         composer = LlmComposer(self._settings)
+        await emit_judge_phase("generating", "Gerando veredito...")
         try:
             result = await composer.compose(
                 question=payload.question,
@@ -136,6 +138,7 @@ class RagOrchestrator:
                 mode=payload.mode,
                 assembled=assembled,
                 verdict_format=payload.verdict_format,
+                game_slug=game.slug,
             )
         except Exception as exc:  # pragma: no cover
             logger.exception("llm.failed", error=str(exc))

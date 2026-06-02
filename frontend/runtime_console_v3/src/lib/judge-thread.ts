@@ -5,6 +5,7 @@ export type JudgeThreadTurn = {
   question: string;
   response: JudgeResponse | null;
   streamingText?: string;
+  streamingPhase?: string | null;
   loading?: boolean;
   error?: string | null;
   createdAt: string;
