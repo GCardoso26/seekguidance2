@@ -236,7 +236,9 @@ async def get_judge_share(
     if not is_valid_uuid(share_id):
         raise HTTPException(status_code=400, detail="ID inválido")
     secret = settings.judge_share_secret
-    if secret and not verify_share_signature(share_id, sig, secret):
+    if secret and not verify_share_signature(
+        share_id, sig, secret, previous_secret=settings.judge_share_secret_previous
+    ):
         raise HTTPException(status_code=403, detail="Assinatura inválida")
     row = (
         await session.execute(
@@ -287,6 +289,203 @@ async def post_growth_event(body: JudgeGrowthEventBody, session: DbSession) -> d
 @router.get("/runtime/judge/growth")
 async def get_judge_growth(session: DbSession, days: int = 30) -> dict[str, Any]:
     return await growth_dashboard_payload(session, days=days)
+
+
+class HistoryMigrateEntry(BaseModel):
+    tcg: str
+    question: str
+    answer: str = ""
+    success: bool = True
+    confidence: float = 0.0
+    createdAt: str | None = None
+    sources: list[dict[str, Any]] = Field(default_factory=list)
+    verdict: str | None = None
+    rule_applied: str | None = None
+
+
+class HistoryMigrateBody(BaseModel):
+    entries: list[HistoryMigrateEntry] = Field(default_factory=list)
+
+
+@router.post("/runtime/judge/history/migrate", status_code=202)
+async def migrate_judge_history(
+    body: HistoryMigrateBody,
+    session: DbSession,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    """Migra histórico localStorage → sessões cloud (idempotente por título+pergunta)."""
+    user_id = _require_user_id(x_judge_user_id)
+    if len(body.entries) > 50:
+        raise HTTPException(status_code=400, detail="Máximo de 50 entradas por migração.")
+    migrated = 0
+    for entry in body.entries:
+        tcg = entry.tcg.strip().lower()
+        try:
+            row = (
+                await session.execute(
+                    text(
+                        """
+                        INSERT INTO tcg_judge.judge_sessions (auth_user_id, tcg, title)
+                        VALUES (:uid, :tcg, :title)
+                        RETURNING id
+                        """
+                    ),
+                    {
+                        "uid": user_id,
+                        "tcg": tcg,
+                        "title": entry.question[:80],
+                    },
+                )
+            ).mappings().first()
+            if not row:
+                continue
+            sid = str(row["id"])
+            await session.execute(
+                text(
+                    """
+                    INSERT INTO tcg_judge.judge_session_messages
+                      (session_id, role, content, payload)
+                    VALUES
+                      (:sid, 'user', :q, CAST(:up AS jsonb)),
+                      (:sid, 'assistant', :a, CAST(:ap AS jsonb))
+                    """
+                ),
+                {
+                    "sid": sid,
+                    "q": entry.question,
+                    "a": entry.answer or "",
+                    "up": json.dumps({"tcg": tcg}),
+                    "ap": json.dumps(
+                        {
+                            "success": entry.success,
+                            "confidence": entry.confidence,
+                            "sources": entry.sources,
+                            "verdict": entry.verdict,
+                            "rule_applied": entry.rule_applied,
+                        }
+                    ),
+                },
+            )
+            migrated += 1
+        except Exception:
+            logger.warning("history_migrate_entry_failed", tcg=tcg, exc_info=True)
+    await session.commit()
+    return {"migrated": migrated, "integrity_status": "ok"}
+
+
+class SavedAnswerBody(BaseModel):
+    game_slug: str
+    question: str
+    verdict: str | None = None
+    sources: list[dict[str, Any]] = Field(default_factory=list)
+    full_response: dict[str, Any] = Field(default_factory=dict)
+
+
+@router.post("/runtime/judge/saved-answers", status_code=201)
+async def create_saved_answer(
+    body: SavedAnswerBody,
+    session: DbSession,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, str]:
+    user_id = _require_user_id(x_judge_user_id)
+    try:
+        row = (
+            await session.execute(
+                text(
+                    """
+                    INSERT INTO tcg_judge.saved_answers
+                      (user_id, game_slug, question, verdict, sources, full_response)
+                    VALUES (:uid, :game, :q, :v, CAST(:sources AS jsonb), CAST(:full AS jsonb))
+                    RETURNING id
+                    """
+                ),
+                {
+                    "uid": user_id,
+                    "game": body.game_slug.strip().lower(),
+                    "q": body.question.strip(),
+                    "v": body.verdict,
+                    "sources": json.dumps(body.sources),
+                    "full": json.dumps(body.full_response),
+                },
+            )
+        ).mappings().first()
+        await session.commit()
+        await record_growth_metric(session, "favorites_saved", game=body.game_slug)
+    except Exception:
+        logger.warning("saved_answer_create_failed", exc_info=True)
+        raise HTTPException(status_code=503, detail="Favoritos indisponíveis") from None
+    return {"id": str(row["id"]) if row else "", "status": "saved"}
+
+
+@router.get("/runtime/judge/saved-answers")
+async def list_saved_answers(
+    session: DbSession,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user_id(x_judge_user_id)
+    try:
+        rows = (
+            await session.execute(
+                text(
+                    """
+                    SELECT id, game_slug, question, verdict, sources, full_response, created_at
+                    FROM tcg_judge.saved_answers
+                    WHERE user_id = :uid
+                    ORDER BY created_at DESC
+                    LIMIT 50
+                    """
+                ),
+                {"uid": user_id},
+            )
+        ).mappings().all()
+    except Exception:
+        return {"items": [], "integrity_status": "degraded"}
+    items = []
+    for r in rows:
+        items.append(
+            {
+                "id": str(r["id"]),
+                "game_slug": r["game_slug"],
+                "question": r["question"],
+                "verdict": r.get("verdict"),
+                "sources": r.get("sources") or [],
+                "full_response": r.get("full_response") or {},
+                "created_at": _iso(r.get("created_at")),
+            }
+        )
+    return {"items": items, "integrity_status": "ok"}
+
+
+@router.delete("/runtime/judge/account", status_code=200)
+async def delete_judge_account(
+    session: DbSession,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, str]:
+    """LGPD: remove dados do utilizador nas tabelas Judge (sessões, favoritos, métricas)."""
+    user_id = _require_user_id(x_judge_user_id)
+    try:
+        await session.execute(
+            text("DELETE FROM tcg_judge.judge_session_messages WHERE session_id IN "
+                 "(SELECT id FROM tcg_judge.judge_sessions WHERE auth_user_id = :uid)"),
+            {"uid": user_id},
+        )
+        await session.execute(
+            text("DELETE FROM tcg_judge.judge_sessions WHERE auth_user_id = :uid"),
+            {"uid": user_id},
+        )
+        await session.execute(
+            text("DELETE FROM tcg_judge.saved_answers WHERE user_id = :uid"),
+            {"uid": user_id},
+        )
+        await session.execute(
+            text("DELETE FROM tcg_judge.judge_growth_metrics WHERE user_id = :uid"),
+            {"uid": user_id},
+        )
+        await session.commit()
+    except Exception:
+        logger.warning("account_delete_failed", exc_info=True)
+        raise HTTPException(status_code=503, detail="Exclusão indisponível") from None
+    return {"status": "deleted", "note": "Revogue acesso OAuth no Supabase Dashboard se necessário."}
 
 
 def _message_dict(row: Any) -> dict[str, Any]:

@@ -15,13 +15,25 @@ def sign_share_id(share_id: str, secret: str | None) -> str | None:
     return digest[:32]
 
 
-def verify_share_signature(share_id: str, signature: str | None, secret: str | None) -> bool:
-    if not secret or not signature:
-        return not secret
-    expected = sign_share_id(share_id, secret)
-    if not expected:
-        return False
-    return secrets.compare_digest(expected, signature.strip().lower())
+def verify_share_signature(
+    share_id: str,
+    signature: str | None,
+    secret: str | None,
+    *,
+    previous_secret: str | None = None,
+) -> bool:
+    if not secret and not previous_secret:
+        return True
+    if not signature:
+        return not secret and not previous_secret
+    sig = signature.strip().lower()
+    for sec in (secret, previous_secret):
+        if not sec:
+            continue
+        expected = sign_share_id(share_id, sec)
+        if expected and secrets.compare_digest(expected, sig):
+            return True
+    return False
 
 
 def is_valid_uuid(value: str) -> bool:

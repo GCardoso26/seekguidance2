@@ -135,6 +135,12 @@ class Settings(BaseSettings):
     judge_rate_limit_window_seconds: float = 60.0
     judge_rate_limit_enabled: bool = True
     judge_trust_proxy_headers: bool = False
+    # Wave 2B — limites diferenciados (query Judge)
+    rate_limit_anon_per_min: int = 20
+    rate_limit_auth_per_min: int = 60
+
+    # Partilha — secret anterior aceite durante rotação (grace period)
+    judge_share_secret_previous: str | None = None
 
     # --- Segurança (TLS, headers, auth, criptografia) ---
     security_force_https: bool = False

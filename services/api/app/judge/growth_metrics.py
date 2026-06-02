@@ -21,6 +21,7 @@ GROWTH_EVENT_TYPES = frozenset(
         "related_question_clicked",
         "history_opened",
         "judge_question_sent",
+        "favorites_saved",
     }
 )
 

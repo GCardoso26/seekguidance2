@@ -137,10 +137,24 @@ async def rate_limit_middleware(request: Request, call_next: Callable[[Request],
     if bucket:
 
         if bucket == "judge":
+            from app.core.rate_limit import judge_query_client_key
 
-            limit = int(cfg.judge_rate_limit_requests_per_minute)
-
+            rl_key, is_auth = judge_query_client_key(
+                request, trust_proxy=cfg.judge_trust_proxy_headers
+            )
+            limit = int(
+                cfg.rate_limit_auth_per_min if is_auth else cfg.rate_limit_anon_per_min
+            )
             window = float(cfg.judge_rate_limit_window_seconds)
+            if not allow_request(
+                bucket,
+                rl_key,
+                limit=limit,
+                window_seconds=window,
+                redis_url=cfg.redis_url,
+            ):
+                return build_rate_limit_response()
+            return await call_next(request)
 
         elif bucket == "judge_read":
 
