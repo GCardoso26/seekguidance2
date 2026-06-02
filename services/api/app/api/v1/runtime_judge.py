@@ -42,6 +42,8 @@ from app.runtime_judge_semantic_cache.cache import (
     get_semantic_cache,
 )
 from app.schemas.chat import ChatRequest
+from app.core.security.deps import optional_auth
+from app.core.security.rbac import has_permission
 from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
@@ -364,6 +366,32 @@ async def _execute_judge_query(
             confidence=0.0,
             sources=[],
         )
+
+
+class JudgeMeResponse(BaseModel):
+    user_id: str | None = None
+    username: str | None = None
+    email: str | None = None
+    role: str = "anonymous"
+    is_admin: bool = False
+    can_ingest: bool = False
+
+
+@router.get("/runtime/judge/me", response_model=JudgeMeResponse)
+async def get_judge_me(
+    auth: dict[str, Any] | None = Depends(optional_auth),
+) -> JudgeMeResponse:
+    """Perfil RBAC para UI (console JWT / API key). Anónimo se sem credenciais."""
+    if not auth:
+        return JudgeMeResponse(role="anonymous", is_admin=False, can_ingest=False)
+    role = str(auth.get("role") or "viewer")
+    return JudgeMeResponse(
+        user_id=auth.get("user_id"),
+        username=auth.get("username"),
+        role=role,
+        is_admin=role == "admin",
+        can_ingest=has_permission(role, "ingestion_admin") or has_permission(role, "tenant_admin"),
+    )
 
 
 @router.get("/runtime/judge/health", response_model=JudgeHealthResponse)

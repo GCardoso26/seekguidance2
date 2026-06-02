@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { BarChart3, Terminal } from "lucide-react";
 import { JudgeLogo } from "@/components/judge/JudgeLogo";
 import { LoginButton } from "@/features/auth/LoginButton";
 import { UserMenu } from "@/features/auth/UserMenu";
+import { useUserRole } from "@/hooks/useUserRole";
 import { gameSlugFromTcg } from "@/lib/judge-game-slug";
 import { getTcgBrand, tcgThemeStyle } from "@/lib/tcg-brand";
 import { TcgThemeProvider } from "@/providers/tcg-theme-provider";
@@ -38,6 +40,7 @@ export function JudgeLayout({
   warmupReady = true,
   healthScore,
 }: Props) {
+  const { isAdmin } = useUserRole();
   const brand = getTcgBrand(tcg);
   const slug = gameSlugFromTcg(tcg);
   const headerDegraded = healthScore != null && healthScore < 50;
@@ -95,18 +98,24 @@ export function JudgeLayout({
                 <span className={cn("h-2 w-2 rounded-full", HEALTH_DOT[health])} aria-hidden />
                 {HEALTH_LABEL[health]}
               </span>
-              <Link
-                href={`/observability?game=${slug}`}
-                className="hidden rounded-full border border-white/20 bg-white/5 px-2.5 py-1 text-[10px] font-medium text-white/90 hover:bg-white/15 sm:inline-block"
-              >
-                Métricas
-              </Link>
-              <Link
-                href="/"
-                className="rounded-full border border-white/25 bg-white/10 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-white/20"
-              >
-                Console
-              </Link>
+              {isAdmin && (
+                <div className="admin-actions hidden items-center gap-1 sm:flex">
+                  <Link
+                    href={`/observability?game=${slug}&tab=judge`}
+                    className="inline-flex items-center gap-1 rounded-full border border-white/20 bg-white/5 px-2.5 py-1 text-[10px] font-medium text-white/90 hover:bg-white/15"
+                  >
+                    <BarChart3 size={14} aria-hidden />
+                    Métricas
+                  </Link>
+                  <Link
+                    href="/admin/console"
+                    className="inline-flex items-center gap-1 rounded-full border border-white/25 bg-white/10 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-white/20"
+                  >
+                    <Terminal size={14} aria-hidden />
+                    Console
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         </header>

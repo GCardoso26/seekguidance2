@@ -80,8 +80,8 @@ async def post_upload_pdf(
         )
         raise HTTPException(status_code=400, detail="Apenas ficheiros PDF")
     content = await file.read()
-    if len(content) > 25 * 1024 * 1024:
-        raise HTTPException(status_code=400, detail="PDF demasiado grande (max 25MB)")
+    if len(content) > 50 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="PDF demasiado grande (max 50MB)")
     actor = auth.get("username") or auth.get("sub")
     meta = await store_uploaded_pdf_metadata(
         session,

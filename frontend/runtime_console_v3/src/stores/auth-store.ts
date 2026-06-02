@@ -5,17 +5,12 @@ import { persist } from "zustand/middleware";
 
 
 type AuthState = {
-
   isAuthenticated: boolean;
-
   username: string | null;
-
   tenantId: string;
-
-  setAuthenticated: (data: { username?: string; tenantId?: string }) => void;
-
+  role: string | null;
+  setAuthenticated: (data: { username?: string; tenantId?: string; role?: string }) => void;
   logout: () => void;
-
 };
 
 
@@ -27,33 +22,22 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
 
       isAuthenticated: false,
-
       username: null,
-
       tenantId: "default",
-
-      setAuthenticated: ({ username, tenantId }) =>
-
+      role: null,
+      setAuthenticated: ({ username, tenantId, role }) =>
         set({
-
           isAuthenticated: true,
-
           username: username ?? null,
-
           tenantId: tenantId ?? "default",
-
+          role: role ?? null,
         }),
-
       logout: () =>
-
         set({
-
           isAuthenticated: false,
-
           username: null,
-
           tenantId: "default",
-
+          role: null,
         }),
 
     }),
@@ -63,13 +47,10 @@ export const useAuthStore = create<AuthState>()(
       name: "runtime-console-auth",
 
       partialize: (s) => ({
-
         isAuthenticated: s.isAuthenticated,
-
         username: s.username,
-
         tenantId: s.tenantId,
-
+        role: s.role,
       }),
 
     },

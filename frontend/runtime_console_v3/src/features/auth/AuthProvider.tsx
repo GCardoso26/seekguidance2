@@ -20,7 +20,7 @@ type AuthContextValue = {
   session: Session | null;
   loading: boolean;
   configured: boolean;
-  signInWithGoogle: () => Promise<void>;
+  signInWithGoogle: (redirectTo?: string) => Promise<void>;
   signOut: () => Promise<void>;
 };
 
@@ -63,17 +63,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => sub.subscription.unsubscribe();
   }, [supabase]);
 
-  const signInWithGoogle = useCallback(async () => {
-    if (!supabase) return;
-    const redirectTo =
-      typeof window !== "undefined"
-        ? `${window.location.origin}/judge`
-        : process.env.NEXT_PUBLIC_APP_URL ?? "";
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo },
-    });
-  }, [supabase]);
+  const signInWithGoogle = useCallback(
+    async (path = "/judge") => {
+      if (!supabase) return;
+      const base =
+        typeof window !== "undefined"
+          ? window.location.origin
+          : (process.env.NEXT_PUBLIC_APP_URL ?? "").replace(/\/$/, "");
+      const redirectTo = path.startsWith("http") ? path : `${base}${path.startsWith("/") ? path : `/${path}`}`;
+      await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo },
+      });
+    },
+    [supabase],
+  );
 
   const signOut = useCallback(async () => {
     if (!supabase) return;

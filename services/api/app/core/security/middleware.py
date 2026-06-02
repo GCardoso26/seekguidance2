@@ -21,6 +21,7 @@ _PUBLIC_EXACT = frozenset(
         "/health",
         "/v1/health",
         "/runtime/judge/health",
+        "/runtime/judge/me",
         "/runtime/judge/games",
         "/runtime/warmup",
         "/v1/replay/health",

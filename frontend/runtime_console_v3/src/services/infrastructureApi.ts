@@ -61,3 +61,36 @@ export async function getIngestionErrors(params?: {
   const suffix = qs.toString() ? `?${qs}` : "";
   return apiFetch(`/runtime/admin/ingestion/errors${suffix}`);
 }
+
+export type IngestionUploadResult = {
+  status: string;
+  upload?: Record<string, unknown>;
+  note?: string;
+};
+
+export async function uploadIngestionPdf(
+  gameSlug: string,
+  file: File,
+): Promise<IngestionUploadResult> {
+  const form = new FormData();
+  form.append("file", file);
+  form.append("game_slug", gameSlug);
+  const res = await fetch("/api/bff/runtime/admin/ingestion/upload", {
+    method: "POST",
+    body: form,
+    credentials: "include",
+  });
+  const text = await res.text();
+  let data: IngestionUploadResult = { status: "error" };
+  if (text) {
+    try {
+      data = JSON.parse(text) as IngestionUploadResult;
+    } catch {
+      data = { status: "error", note: text };
+    }
+  }
+  if (!res.ok) {
+    throw new Error((data as { detail?: string }).detail ?? `Upload falhou (${res.status})`);
+  }
+  return data;
+}

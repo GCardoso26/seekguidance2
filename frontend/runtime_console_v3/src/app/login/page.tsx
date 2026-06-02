@@ -32,6 +32,7 @@ export default function LoginPage() {
       setAuthenticated({
         username: r.user?.username ?? username,
         tenantId: r.tenant_id ?? "default",
+        role: (r.user as { role?: string })?.role ?? "viewer",
       });
       router.push("/dashboard");
     } catch (ex) {
