@@ -12,6 +12,8 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=
 NEXT_PUBLIC_APP_URL=https://judgetcg.com.br
 ```
 
+**Segurança:** use apenas a chave **anon** (JWT com `"role":"anon"`). Nunca coloque `service_role` em variáveis `NEXT_PUBLIC_*` — isso expõe acesso total à base no browser. Ver `docs/SECURITY_CREDENTIAL_ROTATION.md` se houve leak em `.env.example`.
+
 ## Componentes
 
 - `src/features/auth/AuthProvider.tsx` — sessão, refresh automático
