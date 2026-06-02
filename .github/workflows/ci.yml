@@ -55,14 +55,22 @@ jobs:
         working-directory: apps/mobile
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: true
+      - name: Init mobile submodule (optional)
+        id: mobile_submodule
+        run: git submodule update --init --depth 1 apps/mobile
+        continue-on-error: true
       - uses: actions/setup-node@v4
+        if: steps.mobile_submodule.outcome == 'success'
         with:
           node-version: "20"
           cache: npm
           cache-dependency-path: apps/mobile/package-lock.json
       - name: Install
+        if: steps.mobile_submodule.outcome == 'success'
         run: npm ci
       - name: Typecheck
+        if: steps.mobile_submodule.outcome == 'success'
         run: npm run typecheck
+      - name: Skip (submodule unavailable)
+        if: steps.mobile_submodule.outcome != 'success'
+        run: echo "apps/mobile submodule not available — skipping mobile CI"

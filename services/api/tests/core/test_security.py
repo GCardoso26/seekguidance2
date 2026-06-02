@@ -11,7 +11,6 @@ from app.core.security import crypto
 from app.core.security.headers import apply_security_headers
 from app.core.security.redaction import mask_mapping, mask_string, sanitize_exception_message
 from app.core.security.token_revocation import is_revoked, revoke_jti
-from app.runtime.runtime_real_auth import tokens
 from app.runtime.runtime_real_auth.engine import runtime_real_auth_engine_v1
 
 

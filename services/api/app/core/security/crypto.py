@@ -6,7 +6,6 @@ import base64
 import hashlib
 import os
 import secrets
-from typing import Any
 
 _BCRYPT_PREFIX = "$2b$"
 

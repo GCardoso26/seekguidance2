@@ -8,6 +8,7 @@ from pathlib import Path
 
 import pytest
 
+
 def _repo_root() -> Path:
     here = Path(__file__).resolve()
     for parent in here.parents:
@@ -55,7 +56,7 @@ def test_corpus_readiness_skips_pending_ingestion():
 
 
 def test_accuracy_at_1_synthetic_hit():
-    from evaluation.judge_quality.metrics import score_case, aggregate_results
+    from evaluation.judge_quality.metrics import aggregate_results, score_case
 
     results = [
         score_case(

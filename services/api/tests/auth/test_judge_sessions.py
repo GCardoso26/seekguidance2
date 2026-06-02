@@ -2,9 +2,6 @@
 
 from __future__ import annotations
 
-from unittest.mock import AsyncMock
-
-from app.infrastructure.db.session import get_db_session
 from app.main import app
 from fastapi.testclient import TestClient
 

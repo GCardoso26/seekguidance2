@@ -1,4 +1,5 @@
 from pathlib import Path
+
 REPO = Path(__file__).resolve().parents[3]
 FE = REPO / "frontend" / "runtime_console_v3"
 

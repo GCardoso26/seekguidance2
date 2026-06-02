@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import json
 from collections.abc import AsyncIterator
+from datetime import UTC
 from typing import Any, Literal
 
 import structlog
@@ -23,16 +24,18 @@ from app.judge.related_questions import generate_related_questions
 from app.judge.sources import JudgeSource, sources_from_citations
 from app.observability.tracing_runtime import new_trace_id
 from app.retrieval.confidence_profiles import get_confidence_profile
+from app.retrieval.semantic_cache import (
+    get_cached_response as get_hash_cached_response,
+)
+from app.retrieval.semantic_cache import (
+    set_cached_response as set_hash_cached_response,
+)
 from app.retrieval.stream_phases import reset_phase_callback, set_phase_callback
 from app.runtime.runtime_judge_tracing.tracer import (
     JudgeTraceContext,
     judge_span,
     record_judge_phase,
     record_judge_request,
-)
-from app.retrieval.semantic_cache import (
-    get_cached_response as get_hash_cached_response,
-    set_cached_response as set_hash_cached_response,
 )
 from app.runtime_judge_semantic_cache.cache import (
     embed_question,
@@ -238,7 +241,11 @@ async def _execute_judge_query(
                         cache_hit=True,
                     )
                     return JudgeQueryResponse(**cached)
-            elif cfg.judge_semantic_cache_enabled and cfg.semantic_cache_provider not in ("hash", "redis_stack") and cfg.openai_api_key:
+            elif (
+                cfg.judge_semantic_cache_enabled
+                and cfg.semantic_cache_provider not in ("hash", "redis_stack")
+                and cfg.openai_api_key
+            ):
                 with judge_span("judge.embedding", trace):
                     embedding = await embed_question(cfg, question)
                 cached = await cache.lookup(game_slug, embedding)
@@ -440,7 +447,7 @@ async def runtime_judge_game_status(game_slug: str, session: DbSession) -> dict[
 @router.get("/runtime/judge/quality-metrics")
 async def runtime_judge_quality_metrics(session: DbSession, days: int = 1) -> dict[str, Any]:
     """Métricas agregadas de qualidade (alias enriquecido para dashboard Wave 2A)."""
-    from datetime import datetime, timezone
+    from datetime import datetime
 
     base = await judge_quality_payload(session, days=days)
     games_map: dict[str, Any] = {}
@@ -468,7 +475,7 @@ async def runtime_judge_quality_metrics(session: DbSession, days: int = 1) -> di
         }
     alerts = [slug for slug, m in games_map.items() if m.get("alert_active")]
     return {
-        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "generated_at": datetime.now(UTC).isoformat(),
         "games": games_map,
         "alerts": alerts,
     }

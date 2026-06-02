@@ -15,6 +15,7 @@ from app.core.config import Settings
 from app.graph.adaptive_expansion import compute_graph_expansion_limit
 from app.graph.feedback.retrieval_outcome_tracking import fetch_retrieval_quality_ema
 from app.graph.graph_retrieval import expand_hits_with_graph
+from app.judge.registry import corpus_language_for_game_slug, display_name_for_game_slug
 from app.query_understanding.decomposition import decompose_query
 from app.query_understanding.routing_v2 import resolve_reasoning_route
 from app.query_understanding.semantic_router import RetrievalHint, route_query
@@ -28,9 +29,9 @@ from app.retrieval.confidence import (
 from app.retrieval.confidence_profiles import get_confidence_profile
 from app.retrieval.deduplication import deduplicate_by_embedding
 from app.retrieval.diversification import diversify_hits
+from app.retrieval.errata_injection import inject_errata
 from app.retrieval.expansion import expand_context, fetch_chunk_rows, fetch_embeddings_for
 from app.retrieval.explanations import build_explainability_v2, build_retrieval_explanations
-from app.judge.registry import corpus_language_for_game_slug, display_name_for_game_slug
 from app.retrieval.fusion import (
     cosine_distance_to_similarity,
     merge_rrf_and_weighted,
@@ -38,12 +39,11 @@ from app.retrieval.fusion import (
     weighted_rrf_merge_two_lists,
 )
 from app.retrieval.hyde import generate_hypothetical_document
-from app.retrieval.stream_phases import emit_judge_phase
 from app.retrieval.outcome import RetrievalOutcome
-from app.retrieval.errata_injection import inject_errata
 from app.retrieval.query_decomposer import build_sub_queries, detect_mechanics, should_decompose
 from app.retrieval.rerank import RankedChunk, build_reranker
 from app.retrieval.sql_retrieval import search_lexical_hits, search_vector_hits, vec_literal
+from app.retrieval.stream_phases import emit_judge_phase
 from app.retrieval.temporal_scoring import composite_retrieval_score, compute_temporal_score
 from app.retrieval.types import ChunkHit
 

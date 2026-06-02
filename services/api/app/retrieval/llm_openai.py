@@ -11,8 +11,8 @@ from openai import AsyncOpenAI
 from app.context.assembler import AssembledPrompt, ContextAssemblyEngine
 from app.context.temporal import TemporalHint
 from app.core.config import Settings
-from app.query_understanding.semantic_router import route_query
 from app.judge_prompts.registry import get_game_prompt_bundle
+from app.query_understanding.semantic_router import route_query
 from app.retrieval.types import ChunkHit
 
 logger = structlog.get_logger(__name__)

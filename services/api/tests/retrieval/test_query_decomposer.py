@@ -3,11 +3,10 @@
 from __future__ import annotations
 
 import pytest
-
 from app.retrieval.query_decomposer import (
     build_sub_queries,
-    detect_mechanics,
     decompose_and_retrieve,
+    detect_mechanics,
     should_decompose,
 )
 

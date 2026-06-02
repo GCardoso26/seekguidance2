@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from typing import Any
-from urllib.parse import urlparse, urlunparse
+from urllib.parse import urlparse
 
 from pydantic import BaseModel
 
