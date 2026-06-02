@@ -21,8 +21,15 @@ from app.judge.registry import (
 )
 from app.judge.related_questions import generate_related_questions
 from app.judge.sources import JudgeSource, sources_from_citations
+from app.observability.tracing_runtime import new_trace_id
 from app.retrieval.confidence_profiles import get_confidence_profile
 from app.retrieval.stream_phases import reset_phase_callback, set_phase_callback
+from app.runtime.runtime_judge_tracing.tracer import (
+    JudgeTraceContext,
+    judge_span,
+    record_judge_phase,
+    record_judge_request,
+)
 from app.runtime_judge_semantic_cache.cache import (
     embed_question,
     get_semantic_cache,
@@ -156,22 +163,39 @@ async def _execute_judge_query(
     cfg = get_settings()
     cache = get_semantic_cache(cfg)
     embedding: list[float] | None = None
+    trace = JudgeTraceContext(
+        trace_id=new_trace_id(),
+        game_slug=game_slug,
+        query_length=len(question),
+        hyde_enabled=cfg.hyde_enabled,
+        reranker_enabled=cfg.reranker_enabled,
+        reranker_provider=cfg.reranker_provider,
+    )
     try:
-        if cfg.judge_semantic_cache_enabled and cfg.openai_api_key:
-            embedding = await embed_question(cfg, question)
-            cached = await cache.lookup(game_slug, embedding)
-            if cached:
-                return JudgeQueryResponse(**cached)
+        with judge_span("judge.request", trace):
+            if cfg.judge_semantic_cache_enabled and cfg.openai_api_key:
+                with judge_span("judge.embedding", trace):
+                    embedding = await embed_question(cfg, question)
+                cached = await cache.lookup(game_slug, embedding)
+                if cached:
+                    trace.cache_hit = True
+                    record_judge_request(
+                        game_slug=game_slug,
+                        confidence=float(cached.get("confidence", 0)),
+                        cache_hit=True,
+                    )
+                    return JudgeQueryResponse(**cached)
 
-        chat = await orchestrator.ask(
-            session,
-            ChatRequest(
-                game_slug=game_slug,
-                question=question,
-                mode="player",
-                verdict_format=True,
-            ),
-        )
+            with judge_span("judge.retrieval", trace):
+                chat = await orchestrator.ask(
+                    session,
+                    ChatRequest(
+                        game_slug=game_slug,
+                        question=question,
+                        mode="player",
+                        verdict_format=True,
+                    ),
+                )
         rule_path = None
         rule_atom = None
         rule_section = None
@@ -196,23 +220,36 @@ async def _execute_judge_query(
             rule_section=rule_section,
         )
 
-        response = JudgeQueryResponse(
-            success=True,
-            answer=chat.answer,
-            confidence=float(chat.confidence),
-            sources=sources_from_citations(chat.citations),
-            runtime_confidence=0.94,
-            verdict=chat.verdict,
-            rule_applied=chat.rule_applied,
-            explanation=chat.explanation,
-            exceptions=chat.exceptions,
-            confidence_notice_threshold=float(
-                chat.confidence_notice_threshold or get_confidence_profile(game_slug).ui_notice_threshold
-            ),
-            related_questions=related,
-        )
+        trace.n_chunks = len(chat.citations or [])
+        trace.confidence_score = float(chat.confidence)
+        trace.response_tokens = len(chat.answer or "")
+
+        with judge_span("judge.generating", trace):
+            response = JudgeQueryResponse(
+                success=True,
+                answer=chat.answer,
+                confidence=float(chat.confidence),
+                sources=sources_from_citations(chat.citations),
+                runtime_confidence=0.94,
+                verdict=chat.verdict,
+                rule_applied=chat.rule_applied,
+                explanation=chat.explanation,
+                exceptions=chat.exceptions,
+                confidence_notice_threshold=float(
+                    chat.confidence_notice_threshold
+                    or get_confidence_profile(game_slug).ui_notice_threshold
+                ),
+                related_questions=related,
+            )
         if cfg.judge_semantic_cache_enabled and cfg.openai_api_key and embedding is not None:
             await cache.store(game_slug, embedding, response.model_dump())
+        record_judge_request(
+            game_slug=game_slug,
+            confidence=float(chat.confidence),
+            cache_hit=False,
+            n_chunks=trace.n_chunks,
+        )
+        record_judge_phase("generating", len(chat.answer or "") / 1000.0)
         try:
             await record_growth_metric(
                 session,

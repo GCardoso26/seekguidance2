@@ -5,8 +5,10 @@ from __future__ import annotations
 from typing import Any
 
 ROLE_PERMISSIONS: dict[str, frozenset[str]] = {
-    "admin": frozenset({"read", "write", "replay", "tenant_admin", "backup", "metrics"}),
-    "operator": frozenset({"read", "write", "replay", "metrics"}),
+    "admin": frozenset(
+        {"read", "write", "replay", "tenant_admin", "backup", "metrics", "ingestion_admin"}
+    ),
+    "operator": frozenset({"read", "write", "replay", "metrics", "ingestion_admin"}),
     "viewer": frozenset({"read", "metrics"}),
 }
 

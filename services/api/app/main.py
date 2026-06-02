@@ -1,45 +1,27 @@
 from collections.abc import Callable
-
-
+from contextlib import asynccontextmanager
 
 import structlog
-
-from app.api.v1.router import api_router
-
-from app.api.v1.runtime_deployments import router as runtime_deployments_router
-
-from app.api.v1.judge_product import router as judge_product_router
-from app.api.v1.runtime_judge import router as runtime_judge_router
-
-from app.api.v1.runtime_minimal import router as runtime_minimal_router
-
-from app.api.v1.runtime_operational import router as runtime_operational_router
-
-from app.core.config import get_settings
-
-from app.core.logging import configure_logging
-
-from app.core.rate_limit import allow_request, build_rate_limit_response, client_key
-
-from app.core.security.middleware import (
-
-    https_redirect_middleware,
-
-    operational_guard_middleware,
-
-    redacted_logging_middleware,
-
-    safe_exception_middleware,
-
-    security_headers_middleware,
-
-)
-
 from fastapi import FastAPI, Request, Response
-
 from fastapi.middleware.cors import CORSMiddleware
 
-
+from app.api.v1.judge_product import router as judge_product_router
+from app.api.v1.router import api_router
+from app.api.v1.runtime_deployments import router as runtime_deployments_router
+from app.api.v1.runtime_ingestion_admin import router as runtime_ingestion_admin_router
+from app.api.v1.runtime_judge import router as runtime_judge_router
+from app.api.v1.runtime_minimal import router as runtime_minimal_router
+from app.api.v1.runtime_operational import router as runtime_operational_router
+from app.core.config import get_settings
+from app.core.logging import configure_logging
+from app.core.rate_limit import allow_request, build_rate_limit_response, client_key
+from app.core.security.middleware import (
+    https_redirect_middleware,
+    operational_guard_middleware,
+    redacted_logging_middleware,
+    safe_exception_middleware,
+    security_headers_middleware,
+)
 
 configure_logging()
 
@@ -54,6 +36,13 @@ _docs = "/docs" if _cfg.api_docs_enabled and _cfg.environment != "production" el
 _openapi = "/openapi.json" if _docs else None
 
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    from app.runtime.runtime_warmup import run_startup_warmup
+
+    await run_startup_warmup(_cfg)
+    yield
+
 
 app = FastAPI(
 
@@ -66,6 +55,8 @@ app = FastAPI(
     redoc_url=None,
 
     openapi_url=_openapi,
+
+    lifespan=lifespan,
 
 )
 
@@ -207,6 +198,7 @@ app.include_router(runtime_deployments_router)
 
 app.include_router(runtime_judge_router)
 app.include_router(judge_product_router)
+app.include_router(runtime_ingestion_admin_router)
 
 
 

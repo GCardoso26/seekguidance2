@@ -3,10 +3,15 @@
 from __future__ import annotations
 
 import time
-from typing import Any
+from typing import Annotated, Any
 
+from app.api.deps import DbSession
+from app.core.config import get_settings
+from app.core.security.deps import required_auth
+from app.core.security.tenant import tenant_from_auth
 from app.runtime.runtime_backup_system.engine import runtime_backup_engine_v1
 from app.runtime.runtime_incident_collection.engine import runtime_incident_collection_engine_v1
+from app.runtime.runtime_infrastructure.dashboard import infrastructure_payload
 from app.runtime.runtime_real_deployment_v2.engine import runtime_real_deployment_engine_v2
 from app.runtime.runtime_real_metrics.collector import prometheus_text, record, snapshot
 from app.runtime.runtime_real_observability_v2.engine import runtime_real_observability_engine_v2
@@ -16,11 +21,9 @@ from app.runtime.runtime_restore_system.engine import runtime_restore_engine_v1
 from app.runtime.runtime_support_operations_v2.engine import runtime_support_operations_engine_v2
 from app.runtime.runtime_usage_analytics.engine import runtime_usage_analytics_engine_v1
 from app.runtime.runtime_user_onboarding.engine import runtime_user_onboarding_engine_v1
-from app.core.security.deps import required_auth
-from app.core.security.tenant import tenant_from_auth
-from fastapi import APIRouter, Depends, HTTPException, Response
+from app.runtime.runtime_warmup import get_warmup_status, warmup_payload
+from fastapi import APIRouter, Depends, Response
 from pydantic import BaseModel
-from typing import Annotated, Any
 
 router = APIRouter(tags=["runtime-operational"])
 
@@ -48,6 +51,28 @@ class BackupBody(BaseModel):
 class RestoreBody(BaseModel):
     backup_path: str
     dry_run: bool = False
+
+
+@router.get("/runtime/warmup")
+async def runtime_warmup_status() -> dict[str, Any]:
+    return warmup_payload()
+
+
+@router.get("/runtime/warmup/detailed")
+async def runtime_warmup_detailed() -> dict[str, Any]:
+    return get_warmup_status()
+
+
+@router.get("/runtime/infrastructure")
+async def runtime_infrastructure(session: DbSession) -> dict[str, Any]:
+    return await infrastructure_payload(session, get_settings())
+
+
+@router.get("/runtime/judge/tracing")
+async def runtime_judge_tracing_metrics() -> dict[str, Any]:
+    from app.runtime.runtime_judge_tracing.tracer import judge_metrics_snapshot
+
+    return judge_metrics_snapshot()
 
 
 @router.get("/metrics")

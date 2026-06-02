@@ -22,6 +22,7 @@ _PUBLIC_EXACT = frozenset(
         "/v1/health",
         "/runtime/judge/health",
         "/runtime/judge/games",
+        "/runtime/warmup",
         "/v1/replay/health",
         "/auth/login",
         "/auth/refresh",
@@ -74,6 +75,8 @@ def _permission_for_path(path: str, method: str) -> str | None:
         return "tenant_admin"
     if path.startswith("/metrics") or path.startswith("/runtime/metrics"):
         return "metrics"
+    if path.startswith("/runtime/admin/ingestion"):
+        return "ingestion_admin"
     if method == "GET" and any(path.startswith(p) for p in _RUNTIME_GET_PREFIXES):
         return "read"
     if path.startswith("/runtime/") and method in ("POST", "PUT", "PATCH", "DELETE"):

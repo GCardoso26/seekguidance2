@@ -7,6 +7,7 @@ import { MetricPanel } from "@/components/operational/metric-panel";
 import { getJudgeQuality } from "@/services/judgeApi";
 import { getJudgeGrowth } from "@/services/judgeGrowthApi";
 import { runtimeApi } from "@/services/api/runtime";
+import { getInfrastructure, getWarmupStatus } from "@/services/infrastructureApi";
 import { useAuthStore } from "@/stores/auth-store";
 
 export default function ObservabilityPage() {
@@ -28,6 +29,15 @@ export default function ObservabilityPage() {
   const judgeGrowth = useQuery({
     queryKey: ["judge-growth", 30],
     queryFn: () => getJudgeGrowth(30),
+  });
+  const warmup = useQuery({
+    queryKey: ["runtime-warmup"],
+    queryFn: getWarmupStatus,
+  });
+  const infra = useQuery({
+    queryKey: ["infrastructure"],
+    queryFn: getInfrastructure,
+    enabled: isAuthenticated,
   });
 
   const cacheRate = Math.round((judgeQuality.data?.cache?.cache_hit_rate ?? 0) * 100);
@@ -87,6 +97,54 @@ export default function ObservabilityPage() {
               </tbody>
             </table>
           </div>
+        </CardContent>
+      </Card>
+
+      <h2 className="mb-3 text-lg font-semibold">Infrastructure</h2>
+      <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <MetricPanel
+          title="Health Score"
+          value={infra.data ? `${infra.data.operational_health_score}/100` : "—"}
+        />
+        <MetricPanel title="DB" value={infra.data?.dependencies?.database ?? "—"} />
+        <MetricPanel title="Redis" value={infra.data?.dependencies?.redis ?? "—"} />
+        <MetricPanel title="OTEL" value={infra.data?.dependencies?.otel ?? "—"} />
+        <MetricPanel
+          title="Warmup embedding"
+          value={warmup.data?.embedding_ready ? "Ready" : "Pending"}
+        />
+        <MetricPanel
+          title="Warmup judge"
+          value={warmup.data?.judge_ready ? "Ready" : "Pending"}
+        />
+        <MetricPanel
+          title="Ingestion queue"
+          value={String(infra.data?.ingestion_queue_pending ?? "—")}
+        />
+        <MetricPanel
+          title="Cache hit (infra)"
+          value={
+            infra.data ? `${Math.round((infra.data.cache_hit_rate ?? 0) * 100)}%` : "—"
+          }
+        />
+      </div>
+
+      <h2 className="mb-3 text-lg font-semibold">Runtime Startup</h2>
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>Warmup status</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <pre className="text-xs">{JSON.stringify(warmup.data ?? {}, null, 2)}</pre>
+        </CardContent>
+      </Card>
+
+      <h2 className="mb-3 text-lg font-semibold">Judge Tracing</h2>
+      <Card className="mb-6">
+        <CardContent className="pt-6">
+          <pre className="max-h-48 overflow-auto text-xs">
+            {JSON.stringify(infra.data?.judge_metrics ?? {}, null, 2)}
+          </pre>
         </CardContent>
       </Card>
 
