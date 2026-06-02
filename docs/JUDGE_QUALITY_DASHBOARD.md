@@ -1,15 +1,16 @@
-# Judge — Dashboard de qualidade
+# Dashboard de Qualidade Judge (Wave 2A)
 
-## API
+## Endpoints
 
-`GET /runtime/judge/quality?days=7`
-
-Retorna feedback agregado, cache hit rate, latência P50/P95/P99 (fase), alertas thumbs-down > 20%.
-
-## UI
-
-`frontend/runtime_console_v3/src/app/observability/page.tsx` — secção **Judge Quality**.
+- `GET /runtime/judge/quality` — payload operacional (feedback, cache, latência)
+- `GET /runtime/judge/quality-metrics` — formato agregado por jogo para dashboard
 
 ## Alertas
 
-Quando `thumbs_down_pct > 0.20` e volume mínimo de feedback, campo `alert` no payload do jogo.
+`alert_active=true` quando thumbs_down > 20% em janela de 48h (mín. 5 votos).
+
+Webhook opcional: `ALERT_WEBHOOK_URL` (Slack/Discord JSON `{text: ...}`).
+
+## Frontend
+
+Observability Center → secção Judge Quality com cache hit, latência P95 e feedback por jogo.

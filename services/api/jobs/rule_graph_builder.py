@@ -59,6 +59,8 @@ async def build_for_game(
     )
 
     edges: dict[tuple[str, str, str], float] = {}
+    existing_pairs: set[tuple[str, str]] = set()
+    cycles_prevented = 0
     for row in rows:
         src = (row["rule_atom"] or row["rule_path"] or "").strip()
         if not src:
@@ -67,20 +69,38 @@ async def build_for_game(
         for pattern, relation in REFERENCE_PATTERNS:
             for m in pattern.finditer(text_block):
                 dst = m.group(1).strip()
+                if dst == src:
+                    continue
+                reverse = (dst, src)
+                if reverse in existing_pairs:
+                    cycles_prevented += 1
+                    continue
+                existing_pairs.add((src, dst))
                 conf = 0.72
                 edges[(src, dst, relation)] = max(edges.get((src, dst, relation), 0), conf)
         if ERRATA_MARKERS.search(text_block) and "." in src:
             parent = re.sub(r"[a-z]$", "", src)
             if parent != src:
-                edges[(src, parent, "supersedes")] = max(
-                    edges.get((src, parent, "supersedes"), 0), 0.85
-                )
+                reverse = (parent, src)
+                if reverse not in existing_pairs:
+                    existing_pairs.add((src, parent))
+                    edges[(src, parent, "supersedes")] = max(
+                        edges.get((src, parent, "supersedes"), 0), 0.85
+                    )
+                else:
+                    cycles_prevented += 1
 
     written = 0
     for (src, dst, relation), confidence in edges.items():
         if confidence < min_confidence:
             continue
-        meta = json.dumps({"confidence": confidence, "source": "rule_graph_builder"})
+        meta = json.dumps(
+            {
+                "confidence": confidence,
+                "source": "auto_generated",
+                "extracted_text": f"{src}->{dst}:{relation}",
+            }
+        )
         await conn.execute(
             """
             INSERT INTO tcg_judge.rule_graph_edges (game_id, src_rule, dst_rule, relation, metadata)
@@ -99,15 +119,40 @@ async def build_for_game(
     return {
         "game_slug": game_slug,
         "edges_written": written,
+        "edges_created": written,
+        "cycles_prevented": cycles_prevented,
         "chunks_scanned": len(rows),
         "integrity_status": "ok",
     }
+
+
+async def _invalidate_semantic_cache(game_slug: str) -> int:
+    """Invalida cache hash + embedding após ingestão/grafo."""
+    try:
+        from app.core.config import get_settings
+        from app.retrieval.semantic_cache import invalidate_game_cache as invalidate_hash
+        from app.runtime_judge_semantic_cache.cache import invalidate_game_cache as invalidate_emb
+
+        cfg = get_settings()
+        model = cfg.default_embedding_model
+        removed = 0
+        if cfg.redis_url:
+            import redis
+
+            client = redis.Redis.from_url(cfg.redis_url, decode_responses=True)
+            removed += await invalidate_hash(client, game_slug, model)
+        removed += invalidate_emb(game_slug, cfg)
+        return removed
+    except Exception:
+        return 0
 
 
 async def main_async(game_slug: str, dsn: str, min_confidence: float) -> int:
     conn = await _connect(dsn)
     try:
         result = await build_for_game(conn, game_slug, min_confidence=min_confidence)
+        invalidated = await _invalidate_semantic_cache(game_slug)
+        result["cache_keys_invalidated"] = invalidated
         print(json.dumps(result, indent=2))
     finally:
         await conn.close()

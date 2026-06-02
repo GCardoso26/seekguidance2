@@ -57,9 +57,22 @@ class Settings(BaseSettings):
     judge_semantic_cache_enabled: bool = True
     judge_semantic_cache_ttl_seconds: int = 86_400
     judge_semantic_cache_similarity: float = 0.97
+    # Wave 2A — cache hash-first (SEMANTIC_CACHE_* aliases)
+    semantic_cache_enabled: bool = False
+    semantic_cache_provider: str = "hash"  # hash | redis_stack | embedding
+    semantic_cache_ttl_seconds: int = 86_400
+    semantic_cache_similarity_threshold: float = 0.97
 
     # Rule graph automático
     rule_graph_min_edge_confidence: float = 0.45
+    edge_confidence_threshold: float = 0.70
+    rule_graph_max_depth: int = 3
+
+    # Decomposição por mecânicas (Wave 2A)
+    query_decomposition_enabled: bool = True
+
+    # Alertas de qualidade Judge
+    alert_webhook_url: str | None = None
 
     # Scoring composto (híbrido + temporal + rerank) e pesos temporais pós-fetch
     score_weight_hybrid: float = 1.0

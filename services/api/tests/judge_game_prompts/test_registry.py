@@ -9,4 +9,4 @@ def test_mtg_prompt_has_stack_keywords():
 
 def test_unknown_game_default():
     b = get_game_prompt_bundle("unknown_game_xyz")
-    assert "trading card game" in b.system_prompt.lower()
+    assert "português" in b.system_prompt.lower() or "regras" in b.system_prompt.lower()

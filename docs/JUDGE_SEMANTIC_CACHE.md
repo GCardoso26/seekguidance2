@@ -1,31 +1,24 @@
-# Judge — Cache semântico Redis
+# Cache Semântico Judge (Wave 2A)
 
-Módulo: `app/runtime_judge_semantic_cache/`
+## Providers
 
-## Chave
+| Provider | Chave | Hit quando |
+|----------|-------|------------|
+| `hash` (default) | `tcg:cache:{game}:{model_slug}:{text_hash}` | pergunta idêntica normalizada |
+| `embedding` | cache existente por embedding | similaridade coseno ≥ threshold |
+| `redis_stack` | reservado | similaridade vetorial RediSearch |
 
-`tcg:cache:{game_slug}:{embedding_hash}`
+## Config
 
-## Fluxo
-
-1. Embed da pergunta
-2. Lookup com similaridade coseno ≥ `JUDGE_SEMANTIC_CACHE_SIMILARITY` (default 0.97)
-3. Hit → resposta sem RAG/LLM
-4. Miss → pipeline normal + `store` com TTL 24h
-
-## Env
-
-```env
-JUDGE_SEMANTIC_CACHE_ENABLED=true
-JUDGE_SEMANTIC_CACHE_TTL_SECONDS=86400
-JUDGE_SEMANTIC_CACHE_SIMILARITY=0.97
-REDIS_URL=redis://...
-```
+- `SEMANTIC_CACHE_ENABLED` / `JUDGE_SEMANTIC_CACHE_ENABLED`
+- `SEMANTIC_CACHE_PROVIDER=hash|embedding|redis_stack`
+- `SEMANTIC_CACHE_TTL_SECONDS`
 
 ## Invalidação
 
-Após ingestão: `tcg_judge_ingestion/cache_invalidation.py`
+Após ingestão: `invalidate_game_cache(game_slug, model_name)` remove chaves do jogo.
+Upgrade de modelo altera `model_slug` na chave — invalidação automática.
 
 ## Health
 
-`GET /runtime/judge/health` inclui `cache_hit_rate` e `cache_stats`.
+`GET /runtime/judge/health` inclui `semantic_cache.enabled`, `provider`, `hit_rate_1h`.

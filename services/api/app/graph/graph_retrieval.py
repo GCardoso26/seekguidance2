@@ -157,6 +157,58 @@ async def fetch_graph_edge_trace_strings(
     return out
 
 
+async def expand_chunks_via_graph(
+    chunk_ids: list[str],
+    game_slug: str,
+    session: AsyncSession,
+    *,
+    max_depth: int = 3,
+    edge_confidence_threshold: float = 0.70,
+) -> list[str]:
+    """Expande rule heads via rule_graph_edges com proteção contra ciclos."""
+    if not chunk_ids:
+        return []
+    visited: set[str] = set(chunk_ids)
+    queue = list(chunk_ids)
+    depth = 0
+
+    while queue and depth < max_depth:
+        next_queue: list[str] = []
+        rows = (
+            await session.execute(
+                text(
+                    """
+                    SELECT e.dst_rule
+                    FROM tcg_judge.rule_graph_edges e
+                    JOIN tcg_judge.games g ON g.id = e.game_id
+                    WHERE e.src_rule = ANY(:seeds)
+                      AND g.slug = :game_slug
+                      AND COALESCE(
+                        NULLIF(e.metadata->>'confidence','')::float, 0.85
+                      ) >= :threshold
+                    ORDER BY COALESCE(
+                      NULLIF(e.metadata->>'confidence','')::float, 0.85
+                    ) DESC
+                    """
+                ).bindparams(bindparam("seeds", expanding=True)),
+                {
+                    "seeds": queue,
+                    "game_slug": game_slug,
+                    "threshold": edge_confidence_threshold,
+                },
+            )
+        ).all()
+        for row in rows:
+            dst = str(row[0])
+            if dst not in visited:
+                visited.add(dst)
+                next_queue.append(dst)
+        queue = next_queue
+        depth += 1
+
+    return list(visited)
+
+
 async def expand_hits_with_graph(
     session: AsyncSession,
     game_id: UUID,

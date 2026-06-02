@@ -30,6 +30,10 @@ from app.runtime.runtime_judge_tracing.tracer import (
     record_judge_phase,
     record_judge_request,
 )
+from app.retrieval.semantic_cache import (
+    get_cached_response as get_hash_cached_response,
+    set_cached_response as set_hash_cached_response,
+)
 from app.runtime_judge_semantic_cache.cache import (
     embed_question,
     get_semantic_cache,
@@ -43,6 +47,27 @@ from sqlalchemy import text
 logger = structlog.get_logger(__name__)
 router = APIRouter(tags=["runtime-judge"])
 settings = get_settings()
+
+
+def _redis_client_for_hash():
+    if not settings.redis_url:
+        return None
+    try:
+        import redis
+
+        client = redis.Redis.from_url(settings.redis_url, decode_responses=True)
+        client.ping()
+        return client
+    except Exception:
+        return None
+
+
+def _cache_enabled(cfg) -> bool:
+    return bool(cfg.semantic_cache_enabled or cfg.judge_semantic_cache_enabled)
+
+
+def _use_hash_cache(cfg) -> bool:
+    return _cache_enabled(cfg) and cfg.semantic_cache_provider in ("hash", "redis_stack")
 
 
 class JudgeQueryBody(BaseModel):
@@ -162,6 +187,7 @@ async def _execute_judge_query(
 
     cfg = get_settings()
     cache = get_semantic_cache(cfg)
+    redis_hash = _redis_client_for_hash()
     embedding: list[float] | None = None
     trace = JudgeTraceContext(
         trace_id=new_trace_id(),
@@ -173,7 +199,37 @@ async def _execute_judge_query(
     )
     try:
         with judge_span("judge.request", trace):
-            if cfg.judge_semantic_cache_enabled and cfg.openai_api_key:
+            if _use_hash_cache(cfg):
+                hash_cached = await get_hash_cached_response(
+                    redis_hash,
+                    game_slug,
+                    question,
+                    cfg.default_embedding_model,
+                    enabled=True,
+                )
+                if hash_cached:
+                    trace.cache_hit = True
+                    hash_cached["cache_hit"] = True
+                    record_judge_request(
+                        game_slug=game_slug,
+                        confidence=float(hash_cached.get("confidence", 0)),
+                        cache_hit=True,
+                    )
+                    return JudgeQueryResponse(**hash_cached)
+
+            if cfg.judge_semantic_cache_enabled and cfg.semantic_cache_provider == "embedding" and cfg.openai_api_key:
+                with judge_span("judge.embedding", trace):
+                    embedding = await embed_question(cfg, question)
+                cached = await cache.lookup(game_slug, embedding)
+                if cached:
+                    trace.cache_hit = True
+                    record_judge_request(
+                        game_slug=game_slug,
+                        confidence=float(cached.get("confidence", 0)),
+                        cache_hit=True,
+                    )
+                    return JudgeQueryResponse(**cached)
+            elif cfg.judge_semantic_cache_enabled and cfg.semantic_cache_provider not in ("hash", "redis_stack") and cfg.openai_api_key:
                 with judge_span("judge.embedding", trace):
                     embedding = await embed_question(cfg, question)
                 cached = await cache.lookup(game_slug, embedding)
@@ -241,7 +297,17 @@ async def _execute_judge_query(
                 ),
                 related_questions=related,
             )
-        if cfg.judge_semantic_cache_enabled and cfg.openai_api_key and embedding is not None:
+        if _use_hash_cache(cfg):
+            await set_hash_cached_response(
+                redis_hash,
+                game_slug,
+                question,
+                cfg.default_embedding_model,
+                response.model_dump(),
+                enabled=True,
+                ttl_seconds=cfg.semantic_cache_ttl_seconds,
+            )
+        elif cfg.judge_semantic_cache_enabled and cfg.openai_api_key and embedding is not None:
             await cache.store(game_slug, embedding, response.model_dump())
         record_judge_request(
             game_slug=game_slug,
@@ -288,6 +354,77 @@ async def _execute_judge_query(
 async def runtime_judge_health(session: DbSession) -> JudgeHealthResponse:
     payload = await judge_health_payload(session, settings)
     return JudgeHealthResponse(**payload)
+
+
+@router.get("/runtime/judge/{game_slug}/status")
+async def runtime_judge_game_status(game_slug: str, session: DbSession) -> dict[str, Any]:
+    """Status de corpus e ingestão por jogo (usado pelo CI de avaliação)."""
+    slug = game_slug.strip().lower()
+    games = await list_judge_games(session, settings)
+    game = next((g for g in games if g["game_slug"] == slug), None)
+    rag_ready = bool(game and game.get("rag_ready"))
+    pending = False
+    try:
+        row = (
+            await session.execute(
+                text(
+                    """
+                    SELECT COUNT(*)::int AS n
+                    FROM tcg_judge.ingestion_jobs j
+                    JOIN tcg_judge.games g ON g.id = j.game_id
+                    WHERE g.slug = :slug
+                      AND j.status IN ('pending', 'running', 'queued')
+                    """
+                ),
+                {"slug": slug},
+            )
+        ).scalar_one()
+        pending = int(row or 0) > 0
+    except Exception:
+        pending = False
+    return {
+        "game_slug": slug,
+        "rag_ready": rag_ready,
+        "ingestion_job_pending": pending,
+        "chunk_count": int(game.get("chunk_count", 0)) if game else 0,
+    }
+
+
+@router.get("/runtime/judge/quality-metrics")
+async def runtime_judge_quality_metrics(session: DbSession, days: int = 1) -> dict[str, Any]:
+    """Métricas agregadas de qualidade (alias enriquecido para dashboard Wave 2A)."""
+    from datetime import datetime, timezone
+
+    base = await judge_quality_payload(session, days=days)
+    games_map: dict[str, Any] = {}
+    for g in base.get("games") or []:
+        slug = str(g.get("game_slug") or "").strip().lower()
+        if not slug:
+            continue
+        games_map[slug] = {
+            "queries_24h": int((g.get("questions_per_day") or 0) * max(days, 1)),
+            "thumbs_up_pct": g.get("thumbs_up_pct"),
+            "thumbs_down_pct": g.get("thumbs_down_pct"),
+            "confidence_avg": g.get("confidence_avg"),
+            "cache_hit_rate": base.get("cache", {}).get("cache_hit_rate", 0.0),
+            "alert_active": bool(g.get("alert_active") or g.get("alert")),
+            "latency_p50_ms": base.get("latency", {}).get("generation_ms", {}).get("p50", 0),
+            "latency_p95_ms": base.get("latency", {}).get("generation_ms", {}).get("p95", 0),
+            "latency_p99_ms": base.get("latency", {}).get("generation_ms", {}).get("p99", 0),
+            "latency_by_phase": {
+                "embedding_ms": base.get("latency", {}).get("embedding_ms", {}).get("p50", 0),
+                "hyde_ms": 0,
+                "retrieval_ms": base.get("latency", {}).get("retrieval_ms", {}).get("p50", 0),
+                "reranking_ms": base.get("latency", {}).get("reranking_ms", {}).get("p50", 0),
+                "generation_ms": base.get("latency", {}).get("generation_ms", {}).get("p50", 0),
+            },
+        }
+    alerts = [slug for slug, m in games_map.items() if m.get("alert_active")]
+    return {
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "games": games_map,
+        "alerts": alerts,
+    }
 
 
 @router.get("/runtime/judge/quality")

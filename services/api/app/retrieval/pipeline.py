@@ -40,6 +40,8 @@ from app.retrieval.fusion import (
 from app.retrieval.hyde import generate_hypothetical_document
 from app.retrieval.stream_phases import emit_judge_phase
 from app.retrieval.outcome import RetrievalOutcome
+from app.retrieval.errata_injection import inject_errata
+from app.retrieval.query_decomposer import build_sub_queries, detect_mechanics, should_decompose
 from app.retrieval.rerank import RankedChunk, build_reranker
 from app.retrieval.sql_retrieval import search_lexical_hits, search_vector_hits, vec_literal
 from app.retrieval.temporal_scoring import composite_retrieval_score, compute_temporal_score
@@ -215,6 +217,27 @@ class RetrievalPipeline:
                 hyde_vec_ids,
                 weight_b=self._settings.hyde_weight,
             )
+
+        if self._settings.query_decomposition_enabled and should_decompose(question, game_slug):
+            mechanics = detect_mechanics(question, game_slug)
+            for sq in build_sub_queries(question, mechanics, game_slug)[:-1]:
+                try:
+                    sq_emb = await self._embed_query(sq)
+                    sq_rows = await search_vector_hits(
+                        self._session,
+                        self._game_id,
+                        vec_literal(sq_emb),
+                        limit=min(24, self._settings.retrieval_vector_candidate_limit),
+                        doc_types=doc_types,
+                        as_of=t_as_of,
+                        prefer_historical=t_hist,
+                    )
+                    sq_ids = [r[0] for r in sq_rows]
+                    if sq_ids:
+                        vec_ids = weighted_rrf_merge_two_lists(vec_ids, sq_ids, weight_b=0.5)
+                except Exception:
+                    logger.warning("retrieval.mechanic_subquery_failed", sub_query=sq[:80])
+
         lex_ids = [r[0] for r in lex_rows]
 
         vec_dist = {r[0]: float(r[1]) for r in vec_rows}
@@ -425,6 +448,16 @@ class RetrievalPipeline:
             return (comp, "", "")
 
         final.sort(key=_final_sort_key)
+
+        try:
+            final = await inject_errata(
+                final,
+                self._session,
+                game_slug,
+                edge_confidence_threshold=self._settings.edge_confidence_threshold,
+            )
+        except Exception:
+            logger.warning("retrieval.errata_injection_failed", exc_info=True)
 
         if self._settings.reranker_enabled and final and final[0].rerank_score is not None:
             rs = [float(h.rerank_score or 0.0) for h in final]

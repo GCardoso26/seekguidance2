@@ -4,7 +4,11 @@ import { useQuery } from "@tanstack/react-query";
 import { AppShell } from "@/components/layout/app-shell";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MetricPanel } from "@/components/operational/metric-panel";
-import { getJudgeQuality } from "@/services/judgeApi";
+import { GameQualityCard } from "@/components/observability/judge/GameQualityCard";
+import { JudgeAlertBanner } from "@/components/observability/judge/JudgeAlertBanner";
+import { JudgeLatencyChart } from "@/components/observability/judge/JudgeLatencyChart";
+import { JudgeTrendsTable } from "@/components/observability/judge/JudgeTrendsTable";
+import { getJudgeQuality, getJudgeQualityMetrics } from "@/services/judgeApi";
 import { getJudgeGrowth } from "@/services/judgeGrowthApi";
 import { runtimeApi } from "@/services/api/runtime";
 import { getInfrastructure, getWarmupStatus } from "@/services/infrastructureApi";
@@ -25,6 +29,10 @@ export default function ObservabilityPage() {
   const judgeQuality = useQuery({
     queryKey: ["judge-quality", 7],
     queryFn: () => getJudgeQuality(7),
+  });
+  const judgeMetrics = useQuery({
+    queryKey: ["judge-quality-metrics", 7],
+    queryFn: () => getJudgeQualityMetrics(7),
   });
   const judgeGrowth = useQuery({
     queryKey: ["judge-growth", 30],
@@ -48,6 +56,47 @@ export default function ObservabilityPage() {
       <h1 className="mb-4 text-2xl font-semibold">Observability Center</h1>
 
       <h2 className="mb-3 text-lg font-semibold">Judge Quality</h2>
+      <JudgeAlertBanner activeGames={judgeMetrics.data?.alerts ?? []} />
+      <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {Object.entries(judgeMetrics.data?.games ?? {}).map(([slug, m]) => (
+          <GameQualityCard
+            key={slug}
+            metrics={{
+              game_slug: slug,
+              queries_24h: m.queries_24h,
+              thumbs_up_pct: m.thumbs_up_pct,
+              thumbs_down_pct: m.thumbs_down_pct,
+              confidence_avg: m.confidence_avg,
+              cache_hit_rate: m.cache_hit_rate,
+              alert_active: m.alert_active,
+              latency_p95_ms: m.latency_p95_ms,
+            }}
+          />
+        ))}
+      </div>
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>Latência por fase (P50)</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <JudgeLatencyChart
+            latencyByPhase={
+              Object.values(judgeMetrics.data?.games ?? {})[0]?.latency_by_phase
+            }
+          />
+        </CardContent>
+      </Card>
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>Tendências</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <JudgeTrendsTable
+            games={judgeQuality.data?.games ?? []}
+            trends={judgeQuality.data?.trends}
+          />
+        </CardContent>
+      </Card>
       <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <MetricPanel title="Cache hit rate" value={`${cacheRate}%`} />
         <MetricPanel

@@ -1,15 +1,17 @@
-# Judge — Prompts por jogo
+# Prompts por Jogo (Wave 2A)
 
-Diretório: `app/judge_prompts/`
+## Estrutura
 
-| game_slug | Módulo |
-|-----------|--------|
-| mtg | `mtg.py` |
-| pokemon | `pokemon.py` |
-| yugioh | `yugioh.py` |
-| lorcana | `lorcana.py` |
-| onepiece | `onepiece.py` |
+`services/api/app/judge_prompts/` — um módulo por `game_slug` exportando `bundle()`.
 
-Seleção: `get_game_prompt_bundle(game_slug)` — usado em `LlmComposer` sem alterar contratos públicos.
+Registry: `get_game_prompt_bundle(game_slug)` com fallback `generic.py`.
 
-Cada bundle: system prompt, few-shots, formato de resposta JSON.
+## Adicionar jogo
+
+1. Criar `judge_prompts/{game_slug}.py` com `def bundle() -> GamePromptBundle`
+2. Opcional: registrar em `_REGISTRY` em `registry.py`
+3. Sem alteração no orchestrator
+
+## Jogos
+
+mtg, pokemon, yugioh, lorcana, onepiece, swu (star_wars_unlimited), generic (fallback)

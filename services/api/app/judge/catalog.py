@@ -85,6 +85,11 @@ async def judge_health_payload(session: AsyncSession, settings: Settings) -> dic
         status = "degraded"
 
     cache_stats = cache_stats_snapshot()
+    from app.retrieval.semantic_cache import hash_cache_stats
+
+    hash_stats = hash_cache_stats()
+    provider = settings.semantic_cache_provider
+    cache_enabled = settings.semantic_cache_enabled or settings.judge_semantic_cache_enabled
 
     return {
         "status": status,
@@ -96,6 +101,11 @@ async def judge_health_payload(session: AsyncSession, settings: Settings) -> dic
         "default_chat_model": settings.default_chat_model,
         "cache_hit_rate": cache_stats.get("cache_hit_rate", 0.0),
         "cache_stats": cache_stats,
+        "semantic_cache": {
+            "enabled": cache_enabled,
+            "provider": provider,
+            "hit_rate_1h": hash_stats.get("hit_rate") or cache_stats.get("cache_hit_rate", 0.0),
+        },
         "games": games,
     }
 

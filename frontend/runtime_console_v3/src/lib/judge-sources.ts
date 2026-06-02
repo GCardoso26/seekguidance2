@@ -38,8 +38,8 @@ export function formatJudgeSource(source: JudgeSource, index: number) {
     ? source.excerpt
     : null;
 
-  const rulePath = source.rule_path?.trim() || null;
-  const ruleAtom = rulePath;
+  const rulePath = source.rule_path?.trim() || source.rule_atom?.trim() || null;
+  const ruleAtom = source.rule_atom?.trim() || rulePath;
   const pageNumber = source.page_number ?? null;
   let url = source.url?.trim() || null;
   if (url && pageNumber != null && !url.includes("#page=")) {
@@ -47,9 +47,12 @@ export function formatJudgeSource(source: JudgeSource, index: number) {
   }
 
   const titleLower = title.toLowerCase();
-  let sourceType: "official" | "faq" | "errata" = "official";
-  if (/faq|perguntas frequentes/i.test(titleLower)) sourceType = "faq";
-  else if (/errata|corrigendum|atualiza/i.test(titleLower)) sourceType = "errata";
+  let sourceType: JudgeSource["source_type"] = source.source_type || "official";
+  if (!source.source_type) {
+    if (/faq|perguntas frequentes/i.test(titleLower)) sourceType = "faq";
+    else if (/errata|corrigendum|atualiza/i.test(titleLower)) sourceType = "errata";
+    else if (/local|upload|documento local/i.test(titleLower)) sourceType = "local_document";
+  }
 
   return {
     index: index + 1,
@@ -67,17 +70,21 @@ export function formatJudgeSource(source: JudgeSource, index: number) {
   };
 }
 
-export function sourceTypeBadge(sourceType: "official" | "faq" | "errata"): {
+export function sourceTypeBadge(
+  sourceType: NonNullable<JudgeSource["source_type"]>,
+): {
   label: string;
   className: string;
 } {
   switch (sourceType) {
     case "faq":
-      return { label: "FAQ", className: "bg-amber-100 text-amber-800 border-amber-200" };
+      return { label: "FAQ Oficial", className: "bg-blue-100 text-blue-800 border-blue-200" };
     case "errata":
-      return { label: "Errata", className: "bg-violet-100 text-violet-800 border-violet-200" };
+      return { label: "Errata", className: "bg-amber-100 text-amber-800 border-amber-200" };
+    case "local_document":
+      return { label: "Documento Local", className: "bg-gray-100 text-gray-700 border-gray-200" };
     default:
-      return { label: "Regra Oficial", className: "bg-sky-100 text-sky-800 border-sky-200" };
+      return { label: "Regra Oficial", className: "bg-green-100 text-green-800 border-green-200" };
   }
 }
 

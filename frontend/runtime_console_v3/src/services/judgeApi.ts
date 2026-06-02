@@ -37,14 +37,49 @@ export type JudgeQualityPayload = {
     thumbs_up_pct?: number | null;
     thumbs_down_pct?: number | null;
     questions_per_day?: number;
+    confidence_avg?: number | null;
     alert?: string;
+    alert_active?: boolean;
   }>;
+  trends?: Record<string, { label: string; games_tracked?: number }>;
   cache: { cache_hit_rate?: number; hits?: number; misses?: number };
   latency: Record<string, { p50: number; p95: number; p99: number }>;
 };
 
 export async function getJudgeQuality(days = 7): Promise<JudgeQualityPayload> {
   return apiFetch<JudgeQualityPayload>(`/runtime/judge/quality?days=${days}`, {
+    publicRoute: true,
+  });
+}
+
+export type JudgeQualityMetricsPayload = {
+  generated_at: string;
+  games: Record<
+    string,
+    {
+      queries_24h?: number;
+      thumbs_up_pct?: number | null;
+      thumbs_down_pct?: number | null;
+      confidence_avg?: number | null;
+      cache_hit_rate?: number;
+      alert_active?: boolean;
+      latency_p50_ms?: number;
+      latency_p95_ms?: number;
+      latency_p99_ms?: number;
+      latency_by_phase?: {
+        embedding_ms?: number;
+        hyde_ms?: number;
+        retrieval_ms?: number;
+        reranking_ms?: number;
+        generation_ms?: number;
+      };
+    }
+  >;
+  alerts: string[];
+};
+
+export async function getJudgeQualityMetrics(days = 7): Promise<JudgeQualityMetricsPayload> {
+  return apiFetch<JudgeQualityMetricsPayload>(`/runtime/judge/quality-metrics?days=${days}`, {
     publicRoute: true,
   });
 }

@@ -1,6 +1,21 @@
 name: Judge Evaluation
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - "services/api/app/retrieval/**"
+      - "services/api/app/judge/**"
+      - "services/api/app/application/rag_orchestrator.py"
+      - "services/api/app/core/config.py"
+      - "services/api/app/judge_prompts/**"
+      - "services/api/app/runtime_judge_semantic_cache/**"
+      - "services/api/evaluation/judge_quality/**"
+      - "services/ingestion/**"
+      - "services/api/jobs/**"
+      - "tests/judge_quality/**"
+      - "scripts/ci/**"
+      - ".github/workflows/judge-evaluation.yml"
   pull_request:
     paths:
       - "services/api/app/retrieval/**"
@@ -12,6 +27,8 @@ on:
       - "services/api/evaluation/judge_quality/**"
       - "services/ingestion/**"
       - "services/api/jobs/**"
+      - "tests/judge_quality/**"
+      - "scripts/ci/**"
       - ".github/workflows/judge-evaluation.yml"
 
 jobs:
@@ -34,9 +51,18 @@ jobs:
           pip install ../ingestion
           pip install -r requirements.txt
 
+      - name: Check corpus readiness
+        id: corpus
+        run: python ../../scripts/ci/check_corpus_readiness.py --json
+        env:
+          JUDGE_API_URL: ${{ secrets.JUDGE_API_URL }}
+
       - name: Run judge evaluation gates
         id: eval
-        run: python ../../scripts/run_judge_evaluation.py
+        run: python ../../scripts/ci/run_judge_eval.py
+        env:
+          EVAL_SKIP_GAMES: ${{ env.EVAL_SKIP_GAMES }}
+          JUDGE_API_URL: ${{ secrets.JUDGE_API_URL }}
         continue-on-error: true
 
       - name: Upload evaluation report
@@ -54,12 +80,11 @@ jobs:
           script: |
             const fs = require('fs');
             const path = 'services/api/evaluation/judge_quality/reports/pr_comment.md';
-            let body = '## Judge Evaluation\n\n_Sem relatório gerado._';
+            let body = '## Judge Evaluation — Wave 2A CI\n\n_Sem relatório gerado._';
             try {
               body = fs.readFileSync(path, 'utf8');
             } catch (e) {}
-            const exitCode = ${{ steps.eval.outcome == 'success' && 0 || 1 }};
-            if (exitCode !== 0) {
+            if ('${{ steps.eval.outcome }}' !== 'success') {
               body += '\n\n**Gates:** falhou — accuracy@1 -5% ou confidence_avg < 0.55.';
             } else {
               body += '\n\n**Gates:** passou.';
@@ -74,3 +99,21 @@ jobs:
       - name: Fail if gates failed
         if: steps.eval.outcome != 'success'
         run: exit 1
+
+  update-baseline:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: evaluate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Sync baseline after merge to main
+        run: |
+          cp services/api/evaluation/judge_quality/reports/latest.json tests/judge_quality/baseline.json
+          cp tests/judge_quality/baseline.json services/api/evaluation/judge_quality/baselines/main.json
+      - name: Commit baseline update
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add tests/judge_quality/baseline.json services/api/evaluation/judge_quality/baselines/main.json
+          git diff --staged --quiet || git commit -m "chore(ci): update judge eval baseline after main merge"
+          git push || true

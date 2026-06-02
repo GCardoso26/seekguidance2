@@ -1,27 +1,15 @@
-# Judge — Pipeline de avaliação (CI)
+# Judge Evaluation Pipeline (Wave 2A)
 
-## Workflow
+## Fluxo CI
 
-`.github/workflows/judge-evaluation.yml` dispara em PRs que alteram `retrieval/`, `judge/`, `rag_orchestrator.py`, `config.py`, `judge_prompts/`, `runtime_judge_semantic_cache/`, `ingestion/`.
-
-## Execução local
-
-```bash
-cd services/api
-python ../../scripts/run_judge_evaluation.py
-```
+1. `scripts/ci/check_corpus_readiness.py` — consulta `GET /runtime/judge/{game_slug}/status`
+2. Exporta `EVAL_SKIP_GAMES` para jogos em re-ingestão
+3. `scripts/ci/run_judge_eval.py` — avalia fixtures ou API live
+4. Gates: accuracy@1 não cai >5% vs `tests/judge_quality/baseline.json`; confidence_avg ≥ 0.55
+5. Workflow `.github/workflows/judge-evaluation.yml` comenta no PR e atualiza baseline em `main`
 
 ## Métricas
 
-Por `game_slug`:
-
-- **accuracy@1** — regra esperada no top1
-- **confidence_avg** — confiança média simulada/fixture
-- **source_coverage** — presença de fontes
-
-## Gates
-
-- Queda de accuracy@1 > 5% vs `evaluation/judge_quality/baselines/main.json`
-- `confidence_avg` < 0.55 para jogos indexados
-
-Relatório PR: `evaluation/judge_quality/reports/pr_comment.md`
+- **accuracy@1**: top1 menciona rule_atom esperado
+- **confidence_avg**: média do campo confidence
+- **source_coverage**: % casos com fontes retornadas

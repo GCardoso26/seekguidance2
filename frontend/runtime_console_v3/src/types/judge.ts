@@ -49,6 +49,11 @@ export type JudgeSource = {
   section?: string | null;
   excerpt?: string | null;
   rule_path?: string | null;
+  rule_atom?: string;
+  rule_section?: string;
+  rule_title?: string;
+  rule_depth?: number;
+  source_type?: "official" | "faq" | "errata" | "local_document";
   page_number?: number | null;
   chunk_id?: string | null;
 };

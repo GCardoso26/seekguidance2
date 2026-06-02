@@ -1,22 +1,22 @@
-# Judge — Rule graph automático
+# Rule Graph (Wave 2A)
 
-## Job
+## Auto-geração
 
-```bash
-cd services/api
-python -m jobs.rule_graph_builder --game mtg --dsn "$DATABASE_URL"
-```
+Job `services/api/jobs/rule_graph_builder.py` extrai arestas via regex após ingestão.
 
-## Relações
+Tipos: `references`, `supersedes`, `exception_to`, `example_of`
 
-- `references`, `supersedes`, `exception_to`, `example_of`
+Metadados em `rule_graph_edges.metadata`:
+- `confidence` (0–1)
+- `source`: `auto_generated` | `manual`
+- `extracted_text`
 
-Metadado `confidence` em `rule_graph_edges.metadata`.
+## Ciclos
+
+Aresta A→B rejeitada se B→A já existe. Contador `cycles_prevented` no sumário do job.
 
 ## Retrieval
 
-Edges com `confidence` abaixo de `RULE_GRAPH_MIN_EDGE_CONFIDENCE` (default 0.45) são ignorados no grafo.
+`expand_chunks_via_graph()` em `graph_retrieval.py` usa visited set + `RULE_GRAPH_MAX_DEPTH`.
 
-## Errata
-
-Detecção heurística de texto de errata gera aresta `supersedes`.
+Filtro: `EDGE_CONFIDENCE_THRESHOLD` (default 0.70).
