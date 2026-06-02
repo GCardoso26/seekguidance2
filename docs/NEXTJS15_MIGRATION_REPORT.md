@@ -5,8 +5,8 @@
 | Item | Status |
 |------|--------|
 | Baseline audit | `docs/NPM_AUDIT_BASELINE.md` |
-| Upgrade 14 → 15 | **Pendente** (breaking; requer sprint dedicada) |
-| Build 14.2.35 produção | OK (commit 71f78c2+) |
+| Upgrade 14 → 15 | **Concluído** — Next 15.5.x + React 19.2.x |
+| Build produção | OK (`npm run build` no `runtime_console_v3`) |
 
 ## Bloqueadores conhecidos
 

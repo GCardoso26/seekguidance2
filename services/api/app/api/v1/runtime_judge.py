@@ -118,6 +118,13 @@ class JudgeFeedbackRequest(BaseModel):
     chunk_ids: list[str] | None = None
 
 
+class JudgeWarmupSummary(BaseModel):
+    completed: bool
+    duration_ms: float = 0.0
+    components_ready: int = 0
+    components_total: int = 4
+
+
 class JudgeHealthResponse(BaseModel):
     status: str
     integrity_status: str
@@ -128,6 +135,8 @@ class JudgeHealthResponse(BaseModel):
     default_chat_model: str
     cache_hit_rate: float = 0.0
     cache_stats: dict[str, Any] | None = None
+    semantic_cache: dict[str, Any] | None = None
+    warmup: JudgeWarmupSummary | None = None
     games: list[JudgeGameCatalogItem]
 
 
@@ -354,6 +363,44 @@ async def _execute_judge_query(
 async def runtime_judge_health(session: DbSession) -> JudgeHealthResponse:
     payload = await judge_health_payload(session, settings)
     return JudgeHealthResponse(**payload)
+
+
+@router.get("/runtime/judge/warmup")
+async def runtime_judge_warmup_status() -> dict[str, Any]:
+    """Métricas de warmup no startup — útil para Render e monitorização de cold start."""
+    from app.runtime.runtime_warmup import get_warmup_status
+
+    metrics = get_warmup_status()
+    duration = float(metrics.get("warmup_duration_ms") or 0)
+    return {
+        "warmup_completed": bool(metrics.get("completed")),
+        "metrics": metrics,
+        "cold_start_detected": duration > 5000 if metrics.get("completed") else None,
+    }
+
+
+@router.get("/runtime/judge/health-score")
+async def runtime_judge_health_score(session: DbSession) -> dict[str, Any]:
+    """Score operacional 0–100 para o dashboard Infrastructure."""
+    from app.runtime.runtime_infrastructure.dashboard import infrastructure_payload
+
+    payload = await infrastructure_payload(session, settings)
+    score = int(payload.get("operational_health_score", 0))
+    status = "healthy" if score >= 80 else "degraded" if score >= 50 else "critical"
+    deps = payload.get("dependencies") or {}
+    warmup = payload.get("warmup") or {}
+    return {
+        "score": score,
+        "max_score": 100,
+        "status": status,
+        "checks": {
+            "database": deps.get("database") == "ok",
+            "redis": deps.get("redis") == "ok",
+            "otel": deps.get("otel") == "enabled",
+            "warmup_completed": bool(warmup.get("completed")),
+            "warmup_embedding": bool(warmup.get("embedding_ready")),
+        },
+    }
 
 
 @router.get("/runtime/judge/{game_slug}/status")

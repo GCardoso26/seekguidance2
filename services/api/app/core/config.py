@@ -121,6 +121,12 @@ class Settings(BaseSettings):
     def is_rag_enabled_for_game(self, canonical_slug: str) -> bool:
         return canonical_slug.strip().lower() in self.rag_allowed_game_slug_set()
 
+    # Warmup / cold start (startup lifespan; não bloqueia requests)
+    warmup_enabled: bool = True
+    warmup_embedding: bool = True
+    warmup_reranker: bool = True
+    warmup_timeout_seconds: int = 30
+
     # --- Production maturity (ingestão, observabilidade, SLO, cache) ---
     observability_otel_enabled: bool = False
     observability_otel_endpoint: str | None = None

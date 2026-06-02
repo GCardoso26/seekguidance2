@@ -41,32 +41,41 @@ async def _warm_embeddings(settings: Settings) -> bool:
         return False
 
 
-def _warm_reranker(settings: Settings) -> bool:
+async def _warm_reranker(settings: Settings) -> bool:
     if not settings.reranker_enabled:
         return True
     try:
         from app.retrieval.rerank import get_reranker
 
         reranker = get_reranker(settings)
-        return reranker is not None
+        return await reranker.health_check()
     except Exception as exc:
         logger.warning("warmup_reranker_failed", error=str(exc))
         return False
 
 
-async def run_startup_warmup(settings: Settings | None = None) -> dict[str, Any]:
-    """Executado no lifespan startup."""
-    cfg = settings or get_settings()
-    t0 = time.perf_counter()
+async def _noop_false() -> bool:
+    return False
 
+
+async def _run_warmup_body(cfg: Settings, t0: float) -> None:
+    """Corpo do warmup respeitando flags por componente."""
     preload = preload_registry_and_profiles()
     _warmup_state["preload_duration_ms"] = preload.get("duration_ms", 0.0)
+    _warmup_state["judge_ready"] = preload.get("registry_ready", False)
 
-    embedding_ok, cache_ok = await asyncio.gather(
-        _warm_embeddings(cfg),
-        warm_semantic_cache(cfg),
-    )
-    reranker_ok = _warm_reranker(cfg)
+    tasks: list[Any] = []
+    if cfg.warmup_embedding:
+        tasks.append(_warm_embeddings(cfg))
+    else:
+        tasks.append(_noop_false())
+    tasks.append(warm_semantic_cache(cfg))
+
+    results = await asyncio.gather(*tasks)
+    embedding_ok = bool(results[0]) if cfg.warmup_embedding else True
+    cache_ok = bool(results[1])
+
+    reranker_ok = await _warm_reranker(cfg) if cfg.warmup_reranker else True
 
     try:
         from app.observability.tracing_runtime import configure_otel_runtime
@@ -80,10 +89,10 @@ async def run_startup_warmup(settings: Settings | None = None) -> dict[str, Any]
             "embedding_ready": embedding_ok or not cfg.openai_api_key,
             "reranker_ready": reranker_ok,
             "cache_ready": cache_ok or not cfg.judge_semantic_cache_enabled,
-            "judge_ready": preload.get("registry_ready", False),
             "warmup_duration_ms": round((time.perf_counter() - t0) * 1000, 2),
             "startup_duration_ms": round((time.perf_counter() - _startup_t0) * 1000, 2),
             "completed": True,
+            "skipped": False,
         }
     )
 
@@ -91,6 +100,34 @@ async def run_startup_warmup(settings: Settings | None = None) -> dict[str, Any]
     record("startup.duration_ms", _warmup_state["startup_duration_ms"])
     record("startup.preload_duration_ms", _warmup_state["preload_duration_ms"])
     logger.info("runtime_warmup_complete", **_warmup_state)
+
+
+async def run_startup_warmup(settings: Settings | None = None) -> dict[str, Any]:
+    """Executado no lifespan startup."""
+    cfg = settings or get_settings()
+    if not cfg.warmup_enabled:
+        _warmup_state.update(
+            {
+                "completed": True,
+                "skipped": True,
+                "warmup_duration_ms": 0.0,
+                "startup_duration_ms": round((time.perf_counter() - _startup_t0) * 1000, 2),
+            }
+        )
+        logger.info("runtime_warmup_skipped", reason="warmup_enabled=false")
+        return get_warmup_status()
+
+    t0 = time.perf_counter()
+    try:
+        await asyncio.wait_for(_run_warmup_body(cfg, t0), timeout=float(cfg.warmup_timeout_seconds))
+    except TimeoutError:
+        logger.warning(
+            "runtime_warmup_timeout",
+            timeout_seconds=cfg.warmup_timeout_seconds,
+        )
+        _warmup_state["completed"] = True
+        _warmup_state["warmup_duration_ms"] = round((time.perf_counter() - t0) * 1000, 2)
+        _warmup_state["startup_duration_ms"] = round((time.perf_counter() - _startup_t0) * 1000, 2)
     return get_warmup_status()
 
 

@@ -28,6 +28,10 @@ class BaseReranker(ABC):
     async def rerank(self, query: str, candidates: list[RankedChunk], top_n: int) -> list[RankedChunk]:
         raise NotImplementedError
 
+    async def health_check(self) -> bool:
+        """Verifica operacionalidade sem lançar exceção."""
+        return True
+
 
 class IdentityReranker(BaseReranker):
     async def rerank(self, query: str, candidates: list[RankedChunk], top_n: int) -> list[RankedChunk]:
@@ -89,6 +93,13 @@ class BGEReranker(BaseReranker):
         )
         return decorated[:top_n]
 
+    async def health_check(self) -> bool:
+        try:
+            await asyncio.to_thread(self._ensure_model)
+            return self._model is not None
+        except Exception:
+            return False
+
 
 class CohereReranker(BaseReranker):
     """Cohere Rerank API — serverless, ideal para Render sem GPU."""
@@ -129,6 +140,21 @@ class CohereReranker(BaseReranker):
             )
         return ranked
 
+    async def health_check(self) -> bool:
+        try:
+            import cohere
+
+            client = cohere.AsyncClient(self._api_key)
+            await client.rerank(
+                query="warmup",
+                documents=["warmup"],
+                model=self._model,
+                top_n=1,
+            )
+            return True
+        except Exception:
+            return False
+
 
 def build_reranker(
     *,
@@ -159,3 +185,14 @@ class RerankerProvider:
 
     async def rerank(self, query: str, candidates: list[RankedChunk], top_n: int) -> list[RankedChunk]:
         return await self._impl.rerank(query, candidates, top_n)
+
+
+def get_reranker(settings: Any) -> BaseReranker:
+    """Factory usada no warmup e no pipeline."""
+    return build_reranker(
+        enabled=settings.reranker_enabled,
+        model_name=settings.reranker_model,
+        batch_size=settings.reranker_batch_size,
+        provider=settings.reranker_provider,
+        cohere_api_key=settings.cohere_api_key,
+    )

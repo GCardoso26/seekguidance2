@@ -91,6 +91,15 @@ async def judge_health_payload(session: AsyncSession, settings: Settings) -> dic
     provider = settings.semantic_cache_provider
     cache_enabled = settings.semantic_cache_enabled or settings.judge_semantic_cache_enabled
 
+    from app.runtime.runtime_warmup import get_warmup_status
+
+    warmup = get_warmup_status()
+    components_ready = sum(
+        1
+        for key in ("embedding_ready", "reranker_ready", "cache_ready", "judge_ready")
+        if warmup.get(key)
+    )
+
     return {
         "status": status,
         "integrity_status": "ok" if db_ok else "degraded",
@@ -105,6 +114,12 @@ async def judge_health_payload(session: AsyncSession, settings: Settings) -> dic
             "enabled": cache_enabled,
             "provider": provider,
             "hit_rate_1h": hash_stats.get("hit_rate") or cache_stats.get("cache_hit_rate", 0.0),
+        },
+        "warmup": {
+            "completed": warmup.get("completed", False),
+            "duration_ms": warmup.get("warmup_duration_ms", 0.0),
+            "components_ready": components_ready,
+            "components_total": 4,
         },
         "games": games,
     }
