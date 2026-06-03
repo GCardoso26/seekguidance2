@@ -1,5 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="TCG">
-  <rect width="64" height="64" rx="14" fill="#334155"/>
-  <path d="M20 44 L32 18 L44 44 Z" fill="none" stroke="#fbbf24" stroke-width="2.5" stroke-linejoin="round"/>
-  <circle cx="32" cy="38" r="4" fill="#fbbf24"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" aria-label="TCG" viewBox="0 0 120 120"><rect width="120" height="120" fill="#0f172a" rx="16"/><rect width="104" height="104" x="8" y="8" fill="#334155" stroke="#64748b" stroke-width="2" rx="12"/><path fill="none" stroke="#fbbf24" stroke-linejoin="round" stroke-width="3" d="m60 28 18 54H42Z"/><circle cx="60" cy="68" r="6" fill="#fbbf24"/></svg>

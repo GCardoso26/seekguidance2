@@ -1,0 +1,30 @@
+import { describe, expect, it } from "vitest";
+import { gameSlugFromTcg } from "@/lib/judge-game-slug";
+import { ALL_TCG_LOGO_SLUGS, getTcgLogo, getTcgLogoBySlug, getTcgLogoDimensions } from "@/lib/tcg-logos";
+import { TCG_OPTIONS } from "@/types/judge";
+
+describe("tcg-logos", () => {
+  it("mapeia os 14 slugs de jogo", () => {
+    expect(ALL_TCG_LOGO_SLUGS).toHaveLength(14);
+    for (const game of TCG_OPTIONS) {
+      const slug = gameSlugFromTcg(game.id);
+      const logo = getTcgLogo(game.id);
+      expect(logo.src).toMatch(/^\/logos\/.+\.svg$/);
+      expect(logo.alt.length).toBeGreaterThan(2);
+      expect(getTcgLogoBySlug(slug).src).toBe(logo.src);
+    }
+  });
+
+  it("usa dimensões 120 default e 64 compact", () => {
+    expect(getTcgLogoDimensions("default")).toEqual({ width: 120, height: 120 });
+    expect(getTcgLogoDimensions("compact")).toEqual({ width: 64, height: 64 });
+  });
+
+  it("13 jogos com SVG oficial; SWU usa default até asset dedicado", () => {
+    const withDedicated = ALL_TCG_LOGO_SLUGS.filter((slug) => slug !== "swu");
+    for (const slug of withDedicated) {
+      expect(getTcgLogoBySlug(slug).src).toBe(`/logos/${slug === "union_arena" ? "union-arena" : slug}.svg`);
+    }
+    expect(getTcgLogoBySlug("swu").src).toBe("/logos/default-tcg.svg");
+  });
+});

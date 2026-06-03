@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { GameMatSelector } from "@/components/judge/GameMatSelector";
+import { GameMatSelectorCompact } from "@/components/landing/GameMatSelectorCompact";
 import { FeatureCard } from "@/components/landing/FeatureCard";
 import { AuthProvider, useJudgeAuth } from "@/features/auth/AuthProvider";
 import { GoogleLoginButton } from "@/features/auth/GoogleLoginButton";
@@ -99,11 +99,11 @@ function LandingContent() {
       <section className="container mx-auto px-4 py-12">
         <h2 className="mb-8 text-center text-3xl font-bold text-white">Jogos suportados</h2>
         <div className="mx-auto max-w-4xl rounded-2xl border border-slate-700/60 bg-slate-900/50 p-6">
-          <GameMatSelector
+          <GameMatSelectorCompact
             value={previewTcg}
             onChange={() => {}}
             disabled
-            variant="compact"
+            showHeader={false}
           />
         </div>
         <p className="mt-6 text-center text-slate-400">

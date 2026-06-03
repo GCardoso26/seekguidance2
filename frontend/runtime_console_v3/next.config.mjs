@@ -33,6 +33,11 @@ const nextConfig = {
   output: "standalone",
   // Monorepo: evita warning de lockfile na raiz do tcg-judge
   outputFileTracingRoot: path.join(__dirname, "../../"),
+  images: {
+    dangerouslyAllowSVG: true,
+    contentDispositionType: "attachment",
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+  },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },

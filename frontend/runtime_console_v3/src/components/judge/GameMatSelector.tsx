@@ -1,14 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
-import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { getTcgLogo } from "@/lib/tcg-logos";
+import { TcgLogoImage } from "@/components/judge/TcgLogoImage";
 import { getTcgTheme } from "@/styles/tcg-theme";
 import { hapticFeedback } from "@/utils/haptic";
 import { cn } from "@/lib/utils";
 import { TCG_OPTIONS, type TcgOption, type TcgType } from "@/types/judge";
+
+const PRIORITY_TCGS: TcgType[] = ["magic", "pokemon", "yugioh"];
 
 type Props = {
   value: TcgType;
@@ -17,6 +18,7 @@ type Props = {
   responsePanelId?: string;
   options?: TcgOption[];
   variant?: "default" | "compact";
+  showHeader?: boolean;
 };
 
 function GameMat({
@@ -35,7 +37,6 @@ function GameMat({
   variant?: "default" | "compact";
 }) {
   const theme = getTcgTheme(game.id);
-  const logo = getTcgLogo(game.id);
   const compact = variant === "compact";
   const canSelect = game.enabled && !disabled;
   const reduceMotion = useReducedMotion();
@@ -56,10 +57,10 @@ function GameMat({
       title={game.enabled ? game.label : `${game.label} — em breve`}
       style={{ "--mat-gradient": theme.themeGradient } as CSSProperties}
       className={cn(
-        "judge-game-mat relative flex flex-col justify-between overflow-hidden rounded-xl text-left transition",
-        compact ? "min-h-[72px] min-w-[72px] p-2 md:min-w-[80px]" : "min-h-[88px] min-w-[140px] p-3 lg:min-w-[148px]",
+        "group judge-game-mat relative flex flex-col items-center justify-between overflow-hidden rounded-xl text-left transition",
+        compact ? "min-h-[88px] min-w-[72px] p-2 md:min-w-[80px]" : "min-h-[112px] min-w-[140px] p-3 lg:min-w-[148px]",
         !game.enabled && "cursor-not-allowed opacity-50",
-        selected && "judge-game-mat--selected z-10",
+        selected && "judge-game-mat--selected z-10 ring-2 ring-amber-400/80",
         canSelect && !selected && "hover:brightness-110",
       )}
       whileTap={canSelect && !reduceMotion ? { scale: 0.98 } : undefined}
@@ -75,21 +76,16 @@ function GameMat({
           Beta
         </span>
       )}
-      <div
-        className={cn(
-          "relative mx-auto mb-1 w-full",
-          compact ? "aspect-square max-w-[48px]" : "aspect-square max-w-[56px]",
-        )}
-      >
-        <Image
-          src={logo.src}
-          alt={logo.alt}
-          fill
-          className="object-contain p-1"
-          sizes={compact ? "64px" : "128px"}
-        />
-      </div>
-      <div>
+
+      <TcgLogoImage
+        tcgId={game.id}
+        variant={variant}
+        selected={selected}
+        priority={PRIORITY_TCGS.includes(game.id)}
+        className="mb-2"
+      />
+
+      <div className="w-full text-center">
         {!compact && (
           <span className="text-[10px] font-black tracking-tight text-white/80">{theme.icon}</span>
         )}
@@ -113,12 +109,14 @@ export function GameMatSelector({
   responsePanelId,
   options = TCG_OPTIONS,
   variant = "default",
+  showHeader = true,
 }: Props) {
   const selected = options.find((g) => g.id === value);
   const selectedTheme = selected ? getTcgTheme(selected.id) : null;
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
+  const compact = variant === "compact";
 
   const updateScrollHints = useCallback(() => {
     const el = scrollRef.current;
@@ -129,6 +127,7 @@ export function GameMatSelector({
   }, []);
 
   useEffect(() => {
+    if (compact) return;
     const el = scrollRef.current;
     if (!el) return;
     updateScrollHints();
@@ -139,7 +138,7 @@ export function GameMatSelector({
       el.removeEventListener("scroll", updateScrollHints);
       ro.disconnect();
     };
-  }, [updateScrollHints]);
+  }, [compact, updateScrollHints]);
 
   function scrollBy(direction: "left" | "right") {
     scrollRef.current?.scrollBy({
@@ -149,25 +148,27 @@ export function GameMatSelector({
   }
 
   return (
-    <div className={cn("space-y-3", variant === "compact" && "space-y-2")}>
-      <div className="flex items-end justify-between gap-2">
-        <p
-          className={cn(
-            "font-semibold uppercase tracking-wide text-[var(--tcg-text-secondary)]",
-            variant === "compact" ? "text-[10px]" : "text-xs",
-          )}
-        >
-          {variant === "compact" ? "Jogos suportados" : "Escolha o tapete de jogo"}
-        </p>
-        {selectedTheme && (
-          <p className="hidden text-[10px] text-[var(--tcg-text-secondary)] sm:block">
-            {selectedTheme.publisher}
+    <div className={cn("space-y-3", compact && "space-y-2")}>
+      {showHeader && (
+        <div className="flex items-end justify-between gap-2">
+          <p
+            className={cn(
+              "font-semibold uppercase tracking-wide text-[var(--tcg-text-secondary)]",
+              compact ? "text-[10px]" : "text-xs",
+            )}
+          >
+            {compact ? "Jogos suportados" : "Escolha o tapete de jogo"}
           </p>
-        )}
-      </div>
+          {selectedTheme && !compact && (
+            <p className="hidden text-[10px] text-[var(--tcg-text-secondary)] sm:block">
+              {selectedTheme.publisher}
+            </p>
+          )}
+        </div>
+      )}
 
       <div className="relative lg:px-1">
-        {canScrollLeft && (
+        {!compact && canScrollLeft && (
           <button
             type="button"
             onClick={() => scrollBy("left")}
@@ -177,7 +178,7 @@ export function GameMatSelector({
             <ChevronLeft className="h-4 w-4" />
           </button>
         )}
-        {canScrollRight && (
+        {!compact && canScrollRight && (
           <button
             type="button"
             onClick={() => scrollBy("right")}
@@ -191,10 +192,9 @@ export function GameMatSelector({
         <div
           ref={scrollRef}
           className={cn(
-            "flex overflow-x-auto pb-2 scroll-smooth snap-x snap-mandatory [scrollbar-width:thin]",
-            variant === "compact"
-              ? "grid grid-cols-4 gap-2 overflow-visible md:grid-cols-7"
-              : "gap-3",
+            compact
+              ? "grid grid-cols-4 gap-3 md:grid-cols-7"
+              : "flex gap-3 overflow-x-auto pb-2 scroll-smooth snap-x snap-mandatory [scrollbar-width:thin]",
           )}
           role="tablist"
           aria-label="Selecionar jogo"
