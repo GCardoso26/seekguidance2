@@ -1,5 +1,11 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
-import { buildAppRedirectUrl, buildOAuthCallbackUrl, getAppUrl } from "@/lib/app-url";
+import {
+  buildAppRedirectUrl,
+  buildOAuthCallbackUrl,
+  getAppUrl,
+  getRequestOrigin,
+  isLocalhostUrl,
+} from "@/lib/app-url";
 
 describe("app-url", () => {
   const originalEnv = process.env.NEXT_PUBLIC_APP_URL;
@@ -13,19 +19,33 @@ describe("app-url", () => {
     vi.unstubAllGlobals();
   });
 
-  it("prefere NEXT_PUBLIC_APP_URL", () => {
-    process.env.NEXT_PUBLIC_APP_URL = "https://judgetcg.com.br";
+  it("ignora NEXT_PUBLIC localhost quando origin é produção", () => {
+    process.env.NEXT_PUBLIC_APP_URL = "http://localhost:3000";
+    vi.stubGlobal("window", { location: { origin: "https://judgetcg.com.br" } });
     expect(getAppUrl()).toBe("https://judgetcg.com.br");
-    expect(buildAppRedirectUrl("/judge")).toBe("https://judgetcg.com.br/judge");
     expect(buildOAuthCallbackUrl("/judge")).toBe(
       "https://judgetcg.com.br/auth/callback?next=%2Fjudge",
     );
   });
 
-  it("usa fallbackOrigin quando env ausente", () => {
-    delete process.env.NEXT_PUBLIC_APP_URL;
-    expect(buildAppRedirectUrl("/judge", "https://preview.vercel.app")).toBe(
-      "https://preview.vercel.app/judge",
-    );
+  it("usa NEXT_PUBLIC_APP_URL no servidor quando não é localhost", () => {
+    delete (globalThis as { window?: unknown }).window;
+    process.env.NEXT_PUBLIC_APP_URL = "https://judgetcg.com.br";
+    expect(getAppUrl()).toBe("https://judgetcg.com.br");
+  });
+
+  it("getRequestOrigin usa x-forwarded-host", () => {
+    const req = new Request("http://localhost:3000/auth/callback", {
+      headers: {
+        "x-forwarded-host": "judgetcg.com.br",
+        "x-forwarded-proto": "https",
+      },
+    });
+    expect(getRequestOrigin(req)).toBe("https://judgetcg.com.br");
+  });
+
+  it("isLocalhostUrl detecta localhost", () => {
+    expect(isLocalhostUrl("http://localhost:3000")).toBe(true);
+    expect(isLocalhostUrl("https://judgetcg.com.br")).toBe(false);
   });
 });

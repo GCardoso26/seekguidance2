@@ -62,7 +62,9 @@ Aplicar em produção:
 | | `http://localhost:3000/auth/callback` (dev) |
 | | `https://*.vercel.app/auth/callback` (previews) |
 
-O OAuth usa `NEXT_PUBLIC_APP_URL` + `/auth/callback?next=/judge` — **não** `window.location.origin` sozinho.
+O OAuth usa o **domínio actual do browser** (`window.location.origin`) em produção — não um `NEXT_PUBLIC_APP_URL` com localhost no bundle.
+
+**Importante no Vercel:** remova ou corrija `NEXT_PUBLIC_APP_URL=http://localhost:3000` se existir. Use `https://judgetcg.com.br`.
 
 ### Futuro: unificação
 

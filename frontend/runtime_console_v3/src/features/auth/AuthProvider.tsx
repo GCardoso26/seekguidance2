@@ -67,10 +67,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signInWithGoogle = useCallback(
     async (path = "/judge") => {
       if (!supabase) return;
-      const redirectTo = path.startsWith("http") ? path : buildOAuthCallbackUrl(path);
+      const origin = typeof window !== "undefined" ? window.location.origin : undefined;
+      const redirectTo = path.startsWith("http") ? path : buildOAuthCallbackUrl(path, origin);
       await supabase.auth.signInWithOAuth({
         provider: "google",
-        options: { redirectTo },
+        options: {
+          redirectTo,
+          queryParams: { prompt: "select_account" },
+        },
       });
     },
     [supabase],
