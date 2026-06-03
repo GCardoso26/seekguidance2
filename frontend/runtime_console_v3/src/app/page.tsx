@@ -117,7 +117,7 @@ function LandingContent() {
           <p className="mb-6 text-center text-slate-400">
             Entre com sua conta Google. Sem senhas, sem complicação.
           </p>
-          <GoogleLoginButton redirectTo="/judge" onSuccess={() => router.push("/judge")} />
+          <GoogleLoginButton redirectTo="/judge" />
           <p className="mt-4 text-center text-xs text-slate-500">
             Já usou antes? Suas perguntas ficam salvas na sua conta.
           </p>

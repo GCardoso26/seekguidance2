@@ -52,13 +52,17 @@ Aplicar em produção:
 
 `supabase/migrations/20260602120000_auto_confirm_google.sql`
 
-```bash
-supabase link --project-ref <PROD_PROJECT_REF>
-supabase db push --dry-run
-supabase db push
-```
+**Auth → URL Configuration (Dashboard):**
 
-Confirmar que o projeto ligado ao Vercel é o mesmo onde a migration foi aplicada.
+| Campo | Valor |
+|-------|--------|
+| Site URL | `https://judgetcg.com.br` |
+| Redirect URLs | `https://judgetcg.com.br/auth/callback` |
+| | `https://judgetcg.com.br/judge` |
+| | `http://localhost:3000/auth/callback` (dev) |
+| | `https://*.vercel.app/auth/callback` (previews) |
+
+O OAuth usa `NEXT_PUBLIC_APP_URL` + `/auth/callback?next=/judge` — **não** `window.location.origin` sozinho.
 
 ### Futuro: unificação
 

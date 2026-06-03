@@ -11,6 +11,7 @@ import {
   type ReactNode,
 } from "react";
 import type { Session, User } from "@supabase/supabase-js";
+import { buildOAuthCallbackUrl } from "@/lib/app-url";
 import { createSupabaseBrowserClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import { migrateLocalStorageHistory } from "@/features/auth/historyMigration";
 import { recordGrowthEvent } from "@/services/judgeGrowthApi";
@@ -66,11 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signInWithGoogle = useCallback(
     async (path = "/judge") => {
       if (!supabase) return;
-      const base =
-        typeof window !== "undefined"
-          ? window.location.origin
-          : (process.env.NEXT_PUBLIC_APP_URL ?? "").replace(/\/$/, "");
-      const redirectTo = path.startsWith("http") ? path : `${base}${path.startsWith("/") ? path : `/${path}`}`;
+      const redirectTo = path.startsWith("http") ? path : buildOAuthCallbackUrl(path);
       await supabase.auth.signInWithOAuth({
         provider: "google",
         options: { redirectTo },
