@@ -33,6 +33,7 @@ _PUBLIC_EXACT = frozenset(
 
 _PUBLIC_PREFIXES = (
     "/runtime/judge/query",
+    "/runtime/judge/",
 )
 
 _SENSITIVE_WRITE = (
