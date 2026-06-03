@@ -28,6 +28,8 @@ export type AnalyticsEventName = MonetizationEvent | EngagementEvent;
 
 export type UserTier = "free" | "pro" | "team";
 
+export type PricingCtaLocation = "header" | "hero_secondary" | "mid_page" | "final_cta" | "footer";
+
 export type EventPayload = {
   event: AnalyticsEventName;
   timestamp: string;
