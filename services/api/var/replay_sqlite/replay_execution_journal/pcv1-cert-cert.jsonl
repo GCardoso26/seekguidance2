@@ -62,3 +62,5 @@
 {"at": "2026-05-17T21:49:22Z", "event": "audit_v3", "replay_ref": "pcv1-cert-cert"}
 {"at": "2026-05-17T23:10:35Z", "event": "executed", "replay_ref": "pcv1-cert-cert"}
 {"at": "2026-05-17T23:10:35Z", "event": "audit_v3", "replay_ref": "pcv1-cert-cert"}
+{"at": "2026-06-02T05:02:00Z", "event": "executed", "replay_ref": "pcv1-cert-cert"}
+{"at": "2026-06-02T05:02:00Z", "event": "audit_v3", "replay_ref": "pcv1-cert-cert"}

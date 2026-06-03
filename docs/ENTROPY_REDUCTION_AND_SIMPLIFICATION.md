@@ -1,0 +1,1 @@
+# Entropy reduction and simplification

@@ -63,3 +63,4 @@ supabase/.temp/
 
 # Next.js gerado localmente
 frontend/**/next-env.d.ts
+.vercel

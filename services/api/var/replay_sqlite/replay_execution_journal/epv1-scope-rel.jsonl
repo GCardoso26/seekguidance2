@@ -74,3 +74,5 @@
 {"at": "2026-05-17T21:38:26Z", "event": "audit_v3", "replay_ref": "epv1-scope-rel"}
 {"at": "2026-05-17T22:56:35Z", "event": "executed", "replay_ref": "epv1-scope-rel"}
 {"at": "2026-05-17T22:56:35Z", "event": "audit_v3", "replay_ref": "epv1-scope-rel"}
+{"at": "2026-06-02T04:48:20Z", "event": "executed", "replay_ref": "epv1-scope-rel"}
+{"at": "2026-06-02T04:48:20Z", "event": "audit_v3", "replay_ref": "epv1-scope-rel"}

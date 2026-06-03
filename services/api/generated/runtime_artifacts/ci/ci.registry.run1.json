@@ -11,7 +11,7 @@
     "openapi": "S:\\tcg-judge\\services\\api\\generated\\runtime_artifacts\\openapi\\openapi.runtime.vnext.json",
     "snapshot": "S:\\tcg-judge\\services\\api\\generated\\runtime_artifacts\\snapshots\\schema.snapshot.vnext.json"
   },
-  "registry_hash": "b814401f150ff3e8589758ca70f9ffb37c1e933e610511254164259843734522",
+  "registry_hash": "d38de460265e4ac0b8e8fce16a251ac876af903da74ba0fc2e3f04e008934ff0",
   "run_id": "run1",
-  "schema_hash": "68509f78f40e8f9d"
+  "schema_hash": "2d1f26c728912f60"
 }

@@ -88,3 +88,5 @@
 {"at": "2026-05-17T21:59:36Z", "event": "audit_v3", "replay_ref": "rc-replay"}
 {"at": "2026-05-17T23:22:52Z", "event": "executed", "replay_ref": "rc-replay"}
 {"at": "2026-05-17T23:22:52Z", "event": "audit_v3", "replay_ref": "rc-replay"}
+{"at": "2026-06-02T05:14:11Z", "event": "executed", "replay_ref": "rc-replay"}
+{"at": "2026-06-02T05:14:11Z", "event": "audit_v3", "replay_ref": "rc-replay"}

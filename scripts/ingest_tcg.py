@@ -116,7 +116,7 @@ async def _main() -> None:
             "  PowerShell: $env:DATABASE_URL = 'postgresql+asyncpg://...'\n"
             "  Ou crie S:\\tcg-judge\\.env.production (copie de .env.supabase.example)\n"
             "  Ou defina em services\\api\\.env (o script carrega automaticamente).\n"
-            "  Senha com # na URL: use %23 (ex.: Sirius%23husky93) ou deixe o script reparar."
+            "  Senha com # na URL: use %23 (ex.: MyPass%23word) ou deixe o script reparar."
         )
     if not key:
         raise SystemExit(

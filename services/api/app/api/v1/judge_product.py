@@ -8,6 +8,7 @@ from typing import Any
 import structlog
 from app.api.deps import DbSession
 from app.core.config import get_settings
+from app.judge.analytics_events import monetization_metrics_payload, record_analytics_events
 from app.judge.growth_metrics import GROWTH_EVENT_TYPES, growth_dashboard_payload, record_growth_metric
 from app.judge.share_signing import is_valid_uuid, sign_share_id, verify_share_signature
 from fastapi import APIRouter, Header, HTTPException
@@ -289,6 +290,34 @@ async def post_growth_event(body: JudgeGrowthEventBody, session: DbSession) -> d
 @router.get("/runtime/judge/growth")
 async def get_judge_growth(session: DbSession, days: int = 30) -> dict[str, Any]:
     return await growth_dashboard_payload(session, days=days)
+
+
+class AnalyticsEventBody(BaseModel):
+    event: str
+    timestamp: str
+    user_id: str | None = None
+    anonymous_id: str | None = None
+    properties: dict[str, Any] | None = None
+    tier: str | None = "free"
+    game_slug: str | None = None
+
+
+class TrackAnalyticsBody(BaseModel):
+    events: list[AnalyticsEventBody] = Field(default_factory=list)
+
+
+@router.post("/runtime/judge/analytics/track", status_code=202)
+async def track_analytics_events(body: TrackAnalyticsBody, session: DbSession) -> dict[str, int]:
+    received = await record_analytics_events(
+        session,
+        [e.model_dump() for e in body.events],
+    )
+    return {"received": received}
+
+
+@router.get("/runtime/judge/analytics/metrics")
+async def get_analytics_metrics(session: DbSession, days: int = 30) -> dict[str, Any]:
+    return await monetization_metrics_payload(session, days=days)
 
 
 class HistoryMigrateEntry(BaseModel):

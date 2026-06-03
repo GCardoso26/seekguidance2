@@ -10,6 +10,7 @@ import { JudgeLatencyChart } from "@/components/observability/judge/JudgeLatency
 import { JudgeTrendsTable } from "@/components/observability/judge/JudgeTrendsTable";
 import { getJudgeQuality, getJudgeQualityMetrics } from "@/services/judgeApi";
 import { getJudgeGrowth } from "@/services/judgeGrowthApi";
+import { getMonetizationMetrics } from "@/services/analyticsApi";
 import { runtimeApi } from "@/services/api/runtime";
 import { getInfrastructure, getWarmupStatus } from "@/services/infrastructureApi";
 import { useAuthStore } from "@/stores/auth-store";
@@ -37,6 +38,10 @@ export default function ObservabilityPage() {
   const judgeGrowth = useQuery({
     queryKey: ["judge-growth", 30],
     queryFn: () => getJudgeGrowth(30),
+  });
+  const monetization = useQuery({
+    queryKey: ["monetization-metrics", 30],
+    queryFn: () => getMonetizationMetrics(30),
   });
   const warmup = useQuery({
     queryKey: ["runtime-warmup"],
@@ -241,6 +246,65 @@ export default function ObservabilityPage() {
             ))}
             {(judgeGrowth.data?.top_games?.length ?? 0) === 0 && (
               <li className="text-muted-foreground">Sem dados no período.</li>
+            )}
+          </ul>
+        </CardContent>
+      </Card>
+
+      <h2 className="mb-3 text-lg font-semibold">Monetização</h2>
+      <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <MetricPanel
+          title="Views /pricing"
+          value={String(monetization.data?.pricing_page_views ?? "—")}
+        />
+        <MetricPanel
+          title="CTA clicks"
+          value={String(monetization.data?.pricing_cta_clicks ?? "—")}
+        />
+        <MetricPanel
+          title="CTR pricing"
+          value={
+            monetization.data
+              ? `${Math.round((monetization.data.cta_rate ?? 0) * 100)}%`
+              : "—"
+          }
+        />
+        <MetricPanel
+          title="Start free"
+          value={String(monetization.data?.pricing_start_free ?? "—")}
+        />
+        <MetricPanel title="Paywall hits" value={String(monetization.data?.paywall_hits ?? "—")} />
+        <MetricPanel
+          title="Checkout started"
+          value={String(monetization.data?.checkout_started ?? "—")}
+        />
+        <MetricPanel
+          title="Checkout completed"
+          value={String(monetization.data?.checkout_completed ?? "—")}
+        />
+        <MetricPanel
+          title="Conversão"
+          value={
+            monetization.data
+              ? `${Math.round((monetization.data.conversion_rate ?? 0) * 100)}%`
+              : "—"
+          }
+        />
+      </div>
+
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>Eventos de monetização (30 dias)</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ul className="space-y-1 text-sm">
+            {Object.entries(monetization.data?.events_by_type ?? {}).map(([event, count]) => (
+              <li key={event}>
+                <span className="font-mono text-xs">{event}</span> — {count}
+              </li>
+            ))}
+            {Object.keys(monetization.data?.events_by_type ?? {}).length === 0 && (
+              <li className="text-muted-foreground">Sem eventos no período.</li>
             )}
           </ul>
         </CardContent>

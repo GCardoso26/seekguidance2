@@ -1,6 +1,6 @@
 {
   "run_id": "run8",
-  "schema_hash": "68509f78f40e8f9d",
+  "schema_hash": "2d1f26c728912f60",
   "files": {
     "openapi": "S:\\tcg-judge\\services\\api\\generated\\runtime_artifacts\\openapi\\openapi.runtime.vnext.json",
     "manifest": "S:\\tcg-judge\\services\\api\\generated\\runtime_artifacts\\manifests\\runtime.manifest.vnext.json",

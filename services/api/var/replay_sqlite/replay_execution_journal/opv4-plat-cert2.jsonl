@@ -82,3 +82,5 @@
 {"at": "2026-05-17T21:49:18Z", "event": "audit_v3", "replay_ref": "opv4-plat-cert2"}
 {"at": "2026-05-17T23:10:30Z", "event": "executed", "replay_ref": "opv4-plat-cert2"}
 {"at": "2026-05-17T23:10:30Z", "event": "audit_v3", "replay_ref": "opv4-plat-cert2"}
+{"at": "2026-06-02T05:01:52Z", "event": "executed", "replay_ref": "opv4-plat-cert2"}
+{"at": "2026-06-02T05:01:52Z", "event": "audit_v3", "replay_ref": "opv4-plat-cert2"}

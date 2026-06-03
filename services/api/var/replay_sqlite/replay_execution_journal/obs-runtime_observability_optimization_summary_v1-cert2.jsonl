@@ -306,3 +306,17 @@
 {"at": "2026-05-17T23:04:28Z", "event": "audit_v3", "replay_ref": "obs-runtime_observability_optimization_summary_v1-cert2"}
 {"at": "2026-05-17T23:04:30Z", "event": "executed", "replay_ref": "obs-runtime_observability_optimization_summary_v1-cert2"}
 {"at": "2026-05-17T23:04:30Z", "event": "audit_v3", "replay_ref": "obs-runtime_observability_optimization_summary_v1-cert2"}
+{"at": "2026-06-02T04:56:06Z", "event": "executed", "replay_ref": "obs-runtime_observability_optimization_summary_v1-cert2"}
+{"at": "2026-06-02T04:56:06Z", "event": "audit_v3", "replay_ref": "obs-runtime_observability_optimization_summary_v1-cert2"}
+{"at": "2026-06-02T04:56:08Z", "event": "executed", "replay_ref": "obs-runtime_observability_optimization_summary_v1-cert2"}
+{"at": "2026-06-02T04:56:08Z", "event": "audit_v3", "replay_ref": "obs-runtime_observability_optimization_summary_v1-cert2"}
+{"at": "2026-06-02T04:56:09Z", "event": "executed", "replay_ref": "obs-runtime_observability_optimization_summary_v1-cert2"}
+{"at": "2026-06-02T04:56:09Z", "event": "audit_v3", "replay_ref": "obs-runtime_observability_optimization_summary_v1-cert2"}
+{"at": "2026-06-02T04:56:11Z", "event": "executed", "replay_ref": "obs-runtime_observability_optimization_summary_v1-cert2"}
+{"at": "2026-06-02T04:56:11Z", "event": "audit_v3", "replay_ref": "obs-runtime_observability_optimization_summary_v1-cert2"}
+{"at": "2026-06-02T04:56:13Z", "event": "executed", "replay_ref": "obs-runtime_observability_optimization_summary_v1-cert2"}
+{"at": "2026-06-02T04:56:13Z", "event": "audit_v3", "replay_ref": "obs-runtime_observability_optimization_summary_v1-cert2"}
+{"at": "2026-06-02T04:56:15Z", "event": "executed", "replay_ref": "obs-runtime_observability_optimization_summary_v1-cert2"}
+{"at": "2026-06-02T04:56:15Z", "event": "audit_v3", "replay_ref": "obs-runtime_observability_optimization_summary_v1-cert2"}
+{"at": "2026-06-02T04:56:16Z", "event": "executed", "replay_ref": "obs-runtime_observability_optimization_summary_v1-cert2"}
+{"at": "2026-06-02T04:56:16Z", "event": "audit_v3", "replay_ref": "obs-runtime_observability_optimization_summary_v1-cert2"}

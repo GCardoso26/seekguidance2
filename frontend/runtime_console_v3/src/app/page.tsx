@@ -138,6 +138,10 @@ function LandingContent() {
             Privacidade
           </Link>
           {" · "}
+          <Link href="/pricing" className="hover:text-slate-300">
+            Preços
+          </Link>
+          {" · "}
           <Link href="/judge" className="hover:text-slate-300">
             Mesa de regras
           </Link>

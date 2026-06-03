@@ -142,3 +142,7 @@
 {"at": "2026-05-17T23:10:39Z", "event": "audit_v3", "replay_ref": "gav2-roll-pilot"}
 {"at": "2026-05-17T23:10:40Z", "event": "executed", "replay_ref": "gav2-roll-pilot"}
 {"at": "2026-05-17T23:10:42Z", "event": "executed", "replay_ref": "gav2-roll-pilot"}
+{"at": "2026-06-02T05:02:08Z", "event": "executed", "replay_ref": "gav2-roll-pilot"}
+{"at": "2026-06-02T05:02:08Z", "event": "audit_v3", "replay_ref": "gav2-roll-pilot"}
+{"at": "2026-06-02T05:02:08Z", "event": "executed", "replay_ref": "gav2-roll-pilot"}
+{"at": "2026-06-02T05:02:11Z", "event": "executed", "replay_ref": "gav2-roll-pilot"}

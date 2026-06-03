@@ -146,3 +146,7 @@
 {"at": "2026-05-17T23:10:37Z", "event": "audit_v3", "replay_ref": "prov1-roll-rel"}
 {"at": "2026-05-17T23:10:39Z", "event": "executed", "replay_ref": "prov1-roll-rel"}
 {"at": "2026-05-17T23:10:39Z", "event": "audit_v3", "replay_ref": "prov1-roll-rel"}
+{"at": "2026-06-02T05:02:04Z", "event": "executed", "replay_ref": "prov1-roll-rel"}
+{"at": "2026-06-02T05:02:04Z", "event": "audit_v3", "replay_ref": "prov1-roll-rel"}
+{"at": "2026-06-02T05:02:07Z", "event": "executed", "replay_ref": "prov1-roll-rel"}
+{"at": "2026-06-02T05:02:07Z", "event": "audit_v3", "replay_ref": "prov1-roll-rel"}

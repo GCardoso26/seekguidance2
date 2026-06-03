@@ -13,72 +13,72 @@
           "sqlite_checkpoint_runtime_write: checkpoint real opcional."
         ],
         "deterministic_alignment": {
-          "token": "chk-susi-runtime_sustainability_summary_v1-ga"
+          "token": "chk-ga30-ga-pilot"
         },
         "integrity_status": {
           "ok": true
         },
         "lineage_summary": {},
-        "replay_ref": "susi-runtime_sustainability_summary_v1-ga",
+        "replay_ref": "ga30-ga-pilot",
         "replay_summary": {
-          "checkpointed_at": "2026-05-18T00:32:17Z"
+          "checkpointed_at": "2026-06-02T05:22:45Z"
         },
         "storage_path": "S:\\tcg-judge\\services\\api\\var\\replay_sqlite"
       },
       "deterministic_alignment": {
-        "token": "5f870038648a8203c298a6de"
+        "token": "5e497300f888c77a40fcf4dd"
       },
       "journal": {
         "entry": {
-          "at": "2026-05-18T00:32:17Z",
+          "at": "2026-06-02T05:22:45Z",
           "event": "executed",
-          "replay_ref": "susi-runtime_sustainability_summary_v1-ga"
+          "replay_ref": "ga30-ga-pilot"
         },
-        "journal_path": "S:\\tcg-judge\\services\\api\\var\\replay_sqlite\\replay_execution_journal\\susi-runtime_sustainability_summary_v1-ga.jsonl"
+        "journal_path": "S:\\tcg-judge\\services\\api\\var\\replay_sqlite\\replay_execution_journal\\ga30-ga-pilot.jsonl"
       },
       "lock_acquired": true,
-      "replay_execution_token": "5f870038648a8203c298a6de",
-      "replay_ref": "susi-runtime_sustainability_summary_v1-ga",
+      "replay_execution_token": "5e497300f888c77a40fcf4dd",
+      "replay_ref": "ga30-ga-pilot",
       "snapshot": {
         "assistant_notes": [
           "sqlite_snapshot_store: persist\u00eancia local opcional; juiz audita conte\u00fado."
         ],
-        "integrity_hash": "bccd4c193a14af4ee4d154755689d421a11063b4f265847da462a229f6c43cd0",
-        "replay_ref": "susi-runtime_sustainability_summary_v1-ga",
+        "integrity_hash": "da496164bfe56e5f4c6e26ee4e2c9fb93350d41856301cdca5727a3a0b834d1a",
+        "replay_ref": "ga30-ga-pilot",
         "storage": "sqlite",
-        "version": 224
+        "version": 4348
       }
     },
-    "integrity_hash": "90d30c160ab6d75b11fde3defa68188274517c692f7b16cdb3fca986aede69e5",
+    "integrity_hash": "ad1ed58b58a4c0f8c003700d93ed79abc5991e4d6aa298a41a51900cf1e219db",
     "repair_hints": [
       "none_required"
     ],
-    "replay_ref": "susi-runtime_sustainability_summary_v1-ga",
+    "replay_ref": "ga30-ga-pilot",
     "restore": {
       "integrity_ok": true,
-      "replay_ref": "susi-runtime_sustainability_summary_v1-ga",
+      "replay_ref": "ga30-ga-pilot",
       "restored": true,
-      "version": 224
+      "version": 4348
     }
   },
   "journal": {
     "entry": {
-      "at": "2026-05-18T00:32:17Z",
+      "at": "2026-06-02T05:22:45Z",
       "event": "audit_v3",
-      "replay_ref": "susi-runtime_sustainability_summary_v1-ga"
+      "replay_ref": "ga30-ga-pilot"
     },
-    "journal_path": "S:\\tcg-judge\\services\\api\\var\\replay_sqlite\\replay_execution_journal\\susi-runtime_sustainability_summary_v1-ga.jsonl"
+    "journal_path": "S:\\tcg-judge\\services\\api\\var\\replay_sqlite\\replay_execution_journal\\ga30-ga-pilot.jsonl"
   },
   "repair_hints": [
     "none_required"
   ],
-  "replay_ref": "susi-runtime_sustainability_summary_v1-ga",
+  "replay_ref": "ga30-ga-pilot",
   "restore": {
     "integrity_ok": true,
-    "replay_ref": "susi-runtime_sustainability_summary_v1-ga",
+    "replay_ref": "ga30-ga-pilot",
     "restored": true,
-    "version": 224
+    "version": 4348
   },
   "rollback_traceable": true,
-  "trace_token": "67626391b86ab0d4e707"
+  "trace_token": "910d079648a7f93a071c"
 }
