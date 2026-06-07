@@ -30,8 +30,8 @@ CREATE TABLE IF NOT EXISTS friendships (
 
 CREATE INDEX IF NOT EXISTS idx_friendships_addressee ON friendships(addressee_id, status);
 
--- Mensagens
-CREATE TABLE IF NOT EXISTS messages (
+-- Mensagens entre jogadores (social DMs; distinto de messages RAG do init)
+CREATE TABLE IF NOT EXISTS social_messages (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   sender_id TEXT NOT NULL REFERENCES player_profiles(id) ON DELETE CASCADE,
   receiver_id TEXT NOT NULL REFERENCES player_profiles(id) ON DELETE CASCADE,
@@ -40,8 +40,8 @@ CREATE TABLE IF NOT EXISTS messages (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX IF NOT EXISTS idx_messages_conversation
-  ON messages(sender_id, receiver_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_social_messages_conversation
+  ON social_messages(sender_id, receiver_id, created_at DESC);
 
 -- Comunidades
 CREATE TABLE IF NOT EXISTS communities (
@@ -92,7 +92,7 @@ ALTER TABLE player_rankings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE tournament_payments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE player_notifications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE friendships ENABLE ROW LEVEL SECURITY;
-ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE social_messages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE communities ENABLE ROW LEVEL SECURITY;
 ALTER TABLE community_members ENABLE ROW LEVEL SECURITY;
 ALTER TABLE push_subscriptions ENABLE ROW LEVEL SECURITY;
@@ -154,15 +154,15 @@ CREATE POLICY "Users update friendships addressed to them"
   ON friendships FOR UPDATE
   USING (requester_id = auth.uid()::text OR addressee_id = auth.uid()::text);
 
--- messages
-DROP POLICY IF EXISTS "Users view own messages" ON messages;
+-- social_messages
+DROP POLICY IF EXISTS "Users view own messages" ON social_messages;
 CREATE POLICY "Users view own messages"
-  ON messages FOR SELECT
+  ON social_messages FOR SELECT
   USING (sender_id = auth.uid()::text OR receiver_id = auth.uid()::text);
 
-DROP POLICY IF EXISTS "Users send messages" ON messages;
+DROP POLICY IF EXISTS "Users send messages" ON social_messages;
 CREATE POLICY "Users send messages"
-  ON messages FOR INSERT WITH CHECK (sender_id = auth.uid()::text);
+  ON social_messages FOR INSERT WITH CHECK (sender_id = auth.uid()::text);
 
 -- communities (público leitura)
 DROP POLICY IF EXISTS "Communities viewable by everyone" ON communities;

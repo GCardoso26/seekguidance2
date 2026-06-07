@@ -26,7 +26,7 @@ async def send_message(
         await session.execute(
             text(
                 """
-                INSERT INTO tcg_judge.messages (sender_id, receiver_id, content)
+                INSERT INTO tcg_judge.social_messages (sender_id, receiver_id, content)
                 VALUES (:s, :r, :c)
                 RETURNING *
                 """
@@ -49,7 +49,7 @@ async def get_conversation(
         await session.execute(
             text(
                 """
-                SELECT * FROM tcg_judge.messages
+                SELECT * FROM tcg_judge.social_messages
                 WHERE (sender_id = :a AND receiver_id = :b)
                    OR (sender_id = :b AND receiver_id = :a)
                 ORDER BY created_at DESC
@@ -66,7 +66,7 @@ async def mark_read(session: AsyncSession, user_id: str, sender_id: str) -> int:
     result = await session.execute(
         text(
             """
-            UPDATE tcg_judge.messages SET read = true
+            UPDATE tcg_judge.social_messages SET read = true
             WHERE receiver_id = :uid AND sender_id = :sid AND read = false
             """
         ),
@@ -82,7 +82,7 @@ async def unread_counts(session: AsyncSession, user_id: str) -> dict[str, int]:
             text(
                 """
                 SELECT sender_id, COUNT(*) AS cnt
-                FROM tcg_judge.messages
+                FROM tcg_judge.social_messages
                 WHERE receiver_id = :uid AND read = false
                 GROUP BY sender_id
                 """
