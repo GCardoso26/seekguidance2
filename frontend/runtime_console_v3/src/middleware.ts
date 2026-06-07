@@ -6,6 +6,17 @@ const ADMIN_PREFIXES = ["/observability", "/admin", "/ingestion"];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // Google OAuth às vezes cai na home com ?code= se o redirect URL no Supabase estiver incompleto
+  if (pathname === "/" && request.nextUrl.searchParams.has("code")) {
+    const callback = request.nextUrl.clone();
+    callback.pathname = "/auth/callback";
+    if (!callback.searchParams.has("next")) {
+      callback.searchParams.set("next", "/judge");
+    }
+    return NextResponse.redirect(callback);
+  }
+
   const needsAdmin = ADMIN_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));
   if (!needsAdmin) return NextResponse.next();
 
@@ -24,6 +35,7 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
+    "/",
     "/observability/:path*",
     "/admin/:path*",
     "/ingestion/:path*",

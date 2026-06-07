@@ -5,6 +5,7 @@ import {
   getAppUrl,
   getRequestOrigin,
   isLocalhostUrl,
+  safeNextPath,
 } from "@/lib/app-url";
 
 describe("app-url", () => {
@@ -47,5 +48,13 @@ describe("app-url", () => {
   it("isLocalhostUrl detecta localhost", () => {
     expect(isLocalhostUrl("http://localhost:3000")).toBe(true);
     expect(isLocalhostUrl("https://judgetcg.com.br")).toBe(false);
+  });
+
+  it("safeNextPath bloqueia open redirect", () => {
+    expect(safeNextPath("/judge")).toBe("/judge");
+    expect(safeNextPath("/player/me")).toBe("/player/me");
+    expect(safeNextPath("//evil.com")).toBe("/judge");
+    expect(safeNextPath("https://evil.com")).toBe("/judge");
+    expect(safeNextPath(null)).toBe("/judge");
   });
 });

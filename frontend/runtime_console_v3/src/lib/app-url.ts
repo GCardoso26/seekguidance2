@@ -71,9 +71,16 @@ export function buildAppRedirectUrl(path = "/judge", fallbackOrigin?: string): s
   return `${base}${normalized}`;
 }
 
+/** Evita open redirect — só paths relativos internos. */
+export function safeNextPath(raw: string | null | undefined, fallback = "/judge"): string {
+  const next = (raw ?? fallback).trim();
+  if (!next.startsWith("/") || next.startsWith("//")) return fallback;
+  return next;
+}
+
 /** Callback Supabase PKCE no domínio actual da app. */
 export function buildOAuthCallbackUrl(nextPath = "/judge", fallbackOrigin?: string): string {
   const base = getAppUrl(fallbackOrigin);
-  const next = nextPath.startsWith("/") ? nextPath : `/${nextPath}`;
+  const next = safeNextPath(nextPath);
   return `${base}/auth/callback?next=${encodeURIComponent(next)}`;
 }

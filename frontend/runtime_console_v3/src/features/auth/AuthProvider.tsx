@@ -59,6 +59,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           console.warn("Migração de histórico falhou (não crítico):", err),
         );
       }
+      if (event === "SIGNED_IN" && nextSession?.user && typeof window !== "undefined") {
+        const pending = sessionStorage.getItem("oauth_next");
+        if (pending) {
+          sessionStorage.removeItem("oauth_next");
+          const path = window.location.pathname;
+          if (path === "/" || path === "/auth/callback") {
+            window.location.replace(pending.startsWith("/") ? pending : `/${pending}`);
+          }
+        }
+      }
     });
 
     return () => sub.subscription.unsubscribe();
@@ -67,8 +77,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signInWithGoogle = useCallback(
     async (path = "/judge") => {
       if (!supabase) return;
+      const nextPath = path.startsWith("/") ? path : `/${path}`;
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("oauth_next", nextPath);
+      }
       const origin = typeof window !== "undefined" ? window.location.origin : undefined;
-      const redirectTo = path.startsWith("http") ? path : buildOAuthCallbackUrl(path, origin);
+      const redirectTo = path.startsWith("http") ? path : buildOAuthCallbackUrl(nextPath, origin);
       await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
