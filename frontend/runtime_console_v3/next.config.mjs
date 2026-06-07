@@ -30,16 +30,10 @@ const securityHeaders = [
   { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
 ];
 
-import path from "path";
-import { fileURLToPath } from "url";
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
 const nextConfig = {
   reactStrictMode: true,
-  output: "standalone",
-  // Monorepo: evita warning de lockfile na raiz do tcg-judge
-  outputFileTracingRoot: path.join(__dirname, "../../"),
+  // Não usar output:standalone + outputFileTracingRoot na Vercel (Root Directory
+  // frontend/runtime_console_v3) — causa path doubling e ENOENT em routes-manifest.json.
   images: {
     dangerouslyAllowSVG: true,
     contentDispositionType: "attachment",
