@@ -1,6 +1,0 @@
-{
-  "scope": "v22-mv",
-  "trace_token": "trace-v22-mv",
-  "otlp_fallback": true,
-  "packaging": "stdlib-bundle"
-}

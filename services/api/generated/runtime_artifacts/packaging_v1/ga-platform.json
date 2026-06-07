@@ -1,6 +1,0 @@
-{
-  "scope": "ga-platform",
-  "trace_token": "trace-ga-platform",
-  "otlp_fallback": true,
-  "packaging": "stdlib-bundle"
-}

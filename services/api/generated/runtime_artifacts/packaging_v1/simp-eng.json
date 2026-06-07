@@ -1,6 +1,0 @@
-{
-  "scope": "simp-eng",
-  "trace_token": "trace-simp-eng",
-  "otlp_fallback": true,
-  "packaging": "stdlib-bundle"
-}

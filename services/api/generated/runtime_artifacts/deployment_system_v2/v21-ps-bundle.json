@@ -1,6 +1,0 @@
-{
-  "scope": "v21-ps",
-  "semver": "1.0.0",
-  "channel": "ga-candidate",
-  "rollback_ready": true
-}

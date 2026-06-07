@@ -1,8 +1,0 @@
-{
-  "gates": [
-    "cert",
-    "fed",
-    "deploy"
-  ],
-  "run_id": "ga30-ga-cicd2"
-}

@@ -1,6 +1,0 @@
-{
-  "scope": "ps-production_sustainability_summary_v1",
-  "semver": "1.0.0",
-  "channel": "ga-candidate",
-  "rollback_ready": true
-}

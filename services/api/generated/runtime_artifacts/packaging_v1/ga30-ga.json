@@ -1,6 +1,0 @@
-{
-  "scope": "ga30-ga",
-  "trace_token": "trace-ga30-ga",
-  "otlp_fallback": true,
-  "packaging": "stdlib-bundle"
-}

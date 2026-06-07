@@ -1,8 +1,0 @@
-{
-  "run_id": "run9",
-  "schema_hash": "2d1f26c728912f60",
-  "routes_ok": true,
-  "assistant_notes": [
-    "runtime_openapi_enforcement_v9: drift v9."
-  ]
-}

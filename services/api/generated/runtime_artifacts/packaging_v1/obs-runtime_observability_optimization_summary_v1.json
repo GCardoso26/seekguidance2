@@ -1,6 +1,0 @@
-{
-  "scope": "obs-runtime_observability_optimization_summary_v1",
-  "trace_token": "trace-obs-runtime_observability_optimization_summary_v1",
-  "otlp_fallback": true,
-  "packaging": "stdlib-bundle"
-}

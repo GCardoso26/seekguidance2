@@ -1,6 +1,0 @@
-{
-  "scope": "ga30-dep",
-  "semver": "1.0.0",
-  "channel": "ga-candidate",
-  "rollback_ready": true
-}

@@ -1,6 +1,0 @@
-{
-  "scope": "mv-sum",
-  "trace_token": "trace-mv-sum",
-  "otlp_fallback": true,
-  "packaging": "stdlib-bundle"
-}

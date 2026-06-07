@@ -1,6 +1,0 @@
-{
-  "scope": "mv-runtime_multiversion_summary_v1",
-  "trace_token": "trace-mv-runtime_multiversion_summary_v1",
-  "otlp_fallback": true,
-  "packaging": "stdlib-bundle"
-}

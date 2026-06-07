@@ -1,5 +1,0 @@
-{
-  "scope": "ga19-audit",
-  "retention_days": 90,
-  "filesystem": true
-}

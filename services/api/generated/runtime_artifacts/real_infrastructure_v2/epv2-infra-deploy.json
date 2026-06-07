@@ -1,5 +1,0 @@
-{
-  "scope": "epv2-infra",
-  "mode": "smoke",
-  "bootstrap": true
-}

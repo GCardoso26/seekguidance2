@@ -1,5 +1,0 @@
-{
-  "scope": "cp-runtime_control_plane_engine_v1",
-  "supervised": true,
-  "manual_intervention": "reduced"
-}

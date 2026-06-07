@@ -1,6 +1,0 @@
-{
-  "scope": "saut-runtime_sustainability_autotuning_engine_v1",
-  "trace_token": "trace-saut-runtime_sustainability_autotuning_engine_v1",
-  "otlp_fallback": true,
-  "packaging": "stdlib-bundle"
-}

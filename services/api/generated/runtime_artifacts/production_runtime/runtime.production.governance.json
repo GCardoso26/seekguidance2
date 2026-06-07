@@ -1,8 +1,0 @@
-{
-  "gates": [
-    "reliability",
-    "trust",
-    "fcp"
-  ],
-  "run_id": "ga30-ga-cicd3"
-}

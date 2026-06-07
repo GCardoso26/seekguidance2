@@ -1,6 +1,0 @@
-{
-  "scope": "ep18-obs",
-  "trace_token": "trace-ep18-obs",
-  "otlp_fallback": true,
-  "packaging": "stdlib-bundle"
-}

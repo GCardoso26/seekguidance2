@@ -1,6 +1,0 @@
-{
-  "scope": "v21-ops",
-  "trace_token": "trace-v21-ops",
-  "otlp_fallback": true,
-  "packaging": "stdlib-bundle"
-}

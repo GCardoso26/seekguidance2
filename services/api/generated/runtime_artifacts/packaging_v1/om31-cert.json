@@ -1,6 +1,0 @@
-{
-  "scope": "om31-cert",
-  "trace_token": "trace-om31-cert",
-  "otlp_fallback": true,
-  "packaging": "stdlib-bundle"
-}

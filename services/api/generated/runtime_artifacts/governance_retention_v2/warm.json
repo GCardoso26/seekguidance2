@@ -1,5 +1,0 @@
-{
-  "scope": "warm",
-  "retention_days": 90,
-  "filesystem": true
-}

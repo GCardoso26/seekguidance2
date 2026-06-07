@@ -1,5 +1,0 @@
-{
-  "scope": "dres-runtime_distributed_resilience_engine_v1",
-  "distributed": true,
-  "healing": true
-}

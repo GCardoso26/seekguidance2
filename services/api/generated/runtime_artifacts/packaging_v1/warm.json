@@ -1,6 +1,0 @@
-{
-  "scope": "warm",
-  "trace_token": "trace-warm",
-  "otlp_fallback": true,
-  "packaging": "stdlib-bundle"
-}

@@ -1,7 +1,0 @@
-{
-  "assistant_notes": [
-    "schema.snapshot.vnext: contrato congelado para diff CI."
-  ],
-  "openapi_path": "openapi\\openapi.runtime.vnext.json",
-  "schema_hash": "2d1f26c728912f60"
-}

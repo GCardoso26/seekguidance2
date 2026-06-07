@@ -1,6 +1,0 @@
-{
-  "scope": "ga19-art",
-  "semver": "1.0.0",
-  "channel": "ga-candidate",
-  "rollback_ready": true
-}

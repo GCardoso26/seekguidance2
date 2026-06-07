@@ -1,5 +1,0 @@
-{
-  "scope": "epv2-pilot",
-  "retention_days": 90,
-  "filesystem": true
-}

@@ -1,6 +1,0 @@
-{
-  "scope": "pcv1-cons",
-  "trace_token": "trace-pcv1-cons",
-  "otlp_fallback": true,
-  "packaging": "stdlib-bundle"
-}

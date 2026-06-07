@@ -1,6 +1,0 @@
-{
-  "scope": "ps-sum",
-  "trace_token": "trace-ps-sum",
-  "otlp_fallback": true,
-  "packaging": "stdlib-bundle"
-}

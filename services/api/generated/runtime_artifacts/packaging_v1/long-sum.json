@@ -1,6 +1,0 @@
-{
-  "scope": "long-sum",
-  "trace_token": "trace-long-sum",
-  "otlp_fallback": true,
-  "packaging": "stdlib-bundle"
-}

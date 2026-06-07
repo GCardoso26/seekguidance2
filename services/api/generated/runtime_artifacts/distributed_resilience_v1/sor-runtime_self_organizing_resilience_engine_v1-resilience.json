@@ -1,5 +1,0 @@
-{
-  "scope": "sor-runtime_self_organizing_resilience_engine_v1",
-  "resilience": "distributed",
-  "fabric": true
-}

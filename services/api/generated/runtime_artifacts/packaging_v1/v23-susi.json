@@ -1,6 +1,0 @@
-{
-  "scope": "v23-susi",
-  "trace_token": "trace-v23-susi",
-  "otlp_fallback": true,
-  "packaging": "stdlib-bundle"
-}

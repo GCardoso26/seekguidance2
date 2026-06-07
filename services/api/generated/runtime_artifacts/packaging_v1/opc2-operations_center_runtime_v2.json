@@ -1,6 +1,0 @@
-{
-  "scope": "opc2-operations_center_runtime_v2",
-  "trace_token": "trace-opc2-operations_center_runtime_v2",
-  "otlp_fallback": true,
-  "packaging": "stdlib-bundle"
-}

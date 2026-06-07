@@ -1,6 +1,0 @@
-{
-  "scope": "rpo-runtime_real_operations_summary_v1",
-  "trace_token": "trace-rpo-runtime_real_operations_summary_v1",
-  "otlp_fallback": true,
-  "packaging": "stdlib-bundle"
-}

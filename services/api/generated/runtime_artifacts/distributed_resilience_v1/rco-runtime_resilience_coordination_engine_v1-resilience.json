@@ -1,5 +1,0 @@
-{
-  "scope": "rco-runtime_resilience_coordination_engine_v1",
-  "resilience": "distributed",
-  "fabric": true
-}

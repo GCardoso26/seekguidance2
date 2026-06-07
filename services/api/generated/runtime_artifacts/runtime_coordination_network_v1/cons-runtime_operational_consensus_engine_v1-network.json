@@ -1,5 +1,0 @@
-{
-  "scope": "cons-runtime_operational_consensus_engine_v1",
-  "network": true,
-  "coordination": "adaptive"
-}

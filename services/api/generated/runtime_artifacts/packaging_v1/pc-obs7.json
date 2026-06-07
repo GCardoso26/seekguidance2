@@ -1,6 +1,0 @@
-{
-  "scope": "pc-obs7",
-  "trace_token": "trace-pc-obs7",
-  "otlp_fallback": true,
-  "packaging": "stdlib-bundle"
-}

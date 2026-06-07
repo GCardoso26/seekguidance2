@@ -1,6 +1,0 @@
-{
-  "scope": "epv2-cons",
-  "trace_token": "trace-epv2-cons",
-  "otlp_fallback": true,
-  "packaging": "stdlib-bundle"
-}
