@@ -1,0 +1,22 @@
+# Dispara deploy na Vercel sem depender do autor Git (evita bloqueio Co-authored-by Cursor no Hobby).
+# Configurar: Vercel → Project → Settings → Git → Deploy Hooks → criar hook Production
+# GitHub → repo → Settings → Secrets → VERCEL_DEPLOY_HOOK = URL do hook
+
+name: Vercel Deploy Hook
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "frontend/runtime_console_v3/**"
+      - ".github/workflows/vercel-deploy-hook.yml"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ secrets.VERCEL_DEPLOY_HOOK != '' }}
+    steps:
+      - name: Trigger Vercel production deploy
+        run: curl -fsS -X POST "$VERCEL_DEPLOY_HOOK"
+        env:
+          VERCEL_DEPLOY_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}

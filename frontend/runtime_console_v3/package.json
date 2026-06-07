@@ -8,7 +8,8 @@
     "start": "next start -p 3000",
     "lint": "eslint src tests",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "deploy:vercel": "vercel --prod"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.4",
