@@ -14,7 +14,6 @@ from app.tcg_adapters.types import (
 )
 from app.tcg_adapters.validation import (
     build_result,
-    count_by_name,
     count_cards,
     validate_banlist,
     validate_copies,

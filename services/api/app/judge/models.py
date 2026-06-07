@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from datetime import datetime
 from enum import Enum
-from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
@@ -37,20 +36,20 @@ class RulingCategory(str, Enum):
 
 class JudgeCallCreate(BaseModel):
     tournament_id: str
-    round_id: Optional[str] = None
+    round_id: str | None = None
     table_number: int = Field(..., ge=1)
     type: CallType
     priority: Priority = Priority.MEDIUM
     description: str = Field(..., min_length=3)
-    evidence_urls: Optional[List[str]] = None
+    evidence_urls: list[str] | None = None
 
 
 class JudgeCallResolve(BaseModel):
     ruling: str = Field(..., min_length=1)
     ruling_category: RulingCategory
-    infracting_player_id: Optional[str] = None
-    infraction_type: Optional[str] = None
-    severity: Optional[str] = None
+    infracting_player_id: str | None = None
+    infraction_type: str | None = None
+    severity: str | None = None
 
 
 class EscalationData(BaseModel):
@@ -60,24 +59,24 @@ class EscalationData(BaseModel):
 class JudgeCallResponse(BaseModel):
     id: str
     tournament_id: str
-    round_id: Optional[str] = None
+    round_id: str | None = None
     table_number: int
-    caller_id: Optional[str] = None
+    caller_id: str | None = None
     type: str
     priority: str
     status: str
     description: str
-    evidence_urls: List[str] = Field(default_factory=list)
-    assigned_judge_id: Optional[str] = None
-    ruling: Optional[str] = None
-    ruling_category: Optional[str] = None
+    evidence_urls: list[str] = Field(default_factory=list)
+    assigned_judge_id: str | None = None
+    ruling: str | None = None
+    ruling_category: str | None = None
     created_at: datetime
-    assigned_at: Optional[datetime] = None
-    resolved_at: Optional[datetime] = None
-    tournament_name: Optional[str] = None
-    tournament_game_code: Optional[str] = None
-    caller_handle: Optional[str] = None
-    round_number: Optional[int] = None
+    assigned_at: datetime | None = None
+    resolved_at: datetime | None = None
+    tournament_name: str | None = None
+    tournament_game_code: str | None = None
+    caller_handle: str | None = None
+    round_number: int | None = None
 
     model_config = {"from_attributes": True}
 
@@ -89,4 +88,4 @@ class JudgeCertificationResponse(BaseModel):
     level: str
     status: str
     certified_at: datetime
-    expires_at: Optional[datetime] = None
+    expires_at: datetime | None = None

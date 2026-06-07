@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from datetime import datetime
 from typing import Any
-from uuid import UUID
 
 from app.api.deps import DbSession
 from app.tcg_adapters.registry import GAME_CODE_TO_SLUG, get_adapter, list_tournament_games, normalize_game_code

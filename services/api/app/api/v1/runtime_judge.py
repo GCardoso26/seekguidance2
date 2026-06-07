@@ -12,6 +12,8 @@ import structlog
 from app.api.deps import DbSession, get_rag_orchestrator
 from app.application.rag_orchestrator import RagOrchestrator
 from app.core.config import get_settings
+from app.core.security.deps import optional_auth
+from app.core.security.rbac import has_permission
 from app.judge.catalog import judge_health_payload, list_judge_games
 from app.judge.growth_metrics import record_growth_metric
 from app.judge.observability import judge_quality_payload
@@ -42,8 +44,6 @@ from app.runtime_judge_semantic_cache.cache import (
     get_semantic_cache,
 )
 from app.schemas.chat import ChatRequest
-from app.core.security.deps import optional_auth
-from app.core.security.rbac import has_permission
 from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field

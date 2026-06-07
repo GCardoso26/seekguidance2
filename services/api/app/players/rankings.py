@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Any
-
 TIER_THRESHOLDS: list[tuple[str, int]] = [
     ("Legend", 3000),
     ("Mythic", 2500),

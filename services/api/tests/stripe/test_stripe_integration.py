@@ -7,11 +7,12 @@ from datetime import UTC, datetime, timedelta
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-import stripe
 from app.core.config import Settings, get_settings
 from app.infrastructure.db.session import get_db_session
 from app.main import app
 from fastapi.testclient import TestClient
+
+import stripe
 
 client = TestClient(app)
 

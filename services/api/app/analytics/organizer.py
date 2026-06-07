@@ -54,7 +54,10 @@ async def organizer_dashboard(
                 """
                 SELECT COALESCE(t.game_code, 'UNKNOWN') AS game_code,
                        COUNT(*) AS tournaments,
-                       SUM((SELECT COUNT(*) FROM tcg_judge.tournament_participants tp WHERE tp.tournament_id = t.id)) AS participants
+                       SUM((
+                         SELECT COUNT(*) FROM tcg_judge.tournament_participants tp
+                         WHERE tp.tournament_id = t.id
+                       )) AS participants
                 FROM tcg_judge.tournaments t
                 WHERE t.created_by = :oid AND t.created_at >= :since
                 GROUP BY t.game_code
@@ -70,7 +73,8 @@ async def organizer_dashboard(
             text(
                 """
                 SELECT t.id, t.name, t.game_code, t.starts_at, t.max_players,
-                  (SELECT COUNT(*) FROM tcg_judge.tournament_participants tp WHERE tp.tournament_id = t.id) AS registered
+                  (SELECT COUNT(*) FROM tcg_judge.tournament_participants tp
+                   WHERE tp.tournament_id = t.id) AS registered
                 FROM tcg_judge.tournaments t
                 WHERE t.created_by = :oid AND t.status NOT IN ('finalized', 'cancelled')
                 ORDER BY t.starts_at NULLS LAST

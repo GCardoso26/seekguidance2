@@ -47,7 +47,7 @@ class TestLorcanaAdapter:
     def test_lorcana_exact_60(self):
         raw = "1 Mickey Mouse\n" + "\n".join(f"1 Card {i}" for i in range(59))
         deck = self.adapter.parse_decklist(raw, "CONSTRUCTED")
-        result = self.adapter.validate_decklist(deck)
+        self.adapter.validate_decklist(deck)
         assert count_cards(deck.main_deck) == 60
 
 
@@ -57,5 +57,5 @@ class TestSwuAdapter:
     def test_swu_validation_60_cards(self):
         raw = "\n".join(f"1 Unit {i % 10}" for i in range(60))
         deck = self.adapter.parse_decklist(raw, "STANDARD")
-        result = self.adapter.validate_decklist(deck)
+        self.adapter.validate_decklist(deck)
         assert count_cards(deck.main_deck) == 60

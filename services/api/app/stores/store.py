@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 import re
 from typing import Any
 
@@ -141,7 +140,8 @@ async def get_store_tournaments(session: AsyncSession, store_id: str, limit: int
             text(
                 """
                 SELECT t.*,
-                  (SELECT COUNT(*) FROM tcg_judge.tournament_participants tp WHERE tp.tournament_id = t.id) AS registered
+                  (SELECT COUNT(*) FROM tcg_judge.tournament_participants tp
+                   WHERE tp.tournament_id = t.id) AS registered
                 FROM tcg_judge.tournaments t
                 WHERE t.store_id = :sid OR t.created_by = (SELECT owner_id FROM tcg_judge.stores WHERE id = :sid)
                 ORDER BY t.starts_at DESC NULLS LAST

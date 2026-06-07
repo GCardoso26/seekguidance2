@@ -25,7 +25,10 @@ _LORCANA_RULINGS = [
         "title": "Bodyguard vs Evasive",
         "description": "Personagem com Bodyguard e Evasive exertado. Oponente sem Evasive tenta desafiar.",
         "question": "O oponente é obrigado a desafiar o Bodyguard mesmo sem ter Evasive?",
-        "answer": "Não. Evasive previne o desafio. Bodyguard diz 'se puder', e como Evasive impede o desafio, a condição não é satisfeita.",
+        "answer": (
+            "Não. Evasive previne o desafio. Bodyguard diz 'se puder', "
+            "e como Evasive impede o desafio, a condição não é satisfeita."
+        ),
         "keywords_involved": ["bodyguard", "evasive"],
         "hierarchy": "official",
         "status": "approved",
@@ -37,7 +40,10 @@ _LORCANA_RULINGS = [
         "title": "Shift em personagem com dano",
         "description": "Jogador usa Shift para colocar personagem sobre outro com marcadores de dano.",
         "question": "O dano permanece após Shift?",
-        "answer": "Não. O personagem anterior deixa de existir; o novo entra sem marcadores de dano, salvo efeito que diga o contrário.",
+        "answer": (
+            "Não. O personagem anterior deixa de existir; o novo entra sem marcadores "
+            "de dano, salvo efeito que diga o contrário."
+        ),
         "keywords_involved": ["shift", "damage"],
         "hierarchy": "official",
         "status": "approved",

@@ -75,8 +75,14 @@ class MtgAdapter(GameAdapter):
 
     def supported_formats(self) -> list[TournamentFormatConfig]:
         return [
-            TournamentFormatConfig("STANDARD", "Standard", "Formato Standard DCI", True, True, 50, "BO3", "auto", 8, 4, 512),
-            TournamentFormatConfig("PIONEER", "Pioneer", "Sets de Ravnica em diante", True, True, 50, "BO3", "auto", 8, 4, 512),
+            TournamentFormatConfig(
+                "STANDARD", "Standard", "Formato Standard DCI",
+                True, True, 50, "BO3", "auto", 8, 4, 512,
+            ),
+            TournamentFormatConfig(
+                "PIONEER", "Pioneer", "Sets de Ravnica em diante",
+                True, True, 50, "BO3", "auto", 8, 4, 512,
+            ),
             TournamentFormatConfig("MODERN", "Modern", "Formato Modern", True, True, 50, "BO3", "auto", 8, 4, 512),
             TournamentFormatConfig("DRAFT", "Draft", "3 rodadas + Top 4", False, False, 50, "BO3", "3", 4, 4, 32),
             TournamentFormatConfig("SEALED", "Sealed", "Sealed Deck", False, False, 50, "BO3", "auto", 8, 4, 512),

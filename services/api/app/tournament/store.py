@@ -2,14 +2,13 @@
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
 from typing import Any
-from uuid import uuid4
+
+from sqlalchemy import text
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.tournament.engine.swiss import recommended_swiss_rounds
 from app.tournament.types import PairingRecord, Participant
-from sqlalchemy import text
-from sqlalchemy.ext.asyncio import AsyncSession
 
 
 async def ensure_judge_profile(session: AsyncSession, user_id: str, display_name: str | None = None) -> None:

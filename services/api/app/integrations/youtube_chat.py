@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Any
-
 
 class YouTubeChatBot:
     async def connect(self, live_chat_id: str) -> None:

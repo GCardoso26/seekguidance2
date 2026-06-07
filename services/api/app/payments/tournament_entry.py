@@ -2,15 +2,16 @@
 
 from __future__ import annotations
 
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 from typing import Any
 
-import stripe
 from app.core.config import get_settings
 from app.judge.stripe_service import stripe_enabled
 from fastapi import HTTPException
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
+
+import stripe
 
 PLATFORM_FEE_PERCENT = 5
 

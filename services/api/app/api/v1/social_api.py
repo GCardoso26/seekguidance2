@@ -8,7 +8,7 @@ from typing import Any
 from app.api.deps import DbSession
 from app.api.v1.tournament_system import _require_user
 from app.social import communities, friendships, messages
-from fastapi import APIRouter, Header, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, Header, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel, Field
 
 router = APIRouter(tags=["social"])

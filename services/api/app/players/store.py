@@ -3,13 +3,13 @@
 from __future__ import annotations
 
 import re
-from datetime import UTC, datetime
 from typing import Any
+
+from sqlalchemy import text
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.players.achievements import codes_to_unlock
 from app.players.rankings import calculate_tournament_points, tier_from_points
-from sqlalchemy import text
-from sqlalchemy.ext.asyncio import AsyncSession
 
 HANDLE_RE = re.compile(r"^[a-zA-Z0-9_]{3,30}$")
 
@@ -107,7 +107,10 @@ async def update_profile(session: AsyncSession, user_id: str, fields: dict[str, 
         return prof or {}
     row = (
         await session.execute(
-            text(f"UPDATE tcg_judge.player_profiles SET {', '.join(sets)}, updated_at = NOW() WHERE id = :id RETURNING *"),
+            text(
+                f"UPDATE tcg_judge.player_profiles SET {', '.join(sets)}, "
+                "updated_at = NOW() WHERE id = :id RETURNING *"
+            ),
             params,
         )
     ).mappings().first()
@@ -199,7 +202,13 @@ async def record_tournament_finalization(
     for row in standings:
         part = (
             await session.execute(
-                text("SELECT user_id, match_wins, match_losses, match_draws, game_wins, game_losses, status FROM tcg_judge.tournament_participants WHERE id = :pid"),
+                text(
+                    """
+                    SELECT user_id, match_wins, match_losses, match_draws,
+                           game_wins, game_losses, status
+                    FROM tcg_judge.tournament_participants WHERE id = :pid
+                    """
+                ),
                 {"pid": row["participantId"]},
             )
         ).mappings().first()
@@ -281,10 +290,21 @@ async def record_tournament_finalization(
                   matches_drawn = player_game_stats.matches_drawn + :md,
                   game_wins = player_game_stats.game_wins + :gw,
                   game_losses = player_game_stats.game_losses + :gl,
-                  best_finish_placement = LEAST(COALESCE(player_game_stats.best_finish_placement, 9999), :place),
-                  best_finish_tournament_id = CASE WHEN :place < COALESCE(player_game_stats.best_finish_placement, 9999) THEN :tid::uuid ELSE player_game_stats.best_finish_tournament_id END,
-                  win_streak = CASE WHEN :won_inc = 1 THEN player_game_stats.win_streak + 1 ELSE 0 END,
-                  max_win_streak = GREATEST(player_game_stats.max_win_streak, CASE WHEN :won_inc = 1 THEN player_game_stats.win_streak + 1 ELSE 0 END),
+                  best_finish_placement = LEAST(
+                    COALESCE(player_game_stats.best_finish_placement, 9999), :place
+                  ),
+                  best_finish_tournament_id = CASE
+                    WHEN :place < COALESCE(player_game_stats.best_finish_placement, 9999)
+                    THEN :tid::uuid
+                    ELSE player_game_stats.best_finish_tournament_id
+                  END,
+                  win_streak = CASE
+                    WHEN :won_inc = 1 THEN player_game_stats.win_streak + 1 ELSE 0
+                  END,
+                  max_win_streak = GREATEST(
+                    player_game_stats.max_win_streak,
+                    CASE WHEN :won_inc = 1 THEN player_game_stats.win_streak + 1 ELSE 0 END
+                  ),
                   updated_at = NOW()
                 """
             ),
@@ -318,7 +338,9 @@ async def record_tournament_finalization(
             await session.execute(
                 text(
                     """
-                    INSERT INTO tcg_judge.player_rankings (player_id, game_code, format, points, matches_played, last_tournament_at)
+                    INSERT INTO tcg_judge.player_rankings (
+                      player_id, game_code, format, points, matches_played, last_tournament_at
+                    )
                     VALUES (:pid, :gc, :fc, :pts, 1, NOW())
                     ON CONFLICT (player_id, game_code, format) DO UPDATE SET
                       points = player_rankings.points + :pts,
@@ -335,7 +357,11 @@ async def record_tournament_finalization(
         tier, division = tier_from_points(total_pts)
         await session.execute(
             text(
-                "UPDATE tcg_judge.player_rankings SET tier = :tier, division = :div WHERE player_id = :pid AND game_code = :gc AND format = :fc"
+                """
+                UPDATE tcg_judge.player_rankings
+                SET tier = :tier, division = :div
+                WHERE player_id = :pid AND game_code = :gc AND format = :fc
+                """
             ),
             {"tier": tier, "div": division, "pid": user_id, "gc": game_code, "fc": format_code},
         )

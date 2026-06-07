@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from app.tournament.types import BYE_OPPONENT_MWP, MATCH_DRAW_POINTS, MATCH_WIN_POINTS, Participant, PairingRecord
+from app.tournament.types import MATCH_DRAW_POINTS, MATCH_WIN_POINTS, PairingRecord, Participant
 
 
 def match_win_percent(participant: Participant) -> float:

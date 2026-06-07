@@ -45,7 +45,12 @@ async def create_webhook(
 async def list_webhooks(session: AsyncSession, owner_id: str) -> list[dict[str, Any]]:
     rows = (
         await session.execute(
-            text("SELECT id, url, events, active, last_delivery_at, last_error FROM tcg_judge.webhooks WHERE owner_id = :oid"),
+            text(
+                """
+                SELECT id, url, events, active, last_delivery_at, last_error
+                FROM tcg_judge.webhooks WHERE owner_id = :oid
+                """
+            ),
             {"oid": owner_id},
         )
     ).mappings().all()

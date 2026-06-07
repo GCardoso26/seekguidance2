@@ -6,7 +6,6 @@ import os
 
 from app.core.config import Settings, get_settings
 
-
 PRODUCTION_REQUIRED = [
     "STRIPE_SECRET_KEY",
     "REDIS_URL",

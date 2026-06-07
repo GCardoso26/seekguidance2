@@ -2,9 +2,8 @@
 
 from __future__ import annotations
 
-import pytest
-from app.tcg_adapters.mtg import MtgAdapter
 from app.tcg_adapters.lorcana import LorcanaAdapter
+from app.tcg_adapters.mtg import MtgAdapter
 from app.tcg_adapters.pokemon import PokemonAdapter
 from app.tcg_adapters.registry import get_adapter, list_tournament_games, normalize_game_code
 from app.tcg_adapters.swu import SwuAdapter
@@ -65,7 +64,7 @@ class TestPokemonAdapter:
         assert count_cards(deck.main_deck) == 24
 
     def test_energy_ilimitada_nao_dispara_too_many_copies(self):
-        raw = "\n".join(["4 Pikachu"] + [f"4 Lightning Energy" for _ in range(14)])
+        raw = "\n".join(["4 Pikachu"] + ["4 Lightning Energy" for _ in range(14)])
         deck = self.adapter.parse_decklist(raw, "STANDARD")
         assert count_cards(deck.main_deck) == 60
         result = self.adapter.validate_decklist(deck)
@@ -99,7 +98,7 @@ class TestSwuAdapter:
     adapter = SwuAdapter()
 
     def test_50_cartas_3_copias(self):
-        raw = "\n".join(f"3 Card {i % 17}" for i in range(17))  # 51 cards worth of lines - need exactly 50
+        "\n".join(f"3 Card {i % 17}" for i in range(17))  # 51 cards worth of lines - need exactly 50
         # 17 lines * 3 = 51, adjust
         lines = []
         total = 0

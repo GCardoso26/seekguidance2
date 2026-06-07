@@ -11,7 +11,7 @@ from app.api.deps import DbSession
 from app.api.deps_admin import require_admin
 from app.jobs.card_sync import run_card_sync
 from app.notifications.service import notification_service
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from sqlalchemy import text
 

@@ -4,11 +4,11 @@ from __future__ import annotations
 
 from typing import Any
 
-from app.tournament.flow import get_standings
-from app.tournament.store import get_tournament, list_pairings_for_round, list_participants
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.tournament.flow import get_standings
+from app.tournament.store import get_tournament, list_pairings_for_round, list_participants
 from app.tournament.timer import RoundTimer
 
 

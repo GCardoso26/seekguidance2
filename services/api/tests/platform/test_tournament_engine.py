@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import random
 
-import pytest
 from app.tournament.engine.bracket import BracketEngine
 from app.tournament.engine.swiss import SwissEngine, recommended_swiss_rounds
 from app.tournament.engine.tiebreakers import (

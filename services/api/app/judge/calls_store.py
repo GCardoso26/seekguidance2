@@ -64,7 +64,7 @@ async def create_call(session: AsyncSession, data: dict[str, Any]) -> dict[str, 
     row = (
         await session.execute(
             text(
-                f"""
+                """
                 INSERT INTO tcg_judge.judge_calls (
                   tournament_id, round_id, table_number,
                   caller_id, caller_participant_id,

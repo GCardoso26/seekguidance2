@@ -5,7 +5,6 @@ from __future__ import annotations
 from typing import Any
 
 import structlog
-import stripe
 from app.api.deps import DbSession, SettingsDep
 from app.judge.analytics_events import record_analytics_events
 from app.judge.stripe_service import (
@@ -24,7 +23,9 @@ from app.judge.stripe_service import (
 )
 from fastapi import APIRouter, Header, HTTPException, Request
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
+
+import stripe
 
 logger = structlog.get_logger(__name__)
 router = APIRouter(tags=["stripe-billing"])

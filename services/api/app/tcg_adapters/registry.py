@@ -42,4 +42,11 @@ def list_tournament_games() -> list[dict[str, str]]:
     return list(_TOURNAMENT_GAMES)
 
 
-__all__ = ["GAME_CODE_TO_SLUG", "SLUG_TO_GAME_CODE", "TOURNAMENT_GAME_CODES", "get_adapter", "list_tournament_games", "normalize_game_code"]
+__all__ = [
+    "GAME_CODE_TO_SLUG",
+    "SLUG_TO_GAME_CODE",
+    "TOURNAMENT_GAME_CODES",
+    "get_adapter",
+    "list_tournament_games",
+    "normalize_game_code",
+]

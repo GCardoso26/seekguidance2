@@ -4,6 +4,10 @@ from __future__ import annotations
 
 from typing import Any
 
+from fastapi import HTTPException
+from sqlalchemy import text
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.tournament.engine.bracket import BracketEngine
 from app.tournament.engine.swiss import SwissEngine
 from app.tournament.engine.tiebreakers import apply_match_result, recalculate_tiebreakers, sort_standings
@@ -13,7 +17,6 @@ from app.tournament.store import (
     complete_round,
     confirm_pairing_result,
     create_round,
-    dispute_pairing_result,
     get_pairing,
     get_round,
     get_tournament,
@@ -30,9 +33,6 @@ from app.tournament.store import (
 )
 from app.tournament.timer import RoundTimer
 from app.tournament.types import PairingRecord
-from fastapi import HTTPException
-from sqlalchemy import text
-from sqlalchemy.ext.asyncio import AsyncSession
 
 _swiss = SwissEngine()
 _bracket = BracketEngine()
@@ -150,7 +150,11 @@ async def extend_round_timer(
 
     await session.execute(
         text(
-            "UPDATE tcg_judge.tournament_rounds SET timer_extensions_seconds = timer_extensions_seconds + :ext WHERE id = :id"
+            """
+            UPDATE tcg_judge.tournament_rounds
+            SET timer_extensions_seconds = timer_extensions_seconds + :ext
+            WHERE id = :id
+            """
         ),
         {"ext": minutes * 60, "id": str(round_row["id"])},
     )
@@ -197,7 +201,7 @@ async def report_result(
         raise HTTPException(404, "Pairing não encontrado")
 
     participants = await list_participants(session, tournament_id)
-    pmap = {p.id: p for p in participants}
+    {p.id: p for p in participants}
     reporter = next((p for p in participants if p.user_id == reporter_user_id), None)
     if not reporter:
         raise HTTPException(403, "Não inscrito neste torneio")

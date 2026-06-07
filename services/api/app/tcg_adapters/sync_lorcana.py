@@ -5,8 +5,9 @@ from __future__ import annotations
 from typing import Any
 
 import httpx
-from app.tcg_adapters.sync_common import normalize_name, upsert_card
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.tcg_adapters.sync_common import normalize_name, upsert_card
 
 LORCANA_API = "https://api.lorcana-api.com/bulk/cards"
 

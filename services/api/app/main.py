@@ -5,28 +5,28 @@ import structlog
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.v1.admin_api import router as admin_api_router
 from app.api.v1.judge_assistant import router as judge_assistant_router
 from app.api.v1.judge_calls_api import router as judge_calls_router
-from app.api.v1.stripe_billing import router as stripe_billing_router
-from app.api.v1.admin_api import router as admin_api_router
+from app.api.v1.judge_product import router as judge_product_router
 from app.api.v1.leagues_api import router as leagues_api_router
-from app.api.v1.players_ecosystem import router as players_ecosystem_router
 from app.api.v1.marketplace_api import router as marketplace_api_router
 from app.api.v1.overlay_api import router as overlay_api_router
+from app.api.v1.players_ecosystem import router as players_ecosystem_router
 from app.api.v1.public_api_v1 import router as public_api_v1_router
 from app.api.v1.reviews_api import router as reviews_api_router
-from app.api.v1.social_api import router as social_api_router
-from app.api.v1.sponsorships_api import router as sponsorships_api_router
-from app.api.v1.stores_api import router as stores_api_router
-from app.api.v1.tournament_flow import router as tournament_flow_router
-from app.api.v1.tournament_system import router as tournament_system_router
-from app.api.v1.judge_product import router as judge_product_router
 from app.api.v1.router import api_router
 from app.api.v1.runtime_deployments import router as runtime_deployments_router
 from app.api.v1.runtime_ingestion_admin import router as runtime_ingestion_admin_router
 from app.api.v1.runtime_judge import router as runtime_judge_router
 from app.api.v1.runtime_minimal import router as runtime_minimal_router
 from app.api.v1.runtime_operational import router as runtime_operational_router
+from app.api.v1.social_api import router as social_api_router
+from app.api.v1.sponsorships_api import router as sponsorships_api_router
+from app.api.v1.stores_api import router as stores_api_router
+from app.api.v1.stripe_billing import router as stripe_billing_router
+from app.api.v1.tournament_flow import router as tournament_flow_router
+from app.api.v1.tournament_system import router as tournament_system_router
 from app.core.config import get_settings
 from app.core.logging import configure_logging
 from app.core.rate_limit import allow_request, build_rate_limit_response, client_key

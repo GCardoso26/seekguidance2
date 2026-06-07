@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from unittest.mock import patch
 
-from app.tournament.timer import RoundTimer, _MEMORY_TIMERS
+from app.tournament.timer import _MEMORY_TIMERS, RoundTimer
 
 
 class TestRoundTimer:
