@@ -3,6 +3,12 @@ import { NextResponse, type NextRequest } from "next/server";
 import { buildAppRedirectUrl, getRequestOrigin, safeNextPath } from "@/lib/app-url";
 import { assertAnonSupabaseKey } from "@/lib/supabase/key-guard";
 
+type CookieToSet = {
+  name: string;
+  value: string;
+  options?: Parameters<NextResponse["cookies"]["set"]>[2];
+};
+
 export async function GET(request: NextRequest) {
   const requestOrigin = getRequestOrigin(request);
   const code = request.nextUrl.searchParams.get("code");
@@ -27,7 +33,7 @@ export async function GET(request: NextRequest) {
       getAll() {
         return request.cookies.getAll();
       },
-      setAll(cookiesToSet) {
+      setAll(cookiesToSet: CookieToSet[]) {
         cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
         cookiesToSet.forEach(({ name, value, options }) =>
           supabaseResponse.cookies.set(name, value, options),
