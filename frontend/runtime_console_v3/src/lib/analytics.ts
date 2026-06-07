@@ -22,9 +22,17 @@ export type EngagementEvent =
   | "favorite_saved"
   | "game_changed"
   | "search_used"
-  | "history_opened";
+  | "history_opened"
+  | "tournament_create_started"
+  | "tournament_created";
 
-export type AnalyticsEventName = MonetizationEvent | EngagementEvent;
+export type JudgeAssistantEvent =
+  | "report_created"
+  | "report_resolved"
+  | "ruling_applied"
+  | "deck_validated";
+
+export type AnalyticsEventName = MonetizationEvent | EngagementEvent | JudgeAssistantEvent;
 
 export type UserTier = "free" | "pro" | "team";
 

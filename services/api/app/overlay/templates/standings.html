@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <style>
+    body { margin: 0; background: transparent; font-family: 'Segoe UI', sans-serif; }
+    .overlay { width: 400px; background: rgba(0,0,0,0.82); color: white; padding: 16px; border-radius: 8px; }
+    .header { font-size: 18px; font-weight: bold; margin-bottom: 12px; color: #3b82f6; }
+    .standing { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .rank { width: 30px; color: #fbbf24; }
+    .player { flex: 1; }
+    .points { width: 50px; text-align: right; }
+  </style>
+</head>
+<body>
+  <div class="overlay">
+    <div class="header" id="tournamentName">Carregando...</div>
+    <div id="standings"></div>
+  </div>
+  <script>
+    const params = new URLSearchParams(location.search);
+    const tournamentId = params.get('id') || location.pathname.split('/').pop();
+    const apiBase = params.get('api') || (location.origin.replace(':3000', ':8000'));
+    const wsUrl = (apiBase.replace('http', 'ws')) + '/overlay/ws/' + tournamentId;
+
+    function render(data) {
+      document.getElementById('tournamentName').textContent =
+        (data.tournament?.name || 'Torneio') + ' — ' + (data.tournament?.round || '');
+      document.getElementById('standings').innerHTML = (data.standings || []).map(s =>
+        `<div class="standing"><span class="rank">#${s.rank}</span><span class="player">${s.player}</span><span class="points">${s.points} pts</span></div>`
+      ).join('');
+    }
+
+    try {
+      const ws = new WebSocket(wsUrl);
+      ws.onmessage = (e) => render(JSON.parse(e.data));
+    } catch {
+      setInterval(async () => {
+        const res = await fetch(apiBase + '/overlay/' + tournamentId + '/standings');
+        render(await res.json());
+      }, 3000);
+    }
+  </script>
+</body>
+</html>

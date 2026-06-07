@@ -23,6 +23,7 @@ _PUBLIC_EXACT = frozenset(
         "/runtime/judge/health",
         "/runtime/judge/me",
         "/runtime/judge/games",
+        "/runtime/judge/stripe/webhook",
         "/runtime/warmup",
         "/v1/replay/health",
         "/auth/login",

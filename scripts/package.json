@@ -1,0 +1,14 @@
+{
+  "name": "judge-tcg-stripe-setup",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Automação de setup Stripe para Judge TCG",
+  "scripts": {
+    "setup:stripe:test": "node setup-stripe.js --env=test",
+    "setup:stripe:live": "node setup-stripe.js --env=live",
+    "test:webhooks": "node test-webhooks.js"
+  },
+  "dependencies": {
+    "stripe": "^15.12.0"
+  }
+}

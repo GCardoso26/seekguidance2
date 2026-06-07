@@ -231,6 +231,17 @@ class Settings(BaseSettings):
     cost_governance_monthly_budget_usd: float | None = None
     branch_entropy_emergency_cap: float | None = None
 
+    # Stripe (opcional — checkout desativado se vazio)
+    stripe_secret_key: str | None = None
+    stripe_webhook_secret: str | None = None
+    stripe_price_monthly_spike: str | None = None
+    stripe_price_annual_spike: str | None = None
+    stripe_price_monthly_team: str | None = None
+    stripe_price_annual_team: str | None = None
+    stripe_trial_days: int = 14
+    stripe_checkout_success_url: str | None = None
+    stripe_checkout_cancel_url: str | None = None
+
 
 @lru_cache
 def get_settings() -> Settings:

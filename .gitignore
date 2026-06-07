@@ -22,6 +22,8 @@ htmlcov/
 .env
 .env.*
 !.env.example
+scripts/node_modules/
+scripts/output/
 !.env.production.example
 !.env.supabase.example
 

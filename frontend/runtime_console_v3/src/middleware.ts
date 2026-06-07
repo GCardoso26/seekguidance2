@@ -23,5 +23,11 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/observability/:path*", "/admin/:path*", "/ingestion/:path*"],
+  matcher: [
+    "/observability/:path*",
+    "/admin/:path*",
+    "/ingestion/:path*",
+    "/tournament/create",
+    "/team/manage",
+  ],
 };

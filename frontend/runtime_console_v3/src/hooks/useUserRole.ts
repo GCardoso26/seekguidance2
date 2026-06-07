@@ -5,6 +5,7 @@ import { useJudgeAuth } from "@/features/auth/AuthProvider";
 import {
   canAccessIngestion,
   isConsoleAdminRole,
+  isJudgeUser,
   isSupabaseAdminUser,
 } from "@/lib/judge-rbac";
 import { fetchJudgeMe, type JudgeMeResponse } from "@/services/judgeMeApi";
@@ -61,9 +62,12 @@ export function useUserRole() {
       ? apiMe.role
       : consoleRole ?? (judgeUser ? "player" : "anonymous");
 
+  const isJudge = isJudgeUser(judgeUser, role) || isAdmin;
+
   return {
     role,
     isAdmin,
+    isJudge,
     isOperator,
     isPlayer: Boolean(judgeUser) && !isAdmin,
     canIngest,

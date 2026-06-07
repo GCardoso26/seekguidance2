@@ -1,97 +1,26 @@
-# Arquitetura do sistema
+# Arquitetura Judge TCG
 
-## Visão de componentes
+## Camadas
 
-```mermaid
-flowchart LR
-  subgraph clients
-    Mobile[Expo App]
-    Admin[Admin Web]
-  end
+- **Frontend** (`frontend/runtime_console_v3`): Next.js 15, BFF proxies em `src/app/api/*`
+- **API** (`services/api`): FastAPI, prefixo `/runtime/judge/*`
+- **Database**: Supabase Postgres, schema `tcg_judge`
+- **Cache/Timer**: Redis
+- **Worker**: `worker_main.py` — jobs agendados (ranking decay)
 
-  subgraph edge
-    GW[API Gateway / Ingress]
-  end
+## Módulos principais
 
-  subgraph core
-    API[FastAPI Core]
-    Auth[Auth Service]
-    Ingest[Rules Ingestion]
-    Vec[Vectorization Worker]
-    Search[Semantic Search]
-    RAG[RAG Orchestrator]
-    TRE[Tournament Rules Engine]
-    Analytics[Analytics Service]
-  end
+| Módulo | Responsabilidade |
+|--------|------------------|
+| `tcg_adapters/` | Multi-TCG parsers e validação |
+| `tournament/` | Engine Swiss, timer, fluxo operacional |
+| `players/` | Perfis, rankings, achievements |
+| `notifications/` | In-app, Web Push, email/SMS stubs |
+| `payments/` | Inscrições Stripe |
+| `leagues/` | Temporadas e standings |
+| `social/` | Amigos, mensagens, comunidades |
+| `admin/` | Moderação e analytics da plataforma |
 
-  subgraph data
-    PG[(PostgreSQL + pgvector)]
-    RD[(Redis)]
-    OBJ[(Object Storage PDFs)]
-  end
+## Auth
 
-  subgraph external
-    Pub[Sites oficiais publishers]
-    LLM[LLM Providers]
-  end
-
-  Mobile --> GW
-  Admin --> GW
-  GW --> API
-  API --> Auth
-  API --> RAG
-  RAG --> Search
-  RAG --> LLM
-  Search --> PG
-  API --> PG
-  Ingest --> Pub
-  Ingest --> OBJ
-  Ingest --> Vec
-  Vec --> PG
-  API --> RD
-  Analytics --> PG
-  TRE --> PG
-```
-
-## Clean Architecture + DDD (mapeamento)
-
-| Camada | Responsabilidade | Pasta (API) |
-|--------|------------------|-------------|
-| Interface | HTTP, contratos OpenAPI | `app/api/` |
-| Aplicação | Casos de uso, orquestração RAG | `app/application/` |
-| Domínio | Entidades, políticas (futuro) | `app/domain/` (expandir) |
-| Infraestrutura | DB, cache, clients LLM | `app/infrastructure/` |
-
-## Event-driven (assíncrono)
-
-Eventos sugeridos (Redis Streams / Kafka-ready):
-
-- `rules.document.discovered`
-- `rules.document.fetched`
-- `rules.document.parsed`
-- `rules.chunks.embedded`
-- `rag.query.completed`
-
-Workers **stateless** escalam horizontalmente; estado em Postgres + idempotência por `content_hash`.
-
-## Kubernetes-ready
-
-- Imagens slim multi-stage (API já em `Dockerfile`).
-- Health probes: `GET /v1/health`.
-- Variáveis via Secret/ConfigMap; sem credenciais no git.
-- HPA sobre deployments de API e workers com base em CPU/latência.
-
-Veja `docs/KUBERNETES.md` (stub de manifests).
-
-## Segurança
-
-- Rate limiting (MVP em memória; produção: Redis token bucket).
-- RBAC: `users.role` + policies no Admin.
-- Anti prompt-injection: classificador leve + regras de sistema + truncamento; logs de tentativas.
-- Sanitização de HTML em ingestão (Bleach / nh3) antes de indexar.
-
-## Observabilidade
-
-- Logs JSON (`structlog`).
-- Métricas: latência RAG, tokens, erros de ingestão, fila de jobs.
-- Tracing: OTel (reintroduzir `FastAPIInstrumentor` quando dependências forem fixadas no lock corporativo).
+Header `X-Judge-User-Id` (Supabase user id) + `judge_profiles.role` para RBAC admin.

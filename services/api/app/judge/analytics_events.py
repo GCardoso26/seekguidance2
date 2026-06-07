@@ -42,7 +42,16 @@ ENGAGEMENT_EVENTS = frozenset(
     }
 )
 
-ALL_ANALYTICS_EVENTS = MONETIZATION_EVENTS | ENGAGEMENT_EVENTS
+JUDGE_ASSISTANT_EVENTS = frozenset(
+    {
+        "report_created",
+        "report_resolved",
+        "ruling_applied",
+        "deck_validated",
+    }
+)
+
+ALL_ANALYTICS_EVENTS = MONETIZATION_EVENTS | ENGAGEMENT_EVENTS | JUDGE_ASSISTANT_EVENTS
 
 VALID_TIERS = frozenset({"free", "pro", "team"})
 

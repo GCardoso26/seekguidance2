@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { GameMatSelectorCompact } from "@/components/landing/GameMatSelectorCompact";
 import { FeatureCard } from "@/components/landing/FeatureCard";
+import { TournamentShowcase } from "@/components/landing/TournamentShowcase";
+import { OnboardingFlow } from "@/components/onboarding/OnboardingFlow";
 import { AuthProvider, useJudgeAuth } from "@/features/auth/AuthProvider";
 import { GoogleLoginButton } from "@/features/auth/GoogleLoginButton";
 import { JudgeLogo } from "@/components/judge/JudgeLogo";
@@ -196,6 +198,12 @@ function LandingContent() {
           </button>
         </div>
       </section>
+
+      <section className="container mx-auto px-4 pt-8">
+        <OnboardingFlow />
+      </section>
+
+      <TournamentShowcase />
 
       <section id="login-section" className="container mx-auto px-4 py-16">
         <div className="mx-auto max-w-md rounded-2xl border border-slate-700 bg-slate-800/50 p-8">

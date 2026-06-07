@@ -5,6 +5,21 @@ import structlog
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.v1.judge_assistant import router as judge_assistant_router
+from app.api.v1.judge_calls_api import router as judge_calls_router
+from app.api.v1.stripe_billing import router as stripe_billing_router
+from app.api.v1.admin_api import router as admin_api_router
+from app.api.v1.leagues_api import router as leagues_api_router
+from app.api.v1.players_ecosystem import router as players_ecosystem_router
+from app.api.v1.marketplace_api import router as marketplace_api_router
+from app.api.v1.overlay_api import router as overlay_api_router
+from app.api.v1.public_api_v1 import router as public_api_v1_router
+from app.api.v1.reviews_api import router as reviews_api_router
+from app.api.v1.social_api import router as social_api_router
+from app.api.v1.sponsorships_api import router as sponsorships_api_router
+from app.api.v1.stores_api import router as stores_api_router
+from app.api.v1.tournament_flow import router as tournament_flow_router
+from app.api.v1.tournament_system import router as tournament_system_router
 from app.api.v1.judge_product import router as judge_product_router
 from app.api.v1.router import api_router
 from app.api.v1.runtime_deployments import router as runtime_deployments_router
@@ -38,8 +53,11 @@ _openapi = "/openapi.json" if _docs else None
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    from app.config.validate import require_production_config
     from app.runtime.runtime_warmup import run_startup_warmup
 
+    if _cfg.environment == "production":
+        require_production_config(_cfg)
     await run_startup_warmup(_cfg)
     yield
 
@@ -212,6 +230,21 @@ app.include_router(runtime_deployments_router)
 
 app.include_router(runtime_judge_router)
 app.include_router(judge_product_router)
+app.include_router(judge_assistant_router)
+app.include_router(judge_calls_router)
+app.include_router(stripe_billing_router)
+app.include_router(tournament_system_router)
+app.include_router(tournament_flow_router)
+app.include_router(players_ecosystem_router)
+app.include_router(leagues_api_router)
+app.include_router(social_api_router)
+app.include_router(admin_api_router)
+app.include_router(stores_api_router)
+app.include_router(marketplace_api_router)
+app.include_router(overlay_api_router)
+app.include_router(public_api_v1_router)
+app.include_router(reviews_api_router)
+app.include_router(sponsorships_api_router)
 app.include_router(runtime_ingestion_admin_router)
 
 

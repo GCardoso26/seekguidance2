@@ -3,6 +3,10 @@
 import { motion } from "framer-motion";
 import { Check, Crown, Users, X, Zap } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useJudgeAuth } from "@/features/auth/AuthProvider";
+import { useCheckout, useSubscription } from "@/hooks/useSubscription";
+import type { BillingCycle, PaidPlanId } from "@/lib/stripe/prices";
+import { stripeConfigured } from "@/lib/stripe/prices";
 import type { PricingPlan } from "@/lib/pricing-plans";
 import { cn } from "@/lib/utils";
 
@@ -20,21 +24,51 @@ type Props = {
 
 export function PricingCard({ plan, isAnnual, onCtaClick }: Props) {
   const router = useRouter();
+  const { user } = useJudgeAuth();
+  const { tier, isPro } = useSubscription();
+  const checkout = useCheckout();
   const Icon = ICONS[plan.iconName];
   const price = isAnnual ? plan.priceAnnual / 12 : plan.priceMonthly;
   const billingPeriod = isAnnual ? "/mês (cobrado anualmente)" : "/mês";
+  const billingCycle: BillingCycle = isAnnual ? "annual" : "monthly";
+  const isCurrent = tier === plan.id;
 
-  const handleCTA = () => {
+  const handleCTA = async () => {
     onCtaClick?.(plan.id, isAnnual);
     if (plan.id === "free") {
       router.push(plan.ctaAction);
       return;
     }
-    if (plan.id === "team") {
-      window.location.href = plan.ctaAction;
+
+    if (!user) {
+      router.push(`/judge?redirect=/pricing`);
       return;
     }
-    alert("Checkout em breve! Entre na lista de espera.");
+
+    if (isPro && tier === plan.id) {
+      router.push("/settings/billing");
+      return;
+    }
+
+    if (!stripeConfigured()) {
+      if (plan.id === "team") {
+        window.location.href = plan.ctaAction;
+        return;
+      }
+      alert("Pagamentos em configuração. Tente novamente em breve.");
+      return;
+    }
+
+    try {
+      const { url } = await checkout.mutateAsync({
+        plan: plan.id as PaidPlanId,
+        billingCycle,
+      });
+      if (url) window.location.href = url;
+    } catch (err) {
+      console.error(err);
+      alert(err instanceof Error ? err.message : "Erro no checkout");
+    }
   };
 
   return (
@@ -101,17 +135,30 @@ export function PricingCard({ plan, isAnnual, onCtaClick }: Props) {
         ))}
       </ul>
 
+      {isCurrent && (
+        <span className="mb-3 inline-block rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-medium text-emerald-300">
+          Plano atual
+        </span>
+      )}
+
       <button
         type="button"
-        onClick={handleCTA}
+        onClick={() => void handleCTA()}
+        disabled={checkout.isPending || (isCurrent && plan.id !== "free")}
         className={cn(
-          "w-full rounded-xl py-3 font-bold transition-all",
+          "w-full rounded-xl py-3 font-bold transition-all disabled:opacity-60",
           plan.popular
             ? "bg-gradient-to-r from-amber-500 to-orange-600 text-white hover:from-amber-400 hover:to-orange-500"
             : "bg-slate-700 text-white hover:bg-slate-600",
         )}
       >
-        {plan.cta}
+        {checkout.isPending
+          ? "A redirecionar..."
+          : isCurrent && plan.id !== "free"
+            ? "Plano ativo"
+            : isPro && tier === plan.id
+              ? "Gerir subscrição"
+              : plan.cta}
       </button>
     </motion.div>
   );
