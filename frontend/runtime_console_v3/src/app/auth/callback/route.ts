@@ -50,7 +50,14 @@ export async function GET(request: NextRequest) {
 
   const redirectResponse = NextResponse.redirect(buildAppRedirectUrl(next, requestOrigin));
   supabaseResponse.cookies.getAll().forEach((cookie) => {
-    redirectResponse.cookies.set(cookie.name, cookie.value);
+    redirectResponse.cookies.set(cookie.name, cookie.value, {
+      path: cookie.path,
+      domain: cookie.domain,
+      maxAge: cookie.maxAge,
+      httpOnly: cookie.httpOnly,
+      secure: cookie.secure,
+      sameSite: cookie.sameSite as "lax" | "strict" | "none" | undefined,
+    });
   });
   return redirectResponse;
 }

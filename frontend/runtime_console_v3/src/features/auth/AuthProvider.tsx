@@ -11,6 +11,11 @@ import {
   type ReactNode,
 } from "react";
 import type { Session, User } from "@supabase/supabase-js";
+import {
+  clearOAuthRedirectState,
+  setOAuthRedirectTarget,
+  tryConsumeOAuthRedirect,
+} from "@/lib/auth/oauth-redirect";
 import { buildOAuthCallbackUrl } from "@/lib/app-url";
 import { createSupabaseBrowserClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import { migrateLocalStorageHistory } from "@/features/auth/historyMigration";
@@ -45,29 +50,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(data.session);
       setUser(data.session?.user ?? null);
       setLoading(false);
+      if (data.session?.user) {
+        tryConsumeOAuthRedirect(true);
+      }
     });
 
     const { data: sub } = supabase.auth.onAuthStateChange(async (event, nextSession) => {
       setSession(nextSession);
       setUser(nextSession?.user ?? null);
+
       if (nextSession?.user) {
         void recordGrowthEvent({ metric_type: "login" });
+        tryConsumeOAuthRedirect(true);
       }
-      if (event === "SIGNED_IN" && nextSession?.user && !hasMigratedRef.current) {
+
+      if (
+        (event === "SIGNED_IN" || event === "INITIAL_SESSION") &&
+        nextSession?.user &&
+        !hasMigratedRef.current
+      ) {
         hasMigratedRef.current = true;
         await migrateLocalStorageHistory(nextSession.user.id).catch((err) =>
           console.warn("Migração de histórico falhou (não crítico):", err),
         );
-      }
-      if (event === "SIGNED_IN" && nextSession?.user && typeof window !== "undefined") {
-        const pending = sessionStorage.getItem("oauth_next");
-        if (pending) {
-          sessionStorage.removeItem("oauth_next");
-          const path = window.location.pathname;
-          if (path === "/" || path === "/auth/callback") {
-            window.location.replace(pending.startsWith("/") ? pending : `/${pending}`);
-          }
-        }
       }
     });
 
@@ -78,9 +83,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async (path = "/judge") => {
       if (!supabase) return;
       const nextPath = path.startsWith("/") ? path : `/${path}`;
-      if (typeof window !== "undefined") {
-        sessionStorage.setItem("oauth_next", nextPath);
-      }
+      setOAuthRedirectTarget(nextPath);
       const origin = typeof window !== "undefined" ? window.location.origin : undefined;
       const redirectTo = path.startsWith("http") ? path : buildOAuthCallbackUrl(nextPath, origin);
       await supabase.auth.signInWithOAuth({
@@ -96,6 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = useCallback(async () => {
     if (!supabase) return;
+    clearOAuthRedirectState();
     await supabase.auth.signOut();
   }, [supabase]);
 
