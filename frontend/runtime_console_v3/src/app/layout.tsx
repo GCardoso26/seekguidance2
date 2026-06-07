@@ -1,3 +1,4 @@
+import { SentryInit } from "@/components/SentryInit";
 import "@/styles/globals.css";
 import "@/styles/judge-tcg.css";
 import { QueryProvider } from "@/providers/query-provider";
@@ -18,6 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="apple-touch-icon" href="/icon-192x192.png" />
       </head>
       <body>
+        <SentryInit />
         <ThemeProvider>
           <QueryProvider>{children}</QueryProvider>
         </ThemeProvider>

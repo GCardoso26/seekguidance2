@@ -1,6 +1,13 @@
 /** @type {import('next').NextConfig} */
 /** Proxy: rewrites (edge). Em dev usa API_PROXY_TARGET ou localhost. */
-const apiUrl = process.env.API_PROXY_TARGET || "https://seekguidance.onrender.com";
+const apiUrl =
+  process.env.API_PROXY_TARGET ||
+  process.env.NEXT_PUBLIC_API_URL ||
+  "https://seekguidance.onrender.com";
+
+const supabaseHost =
+  process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/^https?:\/\//, "").split("/")[0] ??
+  "*.supabase.co";
 
 const isDev = process.env.NODE_ENV === "development";
 
@@ -37,6 +44,13 @@ const nextConfig = {
     dangerouslyAllowSVG: true,
     contentDispositionType: "attachment",
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    formats: ["image/avif", "image/webp"],
+    remotePatterns: [
+      { protocol: "https", hostname: supabaseHost },
+      { protocol: "https", hostname: "**.supabase.co" },
+      { protocol: "https", hostname: "tcg-judge.com" },
+      { protocol: "https", hostname: "judgetcg.com.br" },
+    ],
   },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];

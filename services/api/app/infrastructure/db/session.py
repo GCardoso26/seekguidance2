@@ -2,6 +2,12 @@ import os
 from collections.abc import AsyncGenerator
 from urllib.parse import parse_qs, urlparse, urlunparse
 
+from app.config.production import (
+    DB_MAX_OVERFLOW,
+    DB_POOL_RECYCLE,
+    DB_POOL_SIZE,
+    DB_POOL_TIMEOUT,
+)
 from app.core.config import get_settings
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
@@ -44,11 +50,21 @@ def get_engine():
     if _engine is None:
         settings = get_settings()
         connect_args = _connect_args_for_database_url(settings.database_url)
+        pool_kwargs: dict = {
+            "echo": settings.environment == "development",
+            "pool_pre_ping": True,
+            "connect_args": connect_args,
+        }
+        if settings.environment == "production":
+            pool_kwargs.update(
+                pool_size=DB_POOL_SIZE,
+                max_overflow=DB_MAX_OVERFLOW,
+                pool_timeout=DB_POOL_TIMEOUT,
+                pool_recycle=DB_POOL_RECYCLE,
+            )
         _engine = create_async_engine(
             _async_engine_url(settings.database_url),
-            echo=settings.environment == "development",
-            pool_pre_ping=True,
-            connect_args=connect_args,
+            **pool_kwargs,
         )
     return _engine
 

@@ -27,6 +27,7 @@ from app.api.v1.stores_api import router as stores_api_router
 from app.api.v1.stripe_billing import router as stripe_billing_router
 from app.api.v1.tournament_flow import router as tournament_flow_router
 from app.api.v1.tournament_system import router as tournament_system_router
+from app.config.sentry import init_sentry
 from app.core.config import get_settings
 from app.core.logging import configure_logging
 from app.core.rate_limit import allow_request, build_rate_limit_response, client_key
@@ -38,6 +39,7 @@ from app.core.security.middleware import (
     security_headers_middleware,
 )
 
+init_sentry()
 configure_logging()
 
 logger = structlog.get_logger(__name__)

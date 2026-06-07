@@ -100,7 +100,13 @@ export function JudgeCallCard({ call, type }: JudgeCallCardProps) {
       </Card>
 
       {resolveOpen && (
-        <ResolveCallModal callId={call.id} open={resolveOpen} onClose={() => setResolveOpen(false)} />
+        <ResolveCallModal
+          callId={call.id}
+          callerId={call.callerId}
+          callerHandle={call.callerHandle}
+          open={resolveOpen}
+          onClose={() => setResolveOpen(false)}
+        />
       )}
     </>
   );

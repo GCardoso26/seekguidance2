@@ -8,6 +8,8 @@ import { useState } from "react";
 
 interface ResolveCallModalProps {
   callId: string;
+  callerId?: string | null;
+  callerHandle?: string | null;
   open: boolean;
   onClose: () => void;
 }
@@ -29,12 +31,19 @@ const INFRACTION_TYPES = [
   { value: "cheating", label: "Trapaça" },
 ];
 
-export function ResolveCallModal({ callId, open, onClose }: ResolveCallModalProps) {
+export function ResolveCallModal({
+  callId,
+  callerId,
+  callerHandle,
+  open,
+  onClose,
+}: ResolveCallModalProps) {
   const { mutate: resolve, isPending } = useResolveCall();
   const [ruling, setRuling] = useState("");
   const [category, setCategory] = useState<RulingCategory | "">("");
   const [infractionType, setInfractionType] = useState("");
   const [severity, setSeverity] = useState("minor");
+  const [infractingPlayerId, setInfractingPlayerId] = useState(callerId ?? "");
 
   if (!open) return null;
 
@@ -47,6 +56,7 @@ export function ResolveCallModal({ callId, open, onClose }: ResolveCallModalProp
         callId,
         ruling,
         rulingCategory: category,
+        infractingPlayerId: needsInfraction ? infractingPlayerId.trim() : undefined,
         infractionType: needsInfraction ? infractionType : undefined,
         severity: needsInfraction ? severity : undefined,
       },
@@ -91,6 +101,27 @@ export function ResolveCallModal({ callId, open, onClose }: ResolveCallModalProp
           {needsInfraction && (
             <>
               <div className="space-y-2">
+                <label className="text-sm text-white/70">Jogador infrator (ID)</label>
+                <input
+                  type="text"
+                  value={infractingPlayerId}
+                  onChange={(e) => setInfractingPlayerId(e.target.value)}
+                  placeholder={
+                    callerHandle ? `@${callerHandle} (${callerId ?? "sem ID"})` : "ID do jogador (judge_profiles)"
+                  }
+                  className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white"
+                />
+                {callerId && infractingPlayerId !== callerId && (
+                  <button
+                    type="button"
+                    className="text-xs text-amber-300/90 hover:text-amber-200"
+                    onClick={() => setInfractingPlayerId(callerId)}
+                  >
+                    Usar quem abriu a chamada ({callerHandle ? `@${callerHandle}` : callerId})
+                  </button>
+                )}
+              </div>
+              <div className="space-y-2">
                 <label className="text-sm text-white/70">Tipo de Infração</label>
                 <select
                   value={infractionType}
@@ -127,7 +158,10 @@ export function ResolveCallModal({ callId, open, onClose }: ResolveCallModalProp
             <Button
               className="flex-1"
               disabled={Boolean(
-                isPending || !ruling || !category || (needsInfraction && !infractionType),
+                isPending ||
+                  !ruling ||
+                  !category ||
+                  (needsInfraction && (!infractionType || !infractingPlayerId.trim())),
               )}
               onClick={handleSubmit}
             >
