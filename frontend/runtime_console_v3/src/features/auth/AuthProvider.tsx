@@ -10,6 +10,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { usePathname } from "next/navigation";
 import type { Session, User } from "@supabase/supabase-js";
 import {
   clearOAuthRedirectState,
@@ -35,6 +36,7 @@ type AuthContextValue = {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const configured = isSupabaseConfigured();
   const [user, setUser] = useState<User | null>(null);
@@ -106,6 +108,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     return () => sub.subscription.unsubscribe();
   }, [supabase, maybeRedirectAfterOAuth]);
+
+  // Re-tenta redirect se navegação client-side cair em / sem remount (ex.: bounce /judge → /)
+  useEffect(() => {
+    if (loading || !user) return;
+    maybeRedirectAfterOAuth(user);
+  }, [pathname, user, loading, maybeRedirectAfterOAuth]);
 
   const signInWithGoogle = useCallback(
     async (path = "/judge") => {

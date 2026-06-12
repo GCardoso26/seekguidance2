@@ -1,7 +1,10 @@
+export const OAUTH_RETURN_COOKIE = "tcg_oauth_return";
+
 const OAUTH_REDIRECT_KEY = "oauth_redirect";
 const OAUTH_PENDING_KEY = "oauth_pending";
 const OAUTH_LOGIN_STARTED_KEY = "oauth_login_started";
 const OAUTH_MAX_AGE_MS = 10 * 60 * 1000;
+const OAUTH_COOKIE_MAX_AGE_SEC = 600;
 
 type OAuthRedirectData = {
   target: string;
@@ -53,6 +56,17 @@ export function clearOAuthLoginStarted() {
   sessionStorage.removeItem(OAUTH_LOGIN_STARTED_KEY);
 }
 
+function setOAuthReturnCookie(path: string) {
+  if (typeof document === "undefined") return;
+  const value = encodeURIComponent(normalizePath(path));
+  document.cookie = `${OAUTH_RETURN_COOKIE}=${value}; path=/; max-age=${OAUTH_COOKIE_MAX_AGE_SEC}; SameSite=Lax`;
+}
+
+export function clearOAuthReturnCookie() {
+  if (typeof document === "undefined") return;
+  document.cookie = `${OAUTH_RETURN_COOKIE}=; path=/; max-age=0; SameSite=Lax`;
+}
+
 export function setOAuthRedirectTarget(path: string) {
   markOAuthLoginStarted();
   const data: OAuthRedirectData = {
@@ -62,12 +76,14 @@ export function setOAuthRedirectTarget(path: string) {
   const serialized = JSON.stringify(data);
   sessionStorage.setItem(OAUTH_REDIRECT_KEY, serialized);
   localStorage.setItem(OAUTH_PENDING_KEY, serialized);
+  setOAuthReturnCookie(data.target);
 }
 
 export function clearOAuthRedirectState() {
   sessionStorage.removeItem(OAUTH_REDIRECT_KEY);
   localStorage.removeItem(OAUTH_PENDING_KEY);
   clearOAuthLoginStarted();
+  clearOAuthReturnCookie();
 }
 
 function readStoredTarget(): string | null {

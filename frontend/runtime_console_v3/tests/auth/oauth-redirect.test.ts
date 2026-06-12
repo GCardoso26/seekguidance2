@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   clearOAuthRedirectState,
   markOAuthLoginStarted,
+  OAUTH_RETURN_COOKIE,
   peekOAuthRedirectTarget,
   setOAuthRedirectTarget,
   tryConsumeOAuthRedirect,
@@ -12,7 +13,25 @@ describe("oauth-redirect", () => {
 
   beforeEach(() => {
     store.clear();
-    vi.stubGlobal("document", { referrer: "" });
+    const cookies: Record<string, string> = {};
+    vi.stubGlobal("document", {
+      referrer: "",
+      set cookie(value: string) {
+        const [pair] = value.split(";");
+        const [key, val] = pair.split("=");
+        const name = key.trim();
+        if (!val || value.includes("max-age=0")) {
+          delete cookies[name];
+          return;
+        }
+        cookies[name] = val.trim();
+      },
+      get cookie() {
+        return Object.entries(cookies)
+          .map(([k, v]) => `${k}=${v}`)
+          .join("; ");
+      },
+    });
     vi.stubGlobal("window", {
       location: {
         pathname: "/",
@@ -35,6 +54,11 @@ describe("oauth-redirect", () => {
 
   afterEach(() => {
     vi.unstubAllGlobals();
+  });
+
+  it("grava cookie tcg_oauth_return ao iniciar OAuth", () => {
+    setOAuthRedirectTarget("/judge");
+    expect(document.cookie).toContain(`${OAUTH_RETURN_COOKIE}=%2Fjudge`);
   });
 
   it("retorna /judge quando oauth_pending na home", () => {

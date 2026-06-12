@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { buildAppRedirectUrl, getRequestOrigin, safeNextPath } from "@/lib/app-url";
+import { OAUTH_RETURN_COOKIE } from "@/lib/auth/oauth-redirect";
 import { assertAnonSupabaseKey } from "@/lib/supabase/key-guard";
 
 type CookieToSet = {
@@ -72,5 +73,6 @@ export async function GET(request: NextRequest) {
       sameSite: cookie.sameSite as "lax" | "strict" | "none" | undefined,
     });
   });
+  redirectResponse.cookies.set(OAUTH_RETURN_COOKIE, "", { maxAge: 0, path: "/" });
   return redirectResponse;
 }
