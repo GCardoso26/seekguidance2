@@ -11,9 +11,7 @@ export function middleware(request: NextRequest) {
   if (pathname === "/" && request.nextUrl.searchParams.has("code")) {
     const callback = request.nextUrl.clone();
     callback.pathname = "/auth/callback";
-    if (!callback.searchParams.has("next")) {
-      callback.searchParams.set("next", "/judge");
-    }
+    callback.searchParams.set("next", "/judge");
     return NextResponse.redirect(callback);
   }
 

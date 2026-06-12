@@ -10,7 +10,7 @@ describe("oauth-redirect", () => {
 
   beforeEach(() => {
     store.clear();
-    const replace = vi.fn();
+    vi.stubGlobal("window", {});
     vi.stubGlobal("sessionStorage", {
       getItem: (k: string) => store.get(`s:${k}`) ?? null,
       setItem: (k: string, v: string) => store.set(`s:${k}`, v),
@@ -21,37 +21,39 @@ describe("oauth-redirect", () => {
       setItem: (k: string, v: string) => store.set(`l:${k}`, v),
       removeItem: (k: string) => store.delete(`l:${k}`),
     });
-    vi.stubGlobal("window", {
-      location: {
-        pathname: "/",
-        search: "",
-        hash: "",
-        replace,
-      },
-    });
   });
 
   afterEach(() => {
     vi.unstubAllGlobals();
   });
 
-  it("redireciona quando oauth_pending e sessão ativa na home", () => {
+  it("retorna /judge quando oauth_pending em sessionStorage", () => {
     setOAuthRedirectTarget("/judge");
-    const redirected = tryConsumeOAuthRedirect(true);
-    expect(redirected).toBe(true);
-    expect(window.location.replace).toHaveBeenCalledWith("/judge");
+    expect(tryConsumeOAuthRedirect()).toBe("/judge");
+    expect(store.has("s:oauth_redirect")).toBe(false);
+    expect(store.has("l:oauth_pending")).toBe(false);
   });
 
-  it("não redireciona usuário logado na home sem fluxo OAuth pendente", () => {
-    const redirected = tryConsumeOAuthRedirect(true);
-    expect(redirected).toBe(false);
-    expect(window.location.replace).not.toHaveBeenCalled();
+  it("usa fallback localStorage quando sessionStorage está vazio", () => {
+    const data = JSON.stringify({ target: "/judge", timestamp: Date.now() });
+    store.set("l:oauth_pending", data);
+    expect(tryConsumeOAuthRedirect()).toBe("/judge");
   });
 
-  it("limpa estado stale", () => {
+  it("retorna null sem fluxo OAuth pendente", () => {
+    expect(tryConsumeOAuthRedirect()).toBeNull();
+  });
+
+  it("normaliza path sem barra inicial", () => {
+    setOAuthRedirectTarget("player/me");
+    expect(tryConsumeOAuthRedirect()).toBe("/player/me");
+  });
+
+  it("limpa estado stale via clearOAuthRedirectState", () => {
     setOAuthRedirectTarget("/player/me");
     clearOAuthRedirectState();
-    expect(store.has("s:oauth_pending")).toBe(false);
-    expect(store.has("l:oauth_next")).toBe(false);
+    expect(store.has("s:oauth_redirect")).toBe(false);
+    expect(store.has("l:oauth_pending")).toBe(false);
+    expect(tryConsumeOAuthRedirect()).toBeNull();
   });
 });

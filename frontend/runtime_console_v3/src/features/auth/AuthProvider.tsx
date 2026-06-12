@@ -10,6 +10,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { useRouter } from "next/navigation";
 import type { Session, User } from "@supabase/supabase-js";
 import {
   clearOAuthRedirectState,
@@ -33,6 +34,7 @@ type AuthContextValue = {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const router = useRouter();
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const configured = isSupabaseConfigured();
   const [user, setUser] = useState<User | null>(null);
@@ -40,28 +42,47 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(configured);
   const hasMigratedRef = useRef(false);
 
+  const maybeRedirectAfterOAuth = useCallback(
+    (activeUser: User | null, event?: string) => {
+      if (!activeUser) return;
+
+      const isOAuthEvent =
+        event === undefined || event === "SIGNED_IN" || event === "INITIAL_SESSION";
+      if (!isOAuthEvent) return;
+
+      const redirectTarget = tryConsumeOAuthRedirect();
+      if (redirectTarget) {
+        router.push(redirectTarget);
+      }
+    },
+    [router],
+  );
+
   useEffect(() => {
     if (!supabase) {
       setLoading(false);
       return;
     }
 
-    supabase.auth.getSession().then(({ data }) => {
+    // 1. Sessão inicial — cobre INITIAL_SESSION antes do listener
+    void supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
       setUser(data.session?.user ?? null);
       setLoading(false);
-      if (data.session?.user) {
-        tryConsumeOAuthRedirect(true);
-      }
+      maybeRedirectAfterOAuth(data.session?.user ?? null);
     });
 
+    // 2. Mudanças de auth — SIGNED_IN e INITIAL_SESSION
     const { data: sub } = supabase.auth.onAuthStateChange(async (event, nextSession) => {
       setSession(nextSession);
       setUser(nextSession?.user ?? null);
 
       if (nextSession?.user) {
         void recordGrowthEvent({ metric_type: "login" });
-        tryConsumeOAuthRedirect(true);
+      }
+
+      if (event === "SIGNED_IN" || event === "INITIAL_SESSION") {
+        maybeRedirectAfterOAuth(nextSession?.user ?? null, event);
       }
 
       if (
@@ -77,7 +98,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     return () => sub.subscription.unsubscribe();
-  }, [supabase]);
+  }, [supabase, maybeRedirectAfterOAuth]);
 
   const signInWithGoogle = useCallback(
     async (path = "/judge") => {
