@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   clearOAuthRedirectState,
-  isOAuthReturnPath,
+  markOAuthLoginStarted,
   peekOAuthRedirectTarget,
   setOAuthRedirectTarget,
   tryConsumeOAuthRedirect,
@@ -12,6 +12,7 @@ describe("oauth-redirect", () => {
 
   beforeEach(() => {
     store.clear();
+    vi.stubGlobal("document", { referrer: "" });
     vi.stubGlobal("window", {
       location: {
         pathname: "/",
@@ -51,21 +52,19 @@ describe("oauth-redirect", () => {
     expect(store.has("l:oauth_pending")).toBe(true);
   });
 
-  it("usa fallback localStorage quando sessionStorage está vazio", () => {
-    const data = JSON.stringify({ target: "/judge", timestamp: Date.now() });
-    store.set("l:oauth_pending", data);
-    expect(tryConsumeOAuthRedirect()).toBe("/judge");
-  });
-
   it("detecta from_oauth=1 na URL", () => {
     window.location.search = "?from_oauth=1";
     expect(peekOAuthRedirectTarget()).toBe("/judge");
   });
 
-  it("isOAuthReturnPath identifica home e callback", () => {
-    expect(isOAuthReturnPath("/")).toBe(true);
-    expect(isOAuthReturnPath("/auth/callback")).toBe(true);
-    expect(isOAuthReturnPath("/judge")).toBe(false);
+  it("fallback quando login OAuth foi iniciado recentemente", () => {
+    markOAuthLoginStarted();
+    expect(peekOAuthRedirectTarget()).toBe("/judge");
+  });
+
+  it("fallback quando referrer é Google", () => {
+    vi.stubGlobal("document", { referrer: "https://accounts.google.com/o/oauth2/v2/auth" });
+    expect(peekOAuthRedirectTarget()).toBe("/judge");
   });
 
   it("limpa estado stale via clearOAuthRedirectState", () => {

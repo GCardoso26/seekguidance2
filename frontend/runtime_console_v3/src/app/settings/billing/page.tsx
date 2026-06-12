@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { AuthProvider } from "@/features/auth/AuthProvider";
 import { Button } from "@/components/ui/button";
 import { useCustomerPortal, useSubscription } from "@/hooks/useSubscription";
 import { FEATURE_LABELS } from "@/lib/subscription/features";
@@ -78,10 +77,8 @@ function BillingContent() {
 
 export default function BillingPage() {
   return (
-    <AuthProvider>
-      <div className="min-h-screen bg-[#0a0a0f] text-[#e2e8f0]">
-        <BillingContent />
-      </div>
-    </AuthProvider>
+    <div className="min-h-screen bg-[#0a0a0f] text-[#e2e8f0]">
+      <BillingContent />
+    </div>
   );
 }

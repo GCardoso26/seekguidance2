@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { TournamentCreateForm } from "@/components/tournament/TournamentCreateForm";
-import { AuthProvider } from "@/features/auth/AuthProvider";
 import { JudgeLogo } from "@/components/judge/JudgeLogo";
 
 const queryClient = new QueryClient();
@@ -11,7 +10,6 @@ const queryClient = new QueryClient();
 export default function TournamentCreatePage() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
         <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 text-slate-100">
           <header className="border-b border-slate-700/60 px-4 py-4">
             <div className="container mx-auto flex items-center gap-3">
@@ -29,7 +27,6 @@ export default function TournamentCreatePage() {
             <TournamentCreateForm />
           </main>
         </div>
-      </AuthProvider>
     </QueryClientProvider>
   );
 }

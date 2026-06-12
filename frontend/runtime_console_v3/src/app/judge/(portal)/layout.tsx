@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
 import { useUserRole } from "@/hooks/useUserRole";
 
@@ -11,31 +11,14 @@ const NAV = [
   { href: "/judge/metrics", label: "Métricas" },
 ];
 
-/** Rotas do painel de juiz certificado — não inclui /judge (mesa pública). */
-const JUDGE_PORTAL_PREFIXES = ["/judge/dashboard", "/judge/rulings", "/judge/metrics", "/judge/reports"];
-
-function isJudgePortalRoute(pathname: string): boolean {
-  return JUDGE_PORTAL_PREFIXES.some(
-    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
-  );
-}
-
 export default function JudgePortalLayout({ children }: { children: ReactNode }) {
-  const pathname = usePathname();
-  const portalRoute = isJudgePortalRoute(pathname);
   const { isJudge, isAdmin, loading } = useUserRole();
   const router = useRouter();
   const allowed = isJudge || isAdmin;
 
   useEffect(() => {
-    if (!portalRoute) return;
     if (!loading && !allowed) router.replace("/");
-  }, [portalRoute, loading, allowed, router]);
-
-  // /judge (mesa de regras) é acessível a qualquer usuário autenticado ou anônimo
-  if (!portalRoute) {
-    return <>{children}</>;
-  }
+  }, [loading, allowed, router]);
 
   if (loading || !allowed) return null;
 

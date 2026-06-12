@@ -1,5 +1,6 @@
 const OAUTH_REDIRECT_KEY = "oauth_redirect";
 const OAUTH_PENDING_KEY = "oauth_pending";
+const OAUTH_LOGIN_STARTED_KEY = "oauth_login_started";
 const OAUTH_MAX_AGE_MS = 10 * 60 * 1000;
 
 type OAuthRedirectData = {
@@ -27,7 +28,33 @@ export function hasOAuthUrlMarkers(): boolean {
   );
 }
 
+function isRecentGoogleReturn(): boolean {
+  if (typeof document === "undefined") return false;
+  const ref = document.referrer;
+  return ref.includes("accounts.google.com") || ref.includes("google.com/");
+}
+
+function isRecentOAuthLoginStart(): boolean {
+  const raw = sessionStorage.getItem(OAUTH_LOGIN_STARTED_KEY);
+  if (!raw) return false;
+  const ts = Number(raw);
+  if (!Number.isFinite(ts) || Date.now() - ts > OAUTH_MAX_AGE_MS) {
+    sessionStorage.removeItem(OAUTH_LOGIN_STARTED_KEY);
+    return false;
+  }
+  return true;
+}
+
+export function markOAuthLoginStarted() {
+  sessionStorage.setItem(OAUTH_LOGIN_STARTED_KEY, String(Date.now()));
+}
+
+export function clearOAuthLoginStarted() {
+  sessionStorage.removeItem(OAUTH_LOGIN_STARTED_KEY);
+}
+
 export function setOAuthRedirectTarget(path: string) {
+  markOAuthLoginStarted();
   const data: OAuthRedirectData = {
     target: normalizePath(path),
     timestamp: Date.now(),
@@ -40,6 +67,7 @@ export function setOAuthRedirectTarget(path: string) {
 export function clearOAuthRedirectState() {
   sessionStorage.removeItem(OAUTH_REDIRECT_KEY);
   localStorage.removeItem(OAUTH_PENDING_KEY);
+  clearOAuthLoginStarted();
 }
 
 function readStoredTarget(): string | null {
@@ -70,11 +98,14 @@ export function peekOAuthRedirectTarget(): string | null {
     return "/judge";
   }
 
-  if (hasOAuthUrlMarkers()) {
-    return readStoredTarget() ?? "/judge";
+  const stored = readStoredTarget();
+  if (stored) return stored;
+
+  if (hasOAuthUrlMarkers() || isRecentGoogleReturn() || isRecentOAuthLoginStart()) {
+    return "/judge";
   }
 
-  return readStoredTarget();
+  return null;
 }
 
 /** Consome flags e retorna destino. Só redireciona a partir de / ou /auth/callback. */

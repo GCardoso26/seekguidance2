@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { AuthProvider } from "@/features/auth/AuthProvider";
 import { PricingHero } from "@/components/pricing/PricingHero";
 import { PricingCard } from "@/components/pricing/PricingCard";
 import { FeatureComparisonTable } from "@/components/pricing/FeatureComparisonTable";
@@ -104,9 +103,5 @@ function PricingContent() {
 }
 
 export default function PricingPage() {
-  return (
-    <AuthProvider>
-      <PricingContent />
-    </AuthProvider>
-  );
+  return <PricingContent />;
 }

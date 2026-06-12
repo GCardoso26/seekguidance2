@@ -1,6 +1,5 @@
 import { Suspense } from "react";
 import { ConsentBanner } from "@/components/ConsentBanner";
-import { AuthProvider } from "@/features/auth/AuthProvider";
 import { JudgePageClient } from "./JudgePageClient";
 
 export default function JudgePage() {
@@ -12,10 +11,8 @@ export default function JudgePage() {
         </div>
       }
     >
-      <AuthProvider>
-        <JudgePageClient />
-        <ConsentBanner />
-      </AuthProvider>
+      <JudgePageClient />
+      <ConsentBanner />
     </Suspense>
   );
 }

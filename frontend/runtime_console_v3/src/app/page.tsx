@@ -7,7 +7,7 @@ import { GameMatSelectorCompact } from "@/components/landing/GameMatSelectorComp
 import { FeatureCard } from "@/components/landing/FeatureCard";
 import { TournamentShowcase } from "@/components/landing/TournamentShowcase";
 import { OnboardingFlow } from "@/components/onboarding/OnboardingFlow";
-import { AuthProvider, useJudgeAuth } from "@/features/auth/AuthProvider";
+import { useJudgeAuth } from "@/features/auth/AuthProvider";
 import { GoogleLoginButton } from "@/features/auth/GoogleLoginButton";
 import { JudgeLogo } from "@/components/judge/JudgeLogo";
 import { Button } from "@/components/ui/button";
@@ -250,9 +250,5 @@ function LandingContent() {
 }
 
 export default function LandingPage() {
-  return (
-    <AuthProvider>
-      <LandingContent />
-    </AuthProvider>
-  );
+  return <LandingContent />;
 }
