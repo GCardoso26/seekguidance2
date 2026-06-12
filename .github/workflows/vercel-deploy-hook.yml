@@ -1,9 +1,11 @@
 # Dispara deploy na Vercel sem depender do autor Git (evita bloqueio Co-authored-by Cursor no Hobby).
 #
-# Setup (uma vez):
-# 1. Vercel → project-eye28 → Settings → Git → Deploy Hooks → Create Hook (Production)
-# 2. GitHub → GCardoso26/seekguidance2 → Settings → Secrets and variables → Actions
-#    → New repository secret: VERCEL_DEPLOY_HOOK = URL do hook
+# Método preferido: Vercel CLI (envia o código do checkout, não usa autor do commit Git).
+# Fallback: Deploy Hook (pode ser cancelado se o commit tiver Co-authored-by: Cursor).
+#
+# Secrets (GitHub → Settings → Secrets and variables → Actions):
+#   VERCEL_TOKEN          — Vercel → Account Settings → Tokens (recomendado)
+#   VERCEL_DEPLOY_HOOK    — project-eye28 → Settings → Git → Deploy Hooks (fallback)
 
 name: Vercel Deploy Hook
 
@@ -15,19 +17,35 @@ on:
       - ".github/workflows/vercel-deploy-hook.yml"
   workflow_dispatch:
 
+env:
+  VERCEL_ORG_ID: team_1ZCdnwroiBPBQ3byT0xG3spl
+  VERCEL_PROJECT_ID: prj_7b8QzP5OPHfXKV4YbUT0a8sPn74p
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger Vercel production deploy
+      - uses: actions/checkout@v4
+
+      - name: Deploy to Vercel production
         env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_DEPLOY_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
+          VERCEL_ORG_ID: ${{ env.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ env.VERCEL_PROJECT_ID }}
         run: |
-          if [ -z "${VERCEL_DEPLOY_HOOK}" ]; then
-            echo "::warning::VERCEL_DEPLOY_HOOK não configurado — deploy ignorado."
-            echo "Configure em: GitHub → Settings → Secrets and variables → Actions"
-            exit 0
+          if [ -n "${VERCEL_TOKEN}" ]; then
+            echo "Deploy via CLI → project-eye28 (production)..."
+            npm install -g vercel@50
+            vercel deploy --prod --yes --archive=tgz \
+              --token="${VERCEL_TOKEN}" \
+              --scope="${VERCEL_ORG_ID}"
+            echo "Deploy CLI concluído."
+          elif [ -n "${VERCEL_DEPLOY_HOOK}" ]; then
+            echo "Deploy via hook → project-eye28..."
+            curl -fsS -X POST "${VERCEL_DEPLOY_HOOK}"
+            echo "Deploy hook acionado."
+          else
+            echo "::error::Configure VERCEL_TOKEN (recomendado) ou VERCEL_DEPLOY_HOOK em GitHub Secrets."
+            exit 1
           fi
-          echo "Disparando deploy na Vercel (project-eye28)..."
-          curl -fsS -X POST "${VERCEL_DEPLOY_HOOK}"
-          echo "Deploy hook acionado com sucesso."
