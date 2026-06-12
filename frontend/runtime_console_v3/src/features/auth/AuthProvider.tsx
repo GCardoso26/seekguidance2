@@ -52,7 +52,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       const redirectTarget = tryConsumeOAuthRedirect();
       if (redirectTarget) {
-        router.push(redirectTarget);
+        if (process.env.NODE_ENV === "development") {
+          console.log("[Auth] OAuth redirect →", redirectTarget, event ?? "getSession");
+        }
+        router.replace(redirectTarget);
       }
     },
     [router],

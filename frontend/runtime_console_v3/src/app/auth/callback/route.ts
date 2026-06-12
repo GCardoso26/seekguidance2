@@ -9,10 +9,18 @@ type CookieToSet = {
   options?: Parameters<NextResponse["cookies"]["set"]>[2];
 };
 
+const AUTH_DEBUG = process.env.AUTH_DEBUG === "1" || process.env.NODE_ENV === "development";
+
 export async function GET(request: NextRequest) {
   const requestOrigin = getRequestOrigin(request);
   const code = request.nextUrl.searchParams.get("code");
   const next = safeNextPath(request.nextUrl.searchParams.get("next"));
+
+  if (AUTH_DEBUG) {
+    console.log("[Auth Callback] code:", code ? "present" : "missing");
+    console.log("[Auth Callback] next:", next);
+    console.log("[Auth Callback] origin:", requestOrigin);
+  }
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -45,9 +53,11 @@ export async function GET(request: NextRequest) {
   const { error } = await supabase.auth.exchangeCodeForSession(code);
   if (error) {
     console.error("OAuth callback exchange failed:", error.message);
+    if (AUTH_DEBUG) console.log("[Auth Callback] exchange error:", error.message);
     return NextResponse.redirect(buildAppRedirectUrl("/?auth=error", requestOrigin));
   }
 
+  if (AUTH_DEBUG) console.log("[Auth Callback] redirecting to:", next);
   const redirectResponse = NextResponse.redirect(buildAppRedirectUrl(next, requestOrigin));
   supabaseResponse.cookies.getAll().forEach((cookie) => {
     redirectResponse.cookies.set(cookie.name, cookie.value, {
