@@ -57,8 +57,11 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(buildAppRedirectUrl("/?auth=error", requestOrigin));
   }
 
-  if (AUTH_DEBUG) console.log("[Auth Callback] redirecting to:", next);
-  const redirectResponse = NextResponse.redirect(buildAppRedirectUrl(next, requestOrigin));
+  const successPath = next.includes("?")
+    ? `${next}&from_oauth=1`
+    : `${next}?from_oauth=1`;
+  if (AUTH_DEBUG) console.log("[Auth Callback] redirecting to:", successPath);
+  const redirectResponse = NextResponse.redirect(buildAppRedirectUrl(successPath, requestOrigin));
   supabaseResponse.cookies.getAll().forEach((cookie) => {
     redirectResponse.cookies.set(cookie.name, cookie.value, {
       path: cookie.path,

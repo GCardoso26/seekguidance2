@@ -10,10 +10,11 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { useRouter } from "next/navigation";
 import type { Session, User } from "@supabase/supabase-js";
 import {
   clearOAuthRedirectState,
+  isOAuthReturnPath,
+  performOAuthRedirect,
   setOAuthRedirectTarget,
   tryConsumeOAuthRedirect,
 } from "@/lib/auth/oauth-redirect";
@@ -34,31 +35,36 @@ type AuthContextValue = {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const router = useRouter();
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const configured = isSupabaseConfigured();
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(configured);
   const hasMigratedRef = useRef(false);
+  const redirectAttemptedRef = useRef(false);
 
   const maybeRedirectAfterOAuth = useCallback(
     (activeUser: User | null, event?: string) => {
-      if (!activeUser) return;
+      if (!activeUser || redirectAttemptedRef.current) return;
+      if (typeof window === "undefined") return;
 
       const isOAuthEvent =
         event === undefined || event === "SIGNED_IN" || event === "INITIAL_SESSION";
       if (!isOAuthEvent) return;
 
+      // Só redireciona na home/callback — preserva flags se cair brevemente em /judge
+      if (!isOAuthReturnPath(window.location.pathname)) return;
+
       const redirectTarget = tryConsumeOAuthRedirect();
-      if (redirectTarget) {
-        if (process.env.NODE_ENV === "development") {
-          console.log("[Auth] OAuth redirect →", redirectTarget, event ?? "getSession");
-        }
-        router.replace(redirectTarget);
+      if (!redirectTarget) return;
+
+      redirectAttemptedRef.current = true;
+      if (process.env.NODE_ENV === "development") {
+        console.log("[Auth] OAuth redirect →", redirectTarget, event ?? "getSession");
       }
+      performOAuthRedirect(redirectTarget);
     },
-    [router],
+    [],
   );
 
   useEffect(() => {
@@ -67,7 +73,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    // 1. Sessão inicial — cobre INITIAL_SESSION antes do listener
     void supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
       setUser(data.session?.user ?? null);
@@ -75,7 +80,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       maybeRedirectAfterOAuth(data.session?.user ?? null);
     });
 
-    // 2. Mudanças de auth — SIGNED_IN e INITIAL_SESSION
     const { data: sub } = supabase.auth.onAuthStateChange(async (event, nextSession) => {
       setSession(nextSession);
       setUser(nextSession?.user ?? null);
@@ -106,6 +110,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signInWithGoogle = useCallback(
     async (path = "/judge") => {
       if (!supabase) return;
+      redirectAttemptedRef.current = false;
       const nextPath = path.startsWith("/") ? path : `/${path}`;
       setOAuthRedirectTarget(nextPath);
       const origin = typeof window !== "undefined" ? window.location.origin : undefined;
@@ -123,6 +128,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = useCallback(async () => {
     if (!supabase) return;
+    redirectAttemptedRef.current = false;
     clearOAuthRedirectState();
     await supabase.auth.signOut();
   }, [supabase]);
