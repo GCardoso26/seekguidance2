@@ -6,7 +6,7 @@ export default function JudgePage() {
   return (
     <Suspense
       fallback={
-        <div className="judge-app flex min-h-screen items-center justify-center text-sm text-[hsl(222_15%_45%)]">
+        <div className="judge-app flex min-h-screen items-center justify-center bg-luxury-onyx text-sm text-luxury-mist">
           A carregar Judge TCG…
         </div>
       }

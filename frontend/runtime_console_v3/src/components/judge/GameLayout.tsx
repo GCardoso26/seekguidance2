@@ -23,7 +23,7 @@ export function GameLayout({ tcg, children, className }: Props) {
         style={{ background: gradient }}
         aria-hidden
       />
-      <div className="pointer-events-none fixed inset-0 -z-10 bg-black/40" aria-hidden />
+      <div className="pointer-events-none fixed inset-0 -z-10 bg-luxury-onyx/55" aria-hidden />
       {children}
     </div>
   );

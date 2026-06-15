@@ -75,33 +75,33 @@ export function ConsultationHistory({
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", stiffness: 320, damping: 32 }}
-            className="fixed bottom-0 right-0 top-0 z-50 flex w-full max-w-md flex-col border-l border-slate-700 bg-slate-900 shadow-2xl"
+            className="fixed bottom-0 right-0 top-0 z-50 flex w-full max-w-md flex-col border-l border-white/10 bg-luxury-obsidian shadow-2xl"
             aria-label="Minhas consultas"
           >
-            <header className="flex items-center justify-between border-b border-slate-700 px-4 py-4">
+            <header className="flex items-center justify-between border-b border-white/10 px-4 py-4">
               <div className="flex items-center gap-2">
-                <Clock className="h-5 w-5 text-amber-400" aria-hidden />
+                <Clock className="h-5 w-5 text-luxury-gold" aria-hidden />
                 <h2 className="text-lg font-bold text-white">Minhas consultas</h2>
               </div>
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-lg p-2 text-slate-400 hover:bg-slate-800 hover:text-white"
+                className="rounded-lg p-2 text-luxury-mist hover:bg-white/5 hover:text-white"
                 aria-label="Fechar"
               >
                 <X className="h-5 w-5" />
               </button>
             </header>
 
-            <div className="space-y-3 border-b border-slate-800 p-4">
+            <div className="space-y-3 border-b border-white/10 p-4">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-luxury-mist/70" />
                 <input
                   type="search"
                   value={query}
                   onChange={(e) => onQueryChange(e.target.value)}
                   placeholder="Buscar consultas…"
-                  className="w-full rounded-xl border border-slate-700 bg-slate-800/80 py-2.5 pl-10 pr-3 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-400/40"
+                  className="w-full rounded-xl border border-white/10 bg-white/5 py-2.5 pl-10 pr-3 text-sm text-luxury-frost placeholder:text-luxury-mist/70 focus:outline-none focus:ring-2 focus:ring-luxury-gold/30"
                   aria-label="Buscar consultas"
                 />
               </div>
@@ -112,8 +112,8 @@ export function ConsultationHistory({
                   className={cn(
                     "rounded-full px-2.5 py-1 text-xs font-medium",
                     tcgFilter === "all"
-                      ? "bg-amber-500/20 text-amber-300"
-                      : "bg-slate-800 text-slate-400",
+                      ? "bg-luxury-gold/20 text-luxury-gold-light"
+                      : "bg-white/5 text-luxury-mist",
                   )}
                 >
                   Todos
@@ -126,8 +126,8 @@ export function ConsultationHistory({
                     className={cn(
                       "rounded-full px-2.5 py-1 text-xs font-medium",
                       tcgFilter === g.id
-                        ? "bg-amber-500/20 text-amber-300"
-                        : "bg-slate-800 text-slate-400",
+                        ? "bg-luxury-gold/20 text-luxury-gold-light"
+                        : "bg-white/5 text-luxury-mist",
                     )}
                   >
                     {g.label.split(" ")[0]}
@@ -139,24 +139,24 @@ export function ConsultationHistory({
                 onClick={() => onFavoritesOnlyChange(!favoritesOnly)}
                 className={cn(
                   "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium",
-                  favoritesOnly ? "bg-amber-500/20 text-amber-300" : "text-slate-400",
+                  favoritesOnly ? "bg-luxury-gold/20 text-luxury-gold-light" : "text-luxury-mist",
                 )}
               >
-                <Star className={cn("h-3.5 w-3.5", favoritesOnly && "fill-amber-400")} />
+                <Star className={cn("h-3.5 w-3.5", favoritesOnly && "fill-luxury-gold")} />
                 Favoritos
               </button>
             </div>
 
             <div className="flex-1 overflow-y-auto p-4">
-              {loading && <p className="text-center text-sm text-slate-500">Carregando…</p>}
+              {loading && <p className="text-center text-sm text-luxury-mist/70">Carregando…</p>}
               {!loading && items.length === 0 && (
                 <div className="py-12 text-center">
-                  <p className="text-sm text-slate-400">Nenhuma consulta ainda.</p>
-                  <p className="mt-2 text-xs text-slate-500">Faça sua primeira pergunta na mesa!</p>
+                  <p className="text-sm text-luxury-mist">Nenhuma consulta ainda.</p>
+                  <p className="mt-2 text-xs text-luxury-mist/70">Faça sua primeira pergunta na mesa!</p>
                   <Link
                     href="/judge"
                     onClick={onClose}
-                    className="mt-4 inline-block rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-slate-900"
+                    className="mt-4 inline-block rounded-lg bg-luxury-gold px-4 py-2 text-sm font-semibold text-luxury-onyx"
                   >
                     Ir para a mesa
                   </Link>
@@ -169,7 +169,7 @@ export function ConsultationHistory({
                   const rel = formatRelativeTimePt(item.createdAt);
                   return (
                     <li key={item.id}>
-                      <div className="group flex gap-2 rounded-xl border border-slate-700/60 bg-slate-800/50 p-3 transition hover:border-slate-600">
+                      <div className="group flex gap-2 rounded-xl border border-white/10 bg-white/5 p-3 transition hover:border-white/10">
                         <button
                           type="button"
                           onClick={() => {
@@ -178,8 +178,8 @@ export function ConsultationHistory({
                           }}
                           className="min-w-0 flex-1 text-left"
                         >
-                          <p className="truncate text-sm font-medium text-slate-100">{item.question}</p>
-                          <div className="mt-1 flex flex-wrap items-center gap-2 text-[10px] text-slate-500">
+                          <p className="truncate text-sm font-medium text-luxury-frost">{item.question}</p>
+                          <div className="mt-1 flex flex-wrap items-center gap-2 text-[10px] text-luxury-mist/70">
                             <span
                               className="rounded px-1.5 py-0.5 font-semibold"
                               style={{
@@ -197,13 +197,13 @@ export function ConsultationHistory({
                           <button
                             type="button"
                             onClick={() => onToggleFavorite(item)}
-                            className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-700 hover:text-amber-400"
+                            className="rounded-lg p-1.5 text-luxury-mist hover:bg-white/10 hover:text-luxury-gold"
                             aria-label={isFavorite(item.id) ? "Remover favorito" : "Favoritar"}
                           >
                             <Star
                               className={cn(
                                 "h-4 w-4",
-                                isFavorite(item.id) && "fill-amber-400 text-amber-400",
+                                isFavorite(item.id) && "fill-luxury-gold text-luxury-gold",
                               )}
                             />
                           </button>
@@ -211,7 +211,7 @@ export function ConsultationHistory({
                             <button
                               type="button"
                               onClick={() => onDelete(item.id)}
-                              className="rounded-lg p-1.5 text-slate-500 opacity-0 transition group-hover:opacity-100 hover:bg-slate-700 hover:text-red-400"
+                              className="rounded-lg p-1.5 text-luxury-mist/70 opacity-0 transition group-hover:opacity-100 hover:bg-white/10 hover:text-red-400"
                               aria-label="Remover consulta"
                             >
                               <Trash2 className="h-4 w-4" />

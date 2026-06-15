@@ -92,7 +92,7 @@ export function JudgeCallCard({ call, type }: JudgeCallCardProps) {
                 </>
               )}
               {type === "resolved" && (
-                <Badge className="bg-emerald-500/20 text-emerald-200">Resolvido</Badge>
+                <Badge className="bg-luxury-gold/20 text-luxury-gold-light">Resolvido</Badge>
               )}
             </div>
           </div>

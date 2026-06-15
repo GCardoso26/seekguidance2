@@ -25,7 +25,7 @@ export function JudgeToast() {
       <p
         className={cn(
           "rounded-full px-4 py-2 text-sm font-medium shadow-lg backdrop-blur-md",
-          toast.kind === "success" && "bg-emerald-600/95 text-white",
+          toast.kind === "success" && "bg-luxury-gold/95 text-luxury-onyx",
           toast.kind === "error" && "bg-red-600/95 text-white",
           toast.kind === "info" && "bg-[var(--tcg-surface-elevated)] text-[var(--tcg-text-primary)] border border-[var(--tcg-border)]",
         )}

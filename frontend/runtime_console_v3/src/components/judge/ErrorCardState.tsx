@@ -17,7 +17,7 @@ export function ErrorCardState({
   return (
     <div className="judge-error-card flex flex-col items-center justify-center p-8 text-center">
       <div
-        className={`mb-6 flex h-44 w-32 items-center justify-center rounded-xl border-2 border-slate-600 bg-gradient-to-br from-slate-700 to-slate-900 ${
+        className={`mb-6 flex h-44 w-32 items-center justify-center rounded-xl border-2 border-white/10 bg-gradient-to-br from-luxury-midnight to-luxury-onyx ${
           !reduceMotion ? "animate-[flip-in_0.6s_ease-out]" : ""
         }`}
         aria-hidden

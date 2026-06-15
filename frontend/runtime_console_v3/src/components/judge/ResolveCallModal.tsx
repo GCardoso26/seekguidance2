@@ -114,7 +114,7 @@ export function ResolveCallModal({
                 {callerId && infractingPlayerId !== callerId && (
                   <button
                     type="button"
-                    className="text-xs text-amber-300/90 hover:text-amber-200"
+                    className="text-xs text-luxury-gold-light/90 hover:text-luxury-gold-light"
                     onClick={() => setInfractingPlayerId(callerId)}
                   >
                     Usar quem abriu a chamada ({callerHandle ? `@${callerHandle}` : callerId})

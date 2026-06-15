@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { BarChart3, Clock, CreditCard, Terminal } from "lucide-react";
+import { BarChart3, Clock, CreditCard, Scale, Terminal } from "lucide-react";
 import { GameLayout } from "@/components/judge/GameLayout";
-import { JudgeLogo } from "@/components/judge/JudgeLogo";
 import { TcgLogoImage } from "@/components/judge/TcgLogoImage";
 import { ServiceStatusDot } from "@/components/ServiceStatusMonitor";
+import { NoiseOverlay } from "@/components/luxury/effects/NoiseOverlay";
 import { LoginButton } from "@/features/auth/LoginButton";
 import { UserMenu } from "@/features/auth/UserMenu";
 import { useUserRole } from "@/hooks/useUserRole";
@@ -33,8 +33,8 @@ const HEALTH_LABEL: Record<BackendHealthState, string> = {
 };
 
 const HEALTH_DOT: Record<BackendHealthState, string> = {
-  online: "bg-emerald-400",
-  degraded: "bg-amber-300",
+  online: "bg-luxury-gold-light",
+  degraded: "bg-luxury-gold",
   offline: "bg-red-300",
 };
 
@@ -58,12 +58,12 @@ function HeaderNavButton({
 }) {
   const inner = (
     <>
-      <Icon className="h-4 w-4" aria-hidden />
+      <Icon className="h-4 w-4" strokeWidth={1.5} aria-hidden />
       <span className="hidden sm:inline">{label}</span>
     </>
   );
   const classes = cn(
-    "inline-flex items-center gap-1.5 rounded-lg border border-white/15 bg-white/5 px-2.5 py-1.5 text-xs font-medium text-slate-200 transition hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/50",
+    "inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-xs font-medium text-luxury-frost transition hover:border-luxury-gold/30 hover:bg-white/10 hover:text-luxury-frost focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-luxury-gold/40",
     className,
   );
 
@@ -100,18 +100,19 @@ export function JudgeLayout({
     <TcgThemeProvider tcg={tcg}>
       <GameLayout tcg={tcg}>
         <div
-          className="judge-app relative min-h-screen"
+          className="judge-app relative min-h-screen text-luxury-frost"
           data-tcg={tcg}
           data-pattern={brand.pattern}
           style={tcgThemeStyle(tcg)}
         >
+          <NoiseOverlay />
           <a href="#judge-main" className="skip-to-main">
             Saltar para o conteúdo
           </a>
 
           <header
             className={cn(
-              "judge-header-bar judge-header-bar--dynamic sticky top-0 z-20 border-b border-white/10 shadow-md transition-[background,filter] duration-300",
+              "judge-header-bar judge-header-bar--dynamic sticky top-0 z-20 border-b border-luxury-gold/10 shadow-md transition-[background,filter] duration-300",
               headerDegraded && "judge-header-bar--degraded",
             )}
             data-health={health}
@@ -119,20 +120,28 @@ export function JudgeLayout({
           >
             <div className="mx-auto flex h-14 max-w-[1600px] items-center justify-between gap-3 px-4 sm:h-16 sm:px-6">
               <div className="flex min-w-0 items-center gap-3">
-                <JudgeLogo size={36} />
-                <div className="min-w-0">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/80">
-                    Judge TCG
-                  </p>
-                  <h1 className="truncate text-sm font-bold leading-tight text-white sm:text-base">
-                    Mesa de Regras
-                  </h1>
-                </div>
+                <Link
+                  href="/"
+                  className="flex shrink-0 items-center gap-2.5 transition hover:opacity-90"
+                  aria-label="Judge TCG — início"
+                >
+                  <span className="flex h-9 w-9 items-center justify-center rounded-full border border-luxury-gold/30 bg-luxury-gold/10">
+                    <Scale className="h-4 w-4 text-luxury-gold" strokeWidth={1.5} />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-luxury-mist">
+                      Judge <span className="text-luxury-gold">TCG</span>
+                    </p>
+                    <h1 className="truncate text-sm font-medium leading-tight text-luxury-frost sm:text-base">
+                      Mesa de Regras
+                    </h1>
+                  </div>
+                </Link>
               </div>
 
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <span
-                  className="hidden items-center gap-2 rounded-full border border-white/15 bg-white/5 px-2.5 py-1 text-xs font-medium text-white sm:inline-flex"
+                  className="hidden items-center gap-2 rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs font-medium text-luxury-frost sm:inline-flex"
                   title={tcgLabel}
                 >
                   <span className="h-5 w-8 overflow-hidden rounded">
@@ -141,22 +150,18 @@ export function JudgeLayout({
                   {tcgLabel}
                 </span>
 
-                <HeaderNavButton
-                  icon={Clock}
-                  label="Histórico"
-                  onClick={onHistoryClick}
-                />
+                <HeaderNavButton icon={Clock} label="Histórico" onClick={onHistoryClick} />
                 <HeaderNavButton icon={CreditCard} label="Preços" href="/pricing" />
 
                 {SHOW_WARMUP_BADGE && (
                   <span
-                    className="hidden items-center gap-1 rounded-full bg-white/10 px-2 py-1 text-[10px] text-white/85 sm:inline-flex"
+                    className="hidden items-center gap-1 rounded-full bg-white/10 px-2 py-1 text-[10px] text-luxury-frost/85 sm:inline-flex"
                     title={warmupReady ? "Warmup concluído" : "Aquecendo serviço"}
                   >
                     <span
                       className={cn(
                         "h-2 w-2 rounded-full",
-                        warmupReady ? "bg-emerald-400" : "animate-pulse bg-amber-400",
+                        warmupReady ? "bg-luxury-gold-light" : "animate-pulse bg-luxury-gold",
                       )}
                       aria-hidden
                     />
@@ -167,7 +172,7 @@ export function JudgeLayout({
                 <UserMenu onHistoryClick={onHistoryClick} />
                 {SHOW_HEALTH_BADGE && (
                   <span
-                    className="hidden items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-medium text-white/90 sm:inline-flex"
+                    className="hidden items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-medium text-luxury-frost/90 sm:inline-flex"
                     title={HEALTH_LABEL[health]}
                   >
                     <span className={cn("h-2 w-2 rounded-full", HEALTH_DOT[health])} aria-hidden />
@@ -178,14 +183,14 @@ export function JudgeLayout({
                   <div className="admin-actions hidden items-center gap-1 sm:flex">
                     <Link
                       href={`/observability?game=${slug}&tab=judge`}
-                      className="inline-flex items-center gap-1 rounded-full border border-white/20 bg-white/5 px-2.5 py-1 text-[10px] font-medium text-white/90 hover:bg-white/15"
+                      className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-white/5 px-2.5 py-1 text-[10px] font-medium text-luxury-frost/90 hover:border-luxury-gold/30 hover:bg-white/10"
                     >
                       <BarChart3 size={14} aria-hidden />
                       Métricas
                     </Link>
                     <Link
                       href="/admin/console"
-                      className="inline-flex items-center gap-1 rounded-full border border-white/25 bg-white/10 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-white/20"
+                      className="inline-flex items-center gap-1 rounded-full border border-luxury-gold/25 bg-luxury-gold/10 px-3 py-1.5 text-xs font-medium text-luxury-gold transition hover:bg-luxury-gold/20"
                     >
                       <Terminal size={14} aria-hidden />
                       Console
@@ -200,14 +205,11 @@ export function JudgeLayout({
             {children}
           </main>
 
-          <footer className="flex flex-wrap items-center justify-center gap-3 border-t border-[var(--tcg-border)] py-4 text-xs text-[var(--tcg-text-secondary)]">
+          <footer className="flex flex-wrap items-center justify-center gap-3 border-t border-white/10 py-4 text-xs text-luxury-mist">
             <ServiceStatusDot />
             <span aria-hidden>·</span>
             Fontes oficiais indexadas ·{" "}
-            <Link
-              href={`/observability?game=${slug}`}
-              className="underline hover:text-[var(--tcg-text-primary)]"
-            >
+            <Link href={`/observability?game=${slug}`} className="text-luxury-gold hover:text-luxury-gold-light">
               Qualidade deste jogo
             </Link>
           </footer>

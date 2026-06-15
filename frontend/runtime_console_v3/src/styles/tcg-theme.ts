@@ -7,6 +7,16 @@ import { contrastRatio } from "@/lib/wcag-contrast";
 import type { TcgPattern } from "@/lib/tcg-brand-meta";
 import type { TcgType } from "@/types/judge";
 
+/** Superfícies e tipografia alinhadas ao design system luxury (mesa judge). */
+export const LUXURY_JUDGE_SURFACES: Record<string, string> = {
+  "--tcg-surface": "#0a0a0f",
+  "--tcg-surface-elevated": "#161622",
+  "--tcg-text-primary": "#e2e8f0",
+  "--tcg-text-secondary": "#94a3b8",
+  "--tcg-card-bg": "linear-gradient(145deg, rgb(255 255 255 / 0.06) 0%, rgb(10 10 15 / 0.98) 100%)",
+  "--judge-surface": "240 22% 4%",
+};
+
 export type TCGTheme = {
   /** Variáveis CSS (--tcg-*) */
   css: Record<string, string>;
@@ -407,6 +417,9 @@ export function applyTcgThemeVars(el: HTMLElement, id: TcgType): void {
   for (const [key, value] of Object.entries(t.css)) {
     el.style.setProperty(key, value);
   }
+  for (const [key, value] of Object.entries(LUXURY_JUDGE_SURFACES)) {
+    el.style.setProperty(key, value);
+  }
   el.style.setProperty("--tcg-accent", t.accent);
   el.style.setProperty("--tcg-accent-fg", t.accentFg);
   el.style.setProperty("--judge-header-from", t.headerFrom);
@@ -417,6 +430,7 @@ export function tcgThemeStyle(id: TcgType): CSSProperties {
   const t = getTcgTheme(id);
   return {
     ...t.css,
+    ...LUXURY_JUDGE_SURFACES,
     "--tcg-accent": t.accent,
     "--tcg-accent-fg": t.accentFg,
     "--judge-header-from": t.headerFrom,

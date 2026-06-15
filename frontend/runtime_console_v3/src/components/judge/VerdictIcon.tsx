@@ -16,7 +16,7 @@ const CONFIG: Record<
 > = {
   permitido: {
     Icon: Check,
-    color: "text-emerald-400",
+    color: "text-luxury-gold-light",
     animate: { scale: [0, 1.15, 1], opacity: [0, 1, 1] },
   },
   nao_permitido: {
@@ -26,17 +26,17 @@ const CONFIG: Record<
   },
   depende: {
     Icon: HelpCircle,
-    color: "text-amber-400",
+    color: "text-luxury-gold",
     animate: { scale: [0, 1.2, 1], y: [0, -6, 0] },
   },
   informacao: {
     Icon: Minus,
-    color: "text-slate-300",
+    color: "text-luxury-frost/90",
     animate: { scale: [0, 1, 1], opacity: [0, 1, 1] },
   },
   indisponivel: {
     Icon: Minus,
-    color: "text-slate-500",
+    color: "text-luxury-mist/70",
     animate: { scale: [0, 1, 1], opacity: [0, 1, 1] },
   },
 };

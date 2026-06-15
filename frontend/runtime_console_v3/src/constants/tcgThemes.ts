@@ -2,20 +2,20 @@ import type { TcgType } from "@/types/judge";
 
 export type TcgGradientStops = readonly [string, string, string];
 
-/** Gradiente padrão quando nenhum TCG tem tema dedicado. */
-export const DEFAULT_TCG_GRADIENT: TcgGradientStops = ["#0f172a", "#1e293b", "#020617"];
+/** Gradiente padrão — paleta luxury onyx. */
+export const DEFAULT_TCG_GRADIENT: TcgGradientStops = ["#0a0a0f", "#12121c", "#1a1a2e"];
 
 /**
- * Cores características por TCG (especificação do produto).
- * Chaves alinhadas a `TcgType`; aliases com hífen para documentação.
+ * Gradientes de fundo por TCG — tons escuros luxury com acento sutil do jogo.
  */
 export const TCG_BACKGROUND_GRADIENTS: Partial<Record<TcgType, TcgGradientStops>> = {
-  yugioh: ["#7c2d12", "#dc2626", "#991b1b"],
-  digimon: ["#78350f", "#f59e0b", "#b45309"],
-  lorcana: ["#4c1d95", "#8b5cf6", "#6d28d9"],
-  dragon_ball: ["#9a3412", "#f97316", "#ea580c"],
-  flesh_and_blood: ["#450a0a", "#dc2626", "#991b1b"],
-  magic: ["#1e3a8a", "#3b82f6", "#1d4ed8"],
+  magic: ["#0a0a0f", "#101828", "#1a1a2e"],
+  pokemon: ["#0a0a0f", "#1a1214", "#1a1a2e"],
+  yugioh: ["#0a0a0f", "#1a1410", "#1a1a2e"],
+  lorcana: ["#0a0a0f", "#151025", "#1a1a2e"],
+  digimon: ["#0a0a0f", "#1a1510", "#1a1a2e"],
+  dragon_ball: ["#0a0a0f", "#1a120e", "#1a1a2e"],
+  flesh_and_blood: ["#0a0a0f", "#1a1010", "#1a1a2e"],
 };
 
 export function tcgGradientCss(stops: TcgGradientStops): string {

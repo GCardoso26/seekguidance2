@@ -16,26 +16,26 @@ export function PlanLimitBanner({ variant = "questions", tcgName }: Props) {
 
   if (variant === "questions") {
     return (
-      <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-center">
-        <p className="text-sm text-amber-100">
+      <div className="rounded-xl border border-luxury-gold/30 bg-luxury-gold/10 p-4 text-center">
+        <p className="text-sm text-luxury-gold-light">
           Você usou {dailyUsed}/{dailyLimit} consultas hoje.
           {remainingToday === 0
             ? " O limite diário foi atingido."
             : ` Restam ${remainingToday} consultas.`}
         </p>
-        <p className="mt-1 text-xs text-amber-200/80">
+        <p className="mt-1 text-xs text-luxury-mist">
           Assine Pro para consultas ilimitadas e todos os 14 jogos.
         </p>
         <div className="mt-3 flex flex-wrap justify-center gap-2">
           <Link
             href="/pricing?from=paywall"
-            className="inline-flex items-center gap-1.5 rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-amber-400"
+            className="inline-flex items-center gap-1.5 rounded-full bg-luxury-gold px-4 py-2 text-sm font-semibold text-luxury-onyx hover:bg-luxury-gold-light"
           >
             <Crown className="h-4 w-4" aria-hidden />
             Ver planos
           </Link>
           {remainingToday === 0 && (
-            <span className="rounded-lg border border-slate-600 px-4 py-2 text-xs text-slate-400">
+            <span className="rounded-lg border border-white/10 px-4 py-2 text-xs text-luxury-mist">
               Amanhã você terá mais {dailyLimit}
             </span>
           )}
@@ -46,17 +46,17 @@ export function PlanLimitBanner({ variant = "questions", tcgName }: Props) {
 
   if (variant === "tcg") {
     return (
-      <div className="rounded-xl border border-slate-600 bg-slate-800/80 p-4 text-center">
-        <p className="text-sm text-slate-200">
+      <div className="luxury-card rounded-xl p-4 text-center">
+        <p className="text-sm text-luxury-frost">
           <span className="font-semibold">{tcgName ?? "Este jogo"}</span> está disponível no plano
           Spike.
         </p>
-        <p className="mt-1 text-xs text-slate-400">
+        <p className="mt-1 text-xs text-luxury-mist">
           O plano gratuito inclui Magic, Pokémon, Yu-Gi-Oh!, Lorcana e One Piece.
         </p>
         <Link
           href="/pricing?from=paywall-tcg"
-          className="mt-3 inline-block rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-slate-900"
+          className="mt-3 inline-block rounded-full bg-luxury-gold px-4 py-2 text-sm font-semibold text-luxury-onyx hover:bg-luxury-gold-light"
         >
           Fazer upgrade
         </Link>
@@ -65,9 +65,9 @@ export function PlanLimitBanner({ variant = "questions", tcgName }: Props) {
   }
 
   return (
-    <div className="rounded-xl border border-slate-600 bg-slate-800/80 p-4 text-center">
-      <p className="text-sm text-slate-200">Exportar histórico é um recurso Pro.</p>
-      <Link href="/pricing?from=export" className="mt-2 inline-block text-sm text-amber-400 hover:underline">
+    <div className="luxury-card rounded-xl p-4 text-center">
+      <p className="text-sm text-luxury-frost">Exportar histórico é um recurso Pro.</p>
+      <Link href="/pricing?from=export" className="mt-2 inline-block text-sm text-luxury-gold hover:text-luxury-gold-light">
         Ver planos →
       </Link>
     </div>

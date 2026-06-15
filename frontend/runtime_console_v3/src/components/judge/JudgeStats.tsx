@@ -23,7 +23,7 @@ function StatCard({ label, value }: { label: string; value: string }) {
     <Card className="border-white/10 bg-white/5">
       <CardContent className="px-4 py-3 text-center">
         <p className="text-xs uppercase tracking-wide text-white/50">{label}</p>
-        <p className="text-xl font-semibold text-emerald-300">{value}</p>
+        <p className="text-xl font-semibold text-luxury-gold-light">{value}</p>
       </CardContent>
     </Card>
   );

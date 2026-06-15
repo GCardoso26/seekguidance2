@@ -1,4 +1,4 @@
-/* Tema escuro da mesa — gradiente de fundo via GameLayout */
+/* Tema luxury da mesa — gradiente de fundo via GameLayout */
 .judge-app {
   color-scheme: dark;
   background-color: transparent;
@@ -7,26 +7,26 @@
 
 .judge-app[data-pattern="grid"] {
   background-image:
-    linear-gradient(hsl(var(--tcg-accent) / 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, hsl(var(--tcg-accent) / 0.035) 1px, transparent 1px);
+    linear-gradient(rgb(212 175 55 / 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(212 175 55 / 0.025) 1px, transparent 1px);
   background-size: 28px 28px;
 }
 
 .judge-app[data-pattern="hex"] {
-  background-image: radial-gradient(circle at 1px 1px, hsl(var(--tcg-accent) / 0.07) 1px, transparent 0);
+  background-image: radial-gradient(circle at 1px 1px, rgb(212 175 55 / 0.05) 1px, transparent 0);
   background-size: 18px 18px;
 }
 
 .judge-app[data-pattern="dots"] {
-  background-image: radial-gradient(hsl(var(--tcg-accent) / 0.08) 1px, transparent 1px);
+  background-image: radial-gradient(rgb(212 175 55 / 0.06) 1px, transparent 1px);
   background-size: 16px 16px;
 }
 
 .judge-app[data-pattern="bands"] {
   background-image: repeating-linear-gradient(
     -12deg,
-    hsl(var(--tcg-accent) / 0.025),
-    hsl(var(--tcg-accent) / 0.025) 10px,
+    rgb(212 175 55 / 0.02),
+    rgb(212 175 55 / 0.02) 10px,
     transparent 10px,
     transparent 24px
   );
@@ -34,36 +34,52 @@
 
 .judge-app[data-pattern="diamond"] {
   background-image:
-    linear-gradient(45deg, hsl(var(--tcg-accent) / 0.03) 25%, transparent 25%),
-    linear-gradient(-45deg, hsl(var(--tcg-accent) / 0.03) 25%, transparent 25%);
+    linear-gradient(45deg, rgb(212 175 55 / 0.025) 25%, transparent 25%),
+    linear-gradient(-45deg, rgb(212 175 55 / 0.025) 25%, transparent 25%);
   background-size: 20px 20px;
 }
 
 .judge-app .judge-header-bar--dynamic {
+  position: relative;
   background: linear-gradient(
-    135deg,
-    hsl(var(--judge-header-from)) 0%,
-    hsl(var(--judge-header-to)) 100%
+    180deg,
+    rgb(15 15 26 / 0.94) 0%,
+    rgb(10 10 15 / 0.9) 100%
+  );
+  backdrop-filter: blur(16px);
+}
+
+.judge-app .judge-header-bar--dynamic::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    hsl(var(--tcg-accent) / 0.55) 50%,
+    transparent 100%
   );
 }
 
 .judge-app .judge-card {
-  background: var(--tcg-surface-elevated, hsl(222 40% 9%));
-  border-color: var(--tcg-border, hsl(217 20% 20% / 0.5));
-  box-shadow: 0 1px 2px rgb(0 0 0 / 0.2), 0 8px 24px rgb(0 0 0 / 0.25);
+  background: var(--tcg-surface-elevated, #161622);
+  border-color: rgb(255 255 255 / 0.1);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.25), 0 8px 32px rgb(0 0 0 / 0.35);
 }
 
 .judge-app .judge-chip-active {
-  background: hsl(var(--primary));
-  color: white;
-  border-color: hsl(var(--primary));
-  box-shadow: 0 2px 8px hsl(var(--primary) / 0.35);
+  background: #d4af37;
+  color: #0a0a0f;
+  border-color: #d4af37;
+  box-shadow: 0 2px 12px rgb(212 175 55 / 0.35);
 }
 
-/* Cartões de seleção de jogo (Bandai TCG+ style) */
+/* Cartões de seleção de jogo */
 .judge-app .judge-tcg-card {
-  border-color: hsl(var(--border));
-  box-shadow: 0 1px 2px hsl(222 30% 20% / 0.04);
+  border-color: rgb(255 255 255 / 0.1);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.15);
 }
 
 .judge-app .judge-tcg-card--selected {
@@ -77,7 +93,7 @@
 .judge-app .judge-tcg-card:focus-visible {
   outline: none;
   box-shadow:
-    0 0 0 3px hsl(var(--tcg-accent) / 0.35),
+    0 0 0 3px rgb(212 175 55 / 0.35),
     0 4px 16px hsl(var(--tcg-accent) / 0.15);
 }
 
@@ -87,13 +103,12 @@
   }
 }
 
-/* Carrossel desktop — fade e botões de scroll */
 .judge-app .judge-tcg-scroll-fade {
-  background: linear-gradient(to right, hsl(var(--judge-surface)) 0%, transparent 100%);
+  background: linear-gradient(to right, var(--tcg-surface, #0a0a0f) 0%, transparent 100%);
 }
 
 .judge-app .judge-tcg-scroll-fade--right {
-  background: linear-gradient(to left, hsl(var(--judge-surface)) 0%, transparent 100%);
+  background: linear-gradient(to left, var(--tcg-surface, #0a0a0f) 0%, transparent 100%);
 }
 
 .judge-app .judge-tcg-scroll-btn {
@@ -102,21 +117,21 @@
   width: 2rem;
   height: 2rem;
   border-radius: 9999px;
-  border: 1px solid var(--tcg-border, hsl(217 20% 20% / 0.5));
-  background: var(--tcg-surface-elevated, hsl(222 40% 9%));
-  color: var(--tcg-text-primary, hsl(210 40% 98%));
+  border: 1px solid rgb(255 255 255 / 0.1);
+  background: var(--tcg-surface-elevated, #161622);
+  color: var(--tcg-text-primary, #e2e8f0);
   box-shadow: 0 2px 8px rgb(0 0 0 / 0.25);
   transition: box-shadow 0.15s ease, background 0.15s ease;
 }
 
 .judge-app .judge-tcg-scroll-btn:hover {
-  background: var(--tcg-surface, hsl(222 47% 6%));
+  background: rgb(255 255 255 / 0.08);
   box-shadow: 0 4px 12px rgb(0 0 0 / 0.3);
 }
 
 .judge-app .judge-tcg-scroll-btn:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px hsl(var(--primary) / 0.35);
+  box-shadow: 0 0 0 3px rgb(212 175 55 / 0.35);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -133,32 +148,39 @@
 
 .judge-app .judge-source-mark {
   border-radius: 0.2rem;
-  background: hsl(var(--tcg-accent) / 0.18);
-  color: hsl(var(--foreground));
+  background: rgb(212 175 55 / 0.18);
+  color: var(--tcg-text-primary, #e2e8f0);
   padding: 0 0.15rem;
   font-weight: 600;
 }
 
-/* Design tokens reutilizáveis */
 .judge-card {
-  background: rgb(15 23 42 / 0.8);
-  border-color: rgb(51 65 85 / 0.5);
+  background: rgb(255 255 255 / 0.05);
+  border-color: rgb(255 255 255 / 0.1);
   border-radius: 1rem;
-  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.25);
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.35);
 }
 
 .judge-heading {
-  font-weight: 700;
+  font-weight: 300;
   font-size: 1.5rem;
   line-height: 2rem;
-  color: var(--tcg-text-primary, rgb(241 245 249));
+  letter-spacing: -0.02em;
+  color: var(--tcg-text-primary, #e2e8f0);
 }
 
 .judge-body {
-  color: var(--tcg-text-secondary, rgb(203 213 225));
+  color: var(--tcg-text-secondary, #94a3b8);
+}
+
+.judge-app .luxury-card {
+  border-radius: 1rem;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  background: rgb(255 255 255 / 0.05);
+  backdrop-filter: blur(4px);
 }
 
 .judge-caption {
-  color: var(--tcg-text-secondary, rgb(148 163 184));
+  color: var(--tcg-text-secondary, #94a3b8);
   font-size: 0.75rem;
 }
