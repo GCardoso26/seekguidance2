@@ -27,14 +27,14 @@ function SocialPage() {
   return (
     <MobileLayout>
       <div className="container mx-auto px-4 py-8">
-        <Link href="/" className="text-sm text-slate-400">
+        <Link href="/" className="text-sm text-luxury-mist">
           ← Início
         </Link>
         <div className="mt-4 flex flex-wrap gap-3 text-sm">
-          <Link href="/social/friends" className="text-slate-400 hover:text-white">
+          <Link href="/social/friends" className="text-luxury-mist hover:text-white">
             Amigos
           </Link>
-          <Link href="/social/communities" className="text-slate-400 hover:text-white">
+          <Link href="/social/communities" className="text-luxury-mist hover:text-white">
             Comunidades
           </Link>
         </div>

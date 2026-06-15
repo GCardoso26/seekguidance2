@@ -21,14 +21,14 @@ export default function CommunitiesPage() {
   return (
     <MobileLayout>
       <div className="container mx-auto max-w-4xl px-4 py-8">
-        <Link href="/social" className="text-sm text-slate-400">
+        <Link href="/social" className="text-sm text-luxury-mist">
           ← Social
         </Link>
 
         <div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-3xl font-bold">Comunidades</h1>
-            <p className="mt-1 text-slate-400">Encontre grupos de jogadores</p>
+            <p className="mt-1 text-luxury-mist">Encontre grupos de jogadores</p>
           </div>
           <CreateCommunityModal />
         </div>
@@ -37,13 +37,13 @@ export default function CommunitiesPage() {
           placeholder="Buscar comunidades…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="mt-6 border-slate-600 bg-slate-800"
+          className="mt-6 border-white/10 bg-white/5"
         />
 
-        {isLoading && <p className="mt-6 text-slate-400">Carregando…</p>}
+        {isLoading && <p className="mt-6 text-luxury-mist">Carregando…</p>}
 
         {!isLoading && filtered.length === 0 && (
-          <p className="py-12 text-center text-slate-500">Nenhuma comunidade encontrada</p>
+          <p className="py-12 text-center text-luxury-mist/70">Nenhuma comunidade encontrada</p>
         )}
 
         <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">

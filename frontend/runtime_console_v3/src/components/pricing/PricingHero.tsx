@@ -11,21 +11,13 @@ type Props = {
 
 export function PricingHero({ isAnnual, onToggle, onToggleTrack }: Props) {
   return (
-    <section className="relative overflow-hidden py-20 text-center">
+    <section className="relative overflow-hidden py-16 text-center">
       <div
-        className="pointer-events-none absolute inset-0 opacity-[0.07]"
+        className="pointer-events-none absolute inset-0 opacity-[0.08]"
         aria-hidden
         style={{
           backgroundImage:
-            "radial-gradient(circle at 20% 30%, #f59e0b 0%, transparent 40%), radial-gradient(circle at 80% 70%, #8b5cf6 0%, transparent 35%)",
-        }}
-      />
-      <div
-        className="pointer-events-none absolute inset-0 opacity-10"
-        aria-hidden
-        style={{
-          backgroundImage:
-            "repeating-linear-gradient(45deg, #ffffff 0, #ffffff 1px, transparent 1px, transparent 12px)",
+            "radial-gradient(circle at 20% 30%, #d4af37 0%, transparent 40%), radial-gradient(circle at 80% 70%, #c0c0c0 0%, transparent 35%)",
         }}
       />
       <motion.div
@@ -34,10 +26,11 @@ export function PricingHero({ isAnnual, onToggle, onToggleTrack }: Props) {
         transition={{ duration: 0.6 }}
         className="relative z-10"
       >
-        <h1 className="mb-4 text-4xl font-bold text-white md:text-6xl">
-          Escolha seu <span className="text-amber-400">Plano</span>
+        <p className="mb-4 text-xs tracking-[0.3em] text-luxury-gold uppercase">Planos</p>
+        <h1 className="mb-4 text-4xl font-light text-luxury-frost md:text-6xl">
+          Escolha seu <span className="text-luxury">Plano</span>
         </h1>
-        <p className="mx-auto mb-8 max-w-2xl text-lg text-slate-400 md:text-xl">
+        <p className="mx-auto mb-8 max-w-2xl text-lg text-luxury-mist md:text-xl">
           Do casual ao competitivo. Encontre o plano que combina com seu estilo de jogo.
         </p>
         <PricingToggle

@@ -48,7 +48,7 @@ export function CreateCommunityModal({ onCreated }: Props) {
 
   if (!open) {
     return (
-      <Button className="bg-amber-500 text-slate-900" onClick={() => setOpen(true)}>
+      <Button className="bg-luxury-gold text-luxury-onyx" onClick={() => setOpen(true)}>
         Criar comunidade
       </Button>
     );
@@ -56,27 +56,27 @@ export function CreateCommunityModal({ onCreated }: Props) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-      <div className="w-full max-w-md rounded-2xl border border-slate-700 bg-slate-900 p-6 shadow-xl">
+      <div className="w-full max-w-md rounded-2xl border border-white/10 bg-luxury-midnight p-6 shadow-xl">
         <h2 className="text-xl font-bold">Nova comunidade</h2>
         <div className="mt-4 space-y-3">
           <Input
             placeholder="Nome"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="border-slate-600 bg-slate-800"
+            className="border-white/10 bg-white/5"
           />
           <textarea
             placeholder="Descrição"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={3}
-            className="w-full rounded-md border border-slate-600 bg-slate-800 px-3 py-2 text-sm"
+            className="w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm"
           />
           <div>
-            <p className="mb-2 text-sm text-slate-400">TCG principal (opcional)</p>
+            <p className="mb-2 text-sm text-luxury-mist">TCG principal (opcional)</p>
             <GameSelector value={gameCode} onChange={setGameCode} />
           </div>
-          <label className="flex items-center gap-2 text-sm text-slate-300">
+          <label className="flex items-center gap-2 text-sm text-luxury-frost/90">
             <input
               type="checkbox"
               checked={isPrivate}
@@ -90,7 +90,7 @@ export function CreateCommunityModal({ onCreated }: Props) {
             Cancelar
           </Button>
           <Button
-            className="flex-1 bg-amber-500 text-slate-900"
+            className="flex-1 bg-luxury-gold text-luxury-onyx"
             disabled={!name.trim() || create.isPending}
             onClick={() => void create.mutate()}
           >

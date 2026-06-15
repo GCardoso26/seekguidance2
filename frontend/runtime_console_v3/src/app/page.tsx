@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { LuxuryLayout } from "@/components/luxury/layout/LuxuryLayout";
 import { CtaFinalSection } from "@/components/luxury/sections/CtaFinalSection";
 import { FeaturesSection } from "@/components/luxury/sections/FeaturesSection";
 import { HeroSection } from "@/components/luxury/sections/HeroSection";
@@ -16,7 +15,7 @@ export const metadata: Metadata = {
 
 export default function HomePage() {
   return (
-    <LuxuryLayout>
+    <>
       <HeroSection />
       <FeaturesSection />
       <ShowcaseSection />
@@ -24,6 +23,6 @@ export default function HomePage() {
       <TestimonialsSection />
       <PricingSection />
       <CtaFinalSection />
-    </LuxuryLayout>
+    </>
   );
 }

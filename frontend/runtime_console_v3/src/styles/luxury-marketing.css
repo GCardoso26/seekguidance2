@@ -71,6 +71,38 @@
   animation: luxury-shimmer 8s ease-in-out infinite;
 }
 
+.luxury-marketing .luxury-page {
+  @apply mx-auto max-w-7xl px-6 py-12 lg:px-8;
+}
+
+.luxury-marketing .luxury-page-narrow {
+  @apply mx-auto max-w-3xl px-6 py-12 lg:px-8;
+}
+
+.luxury-marketing .luxury-input {
+  @apply w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-luxury-frost placeholder:text-luxury-mist/70 transition focus:border-luxury-gold/40 focus:outline-none focus:ring-2 focus:ring-luxury-gold/20;
+}
+
+.luxury-marketing .luxury-link {
+  @apply text-luxury-gold transition-colors hover:text-luxury-gold-light;
+}
+
+.luxury-marketing .luxury-muted {
+  @apply text-luxury-mist;
+}
+
+.luxury-marketing .luxury-card {
+  @apply rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm;
+}
+
+.luxury-marketing .luxury-btn-primary {
+  @apply inline-flex items-center justify-center rounded-full bg-luxury-gold px-6 py-3 text-sm font-medium text-luxury-onyx transition hover:bg-luxury-gold-light;
+}
+
+.luxury-marketing .luxury-btn-secondary {
+  @apply inline-flex items-center justify-center rounded-full border border-white/15 bg-white/5 px-6 py-3 text-sm font-medium text-luxury-frost transition hover:border-luxury-gold/40 hover:bg-white/10;
+}
+
 @keyframes luxury-gradient-shift {
   0%,
   100% {

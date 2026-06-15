@@ -19,15 +19,15 @@ function LeagueDetail() {
   return (
     <MobileLayout>
       <div className="container mx-auto max-w-4xl px-4 py-8">
-        <Link href="/leagues" className="text-sm text-slate-400">
+        <Link href="/leagues" className="text-sm text-luxury-mist">
           ← Ligas
         </Link>
-        {isLoading && <p className="mt-4 text-slate-400">Carregando…</p>}
+        {isLoading && <p className="mt-4 text-luxury-mist">Carregando…</p>}
         {league && (
           <>
-            <div className="mt-4 rounded-xl bg-gradient-to-r from-purple-700 to-blue-700 p-6">
+            <div className="mt-4 rounded-xl border border-luxury-gold/20 bg-gradient-to-r from-luxury-midnight to-luxury-velvet p-6">
               <h1 className="text-2xl font-bold">{String(league.name)}</h1>
-              <p className="opacity-90">
+              <p className="text-luxury-mist">
                 {String(league.game_code)} — {String(league.format)}
               </p>
             </div>
@@ -37,7 +37,7 @@ function LeagueDetail() {
                 <h2 className="text-lg font-semibold">Classificação</h2>
                 <table className="mt-3 w-full text-sm">
                   <thead>
-                    <tr className="text-left text-slate-400">
+                    <tr className="text-left text-luxury-mist">
                       <th className="py-2">#</th>
                       <th>Jogador</th>
                       <th>Pontos</th>
@@ -45,7 +45,7 @@ function LeagueDetail() {
                   </thead>
                   <tbody>
                     {standings.map((s) => (
-                      <tr key={String(s.player_id)} className="border-t border-slate-700">
+                      <tr key={String(s.player_id)} className="border-t border-white/10">
                         <td className="py-2">{String(s.rank)}</td>
                         <td>{String(s.display_name ?? s.handle)}</td>
                         <td>{String(s.total_points)}</td>
@@ -58,7 +58,7 @@ function LeagueDetail() {
                 <h2 className="text-lg font-semibold">Calendário</h2>
                 <ul className="mt-3 space-y-2 text-sm">
                   {events.map((e) => (
-                    <li key={String(e.id)} className="rounded-lg bg-slate-800 px-3 py-2">
+                    <li key={String(e.id)} className="rounded-lg bg-white/5 px-3 py-2">
                       {String(e.name)} · ×{String(e.points_multiplier)}
                     </li>
                   ))}

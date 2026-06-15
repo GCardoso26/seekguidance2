@@ -21,11 +21,11 @@ function MobileNavItem({ href, label, icon: Icon }: NavItem) {
     <Link
       href={href}
       className={`flex min-h-[44px] min-w-[44px] flex-col items-center justify-center text-xs ${
-        active ? "text-amber-400" : "text-slate-400"
+        active ? "text-luxury-gold" : "text-luxury-mist"
       }`}
       aria-label={label}
     >
-      <Icon className="h-5 w-5" aria-hidden />
+      <Icon className="h-5 w-5" strokeWidth={1.5} aria-hidden />
       <span>{label}</span>
     </Link>
   );
@@ -33,13 +33,13 @@ function MobileNavItem({ href, label, icon: Icon }: NavItem) {
 
 export function MobileLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const hideNav = pathname.startsWith("/judge");
+  const hideNav = pathname === "/judge" || pathname.startsWith("/judge/");
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-900 text-slate-100">
+    <div className="flex min-h-screen flex-col bg-luxury-onyx text-luxury-frost">
       <main className={hideNav ? "flex-1" : "flex-1 pb-20 md:pb-0"}>{children}</main>
       {!hideNav && (
-        <nav className="fixed bottom-0 left-0 right-0 z-50 flex justify-around border-t border-slate-700 bg-slate-900/95 p-2 backdrop-blur md:hidden">
+        <nav className="fixed bottom-0 left-0 right-0 z-50 flex justify-around border-t border-white/10 bg-luxury-obsidian/95 p-2 backdrop-blur md:hidden">
           {NAV.map((item) => (
             <MobileNavItem key={item.href} {...item} />
           ))}

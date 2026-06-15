@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { LuxuryLayout } from "@/components/luxury/layout/LuxuryLayout";
 import { LuxuryFeaturesPage } from "@/components/luxury/pages/LuxuryFeaturesPage";
 
 export const metadata: Metadata = {
@@ -9,9 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function FeaturesPage() {
-  return (
-    <LuxuryLayout>
-      <LuxuryFeaturesPage />
-    </LuxuryLayout>
-  );
+  return <LuxuryFeaturesPage />;
 }

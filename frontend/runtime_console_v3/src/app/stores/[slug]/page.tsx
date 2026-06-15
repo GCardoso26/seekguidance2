@@ -25,22 +25,27 @@ export default function StorePage() {
   return (
     <MobileLayout>
       <div className="container mx-auto px-4 py-8">
-        <Link href="/stores" className="text-sm text-slate-400">← Lojas</Link>
-        {isLoading && <p className="mt-4">Carregando…</p>}
+        <Link href="/stores" className="text-sm text-luxury-mist">
+          ← Lojas
+        </Link>
+        {isLoading && <p className="mt-4 text-luxury-mist">Carregando…</p>}
         {store && (
           <>
-            <div className="mt-4 rounded-xl bg-slate-800 p-6">
+            <div className="luxury-card mt-4">
               <h1 className="text-2xl font-bold">{String(store.name)}</h1>
-              {Boolean(store.verified) && <p className="text-sm text-emerald-400">✓ Conta verificada</p>}
-              <p className="text-slate-400">
-                📍 {String(store.city ?? "")} · ⭐ {String(store.average_rating)} ({String(store.review_count)} avaliações)
+              {Boolean(store.verified) && (
+                <p className="text-sm text-luxury-gold-light">✓ Conta verificada</p>
+              )}
+              <p className="text-luxury-mist">
+                📍 {String(store.city ?? "")} · ⭐ {String(store.average_rating)} (
+                {String(store.review_count)} avaliações)
               </p>
             </div>
             <section className="mt-8">
               <h2 className="text-lg font-semibold">Próximos torneios</h2>
               <ul className="mt-3 space-y-2">
                 {tournaments.map((t) => (
-                  <li key={String(t.id)} className="rounded-lg border border-slate-700 px-4 py-3 text-sm">
+                  <li key={String(t.id)} className="rounded-lg border border-white/10 px-4 py-3 text-sm">
                     {String(t.name)} — {String(t.registered)}/{String(t.max_players)} inscritos
                   </li>
                 ))}

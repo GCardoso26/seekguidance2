@@ -17,8 +17,8 @@ type Tab = "active" | "open" | "resolved" | "reports";
 function slaColor(deadline: string): string {
   const ms = new Date(deadline).getTime() - Date.now();
   if (ms < 0) return "text-red-400";
-  if (ms < 120_000) return "text-amber-300";
-  return "text-emerald-300";
+  if (ms < 120_000) return "text-luxury-gold-light";
+  return "text-luxury-gold-light";
 }
 
 export default function JudgeDashboardPage() {
@@ -74,7 +74,7 @@ export default function JudgeDashboardPage() {
           {certification && (
             <p className="mt-1 text-sm text-white/60">
               Certificado:{" "}
-              <Badge className="border border-emerald-500/30 bg-transparent text-emerald-300">
+              <Badge className="border border-luxury-gold/30 bg-transparent text-luxury-gold-light">
                 {certification.gameCode} — {certification.level}
               </Badge>
             </p>
@@ -92,7 +92,7 @@ export default function JudgeDashboardPage() {
             type="button"
             onClick={() => setTab(t.id)}
             className={`rounded-lg px-4 py-2 text-sm transition ${
-              tab === t.id ? "bg-emerald-600/20 text-emerald-200" : "text-white/60 hover:text-white"
+              tab === t.id ? "bg-luxury-gold/20 text-luxury-gold-light" : "text-white/60 hover:text-white"
             }`}
           >
             {t.label} ({t.count})

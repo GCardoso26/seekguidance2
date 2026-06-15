@@ -60,28 +60,27 @@ function PlayView() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 px-4 py-8 text-slate-100">
-      <div className="mx-auto max-w-lg space-y-6">
-        <Link href={`/tournament/${id}`} className="text-sm text-slate-400">
+    <div className="luxury-page mx-auto max-w-lg space-y-6 pb-8">
+        <Link href={`/tournament/${id}`} className="text-sm text-luxury-mist">
           ← Voltar ao torneio
         </Link>
         <h1 className="text-xl font-bold">Rodada {currentRound}</h1>
         <TimerDisplay roundId={round?.id ?? null} />
 
         {!user && (
-          <p className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-200">
+          <p className="rounded-lg border border-luxury-gold/30 bg-luxury-gold/10 p-4 text-sm text-luxury-gold-light">
             Faça login para ver sua mesa.
           </p>
         )}
 
         {user && !myPairing && (
-          <div className="rounded-xl border border-slate-700 p-6 text-center">
-            <User className="mx-auto mb-2 h-8 w-8 text-slate-500" />
+          <div className="rounded-xl border border-white/10 p-6 text-center">
+            <User className="mx-auto mb-2 h-8 w-8 text-luxury-mist/70" />
             <p className="font-medium">Você não está inscrito neste torneio</p>
-            <p className="mt-1 text-sm text-slate-400">Procure o organizador para se inscrever.</p>
+            <p className="mt-1 text-sm text-luxury-mist">Procure o organizador para se inscrever.</p>
             <Link
               href={`/tournament/${id}`}
-              className="mt-4 inline-block rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-slate-900"
+              className="mt-4 inline-block rounded-lg bg-luxury-gold px-4 py-2 text-sm font-semibold text-luxury-onyx"
             >
               Ver torneio
             </Link>
@@ -101,7 +100,6 @@ function PlayView() {
             </div>
           </>
         )}
-      </div>
     </div>
   );
 }

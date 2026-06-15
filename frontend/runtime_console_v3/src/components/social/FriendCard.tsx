@@ -27,12 +27,12 @@ export function FriendCard({ friend, type = "friend" }: Props) {
   });
 
   return (
-    <article className="flex items-center justify-between rounded-xl border border-slate-700 p-4">
+    <article className="flex items-center justify-between rounded-xl border border-white/10 p-4">
       <div>
-        <Link href={`/player/${friend.handle}`} className="font-semibold hover:text-amber-400">
+        <Link href={`/player/${friend.handle}`} className="font-semibold hover:text-luxury-gold">
           @{friend.handle}
         </Link>
-        <p className="text-sm text-slate-400">{friend.display_name}</p>
+        <p className="text-sm text-luxury-mist">{friend.display_name}</p>
       </div>
       {type === "pending" ? (
         <Button
@@ -40,13 +40,13 @@ export function FriendCard({ friend, type = "friend" }: Props) {
           size="sm"
           disabled={accept.isPending}
           onClick={() => accept.mutate()}
-          className="bg-amber-500 text-slate-900 hover:opacity-90"
+          className="bg-luxury-gold text-luxury-onyx hover:opacity-90"
         >
           Aceitar
         </Button>
       ) : (
         friend.unread ? (
-          <span className="rounded-full bg-amber-500/20 px-2 py-1 text-xs text-amber-300">
+          <span className="rounded-full bg-luxury-gold/20 px-2 py-1 text-xs text-luxury-gold-light">
             {friend.unread} não lidas
           </span>
         ) : null

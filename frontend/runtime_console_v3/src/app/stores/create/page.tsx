@@ -36,7 +36,7 @@ export default function CreateStorePage() {
   return (
     <MobileLayout>
       <div className="container mx-auto max-w-2xl px-4 py-8">
-        <Link href="/stores" className="text-sm text-slate-400 hover:text-white">
+        <Link href="/stores" className="text-sm text-luxury-mist hover:text-white">
           ← Voltar para lojas
         </Link>
         <h1 className="mt-4 text-3xl font-bold">Cadastrar nova loja</h1>
@@ -48,13 +48,13 @@ export default function CreateStorePage() {
         )}
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-6">
-          <Card className="border-slate-700 bg-slate-800/50">
+          <Card className="border-white/10 bg-white/5">
             <CardHeader>
               <CardTitle>Informações básicas</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <label htmlFor="name" className="mb-1 block text-sm text-slate-300">
+                <label htmlFor="name" className="mb-1 block text-sm text-luxury-frost/90">
                   Nome da loja *
                 </label>
                 <Input
@@ -65,30 +65,30 @@ export default function CreateStorePage() {
                     const name = e.target.value;
                     setFormData((prev) => ({ ...prev, name, slug: generateSlug(name) }));
                   }}
-                  className="border-slate-600 bg-slate-800"
+                  className="border-white/10 bg-white/5"
                   placeholder="Ex: Loja TCG Central"
                 />
               </div>
 
               <div>
-                <label htmlFor="slug" className="mb-1 block text-sm text-slate-300">
+                <label htmlFor="slug" className="mb-1 block text-sm text-luxury-frost/90">
                   Slug (URL) *
                 </label>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-slate-500">/stores/</span>
+                  <span className="text-sm text-luxury-mist/70">/stores/</span>
                   <Input
                     id="slug"
                     required
                     value={formData.slug}
                     onChange={(e) => setFormData((prev) => ({ ...prev, slug: e.target.value }))}
                     pattern="[a-z0-9-]+"
-                    className="flex-1 border-slate-600 bg-slate-800"
+                    className="flex-1 border-white/10 bg-white/5"
                   />
                 </div>
               </div>
 
               <div>
-                <label htmlFor="description" className="mb-1 block text-sm text-slate-300">
+                <label htmlFor="description" className="mb-1 block text-sm text-luxury-frost/90">
                   Descrição
                 </label>
                 <textarea
@@ -96,30 +96,30 @@ export default function CreateStorePage() {
                   value={formData.description}
                   onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
                   rows={3}
-                  className="w-full rounded-md border border-slate-600 bg-slate-800 px-3 py-2 text-sm"
+                  className="w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm"
                 />
               </div>
             </CardContent>
           </Card>
 
-          <Card className="border-slate-700 bg-slate-800/50">
+          <Card className="border-white/10 bg-white/5">
             <CardHeader>
               <CardTitle>Localização e contato</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <label htmlFor="city" className="mb-1 block text-sm text-slate-300">
+                <label htmlFor="city" className="mb-1 block text-sm text-luxury-frost/90">
                   Cidade
                 </label>
                 <Input
                   id="city"
                   value={formData.city}
                   onChange={(e) => setFormData((prev) => ({ ...prev, city: e.target.value }))}
-                  className="border-slate-600 bg-slate-800"
+                  className="border-white/10 bg-white/5"
                 />
               </div>
               <div>
-                <label htmlFor="country" className="mb-1 block text-sm text-slate-300">
+                <label htmlFor="country" className="mb-1 block text-sm text-luxury-frost/90">
                   País *
                 </label>
                 <Input
@@ -127,11 +127,11 @@ export default function CreateStorePage() {
                   required
                   value={formData.country}
                   onChange={(e) => setFormData((prev) => ({ ...prev, country: e.target.value }))}
-                  className="border-slate-600 bg-slate-800"
+                  className="border-white/10 bg-white/5"
                 />
               </div>
               <div>
-                <label htmlFor="email" className="mb-1 block text-sm text-slate-300">
+                <label htmlFor="email" className="mb-1 block text-sm text-luxury-frost/90">
                   E-mail *
                 </label>
                 <Input
@@ -140,13 +140,13 @@ export default function CreateStorePage() {
                   required
                   value={formData.email}
                   onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
-                  className="border-slate-600 bg-slate-800"
+                  className="border-white/10 bg-white/5"
                 />
               </div>
             </CardContent>
           </Card>
 
-          <Button type="submit" disabled={isPending} className="w-full bg-amber-500 text-slate-900">
+          <Button type="submit" disabled={isPending} className="w-full bg-luxury-gold text-luxury-onyx">
             {isPending ? "Criando…" : "Cadastrar loja"}
           </Button>
         </form>

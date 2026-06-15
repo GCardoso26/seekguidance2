@@ -23,16 +23,20 @@ export default function JudgePortalLayout({ children }: { children: ReactNode })
   if (loading || !allowed) return null;
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white">
+    <div className="min-h-screen bg-luxury-onyx text-luxury-frost">
       <header className="border-b border-white/10 px-6 py-4">
         <div className="mx-auto flex max-w-6xl items-center justify-between">
           <div>
-            <p className="text-xs uppercase tracking-widest text-emerald-400/80">Judge Assistant</p>
-            <h1 className="text-lg font-semibold">Painel do Juiz</h1>
+            <p className="text-xs tracking-[0.25em] text-luxury-gold uppercase">Judge Assistant</p>
+            <h1 className="text-lg font-medium">Painel do Juiz</h1>
           </div>
           <nav className="flex gap-4 text-sm">
             {NAV.map((item) => (
-              <Link key={item.href} href={item.href} className="text-white/70 hover:text-white">
+              <Link
+                key={item.href}
+                href={item.href}
+                className="text-luxury-mist transition hover:text-luxury-frost"
+              >
                 {item.label}
               </Link>
             ))}

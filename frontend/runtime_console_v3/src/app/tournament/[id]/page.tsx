@@ -25,30 +25,30 @@ function Dashboard() {
   const pairings = (roundData as { pairings?: unknown[] })?.pairings ?? [];
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100">
-      <header className="border-b border-slate-800 px-4 py-4">
+    <div className="luxury-page pb-8">
+      <header className="border-b border-white/10 px-4 py-4">
         <div className="container mx-auto flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold">{String(t?.name ?? "Torneio")}</h1>
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-luxury-mist">
               {String(t?.game_code ?? "")} · {String(t?.format_code ?? "")} · {String(t?.status ?? "")}
             </p>
           </div>
           <div className="flex gap-2">
-            <Link href={`/tournament/${id}/play`} className="rounded-lg border border-slate-600 px-4 py-2 text-sm">
+            <Link href={`/tournament/${id}/play`} className="rounded-lg border border-white/10 px-4 py-2 text-sm">
               Vista jogador
             </Link>
             <button
               type="button"
               onClick={() => flow.startCheckIn.mutate()}
-              className="rounded-lg border border-slate-600 px-4 py-2 text-sm"
+              className="rounded-lg border border-white/10 px-4 py-2 text-sm"
             >
               Abrir check-in
             </button>
             <button
               type="button"
               onClick={() => flow.startTournament.mutate()}
-              className="rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-slate-900"
+              className="rounded-lg bg-luxury-gold px-4 py-2 text-sm font-semibold text-luxury-onyx"
             >
               Iniciar torneio
             </button>

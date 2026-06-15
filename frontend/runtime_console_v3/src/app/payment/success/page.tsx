@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect } from "react";
+import { Check } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { trackEvent } from "@/lib/analytics";
 
@@ -19,27 +20,19 @@ function SuccessContent() {
   }, [sessionId, queryClient]);
 
   return (
-    <div className="mx-auto max-w-md p-8 text-center">
-      <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-500/20">
-        <span className="text-4xl" aria-hidden>
-          ✓
-        </span>
+    <div className="luxury-page mx-auto max-w-md py-16 text-center">
+      <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full border border-luxury-gold/30 bg-luxury-gold/10">
+        <Check className="h-10 w-10 text-luxury-gold" strokeWidth={1.5} aria-hidden />
       </div>
-      <h1 className="mb-4 text-3xl font-bold text-white">Subscrição ativada!</h1>
-      <p className="mb-8 text-slate-400">
+      <h1 className="mb-4 text-3xl font-light text-luxury-frost">Subscrição ativada</h1>
+      <p className="mb-8 text-luxury-mist">
         O pagamento foi processado. Já podes usar as funcionalidades do teu plano.
       </p>
       <div className="space-y-3">
-        <Link
-          href="/judge"
-          className="block w-full rounded-lg bg-emerald-500 py-3 font-medium text-white hover:bg-emerald-400"
-        >
+        <Link href="/judge" className="luxury-btn-primary block w-full">
           Ir para a Mesa
         </Link>
-        <Link
-          href="/settings/billing"
-          className="block w-full rounded-lg border border-slate-600 py-3 text-slate-300 hover:bg-slate-800"
-        >
+        <Link href="/settings/billing" className="luxury-btn-secondary block w-full">
           Gerir subscrição
         </Link>
       </div>
@@ -49,10 +42,8 @@ function SuccessContent() {
 
 export default function PaymentSuccessPage() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#0a0a0f]">
-      <Suspense fallback={<p className="text-slate-400">A confirmar pagamento...</p>}>
-        <SuccessContent />
-      </Suspense>
-    </div>
+    <Suspense fallback={<p className="luxury-page py-24 text-center text-luxury-mist">A confirmar pagamento…</p>}>
+      <SuccessContent />
+    </Suspense>
   );
 }

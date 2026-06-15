@@ -28,10 +28,10 @@ function SearchPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100">
-      <header className="border-b border-slate-800 px-4 py-4">
+    <div className="luxury-page pb-8">
+      <header className="border-b border-white/10 px-4 py-4">
         <div className="container mx-auto">
-          <Link href="/" className="text-sm text-slate-400">
+          <Link href="/" className="text-sm text-luxury-mist">
             ← Início
           </Link>
           <h1 className="mt-2 text-2xl font-bold">Descobrir Torneios</h1>
@@ -44,7 +44,7 @@ function SearchPage() {
             placeholder="Buscar torneios…"
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            className="w-full rounded-lg border border-slate-600 bg-slate-800 px-4 py-2"
+            className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2"
           />
           <div className="flex flex-wrap gap-2">
             {GAMES.map((g) => (
@@ -52,7 +52,7 @@ function SearchPage() {
                 key={g}
                 type="button"
                 onClick={() => toggleGame(g)}
-                className={`rounded-full px-3 py-1 text-sm ${selectedGames.includes(g) ? "bg-amber-500 text-slate-900" : "border border-slate-600"}`}
+                className={`rounded-full px-3 py-1 text-sm ${selectedGames.includes(g) ? "bg-luxury-gold text-luxury-onyx" : "border border-white/10"}`}
               >
                 {g}
               </button>
@@ -60,30 +60,30 @@ function SearchPage() {
             <button
               type="button"
               onClick={() => setFreeOnly((v) => !v)}
-              className={`rounded-full px-3 py-1 text-sm ${freeOnly ? "bg-emerald-600" : "border border-slate-600"}`}
+              className={`rounded-full px-3 py-1 text-sm ${freeOnly ? "bg-luxury-gold" : "border border-white/10"}`}
             >
               Gratuito
             </button>
           </div>
 
-          {isLoading && <p className="text-slate-400">Buscando…</p>}
+          {isLoading && <p className="text-luxury-mist">Buscando…</p>}
           <div className="space-y-4">
             {items.map((t) => (
-              <article key={String(t.id)} className="rounded-xl border border-slate-700 p-4">
+              <article key={String(t.id)} className="rounded-xl border border-white/10 p-4">
                 <h2 className="text-lg font-semibold">{String(t.name)}</h2>
-                <p className="text-sm text-slate-400">
+                <p className="text-sm text-luxury-mist">
                   {String(t.game_code)} · {String(t.city ?? "Online")} ·{" "}
                   {Number(t.entry_fee_cents) > 0
                     ? `R$ ${(Number(t.entry_fee_cents) / 100).toFixed(2)}`
                     : "Gratuito"}
                 </p>
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-luxury-mist/70">
                   👥 {String(t.registered)}/{String(t.max_players ?? "?")} inscritos
                 </p>
                 <button
                   type="button"
                   onClick={() => setCheckoutId(String(t.id))}
-                  className="mt-3 rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-slate-900"
+                  className="mt-3 rounded-lg bg-luxury-gold px-4 py-2 text-sm font-semibold text-luxury-onyx"
                 >
                   Inscrever-se
                 </button>

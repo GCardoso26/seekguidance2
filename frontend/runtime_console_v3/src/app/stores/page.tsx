@@ -18,14 +18,14 @@ export default function StoresPage() {
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <Link href="/" className="text-sm text-slate-400">
+            <Link href="/" className="text-sm text-luxury-mist">
               ← Início
             </Link>
             <h1 className="mt-2 text-3xl font-bold">Lojas TCG</h1>
-            <p className="mt-1 text-slate-400">Encontre lojas verificadas para jogar</p>
+            <p className="mt-1 text-luxury-mist">Encontre lojas verificadas para jogar</p>
           </div>
           <Link href="/stores/create">
-            <Button className="bg-amber-500 text-slate-900 hover:opacity-90">Cadastrar minha loja</Button>
+            <Button className="bg-luxury-gold text-luxury-onyx hover:opacity-90">Cadastrar minha loja</Button>
           </Link>
         </div>
 
@@ -34,22 +34,22 @@ export default function StoresPage() {
             placeholder="Buscar lojas…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="border-slate-600 bg-slate-800"
+            className="border-white/10 bg-white/5"
           />
           <Button
             type="button"
             variant={verifiedOnly ? "default" : "outline"}
             onClick={() => setVerifiedOnly((v) => !v)}
-            className="border-slate-600"
+            className="border-white/10"
           >
             {verifiedOnly ? "Só verificadas ✓" : "Filtrar verificadas"}
           </Button>
         </div>
 
-        {isLoading && <p className="text-slate-400">Carregando lojas…</p>}
+        {isLoading && <p className="text-luxury-mist">Carregando lojas…</p>}
 
         {!isLoading && (data?.stores.length ?? 0) === 0 && (
-          <p className="py-12 text-center text-slate-500">Nenhuma loja encontrada</p>
+          <p className="py-12 text-center text-luxury-mist/70">Nenhuma loja encontrada</p>
         )}
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">

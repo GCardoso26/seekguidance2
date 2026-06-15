@@ -17,11 +17,11 @@ export default function PlayerHistoryPage() {
   return (
     <MobileLayout>
       <div className="container mx-auto max-w-2xl px-4 py-8">
-        <Link href="/player/me" className="text-sm text-slate-400">
+        <Link href="/player/me" className="text-sm text-luxury-mist">
           ← Meu perfil
         </Link>
         <h1 className="mt-2 text-3xl font-bold">Histórico de consultas</h1>
-        <p className="mt-1 text-slate-400">Busque, filtre e favorite suas perguntas ao juiz.</p>
+        <p className="mt-1 text-luxury-mist">Busque, filtre e favorite suas perguntas ao juiz.</p>
 
         <div className="mt-6">
           <ConsultationHistoryList onSelect={handleSelect} />

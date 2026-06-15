@@ -25,11 +25,11 @@ export default function TournamentBracketPage() {
   return (
     <MobileLayout>
       <div className="container mx-auto px-4 py-8">
-        <Link href={`/tournament/${id}`} className="text-sm text-slate-400">
+        <Link href={`/tournament/${id}`} className="text-sm text-luxury-mist">
           ← Torneio
         </Link>
         <h1 className="mt-2 text-2xl font-bold">Chaveamento</h1>
-        <p className="mt-1 text-sm text-slate-500">Dados de exemplo — integração com API em breve.</p>
+        <p className="mt-1 text-sm text-luxury-mist/70">Dados de exemplo — integração com API em breve.</p>
         <div className="mt-6">
           <BracketTree matches={MOCK_MATCHES} nameById={MOCK_NAMES} />
         </div>

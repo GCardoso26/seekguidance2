@@ -10,7 +10,7 @@ export function FriendButton({ playerId }: { playerId: string }) {
       <button
         type="button"
         onClick={() => removeFriend.mutate()}
-        className="min-h-[44px] rounded-lg border border-slate-600 px-4 py-2 text-sm"
+        className="min-h-[44px] rounded-lg border border-white/10 px-4 py-2 text-sm"
       >
         Remover amigo
       </button>
@@ -20,11 +20,11 @@ export function FriendButton({ playerId }: { playerId: string }) {
   if (status === "pending") {
     return (
       <div className="flex gap-2">
-        <span className="text-sm text-slate-400">Solicitação pendente</span>
+        <span className="text-sm text-luxury-mist">Solicitação pendente</span>
         <button
           type="button"
           onClick={() => acceptRequest.mutate()}
-          className="min-h-[44px] rounded-lg bg-emerald-600 px-3 py-1 text-sm text-white"
+          className="min-h-[44px] rounded-lg bg-luxury-gold px-3 py-1 text-sm text-white"
         >
           Aceitar
         </button>

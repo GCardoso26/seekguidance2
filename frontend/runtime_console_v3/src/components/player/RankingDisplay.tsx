@@ -22,7 +22,7 @@ const TIER_BARS: Record<string, number> = {
 
 export function RankingDisplay({ rankings }: Props) {
   if (!rankings.length) {
-    return <p className="text-sm text-slate-400">Sem rankings ainda.</p>;
+    return <p className="text-sm text-luxury-mist">Sem rankings ainda.</p>;
   }
 
   return (
@@ -30,12 +30,12 @@ export function RankingDisplay({ rankings }: Props) {
       {rankings.map((r) => {
         const filled = TIER_BARS[r.tier ?? "Bronze"] ?? 1;
         return (
-          <div key={`${r.game_code}-${r.format}`} className="rounded-lg border border-slate-700 p-3">
+          <div key={`${r.game_code}-${r.format}`} className="rounded-lg border border-white/10 p-3">
             <div className="flex items-center justify-between text-sm">
               <span className="font-medium">
                 {r.game_code} {r.format}
               </span>
-              <span className="text-amber-400">
+              <span className="text-luxury-gold">
                 {r.tier} {r.division ? `D${r.division}` : ""} · {r.points} pts
               </span>
             </div>
@@ -43,7 +43,7 @@ export function RankingDisplay({ rankings }: Props) {
               {Array.from({ length: 7 }).map((_, i) => (
                 <div
                   key={i}
-                  className={`h-2 flex-1 rounded ${i < filled ? "bg-amber-500" : "bg-slate-700"}`}
+                  className={`h-2 flex-1 rounded ${i < filled ? "bg-luxury-gold" : "bg-slate-700"}`}
                 />
               ))}
             </div>

@@ -78,14 +78,14 @@ export function PricingCard({ plan, isAnnual, onCtaClick }: Props) {
       className={cn(
         "relative rounded-2xl border-2 p-8 transition-all duration-300",
         plan.popular
-          ? "border-amber-500 bg-slate-800/80 shadow-lg"
-          : "border-slate-700 bg-slate-800/50 hover:border-slate-500",
+          ? "border-luxury-gold bg-white/5 shadow-lg"
+          : "border-white/10 bg-white/5 hover:border-luxury-gold/40",
       )}
       style={{ boxShadow: plan.popular ? `0 0 40px ${plan.glowColor}` : undefined }}
     >
       {plan.popular && (
         <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-          <span className="rounded-full bg-gradient-to-r from-amber-500 to-orange-600 px-4 py-1 text-sm font-bold text-white">
+          <span className="rounded-full bg-gradient-to-r from-luxury-gold to-luxury-gold-dark px-4 py-1 text-sm font-bold text-white">
             MAIS POPULAR
           </span>
         </div>
@@ -97,15 +97,15 @@ export function PricingCard({ plan, isAnnual, onCtaClick }: Props) {
         </div>
         <div>
           <h3 className="text-xl font-bold text-white">{plan.name}</h3>
-          <p className="text-sm text-slate-400">{plan.subtitle}</p>
+          <p className="text-sm text-luxury-mist">{plan.subtitle}</p>
         </div>
       </div>
 
       <div className="mb-6">
         <span className="font-mono text-4xl font-bold text-white">R$ {price.toFixed(2)}</span>
-        <span className="text-slate-400">{billingPeriod}</span>
+        <span className="text-luxury-mist">{billingPeriod}</span>
         {isAnnual && plan.priceAnnual > 0 && (
-          <p className="mt-1 text-sm text-emerald-400">
+          <p className="mt-1 text-sm text-luxury-gold-light">
             Economia de R$ {(plan.priceMonthly * 12 - plan.priceAnnual).toFixed(2)}/ano
           </p>
         )}
@@ -115,9 +115,9 @@ export function PricingCard({ plan, isAnnual, onCtaClick }: Props) {
         {plan.features.map((feature) => (
           <li key={feature.text} className="flex items-start gap-3">
             {feature.included ? (
-              <Check size={18} className="mt-0.5 shrink-0 text-emerald-400" aria-hidden />
+              <Check size={18} className="mt-0.5 shrink-0 text-luxury-gold-light" aria-hidden />
             ) : (
-              <X size={18} className="mt-0.5 shrink-0 text-slate-600" aria-hidden />
+              <X size={18} className="mt-0.5 shrink-0 text-luxury-mist/50" aria-hidden />
             )}
             <span
               className={cn(
@@ -125,8 +125,8 @@ export function PricingCard({ plan, isAnnual, onCtaClick }: Props) {
                 feature.included
                   ? feature.highlight
                     ? "font-medium text-white"
-                    : "text-slate-300"
-                  : "text-slate-500",
+                    : "text-luxury-frost/90"
+                  : "text-luxury-mist/70",
               )}
             >
               {feature.text}
@@ -136,7 +136,7 @@ export function PricingCard({ plan, isAnnual, onCtaClick }: Props) {
       </ul>
 
       {isCurrent && (
-        <span className="mb-3 inline-block rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-medium text-emerald-300">
+        <span className="mb-3 inline-block rounded-full bg-luxury-gold/20 px-3 py-1 text-xs font-medium text-luxury-gold-light">
           Plano atual
         </span>
       )}
@@ -148,8 +148,8 @@ export function PricingCard({ plan, isAnnual, onCtaClick }: Props) {
         className={cn(
           "w-full rounded-xl py-3 font-bold transition-all disabled:opacity-60",
           plan.popular
-            ? "bg-gradient-to-r from-amber-500 to-orange-600 text-white hover:from-amber-400 hover:to-orange-500"
-            : "bg-slate-700 text-white hover:bg-slate-600",
+            ? "bg-gradient-to-r from-luxury-gold to-luxury-gold-dark text-white hover:from-luxury-gold-light hover:to-luxury-gold"
+            : "bg-white/10 text-luxury-frost hover:bg-white/15",
         )}
       >
         {checkout.isPending

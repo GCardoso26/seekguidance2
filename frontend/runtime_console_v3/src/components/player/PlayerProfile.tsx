@@ -29,10 +29,10 @@ export function PlayerProfile({ profile, showFriendButton }: Props) {
         </div>
         <div>
           <h1 className="text-2xl font-bold">@{profile.handle}</h1>
-          <p className="text-slate-300">{profile.displayName}</p>
-          {profile.bio && <p className="mt-2 text-sm text-slate-400">{profile.bio}</p>}
+          <p className="text-luxury-frost/90">{profile.displayName}</p>
+          {profile.bio && <p className="mt-2 text-sm text-luxury-mist">{profile.bio}</p>}
           {profile.location?.city && (
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-sm text-luxury-mist/70">
               {profile.location.city}, {profile.location.country}
             </p>
           )}

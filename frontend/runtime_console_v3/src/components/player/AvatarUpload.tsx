@@ -15,11 +15,11 @@ export function AvatarUpload({ currentUrl, onUpload }: Props) {
           // eslint-disable-next-line @next/next/no-img-element
           <img src={currentUrl} alt="Avatar" className="h-full w-full object-cover" />
         ) : (
-          <span className="text-2xl text-slate-400">👤</span>
+          <span className="text-2xl text-luxury-mist">👤</span>
         )}
       </div>
       <div className="flex-1 space-y-2">
-        <label htmlFor="avatar-url" className="text-sm font-medium text-slate-300">
+        <label htmlFor="avatar-url" className="text-sm font-medium text-luxury-frost/90">
           URL da foto
         </label>
         <Input
@@ -28,7 +28,7 @@ export function AvatarUpload({ currentUrl, onUpload }: Props) {
           defaultValue={currentUrl ?? ""}
           placeholder="https://..."
           onChange={(e) => onUpload?.(e.target.value)}
-          className="border-slate-600 bg-slate-800"
+          className="border-white/10 bg-white/5"
         />
       </div>
     </div>

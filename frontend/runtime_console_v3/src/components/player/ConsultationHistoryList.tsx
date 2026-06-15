@@ -37,7 +37,7 @@ export function ConsultationHistoryList({ onSelect, compact }: Props) {
   );
 
   if (loading) {
-    return <p className="text-sm text-slate-500">Carregando histórico…</p>;
+    return <p className="text-sm text-luxury-mist/70">Carregando histórico…</p>;
   }
 
   return (
@@ -47,7 +47,7 @@ export function ConsultationHistoryList({ onSelect, compact }: Props) {
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Buscar consultas…"
-        className="w-full rounded-lg border border-slate-600 bg-slate-900 px-3 py-2 text-sm"
+        className="w-full rounded-lg border border-white/10 bg-luxury-midnight px-3 py-2 text-sm"
         aria-label="Buscar consultas"
       />
       {!compact && (
@@ -57,7 +57,7 @@ export function ConsultationHistoryList({ onSelect, compact }: Props) {
             onClick={() => setTcgFilter("all")}
             className={cn(
               "rounded-full px-2.5 py-1 text-xs",
-              tcgFilter === "all" ? "bg-amber-500/20 text-amber-300" : "bg-slate-800 text-slate-400",
+              tcgFilter === "all" ? "bg-luxury-gold/20 text-luxury-gold-light" : "bg-white/5 text-luxury-mist",
             )}
           >
             Todos
@@ -69,7 +69,7 @@ export function ConsultationHistoryList({ onSelect, compact }: Props) {
               onClick={() => setTcgFilter(id)}
               className={cn(
                 "rounded-full px-2.5 py-1 text-xs",
-                tcgFilter === id ? "bg-amber-500/20 text-amber-300" : "bg-slate-800 text-slate-400",
+                tcgFilter === id ? "bg-luxury-gold/20 text-luxury-gold-light" : "bg-white/5 text-luxury-mist",
               )}
             >
               {getTcgBrand(id).icon}
@@ -80,7 +80,7 @@ export function ConsultationHistoryList({ onSelect, compact }: Props) {
             onClick={() => setFavoritesOnly(!favoritesOnly)}
             className={cn(
               "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs",
-              favoritesOnly ? "bg-amber-500/20 text-amber-300" : "text-slate-400",
+              favoritesOnly ? "bg-luxury-gold/20 text-luxury-gold-light" : "text-luxury-mist",
             )}
           >
             <Star className={cn("h-3 w-3", favoritesOnly && "fill-current")} />
@@ -90,9 +90,9 @@ export function ConsultationHistoryList({ onSelect, compact }: Props) {
       )}
 
       {items.length === 0 ? (
-        <p className="text-center text-sm text-slate-500">
+        <p className="text-center text-sm text-luxury-mist/70">
           Nenhuma consulta encontrada.{" "}
-          <Link href="/judge" className="text-amber-400 hover:underline">
+          <Link href="/judge" className="text-luxury-gold hover:underline">
             Ir para a mesa
           </Link>
         </p>
@@ -110,15 +110,15 @@ export function ConsultationHistoryList({ onSelect, compact }: Props) {
             }).label;
             const inner = (
               <>
-                <p className="truncate text-sm font-medium text-slate-100">{item.question}</p>
-                <p className="mt-1 text-xs text-slate-500">
+                <p className="truncate text-sm font-medium text-luxury-frost">{item.question}</p>
+                <p className="mt-1 text-xs text-luxury-mist/70">
                   {brand.icon} · {verdict} ·{" "}
                   {formatRelativeTimePt(item.createdAt)}
                 </p>
               </>
             );
             return (
-              <li key={item.id} className="flex gap-2 rounded-xl border border-slate-700 bg-slate-800/50 p-3">
+              <li key={item.id} className="flex gap-2 rounded-xl border border-white/10 bg-white/5 p-3">
                 {onSelect ? (
                   <button type="button" onClick={() => onSelect(item)} className="min-w-0 flex-1 text-left">
                     {inner}
@@ -129,11 +129,11 @@ export function ConsultationHistoryList({ onSelect, compact }: Props) {
                 <button
                   type="button"
                   onClick={() => toggleFavorite(item)}
-                  className="shrink-0 text-slate-400 hover:text-amber-400"
+                  className="shrink-0 text-luxury-mist hover:text-luxury-gold"
                   aria-label="Favoritar"
                 >
                   <Star
-                    className={cn("h-4 w-4", isFavorite(item.id) && "fill-amber-400 text-amber-400")}
+                    className={cn("h-4 w-4", isFavorite(item.id) && "fill-luxury-gold text-luxury-gold")}
                   />
                 </button>
               </li>

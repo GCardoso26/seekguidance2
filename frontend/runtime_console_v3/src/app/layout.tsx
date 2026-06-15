@@ -10,6 +10,8 @@ import { QueryProvider } from "@/providers/query-provider";
 
 import { ThemeProvider } from "@/providers/theme-provider";
 
+import { LuxurySiteShell } from "@/components/luxury/layout/LuxurySiteShell";
+
 import type { Metadata } from "next";
 
 const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://judgetcg.com.br";
@@ -32,7 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
       <head>
 
-        <meta name="theme-color" content="#0f172a" />
+        <meta name="theme-color" content="#0a0a0f" />
 
         <link rel="apple-touch-icon" href="/icon-192x192.png" />
 
@@ -46,7 +48,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
           <AuthProviderWrapper>
 
-            <QueryProvider>{children}</QueryProvider>
+            <QueryProvider>
+              <LuxurySiteShell>{children}</LuxurySiteShell>
+            </QueryProvider>
 
           </AuthProviderWrapper>
 
