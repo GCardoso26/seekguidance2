@@ -1,0 +1,110 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+
+.luxury-marketing {
+  --color-luxury-gold: #d4af37;
+  --color-luxury-gold-light: #e8c84a;
+  --color-luxury-gold-dark: #a68a2e;
+  --color-luxury-silver: #c0c0c0;
+  --color-luxury-silver-light: #e0e0e0;
+  --color-luxury-onyx: #0a0a0f;
+  --color-luxury-obsidian: #0f0f1a;
+  --color-luxury-midnight: #1a1a2e;
+  --color-luxury-velvet: #16213e;
+  --color-luxury-frost: #e2e8f0;
+  --color-luxury-mist: #94a3b8;
+
+  font-family: "Inter", system-ui, sans-serif;
+  background-color: var(--color-luxury-onyx);
+  color: var(--color-luxury-frost);
+  scroll-behavior: smooth;
+}
+
+.luxury-marketing h1,
+.luxury-marketing h2,
+.luxury-marketing h3 {
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.luxury-marketing h1 {
+  font-size: clamp(3rem, 8vw, 6rem);
+}
+
+.luxury-marketing h2 {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+}
+
+.luxury-marketing h3 {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+}
+
+.luxury-marketing ::selection {
+  background-color: color-mix(in srgb, var(--color-luxury-gold) 35%, transparent);
+  color: var(--color-luxury-frost);
+}
+
+.luxury-marketing .text-luxury {
+  background: linear-gradient(
+    135deg,
+    var(--color-luxury-gold) 0%,
+    var(--color-luxury-gold-light) 50%,
+    var(--color-luxury-silver) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.luxury-marketing .glass {
+  background: rgb(255 255 255 / 0.05);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgb(255 255 255 / 0.1);
+}
+
+.luxury-marketing .animate-marquee {
+  animation: luxury-marquee 40s linear infinite;
+}
+
+.luxury-marketing .animate-shimmer {
+  background-size: 200% 100%;
+  animation: luxury-shimmer 8s ease-in-out infinite;
+}
+
+@keyframes luxury-gradient-shift {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes luxury-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes luxury-marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes luxury-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
