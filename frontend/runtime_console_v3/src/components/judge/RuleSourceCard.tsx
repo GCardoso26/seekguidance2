@@ -7,7 +7,7 @@ import { highlightExcerptHtml, sanitizeSourceUrl } from "@/lib/highlight-excerpt
 import { showToast } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 import type { JudgeSource } from "@/types/judge";
-import { Copy, ExternalLink } from "lucide-react";
+import { Copy, Expand, ExternalLink } from "lucide-react";
 
 type Props = {
   source: JudgeSource;
@@ -46,9 +46,9 @@ export function RuleSourceCard({ source, index, highlightTerms = [], accent }: P
     safeUrl && f.pageNumber != null ? `${safeUrl}#page=${f.pageNumber}` : safeUrl;
 
   return (
-    <li className="judge-rule-source-card list-none" style={style}>
+    <li className="judge-rule-source-card judge-card list-none overflow-hidden rounded-2xl shadow-lg" style={style}>
       <div
-        className="perspective-1000 h-48 w-full cursor-pointer"
+        className="perspective-1000 h-52 w-full cursor-pointer"
         onClick={() => setIsFlipped((v) => !v)}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
@@ -68,7 +68,7 @@ export function RuleSourceCard({ source, index, highlightTerms = [], accent }: P
           style={{ transformStyle: "preserve-3d" }}
         >
           {/* Frente */}
-          <div className="backface-hidden absolute inset-0 flex flex-col rounded-xl border border-[var(--tcg-border)] bg-[var(--tcg-card-bg)] p-4">
+          <div className="backface-hidden absolute inset-0 flex flex-col rounded-2xl border border-slate-700/50 bg-slate-900/80 p-4">
             <div className="mb-2 flex items-center justify-between gap-2">
               {f.ruleAtom ? (
                 <code className="judge-rule-atom-badge rounded-full px-2 py-0.5 text-xs font-semibold">
@@ -77,9 +77,12 @@ export function RuleSourceCard({ source, index, highlightTerms = [], accent }: P
               ) : (
                 <span className="text-xs font-semibold text-[var(--tcg-text-primary)]">{f.title}</span>
               )}
-              <span className={cn("rounded px-1.5 py-0.5 text-[10px] font-bold uppercase", badge.className)}>
-                {badge.label}
-              </span>
+              <div className="flex items-center gap-1.5">
+                <span className={cn("rounded px-1.5 py-0.5 text-[10px] font-bold uppercase", badge.className)}>
+                  {badge.label}
+                </span>
+                <Expand className="h-3.5 w-3.5 text-slate-400" aria-hidden />
+              </div>
             </div>
             {f.excerpt && (
               <p
@@ -96,7 +99,7 @@ export function RuleSourceCard({ source, index, highlightTerms = [], accent }: P
 
           {/* Verso */}
           <div
-            className="backface-hidden absolute inset-0 flex flex-col overflow-hidden rounded-xl border border-[var(--tcg-border)] bg-[var(--tcg-surface-elevated)] p-4"
+            className="backface-hidden absolute inset-0 flex flex-col overflow-hidden rounded-2xl border border-slate-700/50 bg-slate-900/90 p-4"
             style={{ transform: "rotateY(180deg)" }}
           >
             <p className="mb-2 text-xs font-semibold text-[var(--tcg-text-primary)]">{f.title}</p>

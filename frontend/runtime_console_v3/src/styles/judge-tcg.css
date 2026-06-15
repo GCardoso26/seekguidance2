@@ -138,3 +138,27 @@
   padding: 0 0.15rem;
   font-weight: 600;
 }
+
+/* Design tokens reutilizáveis */
+.judge-card {
+  background: rgb(15 23 42 / 0.8);
+  border-color: rgb(51 65 85 / 0.5);
+  border-radius: 1rem;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.25);
+}
+
+.judge-heading {
+  font-weight: 700;
+  font-size: 1.5rem;
+  line-height: 2rem;
+  color: var(--tcg-text-primary, rgb(241 245 249));
+}
+
+.judge-body {
+  color: var(--tcg-text-secondary, rgb(203 213 225));
+}
+
+.judge-caption {
+  color: var(--tcg-text-secondary, rgb(148 163 184));
+  font-size: 0.75rem;
+}

@@ -1,6 +1,8 @@
 "use client";
 
 import type { CSSProperties } from "react";
+import { Zap } from "lucide-react";
+import { VerdictIcon } from "@/components/judge/VerdictIcon";
 import { confidenceLabel, lowConfidenceNoticePt } from "@/lib/judge-confidence";
 import { stripEnglishJudgeDisclaimer } from "@/lib/judge-sources";
 import {
@@ -78,15 +80,7 @@ export function ResponseCard({
         className="judge-verdict-header flex items-center gap-3 border-b border-[var(--tcg-border)] px-5 py-4"
         style={{ borderColor: "var(--tcg-border)" }}
       >
-        <span
-          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-xl"
-          style={{
-            background: "color-mix(in srgb, var(--verdict-color) 35%, var(--tcg-surface-elevated))",
-          }}
-          aria-hidden
-        >
-          ⚖️
-        </span>
+        <VerdictIcon key={parsed.kind} kind={parsed.kind} />
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-widest text-[var(--tcg-text-secondary)]">
             Veredito
@@ -115,7 +109,8 @@ export function ResponseCard({
 
         {response.cache_hit && !isStreaming && (
           <span className="inline-flex items-center gap-1 rounded-full border border-[var(--tcg-primary-light)]/40 bg-[var(--tcg-primary)]/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-[var(--tcg-primary-light)]">
-            ⚡ Resposta instantânea
+            <Zap className="h-3 w-3" aria-hidden />
+            Resposta instantânea
           </span>
         )}
 

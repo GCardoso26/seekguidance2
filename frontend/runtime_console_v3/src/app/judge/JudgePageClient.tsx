@@ -99,6 +99,8 @@ export function JudgePageClient() {
 
   const [health, setHealth] = useState<BackendHealthState>("offline");
 
+  const [historySignal, setHistorySignal] = useState(0);
+
   const [tcgOptions, setTcgOptions] = useState<TcgOption[]>(TCG_OPTIONS);
 
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -627,7 +629,7 @@ export function JudgePageClient() {
         {currentTurns.length > 0 && (
           <section className="space-y-3">
             <h2 className="text-base font-bold text-[var(--tcg-text-primary)]">
-              Mesa · {tcgBrand.emoji} {tcgBrand.icon}
+              Mesa · {tcgBrand.icon}
             </h2>
             <JudgeThread
               tcg={tcg}
@@ -645,7 +647,11 @@ export function JudgePageClient() {
 
         {showEmpty && (
           <TCGDropZone>
-            <EmptyTableState tcg={tcg} onExampleClick={(example) => setQuestion(example)} />
+            <EmptyTableState
+              tcg={tcg}
+              tcgSelected
+              onExampleClick={(example) => void runQuestion(example, tcg)}
+            />
           </TCGDropZone>
         )}
       </div>
@@ -677,9 +683,15 @@ export function JudgePageClient() {
   );
 
   return (
-    <JudgeLayout tcg={tcg} health={health} warmupReady={health !== "offline"}>
+    <JudgeLayout
+      tcg={tcg}
+      health={health}
+      warmupReady={health !== "offline"}
+      onHistoryClick={() => setHistorySignal((n) => n + 1)}
+    >
       <JudgeToast />
       <GameTableLayout
+        openHistorySignal={historySignal}
         left={matchLog}
         center={centerZone}
         right={

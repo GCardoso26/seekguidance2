@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 type MobileTab = "history" | "play" | "sources";
@@ -10,6 +10,8 @@ type Props = {
   center: ReactNode;
   right: ReactNode;
   className?: string;
+  /** Incrementar para abrir aba Histórico no mobile (ex.: botão do header). */
+  openHistorySignal?: number;
 };
 
 const TAB_LABELS: Record<MobileTab, string> = {
@@ -18,14 +20,25 @@ const TAB_LABELS: Record<MobileTab, string> = {
   sources: "Fontes",
 };
 
-export function GameTableLayout({ left, center, right, className }: Props) {
+export function GameTableLayout({ left, center, right, className, openHistorySignal }: Props) {
   const [tab, setTab] = useState<MobileTab>("play");
+
+  useEffect(() => {
+    if (openHistorySignal && openHistorySignal > 0) {
+      setTab("history");
+      document.getElementById("judge-history-zone")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }, [openHistorySignal]);
 
   return (
     <div className={cn("judge-game-table", className)}>
       {/* Desktop: três zonas */}
       <div className="hidden gap-4 md:grid md:grid-cols-[minmax(200px,240px)_1fr_minmax(220px,280px)] md:items-start lg:gap-6">
-        <section className="judge-table-zone p-3 lg:p-4" aria-label="Histórico de partida">
+        <section
+          id="judge-history-zone"
+          className="judge-table-zone p-3 lg:p-4"
+          aria-label="Histórico de partida"
+        >
           {left}
         </section>
         <section className="min-w-0 space-y-4" aria-label="Pergunta e resposta">

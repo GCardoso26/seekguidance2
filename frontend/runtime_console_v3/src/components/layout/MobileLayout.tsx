@@ -3,17 +3,18 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
+import { Home, Plus, Search, User } from "lucide-react";
 
-type NavItem = { href: string; label: string; icon: string };
+type NavItem = { href: string; label: string; icon: typeof Home };
 
 const NAV: NavItem[] = [
-  { href: "/", label: "Início", icon: "🏠" },
-  { href: "/search", label: "Buscar", icon: "🔍" },
-  { href: "/tournament/create", label: "Criar", icon: "🏆" },
-  { href: "/player/me", label: "Perfil", icon: "👤" },
+  { href: "/", label: "Início", icon: Home },
+  { href: "/search", label: "Buscar", icon: Search },
+  { href: "/tournament/create", label: "Criar", icon: Plus },
+  { href: "/player/me", label: "Perfil", icon: User },
 ];
 
-function MobileNavItem({ href, label, icon }: NavItem) {
+function MobileNavItem({ href, label, icon: Icon }: NavItem) {
   const pathname = usePathname();
   const active = pathname === href || (href !== "/" && pathname.startsWith(href));
   return (
@@ -22,22 +23,28 @@ function MobileNavItem({ href, label, icon }: NavItem) {
       className={`flex min-h-[44px] min-w-[44px] flex-col items-center justify-center text-xs ${
         active ? "text-amber-400" : "text-slate-400"
       }`}
+      aria-label={label}
     >
-      <span className="text-lg">{icon}</span>
+      <Icon className="h-5 w-5" aria-hidden />
       <span>{label}</span>
     </Link>
   );
 }
 
 export function MobileLayout({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
+  const hideNav = pathname.startsWith("/judge");
+
   return (
     <div className="flex min-h-screen flex-col bg-slate-900 text-slate-100">
-      <main className="flex-1 pb-20 md:pb-0">{children}</main>
-      <nav className="fixed bottom-0 left-0 right-0 z-50 flex justify-around border-t border-slate-700 bg-slate-900/95 p-2 backdrop-blur md:hidden">
-        {NAV.map((item) => (
-          <MobileNavItem key={item.href} {...item} />
-        ))}
-      </nav>
+      <main className={hideNav ? "flex-1" : "flex-1 pb-20 md:pb-0"}>{children}</main>
+      {!hideNav && (
+        <nav className="fixed bottom-0 left-0 right-0 z-50 flex justify-around border-t border-slate-700 bg-slate-900/95 p-2 backdrop-blur md:hidden">
+          {NAV.map((item) => (
+            <MobileNavItem key={item.href} {...item} />
+          ))}
+        </nav>
+      )}
     </div>
   );
 }

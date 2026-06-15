@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { BarChart3, Terminal } from "lucide-react";
+import { BarChart3, Clock, CreditCard, Terminal } from "lucide-react";
 import { GameLayout } from "@/components/judge/GameLayout";
 import { JudgeLogo } from "@/components/judge/JudgeLogo";
+import { TcgLogoImage } from "@/components/judge/TcgLogoImage";
 import { ServiceStatusMonitor } from "@/components/ServiceStatusMonitor";
 import { LoginButton } from "@/features/auth/LoginButton";
 import { UserMenu } from "@/features/auth/UserMenu";
@@ -13,6 +14,7 @@ import { gameSlugFromTcg } from "@/lib/judge-game-slug";
 import { getTcgBrand, tcgThemeStyle } from "@/lib/tcg-brand";
 import { TcgThemeProvider } from "@/providers/tcg-theme-provider";
 import type { BackendHealthState, TcgType } from "@/types/judge";
+import { TCG_OPTIONS } from "@/types/judge";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -21,6 +23,7 @@ type Props = {
   tcg: TcgType;
   warmupReady?: boolean;
   healthScore?: number;
+  onHistoryClick?: () => void;
 };
 
 const HEALTH_LABEL: Record<BackendHealthState, string> = {
@@ -40,17 +43,58 @@ const SHOW_WARMUP_BADGE = false;
 const SHOW_HEALTH_BADGE = false;
 const SHOW_ADMIN_ACTIONS = false;
 
+function HeaderNavButton({
+  href,
+  onClick,
+  icon: Icon,
+  label,
+  className,
+}: {
+  href?: string;
+  onClick?: () => void;
+  icon: typeof Clock;
+  label: string;
+  className?: string;
+}) {
+  const inner = (
+    <>
+      <Icon className="h-4 w-4" aria-hidden />
+      <span className="hidden sm:inline">{label}</span>
+    </>
+  );
+  const classes = cn(
+    "inline-flex items-center gap-1.5 rounded-lg border border-white/15 bg-white/5 px-2.5 py-1.5 text-xs font-medium text-slate-200 transition hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/50",
+    className,
+  );
+
+  if (href) {
+    return (
+      <Link href={href} className={classes} aria-label={label}>
+        {inner}
+      </Link>
+    );
+  }
+
+  return (
+    <button type="button" onClick={onClick} className={classes} aria-label={label}>
+      {inner}
+    </button>
+  );
+}
+
 export function JudgeLayout({
   children,
   health = "offline",
   tcg,
   warmupReady = true,
   healthScore,
+  onHistoryClick,
 }: Props) {
   const { isAdmin } = useUserRole();
   const brand = getTcgBrand(tcg);
   const slug = gameSlugFromTcg(tcg);
   const headerDegraded = healthScore != null && healthScore < 50;
+  const tcgLabel = TCG_OPTIONS.find((g) => g.id === tcg)?.label ?? brand.icon;
 
   return (
     <TcgThemeProvider tcg={tcg}>
@@ -75,19 +119,37 @@ export function JudgeLayout({
             data-health={health}
             data-warmup={warmupReady ? "ready" : "pending"}
           >
-            <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-4 px-4 py-3 sm:px-6">
-              <div className="flex items-center gap-3">
-                <JudgeLogo size={40} />
-                <div>
+            <div className="mx-auto flex h-14 max-w-[1600px] items-center justify-between gap-3 px-4 sm:h-16 sm:px-6">
+              <div className="flex min-w-0 items-center gap-3">
+                <JudgeLogo size={36} />
+                <div className="min-w-0">
                   <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/80">
                     Judge TCG
                   </p>
-                  <h1 className="text-base font-bold leading-tight text-white sm:text-lg">
+                  <h1 className="truncate text-sm font-bold leading-tight text-white sm:text-base">
                     Mesa de Regras
                   </h1>
                 </div>
               </div>
-              <div className="flex items-center gap-2 sm:gap-3">
+
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <span
+                  className="hidden items-center gap-2 rounded-full border border-white/15 bg-white/5 px-2.5 py-1 text-xs font-medium text-white sm:inline-flex"
+                  title={tcgLabel}
+                >
+                  <span className="h-5 w-8 overflow-hidden rounded">
+                    <TcgLogoImage tcgId={tcg} variant="compact" selected className="scale-75" />
+                  </span>
+                  {tcgLabel}
+                </span>
+
+                <HeaderNavButton
+                  icon={Clock}
+                  label="Histórico"
+                  onClick={onHistoryClick}
+                />
+                <HeaderNavButton icon={CreditCard} label="Preços" href="/pricing" />
+
                 {SHOW_WARMUP_BADGE && (
                   <span
                     className="hidden items-center gap-1 rounded-full bg-white/10 px-2 py-1 text-[10px] text-white/85 sm:inline-flex"
