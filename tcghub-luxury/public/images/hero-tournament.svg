@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" role="img" aria-label="Textura escura de mesa de torneio">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#1a1a2e"/>
+      <stop offset="50%" stop-color="#0f0f1a"/>
+      <stop offset="100%" stop-color="#0a0a0f"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#d4af37" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#c0c0c0" stop-opacity="0.03"/>
+    </linearGradient>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#glow)"/>
+  <rect width="1920" height="1080" fill="url(#gold)"/>
+  <g opacity="0.15" fill="none" stroke="#d4af37" stroke-width="0.5">
+    <rect x="360" y="280" width="1200" height="520" rx="24"/>
+    <line x1="960" y1="280" x2="960" y2="800"/>
+    <line x1="360" y1="540" x2="1560" y2="540"/>
+  </g>
+  <circle cx="960" cy="540" r="180" fill="#d4af37" opacity="0.04"/>
+</svg>

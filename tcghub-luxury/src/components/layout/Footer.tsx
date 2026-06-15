@@ -1,0 +1,100 @@
+import { Scale } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Separator } from "@/components/ui/Separator";
+
+const COLUMNS = [
+  {
+    title: "Produto",
+    links: [
+      { label: "Mesa de Regras", href: "https://judgetcg.com.br/judge", external: true },
+      { label: "Funcionalidades", href: "/features" },
+      { label: "Planos", href: "/#pricing" },
+    ],
+  },
+  {
+    title: "Recursos",
+    links: [
+      { label: "Documentação", href: "https://judgetcg.com.br", external: true },
+      { label: "Torneios", href: "https://judgetcg.com.br/tournament/create", external: true },
+      { label: "Comunidade", href: "https://judgetcg.com.br/social/communities", external: true },
+    ],
+  },
+  {
+    title: "Empresa",
+    links: [
+      { label: "Sobre", href: "/about" },
+      { label: "Contacto", href: "mailto:contato@judgetcg.com.br", external: true },
+    ],
+  },
+  {
+    title: "Legal",
+    links: [
+      { label: "Privacidade", href: "https://judgetcg.com.br/privacidade", external: true },
+      { label: "Termos", href: "#", external: false },
+    ],
+  },
+];
+
+export function Footer() {
+  return (
+    <footer className="border-t border-white/5 bg-luxury-obsidian">
+      <div className="mx-auto max-w-7xl px-6 py-16 lg:px-8">
+        <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-5">
+          <div className="lg:col-span-1">
+            <Link to="/" className="flex items-center gap-3">
+              <span className="flex h-9 w-9 items-center justify-center rounded-full border border-luxury-gold/30 bg-luxury-gold/10">
+                <Scale className="h-4 w-4 text-luxury-gold" strokeWidth={1.5} />
+              </span>
+              <span className="text-sm font-medium tracking-[0.15em] text-luxury-frost uppercase">
+                Judge TCG
+              </span>
+            </Link>
+            <p className="mt-4 max-w-xs text-sm leading-relaxed text-luxury-mist">
+              A autoridade que o jogo competitivo precisa. Rulings, torneios e comunidade numa
+              única plataforma premium.
+            </p>
+          </div>
+
+          {COLUMNS.map((col) => (
+            <div key={col.title}>
+              <h4 className="text-xs font-medium tracking-[0.2em] text-luxury-frost uppercase">
+                {col.title}
+              </h4>
+              <ul className="mt-4 space-y-3">
+                {col.links.map((link) => (
+                  <li key={link.label}>
+                    {link.external ? (
+                      <a
+                        href={link.href}
+                        className="text-sm text-luxury-mist transition-colors hover:text-luxury-gold"
+                        {...(link.href.startsWith("http") || link.href.startsWith("mailto")
+                          ? { target: "_blank", rel: "noopener noreferrer" }
+                          : {})}
+                      >
+                        {link.label}
+                      </a>
+                    ) : (
+                      <Link
+                        to={link.href}
+                        className="text-sm text-luxury-mist transition-colors hover:text-luxury-gold"
+                      >
+                        {link.label}
+                      </Link>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+
+        <Separator className="my-10" />
+
+        <div className="flex flex-col items-center justify-between gap-4 text-xs text-luxury-mist sm:flex-row">
+          <p>&copy; {new Date().getFullYear()} Judge TCG / tcghub.ai. Todos os direitos reservados.</p>
+          <p className="tracking-wide">Feito para o competitivo sério.</p>
+        </div>
+      </div>
+    </footer>
+  );
+}
