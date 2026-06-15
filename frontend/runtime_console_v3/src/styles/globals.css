@@ -13,6 +13,10 @@
   --warning: 38 92% 50%;
   --danger: 0 72% 51%;
 }
+
+html {
+  color-scheme: dark;
+}
 .light {
   --background: 0 0% 100%;
   --foreground: 222 47% 11%;

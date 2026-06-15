@@ -12,9 +12,7 @@ import { AskButton } from "@/components/judge/AskButton";
 import { EmptyTableState } from "@/components/judge/EmptyTableState";
 import { ErrorCardState } from "@/components/judge/ErrorCardState";
 import { JudgeToast } from "@/components/judge/JudgeToast";
-
-import { GameMatSelector } from "@/components/judge/GameMatSelector";
-
+import { TCGDropZone, TCGSelector, TCGSelectorProvider } from "@/components/judge/TcgSelector";
 import { GameTableLayout } from "@/components/judge/GameTableLayout";
 
 import { JudgeLayout } from "@/components/judge/JudgeLayout";
@@ -609,9 +607,9 @@ export function JudgePageClient() {
   );
 
   const centerZone = (
-    <>
+    <TCGSelectorProvider value={tcg} onChange={handleTcgChange}>
       <section className="judge-card rounded-2xl border p-4 sm:p-5">
-        <GameMatSelector
+        <TCGSelector
           value={tcg}
           onChange={handleTcgChange}
           disabled={submitting}
@@ -646,7 +644,9 @@ export function JudgePageClient() {
         )}
 
         {showEmpty && (
-          <EmptyTableState tcg={tcg} onExampleClick={(example) => setQuestion(example)} />
+          <TCGDropZone>
+            <EmptyTableState tcg={tcg} onExampleClick={(example) => setQuestion(example)} />
+          </TCGDropZone>
         )}
       </div>
 
@@ -673,7 +673,7 @@ export function JudgePageClient() {
       </section>
 
       <div ref={bottomRef} />
-    </>
+    </TCGSelectorProvider>
   );
 
   return (

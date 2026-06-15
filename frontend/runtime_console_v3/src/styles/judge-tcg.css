@@ -1,21 +1,8 @@
-/* Tema inspirado em apps oficiais TCG (claro, acento vermelho, cartões elevados) */
+/* Tema escuro da mesa — gradiente de fundo via GameLayout */
 .judge-app {
-  --background: 210 25% 97%;
-  --foreground: 222 35% 12%;
-  --card: 0 0% 100%;
-  --muted: 210 20% 94%;
-  --border: 214 18% 88%;
-  --primary: 0 82% 52%;
-  --success: 152 60% 38%;
-  --warning: 32 95% 48%;
-  --danger: 0 72% 48%;
-  --judge-header: 0 75% 46%;
-  --judge-header-from: var(--judge-header);
-  --judge-header-to: 0 70% 40%;
-  --judge-surface: 0 0% 100%;
-  color-scheme: light;
-  background-color: hsl(var(--background));
-  transition: background-color 0.25s ease;
+  color-scheme: dark;
+  background-color: transparent;
+  transition: background-color 0.7s ease;
 }
 
 .judge-app[data-pattern="grid"] {
@@ -61,8 +48,9 @@
 }
 
 .judge-app .judge-card {
-  background: hsl(var(--judge-surface));
-  box-shadow: 0 1px 2px hsl(222 30% 20% / 0.06), 0 8px 24px hsl(222 30% 20% / 0.06);
+  background: var(--tcg-surface-elevated, hsl(222 40% 9%));
+  border-color: var(--tcg-border, hsl(217 20% 20% / 0.5));
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.2), 0 8px 24px rgb(0 0 0 / 0.25);
 }
 
 .judge-app .judge-chip-active {
@@ -114,16 +102,16 @@
   width: 2rem;
   height: 2rem;
   border-radius: 9999px;
-  border: 1px solid hsl(var(--border));
-  background: hsl(var(--judge-surface));
-  color: hsl(var(--foreground));
-  box-shadow: 0 2px 8px hsl(222 30% 20% / 0.1);
+  border: 1px solid var(--tcg-border, hsl(217 20% 20% / 0.5));
+  background: var(--tcg-surface-elevated, hsl(222 40% 9%));
+  color: var(--tcg-text-primary, hsl(210 40% 98%));
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.25);
   transition: box-shadow 0.15s ease, background 0.15s ease;
 }
 
 .judge-app .judge-tcg-scroll-btn:hover {
-  background: hsl(var(--muted));
-  box-shadow: 0 4px 12px hsl(222 30% 20% / 0.12);
+  background: var(--tcg-surface, hsl(222 47% 6%));
+  box-shadow: 0 4px 12px rgb(0 0 0 / 0.3);
 }
 
 .judge-app .judge-tcg-scroll-btn:focus-visible {
