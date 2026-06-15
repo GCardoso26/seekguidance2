@@ -1,3 +1,5 @@
+import { User } from "lucide-react";
+
 type Player = { name: string; avatar?: string; points?: number };
 
 type Props = {
@@ -17,13 +19,17 @@ export function MobilePairingCard({ tableNumber, player1, player2, timerRemainin
       </div>
       <div className="flex items-center justify-between">
         <div className="text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-700">👤</div>
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-700">
+            <User className="h-6 w-6 text-slate-400" aria-hidden />
+          </div>
           <p className="mt-1 text-sm font-medium">{player1.name}</p>
           <p className="text-xs text-slate-500">{player1.points ?? 0} pts</p>
         </div>
         <div className="text-xl font-bold text-slate-500">VS</div>
         <div className="text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-700">👤</div>
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-700">
+            <User className="h-6 w-6 text-slate-400" aria-hidden />
+          </div>
           <p className="mt-1 text-sm font-medium">{player2?.name ?? "Bye"}</p>
           <p className="text-xs text-slate-500">{player2?.points ?? "-"} pts</p>
         </div>

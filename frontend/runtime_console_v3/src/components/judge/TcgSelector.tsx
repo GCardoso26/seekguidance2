@@ -10,7 +10,7 @@ import {
   type CSSProperties,
   type ReactNode,
 } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Lock } from "lucide-react";
 import { TcgLogoImage } from "@/components/judge/TcgLogoImage";
 import { getTcgTheme } from "@/styles/tcg-theme";
 import { hapticFeedback } from "@/utils/haptic";
@@ -70,6 +70,7 @@ type SelectorProps = {
   options?: TcgOption[];
   variant?: "default" | "compact";
   showHeader?: boolean;
+  isTcgLocked?: (id: TcgType) => boolean;
 };
 
 function GameMat({
@@ -79,6 +80,7 @@ function GameMat({
   onSelect,
   responsePanelId,
   variant = "default",
+  isTcgLocked,
 }: {
   game: TcgOption;
   selected: boolean;
@@ -86,10 +88,12 @@ function GameMat({
   onSelect: () => void;
   responsePanelId?: string;
   variant?: "default" | "compact";
+  isTcgLocked?: (id: TcgType) => boolean;
 }) {
   const theme = getTcgTheme(game.id);
   const compact = variant === "compact";
-  const canSelect = game.enabled && !disabled;
+  const locked = isTcgLocked?.(game.id) ?? false;
+  const canSelect = game.enabled && !disabled && !locked;
   const dragCtx = useTcgDragOptional();
   const draggingId = dragCtx?.draggingId ?? null;
   const setDraggingId = dragCtx?.setDraggingId ?? (() => {});
@@ -211,6 +215,15 @@ function GameMat({
           Em breve
         </span>
       )}
+      {locked && game.enabled && (
+        <span
+          className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-1 bg-black/60 text-white"
+          title="Disponível no plano Spike"
+        >
+          <Lock className="h-4 w-4 text-amber-400" aria-hidden />
+          <span className="text-[9px] font-bold uppercase">Pro</span>
+        </span>
+      )}
       {game.beta && game.enabled && (
         <span className="absolute right-2 top-2 z-10 animate-pulse rounded bg-amber-500/90 px-1.5 py-0.5 text-[9px] font-bold uppercase text-black">
           Beta
@@ -250,6 +263,7 @@ export function TCGSelector({
   options = TCG_OPTIONS,
   variant = "default",
   showHeader = true,
+  isTcgLocked,
 }: SelectorProps) {
   const dragCtx = useTcgDragOptional();
   const selected = options.find((g) => g.id === value);
@@ -365,6 +379,7 @@ export function TCGSelector({
               onSelect={() => handleSelect(g.id)}
               responsePanelId={responsePanelId}
               variant={variant}
+              isTcgLocked={isTcgLocked}
             />
           ))}
         </div>

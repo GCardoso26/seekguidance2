@@ -1,4 +1,4 @@
-import { apiFetch } from "@/services/api/client";
+import { ApiError } from "@/services/api/client";
 import type { JudgeHistoryItem, JudgeResponse, TcgType } from "@/types/judge";
 
 export type JudgeSessionPayload = {
@@ -15,17 +15,22 @@ export type JudgeSessionPayload = {
   }>;
 };
 
-export async function fetchJudgeSession(
-  sessionId: string,
-  userId?: string | null,
-): Promise<JudgeSessionPayload | null> {
+async function sessionFetch<T>(path: string, init?: RequestInit): Promise<T> {
+  const res = await fetch(path, {
+    credentials: "include",
+    cache: "no-store",
+    ...init,
+  });
+  if (!res.ok) {
+    const errBody = (await res.json().catch(() => ({}))) as { detail?: string };
+    throw new ApiError(errBody.detail || `API ${res.status}`, res.status, errBody);
+  }
+  return res.json() as Promise<T>;
+}
+
+export async function fetchJudgeSession(sessionId: string): Promise<JudgeSessionPayload | null> {
   try {
-    const headers: Record<string, string> = {};
-    if (userId) headers["X-Judge-User-Id"] = userId;
-    return await apiFetch<JudgeSessionPayload>(`/runtime/judge/session/${sessionId}`, {
-      publicRoute: true,
-      headers,
-    });
+    return await sessionFetch<JudgeSessionPayload>(`/api/judge/session/${sessionId}`);
   } catch {
     return null;
   }
@@ -34,15 +39,13 @@ export async function fetchJudgeSession(
 export async function saveJudgeSession(
   tcg: TcgType,
   items: JudgeHistoryItem[],
-  userId: string,
   allowAnonymousRead = false,
 ): Promise<string | null> {
   try {
-    const data = await apiFetch<JudgeSessionPayload>("/runtime/judge/session", {
+    const data = await sessionFetch<JudgeSessionPayload>("/api/judge/session", {
       method: "POST",
-      publicRoute: true,
-      headers: { "X-Judge-User-Id": userId },
-      body: {
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
         tcg,
         title: items[0]?.question?.slice(0, 80) ?? "Conversa Judge",
         allow_anonymous_read: allowAnonymousRead,
@@ -60,7 +63,7 @@ export async function saveJudgeSession(
             } satisfies Partial<JudgeResponse>,
           },
         ]),
-      },
+      }),
     });
     return data.id;
   } catch {

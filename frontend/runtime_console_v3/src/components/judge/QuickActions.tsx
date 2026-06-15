@@ -1,10 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Copy, Heart, Link2, ExternalLink } from "lucide-react";
+import { Check, Copy, Heart, ExternalLink } from "lucide-react";
 import type { JudgeResponse, TcgType } from "@/types/judge";
-import { createJudgeShare, buildSignedShareUrl } from "@/services/judgeShareApi";
-import { buildJudgeShareUrl } from "@/lib/judge-url";
+import { ShareVerdict } from "@/components/judge/ShareVerdict";
 import { isJudgeFavorite, toggleJudgeFavorite } from "@/lib/judge-favorites";
 import { showToast } from "@/lib/toast";
 import type { JudgeHistoryItem } from "@/types/judge";
@@ -33,20 +32,6 @@ export function QuickActions({ tcg, question, response, historyItem, onFavoriteC
     }
   }
 
-  async function shareVerdict() {
-    const share = await createJudgeShare(tcg, question, response);
-    const url = share
-      ? buildSignedShareUrl(share.id, share.signature)
-      : buildJudgeShareUrl(tcg, question);
-    try {
-      await navigator.clipboard.writeText(url);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      window.prompt("Copie o link:", url);
-    }
-  }
-
   function toggleFav() {
     if (!historyItem) return;
     toggleJudgeFavorite(historyItem);
@@ -66,14 +51,7 @@ export function QuickActions({ tcg, question, response, historyItem, onFavoriteC
         {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
         Copiar
       </button>
-      <button
-        type="button"
-        onClick={() => void shareVerdict()}
-        className="inline-flex items-center gap-1 rounded-full border border-[hsl(var(--border))] px-2.5 py-1 text-[10px] font-semibold"
-      >
-        <Link2 className="h-3 w-3" />
-        Partilhar
-      </button>
+      <ShareVerdict tcg={tcg} question={question} response={response} />
       {firstSource && (
         <a
           href={firstSource}

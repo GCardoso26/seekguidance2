@@ -10,18 +10,16 @@ import { QueryProvider } from "@/providers/query-provider";
 
 import { ThemeProvider } from "@/providers/theme-provider";
 
+import type { Metadata } from "next";
 
+const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://judgetcg.com.br";
 
-export const metadata = {
-
+export const metadata: Metadata = {
+  metadataBase: new URL(appUrl),
   title: "Judge TCG",
-
   description: "Plataforma de torneios TCG",
-
   manifest: "/manifest.json",
-
   appleWebApp: { capable: true, title: "Judge TCG" },
-
 };
 
 

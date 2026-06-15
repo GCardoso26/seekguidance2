@@ -1,11 +1,11 @@
 "use client";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext } from "react";
 
-const ThemeCtx = createContext<{ theme: "dark" | "light"; toggle: () => void }>({ theme: "dark", toggle: () => {} });
+const ThemeCtx = createContext<{ theme: "dark" }>({ theme: "dark" });
 
+/** Tema fixo escuro — alinhado com `<html className="dark">`. */
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<"dark" | "light">("dark");
-  useEffect(() => { document.documentElement.classList.toggle("light", theme === "light"); }, [theme]);
-  return <ThemeCtx.Provider value={{ theme, toggle: () => setTheme((t) => (t === "dark" ? "light" : "dark")) }}>{children}</ThemeCtx.Provider>;
+  return <ThemeCtx.Provider value={{ theme: "dark" }}>{children}</ThemeCtx.Provider>;
 }
+
 export const useTheme = () => useContext(ThemeCtx);

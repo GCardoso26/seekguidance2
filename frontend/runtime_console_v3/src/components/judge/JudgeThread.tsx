@@ -16,9 +16,10 @@ type Props = {
   onRelatedSelect?: (question: string) => void;
   historyByTurnId?: Record<string, JudgeHistoryItem>;
   hideSources?: boolean;
+  relatedAutoSubmit?: boolean;
 };
 
-export function JudgeThread({ tcg, turns, onRelatedSelect, historyByTurnId, hideSources }: Props) {
+export function JudgeThread({ tcg, turns, onRelatedSelect, historyByTurnId, hideSources, relatedAutoSubmit }: Props) {
   const brand = getTcgBrand(tcg);
   const reduceMotion = useReducedMotion();
 
@@ -81,6 +82,7 @@ export function JudgeThread({ tcg, turns, onRelatedSelect, historyByTurnId, hide
                 onRelatedSelect={onRelatedSelect}
                 historyItem={historyByTurnId?.[turn.id]}
                 hideSources={hideSources}
+                relatedAutoSubmit={relatedAutoSubmit}
               />
             )}
           </motion.article>

@@ -1,7 +1,9 @@
 "use client";
 
+import { Suspense } from "react";
+
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { PricingHero } from "@/components/pricing/PricingHero";
 import { PricingCard } from "@/components/pricing/PricingCard";
@@ -11,10 +13,14 @@ import { SocialProof } from "@/components/pricing/SocialProof";
 import { JudgeLogo } from "@/components/judge/JudgeLogo";
 import { PRICING_PLANS } from "@/lib/pricing-plans";
 import { flushAnalytics, trackEvent } from "@/lib/analytics";
+import { useSubscription } from "@/hooks/useSubscription";
 import { useAnalytics } from "@/hooks/useAnalytics";
 
 function PricingContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const fromMenu = searchParams.get("from") === "menu";
+  const { tier } = useSubscription();
   const { track } = useAnalytics();
   const [isAnnual, setIsAnnual] = useState(false);
 
@@ -49,6 +55,15 @@ function PricingContent() {
         onToggle={setIsAnnual}
         onToggleTrack={(annual) => track("pricing_toggle", { isAnnual: annual })}
       />
+
+      {fromMenu && (
+        <p className="container mx-auto mb-6 px-4 text-center text-sm text-amber-300">
+          Seu plano atual:{" "}
+          <span className="font-semibold">
+            {tier === "free" ? "Jogador Casual" : tier === "pro" ? "Spike" : "Equipe"}
+          </span>
+        </p>
+      )}
 
       <section className="container mx-auto px-4 pb-16">
         <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-3">
@@ -103,5 +118,9 @@ function PricingContent() {
 }
 
 export default function PricingPage() {
-  return <PricingContent />;
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#0a0a0f] p-8 text-center text-slate-400">Carregando…</div>}>
+      <PricingContent />
+    </Suspense>
+  );
 }

@@ -41,7 +41,7 @@ export function TournamentCreateForm() {
       match_type: matchType,
     });
     track("tournament_created", { game: gameCode, format: formatCode });
-    router.push(`/dashboard?tournament=${(result as { id: string }).id}`);
+    router.push(`/tournament/${(result as { id: string }).id}`);
   };
 
   if (step === 1) {

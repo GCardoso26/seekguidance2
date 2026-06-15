@@ -6,7 +6,7 @@ import { BarChart3, Clock, CreditCard, Terminal } from "lucide-react";
 import { GameLayout } from "@/components/judge/GameLayout";
 import { JudgeLogo } from "@/components/judge/JudgeLogo";
 import { TcgLogoImage } from "@/components/judge/TcgLogoImage";
-import { ServiceStatusMonitor } from "@/components/ServiceStatusMonitor";
+import { ServiceStatusDot } from "@/components/ServiceStatusMonitor";
 import { LoginButton } from "@/features/auth/LoginButton";
 import { UserMenu } from "@/features/auth/UserMenu";
 import { useUserRole } from "@/hooks/useUserRole";
@@ -105,8 +105,6 @@ export function JudgeLayout({
           data-pattern={brand.pattern}
           style={tcgThemeStyle(tcg)}
         >
-          <ServiceStatusMonitor />
-
           <a href="#judge-main" className="skip-to-main">
             Saltar para o conteúdo
           </a>
@@ -166,7 +164,7 @@ export function JudgeLayout({
                   </span>
                 )}
                 <LoginButton />
-                <UserMenu />
+                <UserMenu onHistoryClick={onHistoryClick} />
                 {SHOW_HEALTH_BADGE && (
                   <span
                     className="hidden items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-medium text-white/90 sm:inline-flex"
@@ -202,7 +200,9 @@ export function JudgeLayout({
             {children}
           </main>
 
-          <footer className="border-t border-[var(--tcg-border)] py-4 text-center text-xs text-[var(--tcg-text-secondary)]">
+          <footer className="flex flex-wrap items-center justify-center gap-3 border-t border-[var(--tcg-border)] py-4 text-xs text-[var(--tcg-text-secondary)]">
+            <ServiceStatusDot />
+            <span aria-hidden>·</span>
             Fontes oficiais indexadas ·{" "}
             <Link
               href={`/observability?game=${slug}`}

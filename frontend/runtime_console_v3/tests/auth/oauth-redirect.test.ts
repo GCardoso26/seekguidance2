@@ -97,4 +97,9 @@ describe("oauth-redirect", () => {
     expect(store.has("s:oauth_redirect")).toBe(false);
     expect(tryConsumeOAuthRedirect()).toBeNull();
   });
+
+  it("bloqueia open redirect em setOAuthRedirectTarget", () => {
+    setOAuthRedirectTarget("//evil.com");
+    expect(peekOAuthRedirectTarget()).toBe("/judge");
+  });
 });

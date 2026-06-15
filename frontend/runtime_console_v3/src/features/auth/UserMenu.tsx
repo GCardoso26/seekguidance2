@@ -1,10 +1,14 @@
 "use client";
 
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { CreditCard, LogOut, User } from "lucide-react";
+import { Clock, CreditCard, LogOut, User } from "lucide-react";
 import Link from "next/link";
 import { useJudgeAuth } from "@/features/auth/AuthProvider";
 import { cn } from "@/lib/utils";
+
+type Props = {
+  onHistoryClick?: () => void;
+};
 
 function avatarUrl(user: { user_metadata?: Record<string, unknown> }): string | null {
   const url = user.user_metadata?.avatar_url ?? user.user_metadata?.picture;
@@ -18,7 +22,7 @@ function displayName(user: { email?: string | null; user_metadata?: Record<strin
   return user.email?.split("@")[0] ?? "Conta";
 }
 
-export function UserMenu() {
+export function UserMenu({ onHistoryClick }: Props) {
   const { user, signOut, configured } = useJudgeAuth();
 
   if (!configured || !user) return null;
@@ -75,9 +79,34 @@ export function UserMenu() {
                   Perfil
                 </Link>
               </DropdownMenu.Item>
+              {onHistoryClick ? (
+                <DropdownMenu.Item
+                  className={cn(
+                    "flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-300 outline-none",
+                    "hover:bg-slate-800 hover:text-slate-100 focus:bg-slate-800 focus:text-slate-100",
+                  )}
+                  onSelect={onHistoryClick}
+                >
+                  <Clock className="h-4 w-4" aria-hidden />
+                  Histórico
+                </DropdownMenu.Item>
+              ) : (
+                <DropdownMenu.Item asChild>
+                  <Link
+                    href="/player/me/history"
+                    className={cn(
+                      "flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-300 outline-none",
+                      "hover:bg-slate-800 hover:text-slate-100 focus:bg-slate-800 focus:text-slate-100",
+                    )}
+                  >
+                    <Clock className="h-4 w-4" aria-hidden />
+                    Histórico
+                  </Link>
+                </DropdownMenu.Item>
+              )}
               <DropdownMenu.Item asChild>
                 <Link
-                  href="/pricing"
+                  href="/pricing?from=menu"
                   className={cn(
                     "flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-300 outline-none",
                     "hover:bg-slate-800 hover:text-slate-100 focus:bg-slate-800 focus:text-slate-100",

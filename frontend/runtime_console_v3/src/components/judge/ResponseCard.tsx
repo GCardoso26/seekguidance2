@@ -31,6 +31,7 @@ type Props = {
   streamingText?: string;
   isStreaming?: boolean;
   onRelatedSelect?: (question: string) => void;
+  relatedAutoSubmit?: boolean;
   historyItem?: JudgeHistoryItem;
   /** Fontes exibidas na zona direita da mesa — oculta lista inline */
   hideSources?: boolean;
@@ -48,6 +49,7 @@ export function ResponseCard({
   onRelatedSelect,
   historyItem,
   hideSources = false,
+  relatedAutoSubmit = false,
 }: Props) {
   const parsed = parseJudgeVerdict(response);
   const displayExplanation = isStreaming
@@ -196,6 +198,7 @@ export function ResponseCard({
             sourceQuestion={question}
             suggestions={response.related_questions}
             onSelect={onRelatedSelect}
+            autoSubmit={relatedAutoSubmit}
           />
         )}
 

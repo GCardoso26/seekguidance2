@@ -6,7 +6,7 @@ import { useCommunities } from "@/hooks/useCommunities";
 import { CommunityCard } from "@/components/social/CommunityCard";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { CreateCommunityModal } from "@/components/social/CreateCommunityModal";
 
 export default function CommunitiesPage() {
   const { data: communities = [], isLoading } = useCommunities();
@@ -30,9 +30,7 @@ export default function CommunitiesPage() {
             <h1 className="text-3xl font-bold">Comunidades</h1>
             <p className="mt-1 text-slate-400">Encontre grupos de jogadores</p>
           </div>
-          <Button className="bg-amber-500 text-slate-900" disabled>
-            Criar comunidade
-          </Button>
+          <CreateCommunityModal />
         </div>
 
         <Input

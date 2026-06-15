@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { OAUTH_RETURN_COOKIE } from "@/lib/auth/oauth-redirect";
+import { isSafeInternalPath } from "@/lib/auth/safe-path";
 import { isAdminRequest } from "@/lib/middleware-auth";
 
 const ADMIN_PREFIXES = ["/observability", "/admin", "/ingestion"];
@@ -19,7 +20,7 @@ function readOAuthReturnPath(request: NextRequest): string | null {
   if (!raw) return null;
   try {
     const decoded = decodeURIComponent(raw);
-    if (decoded.startsWith("/") && !decoded.startsWith("//")) return decoded;
+    if (isSafeInternalPath(decoded)) return decoded;
   } catch {
     return null;
   }

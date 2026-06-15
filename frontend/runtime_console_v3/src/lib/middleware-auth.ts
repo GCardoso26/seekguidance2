@@ -1,5 +1,5 @@
 import { ACCESS_COOKIE } from "@/lib/auth-cookies";
-import { parseAdminEmails } from "@/lib/judge-rbac";
+import { isAdminEmailServer } from "@/lib/judge-rbac-server";
 
 type JwtPayload = {
   role?: string;
@@ -48,7 +48,7 @@ export function isAdminRequest(request: {
     const payload = decodeJwtPayload(sbToken);
     if (payload?.role === "admin") return true;
     const email = payload?.email?.toLowerCase();
-    if (email && parseAdminEmails().includes(email)) return true;
+    if (isAdminEmailServer(email)) return true;
   }
 
   return false;

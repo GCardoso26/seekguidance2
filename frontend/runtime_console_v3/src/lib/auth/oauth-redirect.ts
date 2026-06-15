@@ -1,3 +1,5 @@
+import { normalizeInternalPath } from "@/lib/auth/safe-path";
+
 export const OAUTH_RETURN_COOKIE = "tcg_oauth_return";
 
 const OAUTH_REDIRECT_KEY = "oauth_redirect";
@@ -10,10 +12,6 @@ type OAuthRedirectData = {
   target: string;
   timestamp: number;
 };
-
-function normalizePath(path: string): string {
-  return path.startsWith("/") ? path : `/${path}`;
-}
 
 export function isOAuthReturnPath(pathname: string): boolean {
   return pathname === "/" || pathname === "/auth/callback";
@@ -58,7 +56,7 @@ export function clearOAuthLoginStarted() {
 
 function setOAuthReturnCookie(path: string) {
   if (typeof document === "undefined") return;
-  const value = encodeURIComponent(normalizePath(path));
+  const value = encodeURIComponent(normalizeInternalPath(path));
   document.cookie = `${OAUTH_RETURN_COOKIE}=${value}; path=/; max-age=${OAUTH_COOKIE_MAX_AGE_SEC}; SameSite=Lax`;
 }
 
@@ -70,7 +68,7 @@ export function clearOAuthReturnCookie() {
 export function setOAuthRedirectTarget(path: string) {
   markOAuthLoginStarted();
   const data: OAuthRedirectData = {
-    target: normalizePath(path),
+    target: normalizeInternalPath(path),
     timestamp: Date.now(),
   };
   const serialized = JSON.stringify(data);
@@ -98,7 +96,7 @@ function readStoredTarget(): string | null {
       clearOAuthRedirectState();
       return null;
     }
-    return normalizePath(parsed.target);
+    return normalizeInternalPath(parsed.target);
   } catch {
     clearOAuthRedirectState();
     return null;
@@ -136,7 +134,7 @@ export function tryConsumeOAuthRedirect(): string | null {
 /** Navegação hard — evita falhas de soft navigation RSC do App Router. */
 export function performOAuthRedirect(target: string) {
   if (typeof window === "undefined") return;
-  const normalized = normalizePath(target);
+  const normalized = normalizeInternalPath(target);
   if (window.location.pathname === normalized) return;
   window.location.replace(normalized);
 }

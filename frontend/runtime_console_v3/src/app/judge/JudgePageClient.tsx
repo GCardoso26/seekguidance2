@@ -23,8 +23,13 @@ import { MatchLog } from "@/components/judge/MatchLog";
 
 import { QuestionInput } from "@/components/judge/QuestionInput";
 
+import { ConsultationHistory } from "@/components/judge/ConsultationHistory";
+import { PlanLimitBanner } from "@/components/judge/PlanLimitBanner";
 import { RuleSourcesPanel } from "@/components/judge/RuleSourcesPanel";
 
+import { useConsultations } from "@/hooks/useConsultations";
+import { useJudgePageInit } from "@/hooks/useJudgePageInit";
+import { usePlanLimits } from "@/hooks/usePlanLimits";
 import { useJudgeAuth } from "@/features/auth/AuthProvider";
 
 import { loadJudgeHistoryHybrid, persistJudgeHistoryItem } from "@/lib/judge-cloud-history";
@@ -35,19 +40,13 @@ import {
 
   buildThreadContext,
 
-  clearThreadForTcg,
-
   getThreadForTcg,
-
-  loadJudgeThreads,
 
   updateThreadTurn,
 
   upsertThreadTurn,
 
   type JudgeThreadTurn,
-
-  type JudgeThreads,
 
 } from "@/lib/judge-thread";
 
@@ -61,11 +60,11 @@ import { getTcgBrand } from "@/lib/tcg-brand";
 
 import { fetchJudgeShare } from "@/services/judgeShareApi";
 
-import { askJudgeQuestionPreferStream, getJudgeGames, getJudgeHealth, judgeErrorMessage } from "@/services/judgeApi";
+import { askJudgeQuestionPreferStream, judgeErrorMessage } from "@/services/judgeApi";
 
 import { recordGrowthEvent } from "@/services/judgeGrowthApi";
 
-import type { BackendHealthState, JudgeHistoryItem, JudgeResponse, TcgOption, TcgType } from "@/types/judge";
+import type { JudgeHistoryItem, JudgeResponse, TcgType } from "@/types/judge";
 
 import { TCG_OPTIONS } from "@/types/judge";
 
@@ -91,17 +90,15 @@ export function JudgePageClient() {
 
   const [error, setError] = useState<string | null>(null);
 
-  const [history, setHistory] = useState<JudgeHistoryItem[]>([]);
-
   const [historyByTurnId, setHistoryByTurnId] = useState<Record<string, JudgeHistoryItem>>({});
 
-  const [threads, setThreads] = useState<JudgeThreads>({});
-
-  const [health, setHealth] = useState<BackendHealthState>("offline");
+  const { history, setHistory, threads, setThreads, tcgOptions } = useJudgePageInit(searchParams, user?.id);
 
   const [historySignal, setHistorySignal] = useState(0);
+  const [historyDrawerOpen, setHistoryDrawerOpen] = useState(false);
 
-  const [tcgOptions, setTcgOptions] = useState<TcgOption[]>(TCG_OPTIONS);
+  const planLimits = usePlanLimits();
+  const consultations = useConsultations(user?.id);
 
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -144,60 +141,6 @@ export function JudgePageClient() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
 
   }, []);
-
-
-
-  useEffect(() => {
-
-    const parsed = parseJudgeSearchParams(searchParams);
-
-    void (async () => {
-
-      const items = await loadJudgeHistoryHybrid(user?.id, parsed.sessionId);
-
-      setHistory(items);
-
-    })();
-
-    setThreads(loadJudgeThreads());
-
-    getJudgeHealth().then(setHealth);
-
-    getJudgeGames()
-
-      .then((games) => {
-
-        if (games.length === 0) return;
-
-        setTcgOptions(
-
-          games.map((g) => ({
-
-            id: g.tcg_id,
-
-            label: g.display_name,
-
-            enabled: g.enabled && g.rag_ready,
-
-            beta: g.beta,
-
-          })),
-
-        );
-
-      })
-
-      .catch(() => {
-
-        /* mantém lista local */
-
-      });
-
-    const t = setInterval(() => getJudgeHealth().then(setHealth), 30_000);
-
-    return () => clearInterval(t);
-
-  }, [searchParams, user?.id]);
 
 
 
@@ -282,13 +225,18 @@ export function JudgePageClient() {
 
       if (!q.trim() || submitting) return;
 
+      if (!planLimits.canAskQuestion()) {
+        setError("Limite diário de consultas atingido. Faça upgrade para continuar.");
+        return;
+      }
 
-
+      if (!planLimits.canUseTCG(game)) {
+        setError("Este TCG requer plano Spike. Veja os planos em /pricing.");
+        return;
+      }
       const turnId = `${Date.now()}`;
 
       let conversationContext: string | undefined;
-
-
 
       const loadingTurn: JudgeThreadTurn = {
 
@@ -441,6 +389,9 @@ export function JudgePageClient() {
 
         setHistoryByTurnId((prev) => ({ ...prev, [turnId]: item }));
 
+        planLimits.refreshDailyCount();
+        void consultations.reload();
+
         setTimeout(scrollToBottom, 120);
 
       } catch (e) {
@@ -469,7 +420,7 @@ export function JudgePageClient() {
 
     },
 
-    [submitting, syncUrl, scrollToBottom, user?.id],
+    [submitting, syncUrl, scrollToBottom, user?.id, planLimits, consultations],
 
   );
 
@@ -506,6 +457,10 @@ export function JudgePageClient() {
 
 
   function handleTcgChange(next: TcgType) {
+    if (!planLimits.canUseTCG(next)) {
+      setError("Este TCG está disponível no plano Spike.");
+      return;
+    }
     hapticFeedback("light");
     ensureActiveRound(next);
     setTcg(next);
@@ -569,14 +524,22 @@ export function JudgePageClient() {
 
 
 
-  const handleRelatedSelect = useCallback((q: string) => {
+  const handleRelatedSelect = useCallback(
+    (q: string) => {
+      void runQuestion(q, tcg);
+    },
+    [runQuestion, tcg],
+  );
 
-    setQuestion(q);
-
+  const openHistory = useCallback(() => {
+    setHistoryDrawerOpen(true);
+    setHistorySignal((n) => n + 1);
   }, []);
 
 
 
+  const questionBlocked = !planLimits.canAskQuestion();
+  const tcgBlocked = !planLimits.canUseTCG(tcg);
   const showEmpty = currentTurns.length === 0 && !submitting && !error;
 
 
@@ -617,6 +580,7 @@ export function JudgePageClient() {
           disabled={submitting}
           responsePanelId={RESPONSE_PANEL_ID}
           options={tcgOptions}
+          isTcgLocked={(id) => !planLimits.canUseTCG(id)}
         />
       </section>
 
@@ -637,6 +601,7 @@ export function JudgePageClient() {
               onRelatedSelect={handleRelatedSelect}
               historyByTurnId={historyByTurnId}
               hideSources
+              relatedAutoSubmit
             />
           </section>
         )}
@@ -658,19 +623,25 @@ export function JudgePageClient() {
 
       <section className="judge-card space-y-4 rounded-2xl border p-4 sm:p-5">
         <h2 className="text-base font-bold text-[var(--tcg-text-primary)]">A sua dúvida</h2>
-        <QuestionInput
-          value={question}
-          onChange={setQuestion}
-          onSubmit={submit}
-          disabled={submitting}
-        />
+        {tcgBlocked && (
+          <PlanLimitBanner variant="tcg" tcgName={TCG_OPTIONS.find((g) => g.id === tcg)?.label} />
+        )}
+        {questionBlocked && <PlanLimitBanner variant="questions" />}
+        <div className={questionBlocked ? "pointer-events-none opacity-50 blur-[1px]" : undefined}>
+          <QuestionInput
+            value={question}
+            onChange={setQuestion}
+            onSubmit={submit}
+            disabled={submitting || questionBlocked}
+          />
+        </div>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-xs text-[var(--tcg-text-secondary)]">
             Enter envia · Shift+Enter nova linha · contexto da partida mantido
           </p>
           <AskButton
             loading={submitting}
-            disabled={!question.trim() || activeLoading}
+            disabled={!question.trim() || activeLoading || questionBlocked || tcgBlocked}
             onClick={submit}
             accent={tcgBrand.accent}
             accentFg={tcgBrand.accentFg}
@@ -683,13 +654,24 @@ export function JudgePageClient() {
   );
 
   return (
-    <JudgeLayout
-      tcg={tcg}
-      health={health}
-      warmupReady={health !== "offline"}
-      onHistoryClick={() => setHistorySignal((n) => n + 1)}
-    >
+    <JudgeLayout tcg={tcg} onHistoryClick={openHistory}>
       <JudgeToast />
+      <ConsultationHistory
+        open={historyDrawerOpen}
+        onClose={() => setHistoryDrawerOpen(false)}
+        items={consultations.items}
+        loading={consultations.loading}
+        query={consultations.query}
+        onQueryChange={consultations.setQuery}
+        tcgFilter={consultations.tcgFilter}
+        onTcgFilterChange={consultations.setTcgFilter}
+        favoritesOnly={consultations.favoritesOnly}
+        onFavoritesOnlyChange={consultations.setFavoritesOnly}
+        isFavorite={consultations.isFavorite}
+        onToggleFavorite={consultations.toggleFavorite}
+        onSelect={loadFromHistory}
+        onDelete={consultations.removeLocal}
+      />
       <GameTableLayout
         openHistorySignal={historySignal}
         left={matchLog}

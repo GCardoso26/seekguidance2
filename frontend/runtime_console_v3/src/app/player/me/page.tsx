@@ -1,24 +1,41 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 import type { GameCode } from "@/lib/tcg-adapters";
 import { AvatarUpload } from "@/components/player/AvatarUpload";
+import { ConsultationHistoryList } from "@/components/player/ConsultationHistoryList";
 import { NotificationPreferences } from "@/components/notifications/NotificationPreferences";
 import { GameSelector } from "@/components/tournament/GameSelector";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useJudgeAuth } from "@/features/auth/AuthProvider";
+import { useSubscription } from "@/hooks/useSubscription";
 import { usePlayerProfile } from "@/hooks/usePlayerProfile";
 import { useUpdateProfile, type UpdateProfileData } from "@/hooks/useUpdateProfile";
+import { useConsultations } from "@/hooks/useConsultations";
+import { computePlayerJudgeStats } from "@/lib/player-judge-stats";
+import { TCG_OPTIONS } from "@/types/judge";
+import { BarChart3, CreditCard, Flame, History, MessageCircle } from "lucide-react";
+
+const TCG_LABELS = Object.fromEntries(TCG_OPTIONS.map((g) => [g.id, g.label]));
 
 export default function MyProfilePage() {
+  const { user } = useJudgeAuth();
   const { data: profile, isLoading, isError } = usePlayerProfile("me");
+  const { tier } = useSubscription();
+  const { allItems } = useConsultations(user?.id);
   const { mutate: updateProfile, isPending: isUpdating, isSuccess, isError: updateError } =
     useUpdateProfile();
   const [formData, setFormData] = useState<UpdateProfileData>({});
   const [favoriteGame, setFavoriteGame] = useState<GameCode | null>(null);
+
+  const stats = useMemo(
+    () => computePlayerJudgeStats(allItems, TCG_LABELS),
+    [allItems],
+  );
 
   useEffect(() => {
     if (profile?.favoriteGame) {
@@ -55,15 +72,75 @@ export default function MyProfilePage() {
     });
   };
 
+  const displayName =
+    profile.displayName ||
+    (typeof user?.user_metadata?.full_name === "string" ? user.user_metadata.full_name : null) ||
+    profile.handle;
+
   return (
     <MobileLayout>
       <div className="container mx-auto max-w-2xl px-4 py-8">
         <Link href="/" className="text-sm text-slate-400">
           ← Início
         </Link>
-        <h1 className="mt-2 text-3xl font-bold">Meu Perfil</h1>
+        <div className="mt-2 flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold">{displayName}</h1>
+            <p className="text-sm text-slate-400">@{profile.handle}</p>
+          </div>
+          <Link
+            href="/pricing?from=menu"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-1.5 text-xs font-semibold text-amber-300"
+          >
+            <CreditCard className="h-3.5 w-3.5" />
+            Plano {tier === "free" ? "Grátis" : tier === "pro" ? "Spike" : "Equipe"}
+          </Link>
+        </div>
+
+        <div className="mt-6 grid grid-cols-3 gap-3">
+          <div className="judge-card rounded-xl border border-slate-700/50 bg-slate-900/80 p-3 text-center">
+            <MessageCircle className="mx-auto h-5 w-5 text-amber-400" />
+            <p className="mt-1 text-lg font-bold">{stats.totalConsultations}</p>
+            <p className="text-[10px] text-slate-500">Consultas</p>
+          </div>
+          <div className="judge-card rounded-xl border border-slate-700/50 bg-slate-900/80 p-3 text-center">
+            <BarChart3 className="mx-auto h-5 w-5 text-emerald-400" />
+            <p className="mt-1 truncate text-sm font-bold">{stats.topTcgLabel ?? "—"}</p>
+            <p className="text-[10px] text-slate-500">TCG favorito</p>
+          </div>
+          <div className="judge-card rounded-xl border border-slate-700/50 bg-slate-900/80 p-3 text-center">
+            <Flame className="mx-auto h-5 w-5 text-orange-400" />
+            <p className="mt-1 text-lg font-bold">{stats.streakDays}</p>
+            <p className="text-[10px] text-slate-500">Dias seguidos</p>
+          </div>
+        </div>
+
+        <div className="mt-4 flex gap-2">
+          <Link
+            href="/player/me/history"
+            className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg border border-slate-600 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800"
+          >
+            <History className="h-4 w-4" />
+            Histórico completo
+          </Link>
+          <Link
+            href="/judge"
+            className="inline-flex flex-1 items-center justify-center rounded-lg bg-amber-500 py-2 text-sm font-semibold text-slate-900"
+          >
+            Ir para a mesa
+          </Link>
+        </div>
 
         <div className="mt-6 space-y-6">
+          <Card className="border-slate-700 bg-slate-800/50">
+            <CardHeader>
+              <CardTitle>Consultas recentes</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ConsultationHistoryList compact />
+            </CardContent>
+          </Card>
+
           <Card className="border-slate-700 bg-slate-800/50">
             <CardHeader>
               <CardTitle>Foto de Perfil</CardTitle>
@@ -87,9 +164,7 @@ export default function MyProfilePage() {
                     Handle
                   </label>
                   <Input id="handle" value={profile.handle} disabled className="border-slate-600 bg-slate-900" />
-                  <p className="mt-1 text-xs text-slate-500">Handle não pode ser alterado</p>
                 </div>
-
                 <div>
                   <label htmlFor="displayName" className="mb-1 block text-sm text-slate-300">
                     Nome de exibição
@@ -101,7 +176,6 @@ export default function MyProfilePage() {
                     className="border-slate-600 bg-slate-800"
                   />
                 </div>
-
                 <div>
                   <label htmlFor="bio" className="mb-1 block text-sm text-slate-300">
                     Bio
@@ -114,7 +188,6 @@ export default function MyProfilePage() {
                     className="w-full rounded-md border border-slate-600 bg-slate-800 px-3 py-2 text-sm"
                   />
                 </div>
-
                 <div>
                   <p className="mb-2 text-sm text-slate-300">Jogo favorito</p>
                   <GameSelector
@@ -125,35 +198,8 @@ export default function MyProfilePage() {
                     }}
                   />
                 </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="city" className="mb-1 block text-sm text-slate-300">
-                      Cidade
-                    </label>
-                    <Input
-                      id="city"
-                      defaultValue={profile.location?.city ?? ""}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, city: e.target.value }))}
-                      className="border-slate-600 bg-slate-800"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="country" className="mb-1 block text-sm text-slate-300">
-                      País
-                    </label>
-                    <Input
-                      id="country"
-                      defaultValue={profile.location?.country ?? ""}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, country: e.target.value }))}
-                      className="border-slate-600 bg-slate-800"
-                    />
-                  </div>
-                </div>
-
-                {isSuccess && <p className="text-sm text-emerald-400">Perfil atualizado com sucesso.</p>}
-                {updateError && <p className="text-sm text-red-400">Erro ao salvar alterações.</p>}
-
+                {isSuccess && <p className="text-sm text-emerald-400">Perfil atualizado.</p>}
+                {updateError && <p className="text-sm text-red-400">Erro ao salvar.</p>}
                 <Button type="submit" disabled={isUpdating} className="w-full bg-amber-500 text-slate-900">
                   {isUpdating ? "Salvando…" : "Salvar alterações"}
                 </Button>
@@ -163,7 +209,7 @@ export default function MyProfilePage() {
 
           <Card className="border-slate-700 bg-slate-800/50">
             <CardHeader>
-              <CardTitle>Preferências de notificação</CardTitle>
+              <CardTitle>Notificações</CardTitle>
             </CardHeader>
             <CardContent>
               <NotificationPreferences />

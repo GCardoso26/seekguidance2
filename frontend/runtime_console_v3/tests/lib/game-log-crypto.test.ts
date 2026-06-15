@@ -13,7 +13,6 @@ function baseEntry(seq: number, prev: string): HashableGameLogEntry {
     action: { type: "turn_start", tcg: "lorcana", details: {} },
     game_state_snapshot: { zones: [] },
     previous_hash: prev,
-    hash: "",
     metadata: { client_version: "1.0", platform: "web" },
   };
 }

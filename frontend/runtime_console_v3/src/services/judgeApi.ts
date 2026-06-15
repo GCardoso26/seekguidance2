@@ -92,14 +92,31 @@ export async function getJudgeGames(): Promise<JudgeGameCatalogItem[]> {
 }
 
 export async function askJudgeQuestion(payload: JudgeQuestionPayload): Promise<JudgeResponse> {
+  const body = {
+    tcg: payload.tcg,
+    question: payload.question,
+    context: payload.context,
+  };
+
+  if (typeof window !== "undefined") {
+    const res = await fetch("/api/judge/query", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+      cache: "no-store",
+    });
+    if (!res.ok) {
+      const errBody = (await res.json().catch(() => ({}))) as { detail?: string };
+      throw new ApiError(errBody.detail || `API ${res.status}`, res.status, errBody);
+    }
+    return res.json() as Promise<JudgeResponse>;
+  }
+
   return apiFetch<JudgeResponse>("/runtime/judge/query", {
     method: "POST",
     publicRoute: true,
-    body: {
-      tcg: payload.tcg,
-      question: payload.question,
-      context: payload.context,
-    },
+    body,
   });
 }
 
@@ -157,18 +174,24 @@ export async function askJudgeQuestionStream(
   callbacks: JudgeStreamCallbacks,
   signal?: AbortSignal,
 ): Promise<boolean> {
-  const url = resolveApiUrl("/runtime/judge/query/stream", { publicRoute: true });
+  const body = {
+    tcg: payload.tcg,
+    question: payload.question,
+    context: payload.context,
+  };
+
+  const url =
+    typeof window !== "undefined"
+      ? "/api/judge/query/stream"
+      : resolveApiUrl("/runtime/judge/query/stream", { publicRoute: true });
   let res: Response;
 
   try {
     res = await fetch(url, {
       method: "POST",
+      credentials: typeof window !== "undefined" ? "include" : undefined,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        tcg: payload.tcg,
-        question: payload.question,
-        context: payload.context,
-      }),
+      body: JSON.stringify(body),
       cache: "no-store",
       signal,
     });
@@ -179,7 +202,8 @@ export async function askJudgeQuestionStream(
 
   if (res.status === 404 || res.status === 405) return false;
   if (!res.ok || !res.body) {
-    throw new ApiError(`API ${res.status}`, res.status);
+    const errBody = (await res.json().catch(() => ({}))) as { detail?: string };
+    throw new ApiError(errBody.detail || `API ${res.status}`, res.status, errBody);
   }
 
   const reader = res.body.getReader();
@@ -260,7 +284,8 @@ export async function askJudgeQuestionPreferStream(
 export function judgeErrorMessage(err: unknown): string {
   if (err instanceof ApiError) {
     if (err.status === 0) return "Não foi possível contactar o servidor. Verifique a ligação.";
-    if (err.status === 429) return "Muitas perguntas em pouco tempo. Aguarde um momento.";
+    if (err.status === 429) return "Limite diário de consultas atingido. Faça upgrade para continuar.";
+    if (err.status === 403) return err.message || "Este recurso requer plano Spike.";
     return err.message || "Erro ao processar a consulta.";
   }
   if (err instanceof Error) return err.message;
