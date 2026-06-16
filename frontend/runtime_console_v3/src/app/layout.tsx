@@ -13,6 +13,14 @@ import { ThemeProvider } from "@/providers/theme-provider";
 import { LuxurySiteShell } from "@/components/luxury/layout/LuxurySiteShell";
 
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-inter",
+  display: "swap",
+});
 
 const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://judgetcg.com.br";
 
@@ -30,17 +38,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   return (
 
-    <html lang="pt-BR" className="dark" suppressHydrationWarning>
+    <html lang="pt-BR" className={`dark ${inter.variable}`} suppressHydrationWarning>
 
       <head>
 
         <meta name="theme-color" content="#0a0a0f" />
 
-        <link rel="apple-touch-icon" href="/icon-192x192.png" />
+        <link rel="apple-touch-icon" href="/apple-icon" />
 
       </head>
 
-      <body>
+      <body className={inter.className}>
 
         <SentryInit />
 

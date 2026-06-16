@@ -17,7 +17,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useJudgeAuth } from "@/features/auth/AuthProvider";
 import { useSubscription } from "@/hooks/useSubscription";
-import { usePlayerProfile } from "@/hooks/usePlayerProfile";
+import { usePlayerProfile, ProfileNotFoundError } from "@/hooks/usePlayerProfile";
+import { CreatePlayerProfileForm } from "@/components/player/CreatePlayerProfileForm";
 import { useUpdateProfile, type UpdateProfileData } from "@/hooks/useUpdateProfile";
 import { useConsultations } from "@/hooks/useConsultations";
 import { useCommunityPosts } from "@/hooks/useCommunityPosts";
@@ -33,7 +34,7 @@ type ProfileTab = "overview" | "posts" | "history" | "settings";
 
 export default function MyProfilePage() {
   const { user } = useJudgeAuth();
-  const { data: profile, isLoading, isError } = usePlayerProfile("me");
+  const { data: profile, isLoading, isError, error } = usePlayerProfile("me");
   const { tier } = useSubscription();
   const { allItems } = useConsultations(user?.id);
   const { mutate: updateProfile, isPending: isUpdating, isSuccess, isError: updateError } =
@@ -71,6 +72,23 @@ export default function MyProfilePage() {
     return (
       <MobileLayout>
         <div className="container mx-auto px-4 py-8 text-luxury-mist">Carregando perfil…</div>
+      </MobileLayout>
+    );
+  }
+
+  if (isError && error instanceof ProfileNotFoundError) {
+    const displayName =
+      typeof user?.user_metadata?.full_name === "string" ? user.user_metadata.full_name : null;
+    return (
+      <MobileLayout>
+        <div className="container mx-auto px-4 py-8">
+          <Link href="/judge" className="text-sm text-luxury-mist">
+            ← Mesa de regras
+          </Link>
+          <div className="mt-6">
+            <CreatePlayerProfileForm email={user?.email} defaultDisplayName={displayName} />
+          </div>
+        </div>
       </MobileLayout>
     );
   }

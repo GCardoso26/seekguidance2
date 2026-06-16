@@ -1,5 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
-
 .luxury-marketing {
   --color-luxury-gold: #d4af37;
   --color-luxury-gold-light: #e8c84a;
@@ -13,7 +11,7 @@
   --color-luxury-frost: #e2e8f0;
   --color-luxury-mist: #94a3b8;
 
-  font-family: "Inter", system-ui, sans-serif;
+  font-family: var(--font-inter), system-ui, sans-serif;
   background-color: var(--color-luxury-onyx);
   color: var(--color-luxury-frost);
   scroll-behavior: smooth;

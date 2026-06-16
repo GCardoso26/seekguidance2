@@ -20,11 +20,21 @@ export type PlayerProfile = {
   privacyLevel?: string;
 };
 
+export class ProfileNotFoundError extends Error {
+  readonly status = 404;
+
+  constructor() {
+    super("Perfil não encontrado");
+    this.name = "ProfileNotFoundError";
+  }
+}
+
 async function fetchProfile(handle: string): Promise<PlayerProfile> {
   const url =
     handle === "me" ? "/api/players/me" : `/api/players/${encodeURIComponent(handle)}`;
   const res = await fetch(url, { cache: "no-store" });
-  if (!res.ok) throw new Error("Perfil não encontrado");
+  if (res.status === 404) throw new ProfileNotFoundError();
+  if (!res.ok) throw new Error("Perfil indisponível");
   return res.json();
 }
 
