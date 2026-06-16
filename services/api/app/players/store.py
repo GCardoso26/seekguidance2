@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+from datetime import date
 from typing import Any
 
 from sqlalchemy import bindparam, text
@@ -121,8 +122,8 @@ async def update_profile(session: AsyncSession, user_id: str, fields: dict[str, 
             params["favorite_tcgs"] = [str(x) for x in v] if isinstance(v, (list, tuple)) else [str(v)]
             uses_tcgs_array = True
         elif k == "birth_date":
-            sets.append("birth_date = CAST(:birth_date AS DATE)")
-            params["birth_date"] = str(v)[:10]
+            sets.append("birth_date = :birth_date")
+            params["birth_date"] = date.fromisoformat(str(v)[:10])
         else:
             sets.append(f"{k} = :{k}")
             params[k] = v

@@ -37,8 +37,13 @@ export default function MyProfilePage() {
   const { data: profile, isLoading, isError, error } = usePlayerProfile("me");
   const { tier } = useSubscription();
   const { allItems } = useConsultations(user?.id);
-  const { mutate: updateProfile, isPending: isUpdating, isSuccess, isError: updateError } =
-    useUpdateProfile();
+  const {
+    mutate: updateProfile,
+    isPending: isUpdating,
+    isSuccess,
+    isError: updateError,
+    error: updateErrorDetail,
+  } = useUpdateProfile();
   const [formData, setFormData] = useState<UpdateProfileData>({});
   const [favoriteGame, setFavoriteGame] = useState<GameCode | null>(null);
   const [favoriteTcgs, setFavoriteTcgs] = useState<TcgType[]>([]);
@@ -328,7 +333,11 @@ export default function MyProfilePage() {
                   </select>
                 </div>
                 {isSuccess && <p className="text-sm text-luxury-gold-light">Perfil atualizado.</p>}
-                {updateError && <p className="text-sm text-red-400">Erro ao salvar.</p>}
+                {updateError && (
+                  <p className="text-sm text-red-400">
+                    {updateErrorDetail instanceof Error ? updateErrorDetail.message : "Erro ao salvar."}
+                  </p>
+                )}
                 <Button type="submit" disabled={isUpdating} className="w-full bg-luxury-gold text-luxury-onyx">
                   {isUpdating ? "Salvando…" : "Salvar alterações"}
                 </Button>

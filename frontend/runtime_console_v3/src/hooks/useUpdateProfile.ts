@@ -43,8 +43,14 @@ export function useUpdateProfile() {
         body: JSON.stringify(toApiBody(data)),
       });
       if (!res.ok) {
-        const error = await res.json().catch(() => ({}));
-        throw new Error(String(error.detail ?? error.message ?? "Falha ao atualizar perfil"));
+        const error = (await res.json().catch(() => ({}))) as { detail?: unknown; message?: string };
+        const detail =
+          typeof error.detail === "string"
+            ? error.detail
+            : Array.isArray(error.detail)
+              ? error.detail.map((d) => (typeof d === "object" && d && "msg" in d ? String(d.msg) : String(d))).join("; ")
+              : error.message;
+        throw new Error(detail || "Falha ao atualizar perfil");
       }
       return res.json();
     },
