@@ -69,15 +69,9 @@ async def _profile_or_404(session: DbSession, handle: str) -> dict[str, Any]:
     return prof
 
 
-@router.get("/runtime/judge/players/me")
-async def get_my_profile(
-    session: DbSession,
-    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
-) -> dict[str, Any]:
-    user_id = _require_user(x_judge_user_id)
-    prof = await player_store.get_profile_by_id(session, user_id)
-    if not prof:
-        raise HTTPException(404, "Perfil não encontrado. Crie seu perfil primeiro.")
+def _serialize_my_profile(prof: dict[str, Any]) -> dict[str, Any]:
+    birth = prof.get("birth_date")
+    birth_iso = birth.isoformat() if hasattr(birth, "isoformat") else (str(birth)[:10] if birth else None)
     return {
         "id": prof["id"],
         "handle": prof["handle"],
@@ -86,7 +80,7 @@ async def get_my_profile(
         "bio": prof.get("bio"),
         "favoriteGame": prof.get("favorite_game"),
         "favoriteTcgs": prof.get("favorite_tcgs") or [],
-        "birthDate": prof["birth_date"].isoformat() if prof.get("birth_date") else None,
+        "birthDate": birth_iso,
         "state": prof.get("state"),
         "city": prof.get("city"),
         "country": prof.get("country"),
@@ -99,6 +93,18 @@ async def get_my_profile(
             "timezone": prof.get("timezone"),
         },
     }
+
+
+@router.get("/runtime/judge/players/me")
+async def get_my_profile(
+    session: DbSession,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    prof = await player_store.get_profile_by_id(session, user_id)
+    if not prof:
+        raise HTTPException(404, "Perfil não encontrado. Crie seu perfil primeiro.")
+    return _serialize_my_profile(prof)
 
 
 @router.get("/runtime/judge/players/{handle}")
@@ -196,7 +202,10 @@ async def create_my_profile(
     except ValueError as e:
         raise HTTPException(400, str(e)) from e
     await session.commit()
-    return prof
+    created = await player_store.get_profile_by_id(session, user_id)
+    if not created:
+        raise HTTPException(500, "Perfil criado mas não encontrado")
+    return _serialize_my_profile(created)
 
 
 @router.put("/runtime/judge/players/me")
@@ -206,9 +215,19 @@ async def update_my_profile(
     x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
 ) -> dict[str, Any]:
     user_id = _require_user(x_judge_user_id)
-    prof = await player_store.update_profile(session, user_id, body.model_dump(exclude_none=True))
-    await session.commit()
-    return prof
+    try:
+        await player_store.update_profile(session, user_id, body.model_dump(exclude_none=True))
+        await session.commit()
+        prof = await player_store.get_profile_by_id(session, user_id)
+    except ValueError as e:
+        await session.rollback()
+        raise HTTPException(404, str(e)) from e
+    except Exception as e:
+        await session.rollback()
+        raise HTTPException(500, f"Erro ao atualizar perfil: {e}") from e
+    if not prof:
+        raise HTTPException(404, "Perfil não encontrado")
+    return _serialize_my_profile(prof)
 
 
 @router.put("/runtime/judge/players/me/privacy")

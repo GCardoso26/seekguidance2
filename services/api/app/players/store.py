@@ -5,7 +5,8 @@ from __future__ import annotations
 import re
 from typing import Any
 
-from sqlalchemy import text
+from sqlalchemy import bindparam, text
+from sqlalchemy.dialects.postgresql import ARRAY, VARCHAR
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.players.achievements import codes_to_unlock
@@ -108,25 +109,43 @@ async def update_profile(session: AsyncSession, user_id: str, fields: dict[str, 
         "state",
         "favorite_tcgs",
     }
-    sets = []
+    sets: list[str] = []
     params: dict[str, Any] = {"id": user_id}
+    uses_tcgs_array = False
+
     for k, v in fields.items():
-        if k in allowed and v is not None:
+        if k not in allowed or v is None:
+            continue
+        if k == "favorite_tcgs":
+            sets.append("favorite_tcgs = :favorite_tcgs")
+            params["favorite_tcgs"] = [str(x) for x in v] if isinstance(v, (list, tuple)) else [str(v)]
+            uses_tcgs_array = True
+        elif k == "birth_date":
+            sets.append("birth_date = CAST(:birth_date AS DATE)")
+            params["birth_date"] = str(v)[:10]
+        else:
             sets.append(f"{k} = :{k}")
             params[k] = v
+
     if not sets:
         prof = await get_profile_by_id(session, user_id)
         return prof or {}
-    row = (
-        await session.execute(
-            text(
-                f"UPDATE tcg_judge.player_profiles SET {', '.join(sets)}, "
-                "updated_at = NOW() WHERE id = :id RETURNING *"
-            ),
-            params,
-        )
-    ).mappings().first()
-    return dict(row) if row else {}
+
+    stmt = text(
+        f"UPDATE tcg_judge.player_profiles SET {', '.join(sets)}, "
+        "updated_at = NOW() WHERE id = :id RETURNING *"
+    )
+    if uses_tcgs_array:
+        stmt = stmt.bindparams(bindparam("favorite_tcgs", type_=ARRAY(VARCHAR)))
+
+    row = (await session.execute(stmt, params)).mappings().first()
+    if row:
+        return dict(row)
+
+    existing = await get_profile_by_id(session, user_id)
+    if not existing:
+        raise ValueError("Perfil não encontrado")
+    return existing
 
 
 async def get_game_stats(session: AsyncSession, player_id: str) -> list[dict[str, Any]]:

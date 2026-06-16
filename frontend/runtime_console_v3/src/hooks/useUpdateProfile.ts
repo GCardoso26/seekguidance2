@@ -15,8 +15,8 @@ export type UpdateProfileData = {
   avatarUrl?: string;
 };
 
-function toApiBody(data: UpdateProfileData) {
-  return {
+function toApiBody(data: UpdateProfileData): Record<string, unknown> {
+  const raw: Record<string, unknown> = {
     display_name: data.displayName,
     bio: data.bio,
     favorite_game: data.favoriteGame,
@@ -27,6 +27,9 @@ function toApiBody(data: UpdateProfileData) {
     country: data.country,
     avatar_url: data.avatarUrl,
   };
+  return Object.fromEntries(
+    Object.entries(raw).filter(([, value]) => value !== undefined && value !== null),
+  );
 }
 
 export function useUpdateProfile() {
