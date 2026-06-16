@@ -1,11 +1,15 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import type { TcgType } from "@/types/judge";
 
 export type UpdateProfileData = {
   displayName?: string;
   bio?: string;
   favoriteGame?: string;
+  favoriteTcgs?: TcgType[];
+  birthDate?: string;
+  state?: string;
   city?: string;
   country?: string;
   avatarUrl?: string;
@@ -16,6 +20,9 @@ function toApiBody(data: UpdateProfileData) {
     display_name: data.displayName,
     bio: data.bio,
     favorite_game: data.favoriteGame,
+    favorite_tcgs: data.favoriteTcgs,
+    birth_date: data.birthDate || undefined,
+    state: data.state,
     city: data.city,
     country: data.country,
     avatar_url: data.avatarUrl,

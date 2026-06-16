@@ -62,15 +62,27 @@ export function middleware(request: NextRequest) {
   }
 
   const needsAdmin = ADMIN_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));
-  if (!needsAdmin) return NextResponse.next();
-
-  if (!isAdminRequest(request)) {
-    const login = new URL("/login", request.url);
-    login.searchParams.set("next", pathname);
-    const hasConsoleCookie = Boolean(request.cookies.get("tcg_access")?.value);
-    if (!hasConsoleCookie) {
-      return NextResponse.redirect(new URL("/judge", request.url));
+  if (needsAdmin) {
+    if (!isAdminRequest(request)) {
+      const login = new URL("/login", request.url);
+      login.searchParams.set("next", pathname);
+      const hasConsoleCookie = Boolean(request.cookies.get("tcg_access")?.value);
+      if (!hasConsoleCookie) {
+        return NextResponse.redirect(new URL("/judge", request.url));
+      }
+      return NextResponse.redirect(login);
     }
+    return NextResponse.next();
+  }
+
+  const needsAuth =
+    pathname === "/player/me" ||
+    pathname.startsWith("/player/me/") ||
+    (pathname.startsWith("/social/communities") && pathname.includes("/posts/"));
+
+  if (needsAuth && !hasSupabaseSession(request)) {
+    const login = new URL("/judge", request.url);
+    login.searchParams.set("redirect", pathname);
     return NextResponse.redirect(login);
   }
 
@@ -81,6 +93,9 @@ export const config = {
   matcher: [
     "/",
     "/judge",
+    "/player/me",
+    "/player/me/:path*",
+    "/social/communities/:path*/posts/:path*",
     "/observability/:path*",
     "/admin/:path*",
     "/ingestion/:path*",

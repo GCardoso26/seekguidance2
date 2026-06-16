@@ -94,6 +94,23 @@ async def list_communities(session: AsyncSession, *, limit: int = 20) -> list[di
     return [dict(r) for r in rows]
 
 
+async def get_community(session: AsyncSession, community_id: str) -> dict[str, Any] | None:
+    row = (
+        await session.execute(
+            text(
+                """
+                SELECT c.*, p.handle AS creator_handle, p.display_name AS creator_name
+                FROM tcg_judge.communities c
+                JOIN tcg_judge.player_profiles p ON p.id = c.created_by
+                WHERE c.id = :id
+                """
+            ),
+            {"id": community_id},
+        )
+    ).mappings().first()
+    return dict(row) if row else None
+
+
 async def list_members(session: AsyncSession, community_id: str) -> list[dict[str, Any]]:
     rows = (
         await session.execute(

@@ -95,7 +95,19 @@ async def create_profile(
 
 
 async def update_profile(session: AsyncSession, user_id: str, fields: dict[str, Any]) -> dict[str, Any]:
-    allowed = {"display_name", "bio", "avatar_url", "favorite_game", "city", "country", "timezone", "privacy_level"}
+    allowed = {
+        "display_name",
+        "bio",
+        "avatar_url",
+        "favorite_game",
+        "city",
+        "country",
+        "timezone",
+        "privacy_level",
+        "birth_date",
+        "state",
+        "favorite_tcgs",
+    }
     sets = []
     params: dict[str, Any] = {"id": user_id}
     for k, v in fields.items():

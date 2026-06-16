@@ -20,11 +20,13 @@ describe("tcg-logos", () => {
     expect(getTcgLogoDimensions("compact")).toEqual({ width: 64, height: 64 });
   });
 
-  it("13 jogos com SVG oficial; SWU usa default até asset dedicado", () => {
-    const withDedicated = ALL_TCG_LOGO_SLUGS.filter((slug) => slug !== "swu");
-    for (const slug of withDedicated) {
-      expect(getTcgLogoBySlug(slug).src).toBe(`/logos/${slug === "union_arena" ? "union-arena" : slug}.svg`);
+  it("todos os 14 jogos com SVG dedicado em /public/logos", () => {
+    for (const game of TCG_OPTIONS) {
+      const slug = gameSlugFromTcg(game.id);
+      const logo = getTcgLogo(game.id);
+      expect(logo.src).toMatch(/^\/logos\/.+\.svg$/);
+      expect(logo.src).not.toBe("/logos/default-tcg.svg");
+      expect(getTcgLogoBySlug(slug).src).toBe(logo.src);
     }
-    expect(getTcgLogoBySlug("swu").src).toBe("/logos/default-tcg.svg");
   });
 });

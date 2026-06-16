@@ -7,7 +7,7 @@ from typing import Any
 
 from app.api.deps import DbSession
 from app.api.v1.tournament_system import _require_user
-from app.social import communities, friendships, messages
+from app.social import communities, friendships, messages, posts
 from fastapi import APIRouter, Header, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel, Field
 
@@ -29,6 +29,22 @@ class CommunityCreateBody(BaseModel):
     name: str = Field(min_length=3, max_length=100)
     description: str | None = None
     game_code: str | None = None
+
+
+class PostCreateBody(BaseModel):
+    community_id: str
+    title: str = Field(min_length=3, max_length=300)
+    content: str = Field(default="", max_length=10000)
+    image_url: str | None = None
+
+
+class PostVoteBody(BaseModel):
+    value: int = Field(ge=-1, le=1)
+
+
+class CommentCreateBody(BaseModel):
+    content: str = Field(min_length=1, max_length=4000)
+    parent_id: str | None = None
 
 
 class PushSubscribeBody(BaseModel):
@@ -161,6 +177,96 @@ async def join_community_endpoint(
 @router.get("/runtime/judge/social/communities/{community_id}/members")
 async def community_members(session: DbSession, community_id: str) -> list[dict[str, Any]]:
     return await communities.list_members(session, community_id)
+
+
+@router.get("/runtime/judge/social/communities/{community_id}")
+async def get_community_endpoint(session: DbSession, community_id: str) -> dict[str, Any]:
+    comm = await communities.get_community(session, community_id)
+    if not comm:
+        from fastapi import HTTPException
+
+        raise HTTPException(404, "Comunidade não encontrada")
+    return comm
+
+
+@router.get("/runtime/judge/social/posts")
+async def list_posts_endpoint(
+    session: DbSession,
+    community_id: str | None = None,
+    author_id: str | None = None,
+    sort: str = "hot",
+) -> list[dict[str, Any]]:
+    mode = sort if sort in ("hot", "new", "top") else "hot"
+    return await posts.list_posts(
+        session,
+        community_id=community_id,
+        author_id=author_id,
+        sort=mode,  # type: ignore[arg-type]
+    )
+
+
+@router.post("/runtime/judge/social/posts")
+async def create_post_endpoint(
+    session: DbSession,
+    body: PostCreateBody,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    return await posts.create_post(
+        session,
+        user_id,
+        community_id=body.community_id,
+        title=body.title,
+        content=body.content,
+        image_url=body.image_url,
+    )
+
+
+@router.get("/runtime/judge/social/posts/{post_id}")
+async def get_post_endpoint(session: DbSession, post_id: str) -> dict[str, Any]:
+    post = await posts.get_post(session, post_id)
+    if not post:
+        from fastapi import HTTPException
+
+        raise HTTPException(404, "Post não encontrado")
+    return post
+
+
+@router.post("/runtime/judge/social/posts/{post_id}/vote")
+async def vote_post_endpoint(
+    session: DbSession,
+    post_id: str,
+    body: PostVoteBody,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    if body.value == 0:
+        from fastapi import HTTPException
+
+        raise HTTPException(400, "Valor de voto inválido")
+    return await posts.vote_post(session, post_id, user_id, body.value)
+
+
+@router.get("/runtime/judge/social/posts/{post_id}/comments")
+async def list_comments_endpoint(session: DbSession, post_id: str) -> list[dict[str, Any]]:
+    return await posts.list_comments(session, post_id)
+
+
+@router.post("/runtime/judge/social/posts/{post_id}/comments")
+async def create_comment_endpoint(
+    session: DbSession,
+    post_id: str,
+    body: CommentCreateBody,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    return await posts.create_comment(
+        session,
+        user_id,
+        post_id=post_id,
+        content=body.content,
+        parent_id=body.parent_id,
+    )
 
 
 @router.post("/runtime/judge/notifications/subscribe")

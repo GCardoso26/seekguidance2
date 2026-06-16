@@ -43,6 +43,7 @@ function SocialPage() {
           {communities.map((c: Record<string, unknown>) => (
             <CommunityCard
               key={String(c.id)}
+              id={String(c.id)}
               name={String(c.name)}
               description={String(c.description ?? "")}
               gameCode={String(c.game_code ?? "")}

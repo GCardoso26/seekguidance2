@@ -38,6 +38,9 @@ class ProfileUpdateBody(BaseModel):
     country: str | None = None
     timezone: str | None = None
     privacy_level: str | None = None
+    birth_date: str | None = None
+    state: str | None = None
+    favorite_tcgs: list[str] | None = None
 
 
 class PrivacyBody(BaseModel):
@@ -82,6 +85,9 @@ async def get_my_profile(
         "avatarUrl": prof.get("avatar_url"),
         "bio": prof.get("bio"),
         "favoriteGame": prof.get("favorite_game"),
+        "favoriteTcgs": prof.get("favorite_tcgs") or [],
+        "birthDate": prof["birth_date"].isoformat() if prof.get("birth_date") else None,
+        "state": prof.get("state"),
         "city": prof.get("city"),
         "country": prof.get("country"),
         "timezone": prof.get("timezone"),
@@ -89,6 +95,7 @@ async def get_my_profile(
         "location": {
             "city": prof.get("city"),
             "country": prof.get("country"),
+            "state": prof.get("state"),
             "timezone": prof.get("timezone"),
         },
     }
@@ -115,9 +122,13 @@ async def get_public_profile(session: DbSession, handle: str) -> dict[str, Any]:
         "avatarUrl": prof.get("avatar_url"),
         "bio": prof.get("bio"),
         "favoriteGame": prof.get("favorite_game"),
+        "favoriteTcgs": prof.get("favorite_tcgs") or [],
+        "birthDate": prof["birth_date"].isoformat() if prof.get("birth_date") else None,
+        "state": prof.get("state"),
         "location": {
             "city": prof.get("city"),
             "country": prof.get("country"),
+            "state": prof.get("state"),
             "timezone": prof.get("timezone"),
         },
         "stats": stats,

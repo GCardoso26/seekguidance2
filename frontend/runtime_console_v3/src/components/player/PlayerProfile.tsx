@@ -3,7 +3,12 @@ import { AchievementBadge } from "./AchievementBadge";
 import { RankingDisplay } from "./RankingDisplay";
 import { StatsCard } from "./StatsCard";
 import { TournamentHistory } from "./TournamentHistory";
+import { TCG_OPTIONS } from "@/types/judge";
+import { BRAZILIAN_STATES } from "@/constants/brazilian-states";
 import type { PlayerProfile as Profile } from "@/hooks/usePlayerProfile";
+
+const TCG_LABELS = Object.fromEntries(TCG_OPTIONS.map((g) => [g.id, g.label]));
+const STATE_NAMES = Object.fromEntries(BRAZILIAN_STATES.map((s) => [s.code, s.name]));
 
 type Props = {
   profile: Profile;
@@ -31,10 +36,30 @@ export function PlayerProfile({ profile, showFriendButton }: Props) {
           <h1 className="text-2xl font-bold">@{profile.handle}</h1>
           <p className="text-luxury-frost/90">{profile.displayName}</p>
           {profile.bio && <p className="mt-2 text-sm text-luxury-mist">{profile.bio}</p>}
+          {(profile.state || profile.location?.state) && (
+            <p className="mt-1 text-sm text-luxury-mist/70">
+              {STATE_NAMES[profile.state ?? profile.location?.state ?? ""] ??
+                profile.state ??
+                profile.location?.state}
+            </p>
+          )}
           {profile.location?.city && (
             <p className="mt-1 text-sm text-luxury-mist/70">
-              {profile.location.city}, {profile.location.country}
+              {profile.location.city}
+              {profile.location.country ? `, ${profile.location.country}` : ""}
             </p>
+          )}
+          {profile.favoriteTcgs && profile.favoriteTcgs.length > 0 && (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {profile.favoriteTcgs.map((id) => (
+                <span
+                  key={id}
+                  className="rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 text-xs text-luxury-frost"
+                >
+                  {TCG_LABELS[id] ?? id}
+                </span>
+              ))}
+            </div>
           )}
           {showFriendButton && profile.id && (
             <div className="mt-3">

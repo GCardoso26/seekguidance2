@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" aria-label="Star Wars Unlimited">
+  <defs>
+    <linearGradient id="swu-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="50%" stop-color="#1e3a8a"/>
+      <stop offset="100%" stop-color="#020617"/>
+    </linearGradient>
+    <linearGradient id="swu-accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#94a3b8"/>
+      <stop offset="50%" stop-color="#e2e8f0"/>
+      <stop offset="100%" stop-color="#64748b"/>
+    </linearGradient>
+  </defs>
+  <rect width="120" height="120" rx="16" fill="url(#swu-bg)"/>
+  <circle cx="24" cy="22" r="1.2" fill="#e2e8f0" opacity="0.9"/>
+  <circle cx="96" cy="18" r="1" fill="#e2e8f0" opacity="0.7"/>
+  <circle cx="88" cy="34" r="0.8" fill="#cbd5e1" opacity="0.6"/>
+  <circle cx="18" cy="42" r="0.9" fill="#cbd5e1" opacity="0.5"/>
+  <path fill="url(#swu-accent)" d="M60 28 72 52H48Zm0 8 8 18h-16Z"/>
+  <text x="60" y="88" text-anchor="middle" fill="#e2e8f0" font-family="system-ui,sans-serif" font-size="9" font-weight="700" letter-spacing="0.08em">STAR WARS</text>
+  <text x="60" y="100" text-anchor="middle" fill="#94a3b8" font-family="system-ui,sans-serif" font-size="8" font-weight="600" letter-spacing="0.2em">UNLIMITED</text>
+</svg>

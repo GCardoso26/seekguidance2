@@ -3,10 +3,14 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import type { GameCode } from "@/lib/tcg-adapters";
+import type { TcgType } from "@/types/judge";
 import { AvatarUpload } from "@/components/player/AvatarUpload";
 import { ConsultationHistoryList } from "@/components/player/ConsultationHistoryList";
+import { PostCard } from "@/components/community/PostCard";
 import { NotificationPreferences } from "@/components/notifications/NotificationPreferences";
 import { GameSelector } from "@/components/tournament/GameSelector";
+import { DatePicker } from "@/components/ui/DatePicker";
+import { MultiSelectTCG } from "@/components/ui/MultiSelectTCG";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,11 +20,16 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { usePlayerProfile } from "@/hooks/usePlayerProfile";
 import { useUpdateProfile, type UpdateProfileData } from "@/hooks/useUpdateProfile";
 import { useConsultations } from "@/hooks/useConsultations";
+import { useCommunityPosts } from "@/hooks/useCommunityPosts";
 import { computePlayerJudgeStats } from "@/lib/player-judge-stats";
+import { BRAZILIAN_STATES } from "@/constants/brazilian-states";
 import { TCG_OPTIONS } from "@/types/judge";
 import { BarChart3, CreditCard, Flame, History, MessageCircle } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const TCG_LABELS = Object.fromEntries(TCG_OPTIONS.map((g) => [g.id, g.label]));
+
+type ProfileTab = "overview" | "posts" | "history" | "settings";
 
 export default function MyProfilePage() {
   const { user } = useJudgeAuth();
@@ -31,6 +40,10 @@ export default function MyProfilePage() {
     useUpdateProfile();
   const [formData, setFormData] = useState<UpdateProfileData>({});
   const [favoriteGame, setFavoriteGame] = useState<GameCode | null>(null);
+  const [favoriteTcgs, setFavoriteTcgs] = useState<TcgType[]>([]);
+  const [birthDate, setBirthDate] = useState("");
+  const [stateCode, setStateCode] = useState("");
+  const [tab, setTab] = useState<ProfileTab>("overview");
 
   const stats = useMemo(
     () => computePlayerJudgeStats(allItems, TCG_LABELS),
@@ -41,7 +54,18 @@ export default function MyProfilePage() {
     if (profile?.favoriteGame) {
       setFavoriteGame(profile.favoriteGame as GameCode);
     }
-  }, [profile?.favoriteGame]);
+    if (profile?.favoriteTcgs?.length) {
+      setFavoriteTcgs(profile.favoriteTcgs as TcgType[]);
+    }
+    if (profile?.birthDate) setBirthDate(profile.birthDate.slice(0, 10));
+    if (profile?.state) setStateCode(profile.state);
+    else if (profile?.location?.state) setStateCode(profile.location.state);
+  }, [profile?.favoriteGame, profile?.favoriteTcgs, profile?.birthDate, profile?.state, profile?.location?.state]);
+
+  const { data: myPosts = [] } = useCommunityPosts({
+    authorId: profile?.id,
+    sort: "new",
+  });
 
   if (isLoading) {
     return (
@@ -69,6 +93,9 @@ export default function MyProfilePage() {
     updateProfile({
       ...formData,
       favoriteGame: favoriteGame ?? formData.favoriteGame,
+      favoriteTcgs,
+      birthDate: birthDate || undefined,
+      state: stateCode || undefined,
     });
   };
 
@@ -131,16 +158,72 @@ export default function MyProfilePage() {
           </Link>
         </div>
 
-        <div className="mt-6 space-y-6">
-          <Card className="border-white/10 bg-white/5">
-            <CardHeader>
-              <CardTitle>Consultas recentes</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ConsultationHistoryList compact />
-            </CardContent>
-          </Card>
+        <nav className="mt-6 flex flex-wrap gap-2 border-b border-white/10 pb-2">
+          {(
+            [
+              ["overview", "Visão geral"],
+              ["posts", "Meus posts"],
+              ["history", "Histórico"],
+              ["settings", "Configurações"],
+            ] as const
+          ).map(([id, label]) => (
+            <button
+              key={id}
+              type="button"
+              onClick={() => setTab(id)}
+              className={cn(
+                "rounded-lg px-3 py-1.5 text-sm",
+                tab === id ? "bg-luxury-gold/20 text-luxury-gold-light" : "text-luxury-mist",
+              )}
+            >
+              {label}
+            </button>
+          ))}
+        </nav>
 
+        <div className="mt-6 space-y-6">
+          {tab === "overview" && (
+            <>
+              <Card className="border-white/10 bg-white/5">
+                <CardHeader>
+                  <CardTitle>Consultas recentes</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ConsultationHistoryList compact />
+                </CardContent>
+              </Card>
+            </>
+          )}
+
+          {tab === "posts" && (
+            <Card className="border-white/10 bg-white/5">
+              <CardHeader>
+                <CardTitle>Posts nas comunidades</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {myPosts.length === 0 && (
+                  <p className="text-sm text-luxury-mist">Você ainda não publicou nada.</p>
+                )}
+                {myPosts.map((post) => (
+                  <PostCard key={post.id} post={post} />
+                ))}
+              </CardContent>
+            </Card>
+          )}
+
+          {tab === "history" && (
+            <Card className="border-white/10 bg-white/5">
+              <CardHeader>
+                <CardTitle>Histórico de consultas</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ConsultationHistoryList />
+              </CardContent>
+            </Card>
+          )}
+
+          {tab === "settings" && (
+            <>
           <Card className="border-white/10 bg-white/5">
             <CardHeader>
               <CardTitle>Foto de Perfil</CardTitle>
@@ -189,7 +272,11 @@ export default function MyProfilePage() {
                   />
                 </div>
                 <div>
-                  <p className="mb-2 text-sm text-luxury-frost/90">Jogo favorito</p>
+                  <p className="mb-2 text-sm text-luxury-frost/90">Jogos favoritos</p>
+                  <MultiSelectTCG selected={favoriteTcgs} onChange={setFavoriteTcgs} />
+                </div>
+                <div>
+                  <p className="mb-2 text-sm text-luxury-frost/90">Jogo principal</p>
                   <GameSelector
                     value={favoriteGame}
                     onChange={(game) => {
@@ -197,6 +284,30 @@ export default function MyProfilePage() {
                       setFormData((prev) => ({ ...prev, favoriteGame: game }));
                     }}
                   />
+                </div>
+                <div>
+                  <label htmlFor="birthDate" className="mb-1 block text-sm text-luxury-frost/90">
+                    Data de nascimento
+                  </label>
+                  <DatePicker value={birthDate} onChange={setBirthDate} />
+                </div>
+                <div>
+                  <label htmlFor="state" className="mb-1 block text-sm text-luxury-frost/90">
+                    Estado
+                  </label>
+                  <select
+                    id="state"
+                    value={stateCode}
+                    onChange={(e) => setStateCode(e.target.value)}
+                    className="luxury-input w-full"
+                  >
+                    <option value="">Selecione</option>
+                    {BRAZILIAN_STATES.map((s) => (
+                      <option key={s.code} value={s.code}>
+                        {s.name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
                 {isSuccess && <p className="text-sm text-luxury-gold-light">Perfil atualizado.</p>}
                 {updateError && <p className="text-sm text-red-400">Erro ao salvar.</p>}
@@ -215,6 +326,8 @@ export default function MyProfilePage() {
               <NotificationPreferences />
             </CardContent>
           </Card>
+            </>
+          )}
         </div>
       </div>
     </MobileLayout>

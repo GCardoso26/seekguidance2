@@ -28,7 +28,7 @@ describe("GameMatSelector logos", () => {
       vanguard: "/logos/vanguard.svg",
       riftbound: "/logos/riftbound.svg",
       union_arena: "/logos/union-arena.svg",
-      star_wars_unlimited: "/logos/default-tcg.svg",
+      star_wars_unlimited: "/logos/swu.svg",
     };
 
     for (const game of TCG_OPTIONS) {

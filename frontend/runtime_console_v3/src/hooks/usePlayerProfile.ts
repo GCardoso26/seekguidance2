@@ -9,7 +9,10 @@ export type PlayerProfile = {
   avatarUrl?: string;
   bio?: string;
   favoriteGame?: string;
-  location?: { city?: string; country?: string; timezone?: string };
+  favoriteTcgs?: string[];
+  birthDate?: string;
+  state?: string;
+  location?: { city?: string; country?: string; state?: string; timezone?: string };
   stats?: Array<Record<string, unknown>>;
   rankings?: Array<Record<string, unknown>>;
   achievements?: Array<Record<string, unknown>>;

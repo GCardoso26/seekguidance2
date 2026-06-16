@@ -25,7 +25,7 @@ export const TCG_LOGOS: Record<string, TcgLogoMeta> = {
   vanguard: { src: "/logos/vanguard.svg", alt: "Cardfight!! Vanguard", width: LOGO_SIZE, height: LOGO_SIZE },
   riftbound: { src: "/logos/riftbound.svg", alt: "Riftbound", width: LOGO_SIZE, height: LOGO_SIZE },
   union_arena: { src: "/logos/union-arena.svg", alt: "Union Arena", width: LOGO_SIZE, height: LOGO_SIZE },
-  swu: { src: "/logos/default-tcg.svg", alt: "Star Wars Unlimited", width: LOGO_SIZE, height: LOGO_SIZE },
+  swu: { src: "/logos/swu.svg", alt: "Star Wars: Unlimited", width: LOGO_SIZE, height: LOGO_SIZE },
 };
 
 const DEFAULT: TcgLogoMeta = {
