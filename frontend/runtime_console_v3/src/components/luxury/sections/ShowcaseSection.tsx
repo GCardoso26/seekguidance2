@@ -4,9 +4,16 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
+import type { AudienceSegment } from "@/constants/luxury/landingCopy";
+import { SHOWCASE_COPY } from "@/constants/luxury/landingCopy";
 import { RevealOnScroll } from "@/components/luxury/effects/RevealOnScroll";
 
-export function ShowcaseSection() {
+type Props = {
+  segment?: AudienceSegment;
+};
+
+export function ShowcaseSection({ segment = "home" }: Props) {
+  const copy = SHOWCASE_COPY[segment];
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -18,19 +25,14 @@ export function ShowcaseSection() {
     <section ref={ref} className="relative overflow-hidden py-28 lg:py-36">
       <div className="mx-auto grid max-w-7xl items-center gap-16 px-6 lg:grid-cols-2 lg:gap-20 lg:px-8">
         <RevealOnScroll variant="slideRight">
-          <p className="mb-4 text-xs tracking-[0.3em] text-luxury-gold uppercase">A Mesa</p>
-          <h2 className="mb-6 text-luxury-frost">
-            A mesa de regras mais avançada do mundo competitivo
-          </h2>
-          <p className="mb-8 text-lg font-light leading-relaxed text-luxury-mist">
-            Interface escura, foco absoluto na pergunta e na resposta. Streaming de vereditos,
-            fontes oficiais e contexto de partida — tudo num único ecrã desenhado para torneio.
-          </p>
+          <p className="mb-4 text-xs tracking-[0.3em] text-luxury-gold uppercase">{copy.eyebrow}</p>
+          <h2 className="mb-6 text-luxury-frost">{copy.title}</h2>
+          <p className="mb-8 text-lg font-light leading-relaxed text-luxury-mist">{copy.description}</p>
           <Link
             href="/judge"
             className="inline-flex items-center gap-2 text-sm font-medium text-luxury-gold transition-colors hover:text-luxury-gold-light"
           >
-            Abrir a mesa ao vivo
+            {copy.cta}
             <ArrowRight className="h-4 w-4" strokeWidth={1.5} />
           </Link>
         </RevealOnScroll>
@@ -51,17 +53,12 @@ export function ShowcaseSection() {
             <div className="space-y-4 p-6">
               <div className="rounded-xl border border-white/10 bg-white/5 p-4">
                 <p className="text-xs text-luxury-mist">Pergunta</p>
-                <p className="mt-1 text-sm text-luxury-frost">
-                  Posso ativar Ash Blossom contra o efeito de invocação de Blue-Eyes?
-                </p>
+                <p className="mt-1 text-sm text-luxury-frost">{copy.question}</p>
               </div>
               <div className="rounded-xl border border-luxury-gold/20 bg-luxury-gold/5 p-4">
                 <p className="text-xs text-luxury-gold">Veredito</p>
-                <p className="mt-2 text-sm leading-relaxed text-luxury-frost">
-                  Sim. O efeito de invocação constitui um efeito que ativa na cadeia — Ash Blossom
-                  é uma resposta válida conforme a PSCT atual.
-                </p>
-                <p className="mt-3 text-xs text-luxury-mist">Confiança 94% · 3 fontes oficiais</p>
+                <p className="mt-2 text-sm leading-relaxed text-luxury-frost">{copy.answer}</p>
+                <p className="mt-3 text-xs text-luxury-mist">{copy.meta}</p>
               </div>
             </div>
           </div>

@@ -1,18 +1,22 @@
+import type { AudienceSegment } from "@/constants/luxury/landingCopy";
+
 export type TcgTheme = {
   id: string;
   name: string;
   short: string;
   accent: string;
   accentMuted: string;
+  featured?: boolean;
+  description?: string;
 };
 
 export const TCG_THEMES: TcgTheme[] = [
-  { id: "magic", name: "Magic: The Gathering", short: "MTG", accent: "#3b82f6", accentMuted: "#1e3a5f" },
-  { id: "pokemon", name: "Pokémon TCG", short: "PKM", accent: "#facc15", accentMuted: "#713f12" },
-  { id: "yugioh", name: "Yu-Gi-Oh!", short: "YGO", accent: "#ef4444", accentMuted: "#7f1d1d" },
-  { id: "lorcana", name: "Disney Lorcana", short: "LOR", accent: "#a78bfa", accentMuted: "#4c1d95" },
-  { id: "one_piece", name: "One Piece", short: "OP", accent: "#f97316", accentMuted: "#7c2d12" },
-  { id: "fab", name: "Flesh and Blood", short: "FAB", accent: "#dc2626", accentMuted: "#450a0a" },
+  { id: "yugioh", name: "Yu-Gi-Oh!", short: "YGO", accent: "#ef4444", accentMuted: "#7f1d1d", featured: true, description: "YCS, Regionals e Store Champs" },
+  { id: "magic", name: "Magic: The Gathering", short: "MTG", accent: "#3b82f6", accentMuted: "#1e3a5f", featured: true, description: "Commander ao competitivo" },
+  { id: "pokemon", name: "Pokémon TCG", short: "PKM", accent: "#facc15", accentMuted: "#713f12", featured: true, description: "Regionals e League Cups" },
+  { id: "lorcana", name: "Disney Lorcana", short: "LOR", accent: "#a78bfa", accentMuted: "#4c1d95", description: "Set Championship e locals" },
+  { id: "one_piece", name: "One Piece", short: "OP", accent: "#f97316", accentMuted: "#7c2d12", description: "Flagship e store events" },
+  { id: "fab", name: "Flesh and Blood", short: "FAB", accent: "#dc2626", accentMuted: "#450a0a", description: "Calling e Pro Quest" },
   { id: "digimon", name: "Digimon", short: "DGM", accent: "#06b6d4", accentMuted: "#164e63" },
   { id: "dragon_ball", name: "Dragon Ball", short: "DBS", accent: "#f59e0b", accentMuted: "#78350f" },
   { id: "force_of_will", name: "Force of Will", short: "FoW", accent: "#6366f1", accentMuted: "#312e81" },
@@ -23,83 +27,107 @@ export const TCG_THEMES: TcgTheme[] = [
   { id: "vanguard", name: "Cardfight!! Vanguard", short: "CFV", accent: "#22d3ee", accentMuted: "#155e75" },
 ];
 
+export const FEATURED_TCG_IDS = ["yugioh", "magic", "pokemon"] as const;
+
 export const FEATURES = [
   {
     icon: "Zap" as const,
-    title: "Vereditos em Segundos",
+    title: "Ruling com fonte. Sem appeal.",
     description:
-      "IA treinada em documentos oficiais entrega rulings com fontes citadas — na mesa, sem pausas longas.",
+      "Sua dúvida em segundos — com documento oficial citado para mostrar ao oponente ou ao floor judge.",
+    segments: ["home", "player", "judge"] as AudienceSegment[],
   },
   {
     icon: "Layers" as const,
-    title: "14 TCGs Suportados",
+    title: "Do Commander ao YGO — uma mesa só.",
     description:
-      "Do Commander ao competitivo YGO — uma única plataforma para juízes e jogadores multiformato.",
+      "14 TCGs numa única plataforma. Sem trocar de app entre formatos.",
+    segments: ["home", "player"] as AudienceSegment[],
   },
   {
     icon: "Trophy" as const,
-    title: "Torneios sem Fricção",
+    title: "Seu torneio não atrasa.",
     description:
-      "Pairing, bracket e cronômetro integrados para lojas e organizadores que exigem precisão.",
+      "Pairing automático, bracket correto e cronômetro — evento que começa e acaba na hora.",
+    segments: ["home", "lgs"] as AudienceSegment[],
   },
   {
     icon: "BookOpen" as const,
-    title: "Fontes Oficiais",
+    title: "Cite a regra. Proteja-se.",
     description:
-      "Cada resposta referencia regras verificáveis — transparência que juízes de head judge exigem.",
+      "Policy, MTR, IPG e CR referenciados — consistência que head judges exigem no salão.",
+    segments: ["home", "judge"] as AudienceSegment[],
   },
   {
     icon: "Cloud" as const,
-    title: "Histórico na Nuvem",
+    title: "Suas rulings, sempre à mão.",
     description:
-      "Consultas sincronizadas com sua conta — retome partidas, exporte relatórios, audite decisões.",
+      "Histórico na nuvem — retome consultas, exporte relatórios, audite decisões do evento.",
+    segments: ["home", "player", "judge"] as AudienceSegment[],
   },
   {
     icon: "Globe" as const,
-    title: "Comunidade Global",
+    title: "Juízes que trocam experiência.",
     description:
-      "Juízes, jogadores e LGS conectados num ecossistema construído para o competitivo sério.",
+      "Floor judges, head judges e LGS conectados num ecossistema construído para o competitivo sério.",
+    segments: ["home", "judge", "lgs"] as AudienceSegment[],
   },
 ] as const;
 
-export const TESTIMONIALS = [
+export type Testimonial = {
+  quote: string;
+  name: string;
+  title: string;
+  initials: string;
+  segment: Exclude<AudienceSegment, "home">;
+  credential?: string;
+};
+
+export const TESTIMONIALS: Testimonial[] = [
   {
     quote:
-      "Como juiz de YCS, o Judge TCG reduziu meu tempo de consulta em 70%. A citação de fontes mudou o jogo na mesa.",
-    name: "Rafael Mendes",
-    title: "Head Judge · Yu-Gi-Oh!",
-    initials: "RM",
+      "Usei 3x na mesa no top 32. Ganhei tempo no clock e confiança nas jogadas. Mostrei a fonte ao juiz — ele confirmou. Game 2.",
+    name: "Ana Beatriz",
+    title: "Top 32 YCS Rio 2023",
+    initials: "AB",
+    segment: "player",
+    credential: "@anaygo",
   },
   {
     quote:
-      "Nossa loja roda torneios semanais. O bracket e o histórico de rulings deram credibilidade que os jogadores notam.",
-    name: "Ana Costa",
-    title: "Proprietária · LGS Porto Alegre",
-    initials: "AC",
+      "Zero appeal por inconsistência no evento inteiro. Meus floor judges usaram a mesa para confirmar rulings raras.",
+    name: "Carlos Silva",
+    title: "Head Judge YCS São Paulo 2024",
+    initials: "CS",
+    segment: "judge",
+    credential: "L3 KDE",
   },
   {
     quote:
-      "Finalmente uma ferramenta que parece feita para quem leva o competitivo a sério — não é brinquedo, é infraestrutura.",
-    name: "Lucas Ferreira",
-    title: "Pro Player · Magic Regional",
-    initials: "LF",
+      "De 12 para 36 jogadores em 8 meses. A credibilidade do torneio mudou a percepção da loja.",
+    name: "Roberto Tanaka",
+    title: "LGS Dragão Cards, Curitiba",
+    initials: "RT",
+    segment: "lgs",
+    credential: "Proprietário",
   },
-] as const;
+];
 
 export const PRICING_PLANS = [
   {
     id: "free",
-    name: "Iniciante",
+    name: "Casual",
     price: "Grátis",
     period: "",
     description: "Para conhecer a mesa e resolver dúvidas casuais.",
     features: ["50 consultas/dia", "5 TCGs principais", "Histórico local", "Suporte comunitário"],
     cta: "Começar",
     highlighted: false,
+    segments: ["home", "player"] as AudienceSegment[],
   },
   {
     id: "pro",
-    name: "Competitivo",
+    name: "Pro",
     price: "R$ 29",
     period: "/mês",
     description: "Para jogadores e juízes que precisam de volume e precisão.",
@@ -113,21 +141,38 @@ export const PRICING_PLANS = [
     cta: "Assinar Pro",
     highlighted: true,
     badge: "Mais Popular",
+    segments: ["home", "player", "judge"] as AudienceSegment[],
   },
   {
-    id: "team",
-    name: "Loja / Organizador",
-    price: "Sob consulta",
-    period: "",
-    description: "Para LGS, federações e eventos com múltiplos juízes.",
+    id: "lgs",
+    name: "LGS",
+    price: "A partir de R$ 199",
+    period: "/mês",
+    description: "Para lojas que levam o competitivo a sério.",
     features: [
-      "Assentos ilimitados",
-      "Torneios & POS",
+      "Torneios ilimitados",
+      "Bracket & pairing automático",
+      "Múltiplos juízes na mesa",
       "Analytics de evento",
-      "Onboarding dedicado",
-      "SLA empresarial",
+      "Suporte prioritário",
     ],
-    cta: "Falar com Vendas",
+    cta: "Calcular para minha loja",
     highlighted: false,
+    segments: ["home", "lgs"] as AudienceSegment[],
   },
 ] as const;
+
+export function featuresForSegment(segment: AudienceSegment) {
+  if (segment === "home") return FEATURES;
+  return FEATURES.filter((f) => f.segments.includes(segment));
+}
+
+export function testimonialsForSegment(segment: AudienceSegment) {
+  if (segment === "home") return TESTIMONIALS;
+  return TESTIMONIALS.filter((t) => t.segment === segment);
+}
+
+export function pricingForSegment(segment: AudienceSegment) {
+  if (segment === "home") return PRICING_PLANS;
+  return PRICING_PLANS.filter((p) => p.segments.includes(segment));
+}

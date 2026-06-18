@@ -3,6 +3,8 @@
 import { motion } from "framer-motion";
 import { ArrowRight, ChevronDown } from "lucide-react";
 import Link from "next/link";
+import type { AudienceSegment } from "@/constants/luxury/landingCopy";
+import { HERO_COPY } from "@/constants/luxury/landingCopy";
 import { fadeUp } from "@/constants/luxury/motion";
 import { GlowOrb } from "@/components/luxury/effects/GlowOrb";
 import { MagneticButton } from "@/components/luxury/effects/MagneticButton";
@@ -10,7 +12,12 @@ import { NoiseOverlay } from "@/components/luxury/effects/NoiseOverlay";
 import { useMousePosition } from "@/hooks/useMousePosition";
 import { cn } from "@/lib/utils";
 
-export function HeroSection() {
+type Props = {
+  segment?: AudienceSegment;
+};
+
+export function HeroSection({ segment = "home" }: Props) {
+  const copy = HERO_COPY[segment];
   const { x, y } = useMousePosition();
   const parallaxX = typeof window !== "undefined" ? (x / window.innerWidth - 0.5) * 10 : 0;
   const parallaxY = typeof window !== "undefined" ? (y / window.innerHeight - 0.5) * 10 : 0;
@@ -36,7 +43,7 @@ export function HeroSection() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.1 }}
         >
-          A plataforma definitiva para
+          {copy.eyebrow}
         </motion.p>
 
         <motion.h1
@@ -45,7 +52,7 @@ export function HeroSection() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, delay: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
         >
-          Justiça nas Cartas
+          {copy.title}
         </motion.h1>
 
         <motion.p
@@ -55,26 +62,50 @@ export function HeroSection() {
           animate="visible"
           transition={{ delay: 0.4 }}
         >
-          Rulings instantâneos, vereditos confiáveis, torneios impecáveis. A autoridade que o
-          jogo competitivo precisa.
+          {copy.subtitle}
         </motion.p>
 
         <motion.div
-          className="relative flex flex-col items-center justify-center gap-4 sm:flex-row"
+          className="relative flex flex-col items-center justify-center gap-4"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.55 }}
         >
           <GlowOrb className="left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" size={280} />
-          <Link href="/judge">
-            <MagneticButton>
-              Experimentar a Mesa
-              <ArrowRight className="h-4 w-4" strokeWidth={1.5} />
-            </MagneticButton>
-          </Link>
-          <Link href="/pricing">
-            <MagneticButton variant="secondary">Ver Planos</MagneticButton>
-          </Link>
+
+          {copy.segmentCtas ? (
+            <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-center">
+              {copy.segmentCtas.map((cta) => (
+                <Link key={cta.href} href={cta.href}>
+                  <MagneticButton className="w-full min-w-[200px] sm:w-auto">
+                    <span aria-hidden>{cta.emoji}</span>
+                    {cta.label}
+                  </MagneticButton>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
+              {copy.primaryCta && (
+                <Link href={copy.primaryCta.href}>
+                  <MagneticButton>
+                    {copy.primaryCta.label}
+                    <ArrowRight className="h-4 w-4" strokeWidth={1.5} />
+                  </MagneticButton>
+                </Link>
+              )}
+              {copy.secondaryCta && (
+                <Link
+                  href={copy.secondaryCta.href}
+                  {...(copy.secondaryCta.href.startsWith("mailto:")
+                    ? {}
+                    : {})}
+                >
+                  <MagneticButton variant="secondary">{copy.secondaryCta.label}</MagneticButton>
+                </Link>
+              )}
+            </div>
+          )}
         </motion.div>
       </div>
 
@@ -83,8 +114,9 @@ export function HeroSection() {
         className={cn(
           "absolute bottom-10 left-1/2 z-10 -translate-x-1/2 text-luxury-mist transition-colors hover:text-luxury-gold",
         )}
-        aria-label="Descer para funcionalidades"
+        aria-label={copy.scrollLabel}
       >
+        <span className="sr-only">{copy.scrollLabel}</span>
         <ChevronDown className="h-6 w-6 animate-float" strokeWidth={1.5} />
       </a>
     </section>

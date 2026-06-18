@@ -1,28 +1,12 @@
 import type { Metadata } from "next";
-import { CtaFinalSection } from "@/components/luxury/sections/CtaFinalSection";
-import { FeaturesSection } from "@/components/luxury/sections/FeaturesSection";
-import { HeroSection } from "@/components/luxury/sections/HeroSection";
-import { PricingSection } from "@/components/luxury/sections/PricingSection";
-import { ShowcaseSection } from "@/components/luxury/sections/ShowcaseSection";
-import { TcgGallerySection } from "@/components/luxury/sections/TcgGallerySection";
-import { TestimonialsSection } from "@/components/luxury/sections/TestimonialsSection";
+import { LandingPageContent } from "@/components/luxury/LandingPageContent";
 
 export const metadata: Metadata = {
-  title: "Judge TCG — Justiça nas Cartas",
+  title: "Judge TCG — A ruling certa antes do clock zerar",
   description:
-    "Rulings instantâneos, vereditos confiáveis, torneios impecáveis. A autoridade que o jogo competitivo precisa.",
+    "Juízes consistentes. Jogadores confiantes. Torneios que começam e acabam na hora. Rulings com fonte oficial em segundos.",
 };
 
 export default function HomePage() {
-  return (
-    <>
-      <HeroSection />
-      <FeaturesSection />
-      <ShowcaseSection />
-      <TcgGallerySection />
-      <TestimonialsSection />
-      <PricingSection />
-      <CtaFinalSection />
-    </>
-  );
+  return <LandingPageContent segment="home" />;
 }

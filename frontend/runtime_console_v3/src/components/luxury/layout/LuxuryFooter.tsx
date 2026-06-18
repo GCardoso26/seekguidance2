@@ -6,6 +6,9 @@ const COLUMNS = [
   {
     title: "Produto",
     links: [
+      { label: "Para Jogadores", href: "/jogador", external: false },
+      { label: "Para Juízes", href: "/juiz", external: false },
+      { label: "Para Lojas", href: "/loja", external: false },
       { label: "Mesa de Regras", href: "/judge", external: false },
       { label: "Funcionalidades", href: "/features", external: false },
       { label: "Planos", href: "/pricing", external: false },
@@ -50,8 +53,8 @@ export function LuxuryFooter() {
               </span>
             </Link>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-luxury-mist">
-              A autoridade que o jogo competitivo precisa. Rulings, torneios e comunidade numa
-              única plataforma premium.
+              Rulings com fonte. Torneios no horário. A mesa que juízes, jogadores e lojas usam no
+              competitivo sério.
             </p>
           </div>
 

@@ -10,7 +10,9 @@ import {
   Zap,
   type LucideIcon,
 } from "lucide-react";
-import { FEATURES } from "@/constants/luxury/tcgThemes";
+import type { AudienceSegment } from "@/constants/luxury/landingCopy";
+import { FEATURES_SECTION_COPY } from "@/constants/luxury/landingCopy";
+import { featuresForSegment } from "@/constants/luxury/tcgThemes";
 import { stagger } from "@/constants/luxury/motion";
 import { Card } from "@/components/luxury/ui/Card";
 import { RevealOnScroll } from "@/components/luxury/effects/RevealOnScroll";
@@ -24,17 +26,23 @@ const ICONS: Record<string, LucideIcon> = {
   Globe,
 };
 
-export function FeaturesSection() {
+type Props = {
+  segment?: AudienceSegment;
+};
+
+export function FeaturesSection({ segment = "home" }: Props) {
+  const sectionCopy = FEATURES_SECTION_COPY[segment];
+  const features = featuresForSegment(segment);
+
   return (
     <section id="features" className="relative py-28 lg:py-36">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <RevealOnScroll className="mb-16 max-w-2xl">
-          <p className="mb-4 text-xs tracking-[0.3em] text-luxury-gold uppercase">Capacidades</p>
-          <h2 className="mb-6 text-luxury-frost">Engenharia para a mesa</h2>
-          <p className="text-lg font-light text-luxury-mist">
-            Cada funcionalidade foi desenhada com juízes, organizadores e jogadores competitivos —
-            sem compromissos.
+          <p className="mb-4 text-xs tracking-[0.3em] text-luxury-gold uppercase">
+            {sectionCopy.eyebrow}
           </p>
+          <h2 className="mb-6 text-luxury-frost">{sectionCopy.title}</h2>
+          <p className="text-lg font-light text-luxury-mist">{sectionCopy.subtitle}</p>
         </RevealOnScroll>
 
         <motion.div
@@ -44,7 +52,7 @@ export function FeaturesSection() {
           whileInView="visible"
           viewport={{ once: true, margin: "-60px" }}
         >
-          {FEATURES.map((feature, i) => {
+          {features.map((feature, i) => {
             const Icon = ICONS[feature.icon];
             return (
               <RevealOnScroll key={feature.title} delay={i * 0.1}>

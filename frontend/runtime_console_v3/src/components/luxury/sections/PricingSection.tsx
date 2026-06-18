@@ -2,7 +2,9 @@
 
 import { Check } from "lucide-react";
 import Link from "next/link";
-import { PRICING_PLANS } from "@/constants/luxury/tcgThemes";
+import type { AudienceSegment } from "@/constants/luxury/landingCopy";
+import { PRICING_SECTION_COPY } from "@/constants/luxury/landingCopy";
+import { pricingForSegment } from "@/constants/luxury/tcgThemes";
 import { Badge } from "@/components/luxury/ui/Badge";
 import { Card } from "@/components/luxury/ui/Card";
 import { MagneticButton } from "@/components/luxury/effects/MagneticButton";
@@ -10,31 +12,44 @@ import { RevealOnScroll } from "@/components/luxury/effects/RevealOnScroll";
 import { cn } from "@/lib/utils";
 
 function planHref(planId: string): string {
-  if (planId === "team") return "mailto:contato@judgetcg.com.br?subject=Plano%20Team";
+  if (planId === "lgs") return "mailto:contato@judgetcg.com.br?subject=Plano%20LGS";
   if (planId === "pro") return "/pricing";
   return "/judge";
 }
 
-export function PricingSection() {
+type Props = {
+  segment?: AudienceSegment;
+};
+
+export function PricingSection({ segment = "home" }: Props) {
+  const sectionCopy = PRICING_SECTION_COPY[segment];
+  const plans = pricingForSegment(segment);
+
   return (
     <section id="pricing" className="relative py-28 lg:py-36">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <RevealOnScroll className="mb-16 text-center">
-          <p className="mb-4 text-xs tracking-[0.3em] text-luxury-gold uppercase">Investimento</p>
-          <h2 className="mb-4 text-luxury-frost">Planos para cada nível de jogo</h2>
-          <p className="mx-auto max-w-xl text-luxury-mist">
-            Do casual ao head judge — escolha o plano que corresponde à sua ambição competitiva.
+          <p className="mb-4 text-xs tracking-[0.3em] text-luxury-gold uppercase">
+            {sectionCopy.eyebrow}
           </p>
+          <h2 className="mb-4 text-luxury-frost">{sectionCopy.title}</h2>
+          <p className="mx-auto max-w-xl text-luxury-mist">{sectionCopy.subtitle}</p>
         </RevealOnScroll>
 
-        <div className="grid gap-8 lg:grid-cols-3">
-          {PRICING_PLANS.map((plan, i) => {
+        <div
+          className={cn(
+            "grid gap-8",
+            plans.length === 1 ? "mx-auto max-w-md" : plans.length === 2 ? "lg:grid-cols-2" : "lg:grid-cols-3",
+          )}
+        >
+          {plans.map((plan, i) => {
             const href = planHref(plan.id);
             const isMailto = href.startsWith("mailto:");
 
             return (
               <RevealOnScroll key={plan.id} delay={i * 0.1}>
                 <Card
+                  id={plan.id === "lgs" ? "lgs" : undefined}
                   className={cn(
                     "relative flex h-full flex-col bg-gradient-to-b from-luxury-midnight to-luxury-velvet",
                     plan.highlighted && "border-luxury-gold/40 shadow-xl shadow-luxury-gold/10",

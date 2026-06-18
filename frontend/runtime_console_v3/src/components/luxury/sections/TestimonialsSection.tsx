@@ -1,18 +1,33 @@
-import { TESTIMONIALS } from "@/constants/luxury/tcgThemes";
+import type { AudienceSegment } from "@/constants/luxury/landingCopy";
+import { TESTIMONIALS_SECTION_COPY } from "@/constants/luxury/landingCopy";
+import { testimonialsForSegment } from "@/constants/luxury/tcgThemes";
 import { Card } from "@/components/luxury/ui/Card";
 import { RevealOnScroll } from "@/components/luxury/effects/RevealOnScroll";
 
-export function TestimonialsSection() {
+type Props = {
+  segment?: AudienceSegment;
+};
+
+export function TestimonialsSection({ segment = "home" }: Props) {
+  const sectionCopy = TESTIMONIALS_SECTION_COPY[segment];
+  const testimonials = testimonialsForSegment(segment);
+
   return (
     <section className="relative py-28 lg:py-36">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <RevealOnScroll className="mb-16 text-center">
-          <p className="mb-4 text-xs tracking-[0.3em] text-luxury-gold uppercase">Confiança</p>
-          <h2 className="text-luxury-frost">Quem já sente a diferença na mesa</h2>
+          <p className="mb-4 text-xs tracking-[0.3em] text-luxury-gold uppercase">
+            {sectionCopy.eyebrow}
+          </p>
+          <h2 className="text-luxury-frost">{sectionCopy.title}</h2>
         </RevealOnScroll>
 
-        <div className="grid gap-8 md:grid-cols-3">
-          {TESTIMONIALS.map((t, i) => (
+        <div
+          className={`grid gap-8 ${
+            testimonials.length === 1 ? "md:max-w-xl md:mx-auto" : "md:grid-cols-3"
+          }`}
+        >
+          {testimonials.map((t, i) => (
             <RevealOnScroll key={t.name} delay={i * 0.12}>
               <Card className="relative h-full pt-10">
                 <span
@@ -31,6 +46,9 @@ export function TestimonialsSection() {
                   <div>
                     <p className="text-sm font-medium text-luxury-frost">{t.name}</p>
                     <p className="text-xs text-luxury-mist">{t.title}</p>
+                    {t.credential && (
+                      <p className="text-xs text-luxury-gold/80">{t.credential}</p>
+                    )}
                   </div>
                 </footer>
               </Card>
