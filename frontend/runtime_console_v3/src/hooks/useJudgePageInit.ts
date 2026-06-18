@@ -25,6 +25,11 @@ export function useJudgePageInit(
     getJudgeGames()
       .then((games) => {
         if (games.length === 0) return;
+        const hasRagReady = games.some((g) => g.rag_ready);
+        if (!hasRagReady) {
+          /* Corpus vazio ou API degradada — mantém TCG_OPTIONS local (evita todos "Em breve"). */
+          return;
+        }
         setTcgOptions(
           games.map((g) => ({
             id: g.tcg_id,
