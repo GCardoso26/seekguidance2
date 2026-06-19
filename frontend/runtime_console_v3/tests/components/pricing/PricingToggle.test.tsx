@@ -8,6 +8,6 @@ describe("PricingToggle behaviour", () => {
     const monthly = pro!.priceMonthly;
     const annualPerMonth = pro!.priceAnnual / 12;
     expect(annualPerMonth).toBeLessThan(monthly);
-    expect(pro!.priceMonthly * 12 - pro!.priceAnnual).toBeCloseTo(39.8, 1);
+    expect(pro!.priceMonthly * 12 - pro!.priceAnnual).toBeCloseTo(58, 1);
   });
 });

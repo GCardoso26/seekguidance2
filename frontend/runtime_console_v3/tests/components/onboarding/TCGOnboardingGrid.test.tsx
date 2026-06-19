@@ -25,6 +25,10 @@ vi.mock("@/hooks/useCompleteOnboarding", () => ({
   completeOnboarding: vi.fn().mockResolvedValue(undefined),
 }));
 
+vi.mock("@/components/premium/UpgradeModalProvider", () => ({
+  useUpgradeModal: () => ({ showUpgrade: vi.fn() }),
+}));
+
 describe("TCGOnboardingGrid", () => {
   beforeEach(() => {
     vi.stubGlobal(

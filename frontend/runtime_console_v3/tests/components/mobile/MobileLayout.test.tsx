@@ -18,6 +18,7 @@ describe("MobileLayout", () => {
     );
     expect(screen.getByText("Conteúdo")).toBeTruthy();
     expect(screen.getByText("Início")).toBeTruthy();
-    expect(screen.getByText("Buscar")).toBeTruthy();
+    expect(screen.getByText("Social")).toBeTruthy();
+    expect(screen.getByText("Perfil")).toBeTruthy();
   });
 });

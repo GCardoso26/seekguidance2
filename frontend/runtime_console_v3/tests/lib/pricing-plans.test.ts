@@ -10,8 +10,8 @@ describe("pricing-plans", () => {
   it("plano pro é o popular", () => {
     const pro = PRICING_PLANS.find((p) => p.id === "pro");
     expect(pro?.popular).toBe(true);
-    expect(pro?.priceMonthly).toBe(19.9);
-    expect(pro?.priceAnnual).toBe(199);
+    expect(pro?.priceMonthly).toBe(29);
+    expect(pro?.priceAnnual).toBe(290);
   });
 
   it("comparativo cobre recursos principais", () => {
