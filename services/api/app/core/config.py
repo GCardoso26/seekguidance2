@@ -241,6 +241,8 @@ class Settings(BaseSettings):
     stripe_trial_days: int = 14
     stripe_checkout_success_url: str | None = None
     stripe_checkout_cancel_url: str | None = None
+    stripe_connect_webhook_secret: str | None = None
+    marketplace_app_url: str | None = None
 
 
 @lru_cache
