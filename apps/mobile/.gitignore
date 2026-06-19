@@ -1,0 +1,77 @@
+# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
+
+# dependencies
+node_modules/
+
+# Expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# Native
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Metro
+.metro-health-check*
+
+# debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# macOS
+.DS_Store
+*.pem
+
+# local env files
+.env*.local
+
+# typescript
+*.tsbuildinfo
+
+# generated native folders
+/ios
+/android
+
+# Legacy runtime experiments (not part of Expo app)
+beta_runtime/
+beta_runtime_operational/
+beta_runtime_real/
+dataset_runtime_sdk/
+dispute/
+flutter/
+flutter_sdk/
+judge_runtime_sdk/
+local_reasoning/
+mobile_dataset_runtime/
+mobile_dispute_mode/
+mobile_observability/
+mobile_replay_viewer/
+mobile_security/
+mobile_sync_sdk/
+mobile_training_mode/
+observability/
+offline/
+offline_cache/
+offline_replay_sdk/
+production_runtime_beta/
+react_native/
+react_native_sdk/
+replay/
+replay_runtime/
+runtime/
+runtime_sync/
+sdk_examples/
+shared/
+shared_contracts/
+sync/
+tournament/
+training/
+ui/
