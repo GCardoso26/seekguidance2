@@ -4,9 +4,10 @@ from __future__ import annotations
 
 from typing import Any
 
-from app.api.deps import DbSession, SettingsDep
+from app.api.deps import DbSession
 from app.api.v1.tournament_system import _require_user
-from app.marketplace import shop_cart, shop_checkout as shop_checkout_svc, shop_connect, shop_orders, shop_products
+from app.marketplace import shop_cart, shop_connect, shop_orders, shop_products
+from app.marketplace import shop_checkout as shop_checkout_svc
 from app.stores import store as store_svc
 from fastapi import APIRouter, Header, HTTPException
 from pydantic import BaseModel, Field

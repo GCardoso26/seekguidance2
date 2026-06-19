@@ -5,12 +5,12 @@ from __future__ import annotations
 from typing import Any
 
 import structlog
-from app.core.config import Settings, get_settings
 from fastapi import HTTPException
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 import stripe
+from app.core.config import Settings, get_settings
 
 logger = structlog.get_logger(__name__)
 

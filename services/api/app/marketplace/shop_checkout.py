@@ -6,13 +6,13 @@ import json
 from typing import Any
 
 import structlog
-from app.core.config import Settings, get_settings
-from app.marketplace import shop_cart
 from fastapi import HTTPException
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 import stripe
+from app.core.config import get_settings
+from app.marketplace import shop_cart
 
 logger = structlog.get_logger(__name__)
 

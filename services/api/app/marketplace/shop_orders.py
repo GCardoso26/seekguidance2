@@ -6,13 +6,13 @@ import json
 from typing import Any
 
 import structlog
-from app.core.config import Settings, get_settings
-from app.marketplace import shop_cart
 from fastapi import HTTPException
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 import stripe
+from app.core.config import Settings
+from app.marketplace import shop_cart
 
 logger = structlog.get_logger(__name__)
 
@@ -36,7 +36,9 @@ async def list_buyer_orders(session: AsyncSession, buyer_id: str, limit: int = 2
     return [dict(r) for r in rows]
 
 
-async def list_store_orders(session: AsyncSession, store_id: str, owner_id: str, limit: int = 50) -> list[dict[str, Any]]:
+async def list_store_orders(
+    session: AsyncSession, store_id: str, owner_id: str, limit: int = 50
+) -> list[dict[str, Any]]:
     store = (
         await session.execute(
             text("SELECT id FROM tcg_judge.stores WHERE id = :id AND owner_id = :oid"),
