@@ -12,7 +12,7 @@ export default function CartPage() {
     queryKey: ["shop-cart"],
     queryFn: async () => {
       const res = await fetch("/api/marketplace/shop/cart");
-      if (!res.ok) return { cart: { items: [], total_cents: 0 } as ShopCart };
+      if (!res.ok) return { cart: { id: "", items: [], total_cents: 0 } satisfies ShopCart };
       return res.json() as Promise<{ cart: ShopCart }>;
     },
   });
