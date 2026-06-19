@@ -23,6 +23,7 @@ from app.api.v1.runtime_minimal import router as runtime_minimal_router
 from app.api.v1.runtime_operational import router as runtime_operational_router
 from app.api.v1.social_api import router as social_api_router
 from app.api.v1.sponsorships_api import router as sponsorships_api_router
+from app.api.v1.shop_api import router as shop_api_router
 from app.api.v1.stores_api import router as stores_api_router
 from app.api.v1.stripe_billing import router as stripe_billing_router
 from app.api.v1.tournament_flow import router as tournament_flow_router
@@ -92,7 +93,7 @@ app.add_middleware(
 
     allow_credentials="*" not in _cors_origins,
 
-    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
 
     allow_headers=["Content-Type", "Authorization", "X-API-Key", "X-Forwarded-For"],
 
@@ -247,6 +248,7 @@ app.include_router(overlay_api_router)
 app.include_router(public_api_v1_router)
 app.include_router(reviews_api_router)
 app.include_router(sponsorships_api_router)
+app.include_router(shop_api_router)
 app.include_router(runtime_ingestion_admin_router)
 
 

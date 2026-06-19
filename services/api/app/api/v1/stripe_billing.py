@@ -151,6 +151,12 @@ async def stripe_webhook(request: Request, session: DbSession, settings: Setting
             session,
             [{"event": "subscription_cancelled", "properties": {"subscription_id": data.get("id")}}],
         )
+    elif etype == "payment_intent.succeeded":
+        meta = data.get("metadata") or {}
+        if meta.get("store_splits") or meta.get("order_ids"):
+            from app.marketplace.shop_orders import handle_payment_intent_succeeded
+
+            await handle_payment_intent_succeeded(session, settings, data)
 
     return JSONResponse({"status": "success"})
 
