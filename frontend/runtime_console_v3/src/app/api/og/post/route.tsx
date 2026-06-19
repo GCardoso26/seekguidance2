@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
   try {
     const res = await fetch(
       `${TOURNAMENT_API_BASE}/runtime/judge/social/posts/${encodeURIComponent(postId)}`,
-      { cache: "no-store" },
+      { cache: "no-store", signal: AbortSignal.timeout(8_000) },
     );
     if (res.ok) {
       const post = (await res.json()) as {
