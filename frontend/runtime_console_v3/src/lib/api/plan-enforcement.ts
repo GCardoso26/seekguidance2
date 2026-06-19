@@ -1,5 +1,6 @@
 import { createHmac, timingSafeEqual } from "crypto";
 import { NextResponse, type NextRequest } from "next/server";
+import { API_BASE } from "@/lib/stripe/stripe-api-headers";
 import { FREE_DAILY_QUESTIONS, FREE_TCG_IDS } from "@/lib/plan-limits/constants";
 import { getSubscriptionTier, isUnlimitedTier } from "@/lib/api/subscription-tier";
 import type { TcgType } from "@/types/judge";
@@ -96,14 +97,17 @@ export async function checkAndReserveQuestion(
   const tier = await getSubscriptionTier(userId);
   const unlimited = isUnlimitedTier(tier);
 
-  if (!unlimited && !FREE_TCG_IDS.includes(tcg as TcgType)) {
-    return {
-      ok: false,
-      response: NextResponse.json(
-        { detail: "Este TCG está disponível no plano Spike." },
-        { status: 403 },
-      ),
-    };
+  if (!unlimited) {
+    const allowed = await getAllowedTcgsForUser(userId);
+    if (!allowed.includes(tcg as TcgType)) {
+      return {
+        ok: false,
+        response: NextResponse.json(
+          { detail: "Este TCG está disponível no plano Pro ou não faz parte da sua seleção Free." },
+          { status: 403 },
+        ),
+      };
+    }
   }
 
   if (unlimited) return { ok: true };
@@ -124,6 +128,34 @@ export async function checkAndReserveQuestion(
 
   const next = serializeCookie({ d: todayKey(), c: count + 1, k: key });
   return { ok: true, setCookie: next };
+}
+
+async function getAllowedTcgsForUser(userId: string | null): Promise<TcgType[]> {
+  if (!userId) return FREE_TCG_IDS;
+  try {
+    const res = await fetch(`${API_BASE}/runtime/judge/players/me`, {
+      headers: { "X-Judge-User-Id": userId },
+      cache: "no-store",
+    });
+    if (!res.ok) return FREE_TCG_IDS;
+    const data = (await res.json()) as {
+      favoriteTcgs?: string[];
+      hasCompletedOnboarding?: boolean;
+    };
+    if (
+      data.hasCompletedOnboarding &&
+      Array.isArray(data.favoriteTcgs) &&
+      data.favoriteTcgs.length > 0
+    ) {
+      return data.favoriteTcgs as TcgType[];
+    }
+    if (Array.isArray(data.favoriteTcgs) && data.favoriteTcgs.length >= 5) {
+      return data.favoriteTcgs as TcgType[];
+    }
+    return FREE_TCG_IDS;
+  } catch {
+    return FREE_TCG_IDS;
+  }
 }
 
 export async function getDailyLimitInfo(

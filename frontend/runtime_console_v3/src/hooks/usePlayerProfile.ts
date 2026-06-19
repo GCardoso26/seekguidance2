@@ -10,6 +10,7 @@ export type PlayerProfile = {
   bio?: string;
   favoriteGame?: string;
   favoriteTcgs?: string[];
+  hasCompletedOnboarding?: boolean;
   birthDate?: string;
   state?: string;
   location?: { city?: string; country?: string; state?: string; timezone?: string };

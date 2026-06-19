@@ -86,6 +86,10 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(login);
   }
 
+  if (pathname === "/onboarding" && !hasSupabaseSession(request)) {
+    return NextResponse.redirect(new URL("/judge", request.url));
+  }
+
   return NextResponse.next();
 }
 
@@ -93,6 +97,7 @@ export const config = {
   matcher: [
     "/",
     "/judge",
+    "/onboarding",
     "/player/me",
     "/player/me/:path*",
     "/social/communities/:path*/posts/:path*",

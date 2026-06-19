@@ -177,8 +177,8 @@ async def save_participant_stats(session: AsyncSession, p: Participant) -> None:
               match_points = :mp, match_wins = :mw, match_losses = :ml, match_draws = :md,
               game_wins = :gw, game_losses = :gl, game_draws = :gd,
               omw_percent = :omw, gw_percent = :gwp, ogw_percent = :ogw,
-              had_bye = :had_bye, status = 'active'
-            WHERE id = :id
+              had_bye = :had_bye
+            WHERE id = :id AND status NOT IN ('dropped', 'disqualified')
             """
         ),
         {
@@ -332,7 +332,9 @@ async def list_pairings_for_round(session: AsyncSession, round_id: str) -> list[
                 """
                 SELECT p.*,
                   p1.display_name AS player1_name, p1.match_points AS player1_points,
-                  p2.display_name AS player2_name, p2.match_points AS player2_points
+                  p1.user_id AS player1_user_id,
+                  p2.display_name AS player2_name, p2.match_points AS player2_points,
+                  p2.user_id AS player2_user_id
                 FROM tcg_judge.pairings p
                 JOIN tcg_judge.tournament_participants p1 ON p1.id = p.player1_id
                 LEFT JOIN tcg_judge.tournament_participants p2 ON p2.id = p.player2_id

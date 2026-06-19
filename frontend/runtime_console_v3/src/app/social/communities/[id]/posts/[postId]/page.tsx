@@ -11,8 +11,10 @@ import {
 } from "@/hooks/useCommunityPosts";
 import { CommentTree } from "@/components/community/CommentTree";
 import { PostVote } from "@/components/community/PostVote";
+import { PostActions } from "@/components/community/PostActions";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import { Button } from "@/components/ui/button";
+import { renderSimpleMarkdown } from "@/lib/markdown";
 
 export default function CommunityPostPage() {
   const params = useParams();
@@ -22,6 +24,8 @@ export default function CommunityPostPage() {
   const { data: comments = [] } = usePostComments(postId);
   const createComment = useCreateComment(postId);
   const [content, setContent] = useState("");
+
+  const images = post?.imageUrls?.length ? post.imageUrls : post?.imageUrl ? [post.imageUrl] : [];
 
   const submitComment = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,23 +52,27 @@ export default function CommunityPostPage() {
                 @{post.authorHandle ?? "jogador"}
                 {post.createdAt && ` · ${new Date(post.createdAt).toLocaleString("pt-BR")}`}
               </p>
-              {post.imageUrl && (
-                <div className="relative mt-4 aspect-video overflow-hidden rounded-xl border border-white/10">
-                  <Image src={post.imageUrl} alt="" fill className="object-contain" unoptimized />
+              {images.length > 0 && (
+                <div className={`mt-4 grid gap-2 ${images.length > 1 ? "grid-cols-2" : ""}`}>
+                  {images.map((url, i) => (
+                    <div key={i} className="relative aspect-video overflow-hidden rounded-xl border border-white/10">
+                      <Image src={url} alt="" fill className="object-contain" unoptimized />
+                    </div>
+                  ))}
                 </div>
               )}
-              <div className="prose prose-invert mt-4 max-w-none text-sm leading-relaxed text-luxury-frost/90">
-                {post.content.split("\n").map((line, i) => (
-                  <p key={i}>{line}</p>
-                ))}
-              </div>
+              <div
+                className="prose prose-invert mt-4 max-w-none text-sm leading-relaxed text-luxury-frost/90"
+                dangerouslySetInnerHTML={{ __html: renderSimpleMarkdown(post.content) }}
+              />
+              <PostActions post={post} />
             </div>
           </article>
         )}
 
         <section className="mt-8">
           <h2 className="mb-4 text-lg font-medium text-luxury-frost">Comentários</h2>
-          <CommentTree comments={comments} />
+          <CommentTree postId={postId} comments={comments} />
           <form onSubmit={(e) => void submitComment(e)} className="mt-6 space-y-3">
             <textarea
               value={content}

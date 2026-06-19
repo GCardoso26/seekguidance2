@@ -61,8 +61,8 @@ async def start_check_in(
     session: DbSession,
     x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
 ) -> dict[str, Any]:
-    _require_user(x_judge_user_id)
-    return await flow.start_check_in(session, tournament_id)
+    user_id = _require_user(x_judge_user_id)
+    return await flow.start_check_in(session, tournament_id, user_id)
 
 
 @router.post("/runtime/judge/tournaments/{tournament_id}/start")
@@ -81,8 +81,8 @@ async def create_next_round(
     session: DbSession,
     x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
 ) -> dict[str, Any]:
-    _require_user(x_judge_user_id)
-    return await flow.generate_next_round(session, tournament_id)
+    user_id = _require_user(x_judge_user_id)
+    return await flow.generate_next_round(session, tournament_id, user_id)
 
 
 @router.get("/runtime/judge/tournaments/{tournament_id}/rounds/{round_number}")
@@ -105,8 +105,8 @@ async def start_round(
     session: DbSession,
     x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
 ) -> dict[str, Any]:
-    _require_user(x_judge_user_id)
-    return await flow.start_round_timer(session, tournament_id, round_number)
+    user_id = _require_user(x_judge_user_id)
+    return await flow.start_round_timer(session, tournament_id, round_number, user_id)
 
 
 @router.post("/runtime/judge/tournaments/{tournament_id}/rounds/{round_number}/extend")
@@ -117,8 +117,8 @@ async def extend_round(
     session: DbSession,
     x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
 ) -> dict[str, Any]:
-    _require_user(x_judge_user_id)
-    return await flow.extend_round_timer(session, tournament_id, round_number, body.minutes)
+    user_id = _require_user(x_judge_user_id)
+    return await flow.extend_round_timer(session, tournament_id, round_number, body.minutes, user_id)
 
 
 @router.post("/runtime/judge/tournaments/{tournament_id}/rounds/{round_number}/end")
@@ -128,8 +128,8 @@ async def end_round_endpoint(
     session: DbSession,
     x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
 ) -> dict[str, Any]:
-    _require_user(x_judge_user_id)
-    return await flow.end_round(session, tournament_id, round_number)
+    user_id = _require_user(x_judge_user_id)
+    return await flow.end_round(session, tournament_id, round_number, user_id)
 
 
 @router.post(
@@ -180,8 +180,8 @@ async def advance_top_cut(
     session: DbSession,
     x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
 ) -> dict[str, Any]:
-    _require_user(x_judge_user_id)
-    return await flow.advance_top_cut(session, tournament_id)
+    user_id = _require_user(x_judge_user_id)
+    return await flow.advance_top_cut(session, tournament_id, user_id)
 
 
 @router.post("/runtime/judge/tournaments/{tournament_id}/finalize")
@@ -190,8 +190,8 @@ async def finalize(
     session: DbSession,
     x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
 ) -> dict[str, Any]:
-    _require_user(x_judge_user_id)
-    return await flow.finalize_tournament(session, tournament_id)
+    user_id = _require_user(x_judge_user_id)
+    return await flow.finalize_tournament(session, tournament_id, user_id)
 
 
 @router.get("/runtime/judge/tournament/timers/{round_id}")

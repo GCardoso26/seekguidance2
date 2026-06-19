@@ -48,11 +48,11 @@ export function PlanLimitBanner({ variant = "questions", tcgName }: Props) {
     return (
       <div className="luxury-card rounded-xl p-4 text-center">
         <p className="text-sm text-luxury-frost">
-          <span className="font-semibold">{tcgName ?? "Este jogo"}</span> está disponível no plano
-          Spike.
+          <span className="font-semibold">{tcgName ?? "Este jogo"}</span> não faz parte da sua
+          seleção Free.
         </p>
         <p className="mt-1 text-xs text-luxury-mist">
-          O plano gratuito inclui Magic, Pokémon, Yu-Gi-Oh!, Lorcana e One Piece.
+          Escolha até 5 jogos no onboarding ou assine Pro para os 14 TCGs.
         </p>
         <Link
           href="/pricing?from=paywall-tcg"

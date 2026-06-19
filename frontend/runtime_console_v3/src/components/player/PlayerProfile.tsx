@@ -1,4 +1,5 @@
 import { FriendButton } from "@/components/social/FriendButton";
+import { FollowButton } from "@/components/social/FollowButton";
 import { AchievementBadge } from "./AchievementBadge";
 import { RankingDisplay } from "./RankingDisplay";
 import { StatsCard } from "./StatsCard";
@@ -62,7 +63,8 @@ export function PlayerProfile({ profile, showFriendButton }: Props) {
             </div>
           )}
           {showFriendButton && profile.id && (
-            <div className="mt-3">
+            <div className="mt-3 flex flex-col gap-3">
+              <FollowButton playerId={String(profile.id)} />
               <FriendButton playerId={String(profile.id)} />
             </div>
           )}

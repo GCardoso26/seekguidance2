@@ -41,6 +41,7 @@ class ProfileUpdateBody(BaseModel):
     birth_date: str | None = None
     state: str | None = None
     favorite_tcgs: list[str] | None = None
+    has_completed_onboarding: bool | None = None
 
 
 class PrivacyBody(BaseModel):
@@ -80,6 +81,7 @@ def _serialize_my_profile(prof: dict[str, Any]) -> dict[str, Any]:
         "bio": prof.get("bio"),
         "favoriteGame": prof.get("favorite_game"),
         "favoriteTcgs": prof.get("favorite_tcgs") or [],
+        "hasCompletedOnboarding": bool(prof.get("has_completed_onboarding")),
         "birthDate": birth_iso,
         "state": prof.get("state"),
         "city": prof.get("city"),
@@ -129,6 +131,7 @@ async def get_public_profile(session: DbSession, handle: str) -> dict[str, Any]:
         "bio": prof.get("bio"),
         "favoriteGame": prof.get("favorite_game"),
         "favoriteTcgs": prof.get("favorite_tcgs") or [],
+        "hasCompletedOnboarding": bool(prof.get("has_completed_onboarding")),
         "birthDate": prof["birth_date"].isoformat() if prof.get("birth_date") else None,
         "state": prof.get("state"),
         "location": {

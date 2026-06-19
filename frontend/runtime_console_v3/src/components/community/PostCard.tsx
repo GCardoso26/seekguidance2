@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, Pin } from "lucide-react";
 import type { CommunityPost } from "@/types/post";
 import { PostVote } from "@/components/community/PostVote";
+import { PostActions } from "@/components/community/PostActions";
+import { renderSimpleMarkdown } from "@/lib/markdown";
 
 function timeAgo(iso?: string | null) {
   if (!iso) return "";
@@ -22,13 +24,22 @@ type Props = {
 
 export function PostCard({ post }: Props) {
   const href = `/social/communities/${post.communityId}/posts/${post.id}`;
-  const preview = post.content.length > 180 ? `${post.content.slice(0, 180)}…` : post.content;
+  const images = post.imageUrls?.length ? post.imageUrls : post.imageUrl ? [post.imageUrl] : [];
+  const previewHtml = renderSimpleMarkdown(
+    post.content.length > 180 ? `${post.content.slice(0, 180)}…` : post.content,
+  );
 
   return (
     <article className="luxury-card flex gap-3 rounded-xl p-4">
       <PostVote post={post} />
       <div className="min-w-0 flex-1">
         <div className="mb-1 flex flex-wrap items-center gap-2 text-xs text-luxury-mist">
+          {post.isPinned && (
+            <span className="inline-flex items-center gap-1 text-luxury-gold">
+              <Pin className="h-3 w-3" strokeWidth={1.5} />
+              Fixado
+            </span>
+          )}
           <span>@{post.authorHandle ?? "jogador"}</span>
           <span aria-hidden>·</span>
           <span>{timeAgo(post.createdAt)}</span>
@@ -36,19 +47,31 @@ export function PostCard({ post }: Props) {
         <Link href={href} className="block">
           <h2 className="text-base font-semibold text-luxury-frost hover:text-luxury-gold">{post.title}</h2>
         </Link>
-        {post.imageUrl && (
-          <div className="relative mt-2 aspect-video max-h-48 overflow-hidden rounded-lg border border-white/10">
-            <Image src={post.imageUrl} alt="" fill className="object-cover" unoptimized />
+        {images.length > 0 && (
+          <div className={`mt-2 grid gap-2 ${images.length > 1 ? "grid-cols-2" : ""}`}>
+            {images.slice(0, 4).map((url, i) => (
+              <div key={i} className="relative aspect-video max-h-48 overflow-hidden rounded-lg border border-white/10">
+                <Image src={url} alt="" fill className="object-cover" unoptimized />
+              </div>
+            ))}
           </div>
         )}
-        {post.content && <p className="mt-2 line-clamp-2 text-sm text-luxury-mist">{preview}</p>}
-        <Link
-          href={href}
-          className="mt-3 inline-flex items-center gap-1.5 text-xs text-luxury-mist hover:text-luxury-gold"
-        >
-          <MessageCircle className="h-3.5 w-3.5" strokeWidth={1.5} />
-          {post.commentCount} comentários
-        </Link>
+        {post.content && (
+          <div
+            className="prose prose-invert mt-2 line-clamp-2 text-sm text-luxury-mist"
+            dangerouslySetInnerHTML={{ __html: previewHtml }}
+          />
+        )}
+        <div className="mt-2 flex items-center gap-3">
+          <Link
+            href={href}
+            className="inline-flex items-center gap-1.5 text-xs text-luxury-mist hover:text-luxury-gold"
+          >
+            <MessageCircle className="h-3.5 w-3.5" strokeWidth={1.5} />
+            {post.commentCount} comentários
+          </Link>
+        </div>
+        <PostActions post={post} />
       </div>
     </article>
   );

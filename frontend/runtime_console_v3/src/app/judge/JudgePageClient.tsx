@@ -31,6 +31,8 @@ import { useConsultations } from "@/hooks/useConsultations";
 import { useJudgePageInit } from "@/hooks/useJudgePageInit";
 import { usePlanLimits } from "@/hooks/usePlanLimits";
 import { useJudgeAuth } from "@/features/auth/AuthProvider";
+import { useOnboarding } from "@/hooks/useOnboarding";
+import { usePlayerProfile } from "@/hooks/usePlayerProfile";
 
 import { loadJudgeHistoryHybrid, persistJudgeHistoryItem } from "@/lib/judge-cloud-history";
 
@@ -81,6 +83,8 @@ export function JudgePageClient() {
   const searchParams = useSearchParams();
 
   const { user } = useJudgeAuth();
+  const { needsOnboarding, isLoading: onboardingLoading } = useOnboarding();
+  const { data: profile } = usePlayerProfile(user ? "me" : "");
 
   const [tcg, setTcg] = useState<TcgType>("magic");
 
@@ -97,10 +101,18 @@ export function JudgePageClient() {
   const [historySignal, setHistorySignal] = useState(0);
   const [historyDrawerOpen, setHistoryDrawerOpen] = useState(false);
 
-  const planLimits = usePlanLimits();
+  const planLimits = usePlanLimits({
+    favoriteTcgs: profile?.favoriteTcgs as TcgType[] | undefined,
+    onboardingComplete: Boolean(profile?.hasCompletedOnboarding || (profile?.favoriteTcgs?.length ?? 0) >= 5),
+  });
   const consultations = useConsultations(user?.id);
 
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!user || onboardingLoading) return;
+    if (needsOnboarding) router.replace("/onboarding");
+  }, [user, needsOnboarding, onboardingLoading, router]);
 
   const autoSubmitDone = useRef(false);
 

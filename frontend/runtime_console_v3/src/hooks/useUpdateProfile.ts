@@ -8,6 +8,7 @@ export type UpdateProfileData = {
   bio?: string;
   favoriteGame?: string;
   favoriteTcgs?: TcgType[];
+  hasCompletedOnboarding?: boolean;
   birthDate?: string;
   state?: string;
   city?: string;
@@ -21,6 +22,7 @@ function toApiBody(data: UpdateProfileData): Record<string, unknown> {
     bio: data.bio,
     favorite_game: data.favoriteGame,
     favorite_tcgs: data.favoriteTcgs,
+    has_completed_onboarding: data.hasCompletedOnboarding,
     birth_date: data.birthDate || undefined,
     state: data.state,
     city: data.city,

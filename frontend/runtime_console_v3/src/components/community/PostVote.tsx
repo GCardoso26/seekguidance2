@@ -2,17 +2,36 @@
 
 import { motion } from "framer-motion";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useVotePost } from "@/hooks/useCommunityPosts";
 import type { CommunityPost } from "@/types/post";
 import { cn } from "@/lib/utils";
 
 type Props = {
   post: CommunityPost;
-  compact?: boolean;
 };
 
 export function PostVote({ post }: Props) {
+  const qc = useQueryClient();
   const vote = useVotePost(post.id);
+
+  const optimistic = (delta: number) => {
+    const patch = (p: CommunityPost | undefined) =>
+      p ? { ...p, voteCount: p.voteCount + delta } : p;
+    qc.setQueryData(["community-post", post.id], patch);
+    qc.setQueriesData<CommunityPost[]>({ queryKey: ["community-posts"] }, (old) =>
+      old?.map((p) => (p.id === post.id ? { ...p, voteCount: p.voteCount + delta } : p)),
+    );
+  };
+
+  const cast = async (value: 1 | -1) => {
+    optimistic(value);
+    try {
+      await vote.mutateAsync(value);
+    } catch {
+      optimistic(-value);
+    }
+  };
 
   return (
     <div className="flex flex-col items-center gap-0.5 text-luxury-mist">
@@ -20,7 +39,7 @@ export function PostVote({ post }: Props) {
         type="button"
         whileTap={{ scale: 1.15 }}
         disabled={vote.isPending}
-        onClick={() => void vote.mutateAsync(1)}
+        onClick={() => void cast(1)}
         className="rounded p-1 hover:bg-luxury-gold/10 hover:text-luxury-gold-light"
         aria-label="Upvote"
       >
@@ -39,7 +58,7 @@ export function PostVote({ post }: Props) {
         type="button"
         whileTap={{ scale: 1.15 }}
         disabled={vote.isPending}
-        onClick={() => void vote.mutateAsync(-1)}
+        onClick={() => void cast(-1)}
         className="rounded p-1 hover:bg-rose-500/10 hover:text-rose-400"
         aria-label="Downvote"
       >

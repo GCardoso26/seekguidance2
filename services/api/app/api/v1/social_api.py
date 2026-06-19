@@ -7,7 +7,7 @@ from typing import Any
 
 from app.api.deps import DbSession
 from app.api.v1.tournament_system import _require_user
-from app.social import communities, friendships, messages, posts
+from app.social import communities, feedback, follows, friendships, messages, newsletter, notifications, posts
 from fastapi import APIRouter, Header, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel, Field
 
@@ -36,6 +36,35 @@ class PostCreateBody(BaseModel):
     title: str = Field(min_length=3, max_length=300)
     content: str = Field(default="", max_length=10000)
     image_url: str | None = None
+    image_urls: list[str] | None = None
+    tags: list[str] | None = None
+
+
+class PostReportBody(BaseModel):
+    reason: str = Field(pattern="^(spam|offensive|incorrect|other)$")
+    details: str | None = None
+
+
+class NewsletterSubscribeBody(BaseModel):
+    email: str
+    tcg_ids: list[str] | None = None
+
+
+class NewsletterCreateBody(BaseModel):
+    title: str = Field(min_length=3, max_length=200)
+    content: str = Field(min_length=1, max_length=50000)
+
+
+class FeedbackCreateBody(BaseModel):
+    type: str = Field(pattern="^(bug|suggestion|praise|other)$")
+    subject: str = Field(min_length=3, max_length=200)
+    description: str = Field(min_length=10, max_length=5000)
+    attachment_url: str | None = None
+    priority: str = Field(default="low", pattern="^(low|medium|high)$")
+
+
+class FeedbackStatusBody(BaseModel):
+    status: str = Field(pattern="^(open|in_progress|resolved|closed)$")
 
 
 class PostVoteBody(BaseModel):
@@ -194,15 +223,35 @@ async def list_posts_endpoint(
     session: DbSession,
     community_id: str | None = None,
     author_id: str | None = None,
+    tag: str | None = None,
+    following: bool = False,
     sort: str = "hot",
-) -> list[dict[str, Any]]:
+    period: str = "all",
+    cursor: str | None = None,
+    limit: int = 30,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
     mode = sort if sort in ("hot", "new", "top") else "hot"
+    top_period = period if period in ("week", "month", "year", "all") else "all"
+    following_uid = None
+    if following:
+        following_uid = _require_user(x_judge_user_id)
     return await posts.list_posts(
         session,
         community_id=community_id,
         author_id=author_id,
+        following_user_id=following_uid,
+        tag=tag,
         sort=mode,  # type: ignore[arg-type]
+        period=top_period,  # type: ignore[arg-type]
+        cursor=cursor,
+        limit=min(limit, 50),
     )
+
+
+@router.get("/runtime/judge/social/tags")
+async def list_tags_endpoint(session: DbSession, q: str = "", limit: int = 20) -> list[str]:
+    return await posts.list_tags(session, q=q, limit=min(limit, 50))
 
 
 @router.post("/runtime/judge/social/posts")
@@ -219,6 +268,8 @@ async def create_post_endpoint(
         title=body.title,
         content=body.content,
         image_url=body.image_url,
+        image_urls=body.image_urls,
+        tags=body.tags,
     )
 
 
@@ -267,6 +318,158 @@ async def create_comment_endpoint(
         content=body.content,
         parent_id=body.parent_id,
     )
+
+
+@router.post("/runtime/judge/social/posts/{post_id}/save")
+async def save_post_endpoint(
+    session: DbSession,
+    post_id: str,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, bool]:
+    user_id = _require_user(x_judge_user_id)
+    return await posts.toggle_saved_post(session, post_id, user_id)
+
+
+@router.post("/runtime/judge/social/posts/{post_id}/report")
+async def report_post_endpoint(
+    session: DbSession,
+    post_id: str,
+    body: PostReportBody,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    return await posts.report_post(session, post_id, user_id, reason=body.reason, details=body.details)
+
+
+@router.get("/runtime/judge/social/follows/{player_id}/status")
+async def follow_status_endpoint(
+    session: DbSession,
+    player_id: str,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    viewer_id = x_judge_user_id.strip() if x_judge_user_id else None
+    return await follows.get_follow_stats(session, player_id, viewer_id)
+
+
+@router.post("/runtime/judge/social/follows/{player_id}")
+async def toggle_follow_endpoint(
+    session: DbSession,
+    player_id: str,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, bool]:
+    user_id = _require_user(x_judge_user_id)
+    return await follows.toggle_follow(session, user_id, player_id)
+
+
+@router.post("/runtime/judge/social/newsletter/subscribe")
+async def newsletter_subscribe_endpoint(
+    session: DbSession,
+    body: NewsletterSubscribeBody,
+) -> dict[str, Any]:
+    return await newsletter.subscribe(session, email=body.email, tcg_ids=body.tcg_ids)
+
+
+@router.get("/runtime/judge/social/newsletter/archive")
+async def newsletter_archive_endpoint(session: DbSession) -> list[dict[str, Any]]:
+    return await newsletter.list_archive(session)
+
+
+@router.post("/runtime/judge/social/newsletter")
+async def newsletter_create_endpoint(
+    session: DbSession,
+    body: NewsletterCreateBody,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    _require_user(x_judge_user_id)
+    return await newsletter.create_draft(session, title=body.title, content=body.content)
+
+
+@router.post("/runtime/judge/social/newsletter/{newsletter_id}/send")
+async def newsletter_send_endpoint(
+    session: DbSession,
+    newsletter_id: str,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    _require_user(x_judge_user_id)
+    return await newsletter.mark_sent(session, newsletter_id)
+
+
+@router.post("/runtime/judge/social/feedback")
+async def feedback_create_endpoint(
+    session: DbSession,
+    body: FeedbackCreateBody,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = x_judge_user_id.strip() if x_judge_user_id else None
+    return await feedback.create_feedback(
+        session,
+        user_id=user_id,
+        type=body.type,  # type: ignore[arg-type]
+        subject=body.subject,
+        description=body.description,
+        attachment_url=body.attachment_url,
+        priority=body.priority,
+    )
+
+
+@router.get("/runtime/judge/social/feedback/mine")
+async def feedback_mine_endpoint(
+    session: DbSession,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> list[dict[str, Any]]:
+    user_id = _require_user(x_judge_user_id)
+    return await feedback.list_user_feedbacks(session, user_id)
+
+
+@router.get("/runtime/judge/social/feedback")
+async def feedback_list_endpoint(
+    session: DbSession,
+    status: str | None = None,
+    priority: str | None = None,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> list[dict[str, Any]]:
+    _require_user(x_judge_user_id)
+    return await feedback.list_all_feedbacks(session, status=status, priority=priority)
+
+
+@router.patch("/runtime/judge/social/feedback/{feedback_id}")
+async def feedback_update_endpoint(
+    session: DbSession,
+    feedback_id: str,
+    body: FeedbackStatusBody,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    _require_user(x_judge_user_id)
+    return await feedback.update_status(session, feedback_id, body.status)  # type: ignore[arg-type]
+
+
+@router.get("/runtime/judge/social/notifications")
+async def notifications_list_endpoint(
+    session: DbSession,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> list[dict[str, Any]]:
+    user_id = _require_user(x_judge_user_id)
+    return await notifications.list_recent(session, user_id)
+
+
+@router.get("/runtime/judge/social/notifications/unread-count")
+async def notifications_unread_endpoint(
+    session: DbSession,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, int]:
+    user_id = _require_user(x_judge_user_id)
+    count = await notifications.unread_count(session, user_id)
+    return {"count": count}
+
+
+@router.post("/runtime/judge/social/notifications/{notification_id}/read")
+async def notifications_read_endpoint(
+    session: DbSession,
+    notification_id: str,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, bool]:
+    user_id = _require_user(x_judge_user_id)
+    return await notifications.mark_read(session, user_id, notification_id)
 
 
 @router.post("/runtime/judge/notifications/subscribe")

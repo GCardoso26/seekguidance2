@@ -109,6 +109,7 @@ async def update_profile(session: AsyncSession, user_id: str, fields: dict[str, 
         "birth_date",
         "state",
         "favorite_tcgs",
+        "has_completed_onboarding",
     }
     sets: list[str] = []
     params: dict[str, Any] = {"id": user_id}

@@ -22,6 +22,8 @@ import { CreatePlayerProfileForm } from "@/components/player/CreatePlayerProfile
 import { useUpdateProfile, type UpdateProfileData } from "@/hooks/useUpdateProfile";
 import { useConsultations } from "@/hooks/useConsultations";
 import { useCommunityPosts } from "@/hooks/useCommunityPosts";
+import { useQuery } from "@tanstack/react-query";
+import type { FeedbackItem } from "@/types/post";
 import { computePlayerJudgeStats } from "@/lib/player-judge-stats";
 import { BRAZILIAN_STATES } from "@/constants/brazilian-states";
 import { TCG_OPTIONS } from "@/types/judge";
@@ -30,7 +32,7 @@ import { cn } from "@/lib/utils";
 
 const TCG_LABELS = Object.fromEntries(TCG_OPTIONS.map((g) => [g.id, g.label]));
 
-type ProfileTab = "overview" | "posts" | "history" | "settings";
+type ProfileTab = "overview" | "posts" | "history" | "feedback" | "settings";
 
 export default function MyProfilePage() {
   const { user } = useJudgeAuth();
@@ -71,6 +73,16 @@ export default function MyProfilePage() {
   const { data: myPosts = [] } = useCommunityPosts({
     authorId: profile?.id,
     sort: "new",
+  });
+
+  const { data: myFeedbacks = [] } = useQuery({
+    queryKey: ["my-feedback"],
+    queryFn: async () => {
+      const res = await fetch("/api/social/feedback/mine");
+      if (!res.ok) return [];
+      return res.json() as Promise<FeedbackItem[]>;
+    },
+    enabled: Boolean(profile?.id),
   });
 
   if (isLoading) {
@@ -187,6 +199,7 @@ export default function MyProfilePage() {
               ["overview", "Visão geral"],
               ["posts", "Meus posts"],
               ["history", "Histórico"],
+              ["feedback", "Feedback"],
               ["settings", "Configurações"],
             ] as const
           ).map(([id, label]) => (
@@ -241,6 +254,33 @@ export default function MyProfilePage() {
               </CardHeader>
               <CardContent>
                 <ConsultationHistoryList />
+              </CardContent>
+            </Card>
+          )}
+
+          {tab === "feedback" && (
+            <Card className="border-white/10 bg-white/5">
+              <CardHeader>
+                <CardTitle>Meus feedbacks</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {myFeedbacks.length === 0 && (
+                  <p className="text-sm text-luxury-mist">
+                    Nenhum feedback enviado.{" "}
+                    <Link href="/social/feedback" className="text-luxury-gold underline">
+                      Enviar feedback
+                    </Link>
+                  </p>
+                )}
+                {myFeedbacks.map((f) => (
+                  <div key={f.id} className="rounded-lg border border-white/10 p-3">
+                    <p className="font-medium">{f.subject}</p>
+                    <p className="mt-1 text-xs text-luxury-mist">
+                      #{f.id.slice(0, 8).toUpperCase()} · {f.status} · {f.priority}
+                    </p>
+                    <p className="mt-2 text-sm text-luxury-mist">{f.description}</p>
+                  </div>
+                ))}
               </CardContent>
             </Card>
           )}

@@ -37,6 +37,15 @@ function SocialPage() {
           <Link href="/social/communities" className="text-luxury-mist hover:text-white">
             Comunidades
           </Link>
+          <Link href="/social/messages" className="text-luxury-mist hover:text-white">
+            Mensagens
+          </Link>
+          <Link href="/social/newsletter" className="text-luxury-mist hover:text-white">
+            Newsletter
+          </Link>
+          <Link href="/social/feedback" className="text-luxury-mist hover:text-white">
+            Feedback
+          </Link>
         </div>
         <h1 className="mt-2 text-2xl font-bold">Comunidade</h1>
         <div className="mt-6 grid gap-4 sm:grid-cols-2">

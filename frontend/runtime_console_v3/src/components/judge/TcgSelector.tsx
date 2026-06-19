@@ -218,7 +218,7 @@ function GameMat({
       {locked && game.enabled && (
         <span
           className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-1 bg-black/60 text-white"
-          title="Disponível no plano Spike"
+          title="Disponível no plano Pro — R$ 29/mês. Ver /pricing"
         >
           <Lock className="h-4 w-4 text-luxury-gold" aria-hidden />
           <span className="text-[9px] font-bold uppercase">Pro</span>

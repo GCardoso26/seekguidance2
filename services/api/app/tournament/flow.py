@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.tournament.engine.bracket import BracketEngine
 from app.tournament.engine.swiss import SwissEngine
+from app.tournament.engine.prizes import calculate_prizes
 from app.tournament.engine.tiebreakers import apply_match_result, recalculate_tiebreakers, sort_standings
 from app.tournament.store import (
     activate_round,
@@ -38,7 +39,17 @@ _swiss = SwissEngine()
 _bracket = BracketEngine()
 
 
-async def start_check_in(session: AsyncSession, tournament_id: str) -> dict[str, Any]:
+async def _require_organizer(session: AsyncSession, tournament_id: str, user_id: str) -> dict[str, Any]:
+    t = await get_tournament(session, tournament_id)
+    if not t:
+        raise HTTPException(404, "Torneio não encontrado")
+    if str(t.get("created_by")) != user_id:
+        raise HTTPException(403, "Apenas o organizador pode executar esta ação")
+    return t
+
+
+async def start_check_in(session: AsyncSession, tournament_id: str, organizer_id: str) -> dict[str, Any]:
+    await _require_organizer(session, tournament_id, organizer_id)
     t = await get_tournament(session, tournament_id)
     if not t:
         raise HTTPException(404, "Torneio não encontrado")
@@ -86,7 +97,8 @@ async def start_tournament(session: AsyncSession, tournament_id: str, organizer_
     }
 
 
-async def generate_next_round(session: AsyncSession, tournament_id: str) -> dict[str, Any]:
+async def generate_next_round(session: AsyncSession, tournament_id: str, organizer_id: str) -> dict[str, Any]:
+    await _require_organizer(session, tournament_id, organizer_id)
     t = await get_tournament(session, tournament_id)
     if not t:
         raise HTTPException(404, "Torneio não encontrado")
@@ -122,7 +134,10 @@ async def generate_next_round(session: AsyncSession, tournament_id: str) -> dict
     }
 
 
-async def start_round_timer(session: AsyncSession, tournament_id: str, round_number: int) -> dict[str, Any]:
+async def start_round_timer(
+    session: AsyncSession, tournament_id: str, round_number: int, organizer_id: str
+) -> dict[str, Any]:
+    await _require_organizer(session, tournament_id, organizer_id)
     round_row = await get_round(session, tournament_id, round_number)
     if not round_row:
         raise HTTPException(404, "Rodada não encontrada")
@@ -139,7 +154,9 @@ async def extend_round_timer(
     tournament_id: str,
     round_number: int,
     minutes: int,
+    organizer_id: str,
 ) -> dict[str, Any]:
+    await _require_organizer(session, tournament_id, organizer_id)
     round_row = await get_round(session, tournament_id, round_number)
     if not round_row:
         raise HTTPException(404, "Rodada não encontrada")
@@ -177,6 +194,9 @@ async def get_standings(session: AsyncSession, tournament_id: str) -> list[dict[
             "participantId": p.id,
             "displayName": p.display_name,
             "matchPoints": p.match_points,
+            "matchWins": p.match_wins,
+            "matchLosses": p.match_losses,
+            "matchDraws": p.match_draws,
             "omwPercent": p.omw_percent,
             "gwPercent": p.gw_percent,
             "ogwPercent": p.ogw_percent,
@@ -269,7 +289,10 @@ async def confirm_result(
     return {"pairing": updated, "status": "confirmed", "standings": standings}
 
 
-async def end_round(session: AsyncSession, tournament_id: str, round_number: int) -> dict[str, Any]:
+async def end_round(
+    session: AsyncSession, tournament_id: str, round_number: int, organizer_id: str
+) -> dict[str, Any]:
+    await _require_organizer(session, tournament_id, organizer_id)
     round_row = await get_round(session, tournament_id, round_number)
     if not round_row:
         raise HTTPException(404, "Rodada não encontrada")
@@ -295,7 +318,8 @@ async def end_round(session: AsyncSession, tournament_id: str, round_number: int
     return {"roundNumber": round_number, "phase": phase, "standings": standings}
 
 
-async def advance_top_cut(session: AsyncSession, tournament_id: str) -> dict[str, Any]:
+async def advance_top_cut(session: AsyncSession, tournament_id: str, organizer_id: str) -> dict[str, Any]:
+    await _require_organizer(session, tournament_id, organizer_id)
     t = await get_tournament(session, tournament_id)
     if not t:
         raise HTTPException(404, "Torneio não encontrado")
@@ -323,11 +347,12 @@ async def advance_top_cut(session: AsyncSession, tournament_id: str) -> dict[str
     }
 
 
-async def finalize_tournament(session: AsyncSession, tournament_id: str) -> dict[str, Any]:
-    t = await get_tournament(session, tournament_id)
-    if not t:
-        raise HTTPException(404, "Torneio não encontrado")
+async def finalize_tournament(session: AsyncSession, tournament_id: str, organizer_id: str) -> dict[str, Any]:
+    t = await _require_organizer(session, tournament_id, organizer_id)
     standings = await get_standings(session, tournament_id)
+    total_prize = float(t.get("prize_pool") or 0)
+    currency = str(t.get("prize_currency") or "BRL")
+    prizes = calculate_prizes(standings, total_prize=total_prize, currency=currency) if total_prize > 0 else []
     await update_tournament_status(session, tournament_id, status="finalized", phase="finalized")
 
     from app.leagues.scoring import update_league_standings_from_tournament
@@ -421,6 +446,7 @@ async def finalize_tournament(session: AsyncSession, tournament_id: str) -> dict
         "tournamentId": tournament_id,
         "status": "finalized",
         "standings": standings,
+        "prizes": prizes,
         "achievementsUnlocked": unlocked,
     }
 

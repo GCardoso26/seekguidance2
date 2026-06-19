@@ -9,6 +9,7 @@ const POST_ACTIONS = new Set([
   "rounds",
   "advance-top-cut",
   "finalize",
+  "register",
 ]);
 
 export async function POST(req: NextRequest, { params }: Params) {

@@ -103,3 +103,25 @@ export function useTournamentFlow(tournamentId: string) {
     finalize,
   };
 }
+
+export function useRegisterTournament(tournamentId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (displayName?: string) => {
+      const res = await fetch(`/api/tournament/tournaments/${tournamentId}/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(displayName ? { display_name: displayName } : {}),
+      });
+      if (!res.ok) {
+        const err = (await res.json().catch(() => ({}))) as { detail?: string };
+        throw new Error(err.detail ?? "Falha na inscrição");
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ["tournament", tournamentId] });
+      void qc.invalidateQueries({ queryKey: ["pairings", tournamentId] });
+    },
+  });
+}
