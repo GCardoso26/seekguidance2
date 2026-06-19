@@ -11,6 +11,7 @@ import { QueryProvider } from "@/providers/query-provider";
 import { ThemeProvider } from "@/providers/theme-provider";
 
 import { LuxurySiteShell } from "@/components/luxury/layout/LuxurySiteShell";
+import { UpgradeModalProvider } from "@/components/premium/UpgradeModalProvider";
 
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
@@ -57,7 +58,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <AuthProviderWrapper>
 
             <QueryProvider>
-              <LuxurySiteShell>{children}</LuxurySiteShell>
+              <UpgradeModalProvider>
+                <LuxurySiteShell>{children}</LuxurySiteShell>
+              </UpgradeModalProvider>
             </QueryProvider>
 
           </AuthProviderWrapper>

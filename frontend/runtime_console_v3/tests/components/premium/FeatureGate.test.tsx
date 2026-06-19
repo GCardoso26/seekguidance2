@@ -13,6 +13,10 @@ vi.mock("@/hooks/useSubscription", () => ({
   useSubscription: vi.fn(),
 }));
 
+vi.mock("@/components/premium/UpgradeModalProvider", () => ({
+  useUpgradeModal: () => ({ showUpgrade: vi.fn() }),
+}));
+
 const mockUseSubscription = vi.mocked(useSubscription);
 
 function mockSub(partial: Partial<ReturnType<typeof useSubscription>>) {
@@ -60,7 +64,7 @@ describe("FeatureGate", () => {
     );
 
     expect(screen.queryByTestId("premium-content")).toBeNull();
-    expect(screen.getByText(/plano Spike ou Equipe/i)).toBeTruthy();
+    expect(screen.getByText(/plano Pro/i)).toBeTruthy();
     expect(screen.getByText(/Fazer upgrade/i)).toBeTruthy();
   });
 

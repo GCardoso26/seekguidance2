@@ -2,6 +2,7 @@
 
 import type { TcgType } from "@/types/judge";
 import { TCG_OPTIONS } from "@/types/judge";
+import { useUpgradeModal } from "@/components/premium/UpgradeModalProvider";
 import { getTcgTheme } from "@/styles/tcg-theme";
 import { cn } from "@/lib/utils";
 
@@ -13,12 +14,17 @@ type Props = {
 };
 
 export function MultiSelectTCG({ selected, onChange, maxSelection = 5, className }: Props) {
+  const { showUpgrade } = useUpgradeModal();
+
   const toggle = (id: TcgType) => {
     if (selected.includes(id)) {
       onChange(selected.filter((x) => x !== id));
       return;
     }
-    if (selected.length >= maxSelection) return;
+    if (selected.length >= maxSelection) {
+      showUpgrade("tcgs");
+      return;
+    }
     onChange([...selected, id]);
   };
 

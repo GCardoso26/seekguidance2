@@ -8,6 +8,7 @@ import { MagneticButton } from "@/components/luxury/effects/MagneticButton";
 import { useJudgeAuth } from "@/features/auth/AuthProvider";
 import { completeOnboarding } from "@/hooks/useCompleteOnboarding";
 import { getTcgTheme } from "@/styles/tcg-theme";
+import { useUpgradeModal } from "@/components/premium/UpgradeModalProvider";
 import { FREE_TCG_SELECTION_LIMIT } from "@/lib/plan-limits/constants";
 import { TCG_OPTIONS, type TcgType } from "@/types/judge";
 import { cn } from "@/lib/utils";
@@ -23,6 +24,7 @@ export function TCGOnboardingGrid({ selected, onChange, onComplete }: Props) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { user } = useJudgeAuth();
+  const { showUpgrade } = useUpgradeModal();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -34,10 +36,13 @@ export function TCGOnboardingGrid({ selected, onChange, onComplete }: Props) {
         onChange(selected.filter((x) => x !== id));
         return;
       }
-      if (selected.length >= FREE_TCG_SELECTION_LIMIT) return;
+      if (selected.length >= FREE_TCG_SELECTION_LIMIT) {
+        showUpgrade("tcgs");
+        return;
+      }
       onChange([...selected, id]);
     },
-    [onChange, selected],
+    [onChange, selected, showUpgrade],
   );
 
   const confirm = async () => {
@@ -99,8 +104,11 @@ export function TCGOnboardingGrid({ selected, onChange, onComplete }: Props) {
                 </span>
               )}
               {lockedOut && (
-                <span className="absolute inset-0 flex items-center justify-center rounded-xl bg-black/40">
+                <span className="absolute inset-0 flex flex-col items-center justify-center gap-1 rounded-xl bg-black/40">
                   <Lock className="h-4 w-4 text-luxury-mist" aria-hidden />
+                  <span className="rounded-full bg-luxury-gold/90 px-2 py-0.5 text-[10px] font-bold text-luxury-onyx">
+                    Pro
+                  </span>
                 </span>
               )}
               <TcgLogoImage tcgId={game.id} variant="compact" selected={active} />

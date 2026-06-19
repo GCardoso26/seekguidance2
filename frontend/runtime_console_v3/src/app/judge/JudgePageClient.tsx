@@ -25,6 +25,7 @@ import { QuestionInput } from "@/components/judge/QuestionInput";
 
 import { ConsultationHistory } from "@/components/judge/ConsultationHistory";
 import { PlanLimitBanner } from "@/components/judge/PlanLimitBanner";
+import { useUpgradeModal } from "@/components/premium/UpgradeModalProvider";
 import { RuleSourcesPanel } from "@/components/judge/RuleSourcesPanel";
 
 import { useConsultations } from "@/hooks/useConsultations";
@@ -105,6 +106,7 @@ export function JudgePageClient() {
     favoriteTcgs: profile?.favoriteTcgs as TcgType[] | undefined,
     onboardingComplete: Boolean(profile?.hasCompletedOnboarding || (profile?.favoriteTcgs?.length ?? 0) >= 5),
   });
+  const { showUpgrade } = useUpgradeModal();
   const consultations = useConsultations(user?.id);
 
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -402,6 +404,7 @@ export function JudgePageClient() {
         setHistoryByTurnId((prev) => ({ ...prev, [turnId]: item }));
 
         planLimits.refreshDailyCount();
+        void fetch("/api/badges/check", { method: "POST" });
         void consultations.reload();
 
         setTimeout(scrollToBottom, 120);
@@ -639,7 +642,19 @@ export function JudgePageClient() {
           <PlanLimitBanner variant="tcg" tcgName={TCG_OPTIONS.find((g) => g.id === tcg)?.label} />
         )}
         {questionBlocked && <PlanLimitBanner variant="questions" />}
-        <div className={questionBlocked ? "pointer-events-none opacity-50 blur-[1px]" : undefined}>
+        <div
+          className={
+            questionBlocked ? "relative opacity-50 blur-[1px]" : undefined
+          }
+        >
+          {questionBlocked && (
+            <button
+              type="button"
+              onClick={() => showUpgrade("consultas")}
+              className="absolute inset-0 z-10 cursor-pointer rounded-xl"
+              aria-label="Limite atingido — fazer upgrade"
+            />
+          )}
           <QuestionInput
             value={question}
             onChange={setQuestion}

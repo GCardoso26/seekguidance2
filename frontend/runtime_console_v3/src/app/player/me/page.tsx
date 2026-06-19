@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import confetti from "canvas-confetti";
 import type { GameCode } from "@/lib/tcg-adapters";
 import type { TcgType } from "@/types/judge";
 import { AvatarUpload } from "@/components/player/AvatarUpload";
@@ -27,7 +29,7 @@ import type { FeedbackItem } from "@/types/post";
 import { computePlayerJudgeStats } from "@/lib/player-judge-stats";
 import { BRAZILIAN_STATES } from "@/constants/brazilian-states";
 import { TCG_OPTIONS } from "@/types/judge";
-import { BarChart3, CreditCard, Flame, History, MessageCircle } from "lucide-react";
+import { Award, BarChart3, CreditCard, Flame, History, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const TCG_LABELS = Object.fromEntries(TCG_OPTIONS.map((g) => [g.id, g.label]));
@@ -35,6 +37,21 @@ const TCG_LABELS = Object.fromEntries(TCG_OPTIONS.map((g) => [g.id, g.label]));
 type ProfileTab = "overview" | "posts" | "history" | "feedback" | "settings";
 
 export default function MyProfilePage() {
+  return (
+    <Suspense
+      fallback={
+        <MobileLayout>
+          <div className="container mx-auto px-4 py-8 text-luxury-mist">Carregando perfil…</div>
+        </MobileLayout>
+      }
+    >
+      <MyProfilePageContent />
+    </Suspense>
+  );
+}
+
+function MyProfilePageContent() {
+  const searchParams = useSearchParams();
   const { user } = useJudgeAuth();
   const { data: profile, isLoading, isError, error } = usePlayerProfile("me");
   const { tier } = useSubscription();
@@ -52,11 +69,31 @@ export default function MyProfilePage() {
   const [birthDate, setBirthDate] = useState("");
   const [stateCode, setStateCode] = useState("");
   const [tab, setTab] = useState<ProfileTab>("overview");
+  const [streakNotice, setStreakNotice] = useState<string | null>(null);
 
   const stats = useMemo(
     () => computePlayerJudgeStats(allItems, TCG_LABELS),
     [allItems],
   );
+
+  useEffect(() => {
+    if (searchParams.get("checkout") === "success") {
+      void confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    const key = "tcg-judge-last-streak";
+    const prev = Number(localStorage.getItem(key) ?? "0");
+    if (stats.streakDays === 0 && prev > 1) {
+      setStreakNotice(`Seu streak de ${prev} dias acabou. Volte hoje para recomeçar!`);
+    } else {
+      setStreakNotice(null);
+    }
+    if (stats.streakDays > 0) {
+      localStorage.setItem(key, String(stats.streakDays));
+    }
+  }, [stats.streakDays]);
 
   useEffect(() => {
     if (profile?.favoriteGame) {
@@ -177,6 +214,12 @@ export default function MyProfilePage() {
           </div>
         </div>
 
+        {streakNotice && (
+          <p className="mt-4 rounded-xl border border-orange-400/30 bg-orange-400/10 px-4 py-3 text-sm text-orange-200">
+            {streakNotice}
+          </p>
+        )}
+
         <div className="mt-4 flex gap-2">
           <Link
             href="/player/me/history"
@@ -184,6 +227,19 @@ export default function MyProfilePage() {
           >
             <History className="h-4 w-4" />
             Histórico completo
+          </Link>
+          <Link
+            href="/player/me/badges"
+            className="inline-flex items-center justify-center gap-1 rounded-lg border border-white/10 px-3 py-2 text-sm text-luxury-frost hover:bg-white/5"
+          >
+            <Award className="h-4 w-4" />
+            Badges
+          </Link>
+          <Link
+            href="/leaderboard"
+            className="inline-flex flex-1 items-center justify-center rounded-lg border border-white/10 py-2 text-sm font-medium text-luxury-frost hover:bg-white/5"
+          >
+            Ranking
           </Link>
           <Link
             href="/judge"

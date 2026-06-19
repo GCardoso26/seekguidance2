@@ -33,6 +33,9 @@ export function PricingHero({ isAnnual, onToggle, onToggleTrack }: Props) {
         <p className="mx-auto mb-8 max-w-2xl text-lg text-luxury-mist md:text-xl">
           Do casual ao competitivo. Encontre o plano que combina com seu estilo de jogo.
         </p>
+        <p className="mb-6 text-sm text-luxury-gold-light/90">
+          7 dias de garantia · Cancele quando quiser
+        </p>
         <PricingToggle
           isAnnual={isAnnual}
           onChange={(annual) => {

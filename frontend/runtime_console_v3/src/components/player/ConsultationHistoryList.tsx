@@ -2,10 +2,12 @@
 
 import { useMemo } from "react";
 import Link from "next/link";
+import { Download, Star } from "lucide-react";
 import { formatRelativeTimePt } from "@/lib/format-relative-time";
-import { Star } from "lucide-react";
 import { useConsultations } from "@/hooks/useConsultations";
 import { useJudgeAuth } from "@/features/auth/AuthProvider";
+import { usePlanGate } from "@/hooks/usePlanGate";
+import { useUpgradeModal } from "@/components/premium/UpgradeModalProvider";
 import { getTcgBrand } from "@/lib/tcg-brand";
 import { parseJudgeVerdict } from "@/lib/judge-verdict";
 import type { JudgeHistoryItem } from "@/types/judge";
@@ -18,6 +20,8 @@ type Props = {
 
 export function ConsultationHistoryList({ onSelect, compact }: Props) {
   const { user } = useJudgeAuth();
+  const exportGate = usePlanGate("export");
+  const { showUpgrade } = useUpgradeModal();
   const {
     items,
     loading,
@@ -40,8 +44,50 @@ export function ConsultationHistoryList({ onSelect, compact }: Props) {
     return <p className="text-sm text-luxury-mist/70">Carregando histórico…</p>;
   }
 
+  const exportCsv = () => {
+    if (!exportGate.allowed) {
+      showUpgrade("export");
+      return;
+    }
+    const header = "data,tcg,pergunta,veredito\n";
+    const rows = items
+      .map((item) => {
+        const verdict = parseJudgeVerdict({
+          success: item.success,
+          answer: item.answer,
+          confidence: item.confidence,
+          sources: item.sources ?? [],
+          runtime_confidence: item.runtime_confidence ?? 0.9,
+          verdict: item.verdict,
+        }).label;
+        const esc = (s: string) => `"${s.replace(/"/g, '""')}"`;
+        return [esc(item.createdAt.slice(0, 10)), esc(item.tcg), esc(item.question), esc(verdict)].join(",");
+      })
+      .join("\n");
+    const blob = new Blob([header + rows], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "historico-judge-tcg.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="space-y-4">
+      {!compact && items.length > 0 && (
+        <button
+          type="button"
+          onClick={exportCsv}
+          className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-sm text-luxury-frost hover:bg-white/5"
+        >
+          <Download className="h-4 w-4" />
+          Exportar CSV
+          {!exportGate.allowed && (
+            <span className="rounded-full bg-luxury-gold/20 px-2 py-0.5 text-[10px] text-luxury-gold-light">Pro</span>
+          )}
+        </button>
+      )}
       <input
         type="search"
         value={query}

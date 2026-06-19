@@ -34,7 +34,8 @@ export const PRICING_PLANS: PricingPlan[] = [
       { text: "5 jogos (MTG, PKM, YGO, LOR, OP)", included: true },
       { text: "Vereditos com fontes", included: true },
       { text: "Histórico local (10 consultas)", included: true },
-      { text: "Modo torneio", included: false },
+      { text: "1 torneio/mês", included: true },
+      { text: "Modo torneio completo", included: false },
       { text: "Exportar vereditos", included: false },
       { text: "API access", included: false },
       { text: "Suporte prioritário", included: false },
@@ -49,8 +50,8 @@ export const PRICING_PLANS: PricingPlan[] = [
     name: "Pro",
     subtitle: "Para jogadores e juízes que precisam de volume e precisão",
     iconName: "crown",
-    priceMonthly: 19.9,
-    priceAnnual: 199,
+    priceMonthly: 29,
+    priceAnnual: 290,
     features: [
       { text: "Perguntas ilimitadas", included: true, highlight: true },
       { text: "Todos os 14 jogos", included: true, highlight: true },
@@ -103,7 +104,8 @@ export const COMPARISON_ROWS: ComparisonRow[] = [
   { feature: "Perguntas por dia", free: "50", pro: "Ilimitadas", team: "Ilimitadas" },
   { feature: "Jogos suportados", free: "5", pro: "14", team: "14" },
   { feature: "Histórico", free: "Local (10)", pro: "Cloud ∞", team: "Cloud ∞" },
-  { feature: "Modo torneio", free: false, pro: true, team: true },
+  { feature: "Torneios criados/mês", free: "1", pro: "Ilimitados", team: "Ilimitados" },
+  { feature: "Modo torneio", free: "Participar", pro: true, team: true },
   { feature: "Exportar PDF/QR", free: false, pro: true, team: true },
   { feature: "Usuários", free: "1", pro: "1", team: "Até 5" },
   { feature: "API", free: false, pro: "1K/dia", team: "10K/dia" },
@@ -115,6 +117,14 @@ export const PRICING_FAQS = [
   {
     q: "Posso cancelar quando quiser?",
     a: "Sim, sem taxa de cancelamento. Como um mulligan gratuito.",
+  },
+  {
+    q: "O que acontece com meus dados se eu cancelar?",
+    a: "Seus dados permanecem seguros. No Free você mantém histórico local; no Pro, o histórico na nuvem fica acessível até o fim do período pago.",
+  },
+  {
+    q: "Tem garantia?",
+    a: "Sim — 7 dias de garantia. Cancele quando quiser, sem taxas escondidas.",
   },
   {
     q: "O que acontece se eu exceder 50 perguntas no free?",
