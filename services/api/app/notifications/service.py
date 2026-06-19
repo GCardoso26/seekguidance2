@@ -32,9 +32,12 @@ EVENT_TITLES: dict[str, str] = {
 
 class PushService:
     async def send(self, session: AsyncSession, user_id: str, payload: dict[str, Any]) -> bool:
+        from app.notifications.expo_push import expo_push_service
         from app.notifications.push import web_push_service
 
-        return await web_push_service.send(session, user_id, payload)
+        expo_sent = await expo_push_service.send(session, user_id, payload)
+        web_sent = await web_push_service.send(session, user_id, payload)
+        return expo_sent or web_sent
 
 
 class EmailService:

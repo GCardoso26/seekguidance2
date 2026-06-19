@@ -1,4 +1,17 @@
 {
+  "name": "tcg-judge",
+  "private": true,
+  "workspaces": [
+    "frontend/runtime_console_v3",
+    "apps/mobile"
+  ],
+  "scripts": {
+    "mobile": "npm run start --workspace=mobile",
+    "mobile:android": "npm run android --workspace=mobile",
+    "mobile:ios": "npm run ios --workspace=mobile",
+    "web": "npm run dev --workspace=runtime-console-v3",
+    "web:build": "npm run build --workspace=runtime-console-v3"
+  },
   "devDependencies": {
     "supabase": "^2.101.0"
   }

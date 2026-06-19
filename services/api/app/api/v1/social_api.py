@@ -81,6 +81,11 @@ class PushSubscribeBody(BaseModel):
     keys: dict[str, str]
 
 
+class ExpoPushSubscribeBody(BaseModel):
+    token: str = Field(min_length=10)
+    platform: str | None = None
+
+
 @router.get("/runtime/judge/social/friends")
 async def list_friends(
     session: DbSession,
@@ -489,6 +494,20 @@ async def push_subscribe(
         p256dh=keys.get("p256dh", ""),
         auth=keys.get("auth", ""),
     )
+    return {"subscribed": True}
+
+
+@router.post("/runtime/judge/notifications/expo-subscribe")
+async def expo_push_subscribe(
+    session: DbSession,
+    body: ExpoPushSubscribeBody,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, bool]:
+    from app.notifications.expo_push import expo_push_service
+
+    user_id = _require_user(x_judge_user_id)
+    platform = body.platform if body.platform in ("ios", "android", "web") else None
+    await expo_push_service.save_token(session, user_id, token=body.token, platform=platform)
     return {"subscribed": True}
 
 
