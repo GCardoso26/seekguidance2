@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from app.admin.audit import list_audit_logs
+from app.admin.business_analytics import business_analytics
 from app.admin.dashboard import platform_stats
 from app.admin.moderation import ban_user, moderate_tournament
 from app.api.deps import DbSession
@@ -34,6 +35,15 @@ class BroadcastBody(BaseModel):
 @router.get("/stats")
 async def admin_stats(session: DbSession, admin_id: str = Depends(require_admin)) -> dict[str, Any]:
     return await platform_stats(session)
+
+
+@router.get("/analytics")
+async def admin_analytics(
+    session: DbSession,
+    admin_id: str = Depends(require_admin),
+    period: str = "30d",
+) -> dict[str, Any]:
+    return await business_analytics(session, period=period)
 
 
 @router.get("/users")

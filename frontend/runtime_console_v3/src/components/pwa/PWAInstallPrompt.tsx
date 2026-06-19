@@ -1,0 +1,90 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { Download, X } from "lucide-react";
+
+type BeforeInstallPromptEvent = Event & {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
+};
+
+export function PWAInstallPrompt() {
+  const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(null);
+  const [dismissed, setDismissed] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (localStorage.getItem("pwa-install-dismissed") === "1") {
+      setDismissed(true);
+      return;
+    }
+
+    const handler = (e: Event) => {
+      e.preventDefault();
+      setDeferred(e as BeforeInstallPromptEvent);
+    };
+    window.addEventListener("beforeinstallprompt", handler);
+    return () => window.removeEventListener("beforeinstallprompt", handler);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !("serviceWorker" in navigator)) return;
+    void navigator.serviceWorker.register("/sw.js").catch(() => undefined);
+  }, []);
+
+  if (dismissed || !deferred) return null;
+
+  const install = async () => {
+    await deferred.prompt();
+    const choice = await deferred.userChoice;
+    if (choice.outcome === "accepted") setDeferred(null);
+    else {
+      localStorage.setItem("pwa-install-dismissed", "1");
+      setDismissed(true);
+    }
+  };
+
+  return (
+    <div className="fixed bottom-4 left-4 right-4 z-[90] mx-auto max-w-md rounded-xl border border-luxury-gold/30 bg-luxury-obsidian/95 p-4 shadow-xl backdrop-blur md:left-auto md:right-6">
+      <div className="flex items-start gap-3">
+        <Download className="mt-0.5 h-5 w-5 shrink-0 text-luxury-gold-light" aria-hidden />
+        <div className="flex-1">
+          <p className="text-sm font-semibold text-luxury-frost">Adicionar à tela inicial</p>
+          <p className="mt-1 text-xs text-luxury-mist">
+            Acesse rulings e torneios como um app — mais rápido no celular.
+          </p>
+          <div className="mt-3 flex gap-2">
+            <button
+              type="button"
+              onClick={() => void install()}
+              className="rounded-lg bg-luxury-gold px-3 py-1.5 text-xs font-semibold text-luxury-onyx"
+            >
+              Instalar
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                localStorage.setItem("pwa-install-dismissed", "1");
+                setDismissed(true);
+              }}
+              className="rounded-lg px-3 py-1.5 text-xs text-luxury-mist"
+            >
+              Agora não
+            </button>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={() => {
+            localStorage.setItem("pwa-install-dismissed", "1");
+            setDismissed(true);
+          }}
+          className="text-luxury-mist"
+          aria-label="Fechar"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      </div>
+    </div>
+  );
+}

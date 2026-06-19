@@ -52,10 +52,16 @@ export default function AdminConsolePage() {
                 Qualidade do judge, latência e crescimento por jogo.
               </p>
               <Link
-                href="/observability?tab=judge"
+                href="/admin/analytics"
                 className="text-sm font-medium text-primary hover:underline"
               >
-                Abrir observability →
+                Analytics de negócio →
+              </Link>
+              <Link
+                href="/observability?tab=judge"
+                className="mt-2 block text-sm font-medium text-primary hover:underline"
+              >
+                Observability (latência) →
               </Link>
             </CardContent>
           </Card>

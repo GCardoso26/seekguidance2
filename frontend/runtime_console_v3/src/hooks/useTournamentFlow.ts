@@ -36,6 +36,41 @@ export function useRoundPairings(tournamentId: string, roundNumber: number) {
   });
 }
 
+export type BracketResponse = {
+  bracketId: string;
+  tournamentId: string;
+  topCut: number;
+  status: string;
+  matches: Array<{
+    id: string;
+    roundNumber: number;
+    matchNumber: number;
+    player1Id: string | null;
+    player2Id: string | null;
+    player1Name?: string | null;
+    player2Name?: string | null;
+    winnerId: string | null;
+    status: string;
+  }>;
+};
+
+export function useBracket(tournamentId: string, enabled = true) {
+  return useQuery({
+    queryKey: ["bracket", tournamentId],
+    queryFn: async () => {
+      const res = await fetch(`/api/tournament/tournaments/${tournamentId}/bracket`);
+      if (res.status === 404) return null;
+      if (!res.ok) {
+        const err = (await res.json().catch(() => ({}))) as { detail?: string };
+        throw new Error(err.detail ?? `Erro ${res.status}`);
+      }
+      return res.json() as Promise<BracketResponse>;
+    },
+    enabled: Boolean(tournamentId) && enabled,
+    refetchInterval: 10_000,
+  });
+}
+
 export function useTournamentFlow(tournamentId: string) {
   const qc = useQueryClient();
 
@@ -43,6 +78,7 @@ export function useTournamentFlow(tournamentId: string) {
     void qc.invalidateQueries({ queryKey: ["tournament", tournamentId] });
     void qc.invalidateQueries({ queryKey: ["standings", tournamentId] });
     void qc.invalidateQueries({ queryKey: ["pairings", tournamentId] });
+    void qc.invalidateQueries({ queryKey: ["bracket", tournamentId] });
   };
 
   const startCheckIn = useMutation({
@@ -87,6 +123,16 @@ export function useTournamentFlow(tournamentId: string) {
     onSuccess: invalidate,
   });
 
+  const reportBracketResult = useMutation({
+    mutationFn: ({ matchId, winnerId }: { matchId: string; winnerId: string }) =>
+      api(`/api/tournament/tournaments/${tournamentId}/bracket/matches/${matchId}/result`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ winner_id: winnerId }),
+      }),
+    onSuccess: invalidate,
+  });
+
   const finalize = useMutation({
     mutationFn: () => api(`/api/tournament/tournaments/${tournamentId}/finalize`, { method: "POST" }),
     onSuccess: invalidate,
@@ -100,6 +146,7 @@ export function useTournamentFlow(tournamentId: string) {
     extendRound,
     endRound,
     advanceTopCut,
+    reportBracketResult,
     finalize,
   };
 }

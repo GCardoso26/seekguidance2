@@ -31,6 +31,11 @@ from app.tournament.store import (
     save_bracket,
     save_participant_stats,
     update_tournament_status,
+    get_active_bracket,
+    list_bracket_matches,
+    load_bracket_state,
+    persist_bracket_matches,
+    complete_bracket,
 )
 from app.tournament.timer import RoundTimer
 from app.tournament.types import PairingRecord
@@ -323,10 +328,34 @@ async def advance_top_cut(session: AsyncSession, tournament_id: str, organizer_i
     t = await get_tournament(session, tournament_id)
     if not t:
         raise HTTPException(404, "Torneio não encontrado")
-    top_cut = int(t.get("top_cut") or 8)
+
+    phase = str(t.get("phase") or t.get("status") or "")
+    if phase not in ("swiss_complete",):
+        raise HTTPException(400, "Conclua todas as rodadas suíças antes do top cut")
+
+    top_cut = int(t.get("top_cut") or 0)
+    if top_cut < 2:
+        raise HTTPException(400, "Torneio sem top cut configurado (top_cut >= 2)")
+
+    existing = await get_active_bracket(session, tournament_id)
+    if existing and existing.get("status") == "active":
+        raise HTTPException(400, "Top cut já foi iniciado")
+
+    standings = await get_standings(session, tournament_id)
+    if len(standings) < 2:
+        raise HTTPException(400, "Standings insuficientes para top cut")
+
     participants = await list_participants(session, tournament_id)
-    ranked = sort_standings([p for p in participants if p.is_active or p.status == "active"])
-    bracket = _bracket.generate_single_elimination(tournament_id, ranked, top_cut)
+    pmap = {p.id: p for p in participants}
+    ranked: list[Any] = []
+    for row in standings[:top_cut]:
+        pid = str(row.get("participantId") or row.get("id") or "")
+        if pid in pmap:
+            ranked.append(pmap[pid])
+    if len(ranked) < 2:
+        raise HTTPException(400, "Menos de 2 jogadores ativos no top cut")
+
+    bracket = _bracket.generate_single_elimination(tournament_id, ranked, min(top_cut, len(ranked)))
     bracket_id = await save_bracket(session, bracket)
     await update_tournament_status(session, tournament_id, status="bracket_active", phase="bracket_active")
     await session.commit()
@@ -341,15 +370,121 @@ async def advance_top_cut(session: AsyncSession, tournament_id: str, organizer_i
                 "player1Id": m.player1_id,
                 "player2Id": m.player2_id,
                 "tableNumber": m.table_number,
+                "status": m.status,
             }
             for m in bracket.matches
         ],
     }
 
 
+async def get_bracket(session: AsyncSession, tournament_id: str) -> dict[str, Any]:
+    bracket_row = await get_active_bracket(session, tournament_id)
+    if not bracket_row:
+        raise HTTPException(404, "Bracket não encontrado")
+    matches = await list_bracket_matches(session, str(bracket_row["id"]))
+    return {
+        "bracketId": str(bracket_row["id"]),
+        "tournamentId": tournament_id,
+        "topCut": int(bracket_row["top_cut"]),
+        "status": str(bracket_row["status"]),
+        "matches": [
+            {
+                "id": str(m["id"]),
+                "roundNumber": int(m["round_number"]),
+                "matchNumber": int(m["match_number"]),
+                "player1Id": str(m["player1_id"]) if m.get("player1_id") else None,
+                "player2Id": str(m["player2_id"]) if m.get("player2_id") else None,
+                "player1Name": m.get("player1_name"),
+                "player2Name": m.get("player2_name"),
+                "winnerId": str(m["winner_id"]) if m.get("winner_id") else None,
+                "nextMatchId": str(m["next_match_id"]) if m.get("next_match_id") else None,
+                "tableNumber": m.get("table_number"),
+                "status": str(m.get("status") or "pending"),
+            }
+            for m in matches
+        ],
+    }
+
+
+async def report_bracket_result(
+    session: AsyncSession,
+    tournament_id: str,
+    match_id: str,
+    organizer_id: str,
+    winner_id: str,
+) -> dict[str, Any]:
+    await _require_organizer(session, tournament_id, organizer_id)
+    t = await get_tournament(session, tournament_id)
+    if not t:
+        raise HTTPException(404, "Torneio não encontrado")
+    if str(t.get("phase") or "") not in ("bracket_active",):
+        raise HTTPException(400, "Top cut não está ativo")
+
+    bracket_row = await get_active_bracket(session, tournament_id)
+    if not bracket_row or bracket_row.get("status") != "active":
+        raise HTTPException(404, "Bracket ativo não encontrado")
+
+    state = await load_bracket_state(session, str(bracket_row["id"]))
+    match = next((m for m in state.matches if m.id == match_id), None)
+    if not match:
+        raise HTTPException(404, "Partida não encontrada")
+    if match.status == "completed":
+        raise HTTPException(400, "Partida já finalizada")
+    if winner_id not in (match.player1_id, match.player2_id):
+        raise HTTPException(400, "Vencedor deve ser um dos jogadores da partida")
+
+    _bracket.advance_winner(state, match_id, winner_id)
+    updated_ids = {match_id}
+    if match.next_match_id:
+        updated_ids.add(match.next_match_id)
+    to_persist = [m for m in state.matches if m.id in updated_ids]
+    await persist_bracket_matches(session, to_persist)
+
+    final_round = max(m.round_number for m in state.matches)
+    final_match = next(m for m in state.matches if m.round_number == final_round and m.match_number == 1)
+    bracket_complete = bool(final_match.winner_id)
+    if bracket_complete:
+        await complete_bracket(session, str(bracket_row["id"]))
+        await update_tournament_status(session, tournament_id, status="bracket_complete", phase="bracket_complete")
+
+    await session.commit()
+    return {
+        "matchId": match_id,
+        "winnerId": winner_id,
+        "bracketComplete": bracket_complete,
+        "bracket": await get_bracket(session, tournament_id),
+    }
+
+
 async def finalize_tournament(session: AsyncSession, tournament_id: str, organizer_id: str) -> dict[str, Any]:
     t = await _require_organizer(session, tournament_id, organizer_id)
+    phase = str(t.get("phase") or t.get("status") or "")
+    if phase == "bracket_active":
+        raise HTTPException(400, "Conclua o top cut antes de finalizar o torneio")
+
     standings = await get_standings(session, tournament_id)
+
+    bracket_row = await get_active_bracket(session, tournament_id)
+    if bracket_row and bracket_row.get("status") == "completed":
+        matches = await list_bracket_matches(session, str(bracket_row["id"]))
+        if matches:
+            final_round = max(int(m["round_number"]) for m in matches)
+            final = next(
+                (m for m in matches if int(m["round_number"]) == final_round and int(m["match_number"]) == 1),
+                None,
+            )
+            if final and final.get("winner_id"):
+                winner_pid = str(final["winner_id"])
+                winner_row = next(
+                    (s for s in standings if str(s.get("participantId")) == winner_pid),
+                    None,
+                )
+                if winner_row:
+                    rest = [s for s in standings if str(s.get("participantId")) != winner_pid]
+                    standings = [winner_row, *rest]
+                    for i, s in enumerate(standings):
+                        s["rank"] = i + 1
+
     total_prize = float(t.get("prize_pool") or 0)
     currency = str(t.get("prize_currency") or "BRL")
     prizes = calculate_prizes(standings, total_prize=total_prize, currency=currency) if total_prize > 0 else []

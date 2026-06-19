@@ -12,6 +12,7 @@ import { ThemeProvider } from "@/providers/theme-provider";
 
 import { LuxurySiteShell } from "@/components/luxury/layout/LuxurySiteShell";
 import { UpgradeModalProvider } from "@/components/premium/UpgradeModalProvider";
+import { PWAInstallPrompt } from "@/components/pwa/PWAInstallPrompt";
 
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
@@ -60,6 +61,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <QueryProvider>
               <UpgradeModalProvider>
                 <LuxurySiteShell>{children}</LuxurySiteShell>
+                <PWAInstallPrompt />
               </UpgradeModalProvider>
             </QueryProvider>
 

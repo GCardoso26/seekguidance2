@@ -485,3 +485,117 @@ async def save_bracket(session: AsyncSession, bracket_state: Any) -> str:
             },
         )
     return str(row["id"]) if row else bracket_state.id
+
+
+async def get_active_bracket(session: AsyncSession, tournament_id: str) -> dict[str, Any] | None:
+    row = (
+        await session.execute(
+            text(
+                """
+                SELECT id, tournament_id, top_cut, status, format, created_at
+                FROM tcg_judge.brackets
+                WHERE tournament_id = CAST(:tid AS uuid)
+                  AND status IN ('active', 'completed')
+                ORDER BY created_at DESC
+                LIMIT 1
+                """
+            ),
+            {"tid": tournament_id},
+        )
+    ).mappings().first()
+    return dict(row) if row else None
+
+
+async def list_bracket_matches(session: AsyncSession, bracket_id: str) -> list[dict[str, Any]]:
+    rows = (
+        await session.execute(
+            text(
+                """
+                SELECT
+                  bm.id, bm.bracket_id, bm.round_number, bm.match_number,
+                  bm.player1_id, bm.player2_id, bm.winner_id, bm.next_match_id,
+                  bm.table_number, bm.status,
+                  tp1.display_name AS player1_name,
+                  tp2.display_name AS player2_name
+                FROM tcg_judge.bracket_matches bm
+                LEFT JOIN tcg_judge.tournament_participants tp1 ON tp1.id = bm.player1_id
+                LEFT JOIN tcg_judge.tournament_participants tp2 ON tp2.id = bm.player2_id
+                WHERE bm.bracket_id = CAST(:bid AS uuid)
+                ORDER BY bm.round_number, bm.match_number
+                """
+            ),
+            {"bid": bracket_id},
+        )
+    ).mappings().all()
+    return [dict(r) for r in rows]
+
+
+async def load_bracket_state(session: AsyncSession, bracket_id: str) -> Any:
+    from app.tournament.types import BracketMatch, BracketState
+
+    bracket_row = (
+        await session.execute(
+            text(
+                """
+                SELECT id, tournament_id, top_cut, status, format
+                FROM tcg_judge.brackets WHERE id = CAST(:bid AS uuid)
+                """
+            ),
+            {"bid": bracket_id},
+        )
+    ).mappings().first()
+    if not bracket_row:
+        raise ValueError("Bracket não encontrado")
+
+    raw_matches = await list_bracket_matches(session, bracket_id)
+    matches = [
+        BracketMatch(
+            id=str(m["id"]),
+            round_number=int(m["round_number"]),
+            match_number=int(m["match_number"]),
+            player1_id=str(m["player1_id"]) if m.get("player1_id") else None,
+            player2_id=str(m["player2_id"]) if m.get("player2_id") else None,
+            winner_id=str(m["winner_id"]) if m.get("winner_id") else None,
+            next_match_id=str(m["next_match_id"]) if m.get("next_match_id") else None,
+            table_number=int(m["table_number"]) if m.get("table_number") is not None else None,
+            status=str(m.get("status") or "pending"),
+        )
+        for m in raw_matches
+    ]
+    return BracketState(
+        id=str(bracket_row["id"]),
+        tournament_id=str(bracket_row["tournament_id"]),
+        top_cut=int(bracket_row["top_cut"]),
+        format=str(bracket_row.get("format") or "SINGLE_ELIMINATION"),
+        matches=matches,
+    )
+
+
+async def persist_bracket_matches(session: AsyncSession, matches: list[Any]) -> None:
+    for m in matches:
+        await session.execute(
+            text(
+                """
+                UPDATE tcg_judge.bracket_matches
+                SET winner_id = :winner,
+                    player1_id = :p1,
+                    player2_id = :p2,
+                    status = :status
+                WHERE id = CAST(:id AS uuid)
+                """
+            ),
+            {
+                "id": m.id,
+                "winner": m.winner_id,
+                "p1": m.player1_id,
+                "p2": m.player2_id,
+                "status": m.status,
+            },
+        )
+
+
+async def complete_bracket(session: AsyncSession, bracket_id: str) -> None:
+    await session.execute(
+        text("UPDATE tcg_judge.brackets SET status = 'completed' WHERE id = CAST(:id AS uuid)"),
+        {"id": bracket_id},
+    )

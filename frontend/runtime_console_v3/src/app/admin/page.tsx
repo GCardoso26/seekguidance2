@@ -36,6 +36,13 @@ function AdminDashboard() {
 
           <div className="mt-8 grid gap-6 lg:grid-cols-2">
             <section className="rounded-xl border border-slate-700 p-4">
+              <h2 className="font-semibold">Analytics de negócio</h2>
+              <p className="mt-2 text-sm text-slate-400">Conversão, churn, LTV e TCGs mais consultados.</p>
+              <Link href="/admin/analytics" className="mt-3 inline-block text-sm text-amber-400 hover:underline">
+                Abrir dashboard →
+              </Link>
+            </section>
+            <section className="rounded-xl border border-slate-700 p-4">
               <h2 className="font-semibold">Torneios ativos</h2>
               <ul className="mt-3 space-y-2 text-sm">
                 {((d.activeTournaments as Array<Record<string, unknown>>) ?? []).map((t) => (

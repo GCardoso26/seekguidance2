@@ -27,6 +27,10 @@ class ReportResultBody(BaseModel):
     draws: int = Field(default=0, ge=0)
 
 
+class BracketResultBody(BaseModel):
+    winner_id: str = Field(min_length=1)
+
+
 class ExtendTimerBody(BaseModel):
     minutes: int = Field(default=5, ge=1, le=30)
 
@@ -182,6 +186,25 @@ async def advance_top_cut(
 ) -> dict[str, Any]:
     user_id = _require_user(x_judge_user_id)
     return await flow.advance_top_cut(session, tournament_id, user_id)
+
+
+@router.get("/runtime/judge/tournaments/{tournament_id}/bracket")
+async def get_bracket(tournament_id: str, session: DbSession) -> dict[str, Any]:
+    return await flow.get_bracket(session, tournament_id)
+
+
+@router.post("/runtime/judge/tournaments/{tournament_id}/bracket/matches/{match_id}/result")
+async def report_bracket_result(
+    tournament_id: str,
+    match_id: str,
+    body: BracketResultBody,
+    session: DbSession,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    return await flow.report_bracket_result(
+        session, tournament_id, match_id, user_id, body.winner_id
+    )
 
 
 @router.post("/runtime/judge/tournaments/{tournament_id}/finalize")

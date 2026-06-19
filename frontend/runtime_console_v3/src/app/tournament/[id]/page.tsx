@@ -27,6 +27,7 @@ function Dashboard() {
   const round = (roundData as { round?: { id: string } })?.round;
   const pairings = (roundData as { pairings?: unknown[] })?.pairings ?? [];
   const prizePool = Number(t?.prize_pool ?? 0);
+  const phase = String(t?.phase ?? t?.status ?? "");
 
   return (
     <div className="luxury-page pb-8">
@@ -41,6 +42,9 @@ function Dashboard() {
           <div className="flex flex-wrap gap-2">
             <Link href={`/tournament/${id}/play`} className="min-h-[44px] rounded-lg border border-white/10 px-4 py-2 text-sm">
               Vista jogador
+            </Link>
+            <Link href={`/tournament/${id}/bracket`} className="min-h-[44px] rounded-lg border border-white/10 px-4 py-2 text-sm">
+              Bracket
             </Link>
             {isOrganizer && (
               <>
@@ -75,6 +79,45 @@ function Dashboard() {
             roundId={round?.id ?? null}
             totalRounds={Number(t?.total_swiss_rounds ?? 5)}
           />
+        )}
+
+        {isOrganizer && phase === "swiss_complete" && (
+          <section className="luxury-card rounded-xl p-4">
+            <h2 className="mb-2 text-lg font-semibold">Top Cut</h2>
+            <p className="text-sm text-luxury-mist">Suíço concluído. Inicie a eliminatória seeded.</p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button
+                type="button"
+                disabled={flow.advanceTopCut.isPending}
+                onClick={() => void flow.advanceTopCut.mutateAsync()}
+                className="rounded-lg bg-luxury-gold px-4 py-2 text-sm font-semibold text-luxury-onyx"
+              >
+                Iniciar Top Cut
+              </button>
+              <Link href={`/tournament/${id}/bracket`} className="rounded-lg border border-white/10 px-4 py-2 text-sm">
+                Ver bracket
+              </Link>
+            </div>
+          </section>
+        )}
+
+        {isOrganizer && (phase === "bracket_active" || phase === "bracket_complete") && (
+          <section className="luxury-card rounded-xl p-4">
+            <h2 className="mb-2 text-lg font-semibold">Eliminatória</h2>
+            <Link href={`/tournament/${id}/bracket`} className="text-sm text-luxury-gold hover:underline">
+              Gerenciar bracket →
+            </Link>
+            {phase === "bracket_complete" && (
+              <button
+                type="button"
+                disabled={flow.finalize.isPending}
+                onClick={() => void flow.finalize.mutateAsync()}
+                className="mt-3 block rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white"
+              >
+                Finalizar torneio
+              </button>
+            )}
+          </section>
         )}
 
         <section>
