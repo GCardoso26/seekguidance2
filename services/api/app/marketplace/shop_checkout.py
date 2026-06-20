@@ -13,6 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 import stripe
 from app.core.config import get_settings
 from app.marketplace import shop_cart
+from app.marketplace.shop_store import store_has_stripe, store_is_sellable
 
 logger = structlog.get_logger(__name__)
 
@@ -59,8 +60,10 @@ async def create_checkout(
         ).mappings().first()
         if not product:
             raise HTTPException(400, f"Produto indisponível: {item.get('name')}")
-        if not product["shop_enabled"] or not product.get("stripe_account_id"):
+        if not store_is_sellable(dict(product)):
             raise HTTPException(400, f"Loja não habilitada para vendas: {product.get('store_name')}")
+        if not store_has_stripe(dict(product)):
+            raise HTTPException(400, f"Loja não aceita cartão (Stripe): {product.get('store_name')}")
 
         qty = int(item.get("quantity", 0))
         if qty < 1 or qty > int(product["stock"]):
@@ -94,9 +97,8 @@ async def create_checkout(
     pending_orders: list[str] = []
 
     for store_id, split in store_splits.items():
-        commission = split["commission_rate"]
-        platform_fee = int(split["amount_cents"] * commission)
-        store_receives = split["amount_cents"] - platform_fee
+        platform_fee = 0
+        store_receives = split["amount_cents"]
         order_row = (
             await session.execute(
                 text(
@@ -104,10 +106,10 @@ async def create_checkout(
                     INSERT INTO tcg_judge.shop_orders (
                       buyer_id, store_id, status, total_cents,
                       platform_fee_cents, store_receives_cents,
-                      shipping_address, stripe_transfer_group
+                      shipping_address, stripe_transfer_group, payment_method
                     ) VALUES (
                       :buyer, :store, 'pending', :total,
-                      :fee, :store_recv, :addr::jsonb, :tg
+                      :fee, :store_recv, :addr::jsonb, :tg, 'stripe'
                     )
                     RETURNING id
                     """

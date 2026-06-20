@@ -31,8 +31,9 @@ tiktoken>=0.8.0,<0.9.0
 # sentence-transformers>=2.7.0,<3.0.0   # RERANKER_PROVIDER=local
 # cohere>=5.0.0,<6.0.0                  # RERANKER_PROVIDER=cohere (recomendado no Render)
 
-# Billing
+# Billing / marketplace
 stripe>=11.0.0,<12.0.0
+qrcode[pil]>=7.4.0,<8.0.0
 
 # Dev
 pytest>=8.3.0,<9.0.0

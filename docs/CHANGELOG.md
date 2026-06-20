@@ -4,6 +4,18 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+### Added
+- Marketplace neutro: PIX direto como pagamento padrão (zero comissão)
+- Stripe Connect opcional para cartão
+- Assinatura Pro Loja via dashboard (R$ 49/mês)
+- Migration `20260620180000_marketplace_neutro_pix_pro.sql`
+- Documentação: [MARKETPLACE_NEUTRO.md](MARKETPLACE_NEUTRO.md)
+
+### Changed
+- Checkout: seleção PIX vs cartão; PIX é padrão
+- Dashboard lojista: aba **Pagamentos** (PIX + Stripe opcional + Pro)
+- Comissão sobre vendas removida (modelo assinatura)
+
 ## [1.7.0] — 2026-06-20 — Marketplace MVP
 
 ### Added

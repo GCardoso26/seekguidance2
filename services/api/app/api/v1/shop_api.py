@@ -6,7 +6,7 @@ from typing import Any
 
 from app.api.deps import DbSession
 from app.api.v1.tournament_system import _require_user
-from app.marketplace import shop_cart, shop_connect, shop_orders, shop_products
+from app.marketplace import shop_cart, shop_connect, shop_orders, shop_pix, shop_products
 from app.marketplace import shop_checkout as shop_checkout_svc
 from app.stores import store as store_svc
 from fastapi import APIRouter, Header, HTTPException
@@ -61,6 +61,20 @@ class ConnectOnboardBody(BaseModel):
     store_id: str | None = None
     refresh_url: str | None = None
     return_url: str | None = None
+
+
+class PaymentSettingsBody(BaseModel):
+    pix_key_type: str | None = None
+    pix_key: str | None = None
+    payment_method_preference: str | None = None
+
+
+class PixWebhookBody(BaseModel):
+    txid: str = Field(min_length=4)
+
+
+class StoreSubscribeBody(BaseModel):
+    plan: str = Field(default="pro", pattern="^(pro|enterprise)$")
 
 
 @router.get("/runtime/judge/marketplace/shop/products")
@@ -143,8 +157,10 @@ async def manage_store_products(
 
 @router.get("/runtime/judge/marketplace/shop/stores/slug/{slug}")
 async def get_shop_store(session: DbSession, slug: str) -> dict[str, Any]:
+    from app.marketplace.shop_store import store_is_sellable
+
     store = await store_svc.get_store_by_slug(session, slug)
-    if not store or not store.get("shop_enabled"):
+    if not store or not store_is_sellable(store):
         raise HTTPException(404, "Loja não encontrada")
     products = await shop_products.list_products(session, store_slug=slug, limit=48)
     return {"store": store, **products}
@@ -204,6 +220,63 @@ async def shop_checkout(
     return await shop_checkout_svc.create_checkout(
         session, user_id, shipping_address=body.shipping_address
     )
+
+
+@router.get("/runtime/judge/marketplace/shop/checkout/methods")
+async def checkout_methods(
+    session: DbSession,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    return await shop_pix.get_checkout_methods(session, user_id)
+
+
+@router.post("/runtime/judge/marketplace/shop/checkout/pix")
+async def checkout_pix(
+    session: DbSession,
+    body: CheckoutBody,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    return await shop_pix.create_pix_checkout(session, user_id, shipping_address=body.shipping_address)
+
+
+@router.post("/runtime/judge/marketplace/shop/pix/webhook")
+async def pix_webhook(session: DbSession, body: PixWebhookBody) -> dict[str, Any]:
+    return await shop_pix.confirm_pix_payment(session, body.txid)
+
+
+@router.put("/runtime/judge/marketplace/shop/stores/{store_id}/payment-settings")
+async def update_payment_settings(
+    session: DbSession,
+    store_id: str,
+    body: PaymentSettingsBody,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    store = await shop_pix.update_payment_settings(
+        session,
+        store_id,
+        user_id,
+        pix_key_type=body.pix_key_type,
+        pix_key=body.pix_key,
+        payment_method_preference=body.payment_method_preference,
+    )
+    return {"store": store}
+
+
+@router.post("/runtime/judge/marketplace/shop/stores/{store_id}/subscribe")
+async def subscribe_pro_store(
+    session: DbSession,
+    store_id: str,
+    body: StoreSubscribeBody,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    from app.stores.subscriptions import subscribe_store
+
+    user_id = _require_user(x_judge_user_id)
+    store = await subscribe_store(session, store_id, user_id, body.plan)
+    return {"store": store}
 
 
 @router.get("/runtime/judge/marketplace/shop/orders")

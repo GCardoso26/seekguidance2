@@ -8,6 +8,8 @@ from fastapi import HTTPException
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.marketplace.shop_store import STORE_SELLABLE_SQL, product_limit_for_plan
+
 PRODUCT_CATEGORIES = frozenset({"booster", "sleeve", "deck_box", "playmat", "accessory"})
 
 
@@ -37,7 +39,7 @@ async def list_products(
     page: int = 1,
     limit: int = 20,
 ) -> dict[str, Any]:
-    clauses = ["p.is_active = true", "s.shop_enabled = true"]
+    clauses = ["p.is_active = true", STORE_SELLABLE_SQL.strip()]
     params: dict[str, Any] = {"lim": limit, "off": max(0, (page - 1) * limit)}
     if tcg_id:
         clauses.append("p.tcg_id = :tcg")
@@ -98,7 +100,7 @@ async def get_product(session: AsyncSession, product_id: str) -> dict[str, Any] 
                        s.id AS store_id_ref
                 FROM tcg_judge.store_products p
                 JOIN tcg_judge.stores s ON s.id = p.store_id
-                WHERE p.id = :id AND p.is_active = true AND s.shop_enabled = true
+                WHERE p.id = :id AND p.is_active = true AND {STORE_SELLABLE_SQL.strip()}
                 """
             ),
             {"id": product_id},
@@ -122,7 +124,20 @@ async def create_product(
     sku: str | None = None,
     images: list[str] | None = None,
 ) -> dict[str, Any]:
-    await _assert_store_owner(session, store_id, owner_id)
+    store = await _assert_store_owner(session, store_id, owner_id)
+    limit = product_limit_for_plan(store.get("subscription_plan"))
+    if limit is not None:
+        count_row = (
+            await session.execute(
+                text("SELECT COUNT(*) AS c FROM tcg_judge.store_products WHERE store_id = :sid"),
+                {"sid": store_id},
+            )
+        ).mappings().first()
+        if count_row and int(count_row["c"]) >= limit:
+            raise HTTPException(
+                403,
+                f"Plano gratuito permite até {limit} produtos. Assine Pro Loja para ilimitado.",
+            )
     if category not in PRODUCT_CATEGORIES:
         raise HTTPException(400, "Categoria inválida")
     if price_cents <= 0:

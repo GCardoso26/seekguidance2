@@ -45,9 +45,9 @@ export function StripeConnectPanel({ storeId, store, loading, variant = "panel" 
     if (variant === "banner") return null;
     return (
       <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-6">
-        <h2 className="font-semibold text-emerald-200">Stripe conectado</h2>
+        <h2 className="font-semibold text-emerald-200">Stripe conectado (opcional)</h2>
         <p className="mt-2 text-sm text-luxury-mist">
-          Conta pronta para receber pagamentos (split 85% loja / 15% plataforma).
+          Aceita cartão via Stripe Connect. Pagamentos vão 100% para sua conta — sem comissão da plataforma.
         </p>
       </div>
     );
@@ -60,11 +60,11 @@ export function StripeConnectPanel({ storeId, store, loading, variant = "panel" 
 
   return (
     <div className={wrapperClass}>
-      <h2 className="font-semibold">{variant === "banner" ? "Configure pagamentos" : "Stripe Connect"}</h2>
+      <h2 className="font-semibold">{variant === "banner" ? "Configure pagamentos" : "Cartão (Stripe Connect — opcional)"}</h2>
       <p className="mt-2 text-sm text-luxury-mist">
         {hasAccount
-          ? "Continue o onboarding Stripe para publicar produtos e receber pagamentos."
-          : "Conecte sua conta Stripe para vender produtos no marketplace."}
+          ? "Continue o onboarding Stripe para aceitar cartão no checkout."
+          : "Opcional: aceite cartão além do PIX. Requer Stripe Connect ativo na plataforma."}
       </p>
       <button
         type="button"

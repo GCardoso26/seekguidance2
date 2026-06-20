@@ -80,7 +80,7 @@ async def start_connect_onboarding(
                 text(
                     """
                     UPDATE tcg_judge.stores
-                    SET stripe_account_id = :aid, shop_enabled = true, updated_at = NOW()
+                    SET stripe_account_id = :aid, updated_at = NOW()
                     WHERE id = :id
                     """
                 ),

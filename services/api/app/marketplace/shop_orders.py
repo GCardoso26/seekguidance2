@@ -155,8 +155,7 @@ async def handle_payment_intent_succeeded(session: AsyncSession, settings: Setti
             logger.warning("shop_transfer_skip", store_id=store_id)
             continue
 
-        commission = float(store.get("commission_rate") or 0.15)
-        transfer_amount = int(amount_cents * (1 - commission))
+        transfer_amount = int(amount_cents)
         if transfer_amount <= 0:
             continue
 
