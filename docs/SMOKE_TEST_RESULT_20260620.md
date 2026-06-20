@@ -1,77 +1,80 @@
-# Smoke Test Resultado — 2026-06-20
+# Smoke Test Resultado — 2026-06-20 (atualizado 18:16 BRT)
 
-## Status: ⏳ PENDENTE (manual)
+## Status: ⏳ PENDENTE — smoke test PIX manual (12 passos)
 
-O smoke test **completo (17 passos no browser)** ainda não foi executado por um humano.  
-As verificações abaixo foram feitas automaticamente pelo Cursor em **2026-06-20 ~15:35 BRT**.
-
-**Commit de referência:** `0d1da939` (main)
+**Commit de referência:** `3030b510` — marketplace neutro (PIX padrão, Stripe opcional)  
+**Modelo:** zero comissão · PIX direto · Pro R$ 49/mês
 
 ---
 
-## Etapa 1 — Secrets (não verificável via API)
+## Infra — verificação automatizada (20/06 18:16)
 
-Dashboards Render/Vercel/Stripe **não são acessíveis** daqui. Use o checklist em [SMOKE_TEST.md](SMOKE_TEST.md).
+| Check | Resultado |
+|-------|-----------|
+| Render `/v1/health` | ✅ 200 |
+| Vercel `/marketplace` | ✅ 200 |
+| Vercel `/store/dashboard?tab=pagamentos` | ✅ 200 (bundle `page-f1267deecc46bafe.js`) |
+| Vercel deploy `3030b510` | ✅ [run 27883905600](https://github.com/GCardoso26/seekguidance2/actions/runs/27883905600) |
+| Supabase migration PIX | ✅ `20260620180000_marketplace_neutro_pix_pro.sql` aplicada |
+| `GET /checkout/methods` sem auth | ✅ 401 (esperado) |
+| `POST /checkout/pix` sem auth | ✅ 401 (esperado) |
+| API Render com auth fake + carrinho vazio | ✅ 400 `"Carrinho vazio"` (rota PIX ativa) |
 
-### Indícios indiretos (API Render)
-
-| Variável | Indício | Conclusão |
-|----------|---------|-----------|
-| `STRIPE_SECRET_KEY` | `POST /marketplace/shop/checkout` → **400** `"Carrinho vazio"` (não 503) | ✅ Provavelmente configurada |
-| `STRIPE_WEBHOOK_SECRET` | Webhook exige assinatura | ⬜ Confirmar `whsec_` no Render = Dashboard test |
-| `MARKETPLACE_APP_URL` | — | ⬜ Verificar manualmente no Render |
-| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | — | ⬜ Verificar manualmente na Vercel |
-| `API_PROXY_TARGET` | BFF `/api/marketplace/shop/products` → 200 | ✅ Proxy OK |
-
----
-
-## Etapa 2 — Deploy e URLs
-
-| URL | HTTP | Observação |
-|-----|------|------------|
-| `https://judgetcg.com.br/marketplace` | 200 | OK |
-| `https://judgetcg.com.br/store/dashboard` | 200 | Página carrega (auth no client) |
-| `https://judgetcg.com.br/api/marketplace/shop/products` | 200 | BFF OK |
-| `https://judgetcg.com.br/api/stores/mine` | 401 | Esperado sem login |
-| `https://seekguidance.onrender.com/.../shop/products` | 200 | OK (~0,7s aquecido) |
-| `POST .../stripe/webhook` (sem assinatura) | 400 | `"Missing Stripe-Signature"` — endpoint ativo |
-
-**Vercel:** último deploy OK — workflow [27863588753](https://github.com/GCardoso26/seekguidance2/actions/runs/27863588753) (commit `428a7c65`, inclui CSP Stripe + `/stores/mine`).
-
-**Render:** API responde; **cold start** pode levar >45s na primeira requisição após idle.
-
-**Supabase:** `store_products` count = **0** (nenhum produto cadastrado ainda).
-
-**CI GitHub:** pytest de integração falha (401 em testes Stripe) — **não bloqueia** deploy produção.
+**Render:** Live. Cold start pode levar >45s após idle.
 
 ---
 
-## Etapa 3 — Checklist manual (17 passos)
+## Smoke test PIX — checklist manual (VOCÊ)
 
-| Bloco | Passos | Status |
-|-------|--------|--------|
-| Loja + Connect | 1–6 | ⬜ Pendente |
-| Produto + checkout | 7–12 | ⬜ Pendente |
-| Pagamento + verificação | 13–17 | ⬜ Pendente |
+Abra o browser e marque cada passo. **Não iniciar POS/estoque até todos ✅.**
 
-### Roteiro rápido
+| # | Passo | Esperado | Status | Observação |
+|---|-------|----------|--------|------------|
+| 1 | Login Google | Logado | ⬜ | |
+| 2 | `/store/dashboard?tab=pagamentos` | Aba **Pagamentos** | ⬜ | |
+| 3 | Salvar PIX (CPF + chave teste) | "PIX configurado!" | ⬜ | |
+| 4 | Aba Produtos → Novo | Formulário | ⬜ | |
+| 5 | Sleeves YGO, 2990 centavos, estoque 10, sleeve | Salvo | ⬜ | Preço = centavos |
+| 6 | `/marketplace` | Produto no grid | ⬜ | |
+| 7 | Outra conta → comprar | Checkout PIX | ⬜ | |
+| 8 | Gerar PIX | QR + copia e cola | ⬜ | |
+| 9 | Simular pagamento | — | ⬜ | Manual (sem gateway ainda) |
+| 10 | Lojista → Pedidos | Status `pending` | ⬜ | |
+| 11 | **Confirmar PIX** | Status `paid` | ⬜ | |
+| 12 | Aba Produtos | Estoque 9 | ⬜ | |
 
-1. Login → `/stores/create` → criar **Loja Teste**
-2. `/store/dashboard` → aba **Stripe** → Conectar (test mode)
-3. Aba **Produtos** → Sleeves YGO, **R$ 29,90** (= `2990` centavos no form), estoque 10, categoria `sleeve`
-4. `/marketplace` → comprar → cartão `4242 4242 4242 4242`
-5. Confirmar pedido `paid`, estoque 9, split ~85% no Stripe Dashboard
+### Se falhar
+
+1. F12 → Console + Network  
+2. Anotar passo + URL + status + `detail` do JSON  
+3. Enviar ao Cursor para debug
 
 ---
 
-## Etapa 4 — Resultado final
+## Resultado por bloco (preencher após teste)
 
-| Resultado | Quando |
-|-----------|--------|
-| ✅ PASSOU | Todos os 17 passos ✅ — atualizar este arquivo |
-| ❌ FALHOU | Anotar passo, erro do console/network, screenshot |
+| Bloco | Status | Observação |
+|-------|--------|------------|
+| 1–3 Config PIX | ⬜ | |
+| 4–6 Produto | ⬜ | |
+| 7–9 Checkout | ⬜ | |
+| 10–12 Confirmação + estoque | ⬜ | |
 
-**Stripe Live:** 🚫 **NÃO ATIVAR** até status ✅ PASSOU em test mode.
+---
+
+## Próximo (após ✅ PASSOU)
+
+- [ ] POS (`/pos`) — frente de caixa Pro
+- [ ] Estoque (`stock_movements`)
+- [ ] Webhook PIX automático (Mercado Pago / Pagar.me)
+
+## Bloqueios conhecidos
+
+| Item | Impacto |
+|------|---------|
+| Stripe Connect não ativado na plataforma | Só afeta **cartão** — PIX não depende |
+| Confirmação PIX manual | Lojista clica "Confirmar PIX" até integrar gateway |
+| Loja existente sem PIX | Configurar em Pagamentos antes de vender |
 
 ---
 
@@ -79,5 +82,6 @@ Dashboards Render/Vercel/Stripe **não são acessíveis** daqui. Use o checklist
 
 | Data/Hora | Executor | Resultado |
 |-----------|----------|-----------|
-| 2026-06-20 15:35 | Cursor (auto) | Infra OK; manual pendente |
-| | | |
+| 2026-06-20 15:35 | Cursor (auto) | Infra OK; smoke Stripe 17 passos pendente |
+| 2026-06-20 18:16 | Cursor (auto) | Infra OK pós-3030b510; smoke PIX 12 passos pendente |
+| | **Você (manual)** | ⬜ Preencher acima |
