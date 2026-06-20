@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
 import { useCreateStore } from "@/hooks/useCreateStore";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,6 +29,17 @@ export default function CreateStorePage() {
     email: "",
   });
 
+  const { data: myStores } = useQuery({
+    queryKey: ["my-stores"],
+    queryFn: async () => {
+      const res = await fetch("/api/stores/mine");
+      if (!res.ok) return [];
+      return res.json() as Promise<Array<{ id: string; name: string; slug: string }>>;
+    },
+  });
+
+  const existingStore = myStores?.[0];
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     createStore(formData);
@@ -40,6 +52,17 @@ export default function CreateStorePage() {
           ← Voltar para lojas
         </Link>
         <h1 className="mt-4 text-3xl font-bold">Cadastrar nova loja</h1>
+
+        {existingStore && (
+          <div className="mt-4 rounded-lg border border-luxury-gold/30 bg-luxury-gold/10 p-4 text-sm">
+            <p>
+              Você já tem a loja <strong>{existingStore.name}</strong> ({existingStore.slug}).
+            </p>
+            <Link href="/store/dashboard?tab=stripe" className="mt-2 inline-block text-luxury-gold underline">
+              Ir para o dashboard e conectar Stripe
+            </Link>
+          </div>
+        )}
 
         {error && (
           <p className="mt-4 rounded-lg border border-red-500/30 bg-red-950/40 p-4 text-sm text-red-300">
@@ -80,13 +103,19 @@ export default function CreateStorePage() {
                     id="slug"
                     required
                     value={formData.slug}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, slug: e.target.value }))}
-                    pattern="[a-z0-9-]+"
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""),
+                      }))
+                    }
+                    minLength={3}
+                    maxLength={50}
                     className="flex-1 border-white/10 bg-white/5"
                   />
                 </div>
+                <p className="mt-1 text-xs text-luxury-mist">Letras minúsculas, números e hífens (3–50 caracteres).</p>
               </div>
-
               <div>
                 <label htmlFor="description" className="mb-1 block text-sm text-luxury-frost/90">
                   Descrição

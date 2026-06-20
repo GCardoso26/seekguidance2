@@ -24,12 +24,19 @@ export function useCreateStore() {
       });
       if (!res.ok) {
         const error = await res.json().catch(() => ({}));
-        throw new Error(String(error.detail ?? error.message ?? "Falha ao criar loja"));
+        const detail = error.detail;
+        const message =
+          typeof detail === "string"
+            ? detail
+            : Array.isArray(detail)
+              ? detail.map((d: { msg?: string }) => d.msg).filter(Boolean).join("; ") || "Falha ao criar loja"
+              : String(error.message ?? "Falha ao criar loja");
+        throw new Error(message);
       }
       return res.json() as Promise<{ slug: string }>;
     },
     onSuccess: () => {
-      router.push("/store/dashboard");
+      router.push("/store/dashboard?tab=stripe");
     },
   });
 }

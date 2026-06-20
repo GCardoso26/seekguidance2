@@ -7,6 +7,7 @@ from typing import Any
 
 from fastapi import HTTPException
 from sqlalchemy import text
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.players.store import ensure_player_profile
@@ -59,28 +60,40 @@ async def create_store(
     slug = slug.lower().strip()
     if not SLUG_RE.match(slug):
         raise HTTPException(400, "Slug inválido")
-    await ensure_player_profile(session, owner_id)
-    row = (
+    existing = (
         await session.execute(
-            text(
-                """
-                INSERT INTO tcg_judge.stores (owner_id, name, slug, description, email, city, country)
-                VALUES (:oid, :name, :slug, :desc, :email, :city, :country)
-                RETURNING *
-                """
-            ),
-            {
-                "oid": owner_id,
-                "name": name,
-                "slug": slug,
-                "desc": description,
-                "email": email,
-                "city": city,
-                "country": country,
-            },
+            text("SELECT id FROM tcg_judge.stores WHERE LOWER(slug) = LOWER(:slug)"),
+            {"slug": slug},
         )
     ).mappings().first()
-    await session.commit()
+    if existing:
+        raise HTTPException(409, "Este slug já está em uso. Escolha outro.")
+    await ensure_player_profile(session, owner_id)
+    try:
+        row = (
+            await session.execute(
+                text(
+                    """
+                    INSERT INTO tcg_judge.stores (owner_id, name, slug, description, email, city, country)
+                    VALUES (:oid, :name, :slug, :desc, :email, :city, :country)
+                    RETURNING *
+                    """
+                ),
+                {
+                    "oid": owner_id,
+                    "name": name,
+                    "slug": slug,
+                    "desc": description,
+                    "email": email,
+                    "city": city,
+                    "country": country,
+                },
+            )
+        ).mappings().first()
+        await session.commit()
+    except IntegrityError as exc:
+        await session.rollback()
+        raise HTTPException(409, "Este slug já está em uso. Escolha outro.") from exc
     return _serialize_store(dict(row) if row else {})
 
 
