@@ -28,8 +28,8 @@ export function useCreateStore() {
       }
       return res.json() as Promise<{ slug: string }>;
     },
-    onSuccess: (data) => {
-      router.push(`/stores/${data.slug}`);
+    onSuccess: () => {
+      router.push("/store/dashboard");
     },
   });
 }

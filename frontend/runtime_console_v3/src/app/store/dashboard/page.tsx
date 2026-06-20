@@ -17,7 +17,7 @@ function DashboardContent() {
   const { data: storesData } = useQuery({
     queryKey: ["my-stores"],
     queryFn: async () => {
-      const res = await fetch("/api/stores");
+      const res = await fetch("/api/stores/mine");
       if (!res.ok) return [];
       return res.json() as Promise<Array<Record<string, unknown>>>;
     },
@@ -71,11 +71,15 @@ function DashboardContent() {
 
   async function createProduct(values: ProductFormValues) {
     if (!storeId) return;
-    await fetch(`/api/marketplace/shop/stores/${encodeURIComponent(storeId)}`, {
+    const res = await fetch(`/api/marketplace/shop/stores/${encodeURIComponent(storeId)}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(values),
     });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(String(err.detail ?? "Falha ao salvar produto"));
+    }
     await refetchProducts();
     await refetchDashboard();
   }

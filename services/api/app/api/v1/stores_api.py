@@ -56,6 +56,15 @@ async def create_store(
     )
 
 
+@router.get("/runtime/judge/stores/mine")
+async def my_stores(
+    session: DbSession,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> list[dict[str, Any]]:
+    user_id = _require_user(x_judge_user_id)
+    return await store_svc.list_owner_stores(session, user_id)
+
+
 @router.get("/runtime/judge/stores")
 async def list_stores(
     session: DbSession,

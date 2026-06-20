@@ -27,6 +27,49 @@ PLAN_FEATURES: dict[str, list[str]] = {
 COMMISSION_BY_PLAN = {"free": 10, "pro": 7, "enterprise": 5}
 
 
+async def ensure_player_profile(session: AsyncSession, user_id: str) -> None:
+    """Garante player_profiles + judge_profiles para FKs de loja/carrinho/pedidos."""
+    if await get_profile_by_id(session, user_id):
+        return
+    await ensure_judge_profile(session, user_id)
+    handle = f"u{user_id.replace('-', '')[:28]}"
+    await session.execute(
+        text(
+            """
+            INSERT INTO tcg_judge.player_profiles (id, handle, display_name)
+            VALUES (:id, :handle, :name)
+            ON CONFLICT (id) DO NOTHING
+            """
+        ),
+        {"id": user_id, "handle": handle[:30], "name": "Jogador"},
+    )
+    await session.execute(
+        text(
+            """
+            INSERT INTO tcg_judge.notification_preferences (player_id)
+            VALUES (:id) ON CONFLICT (player_id) DO NOTHING
+            """
+        ),
+        {"id": user_id},
+    )
+
+
+async def list_owner_stores(session: AsyncSession, owner_id: str) -> list[dict[str, Any]]:
+    rows = (
+        await session.execute(
+            text(
+                """
+                SELECT * FROM tcg_judge.stores
+                WHERE owner_id = :oid
+                ORDER BY created_at DESC
+                """
+            ),
+            {"oid": owner_id},
+        )
+    ).mappings().all()
+    return [_serialize_store(dict(r)) for r in rows]
+
+
 async def create_store(
     session: AsyncSession,
     owner_id: str,
@@ -41,6 +84,7 @@ async def create_store(
     slug = slug.lower().strip()
     if not SLUG_RE.match(slug):
         raise HTTPException(400, "Slug inválido")
+    await ensure_player_profile(session, owner_id)
     row = (
         await session.execute(
             text(

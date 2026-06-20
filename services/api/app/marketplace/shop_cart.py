@@ -11,6 +11,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 
 async def get_cart(session: AsyncSession, user_id: str) -> dict[str, Any]:
+    from app.players.store import ensure_player_profile
+
+    await ensure_player_profile(session, user_id)
     row = (
         await session.execute(
             text("SELECT * FROM tcg_judge.shopping_carts WHERE user_id = :uid"),
