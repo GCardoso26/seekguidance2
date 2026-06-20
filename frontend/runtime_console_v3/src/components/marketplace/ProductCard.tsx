@@ -32,7 +32,11 @@ export function ProductCard({ product, onAdd }: Props) {
         <p className="font-mono text-lg text-luxury-gold">{formatShopPrice(product.price_cents)}</p>
         <button
           type="button"
-          onClick={() => onAdd?.(product.id)}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onAdd?.(product.id);
+          }}
           className="mt-auto rounded-lg bg-luxury-gold px-3 py-2 text-sm font-semibold text-luxury-onyx"
         >
           Adicionar

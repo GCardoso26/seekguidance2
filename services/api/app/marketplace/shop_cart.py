@@ -6,8 +6,22 @@ import json
 from typing import Any
 
 from fastapi import HTTPException
-from sqlalchemy import text
+from sqlalchemy import bindparam, text
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.marketplace.shop_store import STORE_SELLABLE_SQL
+
+
+def _parse_cart_items(raw: Any) -> list[dict[str, Any]]:
+    if raw is None:
+        return []
+    if isinstance(raw, str):
+        parsed = json.loads(raw)
+        return parsed if isinstance(parsed, list) else []
+    if isinstance(raw, list):
+        return list(raw)
+    return []
 
 
 async def get_cart(session: AsyncSession, user_id: str) -> dict[str, Any]:
@@ -39,17 +53,18 @@ async def get_cart(session: AsyncSession, user_id: str) -> dict[str, Any]:
 
 async def _save_cart(session: AsyncSession, cart_id: str, items: list[dict[str, Any]]) -> dict[str, Any]:
     total = sum(int(i.get("price_cents", 0)) * int(i.get("quantity", 0)) for i in items)
+    stmt = text(
+        """
+        UPDATE tcg_judge.shopping_carts
+        SET items = :items, total_cents = :total, updated_at = NOW()
+        WHERE id = :id
+        RETURNING *
+        """
+    ).bindparams(bindparam("items", type_=JSONB))
     row = (
         await session.execute(
-            text(
-                """
-                UPDATE tcg_judge.shopping_carts
-                SET items = :items::jsonb, total_cents = :total, updated_at = NOW()
-                WHERE id = :id
-                RETURNING *
-                """
-            ),
-            {"id": cart_id, "items": json.dumps(items), "total": total},
+            stmt,
+            {"id": cart_id, "items": items, "total": total},
         )
     ).mappings().first()
     await session.commit()
@@ -68,23 +83,23 @@ async def add_to_cart(
     product = (
         await session.execute(
             text(
-                """
-                SELECT p.*, s.shop_enabled
+                f"""
+                SELECT p.*, s.shop_enabled, s.pix_key, s.stripe_account_id, s.stripe_onboarding_complete
                 FROM tcg_judge.store_products p
                 JOIN tcg_judge.stores s ON s.id = p.store_id
-                WHERE p.id = :id AND p.is_active = true
+                WHERE p.id = :id AND p.is_active = true AND {STORE_SELLABLE_SQL.strip()}
                 """
             ),
             {"id": product_id},
         )
     ).mappings().first()
-    if not product or not product["shop_enabled"]:
+    if not product:
         raise HTTPException(404, "Produto não encontrado")
     if int(product["stock"]) < quantity:
         raise HTTPException(400, "Estoque insuficiente")
 
     cart = await get_cart(session, user_id)
-    items: list[dict[str, Any]] = list(cart.get("items") or [])
+    items = _parse_cart_items(cart.get("items"))
     images = product.get("images") or []
     image = images[0] if images else None
 
@@ -117,7 +132,7 @@ async def update_cart_item(
     session: AsyncSession, user_id: str, product_id: str, quantity: int
 ) -> dict[str, Any]:
     cart = await get_cart(session, user_id)
-    items: list[dict[str, Any]] = list(cart.get("items") or [])
+    items = _parse_cart_items(cart.get("items"))
 
     if quantity <= 0:
         items = [i for i in items if i.get("product_id") != product_id]

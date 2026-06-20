@@ -38,3 +38,34 @@ export type ShopCart = {
   items: ShopCartItem[];
   total_cents: number;
 };
+
+export async function addProductToCart(
+  productId: string,
+  quantity = 1,
+): Promise<{ ok: true } | { ok: false; status: number; message: string; needsLogin?: boolean }> {
+  const res = await fetch("/api/marketplace/shop/cart", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ product_id: productId, quantity }),
+  });
+
+  if (res.ok) {
+    return { ok: true };
+  }
+
+  const data = (await res.json().catch(() => ({}))) as { detail?: string | Array<{ msg?: string }> };
+  const detail = data.detail;
+  const message =
+    typeof detail === "string"
+      ? detail
+      : Array.isArray(detail)
+        ? detail.map((d) => d.msg).filter(Boolean).join("; ") || "Não foi possível adicionar ao carrinho"
+        : "Não foi possível adicionar ao carrinho";
+
+  return {
+    ok: false,
+    status: res.status,
+    message,
+    needsLogin: res.status === 401,
+  };
+}

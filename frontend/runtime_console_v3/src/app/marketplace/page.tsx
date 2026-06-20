@@ -7,6 +7,8 @@ import { DecklistCard } from "@/components/marketplace/DecklistCard";
 import { ProductGrid } from "@/components/marketplace/ProductGrid";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import type { ShopProduct } from "@/lib/marketplace-shop";
+import { addProductToCart } from "@/lib/marketplace-shop";
+import { showToast } from "@/lib/toast";
 
 export default function MarketplacePage() {
   const [tab, setTab] = useState<"shop" | "decklists">("shop");
@@ -41,15 +43,19 @@ export default function MarketplacePage() {
   });
 
   async function addToCart(productId: string) {
-    const res = await fetch("/api/marketplace/shop/cart", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ product_id: productId, quantity: 1 }),
-    });
-    if (res.ok) {
+    const result = await addProductToCart(productId);
+    if (result.ok) {
       await queryClient.invalidateQueries({ queryKey: ["shop-cart"] });
+      showToast("Produto adicionado ao carrinho", "success");
       window.location.href = "/marketplace/cart";
+      return;
     }
+    if (result.needsLogin) {
+      showToast("Faça login para adicionar ao carrinho", "error");
+      window.location.href = `/login?next=${encodeURIComponent("/marketplace")}`;
+      return;
+    }
+    showToast(result.message, "error");
   }
 
   return (

@@ -5,7 +5,8 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { MobileLayout } from "@/components/layout/MobileLayout";
-import { formatShopPrice, type ShopProduct } from "@/lib/marketplace-shop";
+import { formatShopPrice, addProductToCart, type ShopProduct } from "@/lib/marketplace-shop";
+import { showToast } from "@/lib/toast";
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -27,15 +28,18 @@ export default function ProductDetailPage() {
 
   async function buyNow() {
     if (!product) return;
-    const res = await fetch("/api/marketplace/shop/cart", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ product_id: product.id, quantity: 1 }),
-    });
-    if (res.ok) {
+    const result = await addProductToCart(product.id);
+    if (result.ok) {
       await queryClient.invalidateQueries({ queryKey: ["shop-cart"] });
       window.location.href = "/marketplace/checkout";
+      return;
     }
+    if (result.needsLogin) {
+      showToast("Faça login para comprar", "error");
+      window.location.href = `/login?next=${encodeURIComponent(`/marketplace/product/${product.id}`)}`;
+      return;
+    }
+    showToast(result.message, "error");
   }
 
   return (
