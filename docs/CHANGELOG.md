@@ -4,6 +4,41 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+## [1.7.0] — 2026-06-20 — Marketplace MVP
+
+### Added
+- Lojas com Stripe Connect Express (`/store/onboarding`, `/store/dashboard`)
+- Produtos físicos: `store_products`, carrinho, checkout PaymentIntent
+- Split payment 85% loja / 15% plataforma (`commission_rate` por loja)
+- Grid marketplace com abas **Produtos** + **Decklists** (decklists preservadas)
+- Migration `20260619160000_marketplace_shop_mvp.sql`
+- Documentação: [MARKETPLACE.md](MARKETPLACE.md)
+
+### Fixed
+- CI monorepo: `npm ci` na raiz para frontend/mobile workspaces
+- Ruff lint (API) — CI verde
+
+## [1.6.0] — 2026-06-19 — Mobile App
+
+### Added
+- Expo WebView híbrido (tabs judge, social, torneios, perfil)
+- Push Expo + migration `user_push_tokens`
+- App mobile inline no monorepo (sem submodule)
+
+## [1.5.0] — 2026-06-06 — Bracket + Analytics
+
+### Added
+- Bracket real (top cut), PWA, analytics admin
+- OG dinâmico, sitemap
+
+## [1.4.0] — Monetização
+
+- Paywall Free/Pro, Stripe checkout, badges, leaderboard
+
+---
+
+## Histórico anterior
+
 ### Added
 - Sprint Final: docs `SECURITY.md`, `RUNBOOK.md`, `CHANGELOG.md`, contexto v5
 - Migration `20260607120000_production_performance.sql` (índices + `leaderboard_cache`)

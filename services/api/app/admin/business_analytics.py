@@ -12,7 +12,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 async def business_analytics(session: AsyncSession, *, period: str = "30d") -> dict[str, Any]:
     days = 7 if period == "7d" else 90 if period == "90d" else 30
     since = datetime.now(UTC) - timedelta(days=days)
-    since_day = since.date()
 
     dau = (
         await session.execute(

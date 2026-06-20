@@ -120,7 +120,7 @@ async def update_profile(session: AsyncSession, user_id: str, fields: dict[str, 
             continue
         if k == "favorite_tcgs":
             sets.append("favorite_tcgs = :favorite_tcgs")
-            params["favorite_tcgs"] = [str(x) for x in v] if isinstance(v, (list, tuple)) else [str(v)]
+            params["favorite_tcgs"] = [str(x) for x in v] if isinstance(v, list | tuple) else [str(v)]
             uses_tcgs_array = True
         elif k == "birth_date":
             sets.append("birth_date = :birth_date")

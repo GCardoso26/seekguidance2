@@ -9,33 +9,33 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.tournament.engine.bracket import BracketEngine
-from app.tournament.engine.swiss import SwissEngine
 from app.tournament.engine.prizes import calculate_prizes
+from app.tournament.engine.swiss import SwissEngine
 from app.tournament.engine.tiebreakers import apply_match_result, recalculate_tiebreakers, sort_standings
 from app.tournament.store import (
     activate_round,
     check_in_all_registered,
+    complete_bracket,
     complete_round,
     confirm_pairing_result,
     create_round,
+    get_active_bracket,
     get_pairing,
     get_round,
     get_tournament,
     insert_pairings,
+    list_bracket_matches,
     list_pairings_for_round,
     list_pairings_for_tournament,
     list_participants,
+    load_bracket_state,
+    persist_bracket_matches,
     register_participant,
     report_pairing_result,
     resolve_swiss_rounds,
     save_bracket,
     save_participant_stats,
     update_tournament_status,
-    get_active_bracket,
-    list_bracket_matches,
-    load_bracket_state,
-    persist_bracket_matches,
-    complete_bracket,
 )
 from app.tournament.timer import RoundTimer
 from app.tournament.types import PairingRecord

@@ -192,7 +192,7 @@ async def create_my_profile(
     if existing:
         raise HTTPException(400, "Perfil já existe")
     try:
-        prof = await player_store.create_profile(
+        await player_store.create_profile(
             session,
             user_id,
             handle=body.handle,
