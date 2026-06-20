@@ -9,6 +9,8 @@ from fastapi import HTTPException
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.players.store import ensure_player_profile
+
 SLUG_RE = re.compile(r"^[a-z0-9-]{3,50}$")
 
 PLAN_FEATURES: dict[str, list[str]] = {
@@ -25,33 +27,6 @@ PLAN_FEATURES: dict[str, list[str]] = {
 }
 
 COMMISSION_BY_PLAN = {"free": 10, "pro": 7, "enterprise": 5}
-
-
-async def ensure_player_profile(session: AsyncSession, user_id: str) -> None:
-    """Garante player_profiles + judge_profiles para FKs de loja/carrinho/pedidos."""
-    if await get_profile_by_id(session, user_id):
-        return
-    await ensure_judge_profile(session, user_id)
-    handle = f"u{user_id.replace('-', '')[:28]}"
-    await session.execute(
-        text(
-            """
-            INSERT INTO tcg_judge.player_profiles (id, handle, display_name)
-            VALUES (:id, :handle, :name)
-            ON CONFLICT (id) DO NOTHING
-            """
-        ),
-        {"id": user_id, "handle": handle[:30], "name": "Jogador"},
-    )
-    await session.execute(
-        text(
-            """
-            INSERT INTO tcg_judge.notification_preferences (player_id)
-            VALUES (:id) ON CONFLICT (player_id) DO NOTHING
-            """
-        ),
-        {"id": user_id},
-    )
 
 
 async def list_owner_stores(session: AsyncSession, owner_id: str) -> list[dict[str, Any]]:

@@ -29,21 +29,48 @@ async def ensure_judge_profile(session: AsyncSession, user_id: str) -> None:
     )
 
 
-async def get_profile_by_handle(session: AsyncSession, handle: str) -> dict[str, Any] | None:
-    row = (
-        await session.execute(
-            text("SELECT * FROM tcg_judge.player_profiles WHERE LOWER(handle) = LOWER(:h)"),
-            {"h": handle},
-        )
-    ).mappings().first()
-    return dict(row) if row else None
-
-
 async def get_profile_by_id(session: AsyncSession, player_id: str) -> dict[str, Any] | None:
     row = (
         await session.execute(
             text("SELECT * FROM tcg_judge.player_profiles WHERE id = :id"),
             {"id": player_id},
+        )
+    ).mappings().first()
+    return dict(row) if row else None
+
+
+async def ensure_player_profile(session: AsyncSession, user_id: str) -> None:
+    """Garante player_profiles + judge_profiles para FKs de loja/carrinho/pedidos."""
+    if await get_profile_by_id(session, user_id):
+        return
+    await ensure_judge_profile(session, user_id)
+    handle = f"u{user_id.replace('-', '')[:28]}"
+    await session.execute(
+        text(
+            """
+            INSERT INTO tcg_judge.player_profiles (id, handle, display_name)
+            VALUES (:id, :handle, :name)
+            ON CONFLICT (id) DO NOTHING
+            """
+        ),
+        {"id": user_id, "handle": handle[:30], "name": "Jogador"},
+    )
+    await session.execute(
+        text(
+            """
+            INSERT INTO tcg_judge.notification_preferences (player_id)
+            VALUES (:id) ON CONFLICT (player_id) DO NOTHING
+            """
+        ),
+        {"id": user_id},
+    )
+
+
+async def get_profile_by_handle(session: AsyncSession, handle: str) -> dict[str, Any] | None:
+    row = (
+        await session.execute(
+            text("SELECT * FROM tcg_judge.player_profiles WHERE LOWER(handle) = LOWER(:h)"),
+            {"h": handle},
         )
     ).mappings().first()
     return dict(row) if row else None
