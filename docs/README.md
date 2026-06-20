@@ -41,7 +41,7 @@ Ver também [DEPLOY_CHECKLIST.md](DEPLOY_CHECKLIST.md) para smoke tests pós-dep
 
 ### Marketplace (v1.7)
 
-Ver [MARKETPLACE.md](MARKETPLACE.md) — env vars, webhook, smoke test E2E, decisões de arquitetura.
+Ver [MARKETPLACE.md](MARKETPLACE.md) e checklist completo em [SMOKE_TEST.md](SMOKE_TEST.md).
 
 ## Worker (ranking decay)
 

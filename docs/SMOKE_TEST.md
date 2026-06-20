@@ -117,5 +117,5 @@ Ver [MARKETPLACE.md](MARKETPLACE.md) seção "Stripe Live".
 
 | Data | Executor | Resultado | Notas |
 |------|----------|-----------|-------|
+| 2026-06-20 | Cursor (automático) | ⏳ Parcial | Ver [SMOKE_TEST_RESULT_20260620.md](SMOKE_TEST_RESULT_20260620.md) |
 | 2026-06-20 | Cursor (automático) | Parcial | Infra OK; E2E browser pendente secrets + redeploy pós-fix |
-| | | | |
