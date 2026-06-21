@@ -38,7 +38,7 @@ export default function OrderReviewPage() {
 
   const order = data?.order;
   const existing = data?.review;
-  const editable = canEditReview(existing);
+  const editable = canEditReview(existing ?? null);
 
   return (
     <MobileLayout>
