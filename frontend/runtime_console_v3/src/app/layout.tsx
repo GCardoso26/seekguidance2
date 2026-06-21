@@ -28,10 +28,21 @@ const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://judgetcg.com.br";
 
 export const metadata: Metadata = {
   metadataBase: new URL(appUrl),
-  title: "Judge TCG",
-  description: "Plataforma de torneios TCG",
+  title: {
+    template: "%s | Judge TCG",
+    default: "Judge TCG — Marketplace de Cartas TCG com 0% Comissão",
+  },
+  description:
+    "Compre e venda cartas de Magic, Pokémon, Yu-Gi-Oh!, Lorcana e mais. Zero comissão, PIX direto, torneios e juízes certificados.",
+  keywords: ["tcg", "cartas", "magic", "pokemon", "yugioh", "lorcana", "marketplace", "colecionáveis"],
   manifest: "/manifest.json",
   appleWebApp: { capable: true, title: "Judge TCG" },
+  openGraph: {
+    title: "Judge TCG — Marketplace de Cartas TCG",
+    description: "Zero comissão. PIX direto. Torneios e juízes certificados.",
+    images: ["/og-image.jpg"],
+  },
+  twitter: { card: "summary_large_image" },
 };
 
 

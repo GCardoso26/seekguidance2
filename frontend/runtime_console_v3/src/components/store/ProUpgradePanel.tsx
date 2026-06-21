@@ -1,6 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
+import { ProCheckout } from "@/components/store/ProCheckout";
+import { ProBadge } from "@/components/store/ProBadge";
 
 const PRO_FEATURES = [
   "Produtos ilimitados no marketplace",
@@ -24,7 +27,10 @@ export function ProUpgradePanel({ storeId, plan, onSubscribed }: Props) {
   if (current === "pro" || current === "enterprise") {
     return (
       <div className="rounded-xl border border-luxury-gold/30 bg-luxury-gold/10 p-6">
-        <h2 className="font-semibold">Plano {current === "enterprise" ? "Enterprise" : "Pro Loja"}</h2>
+        <div className="flex items-center gap-2">
+          <h2 className="font-semibold">Plano {current === "enterprise" ? "Enterprise" : "Pro Loja"}</h2>
+          <ProBadge plan={current} />
+        </div>
         <p className="mt-2 text-sm text-luxury-mist">Assinatura ativa. Obrigado por apoiar a Judge TCG!</p>
       </div>
     );
@@ -59,22 +65,20 @@ export function ProUpgradePanel({ storeId, plan, onSubscribed }: Props) {
         ))}
       </ul>
       <div className="mt-4 flex flex-wrap gap-2">
+        <Link href="/store/pro" className="rounded-lg bg-luxury-gold px-4 py-2 font-semibold text-luxury-onyx">
+          Ver planos Pro
+        </Link>
         <button
           type="button"
           disabled={loading}
           onClick={() => void subscribe("pro")}
-          className="rounded-lg bg-luxury-gold px-4 py-2 font-semibold text-luxury-onyx disabled:opacity-50"
-        >
-          Assinar Pro
-        </button>
-        <button
-          type="button"
-          disabled={loading}
-          onClick={() => void subscribe("enterprise")}
           className="rounded-lg border border-white/20 px-4 py-2 text-sm disabled:opacity-50"
         >
-          Enterprise (R$ 199/mês)
+          Ativar dev (sem pagamento)
         </button>
+      </div>
+      <div className="mt-6 border-t border-white/10 pt-6">
+        <ProCheckout storeId={storeId} onSuccess={onSubscribed} />
       </div>
       {error && <p className="mt-3 text-sm text-red-300">{error}</p>}
     </div>

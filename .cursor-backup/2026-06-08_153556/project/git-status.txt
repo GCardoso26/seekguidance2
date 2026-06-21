@@ -1,0 +1,72 @@
+ M .github/workflows/vercel-deploy-hook.yml
+ ? apps/mobile
+ M cursor-context-judge-tcg-v3.md
+ M cursor-context-judge-tcg-v4.md
+ M cursor-context-judge-tcg-v5.md
+ M docs/CHANGELOG.md
+ M docs/RUNBOOK.md
+ M docs/SECURITY.md
+ M frontend/runtime_console_v3/src/app/api/judge/calls/[callId]/[action]/route.ts
+ M frontend/runtime_console_v3/src/app/api/judge/calls/route.ts
+ M frontend/runtime_console_v3/src/app/api/judge/certifications/me/route.ts
+ M frontend/runtime_console_v3/src/app/api/marketplace/decklists/[id]/route.ts
+ M frontend/runtime_console_v3/src/app/api/players/me/route.ts
+ M frontend/runtime_console_v3/src/app/api/social/friends/pending/route.ts
+ M frontend/runtime_console_v3/src/app/api/stores/route.ts
+ M frontend/runtime_console_v3/src/app/marketplace/[id]/page.tsx
+ M frontend/runtime_console_v3/src/app/player/me/page.tsx
+ M frontend/runtime_console_v3/src/app/social/communities/page.tsx
+ M frontend/runtime_console_v3/src/app/social/friends/page.tsx
+ M frontend/runtime_console_v3/src/app/stores/create/page.tsx
+ M frontend/runtime_console_v3/src/app/stores/page.tsx
+ M frontend/runtime_console_v3/src/components/SentryInit.tsx
+ M frontend/runtime_console_v3/src/components/judge/JudgeStats.tsx
+ M frontend/runtime_console_v3/src/components/notifications/NotificationPreferences.tsx
+ M frontend/runtime_console_v3/src/components/player/AvatarUpload.tsx
+ M frontend/runtime_console_v3/src/components/social/FriendCard.tsx
+ M frontend/runtime_console_v3/src/hooks/useAcceptCall.ts
+ M frontend/runtime_console_v3/src/hooks/useCommunities.ts
+ M frontend/runtime_console_v3/src/hooks/useCreateStore.ts
+ M frontend/runtime_console_v3/src/hooks/useDecklistDetail.ts
+ M frontend/runtime_console_v3/src/hooks/useFriends.ts
+ M frontend/runtime_console_v3/src/hooks/useJudgeCalls.ts
+ M frontend/runtime_console_v3/src/hooks/useJudgeCertification.ts
+ M frontend/runtime_console_v3/src/hooks/useResolveCall.ts
+ M frontend/runtime_console_v3/src/hooks/useStores.ts
+ M frontend/runtime_console_v3/src/hooks/useUpdateProfile.ts
+ M frontend/runtime_console_v3/src/lib/auth/oauth-redirect.ts
+ M frontend/runtime_console_v3/src/lib/sentry.ts
+ M frontend/runtime_console_v3/src/types/community.ts
+ M frontend/runtime_console_v3/src/types/judge-calls.ts
+ M frontend/runtime_console_v3/src/types/marketplace.ts
+ M frontend/runtime_console_v3/src/types/store.ts
+ M frontend/runtime_console_v3/tests/auth/oauth-redirect.test.ts
+ M services/api/app/api/v1/judge_calls_api.py
+ M services/api/app/config/production.py
+ M services/api/app/config/sentry.py
+ M services/api/app/judge/calls_store.py
+ M services/api/app/judge/fair_play.py
+ M services/api/app/judge/models.py
+ M services/api/tests/platform/__init__.py
+ M services/api/tests/platform/conftest.py
+ M services/api/tests/platform/e2e/__init__.py
+ M services/api/tests/platform/e2e/test_tournament_flow.py
+ M services/api/tests/platform/integration/test_judge_integration.py
+ M services/api/tests/platform/test_judge_calls.py
+ M services/api/tests/platform/test_marketplace.py
+ M services/api/tests/platform/test_players.py
+ M services/api/tests/platform/test_public_api.py
+ M services/api/tests/platform/test_social.py
+ M services/api/tests/platform/test_stores.py
+ M services/api/tests/platform/test_tcg_adapters.py
+ M services/api/tests/platform/test_tournament_engine.py
+ M supabase/migrations/20260607000000_judge_system.sql
+ M supabase/migrations/20260607120000_production_performance.sql
+?? .cursor-backup/
+?? Documentacao_Tecnica_LigaSegura.pdf
+?? cursor-context-judge-tcg-REAL.pdf
+?? cursor-context-judge-tcg-v2.pdf
+?? cursor-context-judge-tcg.pdf
+?? frontend/runtime_console_v3/tsconfig.tsbuildinfo
+?? logs_72799432219.zip
+?? table-1780635063556.csv

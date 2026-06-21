@@ -5,7 +5,8 @@ import { useEffect, useState } from "react";
 import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import { MobileLayout } from "@/components/layout/MobileLayout";
-import { PixCheckoutPanel } from "@/components/marketplace/PixCheckoutPanel";
+import { EnhancedPixCheckoutPanel } from "@/components/checkout/EnhancedPixCheckoutPanel";
+import { CouponApply } from "@/components/checkout/CouponApply";
 import { formatShopPrice } from "@/lib/marketplace-shop";
 
 const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? "";
@@ -15,6 +16,7 @@ type Methods = {
   total_cents: number;
   methods: { pix: boolean; stripe: boolean };
   default_method: "pix" | "stripe";
+  stores?: Array<{ store_id: string; store_name: string }>;
 };
 
 type PixData = {
@@ -22,6 +24,9 @@ type PixData = {
   copy_payload: string;
   qr_code: string | null;
   amount_cents: number;
+  subtotal_cents?: number;
+  discount_cents?: number;
+  coupon_code?: string | null;
   expires_at: string;
   pix_key: string;
   store_name: string;
@@ -67,7 +72,10 @@ export default function CheckoutPage() {
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [totalCents, setTotalCents] = useState(0);
   const [initError, setInitError] = useState<string | null>(null);
+  const [discountCents, setDiscountCents] = useState(0);
+  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; storeId: string } | null>(null);
   const [loading, setLoading] = useState(true);
+  const [pixLoading, setPixLoading] = useState(false);
 
   useEffect(() => {
     async function loadMethods() {
@@ -87,23 +95,29 @@ export default function CheckoutPage() {
     void loadMethods();
   }, []);
 
-  async function startPix() {
-    setLoading(true);
+  async function startPix(coupon?: { code: string; storeId: string } | null) {
+    setPixLoading(true);
     setInitError(null);
+    const activeCoupon = coupon ?? appliedCoupon;
     const res = await fetch("/api/marketplace/shop/checkout/pix", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({}),
+      body: JSON.stringify({
+        coupon_code: activeCoupon?.code ?? null,
+        store_id: activeCoupon?.storeId ?? null,
+      }),
     });
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
       setInitError(String(body.detail ?? "Erro ao gerar PIX"));
-      setLoading(false);
+      setPixLoading(false);
       return;
     }
     const data = await res.json();
     setPixData(data.pix as PixData);
-    setLoading(false);
+    if (typeof data.discount_cents === "number") setDiscountCents(data.discount_cents);
+    if (typeof data.total_cents === "number") setTotalCents(data.total_cents);
+    setPixLoading(false);
   }
 
   async function startStripe() {
@@ -132,10 +146,29 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     if (!methods || pixData || clientSecret) return;
-    if (method === "pix" && methods.methods.pix) void startPix();
     if (method === "stripe" && methods.methods.stripe) void startStripe();
+    // PIX exige clique explícito (permite aplicar cupom antes)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [method, methods]);
+
+  function handleCouponApplied(discount: number, code: string) {
+    setDiscountCents(discount);
+    const storeId = methods?.stores?.[0]?.store_id;
+    if (storeId) {
+      setAppliedCoupon({ code, storeId });
+      if (pixData) {
+        setPixData(null);
+      }
+    }
+  }
+
+  function handleCouponClear() {
+    setDiscountCents(0);
+    setAppliedCoupon(null);
+    if (pixData) setPixData(null);
+  }
+
+  const previewTotal = Math.max(0, (methods?.total_cents ?? 0) - discountCents);
 
   return (
     <MobileLayout>
@@ -144,7 +177,25 @@ export default function CheckoutPage() {
         <h1 className="mt-4 text-2xl font-bold">Checkout</h1>
 
         {methods && (
-          <p className="mt-2 text-sm text-luxury-mist">Total: {formatShopPrice(methods.total_cents)}</p>
+          <p className="mt-2 text-sm text-luxury-mist">
+            Total: {formatShopPrice(previewTotal)}
+            {discountCents > 0 && (
+              <span className="ml-2 text-emerald-400" data-testid="discount-amount">
+                (−{formatShopPrice(discountCents)})
+              </span>
+            )}
+          </p>
+        )}
+
+        {methods?.stores?.length === 1 && (
+          <div className="mt-4">
+            <CouponApply
+              storeId={methods.stores[0].store_id}
+              orderTotalCents={methods.total_cents}
+              onApplied={handleCouponApplied}
+              onClear={handleCouponClear}
+            />
+          </div>
         )}
 
         {methods && (methods.methods.pix || methods.methods.stripe) && !pixData && !clientSecret && (
@@ -152,7 +203,7 @@ export default function CheckoutPage() {
             {methods.methods.pix && (
               <button
                 type="button"
-                onClick={() => { setPixData(null); setClientSecret(null); setMethod("pix"); void startPix(); }}
+                onClick={() => { setPixData(null); setClientSecret(null); setMethod("pix"); }}
                 className={`flex-1 rounded-lg border p-4 text-left ${method === "pix" ? "border-emerald-500 bg-emerald-500/10" : "border-white/10"}`}
               >
                 <div className="font-semibold">PIX</div>
@@ -172,14 +223,37 @@ export default function CheckoutPage() {
           </div>
         )}
 
+        {method === "pix" && methods?.methods.pix && !pixData && !clientSecret && (
+          <button
+            type="button"
+            data-testid="generate-pix"
+            disabled={pixLoading}
+            onClick={() => void startPix()}
+            className="mt-6 w-full rounded-lg bg-emerald-600 py-3 font-semibold text-white disabled:opacity-50"
+          >
+            {pixLoading ? "Gerando PIX…" : "Gerar PIX"}
+          </button>
+        )}
+
         {initError && <p className="mt-4 text-red-400">{initError}</p>}
-        {loading && !pixData && !clientSecret && !initError && <p className="mt-4 text-luxury-mist">Preparando pagamento…</p>}
+        {loading && !pixData && !clientSecret && !initError && method === "stripe" && (
+          <p className="mt-4 text-luxury-mist">Preparando pagamento…</p>
+        )}
 
         {pixData && (
           <div className="mt-6 rounded-xl border border-white/10 bg-white/5 p-4">
-            <PixCheckoutPanel pix={pixData} />
-            <Link href="/marketplace" className="mt-4 block text-center text-sm text-luxury-gold underline">
-              Voltar ao marketplace
+            <EnhancedPixCheckoutPanel
+              pix={pixData}
+              onRegenerate={() => {
+                setPixData(null);
+                void startPix();
+              }}
+            />
+            <p className="mt-2 text-center text-lg font-bold" data-testid="final-amount">
+              {formatShopPrice(pixData.amount_cents)}
+            </p>
+            <Link href="/marketplace/orders" className="mt-4 block text-center text-sm text-luxury-gold underline">
+              Meus pedidos
             </Link>
           </div>
         )}

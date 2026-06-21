@@ -86,6 +86,11 @@ class ExpoPushSubscribeBody(BaseModel):
     platform: str | None = None
 
 
+class FcmPushSubscribeBody(BaseModel):
+    token: str = Field(min_length=10)
+    platform: str | None = "web"
+
+
 @router.get("/runtime/judge/social/friends")
 async def list_friends(
     session: DbSession,
@@ -508,6 +513,20 @@ async def expo_push_subscribe(
     user_id = _require_user(x_judge_user_id)
     platform = body.platform if body.platform in ("ios", "android", "web") else None
     await expo_push_service.save_token(session, user_id, token=body.token, platform=platform)
+    return {"subscribed": True}
+
+
+@router.post("/runtime/judge/notifications/fcm-subscribe")
+async def fcm_push_subscribe(
+    session: DbSession,
+    body: FcmPushSubscribeBody,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, bool]:
+    from app.notifications.fcm_push import fcm_push_service
+
+    user_id = _require_user(x_judge_user_id)
+    platform = body.platform if body.platform in ("ios", "android", "web") else "web"
+    await fcm_push_service.save_token(session, user_id, token=body.token, platform=platform)
     return {"subscribed": True}
 
 

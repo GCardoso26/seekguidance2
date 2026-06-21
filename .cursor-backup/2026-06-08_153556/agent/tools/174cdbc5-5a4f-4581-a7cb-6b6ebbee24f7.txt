@@ -1,0 +1,401 @@
+Como configurar meu domínio no SuperDomínios? - Nuvemshop
+[Nuvemshop](https://atendimento.nuvemshop.com.br/)[](https://atendimento.nuvemshop.com.br/)
+* [Categorias****](#)
+* [Migrando do Mercado Shops](https://atendimento.nuvemshop.com.br/pt_BR/migrando-do-mercado-shops)
+* [Sobre a Nuvemshop](https://atendimento.nuvemshop.com.br/pt_BR/sobre-a-nuvemshop)
+* [Primeiros passos](https://atendimento.nuvemshop.com.br/pt_BR/primeiros-passos)
+* [Minha Conta](https://atendimento.nuvemshop.com.br/pt_BR/minha-conta)
+* [Funcionamento da loja](https://atendimento.nuvemshop.com.br/pt_BR/funcionamento-da-loja)
+* [Checkout Acelerado e App Nuvem](https://atendimento.nuvemshop.com.br/pt_BR/nuvem-pay)
+* [Produtos](https://atendimento.nuvemshop.com.br/pt_BR/produtos)
+* [Formas de entrega](https://atendimento.nuvemshop.com.br/pt_BR/frete-e-loja-fisica)
+* [Meios de pagamento](https://atendimento.nuvemshop.com.br/pt_BR/meios-de-pagamento)
+* [Layout](https://atendimento.nuvemshop.com.br/pt_BR/01-layout)
+* [Domínios](https://atendimento.nuvemshop.com.br/pt_BR/dominios)
+* [Configurações](https://atendimento.nuvemshop.com.br/pt_BR/configuracoes)
+* [Pesquisa na loja](https://atendimento.nuvemshop.com.br/pt_BR/pesquisa-na-loja)
+* [Criação automática de conteúdo](https://atendimento.nuvemshop.com.br/pt_BR/criacao-automatica-de-conteudo)
+* [Sobre o Nuvem Pago](https://atendimento.nuvemshop.com.br/pt_BR/informacoes-gerais-nvp)
+* [Primeiros passos](https://atendimento.nuvemshop.com.br/pt_BR/configuracao-nvp)
+* [Gestão dos pagamentos](https://atendimento.nuvemshop.com.br/pt_BR/gestao-dos-pagamentos)
+* [Crédito](https://atendimento.nuvemshop.com.br/pt_BR/credito)
+* [Sobre o Nuvem Envio](https://atendimento.nuvemshop.com.br/pt_BR/sobre-o-nuvem-envio)
+* [Primeiros passos](https://atendimento.nuvemshop.com.br/pt_BR/primeiros-passos-nuvem-envio)
+* [Gerencie seus envios](https://atendimento.nuvemshop.com.br/pt_BR/gerencie-seus-envios)
+* [Ponto de postagem](https://atendimento.nuvemshop.com.br/pt_BR/ponto-de-postagem)
+* [Vendas](https://atendimento.nuvemshop.com.br/pt_BR/vendas)
+* [Clientes](https://atendimento.nuvemshop.com.br/pt_BR/clientes)
+* [Ponto de venda](https://atendimento.nuvemshop.com.br/pt_BR/ponto-de-venda)
+* [Canais de Venda](https://atendimento.nuvemshop.com.br/pt_BR/canais-de-venda)
+* [Marketing](https://atendimento.nuvemshop.com.br/pt_BR/marketing)
+* [Estatísticas](https://atendimento.nuvemshop.com.br/pt_BR/estatisticas)
+* [Aplicativos](https://atendimento.nuvemshop.com.br/pt_BR/aplicativos)
+* [Para parceiros Nuvemshop](https://atendimento.nuvemshop.com.br/pt_BR/para-parceiros-nuvemshop)
+* [Lei Geral de Proteção de Dados](https://atendimento.nuvemshop.com.br/pt_BR/lei-geral-de-protecao-de-dados)
+* [Contato](https://atendimento.nuvemshop.com.br/pt_BR/contato)
+* [Lançamentos](https://lancamentos.nuvemshop.com.br/?utm_source=CAN&utm_medium=cta&utm_campaign=product-release&utm_content=product-release_BR)
+* [Status do serviço](https://status.nuvemshop.com.br/)
+* [Partners](https://atendimento.nuvemshop.com.br/para-parceiros-nuvemshop)
+* [Trilhas de Conhecimento](https://trilhas.nuvemshop.com.br/)
+* [Acessar](https://www.nuvemshop.com.br/login)
+Portuguese (Brazil)
+[USEnglish (US)](https://atendimento.nuvemshop.com.br/en_US)
+[ESSpanish](https://atendimento.nuvemshop.com.br/es_ES)
+[BRPortuguese (Brazil)](https://atendimento.nuvemshop.com.br/pt_BR)
+****Menu
+* [Categorias****](#)
+* [Migrando do Mercado Shops](https://atendimento.nuvemshop.com.br/pt_BR/migrando-do-mercado-shops)
+* [Sobre a Nuvemshop](https://atendimento.nuvemshop.com.br/pt_BR/sobre-a-nuvemshop)
+* [Primeiros passos](https://atendimento.nuvemshop.com.br/pt_BR/primeiros-passos)
+* [Minha Conta](https://atendimento.nuvemshop.com.br/pt_BR/minha-conta)
+* [Funcionamento da loja](https://atendimento.nuvemshop.com.br/pt_BR/funcionamento-da-loja)
+* [Checkout Acelerado e App Nuvem](https://atendimento.nuvemshop.com.br/pt_BR/nuvem-pay)
+* [Produtos](https://atendimento.nuvemshop.com.br/pt_BR/produtos)
+* [Formas de entrega](https://atendimento.nuvemshop.com.br/pt_BR/frete-e-loja-fisica)
+* [Meios de pagamento](https://atendimento.nuvemshop.com.br/pt_BR/meios-de-pagamento)
+* [Layout](https://atendimento.nuvemshop.com.br/pt_BR/01-layout)
+* [Domínios](https://atendimento.nuvemshop.com.br/pt_BR/dominios)
+* [Configurações](https://atendimento.nuvemshop.com.br/pt_BR/configuracoes)
+* [Pesquisa na loja](https://atendimento.nuvemshop.com.br/pt_BR/pesquisa-na-loja)
+* [Criação automática de conteúdo](https://atendimento.nuvemshop.com.br/pt_BR/criacao-automatica-de-conteudo)
+* [Sobre o Nuvem Pago](https://atendimento.nuvemshop.com.br/pt_BR/informacoes-gerais-nvp)
+* [Primeiros passos](https://atendimento.nuvemshop.com.br/pt_BR/configuracao-nvp)
+* [Gestão dos pagamentos](https://atendimento.nuvemshop.com.br/pt_BR/gestao-dos-pagamentos)
+* [Crédito](https://atendimento.nuvemshop.com.br/pt_BR/credito)
+* [Sobre o Nuvem Envio](https://atendimento.nuvemshop.com.br/pt_BR/sobre-o-nuvem-envio)
+* [Primeiros passos](https://atendimento.nuvemshop.com.br/pt_BR/primeiros-passos-nuvem-envio)
+* [Gerencie seus envios](https://atendimento.nuvemshop.com.br/pt_BR/gerencie-seus-envios)
+* [Ponto de postagem](https://atendimento.nuvemshop.com.br/pt_BR/ponto-de-postagem)
+* [Vendas](https://atendimento.nuvemshop.com.br/pt_BR/vendas)
+* [Clientes](https://atendimento.nuvemshop.com.br/pt_BR/clientes)
+* [Ponto de venda](https://atendimento.nuvemshop.com.br/pt_BR/ponto-de-venda)
+* [Canais de Venda](https://atendimento.nuvemshop.com.br/pt_BR/canais-de-venda)
+* [Marketing](https://atendimento.nuvemshop.com.br/pt_BR/marketing)
+* [Estatísticas](https://atendimento.nuvemshop.com.br/pt_BR/estatisticas)
+* [Aplicativos](https://atendimento.nuvemshop.com.br/pt_BR/aplicativos)
+* [Para parceiros Nuvemshop](https://atendimento.nuvemshop.com.br/pt_BR/para-parceiros-nuvemshop)
+* [Lei Geral de Proteção de Dados](https://atendimento.nuvemshop.com.br/pt_BR/lei-geral-de-protecao-de-dados)
+* [Contato](https://atendimento.nuvemshop.com.br/pt_BR/contato)
+* [Status do serviço](https://status.nuvemshop.com.br/)
+* [Partners](https://atendimento.nuvemshop.com.br/para-parceiros-nuvemshop)
+* [Trilhas de Conhecimento](https://trilhas.nuvemshop.com.br/)
+* [Acessar](https://www.nuvemshop.com.br/login)
+TodasMigrando do Mercado ShopsSobre a NuvemshopPrimeiros passosMinha ContaFuncionamento da lojaCheckout Acelerado e App NuvemProdutosFormas de entregaMeios de pagamentoLayoutDomíniosConfiguraçõesPesquisa na lojaCriação automática de conteúdoSobre o Nuvem PagoPrimeiros passosGestão dos pagamentosCréditoSobre o Nuvem EnvioPrimeiros passosGerencie seus enviosPonto de postagemVendasClientesPonto de vendaCanais de VendaMarketingEstatísticasAplicativosPara parceiros NuvemshopLei Geral de Proteção de DadosContato****
+# [Clique aqui e escreva-nos!](#escreva)
+* ## ![](https://static.helpjuice.com/helpjuice_production/uploads/category/image/7634/134991/Cloud.svg) [Conheça a Nuvemshop](https://atendimento.nuvemshop.com.br/conheca-nuvemshop)**
+* ## **[Migrando do Mercado Shops](https://atendimento.nuvemshop.com.br/migrando-do-mercado-shops)
+* ## ![](https://static.helpjuice.com/helpjuice_production/uploads/category/image/7634/120583/Cloud.svg) [Sobre a Nuvemshop](https://atendimento.nuvemshop.com.br/sobre-a-nuvemshop)
+* ## ![](https://static.helpjuice.com/helpjuice_production/uploads/category/image/7634/124337/Ordered_List.svg) [Primeiros passos](https://atendimento.nuvemshop.com.br/primeiros-passos)
+* ## ![](https://static.helpjuice.com/helpjuice_production/uploads/category/image/7634/120601/User_circle.svg) [Minha Conta](https://atendimento.nuvemshop.com.br/minha-conta)**
+* ## [Segurança e acessos](https://atendimento.nuvemshop.com.br/seguranca-e-acessos)
+* ## [Gestão de usuários](https://atendimento.nuvemshop.com.br/gestao-de-usuarios)
+* ## [Dados do negócio](https://atendimento.nuvemshop.com.br/dados-do-negocio)
+* ## [Planos](https://atendimento.nuvemshop.com.br/planos-da-nuvemshop)
+* ## [Pague seu plano](https://atendimento.nuvemshop.com.br/pague-seu-plano)**
+* ## [Cartão de crédito](https://atendimento.nuvemshop.com.br/cartao-de-credito)
+* ## [Pelo Mercado Pago](https://atendimento.nuvemshop.com.br/boleto-pix-outros)
+* ## [Sistema de créditos](https://atendimento.nuvemshop.com.br/sistema-de-creditos)
+* ## [Cupom de desconto](https://atendimento.nuvemshop.com.br/cupom-de-desconto)
+* ## [Tarifa por venda](https://atendimento.nuvemshop.com.br/tarifa-por-venda)
+* ## [Histórico de faturas](https://atendimento.nuvemshop.com.br/historico-de-faturas)
+* ## [Cancelar e Reativar](https://atendimento.nuvemshop.com.br/cancelar-e-reativar)
+* ## ![](https://static.helpjuice.com/helpjuice_production/uploads/category/image/7634/124321/Stats.svg) [Funcionamento da loja](https://atendimento.nuvemshop.com.br/funcionamento-da-loja)
+* ## **[Checkout Acelerado e App Nuvem](https://atendimento.nuvemshop.com.br/nuvem-pay)
+* ## ![](https://static.helpjuice.com/helpjuice_production/uploads/category/image/7634/134992/Cog.svg) [Configure sua loja](https://atendimento.nuvemshop.com.br/configure-sua-loja)**
+* ## ![](https://static.helpjuice.com/helpjuice_production/uploads/category/image/7634/120603/Tag.svg) [Produtos](https://atendimento.nuvemshop.com.br/produtos)**
+* ## [Adicionar um novo produto](https://atendimento.nuvemshop.com.br/adicionar-um-novo-produto)
+* ## [Importar e exportar produtos](https://atendimento.nuvemshop.com.br/importar-e-exportar-produtos)
+* ## [Organizar produtos](https://atendimento.nuvemshop.com.br/organizar-produtos)
+* ## [Categorias](https://atendimento.nuvemshop.com.br/organizar-categorias)
+* ## [Gestão do Inventário](https://atendimento.nuvemshop.com.br/gestao-Inventario)
+* ## ![](https://static.helpjuice.com/helpjuice_production/uploads/category/image/7634/120604/Truck.svg) [Formas de entrega](https://atendimento.nuvemshop.com.br/frete-e-loja-fisica)**
+* ## [Informações gerais](https://atendimento.nuvemshop.com.br/informacoes-gerais-2)
+* ## [Centro de distribuição](https://atendimento.nuvemshop.com.br/centro-de-distribuicao)
+* ## [Nuvem Envio](https://atendimento.nuvemshop.com.br/nuvem-envio)
+* ## [Meios de envio](https://atendimento.nuvemshop.com.br/meios-de-envio)**
+* ## [Mandaê](https://atendimento.nuvemshop.com.br/mandae)
+* ## [ASAP Log](https://atendimento.nuvemshop.com.br/asap-log)
+* ## [Carriers](https://atendimento.nuvemshop.com.br/carriers-logistica)
+* ## [Clique Retire](https://atendimento.nuvemshop.com.br/clique-retire)
+* ## [Flixlog](https://atendimento.nuvemshop.com.br/flixlog)
+* ## [Frenet](https://atendimento.nuvemshop.com.br/frenet)
+* ## [GoFretes](https://atendimento.nuvemshop.com.br/gofretes)
+* ## [Intelipost](https://atendimento.nuvemshop.com.br/intelipost)
+* ## [Jadlog](https://atendimento.nuvemshop.com.br/jadlog)
+* ## [Lalamove](https://atendimento.nuvemshop.com.br/lalamove)
+* ## [Log Manager](https://atendimento.nuvemshop.com.br/log-manager)
+* ## [Manda Bem](https://atendimento.nuvemshop.com.br/manda-bem)
+* ## [Melhor Envio](https://atendimento.nuvemshop.com.br/melhor-envio)
+* ## [Total Express](https://atendimento.nuvemshop.com.br/total-express)
+* ## [SuperFrete](https://atendimento.nuvemshop.com.br/superfrete)
+* ## [Entrega personalizada](https://atendimento.nuvemshop.com.br/entrega-personalizada)
+* ## [Loja física](https://atendimento.nuvemshop.com.br/configurando-retirada-na-loja-fisica)
+* ## [Envio internacional](https://atendimento.nuvemshop.com.br/envio-internacional)
+* ## [Logística reversa](https://atendimento.nuvemshop.com.br/logistica-reversa)**
+* ## [Troque Rápido](https://atendimento.nuvemshop.com.br/troque-rapido)
+* ## [Troquecommerce](https://atendimento.nuvemshop.com.br/troquecommerce)
+* ## [Dropshipping](https://atendimento.nuvemshop.com.br/dropshipping1)
+* ## [Frete grátis](https://atendimento.nuvemshop.com.br/configurando-frete-gratis)
+* ## [Gestão e Rastreamento](https://atendimento.nuvemshop.com.br/gestao-e-rastreamento)**
+* ## [Sigep App](https://atendimento.nuvemshop.com.br/sigep-app)
+* ## [Meus Correios](https://atendimento.nuvemshop.com.br/meus-correios)
+* ## [Rastreio.net](https://atendimento.nuvemshop.com.br/rastreionet)
+* ## [Resolução de problemas](https://atendimento.nuvemshop.com.br/resolucao-de-problemas)
+* ## ![](https://static.helpjuice.com/helpjuice_production/uploads/category/image/7634/120605/Credit_card.svg) [Meios de pagamento](https://atendimento.nuvemshop.com.br/meios-de-pagamento)**
+* ## [Pagamentos](https://atendimento.nuvemshop.com.br/pagamentos)**
+* ## [Appmax](https://atendimento.nuvemshop.com.br/appmax)
+* ## [ASAAS](https://atendimento.nuvemshop.com.br/asaas)
+* ## [Cakemoney](https://atendimento.nuvemshop.com.br/cakemoney)
+* ## [Cielo](https://atendimento.nuvemshop.com.br/12336-cielo)
+* ## [iPag](https://atendimento.nuvemshop.com.br/ipag)
+* ## [Getnet](https://atendimento.nuvemshop.com.br/getnet)
+* ## [Mercado Pago](https://atendimento.nuvemshop.com.br/12332-mercado-pago)
+* ## [Nuvem Pago](https://atendimento.nuvemshop.com.br/nuvem-pago)**
+* ## [Informações gerais](https://atendimento.nuvemshop.com.br/informacoes-gerais-nuvem-pago)
+* ## [Configuração](https://atendimento.nuvemshop.com.br/configuracao-nuvem-pago)
+* ## [Pagaleve](https://atendimento.nuvemshop.com.br/pagaleve)
+* ## [Pagar.me](https://atendimento.nuvemshop.com.br/pagarme)
+* ## [PagHiper](https://atendimento.nuvemshop.com.br/12335-paghiper)
+* ## [PagBank](https://atendimento.nuvemshop.com.br/12331-pagseguro)
+* ## [Parcelex](https://atendimento.nuvemshop.com.br/parcelex)
+* ## [PayPal](https://atendimento.nuvemshop.com.br/paypal)
+* ## [PicPay](https://atendimento.nuvemshop.com.br/picpay)
+* ## [BluePay](https://atendimento.nuvemshop.com.br/bluepay)
+* ## [Pagamento personalizado](https://atendimento.nuvemshop.com.br/12337-meio-de-pagamento-personalizado)
+* ## ![](https://static.helpjuice.com/helpjuice_production/uploads/category/image/7634/120606/Pencil.svg) [Layout](https://atendimento.nuvemshop.com.br/01-layout)**
+* ## [Escolher Layout](https://atendimento.nuvemshop.com.br/escolher-layout)**
+* ## [Layout Uyuni](https://atendimento.nuvemshop.com.br/layout-uyuni)
+* ## [Layout Toluca](https://atendimento.nuvemshop.com.br/layout-toluca)
+* ## [Layout Cali](https://atendimento.nuvemshop.com.br/layout-cali)
+* ## [Layout Rio](https://atendimento.nuvemshop.com.br/layout-rio)
+* ## [Layout Lima](https://atendimento.nuvemshop.com.br/layout-lima)
+* ## [Layout Amazonas](https://atendimento.nuvemshop.com.br/layout-amazonas)
+* ## [Layout Atlântico](https://atendimento.nuvemshop.com.br/layout-atlantico)
+* ## [Layout Bahia](https://atendimento.nuvemshop.com.br/layout-bahia)
+* ## [Layout Cubo](https://atendimento.nuvemshop.com.br/layout-cubo)
+* ## [Layout Idea](https://atendimento.nuvemshop.com.br/layout-idea)
+* ## [Layout Simple](https://atendimento.nuvemshop.com.br/layout-simple)
+* ## [Layout Trend](https://atendimento.nuvemshop.com.br/layout-trend)
+* ## [Layout Recife](https://atendimento.nuvemshop.com.br/layout-recife)
+* ## [Layout Morelia](https://atendimento.nuvemshop.com.br/layout-morelia)
+* ## [Layout Baires](https://atendimento.nuvemshop.com.br/layout-baires)
+* ## [Layout Brasilia](https://atendimento.nuvemshop.com.br/layout-brasilia)
+* ## [Layout Patagonia](https://atendimento.nuvemshop.com.br/layout-patagonia)
+* ## [Personalização básica](https://atendimento.nuvemshop.com.br/12343-personalizacao-basica-do-layout)**
+* ## [Banners e logo](https://atendimento.nuvemshop.com.br/banners-e-logo-do-layout)
+* ## [Página do produto](https://atendimento.nuvemshop.com.br/pagina-do-produto)
+* ## [Cores e fontes](https://atendimento.nuvemshop.com.br/cores-e-fontes)
+* ## [Pop-up e Newsletter](https://atendimento.nuvemshop.com.br/popup-e-newsletter)
+* ## [Carrinho de compras](https://atendimento.nuvemshop.com.br/carrinho-de-compras-do-layout)
+* ## [Personalização avançada](https://atendimento.nuvemshop.com.br/personalizacao-avancada-do-layout)**
+* ## [Código CSS](https://atendimento.nuvemshop.com.br/codigo-css)
+* ## [Código-fonte / FTP](https://atendimento.nuvemshop.com.br/codigo-fonte-ftp)
+* ## [Página inicial](https://atendimento.nuvemshop.com.br/pagina-inicial-do-layout)
+* ## [Páginas, categorias, menus e Rodapé](https://atendimento.nuvemshop.com.br/12349-paginas)**
+* ## [Ordem dos Produtos](https://atendimento.nuvemshop.com.br/12347-ordem-dos-produtos)
+* ## [Barra de navegação e Rodapé](https://atendimento.nuvemshop.com.br/barra-de-navegacao-rodape-do-layout)**
+* ## [Informação de contato](https://atendimento.nuvemshop.com.br/informacao-de-contato)
+* ## [Menu do cabeçalho](https://atendimento.nuvemshop.com.br/menu-do-cabecalho)
+* ## [Rodapé](https://atendimento.nuvemshop.com.br/rodape)
+* ## [Páginas e Categorias](https://atendimento.nuvemshop.com.br/paginas-e-categorias)
+* ## [Páginas de conteúdo](https://atendimento.nuvemshop.com.br/paginas-de-conteudo)
+* ## [Página em Construção](https://atendimento.nuvemshop.com.br/123410-pagina-em-construcao)
+* ## [Alterar Layout](https://atendimento.nuvemshop.com.br/12341-escolhendo-e-alterando-o-layout)
+* ## [Redes Sociais](https://atendimento.nuvemshop.com.br/123412-redes-sociais)
+* ## ![](https://static.helpjuice.com/helpjuice_production/uploads/category/image/7634/120602/Link.svg) [Domínios](https://atendimento.nuvemshop.com.br/dominios)**
+* ## [Domínio Nuvem](https://atendimento.nuvemshop.com.br/12321-dominio-nuvem)
+* ## [Domínio próprio](https://atendimento.nuvemshop.com.br/12322-adicionar-dominio-proprio)**
+* ## [Alterar o domínio principal](https://atendimento.nuvemshop.com.br/165700-alterar-o-dominio-principal)
+* ## [Subdomínio](https://atendimento.nuvemshop.com.br/165705-adicionar-subdominio)
+* ## [Registro BR](https://atendimento.nuvemshop.com.br/166757-registro-br)
+* ## [GoDaddy](https://atendimento.nuvemshop.com.br/166758-godaddy)
+* ## [HostGator](https://atendimento.nuvemshop.com.br/166759-hostgator)
+* ## [Hostinger](https://atendimento.nuvemshop.com.br/174600-hostinger)
+* ## [KingHost](https://atendimento.nuvemshop.com.br/166764-kinghost)
+* ## [Locaweb](https://atendimento.nuvemshop.com.br/166761-locaweb)
+* ## [Umbler](https://atendimento.nuvemshop.com.br/166763-redehost-e-umbler)
+* ## [SuperDomínios](https://atendimento.nuvemshop.com.br/166762-superdominios)
+* ## [Uol Host](https://atendimento.nuvemshop.com.br/166760-uol-host)
+* ## [Certificado de segurança SSL](https://atendimento.nuvemshop.com.br/12323-certificado-de-seguranca-ssl)
+* ## [E-mail próprio](https://atendimento.nuvemshop.com.br/12324-e-mail-proprio)
+* ## [Resolução de problemas](https://atendimento.nuvemshop.com.br/12325-resolucao-de-problemas)
+* ## ![](https://static.helpjuice.com/helpjuice_production/uploads/category/image/7634/120607/Cog.svg) [Configurações](https://atendimento.nuvemshop.com.br/configuracoes)**
+* ## [Comunicação](https://atendimento.nuvemshop.com.br/comunicacao-configuracoes)**
+* ## [Emails](https://atendimento.nuvemshop.com.br/12312-emails)
+* ## [Chat do WhatsApp](https://atendimento.nuvemshop.com.br/chat-do-whatsapp)
+* ## [Configurações gerais](https://atendimento.nuvemshop.com.br/configuracoes-gerais)**
+* ## [E-mail e senha de acesso](https://atendimento.nuvemshop.com.br/email-e-senha-de-acesso)
+* ## [Configurações avançadas](https://atendimento.nuvemshop.com.br/configuracoes-avancadas)**
+* ## [Opções de checkout](https://atendimento.nuvemshop.com.br/12311-opcoes-de-checkout)
+* ## [Códigos externos](https://atendimento.nuvemshop.com.br/12313-codigos-externos)**
+* ## [Google Ads](https://atendimento.nuvemshop.com.br/google-ads)
+* ## [Pixel do Facebook](https://atendimento.nuvemshop.com.br/pixel-do-facebook)
+* ## [Google Analytics 4](https://atendimento.nuvemshop.com.br/google-analytics)
+* ## [Ebit](https://atendimento.nuvemshop.com.br/ebit)
+* ## [Código de conversão](https://atendimento.nuvemshop.com.br/codigo-de-conversao)
+* ## [Propriedades Google e Bing](https://atendimento.nuvemshop.com.br/propriedades-google-e-bing)
+* ## [Redirecionamento 301](https://atendimento.nuvemshop.com.br/12315-redirecionamento-301)
+* ## [API](https://atendimento.nuvemshop.com.br/12316-api)
+* ## **[Pesquisa na loja](https://atendimento.nuvemshop.com.br/pesquisa-na-loja)
+* ## **[Criação automática de conteúdo](https://atendimento.nuvemshop.com.br/criacao-automatica-de-conteudo)
+* ## ![](https://static.helpjuice.com/helpjuice_production/uploads/category/image/7634/251062/Bill.svg) [Descubra o Nuvem Pago](https://atendimento.nuvemshop.com.br/descubra-o-nuvem-pago)**
+* ## ![](https://static.helpjuice.com/helpjuice_production/uploads/category/image/7634/251063/Info_circle.svg) [Sobre o Nuvem Pago](https://atendimento.nuvemshop.com.br/informacoes-gerais-nvp)
+* ## ![](https://static.helpjuice.com/helpjuice_production/uploads/category/image/7634/251064/Bill.svg) [Primeiros passos](https://atendimento.nuvemshop.com.br/configuracao-nvp)
+* ## **[Gestão dos pagamentos](https://atendimento.nuvemshop.com.br/gestao-dos-pagamentos)
+* ## **[Crédito](https://atendimento.nuvemshop.com.br/credito)
+* ## **[Explore o Nuvem Envio](https://atendimento.nuvemshop.com.br/explore-o-nuvem-envio)**
+* ## **[Sobre o Nuvem Envio](https://atendimento.nuvemshop.com.br/sobre-o-nuvem-envio)
+* ## **[Primeiros passos](https://atendimento.nuvemshop.com.br/primeiros-passos-nuvem-envio)
+* ## **[Gerencie seus envios](https://atendimento.nuvemshop.com.br/gerencie-seus-envios)
+* ## **[Ponto de postagem](https://atendimento.nuvemshop.com.br/ponto-de-postagem)**
+* ## [Preparar encomenda](https://atendimento.nuvemshop.com.br/Preparar-encomenda)
+* ## [Configuração e postagem](https://atendimento.nuvemshop.com.br/configuracao-e-postagem)
+* ## [Resolução de problemas e FAQs](https://atendimento.nuvemshop.com.br/resolucao-de-problemas-e-faqs)
+* ## [Nuvem Envio Jadlog](https://atendimento.nuvemshop.com.br/-nuvem-envio-jadlog)
+* ## ![](https://static.helpjuice.com/helpjuice_production/uploads/category/image/7634/134993/Briefcase.svg) [Gerencie suas vendas](https://atendimento.nuvemshop.com.br/gerencie-suas-vendas)**
+* ## ![](https://static.helpjuice.com/helpjuice_production/uploads/category/image/7634/120608/Cash.svg) [Vendas](https://atendimento.nuvemshop.com.br/vendas)**
+* ## [Informações gerais](https://atendimento.nuvemshop.com.br/informacoes-gerais-4)
+* ## [Minhas Vendas](https://atendimento.nuvemshop.com.br/minhas-vendas)
+* ## [Pedidos manuais](https://atendimento.nuvemshop.com.br/pedidos-manuais)
+* ## [Status dos pedidos](https://atendimento.nuvemshop.com.br/status-dos-pedidos)
+* ## [Cancelar pedidos](https://atendimento.nuvemshop.com.br/cancelar-pedidos)
+* ## [Carrinhos Abandonados](https://atendimento.nuvemshop.com.br/carrinhos-abandonados)
+* ## ![](https://static.helpjuice.com/helpjuice_production/uploads/category/image/7634/120609/User_group.svg) [Clientes](https://atendimento.nuvemshop.com.br/clientes)**
+* ## [Meus clientes](https://atendimento.nuvemshop.com.br/meus-clientes)
+* ## [Contatos](https://atendimento.nuvemshop.com.br/contatos-da-minha-loja)
+* ## **[Ponto de venda](https://atendimento.nuvemshop.com.br/ponto-de-venda)
+* ## ![](https://static.helpjuice.com/helpjuice_production/uploads/category/image/7634/134994/Rocket.svg) [Impulsione seu negócio](https://atendimento.nuvemshop.com.br/impulsione-seu-negocio)**
+* ## ![](https://static.helpjuice.com/helpjuice_production/uploads/category/image/7634/120610/Ecosystem.svg) [Canais de Venda](https://atendimento.nuvemshop.com.br/canais-de-venda)**
+* ## [Facebook e Instagram Shopping](https://atendimento.nuvemshop.com.br/facebook-e-instagram-shopping)**
+* ## [Configuração](https://atendimento.nuvemshop.com.br/requisitos-para-integrar-facebook-e-instagram)
+* ## [Personalização e Funcionalidades](https://atendimento.nuvemshop.com.br/personalizacao-e-funcionalidades-do-facebook-e-instagram)
+* ## [Resolução de problemas](https://atendimento.nuvemshop.com.br/resolucao-de-problemas-facebook-e-instagram)
+* ## [Google Shopping](https://atendimento.nuvemshop.com.br/google-shopping)
+* ## [TikTok for Business](https://atendimento.nuvemshop.com.br/tiktok)
+* ## [Mercado Livre](https://atendimento.nuvemshop.com.br/121897-mercado-livre)
+* ## [Aplicativos para canais de vendas](https://atendimento.nuvemshop.com.br/aplicativos-para-canais-de-vendas)
+* ## ![](https://static.helpjuice.com/helpjuice_production/uploads/category/image/7634/120611/Discount.svg) [Marketing](https://atendimento.nuvemshop.com.br/marketing)**
+* ## [Cupons e promoções](https://atendimento.nuvemshop.com.br/121901-cupons-e-promocoes)**
+* ## [Cupons](https://atendimento.nuvemshop.com.br/cupons)
+* ## [Promoções](https://atendimento.nuvemshop.com.br/promocoes)
+* ## [Funcionamento](https://atendimento.nuvemshop.com.br/funcionamento)
+* ## [E-mail Marketing](https://atendimento.nuvemshop.com.br/121900-e-mail-marketing)
+* ## [Redes Sociais](https://atendimento.nuvemshop.com.br/121913-redes-sociais)
+* ## [Ferramentas do Google](https://atendimento.nuvemshop.com.br/ferramentas-do-google)
+* ## [Datas especiais](https://atendimento.nuvemshop.com.br/datas-especiais)**
+* ## [Aplicativos de Marketing](https://atendimento.nuvemshop.com.br/aplicativos-de-marketing)**
+* ## [Para comunicação](https://atendimento.nuvemshop.com.br/para-comunicacao)
+* ## [Para programa de fidelidade](https://atendimento.nuvemshop.com.br/para-programa-de-fidelidade)
+* ## [Para promoção](https://atendimento.nuvemshop.com.br/para-promocao)
+* ## [Para canais de venda](https://atendimento.nuvemshop.com.br/para-canais-de-venda)
+* ## [Ofereça descontos e promoções](https://atendimento.nuvemshop.com.br/ofereca-descontos-e-promocoes)
+* ## [Teclado Nuvem](https://atendimento.nuvemshop.com.br/teclado-nuvem)
+* ## [Automações](https://atendimento.nuvemshop.com.br/automacoes)
+* ## ![](https://static.helpjuice.com/helpjuice_production/uploads/category/image/7634/120612/Stats.svg) [Estatísticas](https://atendimento.nuvemshop.com.br/estatisticas)
+* ## ![](https://static.helpjuice.com/helpjuice_production/uploads/category/image/7634/124335/Apps.svg) [Aplicativos](https://atendimento.nuvemshop.com.br/aplicativos)**
+* ## [Logística](https://atendimento.nuvemshop.com.br/logistica)**
+* ## [ASAP Log](https://atendimento.nuvemshop.com.br/asap-log-aplicativos)
+* ## [Carriers](https://atendimento.nuvemshop.com.br/carriers-logistica-aplicativos)
+* ## [Clique Retire](https://atendimento.nuvemshop.com.br/clique-retire-)
+* ## [Correios](https://atendimento.nuvemshop.com.br/correios-aplicativos)
+* ## [Flixlog](https://atendimento.nuvemshop.com.br/flixlog-aplicativos)
+* ## [Frenet](https://atendimento.nuvemshop.com.br/frenet-aplicativos)
+* ## [Intelipost](https://atendimento.nuvemshop.com.br/intelipost1)
+* ## [IS Entrega](https://atendimento.nuvemshop.com.br/is-entrega-aplicativos)
+* ## [Kangu](https://atendimento.nuvemshop.com.br/kangu-aplicativos)
+* ## [Lalamove](https://atendimento.nuvemshop.com.br/lalamove-aplicativos)
+* ## [Log Manager](https://atendimento.nuvemshop.com.br/log-manager-aplicativos)
+* ## [Manda Bem](https://atendimento.nuvemshop.com.br/manda-bem-aplicativos)
+* ## [Mandaê](https://atendimento.nuvemshop.com.br/mandae-aplicativos)
+* ## [Melhor Envio](https://atendimento.nuvemshop.com.br/melhor-envio-aplicativos)
+* ## [Meus Correios](https://atendimento.nuvemshop.com.br/meus-correios-aplicativos)
+* ## [Rastreio.net](https://atendimento.nuvemshop.com.br/rastreionet-aplicativos)
+* ## [ShipSmart](https://atendimento.nuvemshop.com.br/shipsmart-aplicativos)
+* ## [Sigep App](https://atendimento.nuvemshop.com.br/sigep-app-aplicativos)
+* ## [Total Express](https://atendimento.nuvemshop.com.br/total-express-aplicativos)
+* ## [Troquecommerce](https://atendimento.nuvemshop.com.br/troquecommerce1)
+* ## [Troque Rápido](https://atendimento.nuvemshop.com.br/troque-rapido-aplicativos)
+* ## [GoFretes](https://atendimento.nuvemshop.com.br/gofretes1)
+* ## [Integrai Envios](https://atendimento.nuvemshop.com.br/integrai-envios)
+* ## [Pagamentos](https://atendimento.nuvemshop.com.br/pagamentos-apps)
+* ## [Dropshipping](https://atendimento.nuvemshop.com.br/dropshipping)
+* ## [Canais de vendas](https://atendimento.nuvemshop.com.br/canal-de-venda)
+* ## [Marketing](https://atendimento.nuvemshop.com.br/marketing-e-comunicacao)
+* ## [Gestão](https://atendimento.nuvemshop.com.br/gestao)
+* ## [Comunicação](https://atendimento.nuvemshop.com.br/comunicacao)
+* ## [Recursos extras](https://atendimento.nuvemshop.com.br/recursos-extras)
+* ## [Segurança e confiança](https://atendimento.nuvemshop.com.br/seguranca-e-confianca)
+* ## [Estatísticas](https://atendimento.nuvemshop.com.br/estatisticas-aplicativos)
+* ## ![](https://static.helpjuice.com/helpjuice_production/uploads/category/image/7634/134995/Ellipsis_vertical.svg) [Veja mais](https://atendimento.nuvemshop.com.br/veja-mais)**
+* ## ![](https://static.helpjuice.com/helpjuice_production/uploads/category/image/7634/251071/User.svg) [Para parceiros Nuvemshop](https://atendimento.nuvemshop.com.br/para-parceiros-nuvemshop)**
+* ## [Parceiros Especialistas](https://atendimento.nuvemshop.com.br/parceiros-especialistas)
+* ## [Parceiros Associados](https://atendimento.nuvemshop.com.br/programadeassociados)
+* ## [Parceiros Tecnológicos](https://atendimento.nuvemshop.com.br/parceiros-tecnologicos)
+* ## [Benefícios do Programa de Parceiros](https://atendimento.nuvemshop.com.br/beneficios-do-programa-de-parceiros)**
+* ## [Indicação de clientes](https://atendimento.nuvemshop.com.br/indicacao-de-clientes)
+* ## [Comissionamento](https://atendimento.nuvemshop.com.br/comissionamento)
+* ## [Minha conta](https://atendimento.nuvemshop.com.br/minha-conta-parceiro)
+* ## ![](https://static.helpjuice.com/helpjuice_production/uploads/category/image/7634/170148/Briefcase.svg) [Lei Geral de Proteção de Dados](https://atendimento.nuvemshop.com.br/lei-geral-de-protecao-de-dados)
+* ## ![](https://static.helpjuice.com/helpjuice_production/uploads/category/image/7634/124365/Email.svg) [Contato](https://atendimento.nuvemshop.com.br/contato)
+[Central de Atendimento Nuvem](https://atendimento.nuvemshop.com.br/)**[Configure sua loja](https://atendimento.nuvemshop.com.br/configure-sua-loja)**[Domínios](https://atendimento.nuvemshop.com.br/dominios)**[Domínio próprio](https://atendimento.nuvemshop.com.br/12322-adicionar-dominio-proprio)**[SuperDomínios](https://atendimento.nuvemshop.com.br/166762-superdominios)**
+# Como configurar meu domínio no SuperDomínios?
+### Passo a passo de como configurar seu domínio próprio hospestado no servidor do SuperDomínios e como vinculá-lo corretamente na sua loja virtual Nuvemshop.
+Última atualização: 05/09/2024
+O**SuperDomínios éum site de hospedagem**e hoje vamos te ensinar a fazer os apontamentos DNS para sua loja virtual Nuvemshop abra com seu domínio próprio.
+### Warning
+Para que o acesso àloja seja realizado pelo seu domínio próprio, épreciso**seguir corretamente as etapas**descritas neste tutorial e**aguardar os prazos informados**.
+## Passos para configurar o domínio no SuperDomínios
+## 1. Acessar a Zona DNS
+**1.1.**Entrar na sua conta do 🌐[**Superdomínios**](https://www.superdominios.org/), a partir da seção**"Área do Cliente"**, no canto superior direito.
+**1.2.**No painel, clicar na opção**"Domínios",**para visualizar os domínios cadastrados em sua conta.
+![Painel do host com a opção "Domínios" em destaque](https://static.helpjuice.com/helpjuice_production/uploads/upload/image/7634/direct/1656686671464-acessar%20o%20dom%C3%ADnio-superdom%C3%ADnios.jpg "Seção Domínios")
+**1.3.**Ao carregar a página, clicar no**símbolo de Ferramentas**, do lado direito do botão de status do domínio.
+![Seção de domínios cadastrados, com o ícone de ferramenta em destaque](https://static.helpjuice.com/helpjuice_production/uploads/upload/image/7634/direct/1656686759028-configurar%20dom%C3%ADnio-superdom%C3%ADnios.jpg "Configurar domínio")
+**1.4.**Agora, no menu**Gerenciar**(lado esquerdo da página), clicar em**"DNS avançado"**.
+![Menu lateral do painel do host, com a opção "DNS avançado" em destaque](https://static.helpjuice.com/helpjuice_production/uploads/upload/image/7634/direct/1656686817874-dns%20avan%C3%A7ado-superdom%C3%ADnios.jpg "Acessar DNS avançado")
+**1.5.**Na próxima tela, você verá os campos onde deverá cadastrar os apontamentos.
+## 2. Cadastrar o apontamento "Tipo A" (sem WWW)
+O apontamento do**tipo A**é aquele que possibilita sua loja ser acessada sem o**WWW**no começo.
+![Visualização do domínio sem www no painel Nuvemshop](https://static.helpjuice.com/helpjuice_production/uploads/upload/image/7634/direct/1656534834121-dominio%20sem%20www.jpg "Domínio sem www")
+**2.1.**Você deve cadastrar o**apontamento A**da seguinte forma:
+* **Campo 1:**digitar**@**;
+* **Campo 2:**selecionar a opção**A**;
+* **Campo 3:**você deve**cadastrar 2 IPs**diferentes (ou seja,**fazer esse passo 2 vezes**):
+* 185.133.35.21
+* 185.133.35.22
+* **Campo 4:**deixar vazio.![Campos de preenchimento do apontamento Tipo A](https://static.helpjuice.com/helpjuice_production/uploads/upload/image/7634/direct/1656687054676-campos%20de%20preenchimento%20do%20apontamento-superdom%C3%ADnios.jpg "Cadastrar apontamento tipo A")
+**2.2.**Clicar em**"Salvar alterações"**.
+### Success
+Épreciso**repetir 2 vezes**o cadastro da entrada Tipo A, sendo**uma para cada IP**(número) acima.
+## 3. Cadastrar o apontamento "Tipo CNAME" (com WWW)
+O apontamento do tipo**CNAME**é aquele que possibilita sua loja ser acessada com o**WWW**no começo.
+![Visualização do domínio com www no painel Nuvemshop](https://static.helpjuice.com/helpjuice_production/uploads/upload/image/7634/direct/1656535969671-dominio%20com%20www.jpg "Domínio com www")
+**3.1.**Você deve cadastrar o**apontamento CNAME**da seguinte forma:
+* **Campo 1:**digitar**www**;
+* **Campo 2:**selecionar a opção**CNAME**;
+* **Campo 3:**preencher com o seu**domínio compartilhado**Nuvemshop (**sualoja.lojavirtualnuvem.com.br**);
+* **Campo 4:**deixar vazio.![Campos de preenchimento do apontamento Tipo CNAME](https://static.helpjuice.com/helpjuice_production/uploads/upload/image/7634/direct/1656687670972-campos%20de%20preenchimento%20do%20apontamento%20CNAME-superdom%C3%ADnios.png "Cadastrar apontamento tipo CNAME")
+**3.2.**Clicar em**"Adicionar"**e****depois em**"Salvar alterações"**.
+❗Para obter o domínio compartilhado, acesse o**painel da sua loja**e vá em**"Configurações > Domínios"**. O endereço será o**primeiro da lista**e o será indicado com o**nome da sua loja +lojavirtualnuvem.com.br**.
+#### **Pronto!**🙌
+O seu domínio próprio foi configurado no painel de hospedagem e pode ser adicionado em sua Nuvemshop agora. Lembrando que pode levar**até 48 horas para as alterações entrarem em vigor**.
+### Success
+Se houver algum**apontamento diferente configurado**, será preciso**apagá-lo para que não cause conflito de acesso**ao seu site posteriormente.
+## Próximos passos após configurar os apontamentos DNS
+Ao finalizar as configurações do seu domínio, basta**vincular o seu domínio próprio no painel Nuvemshop**e solicitar a**ativação do certificado de segurança**, conforme explicamos abaixo:
+## Como vincular o domínio na minha loja?
+Agora que você já fez a configuração correta dos apontamentos DNS no painel do**Superdomínios**, épreciso**adicioná-lo no painel da loja**para vinculá-lo. Para isso, consultar o nosso tutorial abaixo:
+[📝 Como adicionar o domínio no painel da loja?](https://atendimento.nuvemshop.com.br/como-adicionar-o-dominio-no-painel-da-loja)
+## Como ativar o certificado de segurança SSL?
+Após adicionar o seu domínio próprio no painel Nuvemshop,**aguarde alguns minutos e atualize a página**para conseguir ativar**o certificado de segurança**(SSL). Se precisar de ajuda, consultar o tutorial abaixo:
+[📝 Como ativar um certificado de segurança para meu domínio?](https://atendimento.nuvemshop.com.br/12323-certificado-de-seguranca-ssl/como-ativar-o-certificado-de-seguranca-ssl)
+### Info
+Para**verificar se os apontamentos já propagaram ou foram configurados**, recomendamos consultar o nosso tutorial 👉****[**Como saber se o domínio foi configurado corretamente?**](https://atendimento.nuvemshop.com.br/12325-resolucao-de-problemas/como-saber-se-o-dominio-foi-configurado-corretamente).
+**Dê sua opinião sobre este artigo
+### Artigos relacionados
+[Como configurar o meu domínio no Kinghost?](https://atendimento.nuvemshop.com.br/166764-kinghost/como-configurar-o-meu-dominio-no-kinghost)
+Veja como configurar o domínio próprio hospestado no servidor do Kinghost e como vinculá-lo no seu painel administrador da Nuvemshop.
+[Como cadastrar o domínio sem WWW na Nuvemshop?](https://atendimento.nuvemshop.com.br/12322-adicionar-dominio-proprio/como-cadastrar-o-dominio-sem-www-na-nuvemshop)
+Veja como cadastrar o registro A (sem www) do seu domínio na Nuvemshop.
+Neste artigo
+[Passos para configurar o domínio no SuperDomínios](#passos-para-configurar-o-domnio-no-superdomnios-1)[Próximos passos após configurar os apontamentos DNS](#prximos-passos-aps-configurar-os-apontamentos-dns-5)

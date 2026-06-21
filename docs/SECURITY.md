@@ -1,50 +1,37 @@
-# Políticas de Segurança — Judge TCG
+# Segurança e Compliance
 
-Última atualização: 2026-06-07 (Sprint Final)
+## SSL/TLS
 
-## Escopo
+- Certificado válido via Vercel/Cloudflare
+- HSTS habilitado no edge
+- TLS 1.2+ mínimo
 
-- API (`api.tcg-judge.com` / Render)
-- Web App (`tcg-judge.com`, `judgetcg.com.br` / Vercel)
-- Mobile App (futuro)
-- Infraestrutura (Render, Vercel, Supabase, Stripe)
+## LGPD
 
-## Práticas
+- Política de privacidade: `/privacidade`
+- Termos de uso: `/termos`
+- Cookie consent: implementar banner (Mês 1)
+- Direito ao esquecimento: endpoint de exclusão de conta (roadmap)
 
-| Área | Política |
-|------|----------|
-| RLS | Habilitado em tabelas expostas via Supabase (`tcg_judge`) |
-| Secrets | Apenas em environment variables; nunca commitar `.env`, `.pem`, service accounts |
-| Dependências | Dependabot + revisão mensal |
-| Auth | JWT Supabase; header `X-Judge-User-Id` apenas em rotas internas com BFF |
-| SQL | Queries parametrizadas (SQLAlchemy `text` + bind params) |
-| XSS | CSP no Next.js; escape de output React |
-| CORS | Lista explícita em produção (`CORS_ALLOWED_ORIGINS`) |
-| Rate limit | Redis-based no middleware FastAPI |
+## Anti-fraude
 
-## Checklist de segurança (go-live)
+- Rate limiting: middleware FastAPI (100 req/min por IP em produção)
+- reCAPTCHA v3: cadastro e checkout (roadmap Mês 1)
+- Disputas: sistema de juízes (Mês 3)
 
-1. SSL/TLS ativo (Vercel + Render + Cloudflare)
-2. CORS sem wildcard em produção
-3. Rate limiting testado
-4. RLS ativo nas tabelas sociais/torneios/juiz
-5. Stripe webhooks com assinatura verificada
-6. Backup Supabase habilitado (PITR no plano pago)
-7. Sentry DSN configurado (API + frontend)
+## Backups
 
-## Reportar vulnerabilidades
+- PostgreSQL: backup diário Supabase (verificar plano)
+- Storage: versionamento S3/Supabase Storage
+- Teste de restore: mensal (calendário ops)
 
-Envie detalhes para **security@tcg-judge.com** (ou contato do mantenedor no GitHub).
+## Secrets
 
-Inclua: descrição, passos para reproduzir, impacto estimado. Resposta alvo em 72h.
+- Nunca commitar `.env`
+- Rotacionar `JWT_SECRET`, webhook secrets trimestralmente
+- Firebase private key apenas no Render (backend)
 
-## Incident Response
+## Monitoramento
 
-1. **Detectar** — Sentry, logs Render/Supabase, alertas Stripe
-2. **Contenção** — rotacionar secrets, pausar webhooks, escalar isoladamente
-3. **Investigação** — `audit_logs`, logs de API
-4. **Correção** — patch + deploy + migration se necessário
-5. **Comunicação** — status page (quando disponível)
-6. **Post-mortem** — documentar em 48h após resolução
-
-Ver também: `docs/SECURITY_CREDENTIAL_ROTATION.md`, `docs/LGPD_COMPLIANCE.md`.
+- Sentry: `SENTRY_DSN` (API) + `NEXT_PUBLIC_SENTRY_DSN` (frontend)
+- Health: `/v1/health` a cada 30s no uptime monitor

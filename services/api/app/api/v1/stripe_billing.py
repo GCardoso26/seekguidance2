@@ -163,6 +163,18 @@ async def stripe_webhook(request: Request, session: DbSession, settings: Setting
 
 async def _handle_checkout_completed(session: DbSession, settings: SettingsDep, checkout: dict[str, Any]) -> None:
     meta = checkout.get("metadata") or {}
+    if meta.get("kind") == "store_pro" and meta.get("store_id"):
+        from app.stores.subscriptions import activate_store_subscription
+
+        await activate_store_subscription(
+            session,
+            str(meta["store_id"]),
+            str(meta.get("plan") or "pro"),
+            stripe_subscription_id=str(checkout.get("subscription") or ""),
+            payment_method="card",
+        )
+        return
+
     user_id = meta.get("user_id")
     subscription_id = checkout.get("subscription")
     if not user_id or not subscription_id:

@@ -67,6 +67,9 @@ export default function MarketplacePage() {
             <p className="text-sm text-luxury-mist">Produtos TCG e decklists de torneio</p>
           </div>
           <div className="flex gap-2">
+            <Link href="/marketplace/orders" className="rounded-lg border border-white/10 px-3 py-2 text-sm">
+              Meus pedidos
+            </Link>
             <Link href="/marketplace/cart" className="rounded-lg border border-white/10 px-3 py-2 text-sm">
               Carrinho
             </Link>

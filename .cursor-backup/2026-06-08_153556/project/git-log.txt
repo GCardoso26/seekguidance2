@@ -1,0 +1,20 @@
+fe29273 fix(auth): redirect OAuth para /judge ap├│s login Google
+3272c37 fix(vercel): remove standalone tracing que duplica path no monorepo
+2883d81 chore(deploy): script vercel e deploy hook GitHub
+2e0ac7d chore(deploy): dispara redeploy Vercel em bc32642
+bc32642 fix(auth): tipa cookiesToSet no callback OAuth para passar build Vercel
+a3bba8a fix(auth): corrige redirect pos-login Google OAuth
+61f529c feat(go-live): consolida Sprint Final para producao
+36055c2 fix(db): renomeia messages social para social_messages
+ce136d8 chore(git): deixa de rastrear artefatos gerados em generated/ e var/
+2dee328 fix(ci): corrige erros ruff na API para passar no GitHub Actions Aplica auto-fix de imports/typing e quebra linhas longas (E501) em SQL e strings para respeitar limite de 120 caracteres.
+fe2c796 feat(platform): torneios multi-TCG, painel juiz digital e suite de testes
+103da7a feat(landing): CTAs de pricing com tracking por posicao
+e9a4d50 fix(api): libera rotas /runtime/judge/* para analytics e growth em produ├º├úo
+444273f feat(pricing): Fase 0 - p├ígina /pricing + analytics tracking
+84d84d1 feat(judge): logos SVG oficiais 14 TCGs
+fe14d8d fix(auth): OAuth Google usa origin real em produ├º├úo (n├úo localhost do env)
+453aa8d fix(auth): OAuth Google redirect para dom├¡nio de produ├º├úo
+5eece45 feat(judge): Judge TCG v3.0 ÔÇö Landing, RBAC, SWU Ingestion, Logos
+8d33633 feat(judge): Card Table Interface ÔÇö Fase 4 (produ├º├úo)
+e745911 fix(ci): ruff, pytest collection e submodule mobile opcional

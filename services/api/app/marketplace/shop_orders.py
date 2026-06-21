@@ -13,6 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 import stripe
 from app.core.config import Settings
 from app.marketplace import shop_cart
+from app.marketplace.shop_notifications import notify_shop_event
 
 logger = structlog.get_logger(__name__)
 
@@ -37,8 +38,16 @@ async def list_buyer_orders(session: AsyncSession, buyer_id: str, limit: int = 2
 
 
 async def list_store_orders(
-    session: AsyncSession, store_id: str, owner_id: str, limit: int = 50
-) -> list[dict[str, Any]]:
+    session: AsyncSession,
+    store_id: str,
+    owner_id: str,
+    *,
+    status: str | None = None,
+    date_from: str | None = None,
+    date_to: str | None = None,
+    page: int = 1,
+    limit: int = 50,
+) -> dict[str, Any]:
     store = (
         await session.execute(
             text("SELECT id FROM tcg_judge.stores WHERE id = :id AND owner_id = :oid"),
@@ -48,49 +57,204 @@ async def list_store_orders(
     if not store:
         raise HTTPException(404, "Loja não encontrada")
 
+    conditions = ["o.store_id = :sid"]
+    params: dict[str, Any] = {"sid": store_id, "lim": min(100, max(1, limit)), "off": (max(1, page) - 1) * limit}
+
+    if status:
+        conditions.append("o.status = :status")
+        params["status"] = status
+    if date_from:
+        conditions.append("o.created_at >= CAST(:df AS timestamptz)")
+        params["df"] = date_from
+    if date_to:
+        conditions.append("o.created_at <= CAST(:dt AS timestamptz)")
+        params["dt"] = date_to
+
+    where = " AND ".join(conditions)
     rows = (
         await session.execute(
             text(
-                """
+                f"""
                 SELECT o.*,
                   (SELECT json_agg(i.*) FROM tcg_judge.shop_order_items i WHERE i.order_id = o.id) AS items
                 FROM tcg_judge.shop_orders o
-                WHERE o.store_id = :sid
+                WHERE {where}
                 ORDER BY o.created_at DESC
-                LIMIT :lim
+                LIMIT :lim OFFSET :off
                 """
             ),
-            {"sid": store_id, "lim": limit},
+            params,
         )
     ).mappings().all()
-    return [dict(r) for r in rows]
+
+    count_row = (
+        await session.execute(
+            text(f"SELECT COUNT(*) AS total FROM tcg_judge.shop_orders o WHERE {where}"),
+            {k: v for k, v in params.items() if k not in {"lim", "off"}},
+        )
+    ).mappings().first()
+
+    return {
+        "orders": [dict(r) for r in rows],
+        "total": int(count_row["total"]) if count_row else 0,
+        "page": page,
+        "limit": limit,
+    }
 
 
 async def update_order_status(
-    session: AsyncSession, order_id: str, owner_id: str, status: str
+    session: AsyncSession,
+    order_id: str,
+    owner_id: str,
+    status: str,
+    *,
+    tracking_code: str | None = None,
 ) -> dict[str, Any]:
     allowed = {"processing", "shipped", "delivered", "cancelled"}
     if status not in allowed:
         raise HTTPException(400, "Status inválido")
 
+    extra_sets = ""
+    params: dict[str, Any] = {"id": order_id, "status": status, "oid": owner_id}
+    if status == "shipped":
+        extra_sets = ", shipped_at = NOW(), tracking_code = COALESCE(:tracking, tracking_code)"
+        params["tracking"] = tracking_code
+    elif status == "delivered":
+        extra_sets = ", delivered_at = NOW()"
+
     row = (
         await session.execute(
             text(
-                """
+                f"""
                 UPDATE tcg_judge.shop_orders o
-                SET status = :status, updated_at = NOW()
+                SET status = :status, updated_at = NOW(){extra_sets}
                 FROM tcg_judge.stores s
                 WHERE o.id = :id AND o.store_id = s.id AND s.owner_id = :oid
                 RETURNING o.*
                 """
             ),
-            {"id": order_id, "status": status, "oid": owner_id},
+            params,
         )
     ).mappings().first()
     if not row:
         raise HTTPException(404, "Pedido não encontrado")
+
+    await session.execute(
+        text(
+            """
+            INSERT INTO tcg_judge.shop_order_status_history (order_id, status, changed_by)
+            VALUES (:oid, :status, :uid)
+            """
+        ),
+        {"oid": order_id, "status": status, "uid": owner_id},
+    )
+
+    if status == "shipped":
+        await notify_shop_event(
+            session,
+            "shop:order_shipped",
+            order_id=order_id,
+            body=f"Pedido enviado{f' — rastreio: {tracking_code}' if tracking_code else ''}",
+        )
+    elif status == "delivered":
+        await notify_shop_event(
+            session,
+            "shop:order_delivered",
+            order_id=order_id,
+            body="Pedido entregue. Avalie sua compra!",
+        )
+
     await session.commit()
     return dict(row)
+
+
+async def export_store_orders_csv(
+    session: AsyncSession, store_id: str, owner_id: str
+) -> str:
+    result = await list_store_orders(session, store_id, owner_id, limit=1000)
+    lines = ["id,status,total_cents,payment_method,created_at,tracking_code"]
+    for o in result["orders"]:
+        lines.append(
+            f"{o['id']},{o['status']},{o['total_cents']},{o.get('payment_method','')},"
+            f"{o.get('created_at','')},{o.get('tracking_code') or ''}"
+        )
+    return "\n".join(lines)
+
+
+async def get_buyer_order(session: AsyncSession, order_id: str, buyer_id: str) -> dict[str, Any]:
+    row = (
+        await session.execute(
+            text(
+                """
+                SELECT o.*, s.name AS store_name, s.slug AS store_slug,
+                  (SELECT json_agg(i.*) FROM tcg_judge.shop_order_items i WHERE i.order_id = o.id) AS items
+                FROM tcg_judge.shop_orders o
+                JOIN tcg_judge.stores s ON s.id = o.store_id
+                WHERE o.id = :id AND o.buyer_id = :uid
+                """
+            ),
+            {"id": order_id, "uid": buyer_id},
+        )
+    ).mappings().first()
+    if not row:
+        raise HTTPException(404, "Pedido não encontrado")
+    return dict(row)
+
+
+async def store_dashboard_enhanced(session: AsyncSession, store_id: str, owner_id: str) -> dict[str, Any]:
+    base = await store_dashboard_stats(session, store_id, owner_id)
+    sales = (
+        await session.execute(
+            text(
+                """
+                SELECT DATE(created_at) AS day,
+                  COALESCE(SUM(store_receives_cents) FILTER (WHERE status = 'paid'), 0) AS revenue_cents,
+                  COUNT(*) FILTER (WHERE status = 'paid') AS orders
+                FROM tcg_judge.shop_orders
+                WHERE store_id = :sid AND created_at >= NOW() - INTERVAL '30 days'
+                GROUP BY DATE(created_at)
+                ORDER BY day
+                """
+            ),
+            {"sid": store_id},
+        )
+    ).mappings().all()
+    top_products = (
+        await session.execute(
+            text(
+                """
+                SELECT i.product_name, SUM(i.quantity) AS qty
+                FROM tcg_judge.shop_order_items i
+                JOIN tcg_judge.shop_orders o ON o.id = i.order_id
+                WHERE o.store_id = :sid AND o.status = 'paid'
+                GROUP BY i.product_name
+                ORDER BY qty DESC
+                LIMIT 5
+                """
+            ),
+            {"sid": store_id},
+        )
+    ).mappings().all()
+    today = (
+        await session.execute(
+            text(
+                """
+                SELECT
+                  COALESCE(SUM(store_receives_cents) FILTER (WHERE status = 'paid' AND created_at >= CURRENT_DATE), 0) AS today_cents,
+                  COALESCE(SUM(store_receives_cents) FILTER (WHERE status = 'paid' AND created_at >= CURRENT_DATE - INTERVAL '7 days'), 0) AS week_cents,
+                  COALESCE(SUM(store_receives_cents) FILTER (WHERE status = 'paid' AND created_at >= CURRENT_DATE - INTERVAL '30 days'), 0) AS month_cents
+                FROM tcg_judge.shop_orders WHERE store_id = :sid
+                """
+            ),
+            {"sid": store_id},
+        )
+    ).mappings().first()
+    return {
+        **base,
+        "sales_chart": [dict(r) for r in sales],
+        "top_products": [dict(r) for r in top_products],
+        "revenue": dict(today) if today else {},
+    }
 
 
 async def store_dashboard_stats(session: AsyncSession, store_id: str, owner_id: str) -> dict[str, Any]:

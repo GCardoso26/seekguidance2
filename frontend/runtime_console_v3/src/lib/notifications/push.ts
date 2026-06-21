@@ -31,6 +31,11 @@ export async function requestNotificationPermission(): Promise<NotificationPermi
   if (typeof window === "undefined" || !("Notification" in window)) return "denied";
   const permission = await Notification.requestPermission();
   if (permission === "granted") {
+    if (process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
+      const { requestNotificationPermission: requestFcm } = await import("@/lib/firebase");
+      const fcmToken = await requestFcm();
+      if (fcmToken) return permission;
+    }
     await subscribeToPush();
   }
   return permission;

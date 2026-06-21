@@ -8,7 +8,7 @@ from fastapi import HTTPException
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.marketplace.shop_store import STORE_SELLABLE_SQL, product_limit_for_plan
+from app.marketplace.shop_store import STORE_SELLABLE_SQL, effective_plan, product_limit_for_plan
 
 PRODUCT_CATEGORIES = frozenset({"booster", "sleeve", "deck_box", "playmat", "accessory"})
 
@@ -125,7 +125,7 @@ async def create_product(
     images: list[str] | None = None,
 ) -> dict[str, Any]:
     store = await _assert_store_owner(session, store_id, owner_id)
-    limit = product_limit_for_plan(store.get("subscription_plan"))
+    limit = product_limit_for_plan(effective_plan(store))
     if limit is not None:
         count_row = (
             await session.execute(

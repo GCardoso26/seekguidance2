@@ -1,0 +1,93 @@
+
+FullName                                                                                                       Length
+--------                                                                                                       ------
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\agent                                                            
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\config                                                           
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\context                                                          
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\mcp                                                              
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\project                                                          
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\skills                                                           
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\MANIFEST-files.txt                                               0
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\README.md                                                        1708
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\agent\subagents                                                  
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\agent\tools                                                      
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\agent\transcripts                                                
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\agent\subagents\1695bf62-b442-41b6-861f-ac9bc48a7475.jsonl       13870
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\agent\subagents\18e9922e-b763-481a-a957-0b6302dbc130.jsonl       16656
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\agent\subagents\f84ed14d-f43f-4e3d-b3a8-f382e336de62.jsonl       18687
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\agent\tools\09405589-6ed0-49bf-9542-c104583712a1.txt             164948
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\agent\tools\14d50c24-c7ca-469f-bfcd-710537f4f248.txt             147968
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\agent\tools\174cdbc5-5a4f-4581-a7cb-6b6ebbee24f7.txt             37179
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\agent\tools\25c8347a-df5e-498a-9272-83234c3c40f6.txt             59531
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\agent\tools\2bec8859-886d-473f-aa3f-ee723681a45d.txt             66268
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\agent\tools\9ff285d0-003d-4cfa-99a5-d8730831c3e5.txt             440440
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\agent\tools\bfbaa8dc-e368-46db-bd1f-4d110b40641a.txt             502816
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\agent\transcripts\c0b3a590-9268-47d0-9ce9-d36cf98db136.jsonl     1834796
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\config\agent-permissions.md                                      2085
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\config\cursor-extensions.json                                    2
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\config\cursor-ide-state.json                                     777
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\config\cursor-user-settings.json                                 65
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\config\user-rules.md                                             2047
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\context\AUTHENTICATION_GUIDE.md                                  1205
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\context\cursor-context-judge-tcg-v3.md                           1286
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\context\cursor-context-judge-tcg-v4.md                           2348
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\context\cursor-context-judge-tcg-v5.md                           2777
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\context\DEPLOY_CHECKLIST.md                                      3070
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\context\session-summary-2026-06-08.md                            2273
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\mcp\workspace-descriptors                                        
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\mcp\mcp.json                                                     86
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\mcp\plugin.json                                                  463
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\mcp\workspace-descriptors\tools                                  
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\mcp\workspace-descriptors\mcp_auth.json                          343
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\mcp\workspace-descriptors\SERVER_METADATA.json                   96
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\mcp\workspace-descriptors\STATUS.md                              254
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\mcp\workspace-descriptors\tools\mcp_auth.json                    343
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\project\oauth-fix-snapshot                                       
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\project\git-head.txt                                             42
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\project\git-log.txt                                              1570
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\project\git-remotes.txt                                          266
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\project\git-status.txt                                           3784
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\project\oauth-fix-snapshot\AuthProvider.tsx                      3742
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\project\oauth-fix-snapshot\middleware.ts                         1476
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\project\oauth-fix-snapshot\oauth-redirect.test.ts                1798
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\project\oauth-fix-snapshot\oauth-redirect.ts                     2016
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\project\oauth-fix-snapshot\route.ts                              2315
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\skills\automate                                                  
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\skills\babysit                                                   
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\skills\canvas                                                    
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\skills\create-hook                                               
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\skills\create-rule                                               
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\skills\create-skill                                              
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\skills\create-subagent                                           
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\skills\loop                                                      
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\skills\migrate-to-skills                                         
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\skills\sdk                                                       
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\skills\shell                                                     
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\skills\split-to-prs                                              
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\skills\statusline                                                
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\skills\supabase-plugin                                           
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\skills\update-cli-config                                         
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\skills\update-cursor-settings                                    
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\skills\.cursor-managed-skills-manifest.json                      318
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\skills\.sync-manifest.json                                       1027
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\skills\automate\SKILL.md                                         30278
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\skills\babysit\SKILL.md                                          1436
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\skills\canvas\SKILL.md                                           9170
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\skills\create-hook\SKILL.md                                      9192
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\skills\create-rule\SKILL.md                                      3636
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\skills\create-skill\SKILL.md                                     14412
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\skills\create-subagent\SKILL.md                                  6454
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\skills\loop\SKILL.md                                             3870
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\skills\migrate-to-skills\SKILL.md                                6439
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\skills\sdk\SKILL.md                                              19586
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\skills\shell\SKILL.md                                            867
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\skills\split-to-prs\SKILL.md                                     2261
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\skills\statusline\SKILL.md                                       7200
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\skills\supabase-plugin\supabase                                  
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\skills\supabase-plugin\supabase-postgres-best-practices          
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\skills\supabase-plugin\supabase\SKILL.md                         7628
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\skills\supabase-plugin\supabase-postgres-best-practices\SKILL.md 2576
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\skills\update-cli-config\SKILL.md                                3890
+S:\tcg-judge\.cursor-backup\2026-06-08_153556\skills\update-cursor-settings\SKILL.md                           4296
+
+

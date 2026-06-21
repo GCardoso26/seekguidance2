@@ -27,17 +27,26 @@ EVENT_TITLES: dict[str, str] = {
     "judge_call:accepted": "Juiz a caminho",
     "judge_call:resolved": "Chamada resolvida",
     "judge_call:escalated": "Chamada escalada",
+    "shop:order_created": "Novo pedido",
+    "shop:pix_paid": "PIX confirmado",
+    "shop:order_shipped": "Pedido enviado",
+    "shop:order_delivered": "Pedido entregue",
+    "shop:pro_activated": "Pro Loja ativado",
+    "shop:review_received": "Nova avaliação",
+    "shop:review_edited": "Avaliação editada",
 }
 
 
 class PushService:
     async def send(self, session: AsyncSession, user_id: str, payload: dict[str, Any]) -> bool:
         from app.notifications.expo_push import expo_push_service
+        from app.notifications.fcm_push import fcm_push_service
         from app.notifications.push import web_push_service
 
+        fcm_sent = await fcm_push_service.send(session, user_id, payload)
         expo_sent = await expo_push_service.send(session, user_id, payload)
         web_sent = await web_push_service.send(session, user_id, payload)
-        return expo_sent or web_sent
+        return fcm_sent or expo_sent or web_sent
 
 
 class EmailService:

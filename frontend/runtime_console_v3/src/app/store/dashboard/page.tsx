@@ -1,20 +1,36 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import { StoreDashboard } from "@/components/store/StoreDashboard";
+import { OrdersList } from "@/components/store/OrdersList";
+import { OrderFilters } from "@/components/store/OrderFilters";
 import { StripeConnectPanel } from "@/components/store/StripeConnectPanel";
 import { PixConfigForm } from "@/components/store/PixConfigForm";
+import { PixWebhookStatus } from "@/components/store/PixWebhookStatus";
 import { ProUpgradePanel } from "@/components/store/ProUpgradePanel";
+import { StoreReviewsManager } from "@/components/store/StoreReviewsManager";
+import { KpiCards } from "@/components/dashboard/KpiCards";
+import { QuickActions } from "@/components/dashboard/QuickActions";
+import { ProStatusWidget } from "@/components/dashboard/ProStatusWidget";
+import { DisputeEmptyState } from "@/components/disputes/DisputeEmptyState";
 import { ProductForm, type ProductFormValues } from "@/components/store/ProductForm";
 
-type DashboardTab = "overview" | "products" | "settings";
+const SalesChart = dynamic(() => import("@/components/dashboard/SalesChart").then((m) => m.SalesChart), {
+  loading: () => <div className="h-64 animate-pulse rounded-xl bg-white/5" />,
+  ssr: false,
+});
+
+type DashboardTab = "overview" | "products" | "settings" | "reviews" | "disputes";
 
 function tabFromParam(value: string | null): DashboardTab {
   if (value === "products" || value === "produtos") return "products";
+  if (value === "reviews" || value === "avaliacoes") return "reviews";
+  if (value === "disputes" || value === "disputas") return "disputes";
   if (value === "stripe" || value === "settings" || value === "pagamentos" || value === "payments") return "settings";
   return "overview";
 }
@@ -26,6 +42,7 @@ function DashboardContent() {
   const tabParam = searchParams.get("tab");
   const [storeId, setStoreId] = useState<string | null>(null);
   const [tab, setTab] = useState<DashboardTab>(() => tabFromParam(tabParam));
+  const [orderStatusFilter, setOrderStatusFilter] = useState("");
 
   useEffect(() => {
     setTab(tabFromParam(tabParam));
@@ -38,6 +55,8 @@ function DashboardContent() {
       if (!res.ok) return [];
       return res.json() as Promise<Array<Record<string, unknown>>>;
     },
+    staleTime: 30_000,
+    refetchOnWindowFocus: false,
   });
 
   useEffect(() => {
@@ -56,16 +75,23 @@ function DashboardContent() {
       return res.json();
     },
     enabled: Boolean(storeId),
+    staleTime: 30_000,
+    refetchOnWindowFocus: false,
   });
 
   const { data: ordersData, refetch: refetchOrders } = useQuery({
-    queryKey: ["store-orders", storeId],
+    queryKey: ["store-orders", storeId, orderStatusFilter],
     queryFn: async () => {
-      const res = await fetch(`/api/marketplace/shop/stores/${encodeURIComponent(storeId!)}/orders`);
+      const qs = orderStatusFilter ? `?status=${encodeURIComponent(orderStatusFilter)}` : "";
+      const res = await fetch(
+        `/api/marketplace/shop/stores/${encodeURIComponent(storeId!)}/orders${qs}`,
+      );
       if (!res.ok) return { orders: [] };
       return res.json();
     },
     enabled: Boolean(storeId),
+    staleTime: 30_000,
+    refetchOnWindowFocus: false,
   });
 
   const { data: productsData, refetch: refetchProducts } = useQuery({
@@ -91,6 +117,8 @@ function DashboardContent() {
     const params = new URLSearchParams(searchParams.toString());
     if (next === "overview") params.delete("tab");
     else if (next === "products") params.set("tab", "products");
+    else if (next === "reviews") params.set("tab", "avaliacoes");
+    else if (next === "disputes") params.set("tab", "disputas");
     else params.set("tab", "pagamentos");
     const qs = params.toString();
     router.replace(qs ? `/store/dashboard?${qs}` : "/store/dashboard", { scroll: false });
@@ -111,18 +139,9 @@ function DashboardContent() {
     await refetchDashboard();
   }
 
-  async function confirmPixOrder(orderId: string) {
-    const order = (ordersData?.orders ?? []).find((o: { id: string; pix_txid?: string }) => o.id === orderId) as
-      | { pix_txid?: string }
-      | undefined;
-    if (!order?.pix_txid) return;
-    await fetch("/api/marketplace/shop/pix/confirm", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ txid: order.pix_txid }),
-    });
-    await refetchOrders();
-    await refetchDashboard();
+  async function exportOrders() {
+    if (!storeId) return;
+    window.open(`/api/marketplace/shop/stores/${encodeURIComponent(storeId)}/orders/export`, "_blank");
   }
 
   if (storesLoading) return <p className="text-luxury-mist">Carregando loja…</p>;
@@ -140,6 +159,9 @@ function DashboardContent() {
 
   const store = dashboard?.store as Record<string, unknown> | undefined;
   const stats = (dashboard?.stats ?? {}) as Record<string, number>;
+  const revenue = (dashboard?.revenue ?? {}) as Record<string, number>;
+  const salesChart = (dashboard?.sales_chart ?? []) as Array<{ day: string; revenue_cents: number }>;
+  const plan = String(store?.subscription_plan ?? "free");
   const hasPix = Boolean(store?.pix_key);
   const paymentsPending = !hasPix;
 
@@ -165,6 +187,8 @@ function DashboardContent() {
           [
             { id: "overview" as const, label: "Pedidos" },
             { id: "products" as const, label: "Produtos" },
+            { id: "reviews" as const, label: "Avaliações" },
+            { id: "disputes" as const, label: "Disputas" },
             { id: "settings" as const, label: "Pagamentos", highlight: paymentsPending },
           ] as const
         ).map((t) => (
@@ -187,41 +211,48 @@ function DashboardContent() {
 
       {tab === "overview" && store && (
         <>
+          <ProStatusWidget plan={plan} expiresAt={store.subscription_expires_at as string | undefined} />
+          <QuickActions />
+          <KpiCards
+            revenue={revenue}
+            stats={stats}
+            averageRating={Number(store.average_rating ?? 0)}
+            plan={plan}
+          />
+          <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-luxury-mist">Vendas (30 dias)</h2>
+            <SalesChart data={salesChart} />
+          </div>
           <StoreDashboard
             storeName={String(store.name)}
             stats={stats}
+            orders={(ordersData?.orders ?? []).slice(0, 5)}
+            onRefreshOrders={() => void refetchOrders()}
+          />
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 className="text-lg font-semibold">Todos os pedidos</h2>
+            <div className="flex flex-wrap gap-2">
+              <OrderFilters status={orderStatusFilter} onChange={setOrderStatusFilter} />
+              <button type="button" onClick={() => void exportOrders()} className="text-sm text-luxury-gold">
+                Exportar CSV
+              </button>
+            </div>
+          </div>
+          <OrdersList
             orders={(ordersData?.orders ?? []) as Array<{
               id: string;
               status: string;
               total_cents: number;
               payment_method?: string;
               pix_txid?: string;
+              tracking_code?: string;
               items?: Array<{ product_name: string; quantity: number }>;
             }>}
-            onRefreshOrders={() => void refetchOrders()}
+            onUpdated={() => {
+              void refetchOrders();
+              void refetchDashboard();
+            }}
           />
-          {(ordersData?.orders ?? []).some(
-            (o: { status: string; payment_method?: string }) => o.status === "pending" && o.payment_method === "pix",
-          ) && (
-            <div className="rounded-xl border border-white/10 bg-white/5 p-4 text-sm">
-              <p className="font-medium">Pedidos PIX pendentes</p>
-              <p className="mt-1 text-luxury-mist">Confirme manualmente após receber o PIX na sua conta.</p>
-              <div className="mt-3 space-y-2">
-                {(ordersData?.orders ?? [])
-                  .filter((o: { status: string; payment_method?: string }) => o.status === "pending" && o.payment_method === "pix")
-                  .map((o: { id: string; total_cents: number }) => (
-                    <button
-                      key={o.id}
-                      type="button"
-                      onClick={() => void confirmPixOrder(o.id)}
-                      className="block w-full rounded-lg border border-emerald-500/30 px-3 py-2 text-left text-sm hover:bg-emerald-950/30"
-                    >
-                      Confirmar PIX — pedido #{o.id.slice(0, 8)} ({formatShopPrice(o.total_cents)})
-                    </button>
-                  ))}
-              </div>
-            </div>
-          )}
         </>
       )}
 
@@ -247,9 +278,14 @@ function DashboardContent() {
         </div>
       )}
 
+      {tab === "reviews" && storeId && <StoreReviewsManager storeId={storeId} />}
+
+      {tab === "disputes" && <DisputeEmptyState />}
+
       {tab === "settings" && storeId && (
         <div className="space-y-6">
           <PixConfigForm storeId={storeId} store={store} onSaved={() => void refetchDashboard()} />
+          <PixWebhookStatus storeId={storeId} />
           <StripeConnectPanel storeId={storeId} store={store} loading={dashboardLoading} />
           <ProUpgradePanel
             storeId={storeId}
@@ -260,10 +296,6 @@ function DashboardContent() {
       )}
     </div>
   );
-}
-
-function formatShopPrice(cents: number) {
-  return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(cents / 100);
 }
 
 export default function StoreDashboardPage() {

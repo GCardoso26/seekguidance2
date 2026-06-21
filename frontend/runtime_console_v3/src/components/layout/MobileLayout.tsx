@@ -3,12 +3,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
-import { Home, Plus, User, Users } from "lucide-react";
+import { Home, Plus, ShoppingBag, User, Users } from "lucide-react";
+import { GlobalNotificationBell } from "@/components/notifications/GlobalNotificationBell";
 
 type NavItem = { href: string; label: string; icon: typeof Home };
 
 const NAV: NavItem[] = [
   { href: "/", label: "Início", icon: Home },
+  { href: "/marketplace", label: "Loja", icon: ShoppingBag },
   { href: "/social/communities", label: "Social", icon: Users },
   { href: "/tournament/create", label: "Criar", icon: Plus },
   { href: "/player/me", label: "Perfil", icon: User },
@@ -43,6 +45,12 @@ export function MobileLayout({ children }: { children: ReactNode }) {
       >
         Pular para o conteúdo
       </a>
+      <header className="sticky top-0 z-40 flex items-center justify-between border-b border-white/10 bg-luxury-obsidian/95 px-4 py-2 backdrop-blur">
+        <Link href="/" className="text-sm font-semibold text-luxury-gold">
+          Judge TCG
+        </Link>
+        <GlobalNotificationBell />
+      </header>
       <main id="main-content" className={hideNav ? "flex-1" : "flex-1 pb-20 md:pb-0"}>
         {children}
       </main>

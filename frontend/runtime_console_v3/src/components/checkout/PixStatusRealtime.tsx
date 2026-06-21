@@ -1,0 +1,51 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import confetti from "canvas-confetti";
+
+type Props = {
+  txid: string;
+};
+
+export function PixStatusRealtime({ txid }: Props) {
+  const router = useRouter();
+  const [status, setStatus] = useState<"pending" | "paid" | "expired">("pending");
+
+  useEffect(() => {
+    if (!txid) return;
+    const id = setInterval(async () => {
+      const res = await fetch(`/api/marketplace/shop/pix/status/${encodeURIComponent(txid)}`);
+      if (!res.ok) return;
+      const data = (await res.json()) as { status: string };
+      if (data.status === "paid") {
+        setStatus("paid");
+        confetti({ particleCount: 80, spread: 60, origin: { y: 0.7 } });
+        clearInterval(id);
+        setTimeout(() => router.push("/marketplace/orders"), 2000);
+      } else if (data.status === "expired") {
+        setStatus("expired");
+        clearInterval(id);
+      }
+    }, 5000);
+    return () => clearInterval(id);
+  }, [txid, router]);
+
+  if (status === "paid") {
+    return (
+      <div className="rounded-lg border border-emerald-500/40 bg-emerald-950/30 p-4 text-center">
+        <p className="text-lg font-semibold text-emerald-300">Pagamento confirmado!</p>
+        <p className="mt-1 text-sm text-luxury-mist">Redirecionando…</p>
+      </div>
+    );
+  }
+  if (status === "expired") {
+    return <p className="text-sm text-red-300">PIX expirado. Gere um novo código.</p>;
+  }
+  return (
+    <p className="flex items-center justify-center gap-2 text-sm text-luxury-mist">
+      <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-luxury-gold border-t-transparent" />
+      Aguardando pagamento…
+    </p>
+  );
+}

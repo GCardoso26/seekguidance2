@@ -1,0 +1,4 @@
+origin	https://github.com/guibruno93/seekguidance.git (fetch)
+origin	https://github.com/guibruno93/seekguidance.git (push)
+seekguidance2	https://github.com/GCardoso26/seekguidance2.git (fetch)
+seekguidance2	https://github.com/GCardoso26/seekguidance2.git (push)

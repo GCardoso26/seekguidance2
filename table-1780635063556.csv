@@ -1,0 +1,6 @@
+﻿Problema,Causa Provável,Solução
+Checkout 400,Price IDs incorretas,Verificar `STRIPE_PRICE_*`
+Webhook 400,Signing secret errado,Verificar `STRIPE_WEBHOOK_SECRET`
+Subscription não aparece,Migration não aplicada,`supabase db push`
+Paywall não bloqueia,Middleware desativado,Verificar `src/middleware.ts`
+E2E falha,`STRIPE_E2E=1` não definido,Exportar variável antes de correr

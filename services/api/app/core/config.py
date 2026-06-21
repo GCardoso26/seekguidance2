@@ -242,7 +242,18 @@ class Settings(BaseSettings):
     stripe_checkout_success_url: str | None = None
     stripe_checkout_cancel_url: str | None = None
     stripe_connect_webhook_secret: str | None = None
+    stripe_price_store_pro: str | None = None
+    stripe_price_store_enterprise: str | None = None
     marketplace_app_url: str | None = None
+
+    # Gateway PIX da plataforma (webhook automático + assinatura Pro)
+    openpix_api_key: str | None = None
+    openpix_webhook_secret: str | None = None
+    asaas_api_key: str | None = None
+    asaas_webhook_token: str | None = None
+    platform_pix_key: str | None = None
+    platform_pix_key_type: str | None = None
+    pix_webhook_internal_secret: str | None = None
 
 
 @lru_cache

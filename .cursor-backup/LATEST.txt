@@ -1,0 +1,4 @@
+2026-06-08_153556
+
+Leia S:\tcg-judge\.cursor-backup\2026-06-08_153556\context\cursor-context-judge-tcg-v5.md
+e session-summary-2026-06-08.md para retomar o contexto Judge TCG.

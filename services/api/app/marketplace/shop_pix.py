@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import base64
+import hmac
 import io
 import json
 import uuid
@@ -14,7 +15,10 @@ from fastapi import HTTPException
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import Settings, get_settings
 from app.marketplace import shop_cart
+from app.marketplace.pix_gateway import get_pix_gateway, parse_json_body
+from app.marketplace.shop_notifications import notify_shop_event
 from app.marketplace.shop_store import store_has_pix, store_has_stripe, store_is_sellable
 
 logger = structlog.get_logger(__name__)
@@ -184,6 +188,8 @@ async def create_pix_checkout(
     user_id: str,
     *,
     shipping_address: dict[str, Any] | None = None,
+    coupon_code: str | None = None,
+    store_id: str | None = None,
 ) -> dict[str, Any]:
     methods = await get_checkout_methods(session, user_id)
     if not methods["methods"]["pix"]:
@@ -240,16 +246,70 @@ async def create_pix_checkout(
         )
 
     expires_at = datetime.now(UTC) + timedelta(minutes=PIX_EXPIRY_MINUTES)
+    settings = get_settings()
+    gateway = get_pix_gateway(settings)
+    expiry_seconds = PIX_EXPIRY_MINUTES * 60
+
+    coupon_store_id = store_id
+    if coupon_code:
+        normalized_code = coupon_code.strip().upper()
+        if not coupon_store_id:
+            if len(store_splits) != 1:
+                raise HTTPException(400, "Informe a loja para aplicar o cupom")
+            coupon_store_id = next(iter(store_splits))
+        elif coupon_store_id not in store_splits:
+            raise HTTPException(400, "Cupom não se aplica aos itens do carrinho")
+    else:
+        normalized_code = None
+
+    total_discount_cents = 0
+    total_charged_cents = 0
 
     for store_id, split in store_splits.items():
+        subtotal_cents = int(split["amount_cents"])
+        discount_cents = 0
+        coupon_id: str | None = None
+        applied_code: str | None = None
+
+        if normalized_code and coupon_store_id == store_id:
+            from app.marketplace import shop_coupons
+
+            coupon_result = await shop_coupons.validate_coupon(
+                session, store_id, normalized_code, subtotal_cents
+            )
+            discount_cents = int(coupon_result["discount_cents"])
+            coupon_id = str(coupon_result["coupon_id"])
+            applied_code = str(coupon_result["code"])
+
+        final_cents = subtotal_cents - discount_cents
+        total_discount_cents += discount_cents
+        total_charged_cents += final_cents
+
         txid = f"JTCG{uuid.uuid4().hex[:12].upper()}"
-        copy_payload = _build_copy_payload(
+        gateway_result: dict[str, Any] = {}
+        try:
+            gateway_result = await gateway.create_charge(
+                txid=txid,
+                amount_cents=final_cents,
+                pix_key=str(split["pix_key"]),
+                pix_key_type=None,
+                description=f"Pedido {split['store_name'][:40]}",
+                expires_in_seconds=expiry_seconds,
+            )
+        except Exception as exc:
+            logger.warning("pix_gateway_charge_failed", error=str(exc), txid=txid)
+
+        copy_payload = gateway_result.get("copy_payload") or _build_copy_payload(
             store_name=str(split["store_name"]),
             pix_key=str(split["pix_key"]),
-            amount_cents=split["amount_cents"],
+            amount_cents=final_cents,
             txid=txid,
         )
-        qr_b64 = _qr_base64(copy_payload)
+        qr_b64 = gateway_result.get("qr_code")
+        if not qr_b64 and copy_payload:
+            qr_b64 = _qr_base64(copy_payload)
+            if qr_b64:
+                qr_b64 = f"data:image/png;base64,{qr_b64}"
 
         order_row = (
             await session.execute(
@@ -258,10 +318,12 @@ async def create_pix_checkout(
                     INSERT INTO tcg_judge.shop_orders (
                       buyer_id, store_id, status, total_cents,
                       platform_fee_cents, store_receives_cents,
-                      shipping_address, payment_method, pix_txid
+                      shipping_address, payment_method, pix_txid,
+                      discount_cents, coupon_id, coupon_code, subtotal_cents
                     ) VALUES (
                       :buyer, :store, 'pending', :total,
-                      0, :total, :addr::jsonb, 'pix', :txid
+                      0, :total, :addr::jsonb, 'pix', :txid,
+                      :disc, :cid, :ccode, :subtotal
                     )
                     RETURNING id
                     """
@@ -269,9 +331,13 @@ async def create_pix_checkout(
                 {
                     "buyer": user_id,
                     "store": store_id,
-                    "total": split["amount_cents"],
+                    "total": final_cents,
                     "addr": json.dumps(shipping_address) if shipping_address else None,
                     "txid": txid,
+                    "disc": discount_cents,
+                    "cid": coupon_id,
+                    "ccode": applied_code,
+                    "subtotal": subtotal_cents,
                 },
             )
         ).mappings().first()
@@ -303,13 +369,26 @@ async def create_pix_checkout(
                 },
             )
 
+        if coupon_id and discount_cents > 0:
+            from app.marketplace import shop_coupons
+
+            await shop_coupons.record_coupon_use(
+                session,
+                coupon_id=coupon_id,
+                order_id=order_id,
+                user_id=user_id,
+                discount_cents=discount_cents,
+            )
+
         await session.execute(
             text(
                 """
                 INSERT INTO tcg_judge.pix_transactions (
-                  order_id, txid, pix_key, amount_cents, status, expires_at, payload
+                  order_id, txid, pix_key, amount_cents, status, expires_at, payload,
+                  gateway_provider, gateway_charge_id
                 ) VALUES (
-                  :oid, :txid, :key, :amt, 'pending', :exp, :payload
+                  :oid, :txid, :key, :amt, 'pending', :exp, :payload,
+                  :provider, :charge_id
                 )
                 """
             ),
@@ -317,10 +396,19 @@ async def create_pix_checkout(
                 "oid": order_id,
                 "txid": txid,
                 "key": split["pix_key"],
-                "amt": split["amount_cents"],
+                "amt": final_cents,
                 "exp": expires_at,
                 "payload": copy_payload,
+                "provider": gateway_result.get("gateway_provider") or "manual",
+                "charge_id": gateway_result.get("gateway_charge_id"),
             },
+        )
+
+        await notify_shop_event(
+            session,
+            "shop:order_created",
+            order_id=order_id,
+            body=f"Novo pedido PIX — R$ {_format_brl(final_cents)}",
         )
 
         pix_payloads.append(
@@ -330,10 +418,16 @@ async def create_pix_checkout(
                 "store_name": split["store_name"],
                 "txid": txid,
                 "pix_key": split["pix_key"],
-                "amount_cents": split["amount_cents"],
+                "subtotal_cents": subtotal_cents,
+                "discount_cents": discount_cents,
+                "coupon_code": applied_code,
+                "amount_cents": final_cents,
                 "copy_payload": copy_payload,
-                "qr_code": f"data:image/png;base64,{qr_b64}" if qr_b64 else None,
+                "qr_code": qr_b64 if isinstance(qr_b64, str) and qr_b64.startswith("data:") else (
+                    f"data:image/png;base64,{qr_b64}" if qr_b64 else None
+                ),
                 "expires_at": expires_at.isoformat(),
+                "gateway_provider": gateway_result.get("gateway_provider") or "manual",
             }
         )
 
@@ -342,14 +436,21 @@ async def create_pix_checkout(
 
     return {
         "payment_method": "pix",
-        "total_cents": methods["total_cents"],
+        "total_cents": total_charged_cents,
+        "original_total_cents": methods["total_cents"],
+        "discount_cents": total_discount_cents,
         "order_ids": order_ids,
         "pix": pix_payloads[0] if len(pix_payloads) == 1 else None,
         "pix_items": pix_payloads,
     }
 
 
-async def confirm_pix_payment(session: AsyncSession, txid: str) -> dict[str, Any]:
+async def confirm_pix_payment(
+    session: AsyncSession,
+    txid: str,
+    *,
+    webhook_payload: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     """Webhook ou confirmação manual — marca pedido PIX como pago."""
     pix_tx = (
         await session.execute(
@@ -359,19 +460,29 @@ async def confirm_pix_payment(session: AsyncSession, txid: str) -> dict[str, Any
     ).mappings().first()
     if not pix_tx:
         raise HTTPException(404, "Transação PIX não encontrada")
+
+    if pix_tx.get("gateway_provider") == "platform_pro":
+        from app.stores.subscriptions import confirm_pro_pix_payment
+
+        return await confirm_pro_pix_payment(session, txid)
+
     if pix_tx["status"] == "paid":
         return {"status": "paid", "order_id": str(pix_tx["order_id"])}
+    if pix_tx["status"] == "expired":
+        raise HTTPException(410, "Transação PIX expirada")
 
     order_id = str(pix_tx["order_id"])
+    payload_json = json.dumps(webhook_payload) if webhook_payload else None
     await session.execute(
         text(
             """
             UPDATE tcg_judge.pix_transactions
-            SET status = 'paid', paid_at = NOW()
+            SET status = 'paid', paid_at = NOW(),
+                webhook_payload = COALESCE(CAST(:payload AS jsonb), webhook_payload)
             WHERE txid = :txid
             """
         ),
-        {"txid": txid},
+        {"txid": txid, "payload": payload_json},
     )
     await session.execute(
         text(
@@ -402,5 +513,113 @@ async def confirm_pix_payment(session: AsyncSession, txid: str) -> dict[str, Any
             {"pid": str(item["product_id"]), "qty": int(item["quantity"])},
         )
 
+    await session.execute(
+        text(
+            """
+            INSERT INTO tcg_judge.shop_order_status_history (order_id, status, note)
+            VALUES (:oid, 'paid', 'Pagamento PIX confirmado')
+            """
+        ),
+        {"oid": order_id},
+    )
+
+    await notify_shop_event(
+        session,
+        "shop:pix_paid",
+        order_id=order_id,
+        body="Pagamento PIX confirmado. O lojista preparará o envio.",
+    )
+
     await session.commit()
     return {"status": "paid", "order_id": order_id}
+
+
+async def handle_pix_gateway_webhook(
+    session: AsyncSession,
+    settings: Settings,
+    raw_body: bytes,
+    headers: dict[str, str],
+) -> dict[str, Any]:
+    """Processa webhook do gateway PIX (OpenPix/Asaas) ou confirmação interna."""
+    gateway = get_pix_gateway(settings)
+    payload = parse_json_body(raw_body)
+
+    internal_secret = (settings.pix_webhook_internal_secret or "").strip()
+    provided = headers.get("x-pix-webhook-secret") or headers.get("X-Pix-Webhook-Secret") or ""
+    if internal_secret and hmac.compare_digest(provided, internal_secret):
+        txid = payload.get("txid")
+        if not txid:
+            raise HTTPException(400, "txid obrigatório")
+        return await confirm_pix_payment(session, str(txid), webhook_payload=payload)
+
+    if not gateway.verify_webhook(raw_body, headers):
+        raise HTTPException(401, "Assinatura de webhook inválida")
+
+    txid = gateway.parse_webhook(payload)
+    if not txid:
+        return {"status": "ignored", "reason": "evento não é confirmação de pagamento"}
+
+    return await confirm_pix_payment(session, txid, webhook_payload=payload)
+
+
+async def get_pix_status(session: AsyncSession, txid: str) -> dict[str, Any]:
+    row = (
+        await session.execute(
+            text(
+                """
+                SELECT pt.status, pt.order_id, pt.expires_at, pt.paid_at, o.status AS order_status
+                FROM tcg_judge.pix_transactions pt
+                LEFT JOIN tcg_judge.shop_orders o ON o.id = pt.order_id
+                WHERE pt.txid = :txid
+                """
+            ),
+            {"txid": txid},
+        )
+    ).mappings().first()
+    if not row:
+        raise HTTPException(404, "Transação não encontrada")
+    return {
+        "txid": txid,
+        "status": row["status"],
+        "order_id": str(row["order_id"]) if row.get("order_id") else None,
+        "order_status": row.get("order_status"),
+        "expires_at": row.get("expires_at"),
+        "paid_at": row.get("paid_at"),
+    }
+
+
+async def expire_pending_pix(session: AsyncSession) -> int:
+    """Marca transações PIX expiradas (cron)."""
+    result = await session.execute(
+        text(
+            """
+            UPDATE tcg_judge.pix_transactions
+            SET status = 'expired'
+            WHERE status = 'pending' AND expires_at < NOW()
+            RETURNING id
+            """
+        )
+    )
+    rows = result.mappings().all()
+    await session.commit()
+    return len(rows)
+
+
+async def get_pix_webhook_status(session: AsyncSession, store_id: str, owner_id: str) -> dict[str, Any]:
+    store = (
+        await session.execute(
+            text("SELECT id FROM tcg_judge.stores WHERE id = :id AND owner_id = :oid"),
+            {"id": store_id, "oid": owner_id},
+        )
+    ).mappings().first()
+    if not store:
+        raise HTTPException(404, "Loja não encontrada")
+
+    settings = get_settings()
+    provider = "openpix" if settings.openpix_api_key else "asaas" if settings.asaas_api_key else "manual"
+    return {
+        "gateway_provider": provider,
+        "automatic_confirmation": provider != "manual",
+        "webhook_url": "/runtime/judge/marketplace/shop/pix/webhook",
+        "manual_fallback": True,
+    }
