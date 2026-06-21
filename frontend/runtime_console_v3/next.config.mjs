@@ -42,6 +42,7 @@ const nextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: supabaseHost },
       { protocol: "https", hostname: "**.supabase.co" },
+      { protocol: "https", hostname: "cards.scryfall.io" },
       { protocol: "https", hostname: "tcg-judge.com" },
       { protocol: "https", hostname: "judgetcg.com.br" },
     ],

@@ -1,4 +1,4 @@
-"""Sync Scryfall → card_catalog."""
+"""Sync Scryfall → card_catalog (bulk oracle cards)."""
 
 from __future__ import annotations
 
@@ -10,6 +10,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.tcg_adapters.sync_common import normalize_name, upsert_card
 
 SCRYFALL_BULK = "https://api.scryfall.com/bulk-data"
+
+
+def _image_uris(card: dict[str, Any]) -> dict[str, str]:
+    uris = card.get("image_uris") or {}
+    if uris:
+        return {k: v for k, v in uris.items() if isinstance(v, str)}
+    faces = card.get("card_faces") or []
+    if faces and faces[0].get("image_uris"):
+        return {k: v for k, v in faces[0]["image_uris"].items() if isinstance(v, str)}
+    return {}
 
 
 async def sync_scryfall(session: AsyncSession, *, limit: int | None = None) -> dict[str, Any]:
@@ -26,35 +36,66 @@ async def sync_scryfall(session: AsyncSession, *, limit: int | None = None) -> d
         cards = download.json()
 
     count = 0
+    batch = 0
     for card in cards:
         if limit and count >= limit:
             break
         if card.get("layout") in ("token", "art_series", "double_faced_token"):
             continue
-        legalities = {k.upper(): v for k, v in (card.get("legalities") or {}).items()}
-        image = (card.get("image_uris") or {}).get("normal")
-        await upsert_card(
-            session,
-            {
-                "game_code": "MTG",
-                "external_id": card["id"],
-                "name": card["name"],
-                "normalized_name": normalize_name(card["name"]),
-                "set_code": card.get("set"),
-                "set_name": card.get("set_name"),
-                "card_number": card.get("collector_number"),
-                "rarity": card.get("rarity"),
-                "card_type": card.get("type_line"),
-                "legality": legalities,
-                "image_url": image,
-                "game_data": {
-                    "mana_cost": card.get("mana_cost"),
-                    "cmc": card.get("cmc"),
-                    "colors": card.get("colors") or [],
-                },
-            },
-        )
-        count += 1
 
-    await session.commit()
-    return {"status": "ok", "game": "MTG", "synced": count}
+        legalities = {k.upper(): v for k, v in (card.get("legalities") or {}).items()}
+        images = _image_uris(card)
+        image = images.get("normal")
+        prices = card.get("prices") or {}
+
+        try:
+            await upsert_card(
+                session,
+                {
+                    "game_code": "MTG",
+                    "external_id": card["id"],
+                    "name": card["name"],
+                    "normalized_name": normalize_name(card["name"]),
+                    "set_code": card.get("set"),
+                    "set_name": card.get("set_name"),
+                    "card_number": card.get("collector_number"),
+                    "rarity": card.get("rarity"),
+                    "card_type": card.get("type_line"),
+                    "legality": legalities,
+                    "image_url": image,
+                    "image_uris": images,
+                    "language": card.get("lang") or "en",
+                    "source": "scryfall",
+                    "external_ids": {"scryfall": card["id"]},
+                    "is_reprint": bool(card.get("reprint")),
+                    "version": 1,
+                    "price_usd": prices.get("usd"),
+                    "foil": False,
+                    "game_data": {
+                        "mana_cost": card.get("mana_cost"),
+                        "cmc": card.get("cmc"),
+                        "type_line": card.get("type_line"),
+                        "oracle_text": card.get("oracle_text"),
+                        "colors": card.get("colors") or [],
+                        "color_identity": card.get("color_identity") or [],
+                        "power": card.get("power"),
+                        "toughness": card.get("toughness"),
+                        "loyalty": card.get("loyalty"),
+                        "keywords": card.get("keywords") or [],
+                        "legalities": legalities,
+                        "edhrec_rank": card.get("edhrec_rank"),
+                    },
+                },
+            )
+            count += 1
+            batch += 1
+            if batch >= 250:
+                await session.commit()
+                batch = 0
+        except Exception:
+            await session.rollback()
+            batch = 0
+
+    if batch:
+        await session.commit()
+    return {"status": "ok", "game": "MTG", "synced": count, "source": "scryfall"}
