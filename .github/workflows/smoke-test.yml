@@ -1,0 +1,60 @@
+name: Smoke Test
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run smoke test
+        run: python scripts/smoke_test.py
+        env:
+          SMOKE_FRONTEND_URL: https://judgetcg.com.br
+          SMOKE_API_URL: https://seekguidance.onrender.com
+          SMOKE_FAIL_FAST: "0"
+
+      - name: Upload report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-test-report
+          path: smoke_test_report.html
+
+      - name: Notify on failure
+        if: failure() && secrets.SLACK_WEBHOOK_URL != ''
+        uses: slackapi/slack-github-action@v1.27.0
+        continue-on-error: true
+        with:
+          payload: |
+            {
+              "text": "Smoke test FAILED on Judge-TCG production",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Judge-TCG Smoke Test Failed*\n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK

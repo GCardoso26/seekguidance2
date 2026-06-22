@@ -1,50 +1,61 @@
 #!/usr/bin/env bash
-# Smoke test de produção — Judge-TCG
+# Smoke test de produção — Judge-TCG (alternativa leve)
 set -euo pipefail
 
-BASE="${BASE:-https://judgetcg.com.br}"
-API="${API:-https://seekguidance.onrender.com}"
+FRONTEND="${SMOKE_FRONTEND_URL:-https://judgetcg.com.br}"
+API="${SMOKE_API_URL:-https://seekguidance.onrender.com}"
+FAILED=0
+TOTAL=10
 
-pass=0
-fail=0
+echo "=== JUDGE-TCG SMOKE TEST ==="
+echo "$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+echo "Frontend: $FRONTEND"
+echo "API:      $API"
+echo ""
 
 check() {
-  local label="$1"
-  shift
-  printf "%-22s " "$label"
-  if "$@"; then
-    echo "OK"
-    pass=$((pass + 1))
-  else
-    echo "FAIL"
-    fail=$((fail + 1))
+  local name=$1
+  local url=$2
+  local expected_status=${3:-200}
+  local expected_body=${4:-""}
+
+  echo -n "  Testing $name... "
+
+  STATUS=$(curl -s -o /tmp/smoke_response -w "%{http_code}" --max-time 10 "$url" || echo "000")
+
+  if [ "$STATUS" != "$expected_status" ]; then
+    echo "FAIL (status $STATUS, expected $expected_status)"
+    FAILED=$((FAILED + 1))
+    return 0
   fi
+
+  if [ -n "$expected_body" ] && ! grep -qi "$expected_body" /tmp/smoke_response; then
+    echo "FAIL (body missing '$expected_body')"
+    FAILED=$((FAILED + 1))
+    return 0
+  fi
+
+  echo "OK"
 }
 
-echo "=== SMOKE TEST PRODUÇÃO ==="
-echo "Frontend: $BASE"
-echo "API:      $API"
-echo
+check "API Health" "$API/runtime/judge/health" 200 "ok"
+check "Catalog Health" "$API/runtime/judge/catalog/health" 200 "status"
+check "BFF Health" "$FRONTEND/api/health" 200 "ok"
+check "Frontend Home" "$FRONTEND/" 200 "Judge TCG"
+check "Search Page" "$FRONTEND/catalog/search?q=lightning" 200 "catalog/search"
+check "BFF Search" "$FRONTEND/api/catalog/cards/search?q=bolas&game=MTG" 200 "cards"
+check "Leaderboard" "$FRONTEND/leaderboard" 200 "leaderboard"
+check "Checkout" "$FRONTEND/marketplace/checkout" 200 "marketplace/checkout"
+check "Gamification Auth" "$API/runtime/judge/gamification/xp/me" 401 ""
+check "Admin Auth" "$API/runtime/judge/admin/analytics/dashboard" 401 ""
 
-check "1. Frontend" \
-  curl -sf -o /dev/null -w "%{http_code}" "$BASE/" | grep -qE '200|307'
+echo ""
+echo "=== RESULT: $((TOTAL - FAILED))/$TOTAL passed ==="
 
-check "2. API Health" \
-  curl -sf "$API/runtime/judge/health" | grep -qi 'healthy\|ok'
+if [ "$FAILED" -gt 0 ]; then
+  echo "SMOKE TEST FAILED"
+  exit 1
+fi
 
-check "3. Catalog" \
-  curl -sf "$API/runtime/judge/catalog/health" | grep -qiE 'ready|ok|healthy|loading'
-
-check "4. Search BFF" \
-  curl -sf "$BASE/api/catalog/cards/search?q=lightning&game=MTG" | grep -q 'cards'
-
-check "5. API /health BFF" \
-  curl -sf "$BASE/api/health" | grep -q 'ok'
-
-check "6. Liga Pass (anon)" \
-  curl -sf "$API/runtime/judge/gamification/xp/me" \
-    -H "X-Judge-User-Id: smoke-test-user" | grep -q 'total_xp'
-
-echo
-echo "=== RESULTADO: $pass OK, $fail FAIL ==="
-[ "$fail" -eq 0 ]
+echo "ALL CHECKS PASSED"
+exit 0

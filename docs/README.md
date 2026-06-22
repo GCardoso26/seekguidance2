@@ -43,11 +43,44 @@ Ver também [DEPLOY_CHECKLIST.md](DEPLOY_CHECKLIST.md) para smoke tests pós-dep
 
 Ver [MARKETPLACE.md](MARKETPLACE.md) e checklist completo em [SMOKE_TEST.md](SMOKE_TEST.md).
 
-## Worker (ranking decay)
+## Worker (ranking decay + relatório semanal)
 
 ```bash
 cd services/api
 python worker_main.py
 ```
 
-Job agendado: decay de ranking às 04:00 UTC.
+Jobs agendados (UTC):
+
+| Job | Horário | Descrição |
+|-----|---------|-----------|
+| `ranking_decay` | 04:00 diário | Decay de ranking |
+| `weekly_report` | Segunda 12:00 | Email semanal (9h BRT) |
+
+Variáveis no Render (worker):
+
+- `RESEND_API_KEY` — envio de email
+- `WEEKLY_REPORT_EMAIL` — destinatário (default: `admin@judgetcg.com.br`)
+- `WEEKLY_REPORT_DIR` — pasta de fallback se email falhar
+
+Testar relatório manualmente:
+
+```bash
+cd services/api
+python -m app.jobs.weekly_report
+```
+
+## Smoke test (CI/CD)
+
+Script Python (recomendado):
+
+```bash
+pip install requests
+python scripts/smoke_test.py
+```
+
+Variáveis opcionais: `SMOKE_FRONTEND_URL`, `SMOKE_API_URL`, `SMOKE_FAIL_FAST=0` (rodar todos os testes).
+
+Alternativa bash: `bash scripts/smoke-test-prod.sh`
+
+GitHub Actions: workflow `.github/workflows/smoke-test.yml` — a cada 6h, push em `main`, ou manual (`workflow_dispatch`).
