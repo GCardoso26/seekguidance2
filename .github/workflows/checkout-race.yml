@@ -4,11 +4,14 @@ on:
   push:
     branches: [main]
     paths:
+      - .github/workflows/checkout-race.yml
       - services/api/app/marketplace/checkout_atomic.py
       - services/api/tests/marketplace/**
+      - services/api/requirements-dev.txt
       - supabase/migrations/*checkout*
   pull_request:
     paths:
+      - .github/workflows/checkout-race.yml
       - services/api/app/marketplace/checkout_atomic.py
       - services/api/tests/marketplace/**
       - supabase/migrations/*checkout*
