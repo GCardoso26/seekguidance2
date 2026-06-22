@@ -137,7 +137,7 @@ export function FacetedSearch({ initialGame, initialQuery }: FacetedSearchProps)
             hasMore={Boolean(hasNextPage)}
             onLoadMore={() => fetchNextPage()}
             onViewDetail={(id) => router.push(`/cards/${id}`)}
-            onAddToDeck={() => router.push("/deckbuilder")}
+            onAddToDeck={(card) => router.push(`/decks?add=${card.id}`)}
             onAddToCart={() => router.push("/marketplace")}
           />
         </div>
