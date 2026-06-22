@@ -316,7 +316,7 @@ export function CardDetailPage({ cardId }: CardDetailPageProps) {
                   <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                     {relatedCards.slice(0, 4).map((related) => (
                       <Link key={related.id} href={`/cards/${related.id}`} className="block">
-                        <CardCard card={related} variant="compact" showPrice />
+                        <CardCard card={related} variant="compact" showPrice source="related" />
                       </Link>
                     ))}
                   </div>

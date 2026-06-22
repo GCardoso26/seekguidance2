@@ -58,6 +58,17 @@ export type EventPayload = {
 
 const QUEUE_KEY = "analytics_queue";
 const ANON_KEY = "analytics_anonymous_id";
+const SESSION_KEY = "analytics_session_id";
+
+function getSessionId(): string {
+  if (typeof window === "undefined") return "";
+  let id = sessionStorage.getItem(SESSION_KEY);
+  if (!id) {
+    id = crypto.randomUUID();
+    sessionStorage.setItem(SESSION_KEY, id);
+  }
+  return id;
+}
 
 const FLUSH_IMMEDIATE = new Set<AnalyticsEventName>([
   "checkout_started",
@@ -131,6 +142,7 @@ export async function trackEvent(
     game_slug,
     properties: {
       ...rest,
+      session_id: getSessionId(),
       ...(typeof window !== "undefined"
         ? { url: window.location.href, referrer: document.referrer }
         : {}),
@@ -150,6 +162,7 @@ export function __resetAnalyticsForTests() {
   if (typeof window === "undefined") return;
   localStorage.removeItem(QUEUE_KEY);
   localStorage.removeItem(ANON_KEY);
+  sessionStorage.removeItem(SESSION_KEY);
 }
 
 export function __readAnalyticsQueueForTests(): EventPayload[] {

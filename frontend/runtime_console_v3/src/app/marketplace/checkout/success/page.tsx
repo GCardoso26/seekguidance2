@@ -1,9 +1,27 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { useEffect } from "react";
 import { MobileLayout } from "@/components/layout/MobileLayout";
+import { trackEvent } from "@/lib/analytics";
 
 export default function CheckoutSuccessPage() {
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const orderId = searchParams.get("order_id");
+    const total = searchParams.get("total_cents");
+    if (orderId) {
+      void trackEvent("purchase", {
+        order_id: orderId,
+        total_cents: total ? Number(total) : undefined,
+        payment_method: searchParams.get("payment_method") ?? "stripe",
+        source: "checkout_success",
+      });
+    }
+  }, [searchParams]);
+
   return (
     <MobileLayout>
       <div className="container mx-auto max-w-lg px-4 py-16 text-center">

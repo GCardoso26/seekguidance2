@@ -10,6 +10,7 @@ export interface CardGridProps {
   hasMore?: boolean;
   onLoadMore?: () => void;
   emptyMessage?: string;
+  cardSource?: "search_results" | "related" | "trending" | "detail";
   onViewDetail?: (cardId: string) => void;
   onAddToDeck?: (card: UnifiedCard) => void;
   onAddToCart?: (card: UnifiedCard) => void;
@@ -21,6 +22,7 @@ export function CardGrid({
   hasMore,
   onLoadMore,
   emptyMessage = "Nenhuma carta encontrada",
+  cardSource = "search_results",
   onViewDetail,
   onAddToDeck,
   onAddToCart,
@@ -49,6 +51,7 @@ export function CardGrid({
             key={card.id}
             card={card}
             priority={index < 8}
+            source={cardSource}
             onViewDetail={onViewDetail}
             onAddToDeck={onAddToDeck}
             onAddToCart={onAddToCart}

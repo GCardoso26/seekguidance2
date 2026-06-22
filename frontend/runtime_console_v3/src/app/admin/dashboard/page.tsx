@@ -84,7 +84,10 @@ export default function AdminDashboardPage() {
               ))}
             </ul>
 
-            <Link href="/admin/analytics" className="mt-8 inline-block text-sm text-luxury-gold">
+            <Link href="/admin/retention" className="mt-4 inline-block text-sm text-luxury-gold">
+              Dashboard de retenção →
+            </Link>
+            <Link href="/admin/analytics" className="mt-4 ml-4 inline-block text-sm text-luxury-gold">
               Ver analytics de negócio completo →
             </Link>
           </>

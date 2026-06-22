@@ -24,6 +24,16 @@ async def _run_decay() -> None:
         logger.exception("ranking_decay_failed")
 
 
+async def _run_weekly_report() -> None:
+    try:
+        from app.jobs.weekly_report import run_weekly_report_job
+
+        result = await run_weekly_report_job()
+        logger.info("weekly_report_done %s", result)
+    except Exception:
+        logger.exception("weekly_report_failed")
+
+
 def main() -> None:
     settings = get_settings()
     if settings.environment == "production":
@@ -31,8 +41,9 @@ def main() -> None:
 
     scheduler = AsyncIOScheduler(timezone="UTC")
     scheduler.add_job(_run_decay, "cron", hour=4, minute=0, id="ranking_decay")
+    scheduler.add_job(_run_weekly_report, "cron", day_of_week="mon", hour=12, minute=0, id="weekly_report")
     scheduler.start()
-    logger.info("worker_started", env=settings.environment, jobs=["ranking_decay@04:00UTC"])
+    logger.info("worker_started", env=settings.environment, jobs=["ranking_decay@04:00UTC", "weekly_report@Mon12:00UTC"])
 
     try:
         asyncio.get_event_loop().run_forever()

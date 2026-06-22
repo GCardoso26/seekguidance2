@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { cardImageUrl } from "@/lib/format-currency";
 import type { UnifiedCard } from "@/types/card";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 const CONDITIONS: CardCondition[] = ["NM", "LP", "MP", "HP", "DM"];
 
@@ -26,6 +27,7 @@ export function CreateListingForm({ card }: CreateListingFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const imageSrc = cardImageUrl(card);
+  const { track } = useAnalytics();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,6 +59,12 @@ export function CreateListingForm({ card }: CreateListingFormProps) {
       }
 
       setSuccess(true);
+      track("listing_create", {
+        card_id: card.id,
+        card_name: card.name,
+        price: Number(price),
+        condition,
+      });
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro ao listar");

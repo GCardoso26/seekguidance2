@@ -8,12 +8,14 @@ import { cardImageUrl, formatCurrency } from "@/lib/format-currency";
 import { GAME_TOKENS } from "@/lib/tcg-tokens";
 import type { GameId, UnifiedCard } from "@/types/card";
 import { cn } from "@/lib/utils";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 export interface CardCardProps {
   card: UnifiedCard;
   variant?: "compact" | "detailed";
   priority?: boolean;
   showPrice?: boolean;
+  source?: "search_results" | "related" | "trending" | "detail";
   onAddToCart?: (card: UnifiedCard) => void;
   onAddToDeck?: (card: UnifiedCard) => void;
   onViewDetail?: (cardId: string) => void;
@@ -24,6 +26,7 @@ export function CardCard({
   variant = "compact",
   priority = false,
   showPrice = true,
+  source = "search_results",
   onAddToCart,
   onAddToDeck,
   onViewDetail,
@@ -33,6 +36,17 @@ export function CardCard({
   const price = card.lowestPrice ?? card.latestPrice?.price;
   const trend = card.priceTrend7d;
   const imageSrc = cardImageUrl(card);
+  const { track } = useAnalytics();
+
+  function handleViewDetail() {
+    track("card_view", {
+      card_id: card.id,
+      card_name: card.name,
+      game: card.game,
+      source,
+    });
+    onViewDetail?.(card.id);
+  }
 
   return (
     <article
@@ -65,7 +79,7 @@ export function CardCard({
         <div className="absolute inset-0 hidden items-center justify-center gap-2 bg-black/60 opacity-0 transition-opacity group-hover:opacity-100 md:flex">
           <button
             type="button"
-            onClick={() => onViewDetail?.(card.id)}
+            onClick={handleViewDetail}
             className="min-h-11 min-w-11 rounded-full bg-white p-2 text-black hover:bg-gray-200"
             aria-label={`Ver detalhes de ${card.name}`}
           >
@@ -141,7 +155,7 @@ export function CardCard({
             size="sm"
             variant="outline"
             className="min-h-11 flex-1"
-            onClick={() => onViewDetail?.(card.id)}
+            onClick={handleViewDetail}
           >
             Ver
           </Button>

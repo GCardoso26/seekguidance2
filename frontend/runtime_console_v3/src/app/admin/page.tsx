@@ -36,6 +36,13 @@ function AdminDashboard() {
 
           <div className="mt-8 grid gap-6 lg:grid-cols-2">
             <section className="rounded-xl border border-slate-700 p-4">
+              <h2 className="font-semibold">Retenção e funil</h2>
+              <p className="mt-2 text-sm text-slate-400">WAU/MAU, conversão e Liga Pass.</p>
+              <Link href="/admin/retention" className="mt-3 inline-block text-sm text-amber-400 hover:underline">
+                Abrir retenção →
+              </Link>
+            </section>
+            <section className="rounded-xl border border-slate-700 p-4">
               <h2 className="font-semibold">Dashboard marketplace</h2>
               <p className="mt-2 text-sm text-slate-400">GMV, conversão, top cartas e eventos.</p>
               <Link href="/admin/dashboard" className="mt-3 inline-block text-sm text-amber-400 hover:underline">

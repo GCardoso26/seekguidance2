@@ -59,6 +59,17 @@ async def admin_analytics_dashboard(
     return await marketplace_dashboard(session, days=days)
 
 
+@router.get("/analytics/retention")
+async def admin_analytics_retention(
+    session: DbSession,
+    admin_id: str = Depends(require_admin),
+    days: int = 30,
+) -> dict[str, Any]:
+    from app.analytics.retention import retention_metrics
+
+    return await retention_metrics(session, days=days)
+
+
 @router.get("/users")
 async def admin_users(
     session: DbSession,

@@ -8,6 +8,7 @@ import { MobileLayout } from "@/components/layout/MobileLayout";
 import { EnhancedPixCheckoutPanel } from "@/components/checkout/EnhancedPixCheckoutPanel";
 import { CouponApply } from "@/components/checkout/CouponApply";
 import { formatShopPrice } from "@/lib/marketplace-shop";
+import { trackEvent } from "@/lib/analytics";
 
 const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? "";
 const stripePromise = publishableKey ? loadStripe(publishableKey) : null;
@@ -117,6 +118,11 @@ export default function CheckoutPage() {
     setPixData(data.pix as PixData);
     if (typeof data.discount_cents === "number") setDiscountCents(data.discount_cents);
     if (typeof data.total_cents === "number") setTotalCents(data.total_cents);
+    void trackEvent("checkout_started", {
+      payment_method: "PIX",
+      total_cents: data.total_cents ?? totalCents,
+      txid: (data.pix as PixData)?.txid,
+    });
     setPixLoading(false);
   }
 

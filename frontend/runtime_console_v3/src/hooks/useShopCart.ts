@@ -51,7 +51,9 @@ export function useAddListingToCart() {
         void trackEvent("add_to_cart", {
           product_id: getListingProductId(variables.listing),
           card_id: variables.listing.cardId,
+          card_name: variables.card?.name,
           price: variables.listing.price,
+          seller_id: variables.listing.sellerId,
         });
         void queryClient.invalidateQueries({ queryKey: SHOP_CART_QUERY_KEY });
         openCart();

@@ -38,13 +38,6 @@ export function FacetedSearch({ initialGame, initialQuery }: FacetedSearchProps)
     return () => clearTimeout(timer);
   }, [filters.q]);
 
-  useEffect(() => {
-    const q = debouncedQ.trim();
-    if (q.length >= 2) {
-      track("search", { q, game: filters.game });
-    }
-  }, [debouncedQ, filters.game, track]);
-
   const queryFilters = useMemo(
     () => ({ ...filters, q: debouncedQ || undefined }),
     [filters, debouncedQ],
@@ -57,6 +50,18 @@ export function FacetedSearch({ initialGame, initialQuery }: FacetedSearchProps)
 
   const cards = useMemo(() => data?.pages.flatMap((p) => p.cards) ?? [], [data]);
   const total = data?.pages[0]?.total ?? 0;
+
+  useEffect(() => {
+    const q = debouncedQ.trim();
+    if (q.length >= 2) {
+      track("search", {
+        query: q,
+        game: filters.game,
+        set: filters.set,
+        results_count: total,
+      });
+    }
+  }, [debouncedQ, filters.game, filters.set, total, track]);
 
   const syncURL = useCallback(
     (next: SearchFilters) => {
