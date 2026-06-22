@@ -98,11 +98,6 @@ async def seller_orders_list(
 ) -> dict[str, Any]:
     user_id = _require_user(x_judge_user_id)
     store = await seller_dash.resolve_owner_store(session, user_id)
-    date_from = None
-    if period == "7d":
-        date_from = "NOW() - INTERVAL '7 days'"
-    elif period == "30d":
-        date_from = "NOW() - INTERVAL '30 days'"
     return await shop_orders.list_store_orders(
         session,
         str(store["id"]),
