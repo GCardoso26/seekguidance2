@@ -2,8 +2,29 @@
 
 SET search_path TO tcg_judge, public;
 
+DROP VIEW IF EXISTS tcg_judge.v_monetization_metrics;
+
 ALTER TABLE tcg_judge.analytics_events
   ALTER COLUMN user_id TYPE TEXT USING user_id::text;
+
+CREATE OR REPLACE VIEW tcg_judge.v_monetization_metrics AS
+SELECT
+  DATE_TRUNC('day', timestamp) AS day,
+  tier,
+  COUNT(DISTINCT COALESCE(user_id, anonymous_id)) AS unique_users,
+  COUNT(*) AS event_count,
+  COUNT(DISTINCT CASE WHEN event = 'checkout_completed' THEN COALESCE(user_id, anonymous_id) END) AS conversions
+FROM tcg_judge.analytics_events
+WHERE event IN (
+  'pricing_page_view',
+  'paywall_hit',
+  'checkout_started',
+  'checkout_completed',
+  'subscription_cancelled',
+  'pricing_cta_click',
+  'pricing_start_free'
+)
+GROUP BY 1, 2;
 
 ALTER TABLE tcg_judge.analytics_events
   ADD COLUMN IF NOT EXISTS session_id TEXT,
