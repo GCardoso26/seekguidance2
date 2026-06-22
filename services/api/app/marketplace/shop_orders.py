@@ -383,6 +383,34 @@ async def handle_payment_intent_succeeded(session: AsyncSession, settings: Setti
                     {"pid": str(item["product_id"]), "qty": int(item["quantity"])},
                 )
 
+    if order_ids:
+        from app.gamification.xp import award_xp_for_paid_order
+
+        for oid in order_ids:
+            try:
+                await award_xp_for_paid_order(session, oid)
+            except Exception as exc:
+                logger.warning("liga_pass_xp_failed", order_id=oid, error=str(exc))
+    elif payment_intent_id:
+        paid_orders = (
+            await session.execute(
+                text(
+                    """
+                    SELECT id FROM tcg_judge.shop_orders
+                    WHERE stripe_payment_intent_id = :pi AND status = 'paid'
+                    """
+                ),
+                {"pi": payment_intent_id},
+            )
+        ).mappings().all()
+        from app.gamification.xp import award_xp_for_paid_order
+
+        for row in paid_orders:
+            try:
+                await award_xp_for_paid_order(session, str(row["id"]))
+            except Exception as exc:
+                logger.warning("liga_pass_xp_failed", order_id=str(row["id"]), error=str(exc))
+
     await session.commit()
 
     if buyer_id and cart_id:

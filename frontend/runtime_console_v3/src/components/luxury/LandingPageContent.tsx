@@ -1,4 +1,5 @@
 import type { AudienceSegment } from "@/constants/luxury/landingCopy";
+import { CatalogMarketplaceSection } from "@/components/home/CatalogMarketplaceSection";
 import { CtaFinalSection } from "@/components/luxury/sections/CtaFinalSection";
 import { FeaturesSection } from "@/components/luxury/sections/FeaturesSection";
 import { HeroSection } from "@/components/luxury/sections/HeroSection";
@@ -17,6 +18,7 @@ export function LandingPageContent({ segment }: Props) {
   return (
     <>
       <HeroSection segment={segment} />
+      {segment === "home" && <CatalogMarketplaceSection />}
       {segment !== "home" && <SegmentPainSection segment={segment} />}
       <SocialProofStats segment={segment} />
       <FeaturesSection segment={segment} />

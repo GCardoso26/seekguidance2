@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from app.analytics.marketplace_dashboard import marketplace_dashboard
 from app.admin.audit import list_audit_logs
 from app.admin.business_analytics import business_analytics
 from app.admin.dashboard import platform_stats
@@ -43,7 +44,19 @@ async def admin_analytics(
     admin_id: str = Depends(require_admin),
     period: str = "30d",
 ) -> dict[str, Any]:
-    return await business_analytics(session, period=period)
+    base = await business_analytics(session, period=period)
+    days = base.get("periodDays", 30)
+    marketplace = await marketplace_dashboard(session, days=days)
+    return {**base, "marketplace": marketplace}
+
+
+@router.get("/analytics/dashboard")
+async def admin_analytics_dashboard(
+    session: DbSession,
+    admin_id: str = Depends(require_admin),
+    days: int = 30,
+) -> dict[str, Any]:
+    return await marketplace_dashboard(session, days=days)
 
 
 @router.get("/users")

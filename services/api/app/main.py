@@ -6,6 +6,9 @@ from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1.admin_api import router as admin_api_router
+from app.api.v1.alerts_api import router as alerts_api_router
+from app.api.v1.decks_api import router as decks_api_router
+from app.api.v1.gamification_api import router as gamification_api_router
 from app.api.v1.judge_assistant import router as judge_assistant_router
 from app.api.v1.judge_calls_api import router as judge_calls_router
 from app.api.v1.judge_product import router as judge_product_router
@@ -23,6 +26,7 @@ from app.api.v1.runtime_minimal import router as runtime_minimal_router
 from app.api.v1.runtime_operational import router as runtime_operational_router
 from app.api.v1.shop_api import router as shop_api_router
 from app.api.v1.social_api import router as social_api_router
+from app.catalog.catalog_api import router as catalog_api_router
 from app.api.v1.sponsorships_api import router as sponsorships_api_router
 from app.api.v1.stores_api import router as stores_api_router
 from app.api.v1.stripe_billing import router as stripe_billing_router
@@ -249,6 +253,10 @@ app.include_router(public_api_v1_router)
 app.include_router(reviews_api_router)
 app.include_router(sponsorships_api_router)
 app.include_router(shop_api_router)
+app.include_router(catalog_api_router)
+app.include_router(alerts_api_router)
+app.include_router(gamification_api_router)
+app.include_router(decks_api_router)
 app.include_router(runtime_ingestion_admin_router)
 
 

@@ -107,6 +107,21 @@ function AnalyticsDashboard() {
             />
           </div>
 
+          {data.marketplace && (
+            <>
+              <h2 className="mt-8 text-lg font-semibold text-slate-200">Marketplace (30d)</h2>
+              <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <StatCard title="GMV" value={new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(data.marketplace.gmv_brl)} />
+                <StatCard title="Conversão busca→compra" value={`${data.marketplace.conversion_rate}%`} />
+                <StatCard title="Buscas" value={String(data.marketplace.searches)} />
+                <StatCard title="Compras" value={String(data.marketplace.purchases)} />
+              </div>
+              <Link href="/admin/dashboard" className="mt-4 inline-block text-sm text-amber-400 hover:underline">
+                Dashboard marketplace completo →
+              </Link>
+            </>
+          )}
+
           <AdminAnalyticsCharts data={data} />
         </>
       )}

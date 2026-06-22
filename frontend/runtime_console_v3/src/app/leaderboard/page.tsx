@@ -1,30 +1,52 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { MobileLayout } from "@/components/layout/MobileLayout";
+import { LigaPassWidget } from "@/components/gamification/LigaPassWidget";
 import { useJudgeAuth } from "@/features/auth/AuthProvider";
 import { usePlayerProfile } from "@/hooks/usePlayerProfile";
 import { useLeaderboard } from "@/hooks/useRankings";
 import { TOURNAMENT_GAMES } from "@/lib/tcg-adapters";
 import { cn } from "@/lib/utils";
-import { Flame, Trophy, Search } from "lucide-react";
+import type { LigaPassLeaderboardEntry } from "@/types/gamification";
+import { LEVEL_COLORS } from "@/types/gamification";
+import { Award, Flame, Search, Trophy } from "lucide-react";
 
-type Metric = "competitive" | "consultations" | "streak";
+type Metric = "competitive" | "consultations" | "streak" | "liga";
 type Scope = "global" | "friends" | "state";
 
+type LeaderboardEntry = {
+  rank: number;
+  handle: string;
+  display_name: string;
+  avatar_url: string | null;
+  score: number;
+  player_id: string;
+  level?: string;
+};
+
 const METRICS: { id: Metric; label: string; icon: typeof Trophy }[] = [
+  { id: "liga", label: "Liga Pass", icon: Award },
   { id: "competitive", label: "Competitivo", icon: Trophy },
   { id: "consultations", label: "Consultas", icon: Search },
   { id: "streak", label: "Streak", icon: Flame },
 ];
 
+function rankEmoji(rank: number): string {
+  if (rank === 1) return "🥇";
+  if (rank === 2) return "🥈";
+  if (rank === 3) return "🥉";
+  return `#${rank}`;
+}
+
 export default function LeaderboardPage() {
   const { user } = useJudgeAuth();
   const { data: profile } = usePlayerProfile(user ? "me" : "");
   const [game, setGame] = useState("magic");
-  const [metric, setMetric] = useState<Metric>("consultations");
+  const [metric, setMetric] = useState<Metric>("liga");
   const [scope, setScope] = useState<Scope>("global");
 
   const format = "STANDARD";
@@ -34,6 +56,16 @@ export default function LeaderboardPage() {
     1,
   );
 
+  const { data: ligaData, isLoading: ligaLoading } = useQuery({
+    queryKey: ["leaderboard-liga"],
+    queryFn: async () => {
+      const res = await fetch("/api/gamification/leaderboard?limit=50");
+      if (!res.ok) throw new Error("Leaderboard Liga Pass indisponível");
+      return res.json() as Promise<LigaPassLeaderboardEntry[]>;
+    },
+    enabled: metric === "liga",
+  });
+
   const { data: customData, isLoading: customLoading } = useQuery({
     queryKey: ["leaderboard-custom", game, metric, scope, user?.id],
     queryFn: async () => {
@@ -42,22 +74,26 @@ export default function LeaderboardPage() {
       const res = await fetch(`/api/leaderboard/custom?${qs}`);
       if (!res.ok) throw new Error("Leaderboard indisponível");
       return res.json() as Promise<{
-        entries: Array<{
-          rank: number;
-          handle: string;
-          display_name: string;
-          avatar_url: string | null;
-          score: number;
-          player_id: string;
-        }>;
+        entries: LeaderboardEntry[];
         myRank: number | null;
         total: number;
       }>;
     },
-    enabled: metric !== "competitive",
+    enabled: metric !== "competitive" && metric !== "liga",
   });
 
-  const entries = useMemo(() => {
+  const entries = useMemo((): LeaderboardEntry[] => {
+    if (metric === "liga") {
+      return (ligaData ?? []).map((e) => ({
+        rank: e.rank,
+        handle: e.username,
+        display_name: e.display_name ?? e.username,
+        avatar_url: e.avatar,
+        score: e.total_xp,
+        player_id: e.username,
+        level: e.level,
+      }));
+    }
     if (metric === "competitive") {
       const raw = competitiveData as { entries?: Array<Record<string, unknown>> } | undefined;
       return (raw?.entries ?? []).slice(0, 10).map((e, i) => ({
@@ -70,11 +106,19 @@ export default function LeaderboardPage() {
       }));
     }
     return customData?.entries ?? [];
-  }, [metric, competitiveData, customData]);
+  }, [metric, competitiveData, customData, ligaData]);
 
-  const myRank = metric === "competitive" ? null : (customData?.myRank ?? null);
-  const total = metric === "competitive" ? entries.length : (customData?.total ?? entries.length);
-  const loading = metric === "competitive" ? competitiveLoading : customLoading;
+  const myRank = metric === "competitive" || metric === "liga" ? null : (customData?.myRank ?? null);
+  const total =
+    metric === "competitive" || metric === "liga"
+      ? entries.length
+      : (customData?.total ?? entries.length);
+  const loading =
+    metric === "competitive"
+      ? competitiveLoading
+      : metric === "liga"
+        ? ligaLoading
+        : customLoading;
 
   const gameLabel = TOURNAMENT_GAMES.find((g) => g.code === game)?.name ?? game;
 
@@ -85,23 +129,33 @@ export default function LeaderboardPage() {
           ← Início
         </Link>
         <h1 className="mt-2 text-3xl font-bold">Leaderboard</h1>
-        <p className="mt-1 text-sm text-luxury-mist">Top jogadores por TCG e categoria</p>
+        <p className="mt-1 text-sm text-luxury-mist">
+          {metric === "liga" ? "Ranking global Liga Pass (XP)" : "Top jogadores por TCG e categoria"}
+        </p>
 
-        <div className="mt-6 flex flex-wrap gap-2">
-          {TOURNAMENT_GAMES.slice(0, 8).map((g) => (
-            <button
-              key={g.code}
-              type="button"
-              onClick={() => setGame(g.code)}
-              className={cn(
-                "rounded-full px-3 py-1 text-xs font-medium",
-                game === g.code ? "bg-luxury-gold/20 text-luxury-gold-light" : "bg-white/5 text-luxury-mist",
-              )}
-            >
-              {g.name}
-            </button>
-          ))}
-        </div>
+        {metric === "liga" && user && (
+          <div className="mt-4">
+            <LigaPassWidget />
+          </div>
+        )}
+
+        {metric !== "liga" && (
+          <div className="mt-6 flex flex-wrap gap-2">
+            {TOURNAMENT_GAMES.slice(0, 8).map((g) => (
+              <button
+                key={g.code}
+                type="button"
+                onClick={() => setGame(g.code)}
+                className={cn(
+                  "rounded-full px-3 py-1 text-xs font-medium",
+                  game === g.code ? "bg-luxury-gold/20 text-luxury-gold-light" : "bg-white/5 text-luxury-mist",
+                )}
+              >
+                {g.name}
+              </button>
+            ))}
+          </div>
+        )}
 
         <div className="mt-4 flex flex-wrap gap-2">
           {METRICS.map((m) => {
@@ -123,7 +177,7 @@ export default function LeaderboardPage() {
           })}
         </div>
 
-        {metric !== "competitive" && (
+        {metric !== "competitive" && metric !== "liga" && (
           <div className="mt-3 flex gap-2">
             {(["global", "friends", "state"] as Scope[]).map((s) => (
               <button
@@ -157,12 +211,37 @@ export default function LeaderboardPage() {
               key={`${e.player_id}-${e.rank}`}
               className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 p-3"
             >
-              <span className="w-8 text-center text-lg font-bold text-luxury-gold">#{e.rank}</span>
+              <span className="w-10 text-center text-lg font-bold text-luxury-gold">
+                {metric === "liga" ? rankEmoji(e.rank) : `#${e.rank}`}
+              </span>
+              {e.avatar_url ? (
+                <Image
+                  src={e.avatar_url}
+                  alt=""
+                  width={40}
+                  height={40}
+                  className="h-10 w-10 rounded-full object-cover"
+                />
+              ) : (
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-xs font-bold text-luxury-mist">
+                  {(e.display_name || e.handle).slice(0, 1).toUpperCase()}
+                </div>
+              )}
               <div className="min-w-0 flex-1">
                 <p className="truncate font-medium">{e.display_name || `@${e.handle}`}</p>
-                <p className="text-xs text-luxury-mist">@{e.handle}</p>
+                <p className="text-xs capitalize text-luxury-mist">
+                  {metric === "liga" && e.level ? (
+                    <span style={{ color: LEVEL_COLORS[e.level as keyof typeof LEVEL_COLORS] }}>
+                      {e.level}
+                    </span>
+                  ) : (
+                    `@${e.handle}`
+                  )}
+                </p>
               </div>
-              <span className="text-sm font-semibold text-luxury-frost">{e.score}</span>
+              <span className="text-sm font-semibold text-luxury-frost">
+                {metric === "liga" ? `${e.score.toLocaleString("pt-BR")} XP` : e.score}
+              </span>
             </li>
           ))}
         </ul>

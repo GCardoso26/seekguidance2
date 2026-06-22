@@ -30,6 +30,7 @@ import { computePlayerJudgeStats } from "@/lib/player-judge-stats";
 import { BRAZILIAN_STATES } from "@/constants/brazilian-states";
 import { TCG_OPTIONS } from "@/types/judge";
 import { Award, BarChart3, CreditCard, Flame, History, MessageCircle } from "lucide-react";
+import { LigaPassWidget } from "@/components/gamification/LigaPassWidget";
 import { cn } from "@/lib/utils";
 
 const TCG_LABELS = Object.fromEntries(TCG_OPTIONS.map((g) => [g.id, g.label]));
@@ -276,6 +277,7 @@ function MyProfilePageContent() {
         <div className="mt-6 space-y-6">
           {tab === "overview" && (
             <>
+              <LigaPassWidget />
               <Card className="border-white/10 bg-white/5">
                 <CardHeader>
                   <CardTitle>Consultas recentes</CardTitle>
