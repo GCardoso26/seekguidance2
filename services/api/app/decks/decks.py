@@ -331,7 +331,7 @@ async def list_public_decks(
     limit: int = 50,
 ) -> list[dict[str, Any]]:
     limit = max(1, min(limit, 100))
-    clauses = ["d.is_public = TRUE"]
+    clauses = ["d.is_public = TRUE", "COALESCE(d.is_validated, FALSE) = TRUE"]
     params: dict[str, Any] = {"lim": limit}
     if game:
         clauses.append("LOWER(d.game) = LOWER(:game)")
@@ -584,6 +584,8 @@ async def publish_deck(session: AsyncSession, owner_id: str, deck_id: str) -> di
     deck = await _fetch_deck_row(session, uid)
     if deck["owner_id"] != owner_id:
         raise HTTPException(403, "Não autorizado")
+    if not deck.get("is_validated"):
+        raise HTTPException(400, "Valide o deck antes de publicar")
 
     await session.execute(
         text("UPDATE tcg_judge.decks SET is_public = TRUE, updated_at = NOW() WHERE id = :id"),
@@ -779,6 +781,131 @@ async def list_user_collection(session: AsyncSession, user_id: str) -> list[dict
         }
         for r in rows
     ]
+
+
+async def add_to_user_collection(
+    session: AsyncSession,
+    user_id: str,
+    *,
+    card_id: str,
+    quantity: int = 1,
+    condition: str = "NM",
+    is_foil: bool = False,
+) -> dict[str, Any]:
+    if quantity < 1:
+        raise HTTPException(400, "Quantidade inválida")
+    card_uuid = _parse_uuid(card_id, field="card_id")
+    from app.players.store import ensure_player_profile
+
+    await ensure_player_profile(session, user_id)
+
+    card_exists = (
+        await session.execute(
+            text("SELECT 1 FROM tcg_judge.card_catalog WHERE id = :id"),
+            {"id": card_uuid},
+        )
+    ).first()
+    if not card_exists:
+        raise HTTPException(404, "Carta não encontrada")
+
+    existing = (
+        await session.execute(
+            text(
+                """
+                SELECT id, quantity FROM tcg_judge.user_collections
+                WHERE user_id = :uid AND card_id = :cid AND condition = :cond AND is_foil = :foil
+                """
+            ),
+            {"uid": user_id, "cid": card_uuid, "cond": condition, "foil": is_foil},
+        )
+    ).mappings().first()
+
+    if existing:
+        new_qty = int(existing["quantity"]) + quantity
+        await session.execute(
+            text(
+                """
+                UPDATE tcg_judge.user_collections
+                SET quantity = :qty, acquired_at = COALESCE(acquired_at, NOW())
+                WHERE id = :id
+                """
+            ),
+            {"qty": new_qty, "id": existing["id"]},
+        )
+    else:
+        await session.execute(
+            text(
+                """
+                INSERT INTO tcg_judge.user_collections (user_id, card_id, quantity, condition, is_foil, acquired_at)
+                VALUES (:uid, :cid, :qty, :cond, :foil, NOW())
+                """
+            ),
+            {"uid": user_id, "cid": card_uuid, "qty": quantity, "cond": condition, "foil": is_foil},
+        )
+    await session.commit()
+    items = await list_user_collection(session, user_id)
+    return {"success": True, "items": items}
+
+
+async def update_user_collection_item(
+    session: AsyncSession,
+    user_id: str,
+    item_id: str,
+    *,
+    quantity: int | None = None,
+    condition: str | None = None,
+    is_foil: bool | None = None,
+) -> dict[str, Any]:
+    uid = _parse_uuid(item_id, field="item_id")
+    row = (
+        await session.execute(
+            text("SELECT * FROM tcg_judge.user_collections WHERE id = :id"),
+            {"id": uid},
+        )
+    ).mappings().first()
+    if not row or row["user_id"] != user_id:
+        raise HTTPException(404, "Item não encontrado")
+
+    updates: dict[str, Any] = {}
+    if quantity is not None:
+        if quantity < 1:
+            raise HTTPException(400, "Quantidade inválida")
+        updates["quantity"] = quantity
+    if condition is not None:
+        updates["condition"] = condition
+    if is_foil is not None:
+        updates["is_foil"] = is_foil
+    if not updates:
+        items = await list_user_collection(session, user_id)
+        return {"success": True, "items": items}
+
+    set_clause = ", ".join(f"{k} = :{k}" for k in updates)
+    await session.execute(
+        text(f"UPDATE tcg_judge.user_collections SET {set_clause} WHERE id = :id"),
+        {**updates, "id": uid},
+    )
+    await session.commit()
+    items = await list_user_collection(session, user_id)
+    return {"success": True, "items": items}
+
+
+async def remove_user_collection_item(
+    session: AsyncSession,
+    user_id: str,
+    item_id: str,
+) -> dict[str, Any]:
+    uid = _parse_uuid(item_id, field="item_id")
+    row = (
+        await session.execute(
+            text("SELECT user_id FROM tcg_judge.user_collections WHERE id = :id"),
+            {"id": uid},
+        )
+    ).mappings().first()
+    if not row or row["user_id"] != user_id:
+        raise HTTPException(404, "Item não encontrado")
+    await session.execute(text("DELETE FROM tcg_judge.user_collections WHERE id = :id"), {"id": uid})
+    await session.commit()
+    return {"success": True}
 
 
 async def export_deck(

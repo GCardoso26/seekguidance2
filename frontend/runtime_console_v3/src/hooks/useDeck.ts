@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { CreateDeckInput, Deck, DeckFormat, DeckValidation } from "@/types/deck";
+import { normalizeValidationResult } from "@/lib/deck-validation";
 
 export const DECKS_QUERY_KEY = ["decks"] as const;
 
@@ -160,8 +161,8 @@ export function useValidateDeck(deckId: string) {
         body: JSON.stringify({ owner_only: true }),
       });
       if (!res.ok) throw new Error("Falha ao validar deck");
-      const data = (await res.json()) as { validation: DeckValidation };
-      return data.validation;
+      const data = (await res.json()) as { validation: DeckValidation & { is_valid?: boolean } };
+      return normalizeValidationResult(data.validation);
     },
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: [...DECKS_QUERY_KEY, deckId] });
@@ -174,10 +175,93 @@ export function useUserCollection() {
     queryKey: ["user-collection"],
     queryFn: async () => {
       const res = await fetch("/api/user/collection", { cache: "no-store" });
-      if (res.status === 401) return [] as Array<{ card_id: string; quantity: number }>;
+      if (res.status === 401) return [] as CollectionItem[];
       if (!res.ok) throw new Error("Erro ao carregar coleção");
-      const data = (await res.json()) as { items: Array<{ card_id: string; quantity: number }> };
+      const data = (await res.json()) as { items: CollectionItem[] };
       return data.items ?? [];
+    },
+  });
+}
+
+export type CollectionItem = {
+  id: string;
+  card_id: string;
+  quantity: number;
+  condition: string;
+  is_foil: boolean;
+  acquired_at?: string | null;
+  card?: {
+    name: string;
+    set_code?: string;
+    set_name?: string;
+    game_code?: string;
+    image_url?: string;
+    image_uris?: Record<string, string>;
+  };
+};
+
+export function useAddToCollection() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (body: {
+      card_id: string;
+      quantity?: number;
+      condition?: string;
+      is_foil?: boolean;
+    }) => {
+      const res = await fetch("/api/user/collection", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) {
+        const data = (await res.json()) as { detail?: string };
+        throw new Error(data.detail ?? "Erro ao adicionar à coleção");
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ["user-collection"] });
+    },
+  });
+}
+
+export function useUpdateCollectionItem() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      itemId,
+      ...body
+    }: {
+      itemId: string;
+      quantity?: number;
+      condition?: string;
+      is_foil?: boolean;
+    }) => {
+      const res = await fetch(`/api/user/collection/${itemId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) throw new Error("Erro ao atualizar item");
+      return res.json();
+    },
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ["user-collection"] });
+    },
+  });
+}
+
+export function useRemoveCollectionItem() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (itemId: string) => {
+      const res = await fetch(`/api/user/collection/${itemId}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Erro ao remover item");
+      return res.json();
+    },
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ["user-collection"] });
     },
   });
 }

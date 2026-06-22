@@ -46,6 +46,19 @@ class DeckValidateBody(BaseModel):
     owner_only: bool = True
 
 
+class CollectionAddBody(BaseModel):
+    card_id: str
+    quantity: int = Field(default=1, ge=1, le=999)
+    condition: str = Field(default="NM", max_length=20)
+    is_foil: bool = False
+
+
+class CollectionUpdateBody(BaseModel):
+    quantity: int | None = Field(default=None, ge=1, le=999)
+    condition: str | None = Field(default=None, max_length=20)
+    is_foil: bool | None = None
+
+
 @router.post("/runtime/judge/decks")
 async def create_deck(
     session: DbSession,
@@ -248,3 +261,48 @@ async def user_collection(
     user_id = _require_user(x_judge_user_id)
     items = await decks_svc.list_user_collection(session, user_id)
     return {"items": items}
+
+
+@router.post("/runtime/judge/user/collection")
+async def user_collection_add(
+    session: DbSession,
+    body: CollectionAddBody,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    return await decks_svc.add_to_user_collection(
+        session,
+        user_id,
+        card_id=body.card_id,
+        quantity=body.quantity,
+        condition=body.condition,
+        is_foil=body.is_foil,
+    )
+
+
+@router.patch("/runtime/judge/user/collection/{item_id}")
+async def user_collection_update(
+    session: DbSession,
+    item_id: str,
+    body: CollectionUpdateBody,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    return await decks_svc.update_user_collection_item(
+        session,
+        user_id,
+        item_id,
+        quantity=body.quantity,
+        condition=body.condition,
+        is_foil=body.is_foil,
+    )
+
+
+@router.delete("/runtime/judge/user/collection/{item_id}")
+async def user_collection_remove(
+    session: DbSession,
+    item_id: str,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    return await decks_svc.remove_user_collection_item(session, user_id, item_id)

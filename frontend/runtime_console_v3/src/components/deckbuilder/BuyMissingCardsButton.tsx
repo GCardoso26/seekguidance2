@@ -5,23 +5,24 @@ import { useRouter } from "next/navigation";
 import { ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Deck } from "@/types/deck";
+import type { CollectionItem } from "@/hooks/useDeck";
+import { buildMissingCardsSearchUrl, calculateMissingCards } from "@/lib/deck-pricing";
 
 interface BuyMissingCardsButtonProps {
   deck: Deck;
-  ownedCardIds: string[];
+  collection: CollectionItem[];
 }
 
-export function BuyMissingCardsButton({ deck, ownedCardIds }: BuyMissingCardsButtonProps) {
+export function BuyMissingCardsButton({ deck, collection }: BuyMissingCardsButtonProps) {
   const router = useRouter();
-  const owned = useMemo(() => new Set(ownedCardIds), [ownedCardIds]);
 
-  const missingIds = useMemo(() => {
-    const ids = [...deck.main_deck, ...deck.sideboard]
-      .map((entry) => entry.card_id)
-      .filter((id, idx, arr) => arr.indexOf(id) === idx)
-      .filter((id) => !owned.has(id));
-    return ids;
-  }, [deck.main_deck, deck.sideboard, owned]);
+  const missing = useMemo(() => {
+    const allCards = [...deck.main_deck, ...deck.sideboard, ...deck.commander];
+    return calculateMissingCards(
+      allCards,
+      collection.map((c) => ({ card_id: c.card_id, quantity: c.quantity })),
+    );
+  }, [deck, collection]);
 
   const gameSlug = deck.game.toLowerCase();
 
@@ -30,15 +31,16 @@ export function BuyMissingCardsButton({ deck, ownedCardIds }: BuyMissingCardsBut
       type="button"
       size="sm"
       variant="outline"
-      disabled={missingIds.length === 0}
-      onClick={() => {
-        const params = new URLSearchParams();
-        for (const id of missingIds) params.append("card_id", id);
-        router.push(`/loja/${gameSlug}/busca?${params.toString()}`);
-      }}
+      disabled={missing.length === 0}
+      onClick={() => router.push(buildMissingCardsSearchUrl(gameSlug, missing))}
+      title={
+        missing.length > 0
+          ? missing.map((m) => `${m.missing}x ${m.name} (tem ${m.owned}/${m.needed})`).join(", ")
+          : undefined
+      }
     >
       <ShoppingBag className="mr-2 h-4 w-4" />
-      Comprar faltantes ({missingIds.length})
+      Comprar faltantes ({missing.length})
     </Button>
   );
 }

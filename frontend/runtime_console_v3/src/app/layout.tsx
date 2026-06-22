@@ -11,6 +11,7 @@ import { QueryProvider } from "@/providers/query-provider";
 import { ThemeProvider } from "@/providers/theme-provider";
 
 import { LuxurySiteShell } from "@/components/luxury/layout/LuxurySiteShell";
+import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 import { CartProvider } from "@/components/cart/CartProvider";
 import { UpgradeModalProvider } from "@/components/premium/UpgradeModalProvider";
 import { PWAInstallPrompt } from "@/components/pwa/PWAInstallPrompt";
@@ -73,7 +74,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <QueryProvider>
               <UpgradeModalProvider>
                 <CartProvider>
-                  <LuxurySiteShell>{children}</LuxurySiteShell>
+                  <ErrorBoundary>
+                    <LuxurySiteShell>{children}</LuxurySiteShell>
+                  </ErrorBoundary>
                   <PWAInstallPrompt />
                 </CartProvider>
               </UpgradeModalProvider>

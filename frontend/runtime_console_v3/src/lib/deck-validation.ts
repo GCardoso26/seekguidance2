@@ -16,6 +16,27 @@ export interface ValidationResult {
   warnings: string[];
 }
 
+export function normalizeValidationResult(raw: {
+  isValid?: boolean;
+  is_valid?: boolean;
+  errors?: string[];
+  warnings?: string[];
+}): ValidationResult {
+  return {
+    isValid: raw.isValid ?? raw.is_valid ?? false,
+    errors: raw.errors ?? [],
+    warnings: raw.warnings ?? [],
+  };
+}
+
+export function formatValidationErrors(errors: string[], warnings: string[] = []): string[] {
+  const lines = [...errors];
+  for (const warning of warnings) {
+    if (warning && !lines.includes(warning)) lines.push(warning);
+  }
+  return lines;
+}
+
 function countDeckCards(cards: DeckCardEntry[]): number {
   return cards.reduce((sum, card) => sum + card.quantity, 0);
 }
@@ -23,7 +44,8 @@ function countDeckCards(cards: DeckCardEntry[]): number {
 export function validateDeckCards(deck: Deck, rules: DeckFormatRules): ValidationResult {
   const errors: string[] = [];
   const warnings: string[] = [];
-  const all = [...deck.main_deck, ...deck.sideboard, ...deck.commander];
+  const mainForCopies = [...deck.main_deck, ...deck.commander];
+  const allForSingleton = [...deck.main_deck, ...deck.sideboard, ...deck.commander];
 
   const mainCount = countDeckCards(deck.main_deck);
   if (typeof rules.min_cards === "number" && mainCount < rules.min_cards) {
@@ -39,7 +61,7 @@ export function validateDeckCards(deck: Deck, rules: DeckFormatRules): Validatio
 
   const maxCopies = typeof rules.max_copies === "number" ? rules.max_copies : deck.format.toLowerCase() === "commander" ? 1 : 4;
   const byName = new Map<string, number>();
-  for (const item of all) {
+  for (const item of mainForCopies) {
     const key = item.card.name.trim().toLowerCase();
     byName.set(key, (byName.get(key) ?? 0) + item.quantity);
   }
@@ -50,7 +72,7 @@ export function validateDeckCards(deck: Deck, rules: DeckFormatRules): Validatio
   }
 
   if (rules.singleton) {
-    const duplicates = all.filter((c) => c.quantity > 1);
+    const duplicates = allForSingleton.filter((c) => c.quantity > 1);
     if (duplicates.length > 0) {
       errors.push("Formato singleton: algumas cartas estão duplicadas");
     }
@@ -62,7 +84,7 @@ export function validateDeckCards(deck: Deck, rules: DeckFormatRules): Validatio
 
   if (rules.banlist && rules.banlist.length > 0) {
     const banned = new Set(rules.banlist.map((n) => n.trim().toLowerCase()));
-    const found = all.filter((entry) => banned.has(entry.card.name.trim().toLowerCase()));
+    const found = allForSingleton.filter((entry) => banned.has(entry.card.name.trim().toLowerCase()));
     if (found.length > 0) {
       errors.push("Deck contém cartas banidas");
       warnings.push(found.map((c) => c.card.name).slice(0, 8).join(", "));

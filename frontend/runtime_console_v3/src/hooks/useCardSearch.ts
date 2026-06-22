@@ -1,6 +1,7 @@
 "use client";
 
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { fetchWithRetry } from "@/lib/api-client";
 import type { CatalogSearchResponse } from "@/types/card";
 import type { CatalogSetOption, SearchFilters } from "@/types/search";
 
@@ -28,7 +29,7 @@ function buildSearchParams(filters: SearchFilters, page: number): URLSearchParam
 
 async function fetchCardSearch(filters: SearchFilters, page: number): Promise<CatalogSearchResponse> {
   const params = buildSearchParams(filters, page);
-  const res = await fetch(`/api/catalog/cards/search?${params.toString()}`);
+  const res = await fetchWithRetry(`/api/catalog/cards/search?${params.toString()}`);
   if (!res.ok) {
     throw new Error("Falha ao buscar cartas");
   }

@@ -1,34 +1,25 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Copy, Globe, Loader2, Save } from "lucide-react";
+import { Globe, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type { Deck } from "@/types/deck";
-import { exportDeck, usePublishDeck } from "@/hooks/useDeck";
+import type { Deck, DeckFormat } from "@/types/deck";
+import { usePublishDeck } from "@/hooks/useDeck";
 import { BuyDeckButton } from "./BuyDeckButton";
+import { SaveDeckButton } from "./SaveDeckButton";
+import { ExportDeckButton } from "./ExportDeckButton";
 
 interface DeckToolbarProps {
   deck: Deck;
+  format?: DeckFormat | null;
+  onImport?: () => void;
   onSaved?: () => void;
   showBuy?: boolean;
 }
 
-export function DeckToolbar({ deck, onSaved, showBuy = false }: DeckToolbarProps) {
+export function DeckToolbar({ deck, format, onImport, onSaved, showBuy = false }: DeckToolbarProps) {
   const router = useRouter();
   const publish = usePublishDeck(deck.id);
-  const [exporting, setExporting] = useState(false);
-
-  const handleExport = async () => {
-    setExporting(true);
-    try {
-      const result = await exportDeck(deck.id, "text");
-      await navigator.clipboard.writeText(result.content);
-      onSaved?.();
-    } finally {
-      setExporting(false);
-    }
-  };
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-3">
@@ -45,17 +36,22 @@ export function DeckToolbar({ deck, onSaved, showBuy = false }: DeckToolbarProps
       </div>
 
       <div className="flex flex-wrap gap-2">
-        <Button type="button" variant="outline" size="sm" onClick={handleExport} disabled={exporting}>
-          {exporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Copy className="mr-2 h-4 w-4" />}
-          Copiar lista
-        </Button>
+        {onImport && (
+          <Button type="button" variant="outline" size="sm" onClick={onImport}>
+            Importar
+          </Button>
+        )}
+
+        <ExportDeckButton deck={deck} />
+        <SaveDeckButton deck={deck} format={format} onSaved={onSaved} />
 
         {!deck.is_public && (
           <Button
             type="button"
             size="sm"
             onClick={() => publish.mutate()}
-            disabled={publish.isPending}
+            disabled={publish.isPending || deck.is_validated === false}
+            title={deck.is_validated === false ? "Valide o deck antes de publicar" : undefined}
           >
             {publish.isPending ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -67,13 +63,10 @@ export function DeckToolbar({ deck, onSaved, showBuy = false }: DeckToolbarProps
         )}
 
         <Button type="button" variant="outline" size="sm" onClick={() => router.push(`/decks/${deck.id}`)}>
-          <Save className="mr-2 h-4 w-4" />
           Ver deck
         </Button>
 
-        {showBuy && (
-          <BuyDeckButton deck={deck} />
-        )}
+        {showBuy && <BuyDeckButton deck={deck} />}
       </div>
     </div>
   );

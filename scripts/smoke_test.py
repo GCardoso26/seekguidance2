@@ -301,6 +301,20 @@ class SmokeTest:
             expected_in_body="checkout",
         )
 
+    def test_collection_page(self) -> bool:
+        return self._check(
+            "Collection Page",
+            f"{CONFIG['frontend']}/perfil/colecao",
+            expected_status=(200, 307),
+        )
+
+    def test_formats_api(self) -> bool:
+        return self._check(
+            "BFF Formats API",
+            f"{CONFIG['frontend']}/api/formats/mtg",
+            json_path="formats",
+        )
+
 
 def generate_report(results: list[dict[str, Any]]) -> str:
     rows = "".join(

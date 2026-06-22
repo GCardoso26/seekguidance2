@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { AlertCircle, Image as ImageIcon, Sparkles, X, ZoomIn } from "lucide-react";
 import { CardActions } from "@/components/cards/CardActions";
+import { AddToCollectionButton } from "@/components/cards/AddToCollectionButton";
 import { CardCard } from "@/components/cards/CardCard";
 import { ConditionBadge, type CardCondition } from "@/components/cards/ConditionBadge";
 import { PriceChart } from "@/components/cards/PriceChart";
@@ -260,7 +261,10 @@ export function CardDetailPage({ cardId }: CardDetailPageProps) {
                       </p>
                     )}
                   </div>
-                  <CardActions card={card} />
+                  <div className="flex flex-wrap gap-2">
+                    <AddToCollectionButton cardId={card.id} cardName={card.name} />
+                    <CardActions card={card} />
+                  </div>
                 </div>
               </div>
 

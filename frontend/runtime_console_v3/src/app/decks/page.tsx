@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useJudgeAuth } from "@/features/auth/AuthProvider";
 import { useCreateDeck, useMyDecks } from "@/hooks/useDeck";
+import { DeckStatusBadge } from "@/components/deckbuilder/DeckStatusBadge";
 import { TOURNAMENT_GAMES } from "@/lib/tcg-adapters";
 import { formatCurrency } from "@/lib/format-currency";
 
@@ -96,9 +97,12 @@ export default function DecksPage() {
                   <Link href={`/decks/${deck.id}`} className="font-semibold text-luxury-frost hover:text-luxury-gold">
                     {deck.name}
                   </Link>
-                  <p className="text-xs capitalize text-luxury-mist">
-                    {deck.game} · {deck.format} · {deck.total_cards} cartas
-                  </p>
+                  <div className="mt-1 flex flex-wrap items-center gap-2">
+                    <DeckStatusBadge deck={deck} />
+                    <p className="text-xs capitalize text-luxury-mist">
+                      {deck.game} · {deck.format} · {deck.total_cards} cartas
+                    </p>
+                  </div>
                   <p className="text-xs text-luxury-gold">{formatCurrency(deck.total_price / 100)}</p>
                 </div>
                 <div className="flex gap-2">

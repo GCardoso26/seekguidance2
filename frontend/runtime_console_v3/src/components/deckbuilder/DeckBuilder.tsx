@@ -38,6 +38,7 @@ import { CardSearchModal } from "./CardSearchModal";
 import { DeckValidationBar } from "./DeckValidationBar";
 import { DeckPriceTag } from "./DeckPriceTag";
 import { BuyMissingCardsButton } from "./BuyMissingCardsButton";
+import { ImportDeckModal, zoneForParsedCard } from "./ImportDeckModal";
 
 interface DeckBuilderProps {
   deckId: string;
@@ -50,6 +51,7 @@ export function DeckBuilder({ deckId }: DeckBuilderProps) {
   const [activeZone, setActiveZone] = useState<DeckBuilderZoneId>("main");
   const [error, setError] = useState<string | null>(null);
   const [showSearchModal, setShowSearchModal] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
@@ -128,12 +130,26 @@ export function DeckBuilder({ deckId }: DeckBuilderProps) {
     void addToZone(card, zone);
   };
 
+  const handleImport = useCallback(
+    async (items: import("@/lib/deck-parser").ParsedCard[]) => {
+      for (const item of items) {
+        if (!item.found) continue;
+        const zone = zoneForParsedCard(item);
+        await addCard.mutateAsync({ card_id: item.found.id, zone, quantity: item.quantity });
+      }
+    },
+    [addCard],
+  );
+
   if (!isClient || isLoading || !deck) {
     return <div className="p-8 text-luxury-mist">Carregando deckbuilder…</div>;
   }
 
   const busy = addCard.isPending || updateCard.isPending || removeCard.isPending;
-  const showCommander = deck.format.toLowerCase() === "commander";
+  const showCommander =
+    deck.format.toLowerCase() === "commander" || Boolean(currentFormat?.rules?.commander_required);
+  const showSideboard = (currentFormat?.rules?.sideboard_max as number | undefined) !== 0;
+  const sideboardMax = (currentFormat?.rules?.sideboard_max as number | undefined) ?? 15;
 
   return (
     <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
@@ -175,7 +191,11 @@ export function DeckBuilder({ deckId }: DeckBuilderProps) {
         </div>
 
         <div className="flex w-full flex-col gap-4 lg:w-2/3">
-          <DeckToolbar deck={deck} />
+          <DeckToolbar
+            deck={deck}
+            format={currentFormat}
+            onImport={() => setShowImportModal(true)}
+          />
           {error && <p className="text-sm text-red-400">{error}</p>}
           <DeckValidationBar
             currentCards={validator?.zoneTotal(deck, "main") ?? 0}
@@ -193,10 +213,7 @@ export function DeckBuilder({ deckId }: DeckBuilderProps) {
             >
               {validateDeck.isPending ? "Validando..." : "Validar deck"}
             </Button>
-            <BuyMissingCardsButton
-              deck={deck}
-              ownedCardIds={userCollection.map((entry) => entry.card_id)}
-            />
+            <BuyMissingCardsButton deck={deck} collection={userCollection} />
           </div>
 
           <Tabs value={activeZone} onValueChange={(v) => setActiveZone(v as DeckBuilderZoneId)}>
@@ -204,9 +221,11 @@ export function DeckBuilder({ deckId }: DeckBuilderProps) {
               <TabsTrigger value="main">
                 Main ({validator?.zoneTotal(deck, "main") ?? 0})
               </TabsTrigger>
-              <TabsTrigger value="sideboard">
-                Sideboard ({validator?.zoneTotal(deck, "sideboard") ?? 0})
-              </TabsTrigger>
+              {showSideboard && (
+                <TabsTrigger value="sideboard">
+                  Sideboard ({validator?.zoneTotal(deck, "sideboard") ?? 0})
+                </TabsTrigger>
+              )}
               {showCommander && (
                 <TabsTrigger value="commander">
                   Commander ({validator?.zoneTotal(deck, "commander") ?? 0})
@@ -226,17 +245,19 @@ export function DeckBuilder({ deckId }: DeckBuilderProps) {
               />
             </TabsContent>
 
-            <TabsContent value="sideboard" className="mt-3">
-              <DeckZone
-                id="sideboard"
-                label="Sideboard"
-                cards={deck.sideboard}
-                maxCards={validator?.zoneLimit("sideboard") ?? 15}
-                busy={busy}
-                onRemove={(id) => removeCard.mutate(id)}
-                onQuantityChange={(id, qty) => updateCard.mutate({ deckCardId: id, quantity: qty })}
-              />
-            </TabsContent>
+            {showSideboard && (
+              <TabsContent value="sideboard" className="mt-3">
+                <DeckZone
+                  id="sideboard"
+                  label="Sideboard"
+                  cards={deck.sideboard}
+                  maxCards={sideboardMax}
+                  busy={busy}
+                  onRemove={(id) => removeCard.mutate(id)}
+                  onQuantityChange={(id, qty) => updateCard.mutate({ deckCardId: id, quantity: qty })}
+                />
+              </TabsContent>
+            )}
 
             {showCommander && (
               <TabsContent value="commander" className="mt-3">
@@ -256,6 +277,15 @@ export function DeckBuilder({ deckId }: DeckBuilderProps) {
           <DeckStats deck={deck} />
         </div>
       </div>
+
+      <ImportDeckModal
+        open={showImportModal}
+        onClose={() => setShowImportModal(false)}
+        gameCode={gameCode}
+        formatRules={(currentFormat?.rules ?? {}) as DeckFormatRules}
+        onImport={handleImport}
+        busy={busy}
+      />
 
       <CardSearchModal
         open={showSearchModal}
