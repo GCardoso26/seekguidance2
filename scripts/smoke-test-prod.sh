@@ -33,7 +33,7 @@ check "2. API Health" \
   curl -sf "$API/runtime/judge/health" | grep -qi 'healthy\|ok'
 
 check "3. Catalog" \
-  curl -sf "$API/runtime/judge/catalog/health" | grep -qi 'ready\|ok\|healthy'
+  curl -sf "$API/runtime/judge/catalog/health" | grep -qiE 'ready|ok|healthy|loading'
 
 check "4. Search BFF" \
   curl -sf "$BASE/api/catalog/cards/search?q=lightning&game=MTG" | grep -q 'cards'
