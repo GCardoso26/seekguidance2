@@ -92,7 +92,7 @@ async def start_connect_onboarding(
             raise HTTPException(400, str(exc)) from exc
 
     refresh = refresh_url or f"{base_url}/store/onboarding?refresh=true"
-    ret = return_url or f"{base_url}/store/dashboard?onboarding=success"
+    ret = return_url or f"{base_url}/vendedor/painel?onboarding=success"
 
     try:
         link = stripe.AccountLink.create(

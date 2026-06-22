@@ -40,6 +40,23 @@ const marketplaceRedirects = [
   { source: "/leaderboard", destination: "/comunidade/leaderboard", permanent: true },
   { source: "/alerts", destination: "/perfil/alertas", permanent: true },
   { source: "/decks/:deckId/edit", destination: "/decks/:deckId/build", permanent: true },
+
+  // === Redirects de vendedor (/store → /vendedor/painel) ===
+  { source: "/store", destination: "/vendedor/painel", permanent: true },
+  { source: "/store/dashboard", destination: "/vendedor/painel", permanent: true },
+  { source: "/store/listings", destination: "/vendedor/painel/listagens", permanent: true },
+  { source: "/store/listings/new", destination: "/vendedor/painel/listagens/nova", permanent: true },
+  { source: "/store/listings/:id", destination: "/vendedor/painel/listagens/:id", permanent: true },
+  { source: "/store/orders", destination: "/vendedor/painel/vendas", permanent: true },
+  { source: "/store/orders/:id", destination: "/vendedor/painel/vendas/:id", permanent: true },
+  { source: "/store/analytics", destination: "/vendedor/painel/estatisticas", permanent: true },
+  { source: "/store/settings", destination: "/vendedor/painel/configuracoes", permanent: true },
+  { source: "/store/payments", destination: "/vendedor/painel/configuracoes/pagamentos", permanent: true },
+  { source: "/store/shipping", destination: "/vendedor/painel/configuracoes/frete", permanent: true },
+  { source: "/store/cupons", destination: "/vendedor/painel/cupons", permanent: true },
+  { source: "/store/pro", destination: "/vendedor/painel/pro", permanent: true },
+  { source: "/store/onboarding", destination: "/vendedor/painel/onboarding", permanent: true },
+  { source: "/store/:path*", destination: "/vendedor/painel/:path*", permanent: true },
 ];
 
 const nextConfig = {

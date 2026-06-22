@@ -34,7 +34,7 @@ export default function SellerListingsPage() {
         <div className="container mx-auto px-4 py-16 text-center">
           <p className="text-muted-foreground">Faça login para gerenciar suas listagens.</p>
           <Button asChild className="mt-4">
-            <Link href="/login?next=/store/listings">Entrar</Link>
+            <Link href="/login?next=/vendedor/painel/listagens">Entrar</Link>
           </Button>
         </div>
       </MobileLayout>
@@ -44,8 +44,8 @@ export default function SellerListingsPage() {
   return (
     <MobileLayout>
       <div className="container mx-auto max-w-3xl px-4 py-8">
-        <Link href="/store/dashboard" className="text-sm text-muted-foreground hover:text-foreground">
-          ← Dashboard da loja
+        <Link href="/vendedor/painel" className="text-sm text-muted-foreground hover:text-foreground">
+          ← Painel do vendedor
         </Link>
         <h1 className="mt-4 text-2xl font-bold">Minhas listagens de cartas</h1>
         <p className="mt-1 text-sm text-muted-foreground">

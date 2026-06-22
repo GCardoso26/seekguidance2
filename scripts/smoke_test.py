@@ -71,6 +71,8 @@ class SmokeTest:
             self.test_checkout_expire_stale,
             self.test_seller_profile_api,
             self.test_vendedor_route,
+            self.test_store_redirects,
+            self.test_vendedor_painel_routes,
         ]
 
         for test_fn in tests:
@@ -334,6 +336,77 @@ class SmokeTest:
             f"{CONFIG['frontend']}/vendedor/painel",
             expected_status=(200, 307),
         )
+
+    STORE_REDIRECTS = [
+        ("/store", "/vendedor/painel"),
+        ("/store/dashboard", "/vendedor/painel"),
+        ("/store/listings", "/vendedor/painel/listagens"),
+        ("/store/listings/new", "/vendedor/painel/listagens/nova"),
+        ("/store/orders", "/vendedor/painel/vendas"),
+        ("/store/analytics", "/vendedor/painel/estatisticas"),
+        ("/store/settings", "/vendedor/painel/configuracoes"),
+    ]
+
+    def test_store_redirects(self) -> bool:
+        ok = True
+        for old_path, expected in self.STORE_REDIRECTS:
+            if not self._check_redirect(old_path, expected):
+                ok = False
+                if CONFIG["fail_fast"]:
+                    break
+        return ok
+
+    def _check_redirect(self, old_path: str, expected_location: str) -> bool:
+        url = f"{CONFIG['frontend']}{old_path}"
+        try:
+            response = requests.head(url, allow_redirects=False, timeout=CONFIG["timeout"])
+            status_ok = response.status_code in (301, 308, 307)
+            location = response.headers.get("Location", "")
+            # Location may be absolute URL
+            if location.startswith("http"):
+                from urllib.parse import urlparse
+
+                location = urlparse(location).path or location
+            loc_ok = location.rstrip("/") == expected_location.rstrip("/")
+            success = status_ok and loc_ok
+            if success:
+                self.passed += 1
+                print(f"  {_mark(True)} Redirect {old_path} → {expected_location}")
+            else:
+                self.failed += 1
+                print(f"  {_mark(False)} Redirect {old_path} → {expected_location}")
+                if not status_ok:
+                    print(f"      Status: {response.status_code}")
+                if not loc_ok:
+                    print(f"      Location: {location!r}")
+            self.results.append(
+                {"name": f"Redirect {old_path}", "success": success, "status": response.status_code, "url": url}
+            )
+            return success
+        except requests.exceptions.RequestException as exc:
+            self.failed += 1
+            print(f"  {_mark(False)} Redirect {old_path} — {exc}")
+            return False
+
+    VENDEDOR_PAINEL_ROUTES = [
+        "/vendedor/painel/listagens",
+        "/vendedor/painel/vendas",
+        "/vendedor/painel/estatisticas",
+        "/vendedor/painel/configuracoes",
+    ]
+
+    def test_vendedor_painel_routes(self) -> bool:
+        ok = True
+        for path in self.VENDEDOR_PAINEL_ROUTES:
+            if not self._check(
+                f"Painel {path}",
+                f"{CONFIG['frontend']}{path}",
+                expected_status=(200, 307, 401),
+            ):
+                ok = False
+                if CONFIG["fail_fast"]:
+                    break
+        return ok
 
     def test_collection_page(self) -> bool:
         return self._check(

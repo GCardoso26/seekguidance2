@@ -26,6 +26,7 @@ from app.api.v1.runtime_minimal import router as runtime_minimal_router
 from app.api.v1.runtime_operational import router as runtime_operational_router
 from app.api.v1.shop_api import router as shop_api_router
 from app.api.v1.checkout_seller_api import checkout_router, seller_router
+from app.api.v1.seller_dashboard_api import router as seller_dashboard_router
 from app.api.v1.social_api import router as social_api_router
 from app.catalog.catalog_api import router as catalog_api_router
 from app.catalog.games_api import router as catalog_games_api_router
@@ -257,6 +258,7 @@ app.include_router(sponsorships_api_router)
 app.include_router(shop_api_router)
 app.include_router(checkout_router)
 app.include_router(seller_router)
+app.include_router(seller_dashboard_router)
 app.include_router(catalog_api_router)
 app.include_router(catalog_games_api_router)
 app.include_router(alerts_api_router)

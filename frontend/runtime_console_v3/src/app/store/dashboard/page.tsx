@@ -121,7 +121,7 @@ function DashboardContent() {
     else if (next === "disputes") params.set("tab", "disputas");
     else params.set("tab", "pagamentos");
     const qs = params.toString();
-    router.replace(qs ? `/store/dashboard?${qs}` : "/store/dashboard", { scroll: false });
+    router.replace(qs ? `/vendedor/painel?${qs}` : "/vendedor/painel", { scroll: false });
   }
 
   async function createProduct(values: ProductFormValues) {

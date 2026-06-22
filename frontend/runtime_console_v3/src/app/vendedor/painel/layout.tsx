@@ -1,33 +1,48 @@
-import Link from "next/link";
+"use client";
 
-const NAV = [
-  { href: "/vendedor/painel", label: "Dashboard" },
-  { href: "/vendedor/painel/listagens", label: "Listagens" },
-  { href: "/store/dashboard", label: "Vendas" },
-  { href: "/store/dashboard?tab=avaliacoes", label: "Avaliações" },
-  { href: "/store/dashboard?tab=pagamentos", label: "Configurações" },
-];
+import { useState } from "react";
+import { Sidebar } from "@/components/seller-dashboard/Sidebar";
+import { useSellerStore } from "@/hooks/useSellerStore";
 
 export default function VendedorPainelLayout({ children }: { children: React.ReactNode }) {
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const { storeId, ownerId } = useSellerStore();
+
   return (
-    <>
-      <div className="border-b border-white/10 bg-luxury-onyx/80 px-4 py-3">
-        <div className="container mx-auto flex flex-wrap items-center justify-between gap-3">
-          <span className="text-sm font-semibold text-luxury-mist">Painel do Vendedor</span>
-          <nav className="flex flex-wrap gap-2">
-            {NAV.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="rounded-full bg-white/10 px-3 py-1 text-xs hover:bg-white/15"
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-        </div>
+    <div className="flex min-h-screen bg-luxury-onyx text-white">
+      <div className="hidden lg:block lg:w-64 lg:flex-shrink-0">
+        <Sidebar sellerId={ownerId ?? storeId} className="fixed left-0 top-0 z-30 h-screen w-64" />
       </div>
-      {children}
-    </>
+
+      {mobileOpen && (
+        <div className="fixed inset-0 z-40 lg:hidden">
+          <button
+            type="button"
+            aria-label="Fechar menu"
+            className="absolute inset-0 bg-black/60"
+            onClick={() => setMobileOpen(false)}
+          />
+          <Sidebar
+            sellerId={ownerId ?? storeId}
+            className="relative z-50 h-full w-64"
+            onNavigate={() => setMobileOpen(false)}
+          />
+        </div>
+      )}
+
+      <div className="flex min-h-screen flex-1 flex-col lg:ml-64">
+        <div className="flex items-center gap-3 border-b border-white/10 px-4 py-3 lg:hidden">
+          <button
+            type="button"
+            onClick={() => setMobileOpen(true)}
+            className="rounded-lg bg-white/10 px-3 py-2 text-sm"
+          >
+            ☰ Menu
+          </button>
+          <span className="text-sm font-semibold">Painel do Vendedor</span>
+        </div>
+        {children}
+      </div>
+    </div>
   );
 }

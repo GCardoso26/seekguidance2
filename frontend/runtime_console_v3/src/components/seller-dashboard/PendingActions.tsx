@@ -1,0 +1,31 @@
+import Link from "next/link";
+
+type Props = {
+  shipments?: number;
+  disputes?: number;
+  lowStock?: number;
+};
+
+export function PendingActions({ shipments = 0, disputes = 0, lowStock = 0 }: Props) {
+  const items = [
+    { count: shipments, label: "pedidos aguardando envio", href: "/vendedor/painel/vendas?status=paid" },
+    { count: disputes, label: "disputas abertas", href: "/vendedor/painel/vendas?status=disputed" },
+    { count: lowStock, label: "itens com estoque baixo", href: "/vendedor/painel/listagens" },
+  ].filter((i) => i.count > 0);
+
+  if (items.length === 0) {
+    return <p className="text-sm text-luxury-mist">Nenhuma ação pendente.</p>;
+  }
+
+  return (
+    <ul className="space-y-2 text-sm">
+      {items.map((item) => (
+        <li key={item.label}>
+          <Link href={item.href} className="text-luxury-gold hover:underline">
+            • {item.count} {item.label}
+          </Link>
+        </li>
+      ))}
+    </ul>
+  );
+}
