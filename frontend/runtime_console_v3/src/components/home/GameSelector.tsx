@@ -114,7 +114,7 @@ export function GameSelector({ games, onSelect, selectedGame }: GameSelectorProp
           >
             {disabled && (
               <Badge
-                variant="secondary"
+                variant="default"
                 className="absolute right-2 top-2 text-[10px] uppercase tracking-wide"
               >
                 Em breve
