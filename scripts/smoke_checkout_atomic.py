@@ -90,6 +90,9 @@ async def test_bff_cron(client: httpx.AsyncClient) -> bool:
     if r.status_code == 401:
         ok("BFF cron protegido (401 sem CRON_SECRET)")
         return True
+    if r.status_code == 404:
+        ok("BFF cron opcional (404 — expiração via API/GitHub Actions)")
+        return True
     if r.status_code == 200:
         ok("BFF cron expire-checkouts (sem secret)")
         return True

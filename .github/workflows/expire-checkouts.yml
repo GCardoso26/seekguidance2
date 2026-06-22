@@ -1,0 +1,19 @@
+name: Expire Checkout Sessions
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+jobs:
+  expire:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Expire stale checkout sessions (API)
+        run: |
+          res=$(curl -fsS -w "\n%{http_code}" -X POST \
+            "${SMOKE_API_URL:-https://seekguidance.onrender.com}/runtime/judge/checkout/expire-stale")
+          code=$(echo "$res" | tail -n1)
+          body=$(echo "$res" | sed '$d')
+          echo "$body"
+          test "$code" = "200"
