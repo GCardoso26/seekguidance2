@@ -13,6 +13,7 @@ import pytest
 import pytest_asyncio
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.pool import NullPool
 
 from app.players.store import ensure_player_profile
 
@@ -64,17 +65,17 @@ def race_database_url() -> str:
         yield _normalize_async_url(base)
 
 
-@pytest_asyncio.fixture(scope="session")
+@pytest_asyncio.fixture(scope="session", loop_scope="session")
 async def race_engine(race_database_url: str):
-    engine = create_async_engine(race_database_url, pool_pre_ping=True)
+    engine = create_async_engine(race_database_url, poolclass=NullPool)
     try:
         yield engine
     finally:
         await engine.dispose()
 
 
-@pytest_asyncio.fixture
-async def race_session_factory(race_engine):
+@pytest.fixture
+def race_session_factory(race_engine):
     return async_sessionmaker(race_engine, expire_on_commit=False)
 
 
@@ -295,7 +296,7 @@ class RaceFixture:
             await session.commit()
 
 
-@pytest_asyncio.fixture
+@pytest_asyncio.fixture(loop_scope="session")
 async def race(race_session_factory):
     fx = RaceFixture(factory=race_session_factory)
     yield fx

@@ -71,7 +71,10 @@ CREATE TABLE IF NOT EXISTS tcg_judge.checkout_sessions (
 
 CREATE TABLE IF NOT EXISTS tcg_judge.card_catalog (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name TEXT NOT NULL DEFAULT 'Test Card'
+  game_code TEXT NOT NULL DEFAULT 'MTG',
+  external_id TEXT,
+  name TEXT NOT NULL DEFAULT 'Test Card',
+  normalized_name TEXT NOT NULL DEFAULT 'Test Card'
 );
 
 CREATE TABLE IF NOT EXISTS tcg_judge.card_listings (

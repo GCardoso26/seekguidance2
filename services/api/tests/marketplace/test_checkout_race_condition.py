@@ -12,7 +12,7 @@ from sqlalchemy import text
 
 from app.marketplace import checkout_atomic
 
-pytestmark = [pytest.mark.asyncio, pytest.mark.race]
+pytestmark = [pytest.mark.asyncio(loop_scope="session"), pytest.mark.race]
 
 
 def _cart_item(product_id: str, quantity: int = 1, price_cents: int = 4500) -> dict[str, Any]:
