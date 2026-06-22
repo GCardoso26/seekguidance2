@@ -5,6 +5,7 @@ import { ArrowUpDown, ShoppingCart, Store } from "lucide-react";
 import { ConditionBadge, type CardCondition } from "@/components/cards/ConditionBadge";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/format-currency";
+import { isListingPurchasable } from "@/lib/listing-utils";
 import type { CardListing } from "@/types/card";
 
 type SortKey = "price" | "condition" | "seller" | "quantity";
@@ -14,9 +15,10 @@ const CONDITION_ORDER: Record<string, number> = { NM: 0, LP: 1, MP: 2, HP: 3, DM
 interface SellerOffersTableProps {
   listings: CardListing[];
   onBuy?: (listing: CardListing) => void;
+  buyingId?: string | null;
 }
 
-export function SellerOffersTable({ listings, onBuy }: SellerOffersTableProps) {
+export function SellerOffersTable({ listings, onBuy, buyingId }: SellerOffersTableProps) {
   const [sortKey, setSortKey] = useState<SortKey>("price");
   const [sortAsc, setSortAsc] = useState(true);
 
@@ -90,50 +92,58 @@ export function SellerOffersTable({ listings, onBuy }: SellerOffersTableProps) {
           </tr>
         </thead>
         <tbody>
-          {sortedListings.map((listing) => (
-            <tr key={listing.id} className="border-b border-border/60">
-              <td className="py-3 pr-4">
-                <div className="flex items-center gap-2">
-                  {listing.sellerAvatar && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={listing.sellerAvatar} alt="" className="h-6 w-6 rounded-full" />
-                  )}
-                  <div>
-                    <p className="text-sm font-medium">{listing.sellerName}</p>
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <span aria-hidden="true">
-                        {"★".repeat(Math.floor(listing.sellerReputation))}
-                        {"☆".repeat(5 - Math.floor(listing.sellerReputation))}
-                      </span>
-                      <span>({listing.sellerReputation.toFixed(1)})</span>
+          {sortedListings.map((listing) => {
+            const purchasable = isListingPurchasable(listing);
+            const isBuying = buyingId === listing.id;
+            return (
+              <tr key={listing.id} className="border-b border-border/60">
+                <td className="py-3 pr-4">
+                  <div className="flex items-center gap-2">
+                    {listing.sellerAvatar && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={listing.sellerAvatar} alt="" className="h-6 w-6 rounded-full" />
+                    )}
+                    <div>
+                      <p className="text-sm font-medium">{listing.sellerName}</p>
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <span aria-hidden="true">
+                          {"★".repeat(Math.floor(listing.sellerReputation))}
+                          {"☆".repeat(5 - Math.floor(listing.sellerReputation))}
+                        </span>
+                        <span>({listing.sellerReputation.toFixed(1)})</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </td>
-              <td className="py-3 pr-4">
-                <ConditionBadge condition={listing.condition as CardCondition} />
-                {listing.foil && (
-                  <span className="ml-1 text-xs text-yellow-500" aria-label="Foil">
-                    ✨
-                  </span>
-                )}
-              </td>
-              <td className="py-3 pr-4 font-semibold">
-                {formatCurrency(listing.price, listing.currency)}
-              </td>
-              <td className="py-3 pr-4">{listing.quantity}x</td>
-              <td className="py-3">
-                <Button
-                  size="sm"
-                  onClick={() => onBuy?.(listing)}
-                  disabled={listing.quantity === 0}
-                >
-                  <ShoppingCart className="mr-1 h-3 w-3" />
-                  Comprar
-                </Button>
-              </td>
-            </tr>
-          ))}
+                </td>
+                <td className="py-3 pr-4">
+                  <ConditionBadge condition={listing.condition as CardCondition} />
+                  {listing.foil && (
+                    <span className="ml-1 text-xs text-yellow-500" aria-label="Foil">
+                      ✨
+                    </span>
+                  )}
+                </td>
+                <td className="py-3 pr-4 font-semibold">
+                  {formatCurrency(listing.price, listing.currency)}
+                </td>
+                <td className="py-3 pr-4">{listing.quantity}x</td>
+                <td className="py-3">
+                  {purchasable ? (
+                    <Button
+                      size="sm"
+                      onClick={() => onBuy?.(listing)}
+                      disabled={listing.quantity === 0 || isBuying}
+                    >
+                      <ShoppingCart className="mr-1 h-3 w-3" />
+                      {isBuying ? "…" : "Comprar"}
+                    </Button>
+                  ) : (
+                    <span className="text-xs text-muted-foreground">Referência</span>
+                  )}
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>

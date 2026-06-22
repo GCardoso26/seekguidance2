@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { Home, Plus, ShoppingBag, User, Users } from "lucide-react";
 import { GlobalNotificationBell } from "@/components/notifications/GlobalNotificationBell";
+import { CartHeaderButton } from "@/components/cart/CartHeaderButton";
 
 type NavItem = { href: string; label: string; icon: typeof Home };
 
@@ -49,7 +50,10 @@ export function MobileLayout({ children }: { children: ReactNode }) {
         <Link href="/" className="text-sm font-semibold text-luxury-gold">
           Judge TCG
         </Link>
-        <GlobalNotificationBell />
+        <div className="flex items-center gap-1">
+          <CartHeaderButton />
+          <GlobalNotificationBell />
+        </div>
       </header>
       <main id="main-content" className={hideNav ? "flex-1" : "flex-1 pb-20 md:pb-0"}>
         {children}

@@ -11,13 +11,16 @@ import { ConditionBadge, type CardCondition } from "@/components/cards/Condition
 import { PriceChart } from "@/components/cards/PriceChart";
 import { SellerOffersTable } from "@/components/cards/SellerOffersTable";
 import { MobileLayout } from "@/components/layout/MobileLayout";
+import { CreateListingForm } from "@/components/seller/CreateListingForm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCardDetail } from "@/hooks/useCardDetail";
+import { useAddListingToCart } from "@/hooks/useShopCart";
 import type { PriceHistoryRange } from "@/hooks/usePriceHistory";
 import { cardImageUrl, formatCurrency } from "@/lib/format-currency";
+import { isListingPurchasable } from "@/lib/listing-utils";
 import { GAME_TOKENS } from "@/lib/tcg-tokens";
-import type { GameId } from "@/types/card";
+import type { CardListing, GameId } from "@/types/card";
 import { cn } from "@/lib/utils";
 
 const PRICE_RANGES: { value: PriceHistoryRange; label: string }[] = [
@@ -34,10 +37,23 @@ interface CardDetailPageProps {
 
 export function CardDetailPage({ cardId }: CardDetailPageProps) {
   const { data, isLoading, error } = useCardDetail(cardId);
+  const addToCart = useAddListingToCart();
   const [priceRange, setPriceRange] = useState<PriceHistoryRange>("30d");
   const [selectedCondition, setSelectedCondition] = useState<string | undefined>();
   const [imageError, setImageError] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [buyError, setBuyError] = useState<string | null>(null);
+
+  const handleBuy = (listing: CardListing) => {
+    if (!data) return;
+    setBuyError(null);
+    addToCart.mutate(
+      { listing, card: data.card },
+      { onError: (err) => setBuyError(err instanceof Error ? err.message : "Erro ao adicionar") },
+    );
+  };
+
+  const cheapestPurchasable = data?.listings.find(isListingPurchasable);
 
   if (isLoading) return <CardDetailSkeleton />;
   if (error || !data) return <CardDetailError notFound={error?.message === "not_found"} />;
@@ -275,9 +291,16 @@ export function CardDetailPage({ cardId }: CardDetailPageProps) {
                   <CardTitle className="text-lg">Ofertas ({listings.length})</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <SellerOffersTable listings={listings} />
+                  <SellerOffersTable
+                    listings={listings}
+                    onBuy={handleBuy}
+                    buyingId={addToCart.isPending ? addToCart.variables?.listing.id ?? null : null}
+                  />
+                  {buyError && <p className="mt-3 text-sm text-red-500">{buyError}</p>}
                 </CardContent>
               </Card>
+
+              <CreateListingForm card={card} />
 
               {relatedCards.length > 0 && (
                 <div>
@@ -298,12 +321,16 @@ export function CardDetailPage({ cardId }: CardDetailPageProps) {
         <div className="fixed bottom-0 left-0 right-0 z-40 border-t bg-background/95 p-4 backdrop-blur lg:hidden">
           <button
             type="button"
-            className="w-full rounded-lg bg-primary py-3 font-semibold text-primary-foreground"
+            className="w-full rounded-lg bg-primary py-3 font-semibold text-primary-foreground disabled:opacity-50"
+            disabled={!cheapestPurchasable || addToCart.isPending}
+            onClick={() => cheapestPurchasable && handleBuy(cheapestPurchasable)}
           >
             Comprar —{" "}
-            {card.lowestPrice != null
-              ? formatCurrency(card.lowestPrice, currency)
-              : "Indisponível"}
+            {cheapestPurchasable
+              ? formatCurrency(cheapestPurchasable.price, cheapestPurchasable.currency)
+              : card.lowestPrice != null
+                ? formatCurrency(card.lowestPrice, currency)
+                : "Indisponível"}
           </button>
         </div>
 

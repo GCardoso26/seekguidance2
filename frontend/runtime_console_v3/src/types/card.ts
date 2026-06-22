@@ -98,6 +98,10 @@ export interface CardListing {
   description?: string;
   images?: string[];
   createdAt: string;
+  productId?: string;
+  storeId?: string;
+  cardName?: string;
+  setName?: string;
 }
 
 export interface CardDetailResponse {

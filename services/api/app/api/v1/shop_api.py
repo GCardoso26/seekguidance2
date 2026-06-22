@@ -7,6 +7,7 @@ from typing import Any
 from app.api.deps import DbSession, SettingsDep
 from app.api.v1.tournament_system import _require_user
 from app.marketplace import shop_cart, shop_connect, shop_coupons, shop_orders, shop_pix, shop_products, shop_reviews
+from app.marketplace import card_listings as card_listings_svc
 from app.marketplace import shop_checkout as shop_checkout_svc
 from app.stores import store as store_svc
 from fastapi import APIRouter, Header, HTTPException, Request
@@ -117,6 +118,23 @@ class PaymentSettingsBody(BaseModel):
 
 class PixWebhookBody(BaseModel):
     txid: str = Field(min_length=4)
+
+
+class ListingCreateBody(BaseModel):
+    card_id: str
+    condition: str = Field(pattern="^(NM|LP|MP|HP|DM)$")
+    price: float = Field(gt=0)
+    quantity: int = Field(default=1, ge=1)
+    foil: bool = False
+    language: str = "pt"
+    description: str | None = None
+
+
+class ListingUpdateBody(BaseModel):
+    price: float | None = Field(default=None, gt=0)
+    quantity: int | None = Field(default=None, ge=0)
+    status: str | None = Field(default=None, pattern="^(active|sold|reserved|inactive)$")
+    description: str | None = None
 
 
 class StoreSubscribeBody(BaseModel):
@@ -661,3 +679,79 @@ async def connect_refresh(
 ) -> dict[str, Any]:
     user_id = _require_user(x_judge_user_id)
     return await shop_connect.refresh_connect_status(session, store_id, user_id)
+
+
+@router.post("/runtime/judge/marketplace/listings")
+async def create_card_listing(
+    session: DbSession,
+    body: ListingCreateBody,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    listing = await card_listings_svc.create_listing(
+        session,
+        user_id,
+        card_id=body.card_id,
+        condition=body.condition,
+        price_cents=int(round(body.price * 100)),
+        quantity=body.quantity,
+        foil=body.foil,
+        language=body.language,
+        description=body.description,
+    )
+    return {"listing": listing}
+
+
+@router.get("/runtime/judge/marketplace/listings/by-card/{card_id}")
+async def listings_by_card(
+    session: DbSession,
+    card_id: str,
+    condition: str | None = None,
+    foil: bool | None = None,
+) -> dict[str, Any]:
+    listings = await card_listings_svc.list_listings_by_card(
+        session, card_id, condition=condition, foil=foil
+    )
+    return {"listings": listings}
+
+
+@router.get("/runtime/judge/marketplace/listings/my")
+async def my_listings(
+    session: DbSession,
+    status: str | None = None,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    listings = await card_listings_svc.list_my_listings(session, user_id, status=status)
+    return {"listings": listings}
+
+
+@router.patch("/runtime/judge/marketplace/listings/{listing_id}")
+async def patch_listing(
+    session: DbSession,
+    listing_id: str,
+    body: ListingUpdateBody,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    fields: dict[str, Any] = {}
+    if body.price is not None:
+        fields["price_cents"] = int(round(body.price * 100))
+    if body.quantity is not None:
+        fields["quantity"] = body.quantity
+    if body.status is not None:
+        fields["status"] = body.status
+    if body.description is not None:
+        fields["description"] = body.description
+    listing = await card_listings_svc.update_listing(session, listing_id, user_id, fields)
+    return {"listing": listing}
+
+
+@router.delete("/runtime/judge/marketplace/listings/{listing_id}")
+async def remove_listing(
+    session: DbSession,
+    listing_id: str,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    return await card_listings_svc.delete_listing(session, listing_id, user_id)

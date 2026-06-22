@@ -11,6 +11,7 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.catalog.search_service import _card_payload
+from app.marketplace.card_listings import list_listings_by_card
 
 RANGE_DAYS: dict[str, int] = {
     "7d": 7,
@@ -108,6 +109,7 @@ def _listing_from_store(row: dict[str, Any], *, card_id: str) -> dict[str, Any]:
         "description": row.get("description"),
         "images": image_list,
         "createdAt": str(row.get("created_at") or datetime.now(UTC).isoformat()),
+        "productId": str(row["id"]),
     }
 
 
@@ -342,15 +344,19 @@ async def get_card_detail(session: AsyncSession, card_id: str) -> dict[str, Any]
     ).mappings().all()
     price_history = _normalize_price_history([dict(r) for r in history_rows])
 
-    store_listings = await _fetch_store_listings(
-        session,
-        card_id=uid,
-        game_code=str(row["game_code"]),
-        card_name=str(row["name"]),
-        normalized_name=row.get("normalized_name"),
-    )
-    market_listings = await _fetch_market_listings(session, uid)
-    listings = store_listings if store_listings else market_listings
+    card_listings = await list_listings_by_card(session, str(uid))
+    if card_listings:
+        listings = card_listings
+    else:
+        store_listings = await _fetch_store_listings(
+            session,
+            card_id=uid,
+            game_code=str(row["game_code"]),
+            card_name=str(row["name"]),
+            normalized_name=row.get("normalized_name"),
+        )
+        market_listings = await _fetch_market_listings(session, uid)
+        listings = store_listings if store_listings else market_listings
 
     related = await _fetch_related_cards(
         session,

@@ -34,6 +34,7 @@ EVENT_TITLES: dict[str, str] = {
     "shop:pro_activated": "Pro Loja ativado",
     "shop:review_received": "Nova avaliação",
     "shop:review_edited": "Avaliação editada",
+    "price_alert:triggered": "Alerta de preço",
 }
 
 

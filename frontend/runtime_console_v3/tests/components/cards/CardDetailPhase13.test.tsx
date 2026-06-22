@@ -49,6 +49,7 @@ const LISTINGS: CardListing[] = [
     foil: false,
     language: "en",
     createdAt: "2026-01-01T00:00:00Z",
+    productId: "550e8400-e29b-41d4-a716-446655440001",
   },
   {
     id: "l2",
@@ -63,6 +64,7 @@ const LISTINGS: CardListing[] = [
     foil: false,
     language: "en",
     createdAt: "2026-01-02T00:00:00Z",
+    productId: "550e8400-e29b-41d4-a716-446655440002",
   },
 ];
 
