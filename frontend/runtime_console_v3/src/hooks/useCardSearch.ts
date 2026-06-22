@@ -18,6 +18,9 @@ function buildSearchParams(filters: SearchFilters, page: number): URLSearchParam
   if (filters.language) params.set("language", filters.language);
   if (filters.foil !== null && filters.foil !== undefined) params.set("foil", String(filters.foil));
   if (filters.sortBy) params.set("sort", filters.sortBy);
+  if (filters.cardIds?.length) {
+    for (const id of filters.cardIds) params.append("card_id", id);
+  }
   params.set("page", String(page));
   params.set("limit", String(filters.limit ?? DEFAULT_LIMIT));
   return params;
@@ -72,6 +75,7 @@ export function filtersFromSearchParams(params: URLSearchParams): SearchFilters 
     language: params.get("language") || undefined,
     foil: foilParam === "true" ? true : foilParam === "false" ? false : null,
     sortBy: (params.get("sort") as SearchFilters["sortBy"]) || "relevance",
+    cardIds: params.getAll("card_id").filter(Boolean),
   };
 }
 
@@ -87,5 +91,8 @@ export function searchParamsFromFilters(filters: SearchFilters): URLSearchParams
   if (filters.language) params.set("language", filters.language);
   if (filters.foil !== null && filters.foil !== undefined) params.set("foil", String(filters.foil));
   if (filters.sortBy && filters.sortBy !== "relevance") params.set("sort", filters.sortBy);
+  if (filters.cardIds?.length) {
+    for (const id of filters.cardIds) params.append("card_id", id);
+  }
   return params;
 }

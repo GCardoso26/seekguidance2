@@ -22,9 +22,13 @@ export type Deck = {
   name: string;
   description?: string | null;
   game: string;
+  game_id?: string | null;
   format: string;
+  format_id?: string | null;
   owner_id: string;
   is_public: boolean;
+  is_validated?: boolean | null;
+  validation_errors?: string[];
   total_cards: number;
   total_price: number;
   likes: number;
@@ -41,9 +45,25 @@ export type Deck = {
 export type CreateDeckInput = {
   name: string;
   game: string;
+  game_id?: string;
   format?: string;
+  format_id?: string;
   description?: string;
   is_public?: boolean;
 };
 
 export type DeckBuilderZoneId = "main" | "sideboard" | "commander";
+
+export type DeckFormat = {
+  id: string;
+  slug: string;
+  name: string;
+  display_name: string;
+  rules: Record<string, unknown>;
+};
+
+export type DeckValidation = {
+  isValid: boolean;
+  errors: string[];
+  warnings: string[];
+};

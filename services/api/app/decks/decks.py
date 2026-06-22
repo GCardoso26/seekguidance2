@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from typing import Any
 from uuid import UUID
 
@@ -25,6 +26,50 @@ def _parse_uuid(value: str, *, field: str = "id") -> UUID:
 
 def _max_copies(format_name: str) -> int:
     return 1 if format_name.lower() in {"commander", "edh"} else 4
+
+
+async def _fetch_catalog_game(session: AsyncSession, game_slug_or_code: str) -> dict[str, Any] | None:
+    value = game_slug_or_code.strip().lower()
+    row = (
+        await session.execute(
+            text(
+                """
+                SELECT id, game_code, slug
+                FROM tcg_judge.catalog_games
+                WHERE LOWER(slug) = :value OR LOWER(game_code) = :value
+                LIMIT 1
+                """
+            ),
+            {"value": value},
+        )
+    ).mappings().first()
+    return dict(row) if row else None
+
+
+async def _fetch_format_by_slug(
+    session: AsyncSession,
+    *,
+    game_id: UUID | None,
+    format_slug: str,
+) -> dict[str, Any] | None:
+    if not game_id:
+        return None
+    row = (
+        await session.execute(
+            text(
+                """
+                SELECT id, game_id, slug, name, display_name, rules
+                FROM tcg_judge.deck_formats
+                WHERE game_id = :gid
+                  AND LOWER(slug) = LOWER(:slug)
+                  AND is_active = TRUE
+                LIMIT 1
+                """
+            ),
+            {"gid": game_id, "slug": format_slug},
+        )
+    ).mappings().first()
+    return dict(row) if row else None
 
 
 async def _fetch_deck_row(session: AsyncSession, deck_id: UUID) -> dict[str, Any]:
@@ -141,8 +186,12 @@ def normalize_deck(row: dict[str, Any], cards: list[dict[str, Any]] | None = Non
         "description": row.get("description"),
         "game": row["game"],
         "format": row["format"],
+        "format_id": str(row["format_id"]) if row.get("format_id") else None,
+        "game_id": str(row["game_id"]) if row.get("game_id") else None,
         "owner_id": row["owner_id"],
         "is_public": bool(row.get("is_public")),
+        "is_validated": bool(row.get("is_validated")) if row.get("is_validated") is not None else None,
+        "validation_errors": row.get("validation_errors") or [],
         "total_cards": int(row.get("total_cards") or 0),
         "total_price": int(row.get("total_price") or 0),
         "likes": int(row.get("likes") or 0),
@@ -203,6 +252,8 @@ async def create_deck(
     name: str,
     game: str,
     format: str = "standard",
+    game_id: str | None = None,
+    format_id: str | None = None,
     description: str | None = None,
     is_public: bool = False,
 ) -> dict[str, Any]:
@@ -211,12 +262,27 @@ async def create_deck(
     if not name:
         raise HTTPException(400, "Nome do deck obrigatório")
 
+    game_uuid: UUID | None = None
+    if game_id:
+        game_uuid = _parse_uuid(game_id, field="game_id")
+    else:
+        catalog_game = await _fetch_catalog_game(session, game)
+        game_uuid = _parse_uuid(str(catalog_game["id"])) if catalog_game else None
+
+    format_uuid: UUID | None = None
+    if format_id:
+        format_uuid = _parse_uuid(format_id, field="format_id")
+    else:
+        format_row = await _fetch_format_by_slug(session, game_id=game_uuid, format_slug=format)
+        format_uuid = _parse_uuid(str(format_row["id"])) if format_row else None
+
     row = (
         await session.execute(
             text(
                 """
-                INSERT INTO tcg_judge.decks (name, description, game, format, owner_id, is_public)
-                VALUES (:name, :desc, :game, :fmt, :owner, :pub)
+                INSERT INTO tcg_judge.decks
+                  (name, description, game, format, owner_id, is_public, game_id, format_id)
+                VALUES (:name, :desc, :game, :fmt, :owner, :pub, :game_id, :format_id)
                 RETURNING id
                 """
             ),
@@ -227,6 +293,8 @@ async def create_deck(
                 "fmt": format.lower()[:50],
                 "owner": owner_id,
                 "pub": is_public,
+                "game_id": game_uuid,
+                "format_id": format_uuid,
             },
         )
     ).mappings().first()
@@ -332,6 +400,13 @@ async def update_deck(
         updates["description"] = description
     if format is not None:
         updates["format"] = format.lower()[:50]
+        current_game_id = _parse_uuid(str(row["game_id"])) if row.get("game_id") else None
+        format_row = await _fetch_format_by_slug(
+            session,
+            game_id=current_game_id,
+            format_slug=updates["format"],
+        )
+        updates["format_id"] = _parse_uuid(str(format_row["id"])) if format_row else None
     if is_public is not None:
         updates["is_public"] = is_public
     if not updates:
@@ -518,6 +593,192 @@ async def publish_deck(session: AsyncSession, owner_id: str, deck_id: str) -> di
     await award_xp(session, owner_id, "publish_deck", f"Deck publicado: {deck['name']}")
     await session.commit()
     return await get_deck(session, deck_id, viewer_id=owner_id)
+
+
+def _validation_result(deck: dict[str, Any], rules: dict[str, Any]) -> dict[str, Any]:
+    errors: list[str] = []
+    warnings: list[str] = []
+    cards = deck.get("main_deck", []) + deck.get("sideboard", []) + deck.get("commander", [])
+
+    total_main = sum(int(c.get("quantity") or 0) for c in deck.get("main_deck", []))
+    min_cards = rules.get("min_cards")
+    max_cards = rules.get("max_cards")
+    if isinstance(min_cards, int) and total_main < min_cards:
+        errors.append(f"Deck precisa de no mínimo {min_cards} cartas no main deck")
+    if isinstance(max_cards, int) and max_cards > 0 and total_main > max_cards:
+        errors.append(f"Deck pode ter no máximo {max_cards} cartas no main deck")
+
+    sideboard_max = rules.get("sideboard_max")
+    if isinstance(sideboard_max, int):
+        total_side = sum(int(c.get("quantity") or 0) for c in deck.get("sideboard", []))
+        if total_side > sideboard_max:
+            errors.append(f"Sideboard excede limite ({total_side}/{sideboard_max})")
+
+    max_copies = rules.get("max_copies")
+    if isinstance(max_copies, int):
+        by_name: dict[str, int] = {}
+        for card in cards:
+            key = str(card.get("card", {}).get("name") or "").strip().lower()
+            if not key:
+                continue
+            by_name[key] = by_name.get(key, 0) + int(card.get("quantity") or 0)
+        repeated = [name for name, qty in by_name.items() if qty > max_copies]
+        if repeated:
+            errors.append(f"Há cartas acima do limite de cópias ({max_copies})")
+            warnings.append(", ".join(sorted(repeated)[:10]))
+
+    if rules.get("singleton"):
+        duplicates = [
+            c.get("card", {}).get("name")
+            for c in cards
+            if int(c.get("quantity") or 0) > 1
+        ]
+        duplicates = [d for d in duplicates if d]
+        if duplicates:
+            errors.append("Formato singleton: cartas duplicadas encontradas")
+            warnings.append(", ".join(sorted({str(d) for d in duplicates})[:10]))
+
+    if rules.get("commander_required"):
+        commanders = deck.get("commander", [])
+        commander_qty = sum(int(c.get("quantity") or 0) for c in commanders)
+        if commander_qty != 1:
+            errors.append("Formato exige exatamente 1 comandante")
+
+    banlist = rules.get("banlist")
+    if isinstance(banlist, list) and banlist:
+        banned = {str(name).strip().lower() for name in banlist}
+        found = []
+        for c in cards:
+            card_name = str(c.get("card", {}).get("name") or "").strip().lower()
+            if card_name and card_name in banned:
+                found.append(c.get("card", {}).get("name"))
+        if found:
+            errors.append("Deck contém cartas banidas")
+            warnings.append(", ".join(sorted({str(v) for v in found})[:10]))
+
+    return {"is_valid": len(errors) == 0, "errors": errors, "warnings": warnings}
+
+
+async def list_formats_by_game(session: AsyncSession, game_slug: str) -> list[dict[str, Any]]:
+    game = await _fetch_catalog_game(session, game_slug)
+    if not game:
+        return []
+    rows = (
+        await session.execute(
+            text(
+                """
+                SELECT id, slug, name, display_name, rules
+                FROM tcg_judge.deck_formats
+                WHERE game_id = :gid AND is_active = TRUE
+                ORDER BY display_name ASC
+                """
+            ),
+            {"gid": game["id"]},
+        )
+    ).mappings().all()
+    return [
+        {
+            "id": str(r["id"]),
+            "slug": r["slug"],
+            "name": r["name"],
+            "display_name": r["display_name"],
+            "rules": r["rules"] or {},
+        }
+        for r in rows
+    ]
+
+
+async def get_format_rules(session: AsyncSession, format_id: str) -> dict[str, Any] | None:
+    fid = _parse_uuid(format_id, field="format_id")
+    row = (
+        await session.execute(
+            text(
+                """
+                SELECT id, slug, name, display_name, rules
+                FROM tcg_judge.deck_formats
+                WHERE id = :id
+                LIMIT 1
+                """
+            ),
+            {"id": fid},
+        )
+    ).mappings().first()
+    if not row:
+        return None
+    return {
+        "id": str(row["id"]),
+        "slug": row["slug"],
+        "name": row["name"],
+        "display_name": row["display_name"],
+        "rules": row["rules"] or {},
+    }
+
+
+async def validate_deck(
+    session: AsyncSession,
+    deck_id: str,
+    *,
+    owner_id: str | None = None,
+) -> dict[str, Any]:
+    deck = await get_deck(session, deck_id, viewer_id=owner_id)
+    format_id = deck.get("format_id")
+    format_rules = {"max_copies": _max_copies(deck["format"]), "min_cards": 60}
+    if format_id:
+        persisted = await get_format_rules(session, str(format_id))
+        if persisted:
+            format_rules = persisted.get("rules") or format_rules
+
+    result = _validation_result(deck, format_rules)
+    uid = _parse_uuid(deck_id, field="deck_id")
+    await session.execute(
+        text(
+            """
+            UPDATE tcg_judge.decks
+            SET is_validated = :ok, validation_errors = CAST(:errs AS jsonb), updated_at = NOW()
+            WHERE id = :id
+            """
+        ),
+        {"ok": result["is_valid"], "errs": json.dumps(result["errors"]), "id": uid},
+    )
+    await session.commit()
+    return result
+
+
+async def list_user_collection(session: AsyncSession, user_id: str) -> list[dict[str, Any]]:
+    rows = (
+        await session.execute(
+            text(
+                """
+                SELECT uc.id, uc.card_id, uc.quantity, uc.condition, uc.is_foil, uc.acquired_at,
+                       cc.name, cc.set_code, cc.set_name, cc.image_url, cc.image_uris, cc.game_code
+                FROM tcg_judge.user_collections uc
+                JOIN tcg_judge.card_catalog cc ON cc.id = uc.card_id
+                WHERE uc.user_id = :uid
+                ORDER BY cc.name ASC
+                """
+            ),
+            {"uid": user_id},
+        )
+    ).mappings().all()
+    return [
+        {
+            "id": str(r["id"]),
+            "card_id": str(r["card_id"]),
+            "quantity": int(r["quantity"]),
+            "condition": r["condition"],
+            "is_foil": bool(r["is_foil"]),
+            "acquired_at": r["acquired_at"].isoformat() if r.get("acquired_at") else None,
+            "card": {
+                "name": r["name"],
+                "set_code": r.get("set_code"),
+                "set_name": r.get("set_name"),
+                "game_code": r.get("game_code"),
+                "image_url": r.get("image_url"),
+                "image_uris": r.get("image_uris") or {},
+            },
+        }
+        for r in rows
+    ]
 
 
 async def export_deck(

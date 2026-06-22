@@ -9,6 +9,7 @@ export interface SearchFilters {
   language?: string;
   foil?: boolean | null;
   sortBy?: "relevance" | "price_asc" | "price_desc" | "name_asc" | "name_desc" | "newest";
+  cardIds?: string[];
   page?: number;
   limit?: number;
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { CreateDeckInput, Deck } from "@/types/deck";
+import type { CreateDeckInput, Deck, DeckFormat, DeckValidation } from "@/types/deck";
 
 export const DECKS_QUERY_KEY = ["decks"] as const;
 
@@ -132,6 +132,52 @@ export function usePublishDeck(deckId: string) {
     onSuccess: (deck) => {
       qc.setQueryData([...DECKS_QUERY_KEY, deckId], deck);
       void qc.invalidateQueries({ queryKey: DECKS_QUERY_KEY });
+    },
+  });
+}
+
+export function useDeckFormats(gameSlug?: string) {
+  return useQuery({
+    queryKey: ["deck-formats", gameSlug],
+    queryFn: async () => {
+      if (!gameSlug) return [] as DeckFormat[];
+      const res = await fetch(`/api/formats/${encodeURIComponent(gameSlug)}`, { cache: "no-store" });
+      if (!res.ok) throw new Error("Erro ao carregar formatos");
+      const data = (await res.json()) as { formats: DeckFormat[] };
+      return data.formats ?? [];
+    },
+    enabled: Boolean(gameSlug),
+  });
+}
+
+export function useValidateDeck(deckId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      const res = await fetch(`/api/decks/${deckId}/validate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ owner_only: true }),
+      });
+      if (!res.ok) throw new Error("Falha ao validar deck");
+      const data = (await res.json()) as { validation: DeckValidation };
+      return data.validation;
+    },
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: [...DECKS_QUERY_KEY, deckId] });
+    },
+  });
+}
+
+export function useUserCollection() {
+  return useQuery({
+    queryKey: ["user-collection"],
+    queryFn: async () => {
+      const res = await fetch("/api/user/collection", { cache: "no-store" });
+      if (res.status === 401) return [] as Array<{ card_id: string; quantity: number }>;
+      if (!res.ok) throw new Error("Erro ao carregar coleção");
+      const data = (await res.json()) as { items: Array<{ card_id: string; quantity: number }> };
+      return data.items ?? [];
     },
   });
 }

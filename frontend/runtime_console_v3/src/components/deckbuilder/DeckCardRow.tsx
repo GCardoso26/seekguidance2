@@ -4,6 +4,7 @@ import Image from "next/image";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import type { DeckCardEntry } from "@/types/deck";
 import { cardImageUrl } from "@/lib/format-currency";
+import { formatCurrency } from "@/lib/format-currency";
 
 interface DeckCardRowProps {
   deckCard: DeckCardEntry;
@@ -35,7 +36,12 @@ export function DeckCardRow({
 
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium text-luxury-frost">{deckCard.card.name}</p>
-        <p className="truncate text-xs text-luxury-mist">{deckCard.card.set?.name}</p>
+        <p className="truncate text-xs text-luxury-mist">
+          {deckCard.card.set?.name}
+          {deckCard.card.lowestPrice !== null && deckCard.card.lowestPrice !== undefined
+            ? ` · ${formatCurrency(deckCard.card.lowestPrice)}`
+            : " · preço indisponível"}
+        </p>
       </div>
 
       <div className="flex items-center gap-1">

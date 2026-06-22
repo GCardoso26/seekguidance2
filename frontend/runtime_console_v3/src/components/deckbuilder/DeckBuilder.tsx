@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import {
   DndContext,
@@ -15,34 +15,53 @@ import { useCardSearch } from "@/hooks/useCardSearch";
 import {
   useAddCardToDeck,
   useDeck,
+  useDeckFormats,
   useRemoveDeckCard,
+  useUserCollection,
+  useValidateDeck,
   useUpdateDeckCard,
 } from "@/hooks/useDeck";
 import type { DeckBuilderZoneId } from "@/types/deck";
 import type { UnifiedCard } from "@/types/card";
 import { FormatValidator } from "@/lib/deck/validators";
 import { cardImageUrl } from "@/lib/format-currency";
+import { calculateDeckPrice } from "@/lib/deck-pricing";
+import { validateDeckCards, type DeckFormatRules } from "@/lib/deck-validation";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DeckZone } from "./DeckZone";
 import { DeckStats } from "./DeckStats";
 import { DeckToolbar } from "./DeckToolbar";
 import { DraggableSearchCard } from "./DraggableSearchCard";
+import { CardSearchModal } from "./CardSearchModal";
+import { DeckValidationBar } from "./DeckValidationBar";
+import { DeckPriceTag } from "./DeckPriceTag";
+import { BuyMissingCardsButton } from "./BuyMissingCardsButton";
 
 interface DeckBuilderProps {
   deckId: string;
 }
 
 export function DeckBuilder({ deckId }: DeckBuilderProps) {
+  const [isClient, setIsClient] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCard, setActiveCard] = useState<UnifiedCard | null>(null);
   const [activeZone, setActiveZone] = useState<DeckBuilderZoneId>("main");
   const [error, setError] = useState<string | null>(null);
+  const [showSearchModal, setShowSearchModal] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const { data: deck, isLoading } = useDeck(deckId);
   const addCard = useAddCardToDeck(deckId);
   const updateCard = useUpdateDeckCard(deckId);
   const removeCard = useRemoveDeckCard(deckId);
+  const validateDeck = useValidateDeck(deckId);
+  const { data: userCollection = [] } = useUserCollection();
+  const { data: deckFormats = [] } = useDeckFormats(deck?.game);
 
   const gameCode = deck?.game?.toUpperCase() ?? "MTG";
   const { data, isLoading: searchLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
@@ -61,6 +80,21 @@ export function DeckBuilder({ deckId }: DeckBuilderProps) {
 
   const validator = useMemo(
     () => (deck ? new FormatValidator(deck.format, deck.game) : null),
+    [deck],
+  );
+
+  const currentFormat = useMemo(
+    () => deckFormats.find((f) => f.id === deck?.format_id || f.slug === deck?.format),
+    [deckFormats, deck?.format_id, deck?.format],
+  );
+
+  const validationPreview = useMemo(() => {
+    if (!deck) return null;
+    return validateDeckCards(deck, (currentFormat?.rules ?? {}) as DeckFormatRules);
+  }, [deck, currentFormat?.rules]);
+
+  const pricing = useMemo(
+    () => (deck ? calculateDeckPrice([...deck.main_deck, ...deck.sideboard]) : { total: 0, byGame: {}, currency: "USD" as const }),
     [deck],
   );
 
@@ -94,7 +128,7 @@ export function DeckBuilder({ deckId }: DeckBuilderProps) {
     void addToZone(card, zone);
   };
 
-  if (isLoading || !deck) {
+  if (!isClient || isLoading || !deck) {
     return <div className="p-8 text-luxury-mist">Carregando deckbuilder…</div>;
   }
 
@@ -105,12 +139,17 @@ export function DeckBuilder({ deckId }: DeckBuilderProps) {
     <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
       <div className="flex h-[calc(100vh-4rem)] flex-col gap-4 p-4 lg:flex-row">
         <div className="flex w-full flex-col gap-3 lg:w-1/3">
-          <Input
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Buscar cartas para o deck…"
-            className="border-white/10 bg-white/5"
-          />
+          <div className="flex items-center gap-2">
+            <Input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Busca rápida..."
+              className="border-white/10 bg-white/5"
+            />
+            <Button type="button" variant="outline" onClick={() => setShowSearchModal(true)}>
+              Buscar
+            </Button>
+          </div>
           <div className="grid flex-1 grid-cols-3 gap-2 overflow-y-auto sm:grid-cols-4">
             {searchLoading && cards.length === 0 && (
               <p className="col-span-full text-sm text-luxury-mist">Buscando cartas…</p>
@@ -138,6 +177,27 @@ export function DeckBuilder({ deckId }: DeckBuilderProps) {
         <div className="flex w-full flex-col gap-4 lg:w-2/3">
           <DeckToolbar deck={deck} />
           {error && <p className="text-sm text-red-400">{error}</p>}
+          <DeckValidationBar
+            currentCards={validator?.zoneTotal(deck, "main") ?? 0}
+            minCards={Number((currentFormat?.rules?.min_cards as number | undefined) ?? 60)}
+            maxCards={(currentFormat?.rules?.max_cards as number | null | undefined) ?? null}
+            validation={validationPreview ?? undefined}
+          />
+          <div className="flex flex-wrap gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => validateDeck.mutate()}
+              disabled={validateDeck.isPending}
+            >
+              {validateDeck.isPending ? "Validando..." : "Validar deck"}
+            </Button>
+            <BuyMissingCardsButton
+              deck={deck}
+              ownedCardIds={userCollection.map((entry) => entry.card_id)}
+            />
+          </div>
 
           <Tabs value={activeZone} onValueChange={(v) => setActiveZone(v as DeckBuilderZoneId)}>
             <TabsList>
@@ -196,6 +256,16 @@ export function DeckBuilder({ deckId }: DeckBuilderProps) {
           <DeckStats deck={deck} />
         </div>
       </div>
+
+      <CardSearchModal
+        open={showSearchModal}
+        onClose={() => setShowSearchModal(false)}
+        gameCode={gameCode}
+        defaultZone={activeZone}
+        onCardSelect={(card, zone) => void addToZone(card, zone)}
+      />
+
+      <DeckPriceTag totalCents={pricing.total} />
 
       <DragOverlay>
         {activeCard && (

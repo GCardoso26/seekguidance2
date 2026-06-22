@@ -57,11 +57,15 @@ class SmokeTest:
             self.test_frontend_home,
             self.test_frontend_search,
             self.test_frontend_loja,
+            self.test_game_hub,
+            self.test_game_search,
             self.test_games_api,
+            self.test_games_cards_api,
             self.test_catalog_search_bff,
             self.test_gamification_auth,
             self.test_analytics_dashboard_auth,
             self.test_leaderboard,
+            self.test_decks_new,
             self.test_checkout_page,
         ]
 
@@ -234,6 +238,27 @@ class SmokeTest:
             json_path="games",
         )
 
+    def test_game_hub(self) -> bool:
+        return self._check(
+            "Frontend Game Hub",
+            f"{CONFIG['frontend']}/loja/mtg",
+            expected_in_body="Magic",
+        )
+
+    def test_game_search(self) -> bool:
+        return self._check(
+            "Frontend Game Search",
+            f"{CONFIG['frontend']}/loja/mtg/busca?q=bolt",
+            expected_in_body="Busca",
+        )
+
+    def test_games_cards_api(self) -> bool:
+        return self._check(
+            "BFF Games Cards API",
+            f"{CONFIG['frontend']}/api/games/mtg/cards?q=bolt",
+            json_predicate="cards_list",
+        )
+
     def test_catalog_search_bff(self) -> bool:
         return self._check(
             "BFF Catalog Search",
@@ -260,6 +285,13 @@ class SmokeTest:
             "Leaderboard",
             f"{CONFIG['frontend']}/comunidade/leaderboard",
             expected_in_body="leaderboard",
+        )
+
+    def test_decks_new(self) -> bool:
+        return self._check(
+            "Decks Novo",
+            f"{CONFIG['frontend']}/decks/novo",
+            expected_status=(200, 307),
         )
 
     def test_checkout_page(self) -> bool:

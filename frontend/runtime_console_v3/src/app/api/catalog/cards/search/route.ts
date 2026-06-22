@@ -15,6 +15,7 @@ const FORWARD_PARAMS = [
   "sort",
   "page",
   "limit",
+  "card_id",
 ] as const;
 
 export async function GET(request: NextRequest) {
@@ -22,6 +23,13 @@ export async function GET(request: NextRequest) {
   const params = new URLSearchParams();
 
   for (const key of FORWARD_PARAMS) {
+    if (key === "card_id") {
+      const values = incoming.getAll("card_id");
+      for (const v of values) {
+        if (v) params.append("card_id", v);
+      }
+      continue;
+    }
     const value = incoming.get(key);
     if (value !== null && value !== "") {
       params.set(key, value);

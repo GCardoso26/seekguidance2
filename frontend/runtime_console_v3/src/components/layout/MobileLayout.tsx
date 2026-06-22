@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import type { ReactNode } from "react";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import {
   Layers,
   Scale,
@@ -15,6 +15,7 @@ import {
 import { GlobalNotificationBell } from "@/components/notifications/GlobalNotificationBell";
 import { CartHeaderButton } from "@/components/cart/CartHeaderButton";
 import { LigaPassWidget } from "@/components/gamification/LigaPassWidget";
+import { useDebounce } from "@/hooks/useDebounce";
 import { cn } from "@/lib/utils";
 
 type NavItem = { href: string; label: string; icon: typeof ShoppingBag };
@@ -76,6 +77,7 @@ function DesktopNavLink({ href, label, icon: Icon }: NavItem) {
 function QuickSearch() {
   const router = useRouter();
   const [query, setQuery] = useState("");
+  const debouncedSearch = useDebounce(query, 300);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -83,6 +85,15 @@ function QuickSearch() {
     if (q) router.push(`/loja/busca?q=${encodeURIComponent(q)}`);
     else router.push("/loja/busca");
   };
+
+  useEffect(() => {
+    const q = debouncedSearch.trim();
+    if (q.length < 2) return;
+    // Prefetch de busca para reduzir latência sem saturar o backend.
+    void fetch(`/api/catalog/cards/search?q=${encodeURIComponent(q)}&limit=6`, { cache: "no-store" }).catch(
+      () => undefined,
+    );
+  }, [debouncedSearch]);
 
   return (
     <form onSubmit={handleSubmit} className="relative hidden lg:block">

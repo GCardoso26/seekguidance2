@@ -18,6 +18,8 @@ class DeckCreateBody(BaseModel):
     description: str | None = None
     game: str = Field(min_length=1, max_length=50)
     format: str = Field(default="standard", max_length=50)
+    format_id: str | None = None
+    game_id: str | None = None
     is_public: bool = False
 
 
@@ -26,6 +28,7 @@ class DeckUpdateBody(BaseModel):
     description: str | None = None
     format: str | None = Field(default=None, max_length=50)
     is_public: bool | None = None
+    format_id: str | None = None
 
 
 class DeckCardAddBody(BaseModel):
@@ -37,6 +40,10 @@ class DeckCardAddBody(BaseModel):
 
 class DeckCardUpdateBody(BaseModel):
     quantity: int = Field(ge=1, le=99)
+
+
+class DeckValidateBody(BaseModel):
+    owner_only: bool = True
 
 
 @router.post("/runtime/judge/decks")
@@ -52,6 +59,8 @@ async def create_deck(
         name=body.name,
         game=body.game,
         format=body.format,
+        game_id=body.game_id,
+        format_id=body.format_id,
         description=body.description,
         is_public=body.is_public,
     )
@@ -192,3 +201,50 @@ async def export_deck(
     if format not in {"text", "dec", "arena"}:
         raise HTTPException(400, "Formato de exportação inválido")
     return await decks_svc.export_deck(session, deck_id, export_format=format, viewer_id=viewer)
+
+
+@router.get("/runtime/judge/formats/{game_slug}")
+async def list_formats(session: DbSession, game_slug: str) -> dict[str, Any]:
+    formats = await decks_svc.list_formats_by_game(session, game_slug)
+    return {"formats": formats}
+
+
+@router.get("/runtime/judge/formats/rules/{format_id}")
+async def get_format_rules(session: DbSession, format_id: str) -> dict[str, Any]:
+    data = await decks_svc.get_format_rules(session, format_id)
+    if not data:
+        raise HTTPException(404, "Formato não encontrado")
+    return data
+
+
+@router.get("/runtime/judge/decks/{deck_id}/validate")
+async def validate_deck_get(
+    session: DbSession,
+    deck_id: str,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    result = await decks_svc.validate_deck(session, deck_id, owner_id=user_id)
+    return {"validation": result}
+
+
+@router.post("/runtime/judge/decks/{deck_id}/validate")
+async def validate_deck_post(
+    session: DbSession,
+    deck_id: str,
+    _body: DeckValidateBody,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    result = await decks_svc.validate_deck(session, deck_id, owner_id=user_id)
+    return {"validation": result}
+
+
+@router.get("/runtime/judge/user/collection")
+async def user_collection(
+    session: DbSession,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    items = await decks_svc.list_user_collection(session, user_id)
+    return {"items": items}

@@ -143,6 +143,18 @@ async def run_game_sync(
 
     source, sync_fn = entry
     try:
+        await session.execute(
+            text(
+                """
+                UPDATE tcg_judge.catalog_games
+                SET sync_status = 'syncing'
+                WHERE game_code = :code
+                """
+            ),
+            {"code": code},
+        )
+        await session.commit()
+
         if code == "MTG":
             result = await sync_fn(session, limit=None if full else 500)
         elif code == "POKEMON":
@@ -157,6 +169,16 @@ async def run_game_sync(
 
         synced = int(result.get("synced") or 0)
         await _log_sync_run(session, game_code=code, source=source, status="ok", cards_synced=synced)
+        await session.execute(
+            text(
+                """
+                UPDATE tcg_judge.catalog_games
+                SET sync_status = 'completed', last_sync_at = NOW()
+                WHERE game_code = :code
+                """
+            ),
+            {"code": code},
+        )
         await refresh_catalog_game_counts(session)
 
         index_result: dict[str, Any] = {"status": "skipped"}
@@ -175,6 +197,16 @@ async def run_game_sync(
             source=source,
             status="error",
             error_message=str(exc)[:500],
+        )
+        await session.execute(
+            text(
+                """
+                UPDATE tcg_judge.catalog_games
+                SET sync_status = 'failed'
+                WHERE game_code = :code
+                """
+            ),
+            {"code": code},
         )
         await session.commit()
         logger.exception("catalog_sync_failed", game=code)

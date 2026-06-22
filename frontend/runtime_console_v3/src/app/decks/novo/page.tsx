@@ -1,14 +1,23 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useJudgeAuth } from "@/features/auth/AuthProvider";
-import { useCreateDeck } from "@/hooks/useDeck";
+import { useCreateDeck, useDeckFormats } from "@/hooks/useDeck";
 import { TOURNAMENT_GAMES } from "@/lib/tcg-adapters";
+import type { DeckFormat } from "@/types/deck";
+
+type CatalogGame = {
+  id: string;
+  game_code: string;
+  slug: string;
+  display_name: string;
+};
 
 export default function NovoDeckPage() {
   const router = useRouter();
@@ -18,6 +27,21 @@ export default function NovoDeckPage() {
   const [game, setGame] = useState("mtg");
   const [format, setFormat] = useState("standard");
 
+  const { data: catalogGames = [] } = useQuery({
+    queryKey: ["catalog-games-new-deck"],
+    queryFn: async () => {
+      const res = await fetch("/api/games", { cache: "no-store" });
+      if (!res.ok) return [] as CatalogGame[];
+      const data = (await res.json()) as { games: CatalogGame[] };
+      return data.games ?? [];
+    },
+  });
+  const { data: formats = [] } = useDeckFormats(game);
+
+  useEffect(() => {
+    if (formats.length > 0) setFormat(formats[0].slug);
+  }, [formats]);
+
   if (!loading && !user) {
     router.push("/login?next=/decks/novo");
     return null;
@@ -26,7 +50,15 @@ export default function NovoDeckPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
-    const deck = await createDeck.mutateAsync({ name: name.trim(), game, format });
+    const gameRow = catalogGames.find((g) => g.slug === game || g.game_code.toLowerCase() === game);
+    const formatRow = formats.find((f) => f.slug === format) as DeckFormat | undefined;
+    const deck = await createDeck.mutateAsync({
+      name: name.trim(),
+      game,
+      game_id: gameRow?.id,
+      format,
+      format_id: formatRow?.id,
+    });
     router.push(`/decks/${deck.id}/build`);
   };
 
@@ -68,10 +100,20 @@ export default function NovoDeckPage() {
               onChange={(e) => setFormat(e.target.value)}
               className="mt-1 w-full rounded-md border border-white/10 bg-luxury-obsidian px-3 py-2 text-sm"
             >
-              <option value="standard">Standard</option>
-              <option value="modern">Modern</option>
-              <option value="commander">Commander</option>
-              <option value="free">Livre</option>
+              {formats.length > 0 ? (
+                formats.map((f) => (
+                  <option key={f.id} value={f.slug}>
+                    {f.display_name}
+                  </option>
+                ))
+              ) : (
+                <>
+                  <option value="standard">Standard</option>
+                  <option value="modern">Modern</option>
+                  <option value="commander">Commander</option>
+                  <option value="free">Livre</option>
+                </>
+              )}
             </select>
           </div>
           <Button type="submit" className="w-full" disabled={createDeck.isPending}>

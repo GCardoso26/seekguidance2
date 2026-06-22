@@ -90,6 +90,7 @@ def _build_where(
     price_max_cents: int | None,
     query: str,
     meili_ids: list[str] | None,
+    card_ids: list[str] | None,
 ) -> tuple[str, dict[str, Any]]:
     clauses = ["1=1"]
     params: dict[str, Any] = {}
@@ -105,6 +106,12 @@ def _build_where(
     elif query:
         clauses.append("cc.normalized_name ILIKE :pattern")
         params["pattern"] = f"%{query.lower()}%"
+
+    if card_ids:
+        placeholders = ", ".join(f":cid_{i}" for i in range(len(card_ids)))
+        clauses.append(f"cc.id IN ({placeholders})")
+        for i, cid in enumerate(card_ids):
+            params[f"cid_{i}"] = cid
 
     if game:
         clauses.append("cc.game_code = :game")
@@ -180,6 +187,7 @@ async def search_catalog_cards(
     language: str | None = None,
     foil: bool | None = None,
     sort: str = "relevance",
+    card_ids: list[str] | None = None,
     page: int = 1,
     limit: int = 24,
 ) -> dict[str, Any]:
@@ -210,6 +218,7 @@ async def search_catalog_cards(
         price_max_cents=price_max_cents,
         query=query if meili_ids is None else "",
         meili_ids=meili_ids,
+        card_ids=card_ids,
     )
 
     base_from = f"""
