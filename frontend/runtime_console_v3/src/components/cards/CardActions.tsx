@@ -89,7 +89,7 @@ function PriceAlertForm({ card, onDone }: { card: UnifiedCard; onDone: () => voi
         },
         onError: (err) => {
           if (err instanceof Error && err.message === "login_required") {
-            router.push(`/login?next=${encodeURIComponent(`/cards/${card.id}`)}`);
+            router.push(`/login?next=${encodeURIComponent(`/loja/cartas/${card.id}`)}`);
             return;
           }
           setError(err instanceof Error ? err.message : "Erro ao criar alerta");

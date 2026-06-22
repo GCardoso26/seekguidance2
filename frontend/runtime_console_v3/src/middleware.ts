@@ -78,6 +78,8 @@ export function middleware(request: NextRequest) {
   const needsAuth =
     pathname === "/player/me" ||
     pathname.startsWith("/player/me/") ||
+    pathname === "/perfil" ||
+    pathname.startsWith("/perfil/") ||
     (pathname.startsWith("/social/communities") && pathname.includes("/posts/"));
 
   if (needsAuth && !hasSupabaseSession(request)) {
@@ -100,6 +102,8 @@ export const config = {
     "/onboarding",
     "/player/me",
     "/player/me/:path*",
+    "/perfil",
+    "/perfil/:path*",
     "/social/communities/:path*/posts/:path*",
     "/observability/:path*",
     "/admin/:path*",

@@ -214,8 +214,8 @@ class SmokeTest:
     def test_frontend_search(self) -> bool:
         return self._check(
             "Frontend Search",
-            f"{CONFIG['frontend']}/catalog/search?q=lightning",
-            expected_in_body="catalog/search",
+            f"{CONFIG['frontend']}/loja/busca?q=lightning",
+            expected_in_body="loja/busca",
         )
 
     def test_catalog_search_bff(self) -> bool:
@@ -242,15 +242,15 @@ class SmokeTest:
     def test_leaderboard(self) -> bool:
         return self._check(
             "Leaderboard",
-            f"{CONFIG['frontend']}/leaderboard",
+            f"{CONFIG['frontend']}/comunidade/leaderboard",
             expected_in_body="leaderboard",
         )
 
     def test_checkout_page(self) -> bool:
         return self._check(
             "Checkout Page",
-            f"{CONFIG['frontend']}/marketplace/checkout",
-            expected_in_body="marketplace/checkout",
+            f"{CONFIG['frontend']}/checkout",
+            expected_in_body="checkout",
         )
 
 

@@ -37,6 +37,22 @@ services:
       timeout: 3s
       retries: 10
 
+  meilisearch:
+    image: getmeili/meilisearch:v1.12
+    container_name: tcg-judge-meilisearch
+    environment:
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY:-dev-master-key}
+      MEILI_ENV: development
+    ports:
+      - "7700:7700"
+    volumes:
+      - meilisearch_data:/meili_data
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:7700/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
   api:
     build:
       context: .
@@ -45,6 +61,8 @@ services:
     environment:
       DATABASE_URL: postgresql+asyncpg://tcgjudge:tcgjudge_dev@postgres:5432/tcg_judge
       REDIS_URL: redis://redis:6379/0
+      MEILI_HOST: http://meilisearch:7700
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY:-dev-master-key}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       OPENAI_EMBEDDING_MODEL: ${OPENAI_EMBEDDING_MODEL:-text-embedding-3-large}
       OPENAI_EMBEDDING_DIMENSIONS: ${OPENAI_EMBEDDING_DIMENSIONS:-1536}
@@ -54,6 +72,8 @@ services:
       postgres:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      meilisearch:
         condition: service_healthy
     volumes:
       - ./services/api/app:/app/app:ro
@@ -78,3 +98,4 @@ services:
 volumes:
   postgres_data:
   redis_data:
+  meilisearch_data:

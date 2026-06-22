@@ -73,7 +73,7 @@ export function UserMenu({ onHistoryClick }: Props) {
           </p>
           <DropdownMenu.Separator className="my-1 h-px bg-white/10" />
           <DropdownMenu.Item asChild>
-            <Link href="/player/me" className={itemClass}>
+            <Link href="/perfil" className={itemClass}>
               <User className="h-4 w-4" aria-hidden />
               Perfil
             </Link>

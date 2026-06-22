@@ -1,9 +1,13 @@
-# Blueprint Render — API FastAPI (Docker, monorepo na raiz).
-# Docs: docs/DEPLOY_SEM_EC2_RENDER_VERCEL.md
-#
-# No 1º deploy o Render pede valores para variáveis sync: false (DATABASE_URL, REDIS_URL, OPENAI_API_KEY).
+# Render — Key Value (Redis) para tcg-judge-api
 
 services:
+  - type: keyvalue
+    name: tcg-judge-redis
+    plan: free
+    region: oregon
+    maxmemoryPolicy: allkeys-lru
+    ipAllowList: []
+
   - type: web
     name: tcg-judge-api
     runtime: docker
@@ -23,6 +27,9 @@ services:
       - key: DATABASE_URL
         sync: false
       - key: REDIS_URL
-        sync: false
+        fromService:
+          type: keyvalue
+          name: tcg-judge-redis
+          property: connectionString
       - key: OPENAI_API_KEY
         sync: false

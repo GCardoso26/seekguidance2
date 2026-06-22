@@ -12,7 +12,9 @@ import { PriceChart } from "@/components/cards/PriceChart";
 import { SellerOffersTable } from "@/components/cards/SellerOffersTable";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import { CreateListingForm } from "@/components/seller/CreateListingForm";
+import { CardRulesTab } from "@/components/cards/CardRulesTab";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCardDetail } from "@/hooks/useCardDetail";
 import { useAnalytics } from "@/hooks/useAnalytics";
@@ -84,14 +86,14 @@ export function CardDetailPage({ cardId }: CardDetailPageProps) {
             </li>
             <li aria-hidden="true">/</li>
             <li>
-              <Link href={`/games/${gameSlug}`} className="hover:text-foreground">
+              <Link href={`/loja/${gameSlug}`} className="hover:text-foreground">
                 {gameToken?.name || card.game}
               </Link>
             </li>
             <li aria-hidden="true">/</li>
             <li>
               <Link
-                href={`/catalog/search?game=${encodeURIComponent(String(card.game))}&set=${encodeURIComponent(card.set?.code || "")}`}
+                href={`/loja/busca?game=${encodeURIComponent(String(card.game))}&set=${encodeURIComponent(card.set?.code || "")}`}
                 className="hover:text-foreground"
               >
                 {card.set?.name}
@@ -262,6 +264,30 @@ export function CardDetailPage({ cardId }: CardDetailPageProps) {
                 </div>
               </div>
 
+              <Tabs defaultValue="precos" className="space-y-4">
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="precos">Preços</TabsTrigger>
+                  <TabsTrigger value="historico">Histórico</TabsTrigger>
+                  <TabsTrigger value="regras">Regras</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="precos">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Ofertas ({listings.length})</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <SellerOffersTable
+                    listings={listings}
+                    onBuy={handleBuy}
+                    buyingId={addToCart.isPending ? addToCart.variables?.listing.id ?? null : null}
+                  />
+                  {buyError && <p className="mt-3 text-sm text-red-500">{buyError}</p>}
+                </CardContent>
+              </Card>
+                </TabsContent>
+
+                <TabsContent value="historico">
               <Card>
                 <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <CardTitle className="text-lg">Histórico de Preço</CardTitle>
@@ -293,20 +319,16 @@ export function CardDetailPage({ cardId }: CardDetailPageProps) {
                   <PriceChart cardId={cardId} range={priceRange} condition={selectedCondition} />
                 </CardContent>
               </Card>
+                </TabsContent>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Ofertas ({listings.length})</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <SellerOffersTable
-                    listings={listings}
-                    onBuy={handleBuy}
-                    buyingId={addToCart.isPending ? addToCart.variables?.listing.id ?? null : null}
-                  />
-                  {buyError && <p className="mt-3 text-sm text-red-500">{buyError}</p>}
-                </CardContent>
-              </Card>
+                <TabsContent value="regras">
+                  <Card>
+                    <CardContent className="pt-6">
+                      <CardRulesTab card={card} cardId={cardId} />
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              </Tabs>
 
               <CreateListingForm card={card} />
 
@@ -315,7 +337,7 @@ export function CardDetailPage({ cardId }: CardDetailPageProps) {
                   <h2 className="mb-4 text-lg font-semibold">Cartas Relacionadas</h2>
                   <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                     {relatedCards.slice(0, 4).map((related) => (
-                      <Link key={related.id} href={`/cards/${related.id}`} className="block">
+                      <Link key={related.id} href={`/loja/cartas/${related.id}`} className="block">
                         <CardCard card={related} variant="compact" showPrice source="related" />
                       </Link>
                     ))}
@@ -406,7 +428,7 @@ function CardDetailError({ notFound }: { notFound?: boolean }) {
           {notFound ? "Verifique o link ou volte à busca." : "Tente novamente mais tarde."}
         </p>
         <Link
-          href="/catalog/search"
+          href="/loja/busca"
           className="mt-6 inline-block text-sm text-primary underline-offset-4 hover:underline"
         >
           Voltar à busca

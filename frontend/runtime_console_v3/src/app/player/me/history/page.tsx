@@ -17,7 +17,7 @@ export default function PlayerHistoryPage() {
   return (
     <MobileLayout>
       <div className="container mx-auto max-w-2xl px-4 py-8">
-        <Link href="/player/me" className="text-sm text-luxury-mist">
+        <Link href="/perfil" className="text-sm text-luxury-mist">
           ← Meu perfil
         </Link>
         <h1 className="mt-2 text-3xl font-bold">Histórico de consultas</h1>

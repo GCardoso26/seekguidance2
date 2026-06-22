@@ -45,7 +45,7 @@ export function BuyDeckButton({ deck }: BuyDeckButtonProps) {
       }
 
       openCart();
-      router.push("/marketplace/checkout");
+      router.push("/checkout");
     } finally {
       setLoading(false);
     }

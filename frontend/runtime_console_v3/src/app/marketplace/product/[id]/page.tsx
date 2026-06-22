@@ -31,7 +31,7 @@ export default function ProductDetailPage() {
     const result = await addProductToCart(product.id);
     if (result.ok) {
       await queryClient.invalidateQueries({ queryKey: ["shop-cart"] });
-      window.location.href = "/marketplace/checkout";
+      window.location.href = "/checkout";
       return;
     }
     if (result.needsLogin) {

@@ -26,7 +26,7 @@ export default function AlertsPage() {
   return (
     <MobileLayout>
       <main className="container mx-auto max-w-2xl px-4 py-8">
-        <Link href="/catalog/search" className="text-sm text-muted-foreground hover:text-foreground">
+        <Link href="/loja/busca" className="text-sm text-muted-foreground hover:text-foreground">
           ← Catálogo
         </Link>
         <h1 className="mt-4 text-2xl font-bold">Meus alertas de preço</h1>

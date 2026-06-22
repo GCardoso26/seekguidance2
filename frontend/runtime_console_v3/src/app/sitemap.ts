@@ -5,9 +5,12 @@ const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://judgetcg.com.br";
 export default function sitemap(): MetadataRoute.Sitemap {
   const staticRoutes = [
     "",
+    "/loja/busca",
+    "/decks",
+    "/regras",
+    "/comunidade/leaderboard",
     "/judge",
     "/pricing",
-    "/leaderboard",
     "/social/communities",
     "/tournament/create",
     "/onboarding",

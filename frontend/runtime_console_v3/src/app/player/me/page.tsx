@@ -237,7 +237,7 @@ function MyProfilePageContent() {
             Badges
           </Link>
           <Link
-            href="/leaderboard"
+            href="/comunidade/leaderboard"
             className="inline-flex flex-1 items-center justify-center rounded-lg border border-white/10 py-2 text-sm font-medium text-luxury-frost hover:bg-white/5"
           >
             Ranking

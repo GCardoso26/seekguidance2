@@ -27,7 +27,7 @@ export function AlertCard({ alert }: AlertCardProps) {
   return (
     <Card>
       <CardContent className="flex flex-wrap items-center gap-4 p-4">
-        <Link href={`/cards/${alert.cardId}`} className="relative h-16 w-11 shrink-0 overflow-hidden rounded">
+        <Link href={`/loja/cartas/${alert.cardId}`} className="relative h-16 w-11 shrink-0 overflow-hidden rounded">
           <Image
             src={imageSrc}
             alt=""
@@ -38,7 +38,7 @@ export function AlertCard({ alert }: AlertCardProps) {
           />
         </Link>
         <div className="min-w-0 flex-1">
-          <Link href={`/cards/${alert.cardId}`} className="font-medium hover:underline">
+          <Link href={`/loja/cartas/${alert.cardId}`} className="font-medium hover:underline">
             {alert.cardName}
           </Link>
           <p className="text-xs text-muted-foreground">{alert.setName}</p>

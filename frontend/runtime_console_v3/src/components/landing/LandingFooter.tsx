@@ -22,7 +22,7 @@ const FOOTER_COLUMNS = [
   {
     title: "Suporte",
     links: [
-      { href: "/player/me", label: "Perfil" },
+      { href: "/perfil", label: "Perfil" },
       { href: "/#como-funciona", label: "Como funciona" },
       { href: "https://discord.gg/judgetcg", label: "Discord" },
     ],

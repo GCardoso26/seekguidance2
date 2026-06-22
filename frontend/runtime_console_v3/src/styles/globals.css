@@ -25,3 +25,20 @@ html {
   --border: 214 20% 90%;
 }
 body { @apply bg-background text-foreground antialiased; }
+
+@layer base {
+  :root {
+    --condition-nm: 142 76% 36%;
+    --condition-lp: 217 91% 60%;
+    --condition-mp: 48 96% 53%;
+    --condition-hp: 24 95% 53%;
+    --condition-dm: 0 84% 60%;
+    --game-primary: var(--game-color, hsl(var(--primary)));
+  }
+
+  .dark,
+  :root {
+    --condition-nm: 142 70% 45%;
+    --condition-lp: 217 85% 65%;
+  }
+}

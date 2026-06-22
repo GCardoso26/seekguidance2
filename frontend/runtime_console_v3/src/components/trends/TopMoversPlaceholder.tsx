@@ -31,7 +31,7 @@ export function TopMoversPlaceholder() {
               {item.change}% (7d)
             </div>
             <Link
-              href="/catalog/search"
+              href="/loja/busca"
               className="mt-2 inline-block text-xs text-primary hover:underline"
             >
               Ver detalhes →

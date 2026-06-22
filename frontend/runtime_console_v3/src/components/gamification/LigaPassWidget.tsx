@@ -29,7 +29,7 @@ export function LigaPassWidget({ className, compact = false }: LigaPassWidgetPro
   if (compact) {
     return (
       <Link
-        href="/player/me"
+        href="/perfil"
         className={cn(
           "flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold text-white ring-1 ring-white/20",
           className,

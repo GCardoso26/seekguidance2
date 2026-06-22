@@ -60,7 +60,7 @@ export default function CartPage() {
               <span className="text-luxury-mist">Total</span>
               <span className="font-mono text-xl font-bold">{formatShopPrice(cart?.total_cents ?? 0)}</span>
             </div>
-            <Link href="/marketplace/checkout" className="mt-4 block rounded-lg bg-luxury-gold py-3 text-center font-semibold text-luxury-onyx">
+            <Link href="/checkout" className="mt-4 block rounded-lg bg-luxury-gold py-3 text-center font-semibold text-luxury-onyx">
               Ir para checkout
             </Link>
           </div>

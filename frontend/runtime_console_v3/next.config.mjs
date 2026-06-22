@@ -11,7 +11,6 @@ const supabaseHost =
 
 const isDev = process.env.NODE_ENV === "development";
 
-/** Produção: CSP restrito. Dev: unsafe-eval + ws para Next HMR (sem isto, EvalError no browser). */
 const cspProduction =
   "default-src 'self'; script-src 'self' 'unsafe-inline' https://js.stripe.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https: https://*.supabase.co wss://*.supabase.co https://api.stripe.com; frame-src https://accounts.google.com https://js.stripe.com https://hooks.stripe.com; frame-ancestors 'none'; base-uri 'self'; object-src 'none'";
 
@@ -30,10 +29,21 @@ const securityHeaders = [
   { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
 ];
 
+const marketplaceRedirects = [
+  { source: "/catalog/search", destination: "/loja/busca", permanent: true },
+  { source: "/catalog/search/:path*", destination: "/loja/busca", permanent: true },
+  { source: "/games/:game", destination: "/loja/:game", permanent: true },
+  { source: "/cards/:id", destination: "/loja/cartas/:id", permanent: true },
+  { source: "/marketplace/checkout", destination: "/checkout", permanent: true },
+  { source: "/marketplace/cart", destination: "/carrinho", permanent: true },
+  { source: "/player/me", destination: "/perfil", permanent: true },
+  { source: "/leaderboard", destination: "/comunidade/leaderboard", permanent: true },
+  { source: "/alerts", destination: "/perfil/alertas", permanent: true },
+  { source: "/decks/:deckId/edit", destination: "/decks/:deckId/build", permanent: true },
+];
+
 const nextConfig = {
   reactStrictMode: true,
-  // Não usar output:standalone + outputFileTracingRoot na Vercel (Root Directory
-  // frontend/runtime_console_v3) — causa path doubling e ENOENT em routes-manifest.json.
   images: {
     dangerouslyAllowSVG: true,
     contentDispositionType: "attachment",
@@ -49,6 +59,9 @@ const nextConfig = {
   },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
+  },
+  async redirects() {
+    return marketplaceRedirects;
   },
   async rewrites() {
     const target =

@@ -49,7 +49,7 @@ export function CreateListingForm({ card }: CreateListingFormProps) {
       });
 
       if (res.status === 401) {
-        router.push(`/login?next=${encodeURIComponent(`/cards/${card.id}`)}`);
+        router.push(`/login?next=${encodeURIComponent(`/loja/cartas/${card.id}`)}`);
         return;
       }
 

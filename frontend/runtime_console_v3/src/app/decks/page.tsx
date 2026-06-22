@@ -29,7 +29,7 @@ export default function DecksPage() {
   const handleCreate = async () => {
     if (!name.trim()) return;
     const deck = await createDeck.mutateAsync({ name: name.trim(), game, format });
-    router.push(`/decks/${deck.id}/edit`);
+    router.push(`/decks/${deck.id}/build`);
   };
 
   return (
@@ -102,7 +102,7 @@ export default function DecksPage() {
                   <p className="text-xs text-luxury-gold">{formatCurrency(deck.total_price / 100)}</p>
                 </div>
                 <div className="flex gap-2">
-                  <Link href={`/decks/${deck.id}/edit`}>
+                  <Link href={`/decks/${deck.id}/build`}>
                     <Button size="sm" variant="outline">
                       <Layers className="mr-1 h-4 w-4" />
                       Editar

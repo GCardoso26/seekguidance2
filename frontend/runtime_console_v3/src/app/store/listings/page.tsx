@@ -67,7 +67,7 @@ export default function SellerListingsPage() {
               className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card p-4"
             >
               <div>
-                <Link href={`/cards/${listing.cardId}`} className="font-medium hover:underline">
+                <Link href={`/loja/cartas/${listing.cardId}`} className="font-medium hover:underline">
                   {listing.cardName || "Carta"}
                 </Link>
                 <p className="text-xs text-muted-foreground">{listing.setName}</p>
@@ -81,7 +81,7 @@ export default function SellerListingsPage() {
               </div>
               <div className="flex gap-2">
                 <Button variant="outline" size="sm" asChild>
-                  <Link href={`/cards/${listing.cardId}`}>Ver</Link>
+                  <Link href={`/loja/cartas/${listing.cardId}`}>Ver</Link>
                 </Button>
                 <Button variant="ghost" size="sm" onClick={() => deactivate(listing.id)}>
                   Desativar

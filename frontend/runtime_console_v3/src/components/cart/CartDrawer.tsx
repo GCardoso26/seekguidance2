@@ -130,7 +130,7 @@ export function CartDrawer() {
                   <span>{formatShopPrice(totalCents)}</span>
                 </div>
                 <Button className="w-full" size="lg" asChild onClick={closeCart}>
-                  <Link href="/marketplace/checkout">Finalizar compra</Link>
+                  <Link href="/checkout">Finalizar compra</Link>
                 </Button>
                 <Button variant="outline" className="w-full" onClick={closeCart}>
                   Continuar comprando

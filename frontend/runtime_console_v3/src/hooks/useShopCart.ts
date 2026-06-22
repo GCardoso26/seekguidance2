@@ -63,7 +63,7 @@ export function useAddListingToCart() {
         const returnPath =
           typeof window !== "undefined"
             ? window.location.pathname
-            : `/cards/${variables.listing.cardId}`;
+            : `/loja/cartas/${variables.listing.cardId}`;
         router.push(`/login?next=${encodeURIComponent(returnPath)}`);
         return;
       }

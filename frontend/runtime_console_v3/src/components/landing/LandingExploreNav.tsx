@@ -18,7 +18,7 @@ type Props = {
 
 export function LandingExploreNav({ className }: Props) {
   const { user } = useJudgeAuth();
-  const profileHref = user ? "/player/me" : "/#login-section";
+  const profileHref = user ? "/perfil" : "/#login-section";
 
   return (
     <DropdownMenu.Root>

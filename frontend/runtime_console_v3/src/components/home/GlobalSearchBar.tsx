@@ -27,7 +27,7 @@ export function GlobalSearchBar({
     if (q) params.set("q", q);
     if (defaultGame) params.set("game", defaultGame);
     const suffix = params.toString();
-    router.push(suffix ? `/catalog/search?${suffix}` : "/catalog/search");
+    router.push(suffix ? `/loja/busca?${suffix}` : "/loja/busca");
   };
 
   return (

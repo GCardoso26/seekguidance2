@@ -65,7 +65,7 @@ export default function DeckShowcasePage({
 
         <div className="mt-8 grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-6">
           {deck.main_deck.map((entry) => (
-            <Link key={entry.id} href={`/cards/${entry.card_id}`} className="relative">
+            <Link key={entry.id} href={`/loja/cartas/${entry.card_id}`} className="relative">
               <CardCard card={entry.card} variant="compact" showPrice={false} />
               <span className="absolute right-2 top-2 rounded bg-black/70 px-2 py-1 text-xs text-white">
                 {entry.quantity}x
@@ -79,7 +79,7 @@ export default function DeckShowcasePage({
             <h2 className="mt-8 text-lg font-semibold text-luxury-frost">Sideboard</h2>
             <div className="mt-3 grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-6">
               {deck.sideboard.map((entry) => (
-                <Link key={entry.id} href={`/cards/${entry.card_id}`} className="relative">
+                <Link key={entry.id} href={`/loja/cartas/${entry.card_id}`} className="relative">
                   <CardCard card={entry.card} variant="compact" showPrice={false} />
                   <span className="absolute right-2 top-2 rounded bg-black/70 px-2 py-1 text-xs text-white">
                     {entry.quantity}x
@@ -96,7 +96,7 @@ export default function DeckShowcasePage({
             {copied ? "Copiado!" : "Copiar lista"}
           </Button>
           <BuyDeckButton deck={deck} />
-          <Link href={`/decks/${deck.id}/edit`}>
+          <Link href={`/decks/${deck.id}/build`}>
             <Button type="button">Editar deck</Button>
           </Link>
         </div>

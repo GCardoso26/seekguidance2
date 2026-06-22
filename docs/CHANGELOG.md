@@ -1,5 +1,18 @@
 # Changelog
 
+## [Unreleased] — Fase 0 Catálogo
+
+### Adicionado
+
+- Migration `20260621140000_card_catalog_phase0.sql` (external_ids, image_uris, card_prices, card_sync_runs)
+- Pipeline de ingestão (`app/catalog/pipeline.py`) com adapters MTG, Pokémon, Lorcana, YGO
+- Meilisearch indexer + fallback PostgreSQL ILIKE
+- API `/runtime/judge/catalog/health`, `/catalog/cards/search`, `/catalog/sync/{game}`
+- BFF Next.js `/api/catalog/health` e `/api/catalog/cards/search`
+- Types `UnifiedCard` em `src/types/card.ts`
+- Documentação `docs/CARD_INGESTION.md`
+- Meilisearch no `docker-compose.yml`
+
 ## [1.0.0] — 2026-06-21
 
 ### Adicionado

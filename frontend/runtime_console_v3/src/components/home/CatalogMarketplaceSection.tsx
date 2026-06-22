@@ -17,7 +17,7 @@ export function CatalogMarketplaceSection() {
   const availableCount = countAvailableGames(health);
 
   const handleGameSelect = (gameId: string) => {
-    router.push(`/games/${gameSlugFromId(gameId as GameId)}`);
+    router.push(`/loja/${gameSlugFromId(gameId as GameId)}`);
   };
 
   return (

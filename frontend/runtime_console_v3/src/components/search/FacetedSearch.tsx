@@ -17,9 +17,16 @@ import { useAnalytics } from "@/hooks/useAnalytics";
 interface FacetedSearchProps {
   initialGame?: string;
   initialQuery?: string;
+  searchBasePath?: string;
+  cardDetailPath?: string;
 }
 
-export function FacetedSearch({ initialGame, initialQuery }: FacetedSearchProps) {
+export function FacetedSearch({
+  initialGame,
+  initialQuery,
+  searchBasePath = "/loja/busca",
+  cardDetailPath = "/loja/cartas",
+}: FacetedSearchProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -67,9 +74,9 @@ export function FacetedSearch({ initialGame, initialQuery }: FacetedSearchProps)
     (next: SearchFilters) => {
       const params = searchParamsFromFilters(next);
       const qs = params.toString();
-      router.replace(qs ? `/catalog/search?${qs}` : "/catalog/search", { scroll: false });
+      router.replace(qs ? `${searchBasePath}?${qs}` : searchBasePath, { scroll: false });
     },
-    [router],
+    [router, searchBasePath],
   );
 
   const updateFilters = useCallback(
@@ -150,7 +157,7 @@ export function FacetedSearch({ initialGame, initialQuery }: FacetedSearchProps)
             isLoading={isLoading || isFetchingNextPage}
             hasMore={Boolean(hasNextPage)}
             onLoadMore={() => fetchNextPage()}
-            onViewDetail={(id) => router.push(`/cards/${id}`)}
+            onViewDetail={(id) => router.push(`${cardDetailPath}/${id}`)}
             onAddToDeck={(card) => router.push(`/decks?add=${card.id}`)}
             onAddToCart={() => router.push("/marketplace")}
           />

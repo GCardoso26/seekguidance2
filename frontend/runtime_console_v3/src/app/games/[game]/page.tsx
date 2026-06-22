@@ -54,7 +54,7 @@ function GamePageContent() {
       </section>
 
       <div className="container mx-auto px-4 py-8">
-        <FacetedSearch initialGame={gameId} />
+        <FacetedSearch initialGame={gameId} searchBasePath="/loja/busca" cardDetailPath="/loja/cartas" />
       </div>
     </MobileLayout>
   );

@@ -142,7 +142,7 @@ export async function checkAndAwardBadges(userId: string): Promise<string[]> {
           type: "badge_earned",
           title: `Badge desbloqueado: ${badge.name}`,
           content: badge.description,
-          link: "/player/me/badges",
+          link: "/perfil",
         });
       }
     }
