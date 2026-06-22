@@ -9,6 +9,8 @@ import { EnhancedPixCheckoutPanel } from "@/components/checkout/EnhancedPixCheck
 import { CouponApply } from "@/components/checkout/CouponApply";
 import { formatShopPrice } from "@/lib/marketplace-shop";
 import { trackEvent } from "@/lib/analytics";
+import { CheckoutReservationBanner } from "@/components/checkout/CheckoutReservationBanner";
+import type { CheckoutSessionInfo } from "@/types/seller";
 
 const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? "";
 const stripePromise = publishableKey ? loadStripe(publishableKey) : null;
@@ -71,12 +73,47 @@ export default function CheckoutPage() {
   const [method, setMethod] = useState<"pix" | "stripe">("pix");
   const [pixData, setPixData] = useState<PixData | null>(null);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [checkoutSession, setCheckoutSession] = useState<CheckoutSessionInfo | null>(null);
+  const [reservationError, setReservationError] = useState<string | null>(null);
   const [totalCents, setTotalCents] = useState(0);
   const [initError, setInitError] = useState<string | null>(null);
   const [discountCents, setDiscountCents] = useState(0);
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; storeId: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [pixLoading, setPixLoading] = useState(false);
+
+  useEffect(() => {
+    async function reserveStock() {
+      const res = await fetch("/api/checkout/initiate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: "{}",
+      });
+      if (res.status === 423) {
+        setReservationError("Item sendo processado por outro comprador. Tente novamente em instantes.");
+        return;
+      }
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        setReservationError(String(body.detail ?? "Não foi possível reservar estoque"));
+        return;
+      }
+      const data = await res.json();
+      const checkout = (data.checkout ?? data) as CheckoutSessionInfo;
+      setCheckoutSession(checkout);
+    }
+    void reserveStock();
+  }, []);
+
+  async function handleReservationExpired() {
+    if (checkoutSession?.session_id) {
+      await fetch(`/api/checkout/${checkoutSession.session_id}/cancel`, { method: "POST" });
+    }
+    setCheckoutSession(null);
+    setPixData(null);
+    setClientSecret(null);
+    setReservationError("Sessão expirada. Os itens foram liberados — atualize a página para tentar novamente.");
+  }
 
   useEffect(() => {
     async function loadMethods() {
@@ -106,6 +143,7 @@ export default function CheckoutPage() {
       body: JSON.stringify({
         coupon_code: activeCoupon?.code ?? null,
         store_id: activeCoupon?.storeId ?? null,
+        checkout_session_id: checkoutSession?.session_id ?? null,
       }),
     });
     if (!res.ok) {
@@ -136,7 +174,9 @@ export default function CheckoutPage() {
     const res = await fetch("/api/marketplace/shop/checkout", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({}),
+      body: JSON.stringify({
+        checkout_session_id: checkoutSession?.session_id ?? null,
+      }),
     });
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
@@ -151,11 +191,11 @@ export default function CheckoutPage() {
   }
 
   useEffect(() => {
-    if (!methods || pixData || clientSecret) return;
+    if (!methods || !checkoutSession || pixData || clientSecret || reservationError) return;
     if (method === "stripe" && methods.methods.stripe) void startStripe();
     // PIX exige clique explícito (permite aplicar cupom antes)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [method, methods]);
+  }, [method, methods, checkoutSession, reservationError]);
 
   function handleCouponApplied(discount: number, code: string) {
     setDiscountCents(discount);
@@ -182,6 +222,23 @@ export default function CheckoutPage() {
         <Link href="/marketplace/cart" className="text-sm text-luxury-mist">← Carrinho</Link>
         <h1 className="mt-4 text-2xl font-bold">Checkout</h1>
 
+        {checkoutSession?.expires_at && !reservationError && (
+          <div className="mt-4">
+            <CheckoutReservationBanner
+              expiresAt={checkoutSession.expires_at}
+              onExpired={() => void handleReservationExpired()}
+            />
+          </div>
+        )}
+
+        {reservationError && (
+          <p className="mt-4 text-red-400">{reservationError}</p>
+        )}
+
+        {!checkoutSession && !reservationError && (
+          <p className="mt-4 text-luxury-mist">Reservando estoque…</p>
+        )}
+
         {methods && (
           <p className="mt-2 text-sm text-luxury-mist">
             Total: {formatShopPrice(previewTotal)}
@@ -204,7 +261,7 @@ export default function CheckoutPage() {
           </div>
         )}
 
-        {methods && (methods.methods.pix || methods.methods.stripe) && !pixData && !clientSecret && (
+        {methods && (methods.methods.pix || methods.methods.stripe) && !pixData && !clientSecret && checkoutSession && !reservationError && (
           <div className="mt-6 flex gap-3">
             {methods.methods.pix && (
               <button
@@ -229,7 +286,7 @@ export default function CheckoutPage() {
           </div>
         )}
 
-        {method === "pix" && methods?.methods.pix && !pixData && !clientSecret && (
+        {method === "pix" && methods?.methods.pix && !pixData && !clientSecret && checkoutSession && !reservationError && (
           <button
             type="button"
             data-testid="generate-pix"

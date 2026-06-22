@@ -307,6 +307,22 @@ async def handle_payment_intent_succeeded(session: AsyncSession, settings: Setti
         store_splits = {}
 
     order_ids = [o.strip() for o in order_ids_raw.split(",") if o.strip()]
+    checkout_session_id = metadata.get("checkout_session_id")
+    stock_finalized = False
+
+    if checkout_session_id:
+        from app.marketplace import checkout_atomic
+
+        try:
+            await checkout_atomic.finalize_checkout(
+                session,
+                checkout_session_id,
+                payment_intent_id=payment_intent_id,
+                payment_method="stripe",
+            )
+            stock_finalized = True
+        except Exception as exc:
+            logger.error("checkout_finalize_failed", session_id=checkout_session_id, error=str(exc))
 
     for store_id, amount_cents in store_splits.items():
         store = (
@@ -358,7 +374,7 @@ async def handle_payment_intent_succeeded(session: AsyncSession, settings: Setti
             {"pi": payment_intent_id},
         )
 
-    if order_ids:
+    if order_ids and not stock_finalized:
         for oid in order_ids:
             items = (
                 await session.execute(

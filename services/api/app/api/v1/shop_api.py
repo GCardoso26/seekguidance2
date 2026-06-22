@@ -55,6 +55,7 @@ class CheckoutBody(BaseModel):
     shipping_address: dict[str, Any] | None = None
     coupon_code: str | None = None
     store_id: str | None = None
+    checkout_session_id: str | None = None
 
 
 class OrderStatusBody(BaseModel):
@@ -282,7 +283,10 @@ async def shop_checkout(
 ) -> dict[str, Any]:
     user_id = _require_user(x_judge_user_id)
     return await shop_checkout_svc.create_checkout(
-        session, user_id, shipping_address=body.shipping_address
+        session,
+        user_id,
+        shipping_address=body.shipping_address,
+        checkout_session_id=body.checkout_session_id,
     )
 
 
@@ -308,6 +312,7 @@ async def checkout_pix(
         shipping_address=body.shipping_address,
         coupon_code=body.coupon_code,
         store_id=body.store_id,
+        checkout_session_id=body.checkout_session_id,
     )
 
 

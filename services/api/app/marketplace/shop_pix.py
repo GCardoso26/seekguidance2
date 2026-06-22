@@ -130,7 +130,8 @@ async def get_checkout_methods(session: AsyncSession, user_id: str) -> dict[str,
             await session.execute(
                 text(
                     """
-                    SELECT p.price_cents, p.stock, p.name, p.store_id,
+                    SELECT p.price_cents, p.stock, COALESCE(p.reserved_stock, 0) AS reserved_stock,
+                           p.name, p.store_id,
                            s.name AS store_name, s.pix_key, s.payment_method_preference,
                            s.stripe_account_id, s.stripe_onboarding_complete, s.shop_enabled
                     FROM tcg_judge.store_products p
@@ -148,7 +149,8 @@ async def get_checkout_methods(session: AsyncSession, user_id: str) -> dict[str,
             raise HTTPException(400, f"Loja não configurou pagamentos: {store.get('store_name')}")
 
         qty = int(item.get("quantity", 0))
-        if qty < 1 or qty > int(store["stock"]):
+        available = int(store["stock"]) - int(store.get("reserved_stock") or 0)
+        if qty < 1 or qty > available:
             raise HTTPException(400, f"Estoque insuficiente: {store['name']}")
 
         line = int(store["price_cents"]) * qty
@@ -190,7 +192,17 @@ async def create_pix_checkout(
     shipping_address: dict[str, Any] | None = None,
     coupon_code: str | None = None,
     store_id: str | None = None,
+    checkout_session_id: str | None = None,
 ) -> dict[str, Any]:
+    from app.marketplace import checkout_atomic
+
+    if checkout_session_id:
+        checkout_data = await checkout_atomic.get_active_session(session, checkout_session_id, user_id)
+        session_id = checkout_session_id
+    else:
+        checkout_data = await checkout_atomic.initiate_checkout(session, user_id)
+        session_id = checkout_data["session_id"]
+
     methods = await get_checkout_methods(session, user_id)
     if not methods["methods"]["pix"]:
         raise HTTPException(400, "PIX indisponível para itens do carrinho. Configure PIX na loja ou use cartão.")
@@ -398,7 +410,9 @@ async def create_pix_checkout(
                 "key": split["pix_key"],
                 "amt": final_cents,
                 "exp": expires_at,
-                "payload": copy_payload,
+                "payload": json.dumps(
+                    {"copy_payload": copy_payload, "checkout_session_id": session_id}
+                ),
                 "provider": gateway_result.get("gateway_provider") or "manual",
                 "charge_id": gateway_result.get("gateway_charge_id"),
             },
@@ -440,6 +454,8 @@ async def create_pix_checkout(
         "original_total_cents": methods["total_cents"],
         "discount_cents": total_discount_cents,
         "order_ids": order_ids,
+        "checkout_session_id": session_id,
+        "expires_at": checkout_data.get("expires_at"),
         "pix": pix_payloads[0] if len(pix_payloads) == 1 else None,
         "pix_items": pix_payloads,
     }
@@ -473,6 +489,31 @@ async def confirm_pix_payment(
 
     order_id = str(pix_tx["order_id"])
     payload_json = json.dumps(webhook_payload) if webhook_payload else None
+
+    checkout_session_id: str | None = None
+    raw_payload = pix_tx.get("payload")
+    if raw_payload:
+        try:
+            parsed = json.loads(raw_payload) if isinstance(raw_payload, str) else raw_payload
+            if isinstance(parsed, dict):
+                checkout_session_id = parsed.get("checkout_session_id")
+        except (json.JSONDecodeError, TypeError):
+            pass
+
+    stock_finalized = False
+    if checkout_session_id:
+        from app.marketplace import checkout_atomic
+
+        try:
+            await checkout_atomic.finalize_checkout(
+                session,
+                checkout_session_id,
+                payment_method="pix",
+            )
+            stock_finalized = True
+        except Exception as exc:
+            logger.error("pix_checkout_finalize_failed", session_id=checkout_session_id, error=str(exc))
+
     await session.execute(
         text(
             """
@@ -495,23 +536,24 @@ async def confirm_pix_payment(
         {"id": order_id},
     )
 
-    items = (
-        await session.execute(
-            text("SELECT product_id, quantity FROM tcg_judge.shop_order_items WHERE order_id = :oid"),
-            {"oid": order_id},
-        )
-    ).mappings().all()
-    for item in items:
-        await session.execute(
-            text(
-                """
-                UPDATE tcg_judge.store_products
-                SET stock = GREATEST(0, stock - :qty), updated_at = NOW()
-                WHERE id = :pid
-                """
-            ),
-            {"pid": str(item["product_id"]), "qty": int(item["quantity"])},
-        )
+    if not stock_finalized:
+        items = (
+            await session.execute(
+                text("SELECT product_id, quantity FROM tcg_judge.shop_order_items WHERE order_id = :oid"),
+                {"oid": order_id},
+            )
+        ).mappings().all()
+        for item in items:
+            await session.execute(
+                text(
+                    """
+                    UPDATE tcg_judge.store_products
+                    SET stock = GREATEST(0, stock - :qty), updated_at = NOW()
+                    WHERE id = :pid
+                    """
+                ),
+                {"pid": str(item["product_id"]), "qty": int(item["quantity"])},
+            )
 
     await session.execute(
         text(

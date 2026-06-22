@@ -31,11 +31,21 @@ async def create_checkout(
     user_id: str,
     *,
     shipping_address: dict[str, Any] | None = None,
+    checkout_session_id: str | None = None,
 ) -> dict[str, Any]:
+    from app.marketplace import checkout_atomic
+
     settings = get_settings()
     if not settings.stripe_secret_key:
         raise HTTPException(503, "Stripe não configurado")
     stripe.api_key = settings.stripe_secret_key
+
+    if checkout_session_id:
+        checkout_data = await checkout_atomic.get_active_session(session, checkout_session_id, user_id)
+        session_id = checkout_session_id
+    else:
+        checkout_data = await checkout_atomic.initiate_checkout(session, user_id)
+        session_id = checkout_data["session_id"]
 
     cart, items = await _load_cart_items(session, user_id)
 
@@ -49,7 +59,8 @@ async def create_checkout(
                 text(
                     """
                     SELECT p.*, s.stripe_account_id, s.commission_rate, s.shop_enabled,
-                           s.stripe_onboarding_complete, s.name AS store_name
+                           s.stripe_onboarding_complete, s.name AS store_name,
+                           COALESCE(p.reserved_stock, 0) AS reserved_stock
                     FROM tcg_judge.store_products p
                     JOIN tcg_judge.stores s ON s.id = p.store_id
                     WHERE p.id = :id AND p.is_active = true
@@ -66,7 +77,9 @@ async def create_checkout(
             raise HTTPException(400, f"Loja não aceita cartão (Stripe): {product.get('store_name')}")
 
         qty = int(item.get("quantity", 0))
-        if qty < 1 or qty > int(product["stock"]):
+        reserved = int(product.get("reserved_stock") or 0)
+        available = int(product["stock"]) - reserved
+        if qty < 1 or qty > available:
             raise HTTPException(400, f"Estoque insuficiente: {product['name']}")
 
         line_total = int(product["price_cents"]) * qty
@@ -164,6 +177,7 @@ async def create_checkout(
                 "buyer_id": user_id,
                 "order_ids": ",".join(pending_orders),
                 "store_splits": json.dumps(splits_meta),
+                "checkout_session_id": session_id,
             },
         )
     except stripe.StripeError as exc:
@@ -181,6 +195,16 @@ async def create_checkout(
             ),
             {"pi": intent.id, "id": order_id},
         )
+    await session.execute(
+        text(
+            """
+            UPDATE tcg_judge.checkout_sessions
+            SET payment_intent_id = :pi, payment_method = 'stripe', updated_at = NOW()
+            WHERE id = :sid AND user_id = :uid
+            """
+        ),
+        {"pi": intent.id, "sid": session_id, "uid": user_id},
+    )
     await session.commit()
 
     return {
@@ -188,4 +212,6 @@ async def create_checkout(
         "payment_intent_id": intent.id,
         "total_cents": total_cents,
         "order_ids": pending_orders,
+        "checkout_session_id": session_id,
+        "expires_at": checkout_data.get("expires_at"),
     }

@@ -95,7 +95,7 @@ async def add_to_cart(
     ).mappings().first()
     if not product:
         raise HTTPException(404, "Produto não encontrado")
-    if int(product["stock"]) < quantity:
+    if int(product["stock"]) - int(product.get("reserved_stock") or 0) < quantity:
         raise HTTPException(400, "Estoque insuficiente")
 
     cart = await get_cart(session, user_id)
@@ -107,7 +107,8 @@ async def add_to_cart(
     for item in items:
         if item.get("product_id") == product_id:
             new_qty = int(item.get("quantity", 0)) + quantity
-            if new_qty > int(product["stock"]):
+            available = int(product["stock"]) - int(product.get("reserved_stock") or 0)
+            if new_qty > available:
                 raise HTTPException(400, "Estoque insuficiente")
             item["quantity"] = new_qty
             found = True
@@ -140,11 +141,17 @@ async def update_cart_item(
 
     product = (
         await session.execute(
-            text("SELECT stock FROM tcg_judge.store_products WHERE id = :id"),
+            text(
+                """
+                SELECT stock, COALESCE(reserved_stock, 0) AS reserved_stock
+                FROM tcg_judge.store_products WHERE id = :id
+                """
+            ),
             {"id": product_id},
         )
     ).mappings().first()
-    if not product or int(product["stock"]) < quantity:
+    available = int(product["stock"]) - int(product.get("reserved_stock") or 0) if product else 0
+    if not product or available < quantity:
         raise HTTPException(400, "Estoque insuficiente")
 
     updated = False

@@ -67,6 +67,10 @@ class SmokeTest:
             self.test_leaderboard,
             self.test_decks_new,
             self.test_checkout_page,
+            self.test_marketplace_checkout_page,
+            self.test_checkout_expire_stale,
+            self.test_seller_profile_api,
+            self.test_vendedor_route,
         ]
 
         for test_fn in tests:
@@ -299,6 +303,36 @@ class SmokeTest:
             "Checkout Page",
             f"{CONFIG['frontend']}/checkout",
             expected_in_body="checkout",
+        )
+
+    def test_marketplace_checkout_page(self) -> bool:
+        return self._check(
+            "Marketplace Checkout",
+            f"{CONFIG['frontend']}/marketplace/checkout",
+            expected_in_body="checkout",
+        )
+
+    def test_checkout_expire_stale(self) -> bool:
+        return self._check(
+            "Checkout Expire Stale (API)",
+            f"{CONFIG['api']}/runtime/judge/checkout/expire-stale",
+            method="POST",
+            expected_status=200,
+            json_path="expired",
+        )
+
+    def test_seller_profile_api(self) -> bool:
+        return self._check(
+            "Seller Profile API (404 esperado)",
+            f"{CONFIG['api']}/runtime/judge/sellers/smoke-test-invalid-seller/profile",
+            expected_status=404,
+        )
+
+    def test_vendedor_route(self) -> bool:
+        return self._check(
+            "Vendedor Painel",
+            f"{CONFIG['frontend']}/vendedor/painel",
+            expected_status=(200, 307),
         )
 
     def test_collection_page(self) -> bool:
