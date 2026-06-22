@@ -1,0 +1,96 @@
+"""API de jogos do catálogo — /runtime/judge/games."""
+
+from __future__ import annotations
+
+from typing import Any
+
+from app.api.deps import DbSession
+from app.api.v1.tournament_system import _require_user
+from app.catalog.games_service import (
+    get_catalog_game,
+    list_catalog_games,
+    list_game_sets,
+    search_game_cards,
+)
+from app.catalog.pipeline import run_game_sync
+from fastapi import APIRouter, Header, HTTPException, Query
+
+router = APIRouter(tags=["catalog-games"])
+
+
+@router.get("/runtime/judge/games")
+async def list_games(session: DbSession) -> dict[str, Any]:
+    games = await list_catalog_games(session)
+    return {"games": games}
+
+
+@router.get("/runtime/judge/games/{slug}")
+async def get_game(session: DbSession, slug: str) -> dict[str, Any]:
+    game = await get_catalog_game(session, slug)
+    if not game:
+        raise HTTPException(404, "Game not found")
+    return game
+
+
+@router.get("/runtime/judge/games/{slug}/sets")
+async def get_game_sets(session: DbSession, slug: str) -> dict[str, Any]:
+    game = await get_catalog_game(session, slug)
+    if not game:
+        raise HTTPException(404, "Game not found")
+    sets = await list_game_sets(session, slug)
+    return {"game": game["slug"], "sets": sets}
+
+
+@router.get("/runtime/judge/games/{slug}/cards")
+async def get_game_cards(
+    session: DbSession,
+    slug: str,
+    q: str = Query("", min_length=0),
+    set: str | None = Query(default=None, alias="set"),
+    rarity: str | None = Query(default=None),
+    condition: str | None = Query(default=None),
+    price_min: float | None = Query(default=None, alias="price_min"),
+    price_max: float | None = Query(default=None, alias="price_max"),
+    language: str | None = Query(default=None),
+    foil: bool | None = Query(default=None),
+    sort: str = Query(default="relevance"),
+    page: int = Query(default=1, ge=1),
+    limit: int = Query(default=24, ge=1, le=100),
+) -> dict[str, Any]:
+    game = await get_catalog_game(session, slug)
+    if not game:
+        raise HTTPException(404, "Game not found")
+    return await search_game_cards(
+        session,
+        slug,
+        q=q,
+        set_code=set,
+        rarity=rarity,
+        condition=condition,
+        price_min=price_min,
+        price_max=price_max,
+        language=language,
+        foil=foil,
+        sort=sort,
+        page=page,
+        limit=limit,
+    )
+
+
+@router.post("/runtime/judge/games/{slug}/sync")
+async def sync_game_catalog(
+    session: DbSession,
+    slug: str,
+    full: bool = Query(default=False),
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    _require_user(x_judge_user_id)
+    from app.catalog.games_service import game_code_from_slug
+
+    code = game_code_from_slug(slug)
+    if not code:
+        raise HTTPException(404, "Game not found")
+    result = await run_game_sync(session, code, full=full)
+    if result.get("status") == "error":
+        raise HTTPException(400, str(result.get("message", "sync failed")))
+    return result

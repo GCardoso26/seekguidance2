@@ -69,6 +69,20 @@ export default function AdminConsolePage() {
 
         <Card>
           <CardHeader>
+            <CardTitle className="text-base">Catálogo de cartas (TCGs)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="mb-4 text-sm text-muted-foreground">
+              Sync Scryfall, Pokémon, Yu-Gi-Oh! e demais APIs para o catálogo unificado.
+            </p>
+            <Link href="/admin/catalog" className="text-sm font-medium text-primary hover:underline">
+              Gerir catálogo →
+            </Link>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
             <CardTitle className="text-base">Ingestão (todos os jogos)</CardTitle>
           </CardHeader>
           <CardContent>

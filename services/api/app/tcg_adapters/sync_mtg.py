@@ -7,9 +7,11 @@ from typing import Any
 import httpx
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.tcg_adapters.sync_common import normalize_name, upsert_card
+from app.tcg_adapters.sync_common import normalize_name, upsert_card, upsert_set, maybe_commit_batch
 
 SCRYFALL_BULK = "https://api.scryfall.com/bulk-data"
+SCRYFALL_SETS = "https://api.scryfall.com/sets"
+SCRYFALL_HEADERS = {"User-Agent": "JudgeTCG/1.0", "Accept": "application/json"}
 
 
 def _image_uris(card: dict[str, Any]) -> dict[str, str]:
@@ -22,8 +24,35 @@ def _image_uris(card: dict[str, Any]) -> dict[str, str]:
     return {}
 
 
+async def sync_scryfall_sets(session: AsyncSession) -> int:
+    async with httpx.AsyncClient(timeout=60.0, headers=SCRYFALL_HEADERS) as client:
+        res = await client.get(SCRYFALL_SETS)
+        res.raise_for_status()
+        sets = res.json().get("data", [])
+
+    count = 0
+    for s in sets:
+        if s.get("set_type") in ("funny", "token", "memorabilia"):
+            continue
+        await upsert_set(
+            session,
+            game_code="MTG",
+            code=s.get("code") or s.get("id"),
+            name=s.get("name") or "Unknown",
+            external_id=s.get("id"),
+            release_date=s.get("released_at"),
+            card_count=s.get("card_count"),
+            icon_url=s.get("icon_svg_uri"),
+        )
+        count += 1
+    await session.commit()
+    return count
+
+
 async def sync_scryfall(session: AsyncSession, *, limit: int | None = None) -> dict[str, Any]:
-    async with httpx.AsyncClient(timeout=120.0) as client:
+    sets_synced = await sync_scryfall_sets(session)
+
+    async with httpx.AsyncClient(timeout=120.0, headers=SCRYFALL_HEADERS) as client:
         bulk_res = await client.get(SCRYFALL_BULK)
         bulk_res.raise_for_status()
         entries = bulk_res.json().get("data", [])
@@ -88,14 +117,11 @@ async def sync_scryfall(session: AsyncSession, *, limit: int | None = None) -> d
                 },
             )
             count += 1
-            batch += 1
-            if batch >= 250:
-                await session.commit()
-                batch = 0
+            batch = await maybe_commit_batch(session, batch + 1)
         except Exception:
             await session.rollback()
             batch = 0
 
     if batch:
         await session.commit()
-    return {"status": "ok", "game": "MTG", "synced": count, "source": "scryfall"}
+    return {"status": "ok", "game": "MTG", "synced": count, "sets_synced": sets_synced, "source": "scryfall"}

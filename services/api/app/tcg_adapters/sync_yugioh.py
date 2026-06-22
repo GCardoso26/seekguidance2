@@ -7,13 +7,14 @@ from typing import Any
 import httpx
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.tcg_adapters.sync_common import normalize_name, upsert_card
+from app.tcg_adapters.sync_common import maybe_commit_batch, normalize_name, upsert_card
 
 YGOPRODECK_CARDS = "https://db.ygoprodeck.com/api/v7/cardinfo.php"
 
 
 async def sync_yugioh(session: AsyncSession, *, limit: int | None = None) -> dict[str, Any]:
     count = 0
+    batch = 0
     async with httpx.AsyncClient(timeout=120.0) as client:
         res = await client.get(YGOPRODECK_CARDS)
         res.raise_for_status()
@@ -61,6 +62,8 @@ async def sync_yugioh(session: AsyncSession, *, limit: int | None = None) -> dic
             },
         )
         count += 1
+        batch = await maybe_commit_batch(session, batch + 1)
 
-    await session.commit()
-    return {"status": "ok", "game": "YGO", "synced": count}
+    if batch:
+        await session.commit()
+    return {"status": "ok", "game": "YGO", "synced": count, "source": "ygoprodeck"}

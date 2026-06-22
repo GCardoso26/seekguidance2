@@ -119,3 +119,50 @@ async def upsert_card(session: AsyncSession, card: dict[str, Any]) -> str | None
             pass
 
     return card_id
+
+
+async def upsert_set(
+    session: AsyncSession,
+    *,
+    game_code: str,
+    code: str,
+    name: str,
+    external_id: str | None = None,
+    release_date: str | None = None,
+    card_count: int | None = None,
+    icon_url: str | None = None,
+) -> None:
+    await session.execute(
+        text(
+            """
+            INSERT INTO tcg_judge.card_sets
+              (game_code, external_id, code, name, release_date, card_count, icon_url)
+            VALUES (:g, :ext, :code, :name, CAST(:rd AS date), :cnt, :icon)
+            ON CONFLICT (game_code, code) DO UPDATE SET
+              name = EXCLUDED.name,
+              external_id = COALESCE(EXCLUDED.external_id, tcg_judge.card_sets.external_id),
+              release_date = COALESCE(EXCLUDED.release_date, tcg_judge.card_sets.release_date),
+              card_count = COALESCE(EXCLUDED.card_count, tcg_judge.card_sets.card_count),
+              icon_url = COALESCE(EXCLUDED.icon_url, tcg_judge.card_sets.icon_url)
+            """
+        ),
+        {
+            "g": game_code,
+            "ext": external_id,
+            "code": _trunc(code, 50) or code,
+            "name": _trunc(name, 255) or name,
+            "rd": release_date,
+            "cnt": card_count,
+            "icon": icon_url,
+        },
+    )
+
+
+BATCH_SIZE = 1000
+
+
+async def maybe_commit_batch(session: AsyncSession, counter: int) -> int:
+    if counter >= BATCH_SIZE:
+        await session.commit()
+        return 0
+    return counter

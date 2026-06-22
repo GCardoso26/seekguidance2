@@ -67,17 +67,40 @@ Busca usa Meilisearch quando `MEILI_HOST` está configurado; caso contrário, fa
 - [ ] Busca < 200ms (Meilisearch em produção)
 - [ ] `ready_for_marketplace: true` em `/catalog/health`
 
+## Biblioteca de TCGs (Fase 1)
+
+| Componente | Caminho |
+|------------|---------|
+| Migration `catalog_games` + `card_sets` | `supabase/migrations/20260622120000_tcg_library.sql` |
+| API jogos | `GET /runtime/judge/games`, `/games/{slug}/cards`, `POST /games/{slug}/sync` |
+| Serviço | `services/api/app/catalog/games_service.py` |
+| Sync Pokémon (API oficial) | `sync_pokemontcg.py` (requer `POKEMON_TCG_API_KEY`) |
+| Sync One Piece / FaB / Digimon | `sync_onepiece.py`, `sync_fab.py`, `sync_digimon.py` |
+| Frontend biblioteca | `/loja`, `/loja/{slug}`, `/loja/{slug}/busca` |
+| Admin sync | `/admin/catalog` |
+
+**Nota:** Cartas continuam em `card_catalog` (não há tabela `cards` separada). `catalog_games` é metadados de marketplace; `card_sets` referência de expansões.
+
+### Rate limits
+
+| API | Limite | Estratégia |
+|-----|--------|------------|
+| Scryfall | 100 req / 15s | Bulk JSON + `User-Agent: JudgeTCG/1.0` |
+| Pokémon TCG | 30 req/s | Paginação 250 + API key |
+| YGOPRODeck | Generoso | Download único `cardinfo.php` |
+| Digimoncard.io | 15 req / 10s | Sleep 700ms entre páginas |
+
 ## Roadmap adapters
 
 | TCG | Status | Fonte |
 |-----|--------|-------|
 | Magic | ✅ Bulk Scryfall | sync_mtg.py |
-| Pokémon | ✅ TCGdex | sync_pokemon.py |
-| Lorcana | ✅ Lorcanajson | sync_lorcana.py |
+| Pokémon | ✅ TCGdex / pokemontcg.io | sync_pokemon.py, sync_pokemontcg.py |
+| Lorcana | ✅ Lorcast + fallback | sync_lorcana.py |
 | Yu-Gi-Oh! | ✅ YGOPRODeck | sync_yugioh.py |
-| One Piece | ⬜ | API fan |
-| FAB | ⬜ | fabdb |
-| Digimon | ⬜ | API fan |
+| One Piece | ✅ OPTCG API | sync_onepiece.py |
+| FAB | ✅ goagain.dev | sync_fab.py |
+| Digimon | ✅ digimoncard.io | sync_digimon.py |
 
 ## Nota sobre Prisma
 

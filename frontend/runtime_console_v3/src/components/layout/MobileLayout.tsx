@@ -20,7 +20,7 @@ import { cn } from "@/lib/utils";
 type NavItem = { href: string; label: string; icon: typeof ShoppingBag };
 
 const NAV: NavItem[] = [
-  { href: "/loja/busca", label: "Loja", icon: ShoppingBag },
+  { href: "/loja", label: "Loja", icon: ShoppingBag },
   { href: "/decks", label: "Decks", icon: Layers },
   { href: "/regras", label: "Regras", icon: Scale },
   { href: "/comunidade", label: "Comunidade", icon: Users },
@@ -30,10 +30,12 @@ const NAV: NavItem[] = [
 const QUICK_LINKS = [
   { href: "/loja/mtg", label: "Magic" },
   { href: "/loja/pokemon", label: "Pokémon" },
-  { href: "/loja/ygo", label: "Yu-Gi-Oh!" },
+  { href: "/loja/yugioh", label: "Yu-Gi-Oh!" },
   { href: "/loja/lorcana", label: "Lorcana" },
+  { href: "/loja/onepiece", label: "One Piece" },
+  { href: "/loja/fab", label: "FaB" },
+  { href: "/loja/digimon", label: "Digimon" },
   { href: "/loja/tendencias", label: "Tendências" },
-  { href: "/loja/lista", label: "Compra por lista" },
 ];
 
 function MobileNavItem({ href, label, icon: Icon }: NavItem) {

@@ -7,13 +7,14 @@ from typing import Any
 import httpx
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.tcg_adapters.sync_common import normalize_name, upsert_card
+from app.tcg_adapters.sync_common import maybe_commit_batch, normalize_name, upsert_card
 
 TCGDEX_SETS = "https://api.tcgdex.net/v2/en/sets"
 
 
 async def sync_tcgdex(session: AsyncSession, *, max_sets: int | None = 3) -> dict[str, Any]:
     count = 0
+    batch = 0
     async with httpx.AsyncClient(timeout=60.0) as client:
         sets_res = await client.get(TCGDEX_SETS)
         sets_res.raise_for_status()
@@ -48,6 +49,8 @@ async def sync_tcgdex(session: AsyncSession, *, max_sets: int | None = 3) -> dic
                     },
                 )
                 count += 1
+                batch = await maybe_commit_batch(session, batch + 1)
 
-    await session.commit()
-    return {"status": "ok", "game": "POKEMON", "synced": count}
+    if batch:
+        await session.commit()
+    return {"status": "ok", "game": "POKEMON", "synced": count, "source": "tcgdex"}

@@ -56,6 +56,8 @@ class SmokeTest:
             self.test_bff_health,
             self.test_frontend_home,
             self.test_frontend_search,
+            self.test_frontend_loja,
+            self.test_games_api,
             self.test_catalog_search_bff,
             self.test_gamification_auth,
             self.test_analytics_dashboard_auth,
@@ -216,6 +218,20 @@ class SmokeTest:
             "Frontend Search",
             f"{CONFIG['frontend']}/loja/busca?q=lightning",
             expected_in_body="loja/busca",
+        )
+
+    def test_frontend_loja(self) -> bool:
+        return self._check(
+            "Frontend Loja (TCG Library)",
+            f"{CONFIG['frontend']}/loja",
+            expected_in_body="Biblioteca",
+        )
+
+    def test_games_api(self) -> bool:
+        return self._check(
+            "BFF Games API",
+            f"{CONFIG['frontend']}/api/games",
+            json_path="games",
         )
 
     def test_catalog_search_bff(self) -> bool:

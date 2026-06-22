@@ -8,7 +8,7 @@ from typing import Any
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-GAMES = ("MTG", "POKEMON", "LORCANA", "YGO", "SWU")
+GAMES = ("MTG", "POKEMON", "LORCANA", "YGO", "ONEPIECE", "FAB", "DIGIMON", "SWU")
 
 
 async def verify_ingestion(session: AsyncSession) -> dict[str, Any]:

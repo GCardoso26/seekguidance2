@@ -39,9 +39,35 @@ async def ensure_index() -> None:
             f"{host}/indexes/{INDEX_NAME}/settings",
             headers=_headers(),
             json={
-                "searchableAttributes": ["name", "nameNormalized", "set", "setCode", "text", "game"],
-                "filterableAttributes": ["game", "rarity", "setCode", "language"],
+                "searchableAttributes": [
+                    "name",
+                    "nameNormalized",
+                    "set",
+                    "set_name",
+                    "setCode",
+                    "text",
+                    "game",
+                    "card_type",
+                ],
+                "filterableAttributes": [
+                    "game",
+                    "game_slug",
+                    "rarity",
+                    "setCode",
+                    "set_name",
+                    "language",
+                    "card_type",
+                    "legalities.standard",
+                    "legalities.modern",
+                    "legalities.commander",
+                ],
                 "sortableAttributes": ["name"],
+                "rankingRules": ["words", "typo", "proximity", "attribute", "sort", "exactness"],
+                "synonyms": {
+                    "mtg": ["magic", "magic the gathering"],
+                    "ygo": ["yu-gi-oh", "yugioh"],
+                    "pokemon": ["pokémon", "pkm"],
+                },
             },
         )
 
