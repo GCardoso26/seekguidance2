@@ -530,6 +530,15 @@ async def confirm_pix_payment(
         body="Pagamento PIX confirmado. O lojista preparará o envio.",
     )
 
+    try:
+        from app.gamification.xp import award_xp_for_paid_order
+
+        await award_xp_for_paid_order(session, order_id)
+    except Exception as exc:
+        import structlog
+
+        structlog.get_logger().warning("liga_pass_xp_failed", order_id=order_id, error=str(exc))
+
     await session.commit()
     return {"status": "paid", "order_id": order_id}
 

@@ -257,6 +257,10 @@ async def create_listing(
         ).mappings().first()
         listing_id = listing_row["id"] if listing_row else None
 
+    from app.gamification.xp import award_xp
+
+    await award_xp(session, seller_id, "list_card", f"Listagem: {card['name']}")
+
     await session.commit()
     return await get_listing_by_id(session, str(listing_id))
 

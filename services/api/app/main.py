@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1.admin_api import router as admin_api_router
 from app.api.v1.alerts_api import router as alerts_api_router
+from app.api.v1.gamification_api import router as gamification_api_router
 from app.api.v1.judge_assistant import router as judge_assistant_router
 from app.api.v1.judge_calls_api import router as judge_calls_router
 from app.api.v1.judge_product import router as judge_product_router
@@ -253,6 +254,7 @@ app.include_router(sponsorships_api_router)
 app.include_router(shop_api_router)
 app.include_router(catalog_api_router)
 app.include_router(alerts_api_router)
+app.include_router(gamification_api_router)
 app.include_router(runtime_ingestion_admin_router)
 
 

@@ -6,6 +6,7 @@ import type { ReactNode } from "react";
 import { Home, Plus, ShoppingBag, User, Users } from "lucide-react";
 import { GlobalNotificationBell } from "@/components/notifications/GlobalNotificationBell";
 import { CartHeaderButton } from "@/components/cart/CartHeaderButton";
+import { LigaPassWidget } from "@/components/gamification/LigaPassWidget";
 
 type NavItem = { href: string; label: string; icon: typeof Home };
 
@@ -51,6 +52,7 @@ export function MobileLayout({ children }: { children: ReactNode }) {
           Judge TCG
         </Link>
         <div className="flex items-center gap-1">
+          <LigaPassWidget compact />
           <CartHeaderButton />
           <GlobalNotificationBell />
         </div>
