@@ -156,6 +156,25 @@ async def award_xp_for_paid_order(session: AsyncSession, order_id: str) -> None:
     if seller_id != buyer_id:
         await award_xp(session, seller_id, "sell_card", f"Venda confirmada — R$ {total / 100:.2f}")
 
+    try:
+        from app.judge.analytics_events import record_marketplace_event
+
+        await record_marketplace_event(
+            session,
+            "purchase",
+            user_id=buyer_id,
+            properties={"order_id": order_id, "total_cents": total},
+        )
+        if seller_id != buyer_id:
+            await record_marketplace_event(
+                session,
+                "purchase",
+                user_id=seller_id,
+                properties={"order_id": order_id, "role": "seller", "total_cents": total},
+            )
+    except Exception:
+        pass
+
 
 def _xp_payload(data: dict[str, Any] | None) -> dict[str, Any]:
     if not data:

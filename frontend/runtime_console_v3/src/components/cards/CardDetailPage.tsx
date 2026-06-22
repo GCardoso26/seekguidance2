@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import Image from "next/image";
 import Link from "next/link";
@@ -15,6 +15,7 @@ import { CreateListingForm } from "@/components/seller/CreateListingForm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCardDetail } from "@/hooks/useCardDetail";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import { useAddListingToCart } from "@/hooks/useShopCart";
 import type { PriceHistoryRange } from "@/hooks/usePriceHistory";
 import { cardImageUrl, formatCurrency } from "@/lib/format-currency";
@@ -37,12 +38,19 @@ interface CardDetailPageProps {
 
 export function CardDetailPage({ cardId }: CardDetailPageProps) {
   const { data, isLoading, error } = useCardDetail(cardId);
+  const { track } = useAnalytics();
   const addToCart = useAddListingToCart();
   const [priceRange, setPriceRange] = useState<PriceHistoryRange>("30d");
   const [selectedCondition, setSelectedCondition] = useState<string | undefined>();
   const [imageError, setImageError] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [buyError, setBuyError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (data?.card) {
+      track("card_view", { card_id: data.card.id, card_name: data.card.name, game: data.card.game });
+    }
+  }, [data?.card, track]);
 
   const handleBuy = (listing: CardListing) => {
     if (!data) return;

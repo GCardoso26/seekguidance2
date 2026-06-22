@@ -12,6 +12,7 @@ import {
   useCatalogSets,
 } from "@/hooks/useCardSearch";
 import type { SearchFilters } from "@/types/search";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 interface FacetedSearchProps {
   initialGame?: string;
@@ -30,11 +31,19 @@ export function FacetedSearch({ initialGame, initialQuery }: FacetedSearchProps)
   }));
 
   const [debouncedQ, setDebouncedQ] = useState(filters.q ?? "");
+  const { track } = useAnalytics();
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedQ(filters.q ?? ""), 300);
     return () => clearTimeout(timer);
   }, [filters.q]);
+
+  useEffect(() => {
+    const q = debouncedQ.trim();
+    if (q.length >= 2) {
+      track("search", { q, game: filters.game });
+    }
+  }, [debouncedQ, filters.game, track]);
 
   const queryFilters = useMemo(
     () => ({ ...filters, q: debouncedQ || undefined }),

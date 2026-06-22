@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { addProductToCart, type ShopCart } from "@/lib/marketplace-shop";
+import { trackEvent } from "@/lib/analytics";
 import { useCartStore } from "@/stores/cartStore";
 import type { CardListing, UnifiedCard } from "@/types/card";
 import { getListingProductId } from "@/lib/listing-utils";
@@ -47,6 +48,11 @@ export function useAddListingToCart() {
     },
     onSuccess: (result, variables) => {
       if (result.ok) {
+        void trackEvent("add_to_cart", {
+          product_id: getListingProductId(variables.listing),
+          card_id: variables.listing.cardId,
+          price: variables.listing.price,
+        });
         void queryClient.invalidateQueries({ queryKey: SHOP_CART_QUERY_KEY });
         openCart();
         return;

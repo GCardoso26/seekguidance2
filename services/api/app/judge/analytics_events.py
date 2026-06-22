@@ -51,7 +51,18 @@ JUDGE_ASSISTANT_EVENTS = frozenset(
     }
 )
 
-ALL_ANALYTICS_EVENTS = MONETIZATION_EVENTS | ENGAGEMENT_EVENTS | JUDGE_ASSISTANT_EVENTS
+MARKETPLACE_EVENTS = frozenset(
+    {
+        "page_view",
+        "card_view",
+        "search",
+        "add_to_cart",
+        "purchase",
+        "listing_create",
+    }
+)
+
+ALL_ANALYTICS_EVENTS = MONETIZATION_EVENTS | ENGAGEMENT_EVENTS | JUDGE_ASSISTANT_EVENTS | MARKETPLACE_EVENTS
 
 VALID_TIERS = frozenset({"free", "pro", "team"})
 
@@ -72,17 +83,25 @@ async def record_analytics_events(session: AsyncSession, events: list[dict[str, 
             ts = datetime.now(UTC)
         user_id = raw.get("user_id")
         anonymous_id = raw.get("anonymous_id")
-        properties = raw.get("properties")
-        game_slug = raw.get("game_slug")
+        properties = raw.get("properties") or {}
+        if not isinstance(properties, dict):
+            properties = {}
+        game_slug = raw.get("game_slug") or properties.get("game_slug")
+        session_id = properties.get("session_id") or raw.get("session_id")
+        url = properties.get("url") or raw.get("url")
+        referrer = properties.get("referrer") or raw.get("referrer")
+        user_agent = properties.get("user_agent") or raw.get("user_agent")
         try:
             await session.execute(
                 text(
                     """
                     INSERT INTO tcg_judge.analytics_events
-                      (event, timestamp, user_id, anonymous_id, properties, tier, game_slug)
+                      (event, timestamp, user_id, anonymous_id, properties, tier, game_slug,
+                       session_id, url, referrer, user_agent)
                     VALUES
-                      (:event, :timestamp, CAST(:user_id AS uuid), :anonymous_id,
-                       CAST(:properties AS jsonb), :tier, :game_slug)
+                      (:event, :timestamp, :user_id, :anonymous_id,
+                       CAST(:properties AS jsonb), :tier, :game_slug,
+                       :session_id, :url, :referrer, :user_agent)
                     """
                 ),
                 {
@@ -93,6 +112,10 @@ async def record_analytics_events(session: AsyncSession, events: list[dict[str, 
                     "properties": json.dumps(properties) if properties else None,
                     "tier": tier,
                     "game_slug": str(game_slug) if game_slug else None,
+                    "session_id": str(session_id) if session_id else None,
+                    "url": str(url)[:2000] if url else None,
+                    "referrer": str(referrer)[:2000] if referrer else None,
+                    "user_agent": str(user_agent)[:500] if user_agent else None,
                 },
             )
             inserted += 1
@@ -109,6 +132,30 @@ async def record_analytics_events(session: AsyncSession, events: list[dict[str, 
                 pass
             return 0
     return inserted
+
+
+async def record_marketplace_event(
+    session: AsyncSession,
+    event_name: str,
+    *,
+    user_id: str | None = None,
+    properties: dict[str, Any] | None = None,
+) -> bool:
+    """Regista um evento de marketplace (server-side)."""
+    if event_name not in MARKETPLACE_EVENTS:
+        return False
+    count = await record_analytics_events(
+        session,
+        [
+            {
+                "event": event_name,
+                "timestamp": datetime.now(UTC).isoformat(),
+                "user_id": user_id,
+                "properties": properties or {},
+            }
+        ],
+    )
+    return count > 0
 
 
 async def monetization_metrics_payload(session: AsyncSession, days: int = 30) -> dict[str, Any]:

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import {
   flushAnalytics,
   trackEvent,
@@ -17,10 +17,11 @@ type TrackOptions = {
 
 export function useAnalytics(defaultTier: UserTier = "free") {
   const { user } = useJudgeAuth();
+  const trackedPage = useRef(false);
 
   const track = useCallback(
-    (event: AnalyticsEventName, properties?: TrackOptions) => {
-      void trackEvent(event, {
+    (event: AnalyticsEventName | string, properties?: TrackOptions) => {
+      void trackEvent(event as AnalyticsEventName, {
         ...properties,
         user_id: user?.id,
         tier: properties?.tier ?? defaultTier,
@@ -28,6 +29,16 @@ export function useAnalytics(defaultTier: UserTier = "free") {
     },
     [user?.id, defaultTier],
   );
+
+  useEffect(() => {
+    if (trackedPage.current || typeof window === "undefined") return;
+    trackedPage.current = true;
+    void trackEvent("page_view", {
+      user_id: user?.id,
+      tier: defaultTier,
+      path: window.location.pathname,
+    });
+  }, [user?.id, defaultTier]);
 
   useEffect(() => {
     const onUnload = () => {

@@ -261,6 +261,18 @@ async def create_listing(
 
     await award_xp(session, seller_id, "list_card", f"Listagem: {card['name']}")
 
+    try:
+        from app.judge.analytics_events import record_marketplace_event
+
+        await record_marketplace_event(
+            session,
+            "listing_create",
+            user_id=seller_id,
+            properties={"card_id": str(card_uuid), "card_name": card["name"]},
+        )
+    except Exception:
+        pass
+
     await session.commit()
     return await get_listing_by_id(session, str(listing_id))
 

@@ -20,6 +20,15 @@ export type BusinessAnalytics = {
     checkoutCompleted: number;
     conversionPercent: number;
   };
+  marketplace?: {
+    period_days: number;
+    dau: number;
+    gmv_brl: number;
+    conversion_rate: number;
+    purchases: number;
+    searches: number;
+    top_cards: Array<{ card_name: string; purchases: number }>;
+  };
   alerts: string[];
 };
 

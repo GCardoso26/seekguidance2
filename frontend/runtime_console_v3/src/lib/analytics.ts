@@ -32,7 +32,15 @@ export type JudgeAssistantEvent =
   | "ruling_applied"
   | "deck_validated";
 
-export type AnalyticsEventName = MonetizationEvent | EngagementEvent | JudgeAssistantEvent;
+export type MarketplaceEvent =
+  | "page_view"
+  | "card_view"
+  | "search"
+  | "add_to_cart"
+  | "purchase"
+  | "listing_create";
+
+export type AnalyticsEventName = MonetizationEvent | EngagementEvent | JudgeAssistantEvent | MarketplaceEvent;
 
 export type UserTier = "free" | "pro" | "team";
 
@@ -56,6 +64,8 @@ const FLUSH_IMMEDIATE = new Set<AnalyticsEventName>([
   "checkout_completed",
   "checkout_failed",
   "paywall_hit",
+  "purchase",
+  "add_to_cart",
 ]);
 
 function getAnonymousId(): string {
@@ -119,7 +129,12 @@ export async function trackEvent(
     user_id,
     tier: tier ?? "free",
     game_slug,
-    properties: Object.keys(rest).length ? rest : undefined,
+    properties: {
+      ...rest,
+      ...(typeof window !== "undefined"
+        ? { url: window.location.href, referrer: document.referrer }
+        : {}),
+    },
   };
 
   const queue = readQueue();
