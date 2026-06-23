@@ -23,7 +23,13 @@ async def run_card_sync(game: str | None = None, *, full: bool = False) -> dict:
 
 
 def main() -> None:
-    asyncio.run(run_card_sync())
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Sync do catálogo de cartas")
+    parser.add_argument("--game", help="Código do jogo (MTG, POKEMON, YGO, …)")
+    parser.add_argument("--full", action="store_true", help="Sync completo (bulk)")
+    args = parser.parse_args()
+    asyncio.run(run_card_sync(args.game, full=args.full))
 
 
 if __name__ == "__main__":
