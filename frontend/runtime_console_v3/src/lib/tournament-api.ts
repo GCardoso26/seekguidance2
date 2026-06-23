@@ -21,7 +21,7 @@ export async function tournamentProxyHeaders(): Promise<Record<string, string>> 
 export async function catalogProxyHeaders(request?: NextRequest): Promise<Record<string, string>> {
   const headers = await tournamentProxyHeaders();
   const jar = await cookies();
-  let access = jar.get(ACCESS_COOKIE)?.value ?? request?.cookies.get(ACCESS_COOKIE)?.value;
+  const access = jar.get(ACCESS_COOKIE)?.value ?? request?.cookies.get(ACCESS_COOKIE)?.value;
   if (access) {
     headers.Authorization = `Bearer ${access}`;
   }
