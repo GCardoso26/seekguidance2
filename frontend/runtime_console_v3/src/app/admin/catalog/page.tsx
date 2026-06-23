@@ -7,21 +7,25 @@ import { AppShell } from "@/components/layout/app-shell";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useUserRole } from "@/hooks/useUserRole";
-import { DEFAULT_GAME_ORDER } from "@/lib/games";
+import { DEFAULT_GAME_ORDER, type CatalogGameApi } from "@/lib/games";
 import { RefreshCw } from "lucide-react";
 
-interface CatalogGameRow {
-  slug: string;
-  display_name: string;
-  card_count: number;
-  api_source?: string;
-  last_sync_at?: string | null;
+async function fetchGames(): Promise<CatalogGameApi[]> {
+  const res = await fetch("/api/games");
+  if (!res.ok) throw new Error("Falha ao carregar jogos do catálogo");
+  const data = await res.json();
+  return (data.games ?? []) as CatalogGameApi[];
 }
 
-async function fetchGames(): Promise<CatalogGameRow[]> {
-  const res = await fetch("/api/games");
-  const data = await res.json();
-  return (data.games ?? []) as CatalogGameRow[];
+function formatCardCount(count: number | undefined | null): string {
+  return Number(count ?? 0).toLocaleString("pt-BR");
+}
+
+function formatSyncDate(value: string | null | undefined): string | null {
+  if (!value) return null;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  return date.toLocaleString("pt-BR");
 }
 
 export default function AdminCatalogPage() {
@@ -29,7 +33,11 @@ export default function AdminCatalogPage() {
   const queryClient = useQueryClient();
   const [message, setMessage] = useState<string | null>(null);
 
-  const { data: games = [] } = useQuery({
+  const {
+    data: games = [],
+    isError,
+    error,
+  } = useQuery({
     queryKey: ["catalog-games"],
     queryFn: fetchGames,
   });
@@ -67,11 +75,13 @@ export default function AdminCatalogPage() {
     );
   }
 
-  const sorted = [...games].sort((a, b) => {
-    const ai = DEFAULT_GAME_ORDER.indexOf(a.slug as (typeof DEFAULT_GAME_ORDER)[number]);
-    const bi = DEFAULT_GAME_ORDER.indexOf(b.slug as (typeof DEFAULT_GAME_ORDER)[number]);
-    return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
-  });
+  const sorted = [...games]
+    .filter((game) => game.slug && DEFAULT_GAME_ORDER.includes(game.slug as (typeof DEFAULT_GAME_ORDER)[number]))
+    .sort((a, b) => {
+      const ai = DEFAULT_GAME_ORDER.indexOf(a.slug as (typeof DEFAULT_GAME_ORDER)[number]);
+      const bi = DEFAULT_GAME_ORDER.indexOf(b.slug as (typeof DEFAULT_GAME_ORDER)[number]);
+      return ai - bi;
+    });
 
   return (
     <AppShell>
@@ -85,6 +95,12 @@ export default function AdminCatalogPage() {
         </Link>
       </div>
 
+      {isError && (
+        <p className="mb-4 rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-2 text-sm text-destructive">
+          {(error as Error).message}
+        </p>
+      )}
+
       {message && (
         <p className="mb-4 rounded-lg border bg-muted/50 px-4 py-2 text-sm" role="status">
           {message}
@@ -92,42 +108,43 @@ export default function AdminCatalogPage() {
       )}
 
       <div className="grid gap-4 md:grid-cols-2">
-        {sorted.map((game) => (
-          <Card key={game.slug}>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base">{game.display_name}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3 text-sm">
-              <p className="text-muted-foreground">
-                {game.card_count.toLocaleString("pt-BR")} cartas
-                {game.api_source && ` · ${game.api_source}`}
-              </p>
-              {game.last_sync_at && (
-                <p className="text-xs text-muted-foreground">
-                  Último sync: {new Date(game.last_sync_at).toLocaleString("pt-BR")}
+        {sorted.map((game) => {
+          const lastSync = formatSyncDate(game.last_sync_at);
+          return (
+            <Card key={game.slug}>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base">{game.display_name ?? game.name ?? game.slug}</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 text-sm">
+                <p className="text-muted-foreground">
+                  {formatCardCount(game.card_count)} cartas
+                  {game.api_source && ` · ${game.api_source}`}
                 </p>
-              )}
-              <div className="flex gap-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  disabled={syncMutation.isPending}
-                  onClick={() => syncMutation.mutate({ slug: game.slug, full: false })}
-                >
-                  <RefreshCw className="mr-1 h-3 w-3" />
-                  Sync rápido
-                </Button>
-                <Button
-                  size="sm"
-                  disabled={syncMutation.isPending}
-                  onClick={() => syncMutation.mutate({ slug: game.slug, full: true })}
-                >
-                  Sync completo
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+                {lastSync && (
+                  <p className="text-xs text-muted-foreground">Último sync: {lastSync}</p>
+                )}
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={syncMutation.isPending}
+                    onClick={() => syncMutation.mutate({ slug: game.slug, full: false })}
+                  >
+                    <RefreshCw className="mr-1 h-3 w-3" />
+                    Sync rápido
+                  </Button>
+                  <Button
+                    size="sm"
+                    disabled={syncMutation.isPending}
+                    onClick={() => syncMutation.mutate({ slug: game.slug, full: true })}
+                  >
+                    Sync completo
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
     </AppShell>
   );

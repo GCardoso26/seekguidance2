@@ -8,7 +8,7 @@ type RouteParams = { params: Promise<{ slug: string }> };
 export async function GET(_request: NextRequest, { params }: RouteParams) {
   const { slug } = await params;
   try {
-    const res = await fetch(`${API_BASE}/runtime/judge/games/${encodeURIComponent(slug)}`, {
+    const res = await fetch(`${API_BASE}/runtime/judge/catalog/games/${encodeURIComponent(slug)}`, {
       cache: "no-store",
     });
     return NextResponse.json(await res.json(), { status: res.status });
@@ -22,7 +22,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
   const full = request.nextUrl.searchParams.get("full") === "true";
   try {
     const res = await fetch(
-      `${API_BASE}/runtime/judge/games/${encodeURIComponent(slug)}/sync?full=${full}`,
+      `${API_BASE}/runtime/judge/catalog/games/${encodeURIComponent(slug)}/sync?full=${full}`,
       {
         method: "POST",
         headers: await catalogProxyHeaders(),

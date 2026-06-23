@@ -32,7 +32,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
   try {
     const res = await fetch(
-      `${API_BASE}/runtime/judge/games/${encodeURIComponent(slug)}/cards?${qs}`,
+      `${API_BASE}/runtime/judge/catalog/games/${encodeURIComponent(slug)}/cards?${qs}`,
       { cache: "no-store" },
     );
     return NextResponse.json(await res.json(), { status: res.status });

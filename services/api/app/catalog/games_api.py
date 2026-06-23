@@ -1,4 +1,4 @@
-"""API de jogos do catálogo — /runtime/judge/games."""
+"""API de jogos do catálogo — /runtime/judge/catalog/games."""
 
 from __future__ import annotations
 
@@ -19,13 +19,13 @@ from app.catalog.pipeline import run_game_sync
 router = APIRouter(tags=["catalog-games"])
 
 
-@router.get("/runtime/judge/games")
+@router.get("/runtime/judge/catalog/games")
 async def list_games(session: DbSession) -> dict[str, Any]:
     games = await list_catalog_games(session)
     return {"games": games}
 
 
-@router.get("/runtime/judge/games/{slug}")
+@router.get("/runtime/judge/catalog/games/{slug}")
 async def get_game(session: DbSession, slug: str) -> dict[str, Any]:
     game = await get_catalog_game(session, slug)
     if not game:
@@ -33,7 +33,7 @@ async def get_game(session: DbSession, slug: str) -> dict[str, Any]:
     return game
 
 
-@router.get("/runtime/judge/games/{slug}/sets")
+@router.get("/runtime/judge/catalog/games/{slug}/sets")
 async def get_game_sets(session: DbSession, slug: str) -> dict[str, Any]:
     game = await get_catalog_game(session, slug)
     if not game:
@@ -42,7 +42,7 @@ async def get_game_sets(session: DbSession, slug: str) -> dict[str, Any]:
     return {"game": game["slug"], "sets": sets}
 
 
-@router.get("/runtime/judge/games/{slug}/cards")
+@router.get("/runtime/judge/catalog/games/{slug}/cards")
 async def get_game_cards(
     session: DbSession,
     slug: str,
@@ -78,7 +78,7 @@ async def get_game_cards(
     )
 
 
-@router.post("/runtime/judge/games/{slug}/sync")
+@router.post("/runtime/judge/catalog/games/{slug}/sync")
 async def sync_game_catalog(
     session: DbSession,
     slug: str,
