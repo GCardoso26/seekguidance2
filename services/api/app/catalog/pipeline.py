@@ -157,7 +157,7 @@ async def run_game_sync(
         await session.commit()
 
         if code == "MTG":
-            result = await sync_fn(session, limit=None if full else 500)
+            result = await sync_fn(session, limit=None if full else 100)
         elif code == "POKEMON":
             if os.getenv("POKEMON_TCG_API_KEY"):
                 result = await sync_pokemontcg(session, max_pages=None if full else 5)

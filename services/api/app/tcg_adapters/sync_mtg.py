@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 from typing import Any
 
 import httpx
@@ -11,6 +12,7 @@ from app.tcg_adapters.sync_common import maybe_commit_batch, normalize_name, ups
 
 SCRYFALL_BULK = "https://api.scryfall.com/bulk-data"
 SCRYFALL_SETS = "https://api.scryfall.com/sets"
+SCRYFALL_SEARCH = "https://api.scryfall.com/cards/search"
 SCRYFALL_HEADERS = {"User-Agent": "JudgeTCG/1.0", "Accept": "application/json"}
 
 
@@ -22,6 +24,52 @@ def _image_uris(card: dict[str, Any]) -> dict[str, str]:
     if faces and faces[0].get("image_uris"):
         return {k: v for k, v in faces[0]["image_uris"].items() if isinstance(v, str)}
     return {}
+
+
+async def _upsert_scryfall_card(session: AsyncSession, card: dict[str, Any]) -> None:
+    legalities = {k.upper(): v for k, v in (card.get("legalities") or {}).items()}
+    images = _image_uris(card)
+    image = images.get("normal")
+    prices = card.get("prices") or {}
+
+    await upsert_card(
+        session,
+        {
+            "game_code": "MTG",
+            "external_id": card["id"],
+            "name": card["name"],
+            "normalized_name": normalize_name(card["name"]),
+            "set_code": card.get("set"),
+            "set_name": card.get("set_name"),
+            "card_number": card.get("collector_number"),
+            "rarity": card.get("rarity"),
+            "card_type": card.get("type_line"),
+            "legality": legalities,
+            "image_url": image,
+            "image_uris": images,
+            "language": card.get("lang") or "en",
+            "source": "scryfall",
+            "external_ids": {"scryfall": card["id"]},
+            "is_reprint": bool(card.get("reprint")),
+            "version": 1,
+            "price_usd": prices.get("usd"),
+            "foil": False,
+            "game_data": {
+                "mana_cost": card.get("mana_cost"),
+                "cmc": card.get("cmc"),
+                "type_line": card.get("type_line"),
+                "oracle_text": card.get("oracle_text"),
+                "colors": card.get("colors") or [],
+                "color_identity": card.get("color_identity") or [],
+                "power": card.get("power"),
+                "toughness": card.get("toughness"),
+                "loyalty": card.get("loyalty"),
+                "keywords": card.get("keywords") or [],
+                "legalities": legalities,
+                "edhrec_rank": card.get("edhrec_rank"),
+            },
+        },
+    )
 
 
 async def sync_scryfall_sets(session: AsyncSession) -> int:
@@ -49,8 +97,65 @@ async def sync_scryfall_sets(session: AsyncSession) -> int:
     return count
 
 
+async def _sync_scryfall_paginated(
+    session: AsyncSession,
+    *,
+    limit: int,
+    sets_synced: int,
+) -> dict[str, Any]:
+    """Sync parcial via API paginada — evita download do bulk (~150MB) no Render free."""
+    count = 0
+    batch = 0
+    page = 1
+    async with httpx.AsyncClient(timeout=60.0, headers=SCRYFALL_HEADERS) as client:
+        while count < limit:
+            res = await client.get(
+                SCRYFALL_SEARCH,
+                params={
+                    "q": "game:paper -layout:token",
+                    "order": "released",
+                    "unique": "cards",
+                    "page": page,
+                },
+            )
+            if res.status_code == 404:
+                break
+            res.raise_for_status()
+            data = res.json()
+            for card in data.get("data", []):
+                if count >= limit:
+                    break
+                if card.get("layout") in ("token", "art_series", "double_faced_token"):
+                    continue
+                try:
+                    await _upsert_scryfall_card(session, card)
+                    count += 1
+                    batch = await maybe_commit_batch(session, batch + 1)
+                except Exception:
+                    await session.rollback()
+                    batch = 0
+            if not data.get("has_more"):
+                break
+            page += 1
+            await asyncio.sleep(0.12)
+
+    if batch:
+        await session.commit()
+    return {
+        "status": "ok",
+        "game": "MTG",
+        "synced": count,
+        "sets_synced": sets_synced,
+        "source": "scryfall",
+        "mode": "paginated",
+    }
+
+
 async def sync_scryfall(session: AsyncSession, *, limit: int | None = None) -> dict[str, Any]:
-    sets_synced = await sync_scryfall_sets(session)
+    sets_synced = 0 if limit else await sync_scryfall_sets(session)
+
+    if limit is not None:
+        return await _sync_scryfall_paginated(session, limit=limit, sets_synced=sets_synced)
 
     async with httpx.AsyncClient(timeout=120.0, headers=SCRYFALL_HEADERS) as client:
         bulk_res = await client.get(SCRYFALL_BULK)
@@ -67,55 +172,11 @@ async def sync_scryfall(session: AsyncSession, *, limit: int | None = None) -> d
     count = 0
     batch = 0
     for card in cards:
-        if limit and count >= limit:
-            break
         if card.get("layout") in ("token", "art_series", "double_faced_token"):
             continue
 
-        legalities = {k.upper(): v for k, v in (card.get("legalities") or {}).items()}
-        images = _image_uris(card)
-        image = images.get("normal")
-        prices = card.get("prices") or {}
-
         try:
-            await upsert_card(
-                session,
-                {
-                    "game_code": "MTG",
-                    "external_id": card["id"],
-                    "name": card["name"],
-                    "normalized_name": normalize_name(card["name"]),
-                    "set_code": card.get("set"),
-                    "set_name": card.get("set_name"),
-                    "card_number": card.get("collector_number"),
-                    "rarity": card.get("rarity"),
-                    "card_type": card.get("type_line"),
-                    "legality": legalities,
-                    "image_url": image,
-                    "image_uris": images,
-                    "language": card.get("lang") or "en",
-                    "source": "scryfall",
-                    "external_ids": {"scryfall": card["id"]},
-                    "is_reprint": bool(card.get("reprint")),
-                    "version": 1,
-                    "price_usd": prices.get("usd"),
-                    "foil": False,
-                    "game_data": {
-                        "mana_cost": card.get("mana_cost"),
-                        "cmc": card.get("cmc"),
-                        "type_line": card.get("type_line"),
-                        "oracle_text": card.get("oracle_text"),
-                        "colors": card.get("colors") or [],
-                        "color_identity": card.get("color_identity") or [],
-                        "power": card.get("power"),
-                        "toughness": card.get("toughness"),
-                        "loyalty": card.get("loyalty"),
-                        "keywords": card.get("keywords") or [],
-                        "legalities": legalities,
-                        "edhrec_rank": card.get("edhrec_rank"),
-                    },
-                },
-            )
+            await _upsert_scryfall_card(session, card)
             count += 1
             batch = await maybe_commit_batch(session, batch + 1)
         except Exception:
@@ -124,4 +185,4 @@ async def sync_scryfall(session: AsyncSession, *, limit: int | None = None) -> d
 
     if batch:
         await session.commit()
-    return {"status": "ok", "game": "MTG", "synced": count, "sets_synced": sets_synced, "source": "scryfall"}
+    return {"status": "ok", "game": "MTG", "synced": count, "sets_synced": sets_synced, "source": "scryfall", "mode": "bulk"}

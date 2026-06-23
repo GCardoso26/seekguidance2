@@ -44,9 +44,25 @@ export default function AdminCatalogPage() {
 
   const syncMutation = useMutation({
     mutationFn: async ({ slug, full }: { slug: string; full: boolean }) => {
-      const res = await fetch(`/api/games/${slug}?full=${full}`, { method: "POST" });
-      if (!res.ok) throw new Error(await res.text());
-      return res.json();
+      await fetch("/api/auth/refresh", { method: "POST", credentials: "include" }).catch(() => null);
+      const res = await fetch(`/api/games/${slug}?full=${full}`, {
+        method: "POST",
+        credentials: "include",
+      });
+      const text = await res.text();
+      let payload: { detail?: string; error?: string } = {};
+      try {
+        payload = text ? (JSON.parse(text) as typeof payload) : {};
+      } catch {
+        payload = { detail: text };
+      }
+      if (!res.ok) {
+        if (res.status === 401) {
+          throw new Error("Sessão expirada. Faça login novamente.");
+        }
+        throw new Error(payload.detail || payload.error || `Sync falhou (${res.status})`);
+      }
+      return JSON.parse(text || "{}");
     },
     onSuccess: (data, vars) => {
       setMessage(`Sync ${vars.slug}: ${data.synced ?? 0} cartas`);

@@ -24,7 +24,18 @@ export async function POST(req: Request) {
 
   });
 
-  const data = await res.json();
+  const text = await res.text();
+  let data: Record<string, unknown> = {};
+  try {
+    data = text ? (JSON.parse(text) as Record<string, unknown>) : {};
+  } catch {
+    if (!res.ok) {
+      return NextResponse.json(
+        { authenticated: false, error: res.status === 503 ? "api_unavailable" : "login_failed" },
+        { status: res.status >= 400 ? res.status : 502 },
+      );
+    }
+  }
 
   if (!res.ok || !data.authenticated) {
 
@@ -38,19 +49,20 @@ export async function POST(req: Request) {
 
   }
 
+  const tokens = data.tokens as { access_token?: string; refresh_token?: string } | undefined;
+  if (!tokens?.access_token || !tokens?.refresh_token) {
+    return NextResponse.json({ authenticated: false, error: "invalid_token_response" }, { status: 502 });
+  }
+
+  const user = data.user as { tenant_id?: string } | undefined;
   const out = NextResponse.json({
-
     authenticated: true,
-
     user: data.user,
-
-    tenant_id: data.user?.tenant_id ?? "default",
-
+    tenant_id: user?.tenant_id ?? "default",
   });
 
-  out.cookies.set(ACCESS_COOKIE, data.tokens.access_token, cookieOptions(900));
-
-  out.cookies.set(REFRESH_COOKIE, data.tokens.refresh_token, {
+  out.cookies.set(ACCESS_COOKIE, tokens.access_token, cookieOptions(28_800));
+  out.cookies.set(REFRESH_COOKIE, tokens.refresh_token, {
 
     ...cookieOptions(86_400),
 
