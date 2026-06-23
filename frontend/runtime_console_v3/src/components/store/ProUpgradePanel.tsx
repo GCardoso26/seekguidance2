@@ -65,7 +65,7 @@ export function ProUpgradePanel({ storeId, plan, onSubscribed }: Props) {
         ))}
       </ul>
       <div className="mt-4 flex flex-wrap gap-2">
-        <Link href="/store/pro" className="rounded-lg bg-luxury-gold px-4 py-2 font-semibold text-luxury-onyx">
+        <Link href="/vendedor/painel/pro" className="rounded-lg bg-luxury-gold px-4 py-2 font-semibold text-luxury-onyx">
           Ver planos Pro
         </Link>
         <button

@@ -32,7 +32,7 @@ export default function CartPage() {
   return (
     <MobileLayout>
       <div className="container mx-auto max-w-2xl px-4 py-8">
-        <Link href="/marketplace" className="text-sm text-luxury-mist">← Marketplace</Link>
+        <Link href="/loja" className="text-sm text-luxury-mist">← Loja</Link>
         <h1 className="mt-4 text-2xl font-bold">Carrinho</h1>
         {isLoading && <p className="mt-4 text-luxury-mist">Carregando…</p>}
         {!isLoading && items.length === 0 && (

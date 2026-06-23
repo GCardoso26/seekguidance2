@@ -16,7 +16,7 @@ export function ProStatusWidget({ plan = "free", expiresAt }: Props) {
             Ativo{expiresAt ? ` até ${new Date(expiresAt).toLocaleDateString("pt-BR")}` : ""}
           </span>
         </div>
-        <Link href="/store/pro" className="text-luxury-gold underline">
+        <Link href="/vendedor/painel/pro" className="text-luxury-gold underline">
           Gerenciar
         </Link>
       </div>

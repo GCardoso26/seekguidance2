@@ -1,5 +1,1 @@
-import { redirect } from "next/navigation";
-
-export default function CarrinhoPage() {
-  redirect("/marketplace/cart");
-}
+export { default } from "@/app/marketplace/cart/page";

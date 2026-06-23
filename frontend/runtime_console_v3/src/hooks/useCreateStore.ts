@@ -36,7 +36,7 @@ export function useCreateStore() {
       return res.json() as Promise<{ slug: string }>;
     },
     onSuccess: () => {
-      router.push("/store/dashboard?tab=pagamentos");
+      router.push("/vendedor/painel/configuracoes/pagamentos");
     },
   });
 }

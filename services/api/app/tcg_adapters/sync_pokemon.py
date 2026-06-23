@@ -29,18 +29,25 @@ async def sync_tcgdex(session: AsyncSession, *, max_sets: int | None = 3) -> dic
                 continue
             set_data = detail.json()
             for card in set_data.get("cards", []):
+                local_id = str(card.get("localId", ""))
+                image_url = card.get("image")
+                if not image_url and set_id and local_id:
+                    image_url = f"https://assets.tcgdex.net/en/{set_id}/{local_id}"
+                image_uris = {"normal": image_url} if image_url else {}
                 await upsert_card(
                     session,
                     {
                         "game_code": "POKEMON",
-                        "external_id": card.get("id", f"{set_id}-{card.get('localId', count)}"),
+                        "external_id": card.get("id", f"{set_id}-{local_id or count}"),
                         "name": card.get("name", "Unknown"),
                         "normalized_name": normalize_name(card.get("name", "")),
                         "set_code": set_id,
                         "set_name": set_data.get("name"),
-                        "card_number": str(card.get("localId", "")),
+                        "card_number": local_id,
                         "rarity": card.get("rarity"),
                         "card_type": (card.get("category") or "Pokemon"),
+                        "image_url": image_url,
+                        "image_uris": image_uris,
                         "game_data": {
                             "hp": card.get("hp"),
                             "types": card.get("types"),

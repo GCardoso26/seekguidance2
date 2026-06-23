@@ -49,7 +49,7 @@ export function SellerProfileHeader({ sellerId, profile }: Props) {
         <div className="flex flex-col gap-3 sm:items-end">
           <FollowButton playerId={sellerId} />
           <Link
-            href={`/mensagens?to=${sellerId}`}
+            href={`/social/messages/${sellerId}`}
             className="rounded-lg border border-white/20 px-4 py-2 text-sm hover:bg-white/10"
           >
             Mensagem

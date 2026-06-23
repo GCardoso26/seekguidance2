@@ -1,7 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import { Eye, Layers, ShoppingCart, Sparkles } from "lucide-react";
+import { CardImage } from "@/components/ui/CardImage";
 import { PriceSparkline } from "@/components/cards/PriceSparkline";
 import { Button } from "@/components/ui/button";
 import { cardImageUrl, formatCurrency } from "@/lib/format-currency";
@@ -59,7 +59,7 @@ export function CardCard({
       aria-label={`${card.name}, ${card.set.name}, ${card.rarity}`}
     >
       <div className="relative aspect-[63/88] overflow-hidden rounded-lg bg-muted/30">
-        <Image
+        <CardImage
           src={imageSrc}
           alt={card.name}
           fill
