@@ -41,7 +41,7 @@ SYNC_SOURCES: dict[str, tuple[str, SyncFn]] = {
     "LORCANA": ("lorcast", sync_lorcana),
     "YGO": ("ygoprodeck", sync_yugioh),
     "ONEPIECE": ("optcgapi", sync_onepiece),
-    "FAB": ("goagain", sync_fab),
+    "FAB": ("fab-cube", sync_fab),
     "DIGIMON": ("digimoncard", sync_digimon),
 }
 
@@ -163,8 +163,14 @@ async def run_game_sync(
                 result = await sync_pokemontcg(session, max_pages=None if full else 5)
             else:
                 result = await sync_tcgdex(session, max_sets=None if full else 3)
+        elif code == "YGO":
+            result = await sync_yugioh(session, limit=None if full else 100)
+        elif code == "LORCANA":
+            result = await sync_lorcana(session, limit=None if full else 150)
+        elif code == "FAB":
+            result = await sync_fab(session, limit=None if full else 100)
         elif code in ("ONEPIECE", "DIGIMON"):
-            result = await sync_fn(session, limit=None if full else 500)
+            result = await sync_fn(session, limit=None if full else 100)
         else:
             result = await sync_fn(session)
 

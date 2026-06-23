@@ -60,6 +60,11 @@ export default function AdminCatalogPage() {
         if (res.status === 401) {
           throw new Error("Sessão expirada. Faça login novamente.");
         }
+        if (res.status === 504) {
+          throw new Error(
+            "Sync demorou demais (timeout). Use «Sync rápido» ou aguarde a API no Render terminar.",
+          );
+        }
         throw new Error(payload.detail || payload.error || `Sync falhou (${res.status})`);
       }
       return JSON.parse(text || "{}");
@@ -104,7 +109,10 @@ export default function AdminCatalogPage() {
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold">Catálogo de TCGs</h1>
-          <p className="text-sm text-muted-foreground">Sincronização manual por jogo (Scryfall, YGOPRODeck, etc.)</p>
+          <p className="text-sm text-muted-foreground">
+            Sincronização manual por jogo. «Sync rápido» importa um lote pequeno; «Sync completo» pode levar vários
+            minutos e falhar por timeout no plano free.
+          </p>
         </div>
         <Link href="/admin/console" className="text-sm text-primary hover:underline">
           ← Console

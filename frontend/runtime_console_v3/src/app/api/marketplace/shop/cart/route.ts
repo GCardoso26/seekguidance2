@@ -7,6 +7,9 @@ export async function GET() {
       headers: await tournamentProxyHeaders(),
       cache: "no-store",
     });
+    if (res.status === 401) {
+      return NextResponse.json({ cart: { items: [] } });
+    }
     const text = await res.text();
     return new NextResponse(text, { status: res.status, headers: { "Content-Type": "application/json" } });
   } catch {

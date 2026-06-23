@@ -16,7 +16,7 @@ async def sync_onepiece(session: AsyncSession, *, limit: int | None = None) -> d
     count = 0
     batch = 0
     async with httpx.AsyncClient(timeout=120.0) as client:
-        res = await client.get(f"{OPTCG_API}/cards")
+        res = await client.get(f"{OPTCG_API}/allSetCards/")
         if not res.is_success:
             return {"status": "error", "message": f"HTTP {res.status_code}"}
         cards = res.json()
@@ -26,7 +26,7 @@ async def sync_onepiece(session: AsyncSession, *, limit: int | None = None) -> d
     for card in cards:
         if limit and count >= limit:
             break
-        ext_id = str(card.get("card_id") or card.get("id") or count)
+        ext_id = str(card.get("card_set_id") or card.get("card_id") or card.get("id") or count)
         image = card.get("image_url") or card.get("image")
         await upsert_card(
             session,

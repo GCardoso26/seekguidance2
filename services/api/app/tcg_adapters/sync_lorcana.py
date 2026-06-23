@@ -13,7 +13,7 @@ LORCAST_API = "https://lorcast.com/api/cards"
 LORCANA_FALLBACK = "https://api.lorcana-api.com/bulk/cards"
 
 
-async def sync_lorcana(session: AsyncSession) -> dict[str, Any]:
+async def sync_lorcana(session: AsyncSession, *, limit: int | None = None) -> dict[str, Any]:
     count = 0
     batch = 0
     async with httpx.AsyncClient(timeout=90.0) as client:
@@ -27,6 +27,8 @@ async def sync_lorcana(session: AsyncSession) -> dict[str, Any]:
             cards = cards.get("cards", cards.get("data", []))
 
         for card in cards:
+            if limit is not None and count >= limit:
+                break
             name = card.get("name") or card.get("Name") or "Unknown"
             ext_id = str(card.get("id") or card.get("Unique_ID") or count)
             image_uris = card.get("image_uris")
