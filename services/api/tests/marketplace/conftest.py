@@ -11,11 +11,10 @@ from typing import Any
 
 import pytest
 import pytest_asyncio
+from app.players.store import ensure_player_profile
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.pool import NullPool
-
-from app.players.store import ensure_player_profile
 
 RACE_SCHEMA = Path(__file__).resolve().parent / "fixtures" / "checkout_race_schema.sql"
 

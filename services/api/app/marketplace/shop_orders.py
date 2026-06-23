@@ -240,9 +240,17 @@ async def store_dashboard_enhanced(session: AsyncSession, store_id: str, owner_i
             text(
                 """
                 SELECT
-                  COALESCE(SUM(store_receives_cents) FILTER (WHERE status = 'paid' AND created_at >= CURRENT_DATE), 0) AS today_cents,
-                  COALESCE(SUM(store_receives_cents) FILTER (WHERE status = 'paid' AND created_at >= CURRENT_DATE - INTERVAL '7 days'), 0) AS week_cents,
-                  COALESCE(SUM(store_receives_cents) FILTER (WHERE status = 'paid' AND created_at >= CURRENT_DATE - INTERVAL '30 days'), 0) AS month_cents
+                  COALESCE(SUM(store_receives_cents) FILTER (
+                    WHERE status = 'paid' AND created_at >= CURRENT_DATE
+                  ), 0) AS today_cents,
+                  COALESCE(SUM(store_receives_cents) FILTER (
+                    WHERE status = 'paid'
+                      AND created_at >= CURRENT_DATE - INTERVAL '7 days'
+                  ), 0) AS week_cents,
+                  COALESCE(SUM(store_receives_cents) FILTER (
+                    WHERE status = 'paid'
+                      AND created_at >= CURRENT_DATE - INTERVAL '30 days'
+                  ), 0) AS month_cents
                 FROM tcg_judge.shop_orders WHERE store_id = :sid
                 """
             ),

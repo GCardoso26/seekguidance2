@@ -8,8 +8,8 @@ from app.api.deps import DbSession
 from app.api.v1.tournament_system import _require_user
 from app.marketplace import checkout_atomic
 from app.marketplace import seller_service as seller_svc
-from fastapi import APIRouter, Header, HTTPException
-from pydantic import BaseModel, Field
+from fastapi import APIRouter, Header
+from pydantic import BaseModel
 
 checkout_router = APIRouter(tags=["checkout-atomic"])
 seller_router = APIRouter(tags=["sellers"])

@@ -29,7 +29,11 @@ async def sync_lorcana(session: AsyncSession) -> dict[str, Any]:
         for card in cards:
             name = card.get("name") or card.get("Name") or "Unknown"
             ext_id = str(card.get("id") or card.get("Unique_ID") or count)
-            image = (card.get("image_uris") or {}).get("normal") if isinstance(card.get("image_uris"), dict) else card.get("image")
+            image_uris = card.get("image_uris")
+            if isinstance(image_uris, dict):
+                image = image_uris.get("normal")
+            else:
+                image = card.get("image")
             await upsert_card(
                 session,
                 {
@@ -39,7 +43,12 @@ async def sync_lorcana(session: AsyncSession) -> dict[str, Any]:
                     "normalized_name": normalize_name(name),
                     "set_code": card.get("set") or card.get("Set_ID"),
                     "set_name": card.get("set_name") or card.get("set"),
-                    "card_number": str(card.get("collector_number") or card.get("Card_Num") or card.get("number") or ""),
+                    "card_number": str(
+                        card.get("collector_number")
+                        or card.get("Card_Num")
+                        or card.get("number")
+                        or ""
+                    ),
                     "rarity": card.get("rarity") or card.get("Rarity"),
                     "card_type": card.get("type") or card.get("Type"),
                     "image_url": image,

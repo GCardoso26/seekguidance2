@@ -2,8 +2,6 @@
 
 from decimal import Decimal
 
-import pytest
-
 from app.marketplace.shop_coupons import calculate_coupon_discount
 
 

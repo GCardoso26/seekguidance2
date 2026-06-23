@@ -4,14 +4,15 @@ from __future__ import annotations
 
 from typing import Any
 
+from fastapi import APIRouter, Header, HTTPException, Query
+
 from app.api.deps import DbSession
 from app.api.v1.tournament_system import _require_user
+from app.catalog.detail_service import get_card_detail, get_price_history
 from app.catalog.health import verify_ingestion
 from app.catalog.pipeline import run_full_ingestion, run_game_sync
 from app.catalog.search_index import meili_enabled
-from app.catalog.detail_service import get_card_detail, get_price_history
 from app.catalog.search_service import list_catalog_sets, search_catalog_cards
-from fastapi import APIRouter, Header, HTTPException, Query
 
 router = APIRouter(tags=["card-catalog"])
 

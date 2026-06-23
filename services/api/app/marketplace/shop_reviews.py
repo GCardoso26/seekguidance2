@@ -260,7 +260,6 @@ async def list_store_reviews(
         rating_clause = " AND r.rating = :rating"
         params["rating"] = rating
 
-    offset = (max(1, page) - 1) * limit
     rows = (
         await session.execute(
             text(
@@ -284,7 +283,9 @@ async def list_store_reviews(
     count = (
         await session.execute(
             text(
-                f"SELECT COUNT(*) AS c FROM tcg_judge.shop_reviews WHERE store_id = :sid AND is_visible = TRUE{count_rating}"
+                "SELECT COUNT(*) AS c FROM tcg_judge.shop_reviews"
+                " WHERE store_id = :sid AND is_visible = TRUE"
+                f"{count_rating}"
             ),
             count_params,
         )
@@ -332,7 +333,10 @@ async def list_owner_reviews(session: AsyncSession, store_id: str, owner_id: str
             text(
                 """
                 SELECT r.*, p.display_name AS reviewer_name,
-                  (SELECT i.product_name FROM tcg_judge.shop_order_items i WHERE i.order_id = r.order_id LIMIT 1) AS product_name
+                  (
+                    SELECT i.product_name FROM tcg_judge.shop_order_items i
+                    WHERE i.order_id = r.order_id LIMIT 1
+                  ) AS product_name
                 FROM tcg_judge.shop_reviews r
                 LEFT JOIN tcg_judge.player_profiles p ON p.id = r.reviewer_id
                 WHERE r.store_id = :sid

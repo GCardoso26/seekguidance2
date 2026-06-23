@@ -1,6 +1,5 @@
-from fastapi import APIRouter
-
 from app.ops.health_check import build_health_payload
+from fastapi import APIRouter
 
 router = APIRouter(tags=["health"])
 

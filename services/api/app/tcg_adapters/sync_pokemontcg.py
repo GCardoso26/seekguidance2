@@ -100,7 +100,6 @@ async def sync_pokemontcg(session: AsyncSession, *, max_pages: int | None = None
                 batch = await maybe_commit_batch(session, batch + 1)
 
             page += 1
-            total_pages = (payload.get("page") or page)
             if page > int(payload.get("totalCount", 0) // PAGE_SIZE + 1):
                 break
 

@@ -4,11 +4,11 @@ from __future__ import annotations
 
 from typing import Any
 
-from app.analytics.marketplace_dashboard import marketplace_dashboard
 from app.admin.audit import list_audit_logs
 from app.admin.business_analytics import business_analytics
 from app.admin.dashboard import platform_stats
 from app.admin.moderation import ban_user, moderate_tournament
+from app.analytics.marketplace_dashboard import marketplace_dashboard
 from app.api.deps import DbSession
 from app.api.deps_admin import require_admin
 from app.jobs.card_sync import run_card_sync

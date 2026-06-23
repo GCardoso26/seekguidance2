@@ -10,10 +10,9 @@ from pathlib import Path
 from typing import Any
 
 import httpx
-from sqlalchemy import text
-
 from app.analytics.retention import retention_metrics
 from app.infrastructure.db.session import get_session_factory
+from sqlalchemy import text
 
 logger = logging.getLogger(__name__)
 

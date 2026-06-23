@@ -6,8 +6,8 @@ from typing import Any
 
 from app.api.deps import DbSession, SettingsDep
 from app.api.v1.tournament_system import _require_user
-from app.marketplace import shop_cart, shop_connect, shop_coupons, shop_orders, shop_pix, shop_products, shop_reviews
 from app.marketplace import card_listings as card_listings_svc
+from app.marketplace import shop_cart, shop_connect, shop_coupons, shop_orders, shop_pix, shop_products, shop_reviews
 from app.marketplace import shop_checkout as shop_checkout_svc
 from app.stores import store as store_svc
 from fastapi import APIRouter, Header, HTTPException, Request

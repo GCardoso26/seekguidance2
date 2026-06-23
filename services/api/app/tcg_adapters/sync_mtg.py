@@ -7,7 +7,7 @@ from typing import Any
 import httpx
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.tcg_adapters.sync_common import normalize_name, upsert_card, upsert_set, maybe_commit_batch
+from app.tcg_adapters.sync_common import maybe_commit_batch, normalize_name, upsert_card, upsert_set
 
 SCRYFALL_BULK = "https://api.scryfall.com/bulk-data"
 SCRYFALL_SETS = "https://api.scryfall.com/sets"

@@ -15,11 +15,10 @@ SLACK_WEBHOOK_URL = os.getenv("SLACK_ALERT_WEBHOOK_URL", "")
 
 async def send_alert(*, channel: str, message: str, metadata: dict[str, Any] | None = None) -> bool:
     """Envia alerta para Slack (ou log se webhook não configurado)."""
-    payload = {"text": message, "metadata": metadata or {}}
     if channel == "slack" and SLACK_WEBHOOK_URL:
         try:
             async with httpx.AsyncClient(timeout=10) as client:
-                r = await client.post(SLACK_WEBHOOK_URL, json={"text": message})
+                r = await client.post(SLACK_WEBHOOK_URL, json={"text": message, "metadata": metadata or {}})
                 return r.is_success
         except Exception as exc:
             logger.warning("slack_alert_failed", error=str(exc))

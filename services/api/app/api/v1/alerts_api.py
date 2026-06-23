@@ -7,7 +7,7 @@ from typing import Any
 from app.alerts import price_alerts as alerts_svc
 from app.api.deps import DbSession
 from app.api.v1.tournament_system import _require_user
-from fastapi import APIRouter, Header, HTTPException, Query
+from fastapi import APIRouter, Header, Query
 from pydantic import BaseModel, Field
 
 router = APIRouter(tags=["price-alerts"])

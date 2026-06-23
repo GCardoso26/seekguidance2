@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from fastapi import APIRouter, Header, HTTPException, Query
+
 from app.api.deps import DbSession
 from app.api.v1.tournament_system import _require_user
 from app.catalog.games_service import (
@@ -13,7 +15,6 @@ from app.catalog.games_service import (
     search_game_cards,
 )
 from app.catalog.pipeline import run_game_sync
-from fastapi import APIRouter, Header, HTTPException, Query
 
 router = APIRouter(tags=["catalog-games"])
 

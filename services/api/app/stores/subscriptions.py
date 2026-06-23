@@ -8,11 +8,11 @@ from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import structlog
-import stripe
 from fastapi import HTTPException
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+import stripe
 from app.core.config import Settings
 from app.marketplace.shop_notifications import notify_shop_event
 from app.marketplace.shop_store import ENTERPRISE_PRICE_CENTS, PRO_PRICE_CENTS, effective_plan

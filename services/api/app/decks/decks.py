@@ -916,7 +916,6 @@ async def export_deck(
     viewer_id: str | None = None,
 ) -> dict[str, str]:
     deck = await get_deck(session, deck_id, viewer_id=viewer_id)
-    cards = deck.get("main_deck", []) + deck.get("sideboard", [])
     if export_format == "dec":
         lines = [f"{c['quantity']} {c['card']['name']}" for c in deck.get("main_deck", [])]
         if deck.get("sideboard"):

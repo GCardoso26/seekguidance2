@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from fastapi import HTTPException, Query
+from fastapi import HTTPException
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -58,8 +58,12 @@ async def get_seller_profile(session: AsyncSession, seller_ref: str) -> dict[str
         await session.execute(
             text(
                 """
-                SELECT COUNT(*) FILTER (WHERE status IN ('paid','processing','shipped','delivered')) AS total_sales,
-                       COALESCE(SUM(total_cents) FILTER (WHERE status IN ('paid','processing','shipped','delivered')), 0) AS total_revenue
+                SELECT COUNT(*) FILTER (
+                    WHERE status IN ('paid','processing','shipped','delivered')
+                ) AS total_sales,
+                COALESCE(SUM(total_cents) FILTER (
+                    WHERE status IN ('paid','processing','shipped','delivered')
+                ), 0) AS total_revenue
                 FROM tcg_judge.shop_orders o
                 JOIN tcg_judge.stores st ON st.id = o.store_id
                 WHERE st.owner_id = :sid
@@ -125,9 +129,13 @@ async def get_seller_listings(
     filtered = all_listings
     if game_slug:
         g = game_slug.upper()
-        filtered = [l for l in filtered if str(l.get("gameCode", "")).upper() == g]
+        filtered = [listing for listing in filtered if str(listing.get("gameCode", "")).upper() == g]
     if condition:
-        filtered = [l for l in filtered if str(l.get("condition", "")).upper() == condition.upper()]
+        filtered = [
+            listing
+            for listing in filtered
+            if str(listing.get("condition", "")).upper() == condition.upper()
+        ]
 
     if sort_by == "price_asc":
         filtered.sort(key=lambda x: int(x.get("priceCents") or 0))

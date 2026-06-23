@@ -5,7 +5,6 @@ from __future__ import annotations
 import json
 
 import pytest
-
 from app.marketplace.checkout_atomic import _parse_locked_items
 
 

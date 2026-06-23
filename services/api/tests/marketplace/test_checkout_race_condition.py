@@ -7,10 +7,9 @@ import time
 from typing import Any
 
 import pytest
+from app.marketplace import checkout_atomic
 from fastapi import HTTPException
 from sqlalchemy import text
-
-from app.marketplace import checkout_atomic
 
 pytestmark = [pytest.mark.asyncio(loop_scope="session"), pytest.mark.race]
 

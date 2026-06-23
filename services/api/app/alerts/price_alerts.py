@@ -12,8 +12,8 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.alerts.email_sender import send_price_alert_email
-from app.players.store import ensure_player_profile
 from app.notifications.service import notification_service
+from app.players.store import ensure_player_profile
 
 MAX_ACTIVE_ALERTS = 50
 VALID_CARD_CONDITIONS = frozenset({"NM", "LP", "MP", "HP", "DM"})
@@ -183,7 +183,12 @@ async def create_price_alert(
     current = await _current_lowest_price_cents(
         session, card_uuid, target_card_condition=card_cond, target_foil=target_foil
     )
-    merged = {**dict(row), "card_name": card["name"], "set_name": card.get("set_name"), "card_image_url": _image_url(card)}
+    merged = {
+        **dict(row),
+        "card_name": card["name"],
+        "set_name": card.get("set_name"),
+        "card_image_url": _image_url(card),
+    }
     return _alert_payload(merged, current_cents=current)
 
 

@@ -1,6 +1,6 @@
 """Testes do serviço de jogos do catálogo."""
 
-from app.catalog.games_service import game_code_from_slug, CODE_TO_SLUG
+from app.catalog.games_service import CODE_TO_SLUG, game_code_from_slug
 
 
 def test_game_code_from_slug_mtg():
