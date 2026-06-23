@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import re
+from datetime import date, datetime
 from typing import Any
 
 from sqlalchemy import text
@@ -19,6 +20,24 @@ def _trunc(value: str | None, max_len: int) -> str | None:
         return None
     text = str(value)
     return text if len(text) <= max_len else text[:max_len]
+
+
+def _coerce_release_date(value: str | date | datetime | None) -> date | None:
+    if value is None:
+        return None
+    if isinstance(value, datetime):
+        return value.date()
+    if isinstance(value, date):
+        return value
+    if isinstance(value, str):
+        raw = value.strip()
+        if not raw:
+            return None
+        try:
+            return date.fromisoformat(raw[:10])
+        except ValueError:
+            return None
+    return None
 
 
 async def upsert_card(session: AsyncSession, card: dict[str, Any]) -> str | None:
@@ -128,16 +147,17 @@ async def upsert_set(
     code: str,
     name: str,
     external_id: str | None = None,
-    release_date: str | None = None,
+    release_date: str | date | datetime | None = None,
     card_count: int | None = None,
     icon_url: str | None = None,
 ) -> None:
+    parsed_date = _coerce_release_date(release_date)
     await session.execute(
         text(
             """
             INSERT INTO tcg_judge.card_sets
               (game_code, external_id, code, name, release_date, card_count, icon_url)
-            VALUES (:g, :ext, :code, :name, CAST(:rd AS date), :cnt, :icon)
+            VALUES (:g, :ext, :code, :name, :rd, :cnt, :icon)
             ON CONFLICT (game_code, code) DO UPDATE SET
               name = EXCLUDED.name,
               external_id = COALESCE(EXCLUDED.external_id, tcg_judge.card_sets.external_id),
@@ -151,7 +171,7 @@ async def upsert_set(
             "ext": external_id,
             "code": _trunc(code, 50) or code,
             "name": _trunc(name, 255) or name,
-            "rd": release_date,
+            "rd": parsed_date,
             "cnt": card_count,
             "icon": icon_url,
         },
