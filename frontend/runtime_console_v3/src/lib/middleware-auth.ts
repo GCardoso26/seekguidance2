@@ -1,4 +1,5 @@
 import { ACCESS_COOKIE } from "@/lib/auth-cookies";
+import { decodeRuntimeTokenPayload } from "@/lib/decode-runtime-token";
 import { isAdminEmailServer } from "@/lib/judge-rbac-server";
 
 type JwtPayload = {
@@ -7,17 +8,7 @@ type JwtPayload = {
 };
 
 function decodeJwtPayload(token: string): JwtPayload | null {
-  try {
-    const parts = token.split(".");
-    if (parts.length < 2) return null;
-    // JWT padrão (header.payload.sig) vs runtime token (payload.sig)
-    const encoded = parts.length >= 3 ? parts[1]! : parts[0]!;
-    const padded = encoded.replace(/-/g, "+").replace(/_/g, "/") + "=".repeat((4 - (encoded.length % 4)) % 4);
-    const json = atob(padded);
-    return JSON.parse(json) as JwtPayload;
-  } catch {
-    return null;
-  }
+  return decodeRuntimeTokenPayload(token);
 }
 
 function supabaseAccessToken(request: { cookies: { getAll: () => { name: string; value: string }[] } }): string | null {
