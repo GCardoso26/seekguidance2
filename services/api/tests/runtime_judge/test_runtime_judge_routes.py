@@ -5,7 +5,6 @@ from __future__ import annotations
 from unittest.mock import AsyncMock
 
 import pytest
-
 from app.api.deps import get_rag_orchestrator
 from app.infrastructure.db.session import get_db_session
 from app.main import app
