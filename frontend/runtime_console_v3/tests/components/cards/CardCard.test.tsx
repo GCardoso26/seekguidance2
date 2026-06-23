@@ -11,6 +11,10 @@ vi.mock("next/image", () => ({
   default: (props: { alt: string }) => <img alt={props.alt} />,
 }));
 
+vi.mock("@/hooks/useAnalytics", () => ({
+  useAnalytics: () => ({ track: vi.fn() }),
+}));
+
 const SAMPLE: UnifiedCard = {
   id: "abc-123",
   game: "MTG",

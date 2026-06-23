@@ -9,8 +9,9 @@ from tcg_judge_ingestion.validation_real import semantic_coverage_ratio
 
 
 def test_list_game_slugs() -> None:
-    assert "mtg" in list_game_slugs()
-    assert len(list_game_slugs()) == 8
+    slugs = list_game_slugs()
+    assert "mtg" in slugs
+    assert len(slugs) == 13
 
 
 def test_formal_parse_slots() -> None:

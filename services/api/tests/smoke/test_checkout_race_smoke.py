@@ -5,7 +5,6 @@ from __future__ import annotations
 import asyncio
 import os
 
-import aiohttp
 import pytest
 
 pytestmark = pytest.mark.smoke
@@ -13,6 +12,7 @@ pytestmark = pytest.mark.smoke
 
 @pytest.mark.asyncio
 async def test_smoke_two_users_one_item():
+    aiohttp = pytest.importorskip("aiohttp")
     base_url = os.getenv("SMOKE_CHECKOUT_URL", "https://judgetcg.com.br").rstrip("/")
     token_a = os.getenv("SMOKE_TOKEN_A")
     token_b = os.getenv("SMOKE_TOKEN_B")
