@@ -35,3 +35,5 @@ services:
           property: connectionString
       - key: OPENAI_API_KEY
         sync: false
+      - key: CRON_SECRET
+        sync: false

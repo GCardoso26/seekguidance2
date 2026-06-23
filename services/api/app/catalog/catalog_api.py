@@ -8,6 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.api.deps import DbSession
 from app.catalog.admin_auth import require_catalog_sync_auth
+from app.catalog.cron_auth import require_catalog_cron_auth
 from app.catalog.detail_service import get_card_detail, get_price_history
 from app.catalog.health import verify_ingestion
 from app.catalog.pipeline import run_full_ingestion, run_game_sync
@@ -117,4 +118,34 @@ async def catalog_sync_game(
     result = await run_game_sync(session, game_code, full=full)
     if result.get("status") == "error" and "não suportado" in str(result.get("message", "")):
         raise HTTPException(400, str(result.get("message")))
+    return result
+
+
+@router.post("/runtime/judge/catalog/cron/sync")
+async def catalog_cron_sync_all(
+    session: DbSession,
+    full: bool = Query(default=False),
+    _: None = Depends(require_catalog_cron_auth),
+) -> dict[str, Any]:
+    """Sync automático de todos os TCGs (GitHub Actions / Vercel Cron)."""
+    return await run_full_ingestion(session, full=full)
+
+
+@router.post("/runtime/judge/catalog/cron/sync/{game_code}")
+async def catalog_cron_sync_game(
+    session: DbSession,
+    game_code: str,
+    full: bool = Query(default=False),
+    _: None = Depends(require_catalog_cron_auth),
+) -> dict[str, Any]:
+    """Sync automático de um TCG (GitHub Actions / Vercel Cron)."""
+    from app.catalog.games_service import game_code_from_slug
+    from app.catalog.pipeline import SYNC_SOURCES
+
+    resolved = game_code_from_slug(game_code) or game_code.upper()
+    if resolved not in SYNC_SOURCES:
+        raise HTTPException(status_code=404, detail=f"Jogo não suportado: {game_code}")
+    result = await run_game_sync(session, resolved, full=full)
+    if result.get("status") == "error":
+        raise HTTPException(400, str(result.get("message", "sync failed")))
     return result

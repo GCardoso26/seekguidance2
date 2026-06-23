@@ -1,0 +1,77 @@
+# Sync incremental do catálogo de cartas (cron diário).
+#
+# Secrets (GitHub → Settings → Secrets → Actions):
+#   CRON_SECRET      — mesmo valor em Render (tcg-judge-api) e Vercel
+#   SMOKE_API_URL    — opcional; default https://seekguidance.onrender.com
+#
+# Bootstrap manual (sync completo, um jogo):
+#   gh workflow run catalog-sync.yml -f full=true -f game=MTG
+
+name: Catalog Sync
+
+on:
+  schedule:
+    # 07:00 UTC diário — sync rápido incremental
+    - cron: "0 7 * * *"
+  workflow_dispatch:
+    inputs:
+      full:
+        description: "Sync completo (full=true). Use só para bootstrap."
+        type: boolean
+        default: false
+      game:
+        description: "Código do jogo (MTG, POKEMON, …). Vazio = todos."
+        type: string
+        default: ""
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Sync catálogo
+        env:
+          API_URL: ${{ secrets.SMOKE_API_URL || 'https://seekguidance.onrender.com' }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          FULL: ${{ (github.event.inputs.full == true || github.event.inputs.full == 'true') && 'true' || 'false' }}
+          GAME: ${{ github.event.inputs.game }}
+        run: |
+          set -euo pipefail
+          if [ -z "${CRON_SECRET}" ]; then
+            echo "::error::CRON_SECRET não configurado nos GitHub Secrets"
+            exit 1
+          fi
+
+          sync_game() {
+            local game="$1"
+            echo "--- Sync ${game} (full=${FULL}) ---"
+            code=$(curl -sS -o /tmp/sync-result.json -w "%{http_code}" -X POST \
+              "${API_URL}/runtime/judge/catalog/cron/sync/${game}?full=${FULL}" \
+              -H "Authorization: Bearer ${CRON_SECRET}" \
+              -H "Content-Type: application/json" \
+              --max-time 900)
+            cat /tmp/sync-result.json
+            echo ""
+            echo "HTTP ${code}"
+            if [ "${code}" != "200" ]; then
+              return 1
+            fi
+            return 0
+          }
+
+          if [ -n "${GAME}" ]; then
+            sync_game "${GAME}"
+            exit $?
+          fi
+
+          failed=0
+          for game in MTG POKEMON YGO LORCANA ONEPIECE FAB DIGIMON; do
+            if sync_game "${game}"; then
+              echo "OK ${game}"
+            else
+              echo "::warning::Sync falhou para ${game}"
+              failed=1
+            fi
+            sleep 45
+          done
+          exit "${failed}"
