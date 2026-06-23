@@ -1,0 +1,31 @@
+# Dispara deploy da API no Render quando services/api muda.
+#
+# Secret (GitHub → Settings → Secrets → Actions):
+#   RENDER_DEPLOY_HOOK — Render → Web Service → Settings → Deploy Hook
+
+name: Render Deploy Hook
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "services/api/**"
+      - "render.yaml"
+      - ".github/workflows/render-deploy-hook.yml"
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Render deploy
+        env:
+          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+        run: |
+          if [ -z "${RENDER_DEPLOY_HOOK}" ]; then
+            echo "::warning::RENDER_DEPLOY_HOOK não configurado — configure no GitHub Secrets e no Render (Deploy Hook)."
+            exit 0
+          fi
+          echo "Acionando deploy da API no Render..."
+          curl -fsS -X POST "${RENDER_DEPLOY_HOOK}"
+          echo "Deploy hook acionado."

@@ -50,30 +50,34 @@ def init_db(storage_path: str | None = None) -> Path:
 
 def ensure_default_admin(storage_path: str | None = None) -> None:
     cfg = get_settings()
-    plain = (
+    env_password = (
         cfg.runtime_default_admin_password
         or os.environ.get("RUNTIME_DEFAULT_ADMIN_PASSWORD")
-        or (None if cfg.environment == "production" else "admin")
     )
-    if cfg.environment == "production" and not plain:
-        return
     path = init_db(storage_path)
-    password = str(plain)
-    ph = crypto.hash_password(password)
     with sqlite3.connect(path) as conn:
+        total_users = int(conn.execute("SELECT count(*) FROM users").fetchone()[0])
         row = conn.execute("SELECT id FROM users WHERE username = ?", ("admin",)).fetchone()
+
+        if cfg.environment == "production" and not env_password and total_users > 0:
+            return
+
+        password = env_password or ("admin" if total_users == 0 else None)
+        if not password:
+            return
+
+        ph = crypto.hash_password(str(password))
         if row:
             conn.execute(
                 "UPDATE users SET password_hash = ?, role = 'admin' WHERE username = ?",
                 (ph, "admin"),
             )
-            conn.commit()
-            return
-        uid = secrets.token_hex(8)
-        conn.execute(
-            "INSERT INTO users (id, username, password_hash, role, tenant_id, created_at) VALUES (?,?,?,?,?,?)",
-            (uid, "admin", ph, "admin", "default", time.time()),
-        )
+        else:
+            uid = secrets.token_hex(8)
+            conn.execute(
+                "INSERT INTO users (id, username, password_hash, role, tenant_id, created_at) VALUES (?,?,?,?,?,?)",
+                (uid, "admin", ph, "admin", "default", time.time()),
+            )
         conn.commit()
 
 
