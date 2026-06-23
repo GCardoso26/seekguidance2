@@ -8,9 +8,12 @@ type JwtPayload = {
 
 function decodeJwtPayload(token: string): JwtPayload | null {
   try {
-    const part = token.split(".")[1];
-    if (!part) return null;
-    const json = atob(part.replace(/-/g, "+").replace(/_/g, "/"));
+    const parts = token.split(".");
+    if (parts.length < 2) return null;
+    // JWT padrão (header.payload.sig) vs runtime token (payload.sig)
+    const encoded = parts.length >= 3 ? parts[1]! : parts[0]!;
+    const padded = encoded.replace(/-/g, "+").replace(/_/g, "/") + "=".repeat((4 - (encoded.length % 4)) % 4);
+    const json = atob(padded);
     return JSON.parse(json) as JwtPayload;
   } catch {
     return null;
