@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { FollowButton } from "@/components/social/FollowButton";
 import { usePathname } from "next/navigation";
 import type { SellerProfile } from "@/types/seller";
 
@@ -45,7 +46,8 @@ export function SellerProfileHeader({ sellerId, profile }: Props) {
             <p className="text-xs text-luxury-mist">@{profile.handle}</p>
           )}
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-col gap-3 sm:items-end">
+          <FollowButton playerId={sellerId} />
           <Link
             href={`/mensagens?to=${sellerId}`}
             className="rounded-lg border border-white/20 px-4 py-2 text-sm hover:bg-white/10"

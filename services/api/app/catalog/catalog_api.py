@@ -46,6 +46,7 @@ async def catalog_search_cards(
     foil: bool | None = Query(default=None),
     sort: str = Query(default="relevance"),
     card_id: list[str] = Query(default=[]),
+    colors: str | None = Query(default=None),
     page: int = Query(default=1, ge=1),
     limit: int = Query(default=24, ge=1, le=100),
 ) -> dict[str, Any]:
@@ -62,6 +63,7 @@ async def catalog_search_cards(
         foil=foil,
         sort=sort,
         card_ids=card_id,
+        colors=colors,
         page=page,
         limit=limit,
     )

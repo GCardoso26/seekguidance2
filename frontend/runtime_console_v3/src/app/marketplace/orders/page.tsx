@@ -37,9 +37,9 @@ export default function MyOrdersPage() {
                 <span className="font-semibold">{formatShopPrice(Number(o.total_cents))}</span>
               </div>
               <p className="mt-1 text-sm text-luxury-mist">{String(o.store_name ?? "")}</p>
-              {["delivered", "paid", "shipped"].includes(String(o.status)) && (
+              {String(o.status) === "delivered" && (
                 <Link
-                  href={`/orders/${String(o.id)}/review`}
+                  href={`/pedidos/${String(o.id)}/avaliar`}
                   className="mt-3 inline-block text-sm text-luxury-gold underline"
                 >
                   Avaliar compra

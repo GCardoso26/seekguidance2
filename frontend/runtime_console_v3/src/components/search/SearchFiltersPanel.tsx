@@ -4,6 +4,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { Filter, X } from "lucide-react";
 import { useMemo } from "react";
 import { ALL_GAME_IDS, GAME_TOKENS } from "@/lib/tcg-tokens";
+import { gameFilters } from "@/lib/game-filters";
 import type { CatalogSetOption, SearchFilters } from "@/types/search";
 
 interface SearchFiltersPanelProps {
@@ -47,6 +48,7 @@ function hasActiveFilters(filters: SearchFilters): boolean {
     filters.priceMin !== undefined ||
     filters.priceMax !== undefined ||
     filters.language ||
+    filters.colors?.length ||
     (filters.foil !== null && filters.foil !== undefined)
   );
 }
@@ -59,6 +61,7 @@ function countActiveFilters(filters: SearchFilters): number {
   if (filters.priceMin !== undefined) count++;
   if (filters.priceMax !== undefined) count++;
   if (filters.language) count++;
+  if (filters.colors?.length) count += filters.colors.length;
   if (filters.foil !== null && filters.foil !== undefined) count++;
   return count;
 }
@@ -110,6 +113,40 @@ function FilterContent({
               </option>
             ))}
           </select>
+        </div>
+      )}
+
+      {(filters.game === "mtg" || filters.game === "magic") && gameFilters.mtg?.colors && (
+        <div>
+          <h4 className="mb-2 text-sm font-semibold">Cores (Magic)</h4>
+          <div className="flex flex-wrap gap-2">
+            {gameFilters.mtg.colors.map((color) => {
+              const selected = filters.colors?.includes(color.value) ?? false;
+              return (
+                <button
+                  key={color.value}
+                  type="button"
+                  title={color.label}
+                  onClick={() => {
+                    const current = filters.colors ?? [];
+                    const next = selected
+                      ? current.filter((c) => c !== color.value)
+                      : [...current, color.value];
+                    onChange({ colors: next.length > 0 ? next : undefined });
+                  }}
+                  className={`flex h-9 w-9 items-center justify-center rounded-full border-2 text-xs font-bold ${
+                    selected ? "border-primary ring-2 ring-primary/30" : "border-border"
+                  }`}
+                  style={{
+                    backgroundColor: color.color,
+                    color: color.value === "W" ? "#1F2937" : "#F9FAFB",
+                  }}
+                >
+                  {color.value}
+                </button>
+              );
+            })}
+          </div>
         </div>
       )}
 

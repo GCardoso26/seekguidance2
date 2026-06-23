@@ -16,6 +16,7 @@ const FORWARD_PARAMS = [
   "page",
   "limit",
   "card_id",
+  "colors",
 ] as const;
 
 export async function GET(request: NextRequest) {

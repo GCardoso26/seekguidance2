@@ -162,7 +162,31 @@ async def get_seller_reviews(
         str(store["id"]),
         page=page,
         limit=limit,
+        rating=rating,
     )
+
+
+async def get_seller_review_summary(session: AsyncSession, seller_ref: str) -> dict[str, Any]:
+    seller_id = await _resolve_seller_id(session, seller_ref)
+    store = (
+        await session.execute(
+            text("SELECT id FROM tcg_judge.stores WHERE owner_id = :oid LIMIT 1"),
+            {"oid": seller_id},
+        )
+    ).mappings().first()
+    if not store:
+        return {"total": 0, "average": 0, "distribution": {}, "positive_rate": 0}
+
+    stats = await shop_reviews_svc.get_store_review_stats(session, str(store["id"]))
+    dist = stats.get("distribution") or {}
+    total = int(stats.get("total_reviews") or 0)
+    positive = int(dist.get(5, 0)) + int(dist.get(4, 0))
+    return {
+        "total": total,
+        "average": float(stats.get("average_rating") or 0),
+        "distribution": {str(k): v for k, v in dist.items()},
+        "positive_rate": round(positive / total * 100, 1) if total else 0,
+    }
 
 
 async def get_seller_stats(

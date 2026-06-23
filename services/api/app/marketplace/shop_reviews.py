@@ -28,6 +28,10 @@ async def create_shop_review(
     rating: int,
     comment: str | None = None,
     photos: list[str] | None = None,
+    recommend: bool | None = None,
+    item_as_described: bool | None = None,
+    shipping_speed: int | None = None,
+    communication: int | None = None,
 ) -> dict[str, Any]:
     if rating < 1 or rating > 5:
         raise HTTPException(400, "Nota deve ser entre 1 e 5")
@@ -47,8 +51,8 @@ async def create_shop_review(
     ).mappings().first()
     if not order:
         raise HTTPException(404, "Pedido não encontrado")
-    if order["status"] not in {"delivered", "paid", "shipped"}:
-        raise HTTPException(400, "Avalie após receber o pedido")
+    if order["status"] != "delivered":
+        raise HTTPException(400, "Só pode avaliar pedidos entregues")
 
     existing = (
         await session.execute(
@@ -64,8 +68,10 @@ async def create_shop_review(
             text(
                 """
                 INSERT INTO tcg_judge.shop_reviews
-                  (order_id, reviewer_id, store_id, rating, comment, photos)
-                VALUES (:oid, :uid, :sid, :rating, :comment, :photos)
+                  (order_id, reviewer_id, store_id, rating, comment, photos,
+                   recommend, item_as_described, shipping_speed, communication)
+                VALUES (:oid, :uid, :sid, :rating, :comment, :photos,
+                        :recommend, :item_desc, :ship, :comm)
                 RETURNING *
                 """
             ),
@@ -76,6 +82,10 @@ async def create_shop_review(
                 "rating": rating,
                 "comment": comment,
                 "photos": photos or [],
+                "recommend": recommend,
+                "item_desc": item_as_described,
+                "ship": shipping_speed,
+                "comm": communication,
             },
         )
     ).mappings().first()
@@ -236,12 +246,19 @@ async def list_store_reviews(
     limit: int = 10,
     page: int = 1,
     filter_type: str = "recent",
+    rating: int | None = None,
 ) -> dict[str, Any]:
     order_sql = "r.created_at DESC"
     if filter_type == "photos":
         order_sql = "CARDINALITY(r.photos) DESC, r.created_at DESC"
     elif filter_type == "response":
         order_sql = "r.store_responded_at DESC NULLS LAST, r.created_at DESC"
+
+    rating_clause = ""
+    params: dict[str, Any] = {"sid": store_id, "lim": min(50, limit), "off": (max(1, page) - 1) * limit}
+    if rating is not None:
+        rating_clause = " AND r.rating = :rating"
+        params["rating"] = rating
 
     offset = (max(1, page) - 1) * limit
     rows = (
@@ -251,18 +268,25 @@ async def list_store_reviews(
                 SELECT r.*, p.display_name AS reviewer_name
                 FROM tcg_judge.shop_reviews r
                 LEFT JOIN tcg_judge.player_profiles p ON p.id = r.reviewer_id
-                WHERE r.store_id = :sid AND r.is_visible = TRUE
+                WHERE r.store_id = :sid AND r.is_visible = TRUE{rating_clause}
                 ORDER BY {order_sql}
                 LIMIT :lim OFFSET :off
                 """
             ),
-            {"sid": store_id, "lim": min(50, limit), "off": offset},
+            params,
         )
     ).mappings().all()
+    count_params = {"sid": store_id}
+    count_rating = ""
+    if rating is not None:
+        count_rating = " AND rating = :rating"
+        count_params["rating"] = rating
     count = (
         await session.execute(
-            text("SELECT COUNT(*) AS c FROM tcg_judge.shop_reviews WHERE store_id = :sid AND is_visible = TRUE"),
-            {"sid": store_id},
+            text(
+                f"SELECT COUNT(*) AS c FROM tcg_judge.shop_reviews WHERE store_id = :sid AND is_visible = TRUE{count_rating}"
+            ),
+            count_params,
         )
     ).mappings().first()
     return {

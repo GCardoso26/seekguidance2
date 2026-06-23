@@ -44,3 +44,30 @@ export const gameFilters: Record<string, FilterConfig> = {
     types: ["Digimon", "Tamer", "Option", "Digi-Egg"],
   },
 };
+
+/** Configuração estendida para filtros avançados na loja (por slug de jogo). */
+export const advancedFilters: Record<
+  string,
+  FilterConfig & { conditions?: string[]; priceRange?: { min: number; max: number } }
+> = {
+  magic: {
+    ...gameFilters.mtg,
+    conditions: ["NM", "LP", "MP", "HP", "DMG"],
+    priceRange: { min: 0, max: 50000 },
+  },
+  mtg: {
+    ...gameFilters.mtg,
+    conditions: ["NM", "LP", "MP", "HP", "DMG"],
+    priceRange: { min: 0, max: 50000 },
+  },
+  pokemon: {
+    ...gameFilters.pokemon,
+    conditions: ["NM", "LP", "MP", "HP", "DMG"],
+    priceRange: { min: 0, max: 10000 },
+  },
+  yugioh: {
+    ...gameFilters.yugioh,
+    conditions: ["NM", "LP", "MP", "HP", "DMG"],
+    priceRange: { min: 0, max: 10000 },
+  },
+};

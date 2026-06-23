@@ -15,35 +15,34 @@ export function GlobalNotificationBell() {
   const { data: unread = { count: 0 } } = useQuery({
     queryKey: ["notifications-unread"],
     queryFn: async () => {
-      const res = await fetch("/api/social/notifications/unread-count", { cache: "no-store" });
+      const res = await fetch("/api/notifications/unread-count", { cache: "no-store" });
       if (!res.ok) return { count: 0 };
       return res.json() as Promise<{ count: number }>;
     },
-    refetchInterval: 15_000,
+    refetchInterval: 30_000,
   });
 
   const { data: items = [] } = useQuery({
-    queryKey: ["notifications"],
+    queryKey: ["notifications-feed"],
     queryFn: async () => {
-      const res = await fetch("/api/social/notifications", { cache: "no-store" });
+      const res = await fetch("/api/notifications/feed", { cache: "no-store" });
       if (!res.ok) return [];
       return res.json() as Promise<AppNotification[]>;
     },
-    refetchInterval: 15_000,
+    refetchInterval: 30_000,
   });
 
   const markRead = async (n: AppNotification) => {
-    await fetch(`/api/social/notifications/${n.id}/read`, { method: "POST" });
-    void qc.invalidateQueries({ queryKey: ["notifications"] });
+    const source = n.source || "social";
+    await fetch(`/api/notifications/${n.id}/read?source=${source}`, { method: "POST" });
+    void qc.invalidateQueries({ queryKey: ["notifications-feed"] });
     void qc.invalidateQueries({ queryKey: ["notifications-unread"] });
     if (n.link) router.push(n.link);
   };
 
   const markAllRead = async () => {
-    for (const n of items.filter((i) => !i.readAt).slice(0, 20)) {
-      await fetch(`/api/social/notifications/${n.id}/read`, { method: "POST" });
-    }
-    void qc.invalidateQueries({ queryKey: ["notifications"] });
+    await fetch("/api/notifications/mark-all-read", { method: "POST" });
+    void qc.invalidateQueries({ queryKey: ["notifications-feed"] });
     void qc.invalidateQueries({ queryKey: ["notifications-unread"] });
   };
 

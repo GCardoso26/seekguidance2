@@ -37,6 +37,7 @@ export type AppNotification = {
   link?: string | null;
   readAt?: string | null;
   createdAt?: string | null;
+  source?: "social" | "marketplace";
 };
 
 export type FeedbackItem = {

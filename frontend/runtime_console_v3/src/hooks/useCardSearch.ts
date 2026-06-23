@@ -14,6 +14,7 @@ function buildSearchParams(filters: SearchFilters, page: number): URLSearchParam
   if (filters.set) params.set("set", filters.set);
   if (filters.rarity?.length) params.set("rarity", filters.rarity.join(","));
   if (filters.condition?.length) params.set("condition", filters.condition.join(","));
+  if (filters.colors?.length) params.set("colors", filters.colors.join(","));
   if (filters.priceMin !== undefined) params.set("price_min", String(filters.priceMin));
   if (filters.priceMax !== undefined) params.set("price_max", String(filters.priceMax));
   if (filters.language) params.set("language", filters.language);
@@ -71,6 +72,7 @@ export function filtersFromSearchParams(params: URLSearchParams): SearchFilters 
     set: params.get("set") || undefined,
     rarity: params.get("rarity")?.split(",").filter(Boolean),
     condition: params.get("condition")?.split(",").filter(Boolean),
+    colors: params.get("colors")?.split(",").filter(Boolean),
     priceMin: params.get("price_min") ? Number(params.get("price_min")) : undefined,
     priceMax: params.get("price_max") ? Number(params.get("price_max")) : undefined,
     language: params.get("language") || undefined,
@@ -87,6 +89,7 @@ export function searchParamsFromFilters(filters: SearchFilters): URLSearchParams
   if (filters.set) params.set("set", filters.set);
   if (filters.rarity?.length) params.set("rarity", filters.rarity.join(","));
   if (filters.condition?.length) params.set("condition", filters.condition.join(","));
+  if (filters.colors?.length) params.set("colors", filters.colors.join(","));
   if (filters.priceMin !== undefined) params.set("price_min", String(filters.priceMin));
   if (filters.priceMax !== undefined) params.set("price_max", String(filters.priceMax));
   if (filters.language) params.set("language", filters.language);

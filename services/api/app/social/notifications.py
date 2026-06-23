@@ -91,3 +91,17 @@ async def mark_read(session: AsyncSession, user_id: str, notification_id: str) -
     )
     await session.commit()
     return {"read": True}
+
+
+async def mark_all_read(session: AsyncSession, user_id: str) -> dict[str, int]:
+    result = await session.execute(
+        text(
+            """
+            UPDATE tcg_judge.notifications SET read_at = NOW()
+            WHERE user_id = :uid AND read_at IS NULL
+            """
+        ),
+        {"uid": user_id},
+    )
+    await session.commit()
+    return {"marked": int(result.rowcount or 0)}

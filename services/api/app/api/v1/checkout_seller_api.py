@@ -107,6 +107,11 @@ async def seller_listings(
     )
 
 
+@seller_router.get("/runtime/judge/sellers/{seller_id}/reviews/summary")
+async def seller_reviews_summary(session: DbSession, seller_id: str) -> dict[str, Any]:
+    return await seller_svc.get_seller_review_summary(session, seller_id)
+
+
 @seller_router.get("/runtime/judge/sellers/{seller_id}/reviews")
 async def seller_reviews(
     session: DbSession,

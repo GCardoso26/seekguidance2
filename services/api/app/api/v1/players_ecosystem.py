@@ -283,6 +283,54 @@ async def list_my_notifications(
     return [dict(r) for r in rows]
 
 
+@router.get("/runtime/judge/notifications/feed")
+async def unified_notification_feed(
+    session: DbSession,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+    limit: int = Query(default=30, ge=1, le=100),
+) -> list[dict[str, Any]]:
+    from app.notifications.feed import list_feed
+
+    user_id = _require_user(x_judge_user_id)
+    return await list_feed(session, user_id, limit=limit)
+
+
+@router.get("/runtime/judge/notifications/unread-count")
+async def unified_unread_count(
+    session: DbSession,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, int]:
+    from app.notifications.feed import unread_count as feed_unread_count
+
+    user_id = _require_user(x_judge_user_id)
+    count = await feed_unread_count(session, user_id)
+    return {"count": count}
+
+
+@router.post("/runtime/judge/notifications/{notification_id}/read")
+async def mark_notification_read(
+    session: DbSession,
+    notification_id: str,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+    source: str = Query(default="social"),
+) -> dict[str, bool]:
+    from app.notifications.feed import mark_read as feed_mark_read
+
+    user_id = _require_user(x_judge_user_id)
+    return await feed_mark_read(session, user_id, notification_id, source=source)
+
+
+@router.post("/runtime/judge/notifications/mark-all-read")
+async def mark_all_notifications_read(
+    session: DbSession,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, int]:
+    from app.notifications.feed import mark_all_read
+
+    user_id = _require_user(x_judge_user_id)
+    return await mark_all_read(session, user_id)
+
+
 @router.put("/runtime/judge/notifications/preferences")
 async def update_notification_preferences(
     session: DbSession,

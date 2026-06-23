@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
@@ -91,6 +92,7 @@ def _build_where(
     query: str,
     meili_ids: list[str] | None,
     card_ids: list[str] | None,
+    colors: list[str] | None,
 ) -> tuple[str, dict[str, Any]]:
     clauses = ["1=1"]
     params: dict[str, Any] = {}
@@ -159,6 +161,14 @@ def _build_where(
         clauses.append("COALESCE(minp.min_cents, latest.price_cents) <= :price_max")
         params["price_max"] = price_max_cents
 
+    if colors:
+        clauses.append(
+            """
+            COALESCE(cc.game_data->'colors', '[]'::jsonb) @> CAST(:colors_json AS jsonb)
+            """
+        )
+        params["colors_json"] = json.dumps(colors)
+
     return " AND ".join(clauses), params
 
 
@@ -188,6 +198,7 @@ async def search_catalog_cards(
     foil: bool | None = None,
     sort: str = "relevance",
     card_ids: list[str] | None = None,
+    colors: str | None = None,
     page: int = 1,
     limit: int = 24,
 ) -> dict[str, Any]:
@@ -204,6 +215,7 @@ async def search_catalog_cards(
 
     rarities = _split_csv(rarity)
     conditions = _split_csv(condition)
+    color_list = _split_csv(colors) if colors else None
     price_min_cents = int(price_min * 100) if price_min is not None else None
     price_max_cents = int(price_max * 100) if price_max is not None else None
 
@@ -219,6 +231,7 @@ async def search_catalog_cards(
         query=query if meili_ids is None else "",
         meili_ids=meili_ids,
         card_ids=card_ids,
+        colors=color_list,
     )
 
     base_from = f"""

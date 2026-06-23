@@ -28,6 +28,9 @@ export function ReviewForm({
   const [rating, setRating] = useState(initialRating);
   const [comment, setComment] = useState(initialComment);
   const [recommend, setRecommend] = useState(true);
+  const [itemAsDescribed, setItemAsDescribed] = useState(true);
+  const [shippingSpeed, setShippingSpeed] = useState(5);
+  const [communication, setCommunication] = useState(5);
   const [photos, setPhotos] = useState<string[]>(initialPhotos);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -68,6 +71,9 @@ export function ReviewForm({
                 comment: comment.trim() || null,
                 photos,
                 recommend,
+                item_as_described: itemAsDescribed,
+                shipping_speed: shippingSpeed,
+                communication,
               },
         ),
       });
@@ -119,10 +125,41 @@ export function ReviewForm({
         )}
       </div>
       {!isEdit && (
-        <label className="flex items-center gap-2 text-sm">
-          <input type="checkbox" checked={recommend} onChange={(e) => setRecommend(e.target.checked)} />
-          Recomendo esta loja
-        </label>
+        <>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <p className="mb-2 text-sm font-medium">Item conforme descrição?</p>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setItemAsDescribed(true)}
+                  className={`rounded-lg px-3 py-1 text-xs ${itemAsDescribed ? "bg-emerald-600/30" : "bg-white/10"}`}
+                >
+                  Sim
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setItemAsDescribed(false)}
+                  className={`rounded-lg px-3 py-1 text-xs ${!itemAsDescribed ? "bg-red-600/30" : "bg-white/10"}`}
+                >
+                  Não
+                </button>
+              </div>
+            </div>
+            <div>
+              <p className="mb-2 text-sm font-medium">Velocidade de envio</p>
+              <ReviewStars value={shippingSpeed} onChange={setShippingSpeed} size="sm" />
+            </div>
+          </div>
+          <div>
+            <p className="mb-2 text-sm font-medium">Comunicação</p>
+            <ReviewStars value={communication} onChange={setCommunication} size="sm" />
+          </div>
+          <label className="flex items-center gap-2 text-sm">
+            <input type="checkbox" checked={recommend} onChange={(e) => setRecommend(e.target.checked)} />
+            Recomendo esta loja
+          </label>
+        </>
       )}
       {error && <p className="text-sm text-red-300">{error}</p>}
       <button

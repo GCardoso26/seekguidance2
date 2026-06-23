@@ -8,7 +8,7 @@ from typing import Any
 from app.api.deps import DbSession
 from app.api.v1.tournament_system import _require_user
 from app.social import communities, feedback, follows, friendships, messages, newsletter, notifications, posts
-from fastapi import APIRouter, Header, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, Header, Query, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel, Field
 
 router = APIRouter(tags=["social"])
@@ -371,6 +371,16 @@ async def toggle_follow_endpoint(
     return await follows.toggle_follow(session, user_id, player_id)
 
 
+@router.get("/runtime/judge/social/follows/me")
+async def list_my_following_endpoint(
+    session: DbSession,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+    limit: int = Query(default=50, ge=1, le=100),
+) -> list[dict[str, Any]]:
+    user_id = _require_user(x_judge_user_id)
+    return await follows.list_following(session, user_id, limit=limit)
+
+
 @router.post("/runtime/judge/social/newsletter/subscribe")
 async def newsletter_subscribe_endpoint(
     session: DbSession,
@@ -480,6 +490,15 @@ async def notifications_read_endpoint(
 ) -> dict[str, bool]:
     user_id = _require_user(x_judge_user_id)
     return await notifications.mark_read(session, user_id, notification_id)
+
+
+@router.post("/runtime/judge/social/notifications/mark-all-read")
+async def notifications_mark_all_endpoint(
+    session: DbSession,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, int]:
+    user_id = _require_user(x_judge_user_id)
+    return await notifications.mark_all_read(session, user_id)
 
 
 @router.post("/runtime/judge/notifications/subscribe")

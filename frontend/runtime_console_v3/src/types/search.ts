@@ -4,6 +4,8 @@ export interface SearchFilters {
   set?: string;
   rarity?: string[];
   condition?: string[];
+  colors?: string[];
+  cardTypes?: string[];
   priceMin?: number;
   priceMax?: number;
   language?: string;

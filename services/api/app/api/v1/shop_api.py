@@ -75,6 +75,10 @@ class ReviewCreateBody(BaseModel):
     rating: int = Field(ge=1, le=5)
     comment: str | None = None
     photos: list[str] | None = None
+    recommend: bool | None = None
+    item_as_described: bool | None = None
+    shipping_speed: int | None = Field(default=None, ge=1, le=5)
+    communication: int | None = Field(default=None, ge=1, le=5)
 
 
 class ReviewEditBody(BaseModel):
@@ -505,6 +509,10 @@ async def create_shop_review(
         rating=body.rating,
         comment=body.comment,
         photos=body.photos,
+        recommend=body.recommend,
+        item_as_described=body.item_as_described,
+        shipping_speed=body.shipping_speed,
+        communication=body.communication,
     )
     return {"review": review}
 

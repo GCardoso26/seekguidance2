@@ -18,7 +18,7 @@ export function FollowButton({ playerId, initialFollowerCount = 0 }: Props) {
   const { data: stats } = useQuery({
     queryKey: ["follow-stats", playerId],
     queryFn: async () => {
-      const res = await fetch(`/api/social/follows/${encodeURIComponent(playerId)}/status`);
+      const res = await fetch(`/api/social/follows/${encodeURIComponent(playerId)}`);
       if (!res.ok) return { following: false, followerCount: initialFollowerCount };
       return res.json() as Promise<{ following: boolean; followerCount: number }>;
     },
