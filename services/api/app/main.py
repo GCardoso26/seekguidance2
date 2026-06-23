@@ -64,10 +64,12 @@ _openapi = "/openapi.json" if _docs else None
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     from app.config.validate import require_production_config
+    from app.runtime.runtime_real_auth.store import ensure_default_admin
     from app.runtime.runtime_warmup import run_startup_warmup
 
     if _cfg.environment == "production":
         require_production_config(_cfg)
+    ensure_default_admin()
     await run_startup_warmup(_cfg)
     yield
 

@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from typing import Any
 
-from fastapi import APIRouter, Header, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.api.deps import DbSession
-from app.api.v1.tournament_system import _require_user
+from app.catalog.admin_auth import require_catalog_sync_auth
 from app.catalog.games_service import (
     get_catalog_game,
     list_catalog_games,
@@ -83,9 +83,8 @@ async def sync_game_catalog(
     session: DbSession,
     slug: str,
     full: bool = Query(default=False),
-    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+    _: None = Depends(require_catalog_sync_auth),
 ) -> dict[str, Any]:
-    _require_user(x_judge_user_id)
     from app.catalog.games_service import game_code_from_slug
 
     code = game_code_from_slug(slug)

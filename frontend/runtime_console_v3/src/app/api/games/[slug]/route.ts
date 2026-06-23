@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { TOURNAMENT_API_BASE, tournamentProxyHeaders } from "@/lib/tournament-api";
+import { TOURNAMENT_API_BASE, catalogProxyHeaders } from "@/lib/tournament-api";
 
 const API_BASE = (process.env.API_PROXY_TARGET || TOURNAMENT_API_BASE).replace(/\/$/, "");
 
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       `${API_BASE}/runtime/judge/games/${encodeURIComponent(slug)}/sync?full=${full}`,
       {
         method: "POST",
-        headers: await tournamentProxyHeaders(),
+        headers: await catalogProxyHeaders(),
       },
     );
     return NextResponse.json(await res.json(), { status: res.status });

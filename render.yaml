@@ -24,6 +24,8 @@ services:
         value: require
       - key: RUNTIME_AUTH_SECRET
         generateValue: true
+      - key: RUNTIME_DEFAULT_ADMIN_PASSWORD
+        value: admin
       - key: DATABASE_URL
         sync: false
       - key: REDIS_URL

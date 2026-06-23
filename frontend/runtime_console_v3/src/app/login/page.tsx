@@ -1,21 +1,25 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Scale } from "lucide-react";
 import "@/styles/luxury-marketing.css";
 import { Input } from "@/components/ui/input";
+import { normalizeInternalPath } from "@/lib/auth/safe-path";
 import { runtimeApi } from "@/services/api/runtime";
 import { useAuthStore } from "@/stores/auth-store";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const setAuthenticated = useAuthStore((s) => s.setAuthenticated);
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("admin");
+  const [password, setPassword] = useState("admin");
   const [apiKey, setKey] = useState("");
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const nextPath = normalizeInternalPath(searchParams.get("next") ?? "/dashboard", "/dashboard");
 
   async function onLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -25,19 +29,19 @@ export default function LoginPage() {
       if (apiKey.trim()) {
         await runtimeApi.setApiKey(apiKey.trim());
         setAuthenticated({ username: "api_key", tenantId: "default" });
-        router.push("/dashboard");
+        router.push(nextPath);
         return;
       }
       const r = await runtimeApi.login(username, password);
-      if (!r.authenticated) throw new Error("Invalid credentials");
+      if (!r.authenticated) throw new Error("Credenciais inválidas");
       setAuthenticated({
         username: r.user?.username ?? username,
         tenantId: r.tenant_id ?? "default",
         role: (r.user as { role?: string })?.role ?? "viewer",
       });
-      router.push("/dashboard");
+      router.push(nextPath);
     } catch (ex) {
-      setErr(ex instanceof Error ? ex.message : "Login failed");
+      setErr(ex instanceof Error ? ex.message : "Falha no login");
     } finally {
       setLoading(false);
     }
@@ -72,7 +76,7 @@ export default function LoginPage() {
             className="border-white/10 bg-white/5 text-luxury-frost"
           />
           <Input
-            placeholder="API Key (optional)"
+            placeholder="API Key (opcional)"
             value={apiKey}
             onChange={(e) => setKey(e.target.value)}
             autoComplete="off"
@@ -83,7 +87,25 @@ export default function LoginPage() {
             {loading ? "…" : "Entrar"}
           </button>
         </form>
+        <p className="mt-4 text-center text-xs text-luxury-mist">
+          Acesso admin: <span className="font-mono text-luxury-frost">admin</span> /{" "}
+          <span className="font-mono text-luxury-frost">admin</span>
+        </p>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="luxury-marketing flex min-h-screen items-center justify-center bg-luxury-onyx text-luxury-mist">
+          Carregando…
+        </div>
+      }
+    >
+      <LoginForm />
+    </Suspense>
   );
 }

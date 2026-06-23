@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from typing import Any
 
-from fastapi import APIRouter, Header, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.api.deps import DbSession
-from app.api.v1.tournament_system import _require_user
+from app.catalog.admin_auth import require_catalog_sync_auth
 from app.catalog.detail_service import get_card_detail, get_price_history
 from app.catalog.health import verify_ingestion
 from app.catalog.pipeline import run_full_ingestion, run_game_sync
@@ -102,9 +102,8 @@ async def catalog_card_price_history(
 async def catalog_sync_all(
     session: DbSession,
     full: bool = Query(default=False),
-    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+    _: None = Depends(require_catalog_sync_auth),
 ) -> dict[str, Any]:
-    _require_user(x_judge_user_id)
     return await run_full_ingestion(session, full=full)
 
 
@@ -113,9 +112,8 @@ async def catalog_sync_game(
     session: DbSession,
     game_code: str,
     full: bool = Query(default=False),
-    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+    _: None = Depends(require_catalog_sync_auth),
 ) -> dict[str, Any]:
-    _require_user(x_judge_user_id)
     result = await run_game_sync(session, game_code, full=full)
     if result.get("status") == "error" and "não suportado" in str(result.get("message", "")):
         raise HTTPException(400, str(result.get("message")))
