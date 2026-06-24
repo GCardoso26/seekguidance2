@@ -6,7 +6,12 @@ export type GameId =
   | "ONEPIECE"
   | "FAB"
   | "DIGIMON"
-  | "SWU";
+  | "SWU"
+  | "RIFTBOUND"
+  | "SORCERY"
+  | "UARENA"
+  | "DBFW"
+  | "VANGUARD";
 
 export type Rarity = "common" | "uncommon" | "rare" | "mythic" | "special";
 

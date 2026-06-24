@@ -65,13 +65,50 @@ export const GAME_TOKENS: Record<GameId, GameToken> = {
     name: "Star Wars: Unlimited",
     slug: "swu",
   },
+  RIFTBOUND: {
+    primary: "#C89B3C",
+    secondary: "#0A1428",
+    logo: "/logos/riftbound.svg",
+    name: "Riftbound",
+    slug: "riftbound",
+  },
+  SORCERY: {
+    primary: "#7C3AED",
+    secondary: "#1E1B4B",
+    logo: "/logos/sorcery.svg",
+    name: "Sorcery: Contested Realms",
+    slug: "sorcery",
+  },
+  UARENA: {
+    primary: "#2563EB",
+    secondary: "#1E3A8A",
+    logo: "/logos/union-arena.svg",
+    name: "Union Arena",
+    slug: "union-arena",
+  },
+  DBFW: {
+    primary: "#F97316",
+    secondary: "#1F2937",
+    logo: "/logos/dbfw.svg",
+    name: "Dragon Ball Fusion World",
+    slug: "dbfw",
+  },
+  VANGUARD: {
+    primary: "#22D3EE",
+    secondary: "#155E75",
+    logo: "/logos/vanguard.svg",
+    name: "Cardfight!! Vanguard",
+    slug: "vanguard",
+  },
 };
 
 export const ALL_GAME_IDS = Object.keys(GAME_TOKENS) as GameId[];
 
 export function gameIdFromSlug(slug: string): GameId | null {
   const normalized = slug.toLowerCase().replace(/-/g, "");
-  const entry = ALL_GAME_IDS.find((id) => GAME_TOKENS[id].slug === normalized);
+  const entry = ALL_GAME_IDS.find(
+    (id) => GAME_TOKENS[id].slug.replace(/-/g, "") === normalized,
+  );
   return entry ?? null;
 }
 

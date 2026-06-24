@@ -3,10 +3,35 @@
 import Link from "next/link";
 import { Layers, ShoppingBag } from "lucide-react";
 import { CatalogMarketplaceSection } from "@/components/home/CatalogMarketplaceSection";
+import { GlobalSearchBar } from "@/components/home/GlobalSearchBar";
 import { MobileLayout } from "@/components/layout/MobileLayout";
+import { PriceTrendCard } from "@/components/marketplace/PriceTrendCard";
+import { FeaturedSellerCard } from "@/components/marketplace/FeaturedSellerCard";
 import { Button } from "@/components/ui/button";
+import { useCatalogHealth } from "@/hooks/useCatalogHealth";
+import { mapHealthToGames } from "@/lib/catalog-games";
+import { gameSlugFromId } from "@/lib/tcg-tokens";
+import type { GameId } from "@/types/card";
+import Image from "next/image";
+
+const PLACEHOLDER_TRENDS = [
+  { cardId: "1", name: "Lightning Bolt", setName: "Modern Horizons 3", change7d: 12.4 },
+  { cardId: "2", name: "Charizard ex", setName: "Obsidian Flames", change7d: -8.2 },
+  { cardId: "3", name: "Sol Ring", setName: "Commander Masters", change7d: 5.1 },
+];
+
+const PLACEHOLDER_SELLERS = [
+  { id: "demo-1", shopName: "TCG Brasil", rating: 4.9, specialties: ["Magic", "Pokémon"], listingCount: 1200 },
+  { id: "demo-2", shopName: "Card House SP", rating: 4.7, specialties: ["Yu-Gi-Oh!", "Lorcana"], listingCount: 850 },
+  { id: "demo-3", shopName: "Mesa dos Judges", rating: 4.8, specialties: ["FaB", "One Piece"], listingCount: 420 },
+  { id: "demo-4", shopName: "Rift Cards", rating: 4.6, specialties: ["Riftbound", "Vanguard"], listingCount: 310 },
+];
 
 function MarketplaceHero() {
+  const { data: health } = useCatalogHealth();
+  const totalCards = health?.total_cards ?? 50000;
+  const gameCount = mapHealthToGames(health).filter((g) => g.isAvailable).length || 13;
+
   return (
     <section className="relative overflow-hidden border-b border-white/10 bg-gradient-to-b from-luxury-gold/10 to-luxury-onyx pb-12 pt-8">
       <div className="container mx-auto px-4 text-center">
@@ -14,11 +39,22 @@ function MarketplaceHero() {
           Marketplace · 0% comissão · PIX direto
         </p>
         <h1 className="text-3xl font-bold tracking-tight text-luxury-frost md:text-5xl">
-          A maior loja de TCGs do Brasil
+          O maior marketplace de TCGs do Brasil
         </h1>
         <p className="mx-auto mt-4 max-w-2xl text-base text-luxury-mist md:text-lg">
-          Magic, Pokémon, Yu-Gi-Oh!, Lorcana e mais. Compre, venda e monte decks com segurança.
+          Magic, Pokémon, Yu-Gi-Oh!, Lorcana, Riftbound, Vanguard e mais. Compre, venda e monte decks com segurança.
         </p>
+
+        <div className="mx-auto mt-8 max-w-2xl">
+          <GlobalSearchBar placeholder="Busque por card, seller ou deck…" />
+        </div>
+
+        <div className="mt-6 flex flex-wrap justify-center gap-6 text-sm text-luxury-mist">
+          <span>{totalCards.toLocaleString("pt-BR")}+ cartas</span>
+          <span>{gameCount} jogos</span>
+          <span>Compra garantida</span>
+        </div>
+
         <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Button size="lg" asChild className="bg-luxury-gold text-luxury-onyx hover:bg-luxury-gold/90">
             <Link href="/loja/busca">
@@ -33,10 +69,66 @@ function MarketplaceHero() {
             </Link>
           </Button>
         </div>
-        <div className="mt-6 flex flex-wrap justify-center gap-6 text-sm text-luxury-mist">
-          <span>50.000+ cartas</span>
-          <span>200+ vendedores</span>
-          <span>Compra garantida</span>
+      </div>
+    </section>
+  );
+}
+
+function PopularGamesSection() {
+  const { data: health } = useCatalogHealth();
+  const games = mapHealthToGames(health).filter((g) => g.isAvailable);
+
+  return (
+    <section className="container mx-auto px-4 py-8">
+      <h2 className="mb-4 text-xl font-bold text-luxury-frost">Jogos populares</h2>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7">
+        {games.map((game) => (
+          <Link
+            key={game.id}
+            href={`/loja/${gameSlugFromId(game.id as GameId)}`}
+            className="flex flex-col items-center gap-2 rounded-xl border border-white/10 bg-luxury-obsidian/50 p-4 transition hover:border-luxury-gold/30 hover:shadow-lg"
+          >
+            <Image src={game.logoUrl} alt="" width={48} height={48} className="h-12 w-12 object-contain" />
+            <span className="text-center text-sm font-medium">{game.name}</span>
+            {game.cardCount > 0 && (
+              <span className="text-xs text-luxury-mist">{game.cardCount.toLocaleString("pt-BR")}</span>
+            )}
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function PriceTrendsSection() {
+  return (
+    <section className="border-t border-white/10 py-8">
+      <div className="container mx-auto px-4">
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-xl font-bold text-luxury-frost">📈 Tendências de preço</h2>
+          <Link href="/loja/tendencias" className="text-sm text-luxury-gold hover:underline">
+            Ver todas →
+          </Link>
+        </div>
+        <div className="grid gap-4 md:grid-cols-3">
+          {PLACEHOLDER_TRENDS.map((trend) => (
+            <PriceTrendCard key={trend.cardId} trend={trend} />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function FeaturedSellersSection() {
+  return (
+    <section className="border-t border-white/10 bg-luxury-obsidian/30 py-8">
+      <div className="container mx-auto px-4">
+        <h2 className="mb-4 text-xl font-bold text-luxury-frost">🏪 Lojas em destaque</h2>
+        <div className="grid gap-4 md:grid-cols-4">
+          {PLACEHOLDER_SELLERS.map((seller) => (
+            <FeaturedSellerCard key={seller.id} seller={seller} />
+          ))}
         </div>
       </div>
     </section>
@@ -96,7 +188,10 @@ export function MarketplaceFirstLanding() {
   return (
     <MobileLayout>
       <MarketplaceHero />
+      <PopularGamesSection />
       <CatalogMarketplaceSection />
+      <PriceTrendsSection />
+      <FeaturedSellersSection />
       <LigaPassTeaser />
       <CommunityTeaser />
       <TournamentsTeaser />

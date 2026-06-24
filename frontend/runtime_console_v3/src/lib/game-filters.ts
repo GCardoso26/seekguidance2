@@ -43,6 +43,28 @@ export const gameFilters: Record<string, FilterConfig> = {
   digimon: {
     types: ["Digimon", "Tamer", "Option", "Digi-Egg"],
   },
+  swu: {
+    types: ["Leader", "Base", "Unit", "Event", "Upgrade"],
+  },
+  riftbound: {
+    types: ["Unit", "Spell", "Gear", "Champion", "Battlefield"],
+    rarities: ["common", "uncommon", "rare", "epic", "legendary"],
+  },
+  sorcery: {
+    types: ["Minion", "Avatar", "Artifact", "Site", "Aura", "Magic"],
+    rarities: ["Ordinary", "Exceptional", "Elite", "Unique"],
+  },
+  "union-arena": {
+    types: ["Character", "Event", "Site"],
+  },
+  dbfw: {
+    types: ["Leader", "Battle", "Extra"],
+    rarities: ["Common", "Uncommon", "Rare", "Super Rare", "Secret Rare"],
+  },
+  vanguard: {
+    types: ["Normal Unit", "Trigger Unit", "G Unit", "Order"],
+    rarities: ["C", "R", "RR", "RRR", "SP", "SCR"],
+  },
 };
 
 /** Configuração estendida para filtros avançados na loja (por slug de jogo). */
@@ -69,5 +91,30 @@ export const advancedFilters: Record<
     ...gameFilters.yugioh,
     conditions: ["NM", "LP", "MP", "HP", "DMG"],
     priceRange: { min: 0, max: 10000 },
+  },
+  riftbound: {
+    ...gameFilters.riftbound,
+    conditions: ["NM", "LP", "MP", "HP", "DMG"],
+    priceRange: { min: 0, max: 5000 },
+  },
+  sorcery: {
+    ...gameFilters.sorcery,
+    conditions: ["NM", "LP", "MP", "HP", "DMG"],
+    priceRange: { min: 0, max: 5000 },
+  },
+  "union-arena": {
+    ...gameFilters["union-arena"],
+    conditions: ["NM", "LP", "MP", "HP", "DMG"],
+    priceRange: { min: 0, max: 5000 },
+  },
+  dbfw: {
+    ...gameFilters.dbfw,
+    conditions: ["NM", "LP", "MP", "HP", "DMG"],
+    priceRange: { min: 0, max: 5000 },
+  },
+  vanguard: {
+    ...gameFilters.vanguard,
+    conditions: ["NM", "LP", "MP", "HP", "DMG"],
+    priceRange: { min: 0, max: 5000 },
   },
 };

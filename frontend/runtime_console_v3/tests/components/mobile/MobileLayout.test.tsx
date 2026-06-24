@@ -28,6 +28,10 @@ vi.mock("@/components/cart/CartHeaderButton", () => ({
   CartHeaderButton: () => null,
 }));
 
+vi.mock("@/hooks/useCatalogHealth", () => ({
+  useCatalogHealth: () => ({ data: null, isLoading: false, isError: false }),
+}));
+
 function renderLayout() {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(

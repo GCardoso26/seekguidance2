@@ -71,6 +71,45 @@ const GAME_CONFIG: Partial<Record<GameId, GameConfig>> = {
     filters: ["set", "rarity", "type", "price"],
     typeLabel: "Tipo",
   },
+  SWU: {
+    code: "SWU",
+    slug: "swu",
+    filters: ["set", "rarity", "type", "price"],
+    typeLabel: "Tipo",
+  },
+  RIFTBOUND: {
+    code: "RIFTBOUND",
+    slug: "riftbound",
+    filters: ["set", "rarity", "type", "price"],
+    colorLabel: "Domínios",
+    typeLabel: "Tipo",
+  },
+  SORCERY: {
+    code: "SORCERY",
+    slug: "sorcery",
+    filters: ["set", "rarity", "type", "price"],
+    colorLabel: "Elemento",
+    typeLabel: "Tipo",
+  },
+  UARENA: {
+    code: "UARENA",
+    slug: "union-arena",
+    filters: ["set", "rarity", "type", "price"],
+    typeLabel: "Tipo",
+  },
+  DBFW: {
+    code: "DBFW",
+    slug: "dbfw",
+    filters: ["set", "rarity", "type", "price"],
+    colorLabel: "Cor",
+    typeLabel: "Tipo",
+  },
+  VANGUARD: {
+    code: "VANGUARD",
+    slug: "vanguard",
+    filters: ["set", "rarity", "type", "price"],
+    typeLabel: "Clã",
+  },
 };
 
 export function getGameConfig(gameId: GameId): GameConfig {
@@ -110,4 +149,10 @@ export const DEFAULT_GAME_ORDER = [
   "onepiece",
   "fab",
   "digimon",
+  "swu",
+  "riftbound",
+  "sorcery",
+  "union-arena",
+  "dbfw",
+  "vanguard",
 ] as const;

@@ -81,6 +81,35 @@ const nextConfig = {
       { protocol: "https", hostname: "**.scryfall.io" },
       { protocol: "https", hostname: "tcg-judge.com" },
       { protocol: "https", hostname: "judgetcg.com.br" },
+      // Lorcana API
+      { protocol: "https", hostname: "lorcana-api.com" },
+      // Star Wars Unlimited
+      { protocol: "https", hostname: "cdn.swu-db.com" },
+      { protocol: "https", hostname: "**.swu-db.com" },
+      // Riftbound
+      { protocol: "https", hostname: "cmsassets.rgpub.io" },
+      { protocol: "https", hostname: "**.tcggo.com" },
+      { protocol: "https", hostname: "images.tcggo.com" },
+      { protocol: "https", hostname: "riftscribe.gg" },
+      { protocol: "https", hostname: "**.riftscribe.gg" },
+      // Sorcery
+      { protocol: "https", hostname: "cards.sorcerytcg.com" },
+      { protocol: "https", hostname: "**.sorcerytcg.com" },
+      { protocol: "https", hostname: "**.curiosa.io" },
+      // Union Arena
+      { protocol: "https", hostname: "**.unionarena-tcg.com" },
+      { protocol: "https", hostname: "unionarena-tcg.com" },
+      { protocol: "https", hostname: "**.apitcg.com" },
+      // DB Fusion World
+      { protocol: "https", hostname: "**.dbs-cardgame.com" },
+      { protocol: "https", hostname: "dbs-cardgame.com" },
+      { protocol: "https", hostname: "**.justtcg.com" },
+      // Cardfight Vanguard
+      { protocol: "https", hostname: "**.vanguardcard.io" },
+      { protocol: "https", hostname: "vanguardcard.io" },
+      // Fallbacks CDN
+      { protocol: "https", hostname: "**.cloudfront.net" },
+      { protocol: "https", hostname: "tcgplayer-cdn.tcgplayer.com" },
     ],
   },
   async headers() {

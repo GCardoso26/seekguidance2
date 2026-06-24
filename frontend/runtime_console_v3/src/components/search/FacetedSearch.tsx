@@ -2,8 +2,11 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { LayoutGrid, List } from "lucide-react";
 import { CardGrid } from "@/components/cards/CardGrid";
+import { QuickViewModal } from "@/components/cards/QuickViewModal";
 import { SearchFiltersPanel } from "@/components/search/SearchFiltersPanel";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   filtersFromSearchParams,
@@ -25,7 +28,6 @@ export function FacetedSearch({
   initialGame,
   initialQuery,
   searchBasePath = "/loja/busca",
-  cardDetailPath = "/loja/cartas",
 }: FacetedSearchProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -38,6 +40,8 @@ export function FacetedSearch({
   }));
 
   const [debouncedQ, setDebouncedQ] = useState(filters.q ?? "");
+  const [quickViewCardId, setQuickViewCardId] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const { track } = useAnalytics();
 
   useEffect(() => {
@@ -129,21 +133,46 @@ export function FacetedSearch({
               {isLoading && cards.length === 0 ? "Carregando…" : `${total.toLocaleString("pt-BR")} resultados`}
             </p>
 
-            <select
-              value={filters.sortBy ?? "relevance"}
-              onChange={(e) =>
-                updateFilters({ sortBy: e.target.value as SearchFilters["sortBy"] })
-              }
-              className="min-h-11 rounded-md border border-border bg-background px-3 py-2 text-sm"
-              aria-label="Ordenar resultados"
-            >
-              <option value="relevance">Relevância</option>
-              <option value="price_asc">Preço: menor → maior</option>
-              <option value="price_desc">Preço: maior → menor</option>
-              <option value="name_asc">Nome: A → Z</option>
-              <option value="name_desc">Nome: Z → A</option>
-              <option value="newest">Mais recentes</option>
-            </select>
+            <div className="flex items-center gap-2">
+              <select
+                value={filters.sortBy ?? "relevance"}
+                onChange={(e) =>
+                  updateFilters({ sortBy: e.target.value as SearchFilters["sortBy"] })
+                }
+                className="min-h-11 rounded-md border border-border bg-background px-3 py-2 text-sm"
+                aria-label="Ordenar resultados"
+              >
+                <option value="relevance">Relevância</option>
+                <option value="price_asc">Preço: menor → maior</option>
+                <option value="price_desc">Preço: maior → menor</option>
+                <option value="name_asc">Nome: A → Z</option>
+                <option value="name_desc">Nome: Z → A</option>
+                <option value="newest">Mais recentes</option>
+              </select>
+
+              <div className="flex rounded-md border border-border">
+                <Button
+                  type="button"
+                  variant={viewMode === "grid" ? "default" : "ghost"}
+                  size="sm"
+                  className="min-h-11"
+                  onClick={() => setViewMode("grid")}
+                  aria-label="Visualização em grade"
+                >
+                  <LayoutGrid className="h-4 w-4" />
+                </Button>
+                <Button
+                  type="button"
+                  variant={viewMode === "list" ? "default" : "ghost"}
+                  size="sm"
+                  className="min-h-11"
+                  onClick={() => setViewMode("list")}
+                  aria-label="Visualização em lista"
+                >
+                  <List className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
           </div>
 
           {isError && (
@@ -154,15 +183,22 @@ export function FacetedSearch({
 
           <CardGrid
             cards={cards}
+            viewMode={viewMode}
             isLoading={isLoading || isFetchingNextPage}
             hasMore={Boolean(hasNextPage)}
             onLoadMore={() => fetchNextPage()}
-            onViewDetail={(id) => router.push(`${cardDetailPath}/${id}`)}
+            onViewDetail={(id) => setQuickViewCardId(id)}
             onAddToDeck={(card) => router.push(`/decks?add=${card.id}`)}
-            onAddToCart={() => router.push("/marketplace")}
+            onAddToCart={() => router.push("/carrinho")}
           />
         </div>
       </div>
+
+      <QuickViewModal
+        cardId={quickViewCardId}
+        isOpen={Boolean(quickViewCardId)}
+        onClose={() => setQuickViewCardId(null)}
+      />
     </div>
   );
 }
