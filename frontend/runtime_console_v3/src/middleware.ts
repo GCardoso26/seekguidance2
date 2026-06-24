@@ -71,16 +71,15 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // /perfil/* — auth no cliente (evita redirect para /judge = "Mesa de Regras")
   const needsAuth =
     pathname === "/player/me" ||
     pathname.startsWith("/player/me/") ||
-    pathname === "/perfil" ||
-    pathname.startsWith("/perfil/") ||
     (pathname.startsWith("/social/communities") && pathname.includes("/posts/"));
 
   if (needsAuth && !hasSupabaseSession(request)) {
-    const login = new URL("/judge", request.url);
-    login.searchParams.set("redirect", pathname);
+    const login = new URL("/login", request.url);
+    login.searchParams.set("next", pathname);
     return NextResponse.redirect(login);
   }
 
@@ -98,8 +97,6 @@ export const config = {
     "/onboarding",
     "/player/me",
     "/player/me/:path*",
-    "/perfil",
-    "/perfil/:path*",
     "/social/communities/:path*/posts/:path*",
     "/observability/:path*",
     "/admin/:path*",

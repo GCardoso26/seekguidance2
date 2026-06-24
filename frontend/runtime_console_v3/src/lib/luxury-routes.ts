@@ -23,6 +23,12 @@ const PREFIX_EXCLUDE = [
 
 /** App pages: header luxury, sem footer (MobileLayout ou conteúdo próprio). */
 const PREFIX_MINIMAL = [
+  "/perfil",
+  "/loja",
+  "/vendedor",
+  "/carrinho",
+  "/checkout",
+  "/decks",
   "/player",
   "/social",
   "/marketplace",

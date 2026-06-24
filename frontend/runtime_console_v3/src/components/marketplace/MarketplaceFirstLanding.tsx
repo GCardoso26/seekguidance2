@@ -135,6 +135,55 @@ function FeaturedSellersSection() {
   );
 }
 
+function WhyJudgeSection() {
+  const items = [
+    { icon: "🛡️", title: "Checkout seguro", text: "Proteção ao comprador com checkout atômico e estoque reservado." },
+    { icon: "⭐", title: "Avaliações verificadas", text: "Reviews após entrega para confiança real entre compradores e vendedores." },
+    { icon: "🎴", title: "Deckbuilder integrado", text: "Monte decks e encontre cards faltantes no marketplace." },
+    { icon: "🎮", title: "13 TCGs suportados", text: "Do Magic ao Vanguard, tudo em um só lugar." },
+  ];
+
+  return (
+    <section className="border-t border-white/10 py-12">
+      <div className="container mx-auto max-w-4xl px-4">
+        <h2 className="text-center text-2xl font-bold text-luxury-frost">Por que o Judge TCG?</h2>
+        <div className="mt-8 grid gap-6 md:grid-cols-2">
+          {items.map((item) => (
+            <div key={item.title} className="flex gap-4 rounded-xl border border-white/10 bg-white/5 p-4">
+              <span className="text-3xl" aria-hidden>
+                {item.icon}
+              </span>
+              <div>
+                <h3 className="font-semibold text-luxury-frost">{item.title}</h3>
+                <p className="mt-1 text-sm text-luxury-mist">{item.text}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function FinalCtaSection() {
+  return (
+    <section className="border-t border-white/10 py-16">
+      <div className="container mx-auto max-w-2xl px-4 text-center">
+        <h2 className="text-2xl font-bold text-luxury-frost">Comece agora</h2>
+        <p className="mt-2 text-luxury-mist">Explore o catálogo ou comece a vender suas cartas hoje.</p>
+        <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
+          <Button size="lg" asChild className="bg-luxury-gold text-luxury-onyx">
+            <Link href="/loja/busca">Explorar cards</Link>
+          </Button>
+          <Button size="lg" variant="outline" asChild className="border-luxury-gold/30">
+            <Link href="/vendedor/painel/listagens/nova">Vender cards</Link>
+          </Button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function LigaPassTeaser() {
   return (
     <section className="container mx-auto px-4 py-12">
@@ -192,6 +241,8 @@ export function MarketplaceFirstLanding() {
       <CatalogMarketplaceSection />
       <PriceTrendsSection />
       <FeaturedSellersSection />
+      <WhyJudgeSection />
+      <FinalCtaSection />
       <LigaPassTeaser />
       <CommunityTeaser />
       <TournamentsTeaser />

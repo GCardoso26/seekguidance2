@@ -53,8 +53,11 @@ class SmokeTest:
         tests = [
             self.test_api_health,
             self.test_catalog_health,
+            self.test_catalog_image_coverage,
             self.test_bff_health,
             self.test_frontend_home,
+            self.test_landing_marketplace,
+            self.test_perfil_no_rules_table,
             self.test_frontend_search,
             self.test_frontend_loja,
             self.test_game_hub,
@@ -222,6 +225,70 @@ class SmokeTest:
             expected_status=(200, 307),
             expected_in_body="Judge TCG",
         )
+
+    def test_landing_marketplace(self) -> bool:
+        return self._check(
+            "Landing Marketplace Content",
+            CONFIG["frontend"],
+            expected_status=200,
+            expected_in_body="marketplace de TCGs",
+        )
+
+    def test_perfil_no_rules_table(self) -> bool:
+        """Páginas de perfil não devem redirecionar para Mesa de Regras."""
+        ok = True
+        for path in ("/perfil", "/perfil/colecao", "/perfil/seguidos"):
+            try:
+                resp = requests.get(
+                    f"{CONFIG['frontend']}{path}",
+                    timeout=CONFIG["timeout"],
+                    allow_redirects=True,
+                )
+                if resp.status_code != 200:
+                    ok = False
+                    print(f"  {_mark(False)} Perfil {path} — status {resp.status_code}")
+                    continue
+                if "Mesa de Regras ·" in resp.text:
+                    ok = False
+                    print(f"  {_mark(False)} Perfil {path} — contém 'Mesa de Regras'")
+                else:
+                    print(f"  {_mark(True)} Perfil {path}")
+            except Exception as exc:
+                ok = False
+                print(f"  {_mark(False)} Perfil {path} — {exc}")
+        if ok:
+            self.passed += 1
+        else:
+            self.failed += 1
+        return ok
+
+    def test_catalog_image_coverage(self) -> bool:
+        try:
+            resp = requests.get(
+                f"{CONFIG['api']}/runtime/judge/catalog/health",
+                timeout=CONFIG["timeout"],
+            )
+            if resp.status_code != 200:
+                self.failed += 1
+                print(f"  {_mark(False)} Catalog Image Coverage — HTTP {resp.status_code}")
+                return False
+            data = resp.json()
+            total = int(data.get("total_cards") or 0)
+            missing = sum(int(m.get("count") or 0) for m in data.get("missing_images") or [])
+            with_image = max(0, total - missing)
+            coverage = (with_image / total * 100) if total else 0
+            ok = total > 1000 and coverage >= 90
+            if ok:
+                self.passed += 1
+                print(f"  {_mark(True)} Catalog Image Coverage ({coverage:.1f}% — {with_image}/{total})")
+            else:
+                self.failed += 1
+                print(f"  {_mark(False)} Catalog Image Coverage ({coverage:.1f}% — {with_image}/{total})")
+            return ok
+        except Exception as exc:
+            self.failed += 1
+            print(f"  {_mark(False)} Catalog Image Coverage — {exc}")
+            return False
 
     def test_frontend_search(self) -> bool:
         return self._check(

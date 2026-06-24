@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import { CollectionFilters } from "@/components/collection/CollectionFilters";
 import { CollectionGrid } from "@/components/collection/CollectionGrid";
@@ -17,7 +16,6 @@ import {
 import { filterCollectionItems, sortCollectionItems, type CollectionSort } from "@/lib/collection";
 
 export default function ColecaoPage() {
-  const router = useRouter();
   const { user, loading } = useJudgeAuth();
   const { data: items = [], isLoading } = useUserCollection();
   const removeItem = useRemoveCollectionItem();
@@ -38,8 +36,20 @@ export default function ColecaoPage() {
   }, [items, q, game, condition, foil, sort]);
 
   if (!loading && !user) {
-    router.push("/login?next=/perfil/colecao");
-    return null;
+    return (
+      <MobileLayout>
+        <div className="container mx-auto max-w-md px-4 py-16 text-center">
+          <h1 className="text-2xl font-bold text-luxury-frost">Minha Coleção</h1>
+          <p className="mt-2 text-sm text-luxury-mist">Entre com sua conta para ver e gerenciar sua coleção.</p>
+          <Link
+            href="/judge"
+            className="mt-6 inline-block rounded-lg bg-luxury-gold px-6 py-2.5 text-sm font-semibold text-luxury-onyx"
+          >
+            Entrar com Google
+          </Link>
+        </div>
+      </MobileLayout>
+    );
   }
 
   return (
