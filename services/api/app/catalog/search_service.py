@@ -302,6 +302,49 @@ async def search_catalog_cards(
     }
 
 
+async def get_catalog_price_trends(
+    session: AsyncSession,
+    *,
+    limit: int = 6,
+    game: str | None = None,
+) -> list[dict[str, Any]]:
+    """Cartas com maior variação de preço (7d) ou fallback por busca icônica."""
+    limit = max(1, min(limit, 20))
+    collected: list[dict[str, Any]] = []
+
+    batch = await search_catalog_cards(
+        session,
+        q="",
+        game=game,
+        sort="newest",
+        page=1,
+        limit=60,
+    )
+    for card in batch.get("cards") or []:
+        if card.get("priceTrend7d") is not None:
+            collected.append(card)
+
+    if len(collected) < limit:
+        for query in ("Lightning Bolt", "Charizard", "Luffy", "Elsa", "Sol Ring"):
+            extra = await search_catalog_cards(session, q=query, game=game, limit=3, page=1)
+            for card in extra.get("cards") or []:
+                if card.get("id") and not any(c.get("id") == card.get("id") for c in collected):
+                    collected.append(card)
+
+    collected.sort(key=lambda c: abs(float(c.get("priceTrend7d") or 0)), reverse=True)
+    unique: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for card in collected:
+        cid = str(card.get("id") or "")
+        if not cid or cid in seen:
+            continue
+        seen.add(cid)
+        unique.append(card)
+        if len(unique) >= limit:
+            break
+    return unique
+
+
 async def list_catalog_sets(session: AsyncSession, *, game: str | None = None) -> list[dict[str, str]]:
     sql = """
         SELECT set_code AS code, MAX(set_name) AS name, COUNT(*) AS card_count

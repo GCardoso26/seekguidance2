@@ -237,3 +237,59 @@ async def get_seller_stats(
         "top_selling_cards": [],
         "sales_by_game": [],
     }
+
+
+async def list_featured_sellers(session: AsyncSession, *, limit: int = 6) -> list[dict[str, Any]]:
+    """Lojas com mais listagens ativas e melhor avaliação."""
+    limit = max(1, min(limit, 12))
+    rows = (
+        await session.execute(
+            text(
+                """
+                SELECT
+                  pp.id,
+                  COALESCE(s.name, pp.display_name, pp.handle) AS shop_name,
+                  pp.avatar_url,
+                  COALESCE(s.average_rating, 0)::float AS rating_average,
+                  COALESCE(s.review_count, 0)::int AS rating_count,
+                  COALESCE(lc.cnt, 0)::int AS listing_count,
+                  COALESCE(sc.sales, 0)::int AS total_sales
+                FROM tcg_judge.player_profiles pp
+                LEFT JOIN tcg_judge.stores s ON s.owner_id = pp.id
+                LEFT JOIN LATERAL (
+                  SELECT COUNT(*)::int AS cnt
+                  FROM tcg_judge.card_listings cl
+                  WHERE cl.seller_id = pp.id AND cl.status = 'active'
+                ) lc ON TRUE
+                LEFT JOIN LATERAL (
+                  SELECT COUNT(*)::int AS sales
+                  FROM tcg_judge.shop_orders o
+                  JOIN tcg_judge.stores st ON st.id = o.store_id
+                  WHERE st.owner_id = pp.id
+                    AND o.status IN ('paid','processing','shipped','delivered')
+                ) sc ON TRUE
+                WHERE COALESCE(lc.cnt, 0) > 0 OR COALESCE(s.review_count, 0) > 0
+                ORDER BY rating_average DESC NULLS LAST, listing_count DESC, total_sales DESC
+                LIMIT :lim
+                """
+            ),
+            {"lim": limit},
+        )
+    ).mappings().all()
+
+    featured: list[dict[str, Any]] = []
+    for row in rows:
+        listing_count = int(row["listing_count"] or 0)
+        featured.append(
+            {
+                "id": str(row["id"]),
+                "shop_name": str(row["shop_name"] or "Loja"),
+                "avatar_url": row.get("avatar_url"),
+                "rating_average": float(row["rating_average"] or 0),
+                "rating_count": int(row["rating_count"] or 0),
+                "listing_count": listing_count,
+                "total_sales": int(row["total_sales"] or 0),
+                "specialties": [],
+            }
+        )
+    return featured

@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from datetime import UTC, datetime
+
 from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.api.deps import DbSession
@@ -13,7 +15,7 @@ from app.catalog.detail_service import get_card_detail, get_price_history
 from app.catalog.health import verify_ingestion
 from app.catalog.pipeline import run_full_ingestion, run_game_sync
 from app.catalog.search_index import meili_enabled
-from app.catalog.search_service import list_catalog_sets, search_catalog_cards
+from app.catalog.search_service import get_catalog_price_trends, list_catalog_sets, search_catalog_cards
 
 router = APIRouter(tags=["card-catalog"])
 
@@ -69,6 +71,16 @@ async def catalog_search_cards(
         page=page,
         limit=limit,
     )
+
+
+@router.get("/runtime/judge/catalog/trends")
+async def catalog_price_trends(
+    session: DbSession,
+    game: str | None = Query(default=None),
+    limit: int = Query(default=6, ge=1, le=20),
+) -> dict[str, Any]:
+    trends = await get_catalog_price_trends(session, limit=limit, game=game)
+    return {"trends": trends, "period": "7d", "generated_at": datetime.now(UTC).isoformat()}
 
 
 @router.get("/runtime/judge/catalog/cards/{card_id}")

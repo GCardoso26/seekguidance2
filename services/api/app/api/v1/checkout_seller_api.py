@@ -8,7 +8,9 @@ from app.api.deps import DbSession
 from app.api.v1.tournament_system import _require_user
 from app.marketplace import checkout_atomic
 from app.marketplace import seller_service as seller_svc
-from fastapi import APIRouter, Header
+from datetime import UTC, datetime
+
+from fastapi import APIRouter, Header, Query
 from pydantic import BaseModel
 
 checkout_router = APIRouter(tags=["checkout-atomic"])
@@ -78,6 +80,15 @@ async def checkout_cancel(
 async def checkout_expire_stale(session: DbSession) -> dict[str, Any]:
     count = await checkout_atomic.expire_stale_sessions(session)
     return {"expired": count}
+
+
+@seller_router.get("/runtime/judge/sellers/featured")
+async def sellers_featured(
+    session: DbSession,
+    limit: int = Query(default=6, ge=1, le=12),
+) -> dict[str, Any]:
+    shops = await seller_svc.list_featured_sellers(session, limit=limit)
+    return {"shops": shops, "generated_at": datetime.now(UTC).isoformat()}
 
 
 @seller_router.get("/runtime/judge/sellers/{seller_id}/profile")
