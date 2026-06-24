@@ -1,7 +1,9 @@
-/** Rotas que não recebem o shell luxury (mesa judge, ops, auth técnico). */
+/** Rotas que não recebem o shell luxury (app shell próprio ou ops). */
 const EXACT_EXCLUDE = new Set([
+  "/",
   "/judge",
   "/login",
+  "/entrar",
   "/auth/callback",
 ]);
 
@@ -19,10 +21,6 @@ const PREFIX_EXCLUDE = [
   "/overlay",
   "/auth/",
   "/judge/",
-];
-
-/** App pages: header luxury, sem footer (MobileLayout ou conteúdo próprio). */
-const PREFIX_MINIMAL = [
   "/perfil",
   "/loja",
   "/vendedor",
@@ -32,8 +30,6 @@ const PREFIX_MINIMAL = [
   "/player",
   "/social",
   "/marketplace",
-  "/marketplace/cart",
-  "/checkout",
   "/catalog",
   "/games",
   "/cards",
@@ -45,18 +41,17 @@ const PREFIX_MINIMAL = [
   "/search",
   "/settings",
   "/payment",
-  "/pricing",
-  "/privacidade",
   "/onboarding",
+  "/comunidade",
+  "/notifications",
 ];
 
 export type LuxuryShellVariant = "full" | "minimal" | "none";
 
 export function getLuxuryShellVariant(pathname: string): LuxuryShellVariant {
   if (EXACT_EXCLUDE.has(pathname)) return "none";
-  if (PREFIX_EXCLUDE.some((p) => pathname === p || pathname.startsWith(p))) return "none";
-  if (PREFIX_MINIMAL.some((p) => pathname === p || pathname.startsWith(`${p}/`))) {
-    return "minimal";
+  if (PREFIX_EXCLUDE.some((p) => pathname === p || pathname.startsWith(`${p}/`))) {
+    return "none";
   }
   return "full";
 }

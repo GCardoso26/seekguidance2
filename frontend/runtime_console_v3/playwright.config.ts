@@ -15,13 +15,18 @@ export default defineConfig({
     video: "on-first-retry",
   },
   projects: [
+    { name: "setup", testMatch: /.*\.setup\.ts/ },
     {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
+      dependencies: ["setup"],
+      testIgnore: /.*\.setup\.ts/,
     },
     {
       name: "Mobile Chrome",
       use: { ...devices["Pixel 5"] },
+      dependencies: ["setup"],
+      testIgnore: /.*\.setup\.ts/,
     },
   ],
   webServer: {

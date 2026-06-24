@@ -1,14 +1,11 @@
 "use client";
 
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { Clock, CreditCard, LogOut, User } from "lucide-react";
+import { Clock, Heart, LogOut, Package, Settings, Store, User, Users } from "lucide-react";
 import Link from "next/link";
 import { useJudgeAuth } from "@/features/auth/AuthProvider";
+import { useSellerStore } from "@/hooks/useSellerStore";
 import { cn } from "@/lib/utils";
-
-type Props = {
-  onHistoryClick?: () => void;
-};
 
 function avatarUrl(user: { user_metadata?: Record<string, unknown> }): string | null {
   const url = user.user_metadata?.avatar_url ?? user.user_metadata?.picture;
@@ -27,20 +24,27 @@ const itemClass = cn(
   "hover:bg-white/10 hover:text-luxury-frost focus:bg-white/10 focus:text-luxury-frost",
 );
 
-export function UserMenu({ onHistoryClick }: Props) {
+type Props = {
+  onHistoryClick?: () => void;
+};
+
+export function UserMenu({ onHistoryClick }: Props = {}) {
   const { user, signOut, configured } = useJudgeAuth();
+  const { store } = useSellerStore();
 
   if (!configured || !user) return null;
 
   const photo = avatarUrl(user);
   const name = displayName(user);
+  const isSeller = Boolean(store?.id);
 
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>
         <button
           type="button"
-          className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 p-0.5 pr-2 transition hover:border-luxury-gold/30 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-luxury-gold/40 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+          data-testid="user-menu"
+          className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 p-0.5 pr-2 transition hover:border-luxury-gold/30 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-luxury-gold/40"
           aria-label={`Menu da conta de ${name}`}
         >
           {photo ? (
@@ -56,7 +60,10 @@ export function UserMenu({ onHistoryClick }: Props) {
               {name.slice(0, 1).toUpperCase()}
             </span>
           )}
-          <span className="hidden max-w-[100px] truncate text-xs font-medium text-luxury-frost sm:inline">
+          <span
+            className="hidden max-w-[100px] truncate text-xs font-medium text-luxury-frost sm:inline"
+            data-testid="profile-name"
+          >
             {name}
           </span>
         </button>
@@ -66,7 +73,7 @@ export function UserMenu({ onHistoryClick }: Props) {
         <DropdownMenu.Content
           sideOffset={8}
           align="end"
-          className="z-50 min-w-[200px] overflow-hidden rounded-xl border border-white/10 bg-luxury-obsidian p-1 shadow-xl animate-in fade-in-0 zoom-in-95"
+          className="z-50 min-w-[220px] overflow-hidden rounded-xl border border-white/10 bg-luxury-obsidian p-1 shadow-xl animate-in fade-in-0 zoom-in-95"
         >
           <p className="truncate px-3 py-2 text-xs text-luxury-mist" title={user.email ?? ""}>
             {user.email}
@@ -76,6 +83,24 @@ export function UserMenu({ onHistoryClick }: Props) {
             <Link href="/perfil" className={itemClass}>
               <User className="h-4 w-4" aria-hidden />
               Perfil
+            </Link>
+          </DropdownMenu.Item>
+          <DropdownMenu.Item asChild>
+            <Link href="/perfil/colecao" className={itemClass}>
+              <Heart className="h-4 w-4" aria-hidden />
+              Coleção
+            </Link>
+          </DropdownMenu.Item>
+          <DropdownMenu.Item asChild>
+            <Link href="/perfil/pedidos" className={itemClass}>
+              <Package className="h-4 w-4" aria-hidden />
+              Pedidos
+            </Link>
+          </DropdownMenu.Item>
+          <DropdownMenu.Item asChild>
+            <Link href="/perfil/seguidos" className={itemClass}>
+              <Users className="h-4 w-4" aria-hidden />
+              Seguidos
             </Link>
           </DropdownMenu.Item>
           {onHistoryClick ? (
@@ -91,10 +116,18 @@ export function UserMenu({ onHistoryClick }: Props) {
               </Link>
             </DropdownMenu.Item>
           )}
+          {isSeller && (
+            <DropdownMenu.Item asChild>
+              <Link href="/vendedor/painel" className={itemClass}>
+                <Store className="h-4 w-4" aria-hidden />
+                Painel do Vendedor
+              </Link>
+            </DropdownMenu.Item>
+          )}
           <DropdownMenu.Item asChild>
-            <Link href="/pricing?from=menu" className={itemClass}>
-              <CreditCard className="h-4 w-4" aria-hidden />
-              Assinatura
+            <Link href="/settings/notifications" className={itemClass}>
+              <Settings className="h-4 w-4" aria-hidden />
+              Configurações
             </Link>
           </DropdownMenu.Item>
           <DropdownMenu.Separator className="my-1 h-px bg-white/10" />

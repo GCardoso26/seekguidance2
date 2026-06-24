@@ -5,12 +5,14 @@ import { useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Bell } from "lucide-react";
 import type { AppNotification } from "@/types/post";
+import { useJudgeAuth } from "@/features/auth/AuthProvider";
 import { cn } from "@/lib/utils";
 import { formatRelativeTime } from "@/lib/relative-time";
 
 export function GlobalNotificationBell() {
   const router = useRouter();
   const qc = useQueryClient();
+  const { user, loading } = useJudgeAuth();
 
   const { data: unread = { count: 0 } } = useQuery({
     queryKey: ["notifications-unread"],
@@ -19,6 +21,7 @@ export function GlobalNotificationBell() {
       if (!res.ok) return { count: 0 };
       return res.json() as Promise<{ count: number }>;
     },
+    enabled: Boolean(user),
     refetchInterval: 30_000,
   });
 
@@ -29,8 +32,11 @@ export function GlobalNotificationBell() {
       if (!res.ok) return [];
       return res.json() as Promise<AppNotification[]>;
     },
+    enabled: Boolean(user),
     refetchInterval: 30_000,
   });
+
+  if (loading || !user) return null;
 
   const markRead = async (n: AppNotification) => {
     const source = n.source || "social";
@@ -50,8 +56,14 @@ export function GlobalNotificationBell() {
     <div className="group relative">
       <button
         type="button"
-        aria-label="Notificações"
-        className="relative rounded-lg p-2 text-luxury-mist hover:bg-white/5 hover:text-luxury-frost"
+        data-testid="notification-bell"
+        aria-label={`Notificações${unread.count > 0 ? ` (${unread.count} não lidas)` : ""}`}
+        className={cn(
+          "relative rounded-lg p-2 transition",
+          unread.count > 0
+            ? "text-luxury-frost hover:bg-white/5"
+            : "text-luxury-mist/70 hover:bg-white/5 hover:text-luxury-mist",
+        )}
       >
         <Bell className="h-5 w-5" strokeWidth={1.5} />
         {unread.count > 0 && (

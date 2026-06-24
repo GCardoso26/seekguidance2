@@ -31,6 +31,7 @@ import { BRAZILIAN_STATES } from "@/constants/brazilian-states";
 import { TCG_OPTIONS } from "@/types/judge";
 import { Award, BarChart3, CreditCard, Flame, History, MessageCircle } from "lucide-react";
 import { LigaPassWidget } from "@/components/gamification/LigaPassWidget";
+import { ProfileSkeleton } from "@/components/ui/skeletons";
 import { cn } from "@/lib/utils";
 
 const TCG_LABELS = Object.fromEntries(TCG_OPTIONS.map((g) => [g.id, g.label]));
@@ -42,7 +43,7 @@ export default function MyProfilePage() {
     <Suspense
       fallback={
         <MobileLayout>
-          <div className="container mx-auto px-4 py-8 text-luxury-mist">Carregando perfil…</div>
+          <ProfileSkeleton />
         </MobileLayout>
       }
     >
@@ -126,7 +127,7 @@ function MyProfilePageContent() {
   if (isLoading) {
     return (
       <MobileLayout>
-        <div className="container mx-auto px-4 py-8 text-luxury-mist">Carregando perfil…</div>
+        <ProfileSkeleton />
       </MobileLayout>
     );
   }

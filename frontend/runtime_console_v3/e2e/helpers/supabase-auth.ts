@@ -1,0 +1,104 @@
+import { createClient } from "@supabase/supabase-js";
+import fs from "fs";
+import path from "path";
+
+const AUTH_DIR = path.join(__dirname, "../.auth");
+
+export function hasAuthEnv(): boolean {
+  return Boolean(
+    process.env.NEXT_PUBLIC_SUPABASE_URL &&
+      process.env.SUPABASE_SERVICE_ROLE_KEY &&
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  );
+}
+
+export function getAdminClient() {
+  if (!hasAuthEnv()) return null;
+  return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
+}
+
+async function ensureUser(email: string, password: string, metadata: Record<string, string>) {
+  const admin = getAdminClient();
+  if (!admin) throw new Error("Missing Supabase admin credentials");
+
+  const { data: list } = await admin.auth.admin.listUsers({ perPage: 200 });
+  const existing = list?.users?.find((u) => u.email === email);
+  if (existing) return existing;
+
+  const { data, error } = await admin.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true,
+    user_metadata: metadata,
+  });
+  if (error) throw error;
+  return data.user;
+}
+
+export async function signInAndSaveState(
+  email: string,
+  password: string,
+  outfile: string,
+  baseURL: string,
+) {
+  const admin = getAdminClient();
+  if (!admin) return false;
+
+  const anon = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);
+  const { data, error } = await anon.auth.signInWithPassword({ email, password });
+  if (error || !data.session) throw error ?? new Error("No session");
+
+  if (!fs.existsSync(AUTH_DIR)) fs.mkdirSync(AUTH_DIR, { recursive: true });
+
+  const hostname = new URL(baseURL).hostname;
+  const projectRef = new URL(process.env.NEXT_PUBLIC_SUPABASE_URL!).hostname.split(".")[0];
+  const cookieName = `sb-${projectRef}-auth-token`;
+  const cookieValue = JSON.stringify({
+    access_token: data.session.access_token,
+    refresh_token: data.session.refresh_token,
+    expires_at: data.session.expires_at,
+    expires_in: data.session.expires_in,
+    token_type: data.session.token_type,
+    user: data.session.user,
+  });
+
+  const state = {
+    cookies: [
+      {
+        name: cookieName,
+        value: cookieValue,
+        domain: hostname,
+        path: "/",
+        httpOnly: false,
+        secure: baseURL.startsWith("https"),
+        sameSite: "Lax" as const,
+      },
+    ],
+    origins: [],
+  };
+
+  fs.writeFileSync(path.join(AUTH_DIR, outfile), JSON.stringify(state, null, 2));
+  return true;
+}
+
+export async function setupTestUsers(baseURL: string) {
+  if (!hasAuthEnv()) {
+    console.warn("[e2e] Skipping auth setup — missing SUPABASE_SERVICE_ROLE_KEY");
+    return false;
+  }
+
+  await ensureUser("test-buyer@judgetcg.com", "TestBuyer123!", {
+    name: "Test Buyer",
+    full_name: "Test Buyer",
+  });
+  await ensureUser("test-seller@judgetcg.com", "TestSeller123!", {
+    name: "Test Seller",
+    full_name: "Test Seller",
+  });
+
+  await signInAndSaveState("test-buyer@judgetcg.com", "TestBuyer123!", "buyer.json", baseURL);
+  await signInAndSaveState("test-seller@judgetcg.com", "TestSeller123!", "seller.json", baseURL);
+  return true;
+}

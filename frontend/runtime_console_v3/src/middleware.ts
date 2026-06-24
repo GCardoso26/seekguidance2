@@ -78,9 +78,9 @@ export function middleware(request: NextRequest) {
     (pathname.startsWith("/social/communities") && pathname.includes("/posts/"));
 
   if (needsAuth && !hasSupabaseSession(request)) {
-    const login = new URL("/login", request.url);
-    login.searchParams.set("next", pathname);
-    return NextResponse.redirect(login);
+    const entrar = new URL("/entrar", request.url);
+    entrar.searchParams.set("next", pathname);
+    return NextResponse.redirect(entrar);
   }
 
   if (pathname === "/onboarding" && !hasSupabaseSession(request)) {

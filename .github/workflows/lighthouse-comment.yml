@@ -1,0 +1,58 @@
+name: Lighthouse PR Comment
+
+on:
+  pull_request:
+    branches: [main]
+
+defaults:
+  run:
+    working-directory: frontend/runtime_console_v3
+
+jobs:
+  comment:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/runtime_console_v3/package-lock.json
+      - run: npm ci
+      - run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      - run: npx lhci autorun
+        continue-on-error: true
+      - uses: actions/github-script@v7
+        if: always()
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            const lhciDir = path.join(process.cwd(), '.lighthouseci');
+            if (!fs.existsSync(lhciDir)) {
+              console.log('No LHCI results');
+              return;
+            }
+            const files = fs.readdirSync(lhciDir).filter((f) => f.startsWith('lhr-') && f.endsWith('.json'));
+            if (!files.length) return;
+            const lhr = JSON.parse(fs.readFileSync(path.join(lhciDir, files.sort().pop()), 'utf8'));
+            const s = (cat) => Math.round((lhr.categories[cat]?.score ?? 0) * 100);
+            const body = `## Lighthouse Report
+
+            | Category | Score |
+            |----------|-------|
+            | Performance | ${s('performance')} |
+            | Accessibility | ${s('accessibility')} |
+            | Best Practices | ${s('best-practices')} |
+            | SEO | ${s('seo')} |`;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body,
+            });

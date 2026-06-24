@@ -25,16 +25,18 @@ jobs:
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-      - run: npm start &
+      - run: npx lhci autorun
+        continue-on-error: true
         env:
-          NODE_ENV: production
-      - run: npx wait-on http://localhost:3000 --timeout 120000
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
       - run: node scripts/lighthouse-audit.js
+        continue-on-error: true
         env:
           BASE_URL: http://localhost:3000
-        continue-on-error: true
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: lighthouse-reports
-          path: frontend/runtime_console_v3/lighthouse-reports/
+          path: |
+            frontend/runtime_console_v3/.lighthouseci/
+            frontend/runtime_console_v3/lighthouse-reports/

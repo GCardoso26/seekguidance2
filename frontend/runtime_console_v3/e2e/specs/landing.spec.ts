@@ -6,8 +6,10 @@ test.describe("Landing Page", () => {
     await page.goto("/");
     await expect(page.locator(SELECTORS.heroTitle)).toBeVisible();
     await expect(page.locator('[data-testid="game-card-mtg"]')).toBeVisible({ timeout: 15_000 });
-    await expect(page.locator(SELECTORS.featuredCards)).toBeVisible({ timeout: 15_000 });
-    await expect(page.locator(SELECTORS.featuredShops)).toBeVisible({ timeout: 15_000 });
+    await page.getByRole("heading", { name: /Tendências de preço/i }).scrollIntoViewIfNeeded();
+    await expect(page.locator(SELECTORS.featuredCards)).toBeVisible({ timeout: 20_000 });
+    await page.getByRole("heading", { name: /Lojas em destaque/i }).scrollIntoViewIfNeeded();
+    await expect(page.locator(SELECTORS.featuredShops)).toBeVisible({ timeout: 20_000 });
   });
 
   test("global search shows results", async ({ page }) => {

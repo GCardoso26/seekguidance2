@@ -11,6 +11,7 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "lighthouse": "node scripts/lighthouse-audit.js",
+    "lighthouse:ci": "lhci autorun",
     "deploy:vercel": "vercel --prod"
   },
   "dependencies": {
@@ -45,6 +46,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.5",
+    "@lhci/cli": "^0.15.1",
     "@playwright/test": "^1.61.1",
     "@testing-library/react": "^16.1.0",
     "@types/canvas-confetti": "^1.9.0",

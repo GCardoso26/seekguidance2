@@ -11,6 +11,7 @@ import { useJudgeAuth } from "@/features/auth/AuthProvider";
 import { useCreateDeck, useMyDecks } from "@/hooks/useDeck";
 import { DeckStatusBadge } from "@/components/deckbuilder/DeckStatusBadge";
 import { TOURNAMENT_GAMES } from "@/lib/tcg-adapters";
+import { DecksSkeleton } from "@/components/ui/skeletons";
 import { formatCurrency } from "@/lib/format-currency";
 
 export default function DecksPage() {
@@ -22,8 +23,16 @@ export default function DecksPage() {
   const [game, setGame] = useState("mtg");
   const [format, setFormat] = useState("standard");
 
-  if (!loading && !user) {
-    router.push("/login?next=/decks");
+  if (loading) {
+    return (
+      <MobileLayout>
+        <DecksSkeleton />
+      </MobileLayout>
+    );
+  }
+
+  if (!user) {
+    router.push("/entrar?next=/decks");
     return null;
   }
 
@@ -86,7 +95,10 @@ export default function DecksPage() {
         </div>
 
         <ul className="mt-6 space-y-3">
-          {isLoading && <li className="text-sm text-luxury-mist">Carregando…</li>}
+          {isLoading &&
+            Array.from({ length: 3 }).map((_, i) => (
+              <li key={i} className="h-20 animate-pulse rounded-xl bg-white/5" />
+            ))}
           {!isLoading && decks.length === 0 && (
             <li className="text-sm text-luxury-mist">Você ainda não tem decks.</li>
           )}

@@ -9,8 +9,7 @@ import { Button } from "@/components/luxury/ui/Button";
 import { useScrollProgress } from "@/hooks/useScrollProgress";
 
 const NAV = [
-  { label: "Funcionalidades", href: "/features" },
-  { label: "Sobre", href: "/about" },
+  { label: "Loja", href: "/loja" },
   { label: "Planos", href: "/pricing" },
 ];
 
@@ -65,8 +64,8 @@ export function LuxuryHeader() {
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
-          <Link href="/judge">
-            <Button variant="primary">Acessar a Mesa</Button>
+          <Link href="/entrar">
+            <Button variant="primary">Entrar</Button>
           </Link>
         </div>
 
@@ -97,8 +96,8 @@ export function LuxuryHeader() {
                 {item.label}
               </Link>
             ))}
-            <Link href="/judge">
-              <Button className="w-full">Acessar a Mesa</Button>
+            <Link href="/entrar">
+              <Button className="w-full">Entrar</Button>
             </Link>
           </div>
         </nav>
