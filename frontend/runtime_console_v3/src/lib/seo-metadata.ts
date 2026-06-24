@@ -9,9 +9,13 @@ const API_BASE = (process.env.API_PROXY_TARGET || process.env.NEXT_PUBLIC_API_UR
 
 export async function fetchCatalogHealth(): Promise<{ total_cards?: number; by_game?: Record<string, number> } | null> {
   try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
     const res = await fetch(`${API_BASE}/runtime/judge/catalog/health`, {
+      signal: controller.signal,
       next: { revalidate: 3600 },
     });
+    clearTimeout(timeoutId);
     if (!res.ok) return null;
     return res.json();
   } catch {

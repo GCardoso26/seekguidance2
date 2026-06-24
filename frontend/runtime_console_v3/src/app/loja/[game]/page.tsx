@@ -1,5 +1,4 @@
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+export const revalidate = 60;
 
 import type { Metadata } from "next";
 import { fetchCatalogHealth, gameMetadataFromSlug } from "@/lib/seo-metadata";

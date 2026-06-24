@@ -6,15 +6,18 @@ import { useParams } from "next/navigation";
 import { Suspense } from "react";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import { Button } from "@/components/ui/button";
+import { GameHubSkeleton } from "@/components/ui/skeletons";
 import { gameIdFromSlug, GAME_TOKENS } from "@/lib/tcg-tokens";
 import type { GameId } from "@/types/card";
 import { useCatalogHealth } from "@/hooks/useCatalogHealth";
+import { usePagePerformance } from "@/hooks/usePagePerformance";
 
 function GameHubContent() {
   const params = useParams();
   const slug = String(params.game ?? "");
   const gameId = gameIdFromSlug(slug);
-  const { data: health } = useCatalogHealth();
+  const { data: health, isLoading: healthLoading } = useCatalogHealth();
+  usePagePerformance(`loja/${slug}`);
 
   if (!gameId) {
     return (
@@ -49,9 +52,11 @@ function GameHubContent() {
                 {token.name}
               </h1>
               <p className="mt-2 text-muted-foreground">
-                {cardCount > 0
-                  ? `${cardCount.toLocaleString("pt-BR")} cartas no catálogo`
-                  : "Catálogo em sincronização"}
+                {healthLoading
+                  ? "Carregando catálogo…"
+                  : cardCount > 0
+                    ? `${cardCount.toLocaleString("pt-BR")} cartas no catálogo`
+                    : "Catálogo em sincronização"}
               </p>
             </div>
           </div>
@@ -91,7 +96,7 @@ function GameHubContent() {
 
 export default function GamePage() {
   return (
-    <Suspense fallback={<div className="p-8">Carregando…</div>}>
+    <Suspense fallback={<MobileLayout><GameHubSkeleton /></MobileLayout>}>
       <GameHubContent />
     </Suspense>
   );

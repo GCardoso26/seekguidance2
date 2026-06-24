@@ -1,13 +1,19 @@
 import { NextResponse } from "next/server";
+import { API_PROXY_BASE, API_FETCH_TIMEOUT_MS } from "@/lib/api-proxy-base";
 
-const API_BASE = (process.env.API_PROXY_TARGET || "http://127.0.0.1:8000").replace(/\/$/, "");
+export const revalidate = 60;
 
 export async function GET() {
   try {
-    const res = await fetch(`${API_BASE}/runtime/judge/catalog/health`, {
-      cache: "no-store",
-      next: { revalidate: 0 },
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), API_FETCH_TIMEOUT_MS);
+
+    const res = await fetch(`${API_PROXY_BASE}/runtime/judge/catalog/health`, {
+      signal: controller.signal,
+      next: { revalidate: 60 },
     });
+    clearTimeout(timeoutId);
+
     const data = (await res.json()) as Record<string, unknown>;
     const ready = Boolean(data.ready_for_marketplace);
     return NextResponse.json(

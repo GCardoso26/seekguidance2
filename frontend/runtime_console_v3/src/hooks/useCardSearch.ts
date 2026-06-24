@@ -2,6 +2,7 @@
 
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { fetchWithRetry } from "@/lib/api-client";
+import { withPerformanceTracking } from "@/lib/performance";
 import type { CatalogSearchResponse } from "@/types/card";
 import type { CatalogSetOption, SearchFilters } from "@/types/search";
 
@@ -28,14 +29,17 @@ function buildSearchParams(filters: SearchFilters, page: number): URLSearchParam
   return params;
 }
 
-async function fetchCardSearch(filters: SearchFilters, page: number): Promise<CatalogSearchResponse> {
-  const params = buildSearchParams(filters, page);
-  const res = await fetchWithRetry(`/api/catalog/cards/search?${params.toString()}`);
-  if (!res.ok) {
-    throw new Error("Falha ao buscar cartas");
-  }
-  return res.json() as Promise<CatalogSearchResponse>;
-}
+const fetchCardSearch = withPerformanceTracking(
+  async (filters: SearchFilters, page: number): Promise<CatalogSearchResponse> => {
+    const params = buildSearchParams(filters, page);
+    const res = await fetchWithRetry(`/api/catalog/cards/search?${params.toString()}`);
+    if (!res.ok) {
+      throw new Error("Falha ao buscar cartas");
+    }
+    return res.json() as Promise<CatalogSearchResponse>;
+  },
+  "Meilisearch: Search cards",
+);
 
 export function useCardSearch(filters: SearchFilters) {
   const { page: _page, ...rest } = filters;

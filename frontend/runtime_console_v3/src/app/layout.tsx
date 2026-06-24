@@ -15,6 +15,7 @@ import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 import { CartProvider } from "@/components/cart/CartProvider";
 import { UpgradeModalProvider } from "@/components/premium/UpgradeModalProvider";
 import { PWAInstallPrompt } from "@/components/pwa/PWAInstallPrompt";
+import { Toaster } from "sonner";
 
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
@@ -87,6 +88,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 </CartProvider>
               </UpgradeModalProvider>
             </QueryProvider>
+            <Toaster
+              position="top-right"
+              toastOptions={{
+                classNames: {
+                  toast: "bg-zinc-900 border border-zinc-800 text-white",
+                },
+              }}
+            />
 
           </AuthProviderWrapper>
 

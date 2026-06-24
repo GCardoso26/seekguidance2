@@ -98,7 +98,13 @@ export async function setupTestUsers(baseURL: string) {
     full_name: "Test Seller",
   });
 
+  await ensureUser("test-buyer-b@judgetcg.com", "TestBuyerB123!", {
+    name: "Test Buyer B",
+    full_name: "Test Buyer B",
+  });
+
   await signInAndSaveState("test-buyer@judgetcg.com", "TestBuyer123!", "buyer.json", baseURL);
+  await signInAndSaveState("test-buyer-b@judgetcg.com", "TestBuyerB123!", "buyer-b.json", baseURL);
   await signInAndSaveState("test-seller@judgetcg.com", "TestSeller123!", "seller.json", baseURL);
   return true;
 }

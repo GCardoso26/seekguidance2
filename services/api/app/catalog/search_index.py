@@ -102,6 +102,21 @@ async def index_cards(documents: list[dict[str, Any]]) -> dict[str, Any]:
         return {"indexed": len(documents), "status": "ok", "taskUid": data.get("taskUid")}
 
 
+async def meili_health_ok() -> bool:
+    if not meili_enabled():
+        return False
+    host = os.getenv("MEILI_HOST", "").rstrip("/")
+    try:
+        async with httpx.AsyncClient(timeout=3.0) as client:
+            res = await client.get(f"{host}/health", headers=_headers())
+            if not res.is_success:
+                return False
+            data = res.json()
+            return data.get("status") == "available"
+    except Exception:
+        return False
+
+
 async def search_meili(
     query: str,
     *,
@@ -109,6 +124,9 @@ async def search_meili(
     limit: int = 20,
 ) -> list[dict[str, Any]]:
     if not meili_enabled() or not query.strip():
+        return []
+    if not await meili_health_ok():
+        logger.warning("meilisearch_unavailable_fallback_postgres")
         return []
     host = os.getenv("MEILI_HOST", "").rstrip("/")
     params: dict[str, Any] = {"q": query, "limit": limit}
