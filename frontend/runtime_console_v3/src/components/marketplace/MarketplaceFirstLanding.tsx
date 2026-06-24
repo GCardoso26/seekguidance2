@@ -1,12 +1,11 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { Layers, ShoppingBag } from "lucide-react";
 import { CatalogMarketplaceSection } from "@/components/home/CatalogMarketplaceSection";
 import { GlobalSearchBar } from "@/components/home/GlobalSearchBar";
 import { MobileLayout } from "@/components/layout/MobileLayout";
-import { PriceTrendCard } from "@/components/marketplace/PriceTrendCard";
-import { FeaturedSellerCard } from "@/components/marketplace/FeaturedSellerCard";
 import { Button } from "@/components/ui/button";
 import { useCatalogHealth } from "@/hooks/useCatalogHealth";
 import { mapHealthToGames } from "@/lib/catalog-games";
@@ -14,18 +13,15 @@ import { gameSlugFromId } from "@/lib/tcg-tokens";
 import type { GameId } from "@/types/card";
 import Image from "next/image";
 
-const PLACEHOLDER_TRENDS = [
-  { cardId: "1", name: "Lightning Bolt", setName: "Modern Horizons 3", change7d: 12.4 },
-  { cardId: "2", name: "Charizard ex", setName: "Obsidian Flames", change7d: -8.2 },
-  { cardId: "3", name: "Sol Ring", setName: "Commander Masters", change7d: 5.1 },
-];
+const TrendingCardsGrid = dynamic(
+  () => import("@/components/marketplace/TrendingCardsGrid").then((m) => m.TrendingCardsGrid),
+  { loading: () => <div className="h-64 animate-pulse rounded-lg bg-muted/40" /> },
+);
 
-const PLACEHOLDER_SELLERS = [
-  { id: "demo-1", shopName: "TCG Brasil", rating: 4.9, specialties: ["Magic", "Pokémon"], listingCount: 1200 },
-  { id: "demo-2", shopName: "Card House SP", rating: 4.7, specialties: ["Yu-Gi-Oh!", "Lorcana"], listingCount: 850 },
-  { id: "demo-3", shopName: "Mesa dos Judges", rating: 4.8, specialties: ["FaB", "One Piece"], listingCount: 420 },
-  { id: "demo-4", shopName: "Rift Cards", rating: 4.6, specialties: ["Riftbound", "Vanguard"], listingCount: 310 },
-];
+const FeaturedShopsGrid = dynamic(
+  () => import("@/components/marketplace/FeaturedShopsGrid").then((m) => m.FeaturedShopsGrid),
+  { loading: () => <div className="h-48 animate-pulse rounded-lg bg-muted/40" /> },
+);
 
 function MarketplaceHero() {
   const { data: health } = useCatalogHealth();
@@ -38,7 +34,7 @@ function MarketplaceHero() {
         <p className="mb-2 text-sm font-medium uppercase tracking-widest text-luxury-gold">
           Marketplace · 0% comissão · PIX direto
         </p>
-        <h1 className="text-3xl font-bold tracking-tight text-luxury-frost md:text-5xl">
+        <h1 className="text-3xl font-bold tracking-tight text-luxury-frost md:text-5xl" data-testid="hero-title">
           O maior marketplace de TCGs do Brasil
         </h1>
         <p className="mx-auto mt-4 max-w-2xl text-base text-luxury-mist md:text-lg">
@@ -81,11 +77,12 @@ function PopularGamesSection() {
   return (
     <section className="container mx-auto px-4 py-8">
       <h2 className="mb-4 text-xl font-bold text-luxury-frost">Jogos populares</h2>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7" data-testid="game-grid">
         {games.map((game) => (
           <Link
             key={game.id}
             href={`/loja/${gameSlugFromId(game.id as GameId)}`}
+            data-testid={`game-card-${gameSlugFromId(game.id as GameId)}`}
             className="flex flex-col items-center gap-2 rounded-xl border border-white/10 bg-luxury-obsidian/50 p-4 transition hover:border-luxury-gold/30 hover:shadow-lg"
           >
             <Image src={game.logoUrl} alt="" width={48} height={48} className="h-12 w-12 object-contain" />
@@ -110,11 +107,7 @@ function PriceTrendsSection() {
             Ver todas →
           </Link>
         </div>
-        <div className="grid gap-4 md:grid-cols-3">
-          {PLACEHOLDER_TRENDS.map((trend) => (
-            <PriceTrendCard key={trend.cardId} trend={trend} />
-          ))}
-        </div>
+        <TrendingCardsGrid />
       </div>
     </section>
   );
@@ -125,11 +118,7 @@ function FeaturedSellersSection() {
     <section className="border-t border-white/10 bg-luxury-obsidian/30 py-8">
       <div className="container mx-auto px-4">
         <h2 className="mb-4 text-xl font-bold text-luxury-frost">🏪 Lojas em destaque</h2>
-        <div className="grid gap-4 md:grid-cols-4">
-          {PLACEHOLDER_SELLERS.map((seller) => (
-            <FeaturedSellerCard key={seller.id} seller={seller} />
-          ))}
-        </div>
+        <FeaturedShopsGrid />
       </div>
     </section>
   );

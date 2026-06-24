@@ -61,6 +61,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
         <link rel="apple-touch-icon" href="/apple-icon" />
 
+        <link rel="preconnect" href="https://cards.scryfall.io" />
+        <link rel="preconnect" href="https://images.pokemontcg.io" />
+        <link rel="preconnect" href="https://images.ygoprodeck.com" />
+        <link rel="dns-prefetch" href="https://lorcana-api.com" />
+        <link rel="dns-prefetch" href="https://optcgapi.com" />
+
       </head>
 
       <body className={inter.className}>

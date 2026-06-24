@@ -1,4 +1,4 @@
-name: Lighthouse CI
+name: Playwright E2E Tests
 
 on:
   push:
@@ -11,7 +11,7 @@ defaults:
     working-directory: frontend/runtime_console_v3
 
 jobs:
-  lighthouse:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -21,20 +21,19 @@ jobs:
           cache: npm
           cache-dependency-path: frontend/runtime_console_v3/package-lock.json
       - run: npm ci
+      - run: npx playwright install --with-deps chromium
       - run: npm run build
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-      - run: npm start &
+      - run: npx playwright test --project=chromium
         env:
-          NODE_ENV: production
-      - run: npx wait-on http://localhost:3000 --timeout 120000
-      - run: node scripts/lighthouse-audit.js
-        env:
+          CI: true
           BASE_URL: http://localhost:3000
-        continue-on-error: true
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: lighthouse-reports
-          path: frontend/runtime_console_v3/lighthouse-reports/
+          name: playwright-report
+          path: |
+            frontend/runtime_console_v3/playwright-report/
+            frontend/runtime_console_v3/test-results/

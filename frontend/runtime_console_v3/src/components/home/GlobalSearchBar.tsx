@@ -102,6 +102,7 @@ export function GlobalSearchBar({
           />
           <Input
             type="search"
+            data-testid="global-search"
             value={query}
             onChange={(e) => {
               setQuery(e.target.value);
@@ -138,6 +139,7 @@ export function GlobalSearchBar({
       {showDropdown && (
         <div
           id="global-search-results"
+          data-testid="search-results"
           className={cn(
             "absolute top-full z-50 mt-1 max-h-96 w-full overflow-y-auto rounded-lg border shadow-xl",
             isHeader
