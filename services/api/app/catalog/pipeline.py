@@ -178,10 +178,14 @@ async def run_game_sync(
         elif code == "YGO":
             result = await sync_yugioh(session, limit=None if full else 100)
         elif code == "LORCANA":
-            result = await sync_lorcana(session, limit=None if full else 150)
+            # Catálogo pequeno (~2.3k) — sempre sync completo para manter image_url
+            result = await sync_lorcana(session, limit=None)
         elif code == "FAB":
             result = await sync_fab(session, limit=None if full else 100)
-        elif code in ("ONEPIECE", "DIGIMON"):
+        elif code == "ONEPIECE":
+            # Catálogo pequeno (~3.5k) — sempre sync completo para manter image_url
+            result = await sync_onepiece(session, limit=None)
+        elif code == "DIGIMON":
             result = await sync_fn(session, limit=None if full else 100)
         elif code == "SWU":
             result = await sync_swu(session, limit=None if full else 150)
