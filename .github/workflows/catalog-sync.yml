@@ -65,7 +65,7 @@ jobs:
           fi
 
           failed=0
-          for game in MTG POKEMON YGO LORCANA ONEPIECE FAB DIGIMON; do
+          for game in MTG POKEMON YGO LORCANA ONEPIECE FAB DIGIMON SWU RIFTBOUND SORCERY UARENA DBFW VANGUARD; do
             if sync_game "${game}"; then
               echo "OK ${game}"
             else

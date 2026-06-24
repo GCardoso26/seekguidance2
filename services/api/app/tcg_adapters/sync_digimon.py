@@ -8,7 +8,7 @@ from typing import Any
 import httpx
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.tcg_adapters.sync_common import maybe_commit_batch, normalize_name, upsert_card
+from app.tcg_adapters.sync_common import maybe_commit_batch, normalize_name, upsert_card, upsert_set
 
 DIGIMON_API = "https://digimoncard.io/api-public"
 DIGIMON_SERIES = "Digimon Card Game"
@@ -27,6 +27,43 @@ def _set_label(card: dict[str, Any]) -> str | None:
     if isinstance(sets, str) and sets:
         return sets
     return card.get("setname")
+
+
+async def _sync_digimon_sets(session: AsyncSession, client: httpx.AsyncClient) -> int:
+    res = await client.get(
+        f"{DIGIMON_API}/getAllCards",
+        params={
+            "series": DIGIMON_SERIES,
+            "sort": "code",
+            "sortdirection": "asc",
+        },
+    )
+    if not res.is_success:
+        return 0
+    catalog = res.json()
+    if not isinstance(catalog, list):
+        return 0
+
+    prefixes: dict[str, str] = {}
+    for row in catalog:
+        cid = str(row.get("cardnumber") or row.get("id") or "").strip()
+        if "-" not in cid:
+            continue
+        code = cid.split("-", 1)[0]
+        prefixes.setdefault(code, code)
+
+    synced = 0
+    for code in sorted(prefixes):
+        await upsert_set(
+            session,
+            game_code="DIGIMON",
+            code=code,
+            name=prefixes[code],
+            external_id=code,
+        )
+        synced += 1
+    await session.commit()
+    return synced
 
 
 async def _upsert_digimon_card(session: AsyncSession, card: dict[str, Any]) -> None:
@@ -101,7 +138,9 @@ async def _sync_digimon_recent(session: AsyncSession, *, limit: int) -> dict[str
     """Sync parcial — cartas mais recentes (ideal para cron diário)."""
     count = 0
     batch = 0
+    sets_synced = 0
     async with httpx.AsyncClient(timeout=90.0, follow_redirects=True) as client:
+        sets_synced = await _sync_digimon_sets(session, client)
         res = await client.get(
             f"{DIGIMON_API}/search",
             params={
@@ -133,14 +172,23 @@ async def _sync_digimon_recent(session: AsyncSession, *, limit: int) -> dict[str
 
     if batch:
         await session.commit()
-    return {"status": "ok", "game": "DIGIMON", "synced": count, "source": "digimoncard", "mode": "recent"}
+    return {
+        "status": "ok",
+        "game": "DIGIMON",
+        "synced": count,
+        "sets_synced": sets_synced,
+        "source": "digimoncard",
+        "mode": "recent",
+    }
 
 
 async def _sync_digimon_full(session: AsyncSession) -> dict[str, Any]:
     """Sync completo via getAllCards + lookup em lote."""
     count = 0
     batch = 0
+    sets_synced = 0
     async with httpx.AsyncClient(timeout=120.0, follow_redirects=True) as client:
+        sets_synced = await _sync_digimon_sets(session, client)
         res = await client.get(
             f"{DIGIMON_API}/getAllCards",
             params={
@@ -179,6 +227,7 @@ async def _sync_digimon_full(session: AsyncSession) -> dict[str, Any]:
         "status": "ok",
         "game": "DIGIMON",
         "synced": count,
+        "sets_synced": sets_synced,
         "source": "digimoncard",
         "mode": "full",
         "catalog_ids": total_ids,

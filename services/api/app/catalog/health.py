@@ -8,7 +8,12 @@ from typing import Any
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-GAMES = ("MTG", "POKEMON", "LORCANA", "YGO", "ONEPIECE", "FAB", "DIGIMON", "SWU")
+from app.catalog.set_coverage import verify_image_coverage, verify_set_coverage
+
+GAMES = (
+    "MTG", "POKEMON", "LORCANA", "YGO", "ONEPIECE", "FAB", "DIGIMON", "SWU",
+    "RIFTBOUND", "SORCERY", "UARENA", "DBFW", "VANGUARD",
+)
 
 
 async def verify_ingestion(session: AsyncSession) -> dict[str, Any]:
@@ -83,6 +88,11 @@ async def verify_ingestion(session: AsyncSession) -> dict[str, Any]:
 
     has_catalog = report["total_cards"] > 50
     no_critical_gaps = len(report["missing_images"]) == 0 or report["total_cards"] > 0
-    report["ready_for_marketplace"] = has_catalog and no_critical_gaps
+    report["set_coverage"] = await verify_set_coverage(session)
+    report["image_coverage"] = await verify_image_coverage(session)
+    images_ok = report["image_coverage"]["images_ok"]
+    report["ready_for_marketplace"] = (
+        has_catalog and no_critical_gaps and report["set_coverage"]["in_sync"] and images_ok
+    )
     report["status"] = "ready_for_marketplace" if report["ready_for_marketplace"] else "loading"
     return report

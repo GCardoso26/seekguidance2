@@ -7,9 +7,10 @@ from typing import Any
 import httpx
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.tcg_adapters.sync_common import maybe_commit_batch, normalize_name, upsert_card
+from app.tcg_adapters.sync_common import maybe_commit_batch, normalize_name, upsert_card, upsert_set
 
 YGOPRODECK_CARDS = "https://db.ygoprodeck.com/api/v7/cardinfo.php"
+YGOPRODECK_CARDSETS = "https://db.ygoprodeck.com/api/v7/cardsets.php"
 
 
 async def _upsert_yugioh_card(session: AsyncSession, card: dict[str, Any]) -> None:
@@ -47,9 +48,37 @@ async def _upsert_yugioh_card(session: AsyncSession, card: dict[str, Any]) -> No
                 "archetype": card.get("archetype"),
                 "linkval": card.get("linkval"),
                 "linkmarkers": card.get("linkmarkers"),
+                "card_sets": card.get("card_sets") or [],
             },
         },
     )
+
+
+async def _sync_yugioh_sets(session: AsyncSession, client: httpx.AsyncClient) -> int:
+    res = await client.get(YGOPRODECK_CARDSETS)
+    if not res.is_success:
+        return 0
+    rows = res.json()
+    if not isinstance(rows, list):
+        return 0
+    synced = 0
+    for row in rows:
+        code = str(row.get("set_code") or "").strip()
+        if not code:
+            continue
+        await upsert_set(
+            session,
+            game_code="YGO",
+            code=code,
+            name=str(row.get("set_name") or code),
+            external_id=code,
+            release_date=row.get("tcg_date"),
+            card_count=row.get("num_of_cards"),
+            icon_url=row.get("set_image"),
+        )
+        synced += 1
+    await session.commit()
+    return synced
 
 
 async def _sync_yugioh_paginated(session: AsyncSession, *, limit: int) -> dict[str, Any]:
@@ -58,6 +87,7 @@ async def _sync_yugioh_paginated(session: AsyncSession, *, limit: int) -> dict[s
     offset = 0
     page_size = min(100, limit)
     async with httpx.AsyncClient(timeout=60.0) as client:
+        sets_synced = await _sync_yugioh_sets(session, client)
         while count < limit:
             res = await client.get(
                 YGOPRODECK_CARDS,
@@ -81,7 +111,14 @@ async def _sync_yugioh_paginated(session: AsyncSession, *, limit: int) -> dict[s
 
     if batch:
         await session.commit()
-    return {"status": "ok", "game": "YGO", "synced": count, "source": "ygoprodeck", "mode": "paginated"}
+    return {
+        "status": "ok",
+        "game": "YGO",
+        "synced": count,
+        "sets_synced": sets_synced,
+        "source": "ygoprodeck",
+        "mode": "paginated",
+    }
 
 
 async def sync_yugioh(session: AsyncSession, *, limit: int | None = None) -> dict[str, Any]:
@@ -90,7 +127,9 @@ async def sync_yugioh(session: AsyncSession, *, limit: int | None = None) -> dic
 
     count = 0
     batch = 0
+    sets_synced = 0
     async with httpx.AsyncClient(timeout=120.0) as client:
+        sets_synced = await _sync_yugioh_sets(session, client)
         res = await client.get(YGOPRODECK_CARDS)
         res.raise_for_status()
         cards = res.json().get("data") or []
@@ -102,4 +141,11 @@ async def sync_yugioh(session: AsyncSession, *, limit: int | None = None) -> dic
 
     if batch:
         await session.commit()
-    return {"status": "ok", "game": "YGO", "synced": count, "source": "ygoprodeck", "mode": "bulk"}
+    return {
+        "status": "ok",
+        "game": "YGO",
+        "synced": count,
+        "sets_synced": sets_synced,
+        "source": "ygoprodeck",
+        "mode": "bulk",
+    }

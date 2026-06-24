@@ -14,6 +14,7 @@ from app.catalog.games_service import refresh_catalog_game_counts
 from app.catalog.health import verify_ingestion
 from app.catalog.search_index import index_cards, meili_enabled
 from app.catalog.validate import validate_card_payload
+from app.tcg_adapters.sync_dbfw import sync_dbfw
 from app.tcg_adapters.sync_digimon import sync_digimon
 from app.tcg_adapters.sync_fab import sync_fab
 from app.tcg_adapters.sync_lorcana import sync_lorcana
@@ -21,6 +22,11 @@ from app.tcg_adapters.sync_mtg import sync_scryfall
 from app.tcg_adapters.sync_onepiece import sync_onepiece
 from app.tcg_adapters.sync_pokemon import sync_tcgdex
 from app.tcg_adapters.sync_pokemontcg import sync_pokemontcg
+from app.tcg_adapters.sync_riftbound import sync_riftbound
+from app.tcg_adapters.sync_sorcery import sync_sorcery
+from app.tcg_adapters.sync_swu import sync_swu
+from app.tcg_adapters.sync_union_arena import sync_union_arena
+from app.tcg_adapters.sync_vanguard import sync_vanguard
 from app.tcg_adapters.sync_yugioh import sync_yugioh
 
 logger = structlog.get_logger(__name__)
@@ -38,11 +44,17 @@ async def _pokemon_sync(session: AsyncSession) -> dict[str, Any]:
 SYNC_SOURCES: dict[str, tuple[str, SyncFn]] = {
     "MTG": ("scryfall", sync_scryfall),
     "POKEMON": ("pokemontcg" if os.getenv("POKEMON_TCG_API_KEY") else "tcgdex", _pokemon_sync),
-    "LORCANA": ("lorcast", sync_lorcana),
+    "LORCANA": ("lorcana-api", sync_lorcana),
     "YGO": ("ygoprodeck", sync_yugioh),
     "ONEPIECE": ("optcgapi", sync_onepiece),
     "FAB": ("fab-cube", sync_fab),
     "DIGIMON": ("digimoncard", sync_digimon),
+    "SWU": ("swu-db", sync_swu),
+    "RIFTBOUND": ("riftscribe", sync_riftbound),
+    "SORCERY": ("sorcerytcg", sync_sorcery),
+    "UARENA": ("apitcg-github", sync_union_arena),
+    "DBFW": ("apitcg-github", sync_dbfw),
+    "VANGUARD": ("tcgcsv", sync_vanguard),
 }
 
 
@@ -171,6 +183,10 @@ async def run_game_sync(
             result = await sync_fab(session, limit=None if full else 100)
         elif code in ("ONEPIECE", "DIGIMON"):
             result = await sync_fn(session, limit=None if full else 100)
+        elif code == "SWU":
+            result = await sync_swu(session, limit=None if full else 150)
+        elif code in ("RIFTBOUND", "SORCERY", "UARENA", "DBFW", "VANGUARD"):
+            result = await sync_fn(session, limit=None if full else 150)
         else:
             result = await sync_fn(session)
 

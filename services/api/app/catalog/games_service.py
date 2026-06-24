@@ -20,6 +20,14 @@ SLUG_TO_CODE: dict[str, str] = {
     "fab": "FAB",
     "digimon": "DIGIMON",
     "swu": "SWU",
+    "riftbound": "RIFTBOUND",
+    "sorcery": "SORCERY",
+    "unionarena": "UARENA",
+    "union-arena": "UARENA",
+    "dbfw": "DBFW",
+    "db-fusion-world": "DBFW",
+    "vanguard": "VANGUARD",
+    "cardfight-vanguard": "VANGUARD",
 }
 
 CODE_TO_SLUG: dict[str, str] = {
@@ -31,6 +39,11 @@ CODE_TO_SLUG: dict[str, str] = {
     "FAB": "fab",
     "DIGIMON": "digimon",
     "SWU": "swu",
+    "RIFTBOUND": "riftbound",
+    "SORCERY": "sorcery",
+    "UARENA": "union-arena",
+    "DBFW": "dbfw",
+    "VANGUARD": "vanguard",
 }
 
 

@@ -15,6 +15,25 @@ def normalize_name(name: str) -> str:
     return re.sub(r"\s+", " ", name.strip().lower())
 
 
+def resolve_tcgdex_image(
+    url: str | None,
+    *,
+    set_id: str | None = None,
+    local_id: str | None = None,
+) -> str | None:
+    if not url:
+        if set_id and local_id:
+            url = f"https://assets.tcgdex.net/en/{set_id}/{local_id}"
+        else:
+            return None
+    normalized = url.rstrip("/")
+    if normalized.startswith("http") and not re.search(
+        r"\.(webp|png|jpe?g)(\?|$)", normalized, re.IGNORECASE
+    ):
+        return f"{normalized}/high.webp"
+    return url
+
+
 def _trunc(value: str | None, max_len: int) -> str | None:
     if value is None:
         return None
