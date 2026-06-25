@@ -1,4 +1,4 @@
-const CACHE_SHELL = "tcg-judge-shell-v3";
+const CACHE_SHELL = "tcg-judge-shell-v4";
 const CACHE_API = "tcg-judge-api-v2";
 const CACHE_IMAGES = "tcg-judge-images-v1";
 const CACHE_FONTS = "tcg-judge-fonts-v1";
@@ -74,17 +74,8 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  // Rotas /api/* passam direto ao servidor — evita cache/clone que quebra POST e auth.
   if (url.pathname.startsWith("/api/")) {
-    event.respondWith(
-      fetch(event.request)
-        .then((res) => {
-          if (res.ok && url.pathname.includes("/judge/daily-usage")) {
-            void caches.open(CACHE_API).then((c) => c.put(event.request, res.clone()));
-          }
-          return res;
-        })
-        .catch(() => caches.match(event.request)),
-    );
     return;
   }
 
