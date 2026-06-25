@@ -217,7 +217,7 @@ export default function BuylistPage() {
                       Recusar
                     </Button>
                   </div>
-                  {s.shop_order_id && (
+                  {Boolean(s.shop_order_id) && (
                     <Link
                       href={`/vendedor/painel/vendas/${String(s.shop_order_id)}`}
                       className="mt-2 inline-block text-luxury-gold underline"

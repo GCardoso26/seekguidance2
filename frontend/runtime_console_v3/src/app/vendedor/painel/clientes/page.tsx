@@ -114,7 +114,7 @@ export default function ClientesPage() {
                   <tr key={String(c.customer_id)} className="border-t border-white/10">
                     <td className="p-3">
                       <p>{String(c.display_name || c.email || c.customer_id)}</p>
-                      {c.email && <p className="text-xs text-luxury-mist">{String(c.email)}</p>}
+                      {Boolean(c.email) && <p className="text-xs text-luxury-mist">{String(c.email)}</p>}
                     </td>
                     <td className="p-3">{String(c.order_count)}</td>
                     <td className="p-3">{formatBRL(Number(c.total_spent_cents ?? 0))}</td>
