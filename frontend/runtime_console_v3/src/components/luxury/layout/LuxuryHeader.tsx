@@ -74,6 +74,7 @@ export function LuxuryHeader() {
           className="rounded-lg p-2 text-luxury-frost md:hidden"
           onClick={() => setOpen((v) => !v)}
           aria-expanded={open}
+          aria-controls="luxury-mobile-nav"
           aria-label={open ? "Fechar menu" : "Abrir menu"}
         >
           {open ? <X strokeWidth={1.5} /> : <Menu strokeWidth={1.5} />}
@@ -82,6 +83,7 @@ export function LuxuryHeader() {
 
       {open && (
         <nav
+          id="luxury-mobile-nav"
           className="border-t border-white/5 bg-luxury-obsidian/95 px-6 py-6 backdrop-blur-xl md:hidden"
           aria-label="Mobile"
         >

@@ -9,7 +9,10 @@ const config: Config = {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: "hsl(var(--card))",
-        muted: "hsl(var(--muted))",
+        muted: {
+          DEFAULT: "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
+        },
         border: "hsl(var(--border))",
         primary: "hsl(var(--primary))",
         success: "hsl(var(--success))",
@@ -26,7 +29,7 @@ const config: Config = {
           midnight: "#1a1a2e",
           velvet: "#16213e",
           frost: "#e2e8f0",
-          mist: "#94a3b8",
+          mist: "#b8c5d6",
         },
       },
       fontFamily: {

@@ -62,7 +62,7 @@ export function GlobalNotificationBell() {
           "relative rounded-lg p-2 transition",
           unread.count > 0
             ? "text-luxury-frost hover:bg-white/5"
-            : "text-luxury-mist/70 hover:bg-white/5 hover:text-luxury-mist",
+            : "text-luxury-mist hover:bg-white/5 hover:text-luxury-frost",
         )}
       >
         <Bell className="h-5 w-5" strokeWidth={1.5} />

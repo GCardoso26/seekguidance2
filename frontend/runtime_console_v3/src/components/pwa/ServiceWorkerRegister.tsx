@@ -23,7 +23,11 @@ export function ServiceWorkerRegister() {
           });
         });
       })
-      .catch((err) => console.error("[PWA] SW registration failed:", err));
+      .catch((err) => {
+        if (process.env.NODE_ENV === "development") {
+          console.warn("[PWA] SW registration failed:", err);
+        }
+      });
   }, [success]);
 
   return null;

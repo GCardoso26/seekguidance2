@@ -13,5 +13,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const health = await fetchCatalogHealth();
   const gameId = gameIdFromSlug(game);
   const count = gameId && health?.by_game ? health.by_game[gameId] : undefined;
-  return gameMetadataFromSlug(game, count);
+  const meta = gameMetadataFromSlug(game, count);
+  return {
+    ...meta,
+    description:
+      meta.description ??
+      `Compre cards de ${game.toUpperCase()} com preços em tempo real. Envio rápido e condições de NM a HP.`,
+  };
 }

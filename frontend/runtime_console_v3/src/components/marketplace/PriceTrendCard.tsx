@@ -33,12 +33,13 @@ export function PriceTrendCard({ trend }: PriceTrendCardProps) {
             fill
             className="object-cover"
             sizes="200px"
+            listQuality
           />
         </div>
         <p className="truncate font-medium">{trend.name}</p>
         <p className="truncate text-xs text-muted-foreground">{trend.setName}</p>
         {trend.price !== undefined && (
-          <p className="mt-1 text-sm font-semibold text-emerald-600">
+          <p className="mt-1 text-sm font-semibold text-emerald-400">
             {formatCurrency(trend.price, trend.currency ?? "BRL")}
           </p>
         )}

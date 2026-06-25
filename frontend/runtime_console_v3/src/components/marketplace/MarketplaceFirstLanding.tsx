@@ -101,7 +101,14 @@ function PopularGamesSection() {
             data-testid={`game-card-${gameSlugFromId(game.id as GameId)}`}
             className="flex flex-col items-center gap-2 rounded-xl border border-white/10 bg-luxury-obsidian/50 p-4 transition hover:border-luxury-gold/30 hover:shadow-lg"
           >
-            <Image src={game.logoUrl} alt="" width={48} height={48} className="h-12 w-12 object-contain" />
+            <Image
+              src={game.logoUrl}
+              alt=""
+              width={48}
+              height={48}
+              quality={60}
+              className="h-12 w-12 object-contain"
+            />
             <span className="text-center text-sm font-medium">{game.name}</span>
             {game.cardCount > 0 && (
               <span className="text-xs text-luxury-mist">{game.cardCount.toLocaleString("pt-BR")}</span>

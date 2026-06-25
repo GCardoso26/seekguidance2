@@ -24,18 +24,16 @@ export function GameTabs({ games, className }: GameTabsProps) {
   const isAll = !activeSlug || activeSlug === "busca" || activeSlug === "cartas" || activeSlug === "tendencias";
 
   return (
-    <div
+    <nav
       className={cn(
         "flex items-center gap-1 overflow-x-auto py-2 scrollbar-hide",
         className,
       )}
-      role="tablist"
       aria-label="Jogos TCG"
     >
       <Link
         href="/loja/busca"
-        role="tab"
-        aria-selected={isAll}
+        aria-current={isAll ? "page" : undefined}
         className={cn(
           "shrink-0 rounded-full px-3 py-1.5 text-sm font-medium whitespace-nowrap transition-colors",
           isAll
@@ -54,8 +52,7 @@ export function GameTabs({ games, className }: GameTabsProps) {
           <Link
             key={game.id}
             href={`/loja/${slug}`}
-            role="tab"
-            aria-selected={active}
+            aria-current={active ? "page" : undefined}
             className={cn(
               "flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium whitespace-nowrap transition-colors",
               active
@@ -73,11 +70,11 @@ export function GameTabs({ games, className }: GameTabsProps) {
             />
             <span>{game.name}</span>
             {game.cardCount > 0 && (
-              <span className="text-xs opacity-70">({formatCount(game.cardCount)})</span>
+              <span className="text-xs text-luxury-mist/90">({formatCount(game.cardCount)})</span>
             )}
           </Link>
         );
       })}
-    </div>
+    </nav>
   );
 }

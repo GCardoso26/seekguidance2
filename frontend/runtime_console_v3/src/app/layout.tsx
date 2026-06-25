@@ -1,4 +1,5 @@
 import { SentryInit } from "@/components/SentryInit";
+import { ConsoleFilterInit } from "@/components/ConsoleFilterInit";
 import { ServiceWorkerRegister } from "@/components/pwa/ServiceWorkerRegister";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -127,6 +128,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={inter.className}>
 
         <SentryInit />
+        <ConsoleFilterInit />
         <ServiceWorkerRegister />
 
         <ThemeProvider>

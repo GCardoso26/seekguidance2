@@ -7,6 +7,8 @@ import { cn } from "@/lib/utils";
 type CardImageProps = Omit<ImageProps, "onError" | "onLoad" | "placeholder" | "blurDataURL" | "src"> & {
   src?: string | null;
   fallbackLabel?: string;
+  /** Qualidade JPEG/WebP — listas usam 60 por padrão. */
+  listQuality?: boolean;
 };
 
 function buildPlaceholderSvg(label: string): string {
@@ -22,6 +24,9 @@ export function CardImage({
   style,
   fallbackLabel,
   fill,
+  listQuality = false,
+  quality,
+  priority,
   ...props
 }: CardImageProps) {
   const [error, setError] = useState(false);
@@ -70,7 +75,10 @@ export function CardImage({
         onLoad={handleLoad}
         placeholder="blur"
         blurDataURL={blurDataURL}
+        quality={quality ?? (listQuality || !priority ? 60 : 75)}
+        loading={priority ? "eager" : "lazy"}
         sizes={props.sizes ?? "(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 16vw"}
+        priority={priority}
         {...props}
       />
     </div>
