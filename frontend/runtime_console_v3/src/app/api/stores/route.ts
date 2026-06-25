@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fetchApiResilient, tournamentProxyHeaders } from "@/lib/tournament-api";
 
+export const maxDuration = 60;
+
 function apiUnavailable() {
   return NextResponse.json(
     {

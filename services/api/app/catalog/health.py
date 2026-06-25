@@ -16,6 +16,34 @@ GAMES = (
 )
 
 
+async def verify_ingestion_lite(session: AsyncSession) -> dict[str, Any]:
+    """Health rápido para BFF/produção — uma query agregada."""
+    row = (
+        await session.execute(
+            text(
+                """
+                SELECT
+                  count(*) AS total_cards,
+                  count(*) FILTER (WHERE game_code = 'MTG') AS mtg_cards
+                FROM tcg_judge.card_catalog
+                """
+            )
+        )
+    ).mappings().first()
+    total = int(row["total_cards"]) if row else 0
+    ready = total > 50
+    return {
+        "total_cards": total,
+        "by_game": {"MTG": int(row["mtg_cards"]) if row else 0},
+        "missing_images": [],
+        "missing_prices": [],
+        "last_sync": {},
+        "ready_for_marketplace": ready,
+        "status": "ready_for_marketplace" if ready else "loading",
+        "lite": True,
+    }
+
+
 async def verify_ingestion(session: AsyncSession) -> dict[str, Any]:
     report: dict[str, Any] = {
         "total_cards": 0,

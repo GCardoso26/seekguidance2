@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { fetchApiResilient, tournamentProxyHeaders } from "@/lib/tournament-api";
 
+export const maxDuration = 60;
+
 export async function GET() {
   try {
     const res = await fetchApiResilient(`/runtime/judge/stores/mine`, {

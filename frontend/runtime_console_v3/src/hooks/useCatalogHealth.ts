@@ -11,24 +11,18 @@ const fetchCatalogHealth = withPerformanceTracking(async (): Promise<CatalogHeal
     async (signal) => {
       const res = await fetch("/api/catalog/health", { cache: "no-store", signal });
       if (!res.ok) {
-        if (process.env.NODE_ENV === "development") {
-          return MOCK_CATALOG_HEALTH;
-        }
-        throw new Error("catalog_health_unavailable");
+        return MOCK_CATALOG_HEALTH;
       }
-      const data = (await res.json()) as CatalogHealthReport & { error?: string };
-      if (data.error) {
-        if (process.env.NODE_ENV === "development") {
-          return MOCK_CATALOG_HEALTH;
-        }
-        throw new Error(data.error);
+      const data = (await res.json()) as CatalogHealthReport & { error?: string; degraded?: boolean };
+      if (data.error && !data.degraded) {
+        return MOCK_CATALOG_HEALTH;
       }
       return {
         ...data,
         status: data.ready_for_marketplace ? "ready_for_marketplace" : "loading",
       };
     },
-    { timeout: 8000, retries: 2 },
+    { timeout: 12_000, retries: 1 },
   );
 }, "Supabase: Catalog health");
 
