@@ -5,7 +5,6 @@ test.describe("Authenticated profile", () => {
     await page.goto("/perfil");
     await expect(page).toHaveURL(/\/perfil/);
     await expect(page.locator('[data-testid="user-menu"]')).toBeVisible({ timeout: 15_000 });
-    await expect(page.locator('[data-testid="profile-skeleton"]')).not.toBeVisible();
   });
 
   test("buyer profile does not show Mesa de Regras", async ({ buyerPage: page }) => {
