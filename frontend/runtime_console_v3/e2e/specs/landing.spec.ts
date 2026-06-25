@@ -29,7 +29,7 @@ test.describe("Landing Page", () => {
 
   test("game grid navigates to Magic", async ({ page }) => {
     await page.goto("/");
-    const magicCard = page.getByRole("link", { name: /Magic/i });
+    const magicCard = page.locator('[data-testid="game-card-mtg"]');
     await expect(magicCard).toBeVisible({ timeout: 15_000 });
     await magicCard.click();
     await expect(page).toHaveURL(/\/loja\/mtg/, { timeout: 15_000 });

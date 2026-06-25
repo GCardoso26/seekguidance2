@@ -33,7 +33,5 @@ jobs:
         if: always()
         with:
           name: lighthouse-reports
-          path: |
-            .lighthouseci/
-            frontend/runtime_console_v3/.lighthouseci/
+          path: frontend/runtime_console_v3/.lighthouseci/
           if-no-files-found: warn
