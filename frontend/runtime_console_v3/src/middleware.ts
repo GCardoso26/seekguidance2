@@ -6,6 +6,12 @@ import { isAdminRequest } from "@/lib/middleware-auth";
 
 const ADMIN_PREFIXES = ["/observability", "/admin", "/ingestion"];
 
+const SUSPICIOUS_PATTERNS = [/\.\.\//, /[<>]/, /(script|javascript|data):/i];
+
+function isSuspiciousPath(pathname: string): boolean {
+  return SUSPICIOUS_PATTERNS.some((pattern) => pattern.test(pathname));
+}
+
 function hasSupabaseSession(request: NextRequest): boolean {
   return request.cookies.getAll().some(
     (cookie) =>
@@ -29,6 +35,10 @@ function readOAuthReturnPath(request: NextRequest): string | null {
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  if (isSuspiciousPath(pathname)) {
+    return new NextResponse("Invalid request", { status: 400 });
+  }
 
   // Google OAuth às vezes cai na home com ?code= se o redirect URL no Supabase estiver incompleto
   if (pathname === "/" && request.nextUrl.searchParams.has("code")) {
@@ -92,16 +102,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/",
-    "/judge",
-    "/onboarding",
-    "/player/me",
-    "/player/me/:path*",
-    "/social/communities/:path*/posts/:path*",
-    "/observability/:path*",
-    "/admin/:path*",
-    "/ingestion/:path*",
-    "/tournament/create",
-    "/team/manage",
+    "/((?!api|_next/static|_next/image|favicon.ico|manifest.json|sw.js|icon-192|icon-512|apple-icon|monitoring).*)",
   ],
 };

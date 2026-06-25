@@ -7,8 +7,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const staticRoutes = [
     "",
     "/loja",
+    "/loja/mtg",
     "/loja/busca",
     "/decks",
+    "/entrar",
+    "/perfil",
     "/regras",
     "/comunidade",
     "/comunidade/leaderboard",

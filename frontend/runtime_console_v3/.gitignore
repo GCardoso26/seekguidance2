@@ -2,6 +2,7 @@
 .env*.local
 .next/
 lighthouse-reports/
+lighthouse-baseline-*.json
 playwright-report/
 test-results/
 e2e/.auth/

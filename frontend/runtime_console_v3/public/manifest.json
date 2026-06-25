@@ -1,29 +1,49 @@
 {
-  "name": "Judge TCG",
-  "short_name": "Judge",
-  "description": "Rulings instantâneos e torneios impecáveis",
-  "start_url": "/judge",
+  "name": "Judge TCG — Loja e Deckbuilder MTG",
+  "short_name": "Judge TCG",
+  "description": "Compre cards de Magic: The Gathering e monte seus decks com preços em tempo real",
+  "start_url": "/",
   "display": "standalone",
-  "background_color": "#0a0a0f",
-  "theme_color": "#0a0a0f",
+  "background_color": "#09090b",
+  "theme_color": "#7c3aed",
   "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "pt-BR",
+  "categories": ["shopping", "games"],
   "icons": [
     {
       "src": "/icon-192",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "maskable any"
     },
     {
       "src": "/icon-512",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "maskable any"
     },
     {
       "src": "/apple-icon",
       "sizes": "180x180",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Loja MTG",
+      "short_name": "Loja",
+      "description": "Ver cards de Magic: The Gathering",
+      "url": "/loja/mtg",
+      "icons": [{ "src": "/icon-192", "sizes": "192x192" }]
+    },
+    {
+      "name": "Meus Decks",
+      "short_name": "Decks",
+      "description": "Gerenciar coleções e decks",
+      "url": "/decks",
+      "icons": [{ "src": "/icon-192", "sizes": "192x192" }]
     }
   ]
 }

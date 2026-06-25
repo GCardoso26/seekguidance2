@@ -1,4 +1,7 @@
 import { SentryInit } from "@/components/SentryInit";
+import { ServiceWorkerRegister } from "@/components/pwa/ServiceWorkerRegister";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 import { AuthProviderWrapper } from "@/providers/auth-provider-wrapper";
 
@@ -17,7 +20,7 @@ import { UpgradeModalProvider } from "@/components/premium/UpgradeModalProvider"
 import { PWAInstallPrompt } from "@/components/pwa/PWAInstallPrompt";
 import { Toaster } from "sonner";
 
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 
 const inter = Inter({
@@ -33,19 +36,70 @@ export const metadata: Metadata = {
   metadataBase: new URL(appUrl),
   title: {
     template: "%s | Judge TCG",
-    default: "Judge TCG — Marketplace de Cartas TCG com 0% Comissão",
+    default: "Judge TCG — Loja e Deckbuilder de Magic: The Gathering",
   },
   description:
-    "Compre e venda cartas de Magic, Pokémon, Yu-Gi-Oh!, Lorcana e mais. Zero comissão, PIX direto, torneios e juízes certificados.",
-  keywords: ["tcg", "cartas", "magic", "pokemon", "yugioh", "lorcana", "marketplace", "colecionáveis"],
+    "Compre cards de MTG com preços em tempo real. Monte decks, gerencie sua coleção e acompanhe o mercado. Zero comissão, PIX direto.",
+  keywords: [
+    "Magic The Gathering",
+    "MTG",
+    "cards",
+    "loja",
+    "deckbuilder",
+    "Judge TCG",
+    "tcg",
+    "pokemon",
+    "yugioh",
+    "lorcana",
+  ],
+  authors: [{ name: "Judge TCG" }],
+  creator: "Judge TCG",
+  publisher: "Judge TCG",
   manifest: "/manifest.json",
   appleWebApp: { capable: true, title: "Judge TCG" },
-  openGraph: {
-    title: "Judge TCG — Marketplace de Cartas TCG",
-    description: "Zero comissão. PIX direto. Torneios e juízes certificados.",
-    images: ["/og-image.jpg"],
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
   },
-  twitter: { card: "summary_large_image" },
+  openGraph: {
+    type: "website",
+    locale: "pt_BR",
+    url: appUrl,
+    siteName: "Judge TCG",
+    title: "Judge TCG — Loja e Deckbuilder de Magic: The Gathering",
+    description: "Compre cards de MTG com preços em tempo real.",
+    images: [
+      {
+        url: `${appUrl}/og-image.jpg`,
+        width: 1200,
+        height: 630,
+        alt: "Judge TCG — Loja de Magic: The Gathering",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Judge TCG",
+    description: "Compre cards de MTG com preços em tempo real.",
+    images: [`${appUrl}/og-image.jpg`],
+  },
+  alternates: {
+    canonical: appUrl,
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#7c3aed",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
 };
 
 
@@ -58,7 +112,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
       <head>
 
-        <meta name="theme-color" content="#0a0a0f" />
+        <meta name="theme-color" content="#7c3aed" />
 
         <link rel="apple-touch-icon" href="/apple-icon" />
 
@@ -73,6 +127,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={inter.className}>
 
         <SentryInit />
+        <ServiceWorkerRegister />
 
         <ThemeProvider>
 
@@ -100,6 +155,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </AuthProviderWrapper>
 
         </ThemeProvider>
+
+        <Analytics />
+        <SpeedInsights />
 
       </body>
 

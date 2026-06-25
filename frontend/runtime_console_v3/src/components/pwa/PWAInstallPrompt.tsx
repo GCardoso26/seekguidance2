@@ -27,11 +27,6 @@ export function PWAInstallPrompt() {
     return () => window.removeEventListener("beforeinstallprompt", handler);
   }, []);
 
-  useEffect(() => {
-    if (typeof window === "undefined" || !("serviceWorker" in navigator)) return;
-    void navigator.serviceWorker.register("/sw.js").catch(() => undefined);
-  }, []);
-
   if (dismissed || !deferred) return null;
 
   const install = async () => {
@@ -49,9 +44,9 @@ export function PWAInstallPrompt() {
       <div className="flex items-start gap-3">
         <Download className="mt-0.5 h-5 w-5 shrink-0 text-luxury-gold-light" aria-hidden />
         <div className="flex-1">
-          <p className="text-sm font-semibold text-luxury-frost">Adicionar à tela inicial</p>
+          <p className="text-sm font-semibold text-luxury-frost">Instalar Judge TCG</p>
           <p className="mt-1 text-xs text-luxury-mist">
-            Acesse rulings e torneios como um app — mais rápido no celular.
+            Acesse rapidamente do seu celular, mesmo offline.
           </p>
           <div className="mt-3 flex gap-2">
             <button

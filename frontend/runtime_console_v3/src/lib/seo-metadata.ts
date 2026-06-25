@@ -37,7 +37,17 @@ export function gameMetadataFromSlug(slug: string, cardCount?: number): Metadata
   return {
     title: `${token.name} — Cartas e Listagens`,
     description: `Compre e venda cards de ${token.name} no Judge TCG. ${countText} Zero comissão, PIX direto.`,
+    alternates: {
+      canonical: `https://judgetcg.com.br/loja/${slug}`,
+    },
     openGraph: {
+      title: `${token.name} — Judge TCG`,
+      description: `Marketplace de ${token.name}`,
+      url: `https://judgetcg.com.br/loja/${slug}`,
+      images: [token.logo],
+    },
+    twitter: {
+      card: "summary_large_image",
       title: `${token.name} — Judge TCG`,
       description: `Marketplace de ${token.name}`,
       images: [token.logo],
