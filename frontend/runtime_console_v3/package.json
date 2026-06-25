@@ -13,6 +13,8 @@
     "lighthouse": "node scripts/lighthouse-audit.js",
     "lighthouse:ci": "lhci autorun",
     "lighthouse:prod": "lhci autorun --config=lighthouserc.prod.js",
+    "load-test": "k6 run k6/search-smoke-test.js",
+    "load-test:full": "k6 run k6/search-load-test.js",
     "deploy:vercel": "vercel --prod"
   },
   "dependencies": {
@@ -30,6 +32,8 @@
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.47.10",
     "@tanstack/react-query": "^5.62.8",
+    "@upstash/ratelimit": "^2.0.8",
+    "@upstash/redis": "^1.38.0",
     "@vercel/analytics": "^2.0.1",
     "@vercel/og": "^0.6.3",
     "@vercel/speed-insights": "^2.0.0",

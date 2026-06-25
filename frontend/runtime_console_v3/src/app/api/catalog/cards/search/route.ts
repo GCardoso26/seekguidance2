@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { API_PROXY_BASE, API_FETCH_TIMEOUT_MS } from "@/lib/api-proxy-base";
-import { clientIpFromHeaders, rateLimit } from "@/lib/api/rate-limit";
+import {
+  checkDistributedRateLimit,
+  clientIpFromRequest,
+  getRateLimitTier,
+  rateLimitHeaders,
+} from "@/lib/rate-limit-redis";
+import { getCachedSearch, setCachedSearch } from "@/lib/search-cache";
 import { CardSearchSchema, validationErrorResponse } from "@/lib/validation";
 
 const FORWARD_PARAMS = [
@@ -23,12 +29,19 @@ const FORWARD_PARAMS = [
 export const revalidate = 60;
 
 export async function GET(request: NextRequest) {
-  const ip = clientIpFromHeaders(request.headers);
-  const { success, remaining } = rateLimit(`catalog-search:${ip}`, 30, 60_000);
-  if (!success) {
+  const ip = clientIpFromRequest(request);
+  const tier = getRateLimitTier(request);
+  const rateResult = await checkDistributedRateLimit(ip, tier);
+
+  if (!rateResult.success) {
+    const headers = rateLimitHeaders(rateResult);
     return NextResponse.json(
-      { error: "rate_limit_exceeded", message: "Muitas requisições. Tente novamente em instantes." },
-      { status: 429, headers: { "Retry-After": "60", "X-RateLimit-Remaining": String(remaining) } },
+      {
+        error: "rate_limit_exceeded",
+        message: "Muitas requisições. Tente novamente em instantes.",
+        retryAfter: Number(headers["Retry-After"]),
+      },
+      { status: 429, headers },
     );
   }
 
@@ -62,6 +75,19 @@ export async function GET(request: NextRequest) {
   if (!params.has("limit")) params.set("limit", String(parsed.data.limit));
   if (!params.has("page")) params.set("page", String(parsed.data.page));
 
+  const queryString = params.toString();
+  const cached = await getCachedSearch<unknown>(queryString);
+  if (cached) {
+    return NextResponse.json(cached, {
+      headers: {
+        ...rateLimitHeaders(rateResult),
+        "X-Cache": "HIT",
+      },
+    });
+  }
+
+  const proxyStart = Date.now();
+
   try {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), API_FETCH_TIMEOUT_MS);
@@ -72,8 +98,21 @@ export async function GET(request: NextRequest) {
     });
     clearTimeout(timeoutId);
 
+    const proxyMs = Date.now() - proxyStart;
     const data = await res.json();
-    return NextResponse.json(data, { status: res.ok ? 200 : res.status });
+
+    if (res.ok) {
+      await setCachedSearch(queryString, data);
+    }
+
+    return NextResponse.json(data, {
+      status: res.ok ? 200 : res.status,
+      headers: {
+        ...rateLimitHeaders(rateResult),
+        "X-Cache": "MISS",
+        "X-Render-Proxy-Time": String(proxyMs),
+      },
+    });
   } catch {
     return NextResponse.json(
       {
@@ -85,7 +124,13 @@ export async function GET(request: NextRequest) {
         hasMore: false,
         source: "postgres",
       },
-      { status: 503 },
+      {
+        status: 503,
+        headers: {
+          ...rateLimitHeaders(rateResult),
+          "X-Render-Proxy-Time": String(Date.now() - proxyStart),
+        },
+      },
     );
   }
 }

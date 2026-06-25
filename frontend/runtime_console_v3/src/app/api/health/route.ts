@@ -1,59 +1,126 @@
 import { NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
 import type { ServiceHealth, ServiceHealthStatus } from "@/types/service-health";
+import { isRedisRateLimitEnabled } from "@/lib/rate-limit-redis";
+import { isSearchCacheEnabled } from "@/lib/search-cache";
 
 export type { ServiceHealth, ServiceHealthStatus };
 
-const API_BASE = (process.env.API_PROXY_TARGET || "http://127.0.0.1:8000").replace(/\/$/, "");
+const API_BASE = (process.env.API_PROXY_TARGET || "https://seekguidance.onrender.com").replace(/\/$/, "");
 
-function mapServiceStatus(name: string, value: string | undefined): ServiceHealthStatus {
+type CheckResult = { status: string; latency: number; error?: string };
+
+function mapServiceStatus(value: string | undefined): ServiceHealthStatus {
   if (value === "ok" || value === "disabled") return "online";
   if (value === "error") return "offline";
   return "degraded";
 }
 
-export async function GET() {
-  try {
-    const res = await fetch(`${API_BASE}/v1/health`, { cache: "no-store", next: { revalidate: 0 } });
-    if (!res.ok) {
-      return NextResponse.json(
-        {
-          status: "degraded",
-          services: [{ name: "API Principal", status: "offline" as ServiceHealthStatus }],
-          checkedAt: new Date().toISOString(),
-        },
-        { status: 503 },
-      );
-    }
+async function checkDatabase(): Promise<CheckResult> {
+  const start = Date.now();
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-    const data = (await res.json()) as {
-      status?: string;
-      services?: Record<string, string>;
-    };
-
-    const backendServices = data.services ?? {};
-    const services: ServiceHealth[] = [
-      { name: "API Principal", status: data.status === "healthy" ? "online" : "degraded" },
-      { name: "Banco de Dados", status: mapServiceStatus("database", backendServices.database) },
-      { name: "Redis", status: mapServiceStatus("redis", backendServices.redis) },
-      { name: "Push FCM", status: mapServiceStatus("fcm", backendServices.fcm) },
-    ];
-
-    const hasIssue = services.some((s) => s.status === "offline" || s.status === "degraded");
-
-    return NextResponse.json({
-      status: hasIssue ? "degraded" : "ok",
-      services,
-      checkedAt: new Date().toISOString(),
-      backend: data,
-    });
-  } catch {
-    return NextResponse.json(
-      {
-        status: "degraded",
-        services: [{ name: "API Principal", status: "offline" as ServiceHealthStatus }],
-        checkedAt: new Date().toISOString(),
-      },
-      { status: 503 },
-    );
+  if (!url || !key) {
+    return { status: "skipped", latency: 0, error: "Supabase não configurado" };
   }
+
+  try {
+    const supabase = createClient(url, key, { auth: { persistSession: false } });
+    const { error } = await supabase.from("card_catalog").select("id").limit(1);
+    if (error) throw error;
+    return { status: "ok", latency: Date.now() - start };
+  } catch (e) {
+    return {
+      status: "error",
+      latency: Date.now() - start,
+      error: e instanceof Error ? e.message : "database error",
+    };
+  }
+}
+
+async function checkCatalogApi(): Promise<CheckResult> {
+  const start = Date.now();
+  try {
+    const res = await fetch(`${API_BASE}/v1/health`, {
+      cache: "no-store",
+      signal: AbortSignal.timeout(5000),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return { status: "ok", latency: Date.now() - start };
+  } catch (e) {
+    return {
+      status: "error",
+      latency: Date.now() - start,
+      error: e instanceof Error ? e.message : "api error",
+    };
+  }
+}
+
+async function checkRedis(): Promise<CheckResult> {
+  const start = Date.now();
+  if (!isRedisRateLimitEnabled()) {
+    return { status: "skipped", latency: 0, error: "Upstash não configurado" };
+  }
+
+  try {
+    const { Redis } = await import("@upstash/redis");
+    const redis = new Redis({
+      url: process.env.UPSTASH_REDIS_REST_URL!,
+      token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+    });
+    await redis.ping();
+    return { status: "ok", latency: Date.now() - start };
+  } catch (e) {
+    return {
+      status: "error",
+      latency: Date.now() - start,
+      error: e instanceof Error ? e.message : "redis error",
+    };
+  }
+}
+
+export async function GET() {
+  const [database, catalogApi, redis] = await Promise.all([
+    checkDatabase(),
+    checkCatalogApi(),
+    checkRedis(),
+  ]);
+
+  const services: ServiceHealth[] = [
+    { name: "API Principal", status: catalogApi.status === "ok" ? "online" : "offline" },
+    {
+      name: "Banco de Dados",
+      status: database.status === "ok" ? "online" : database.status === "skipped" ? "degraded" : "offline",
+    },
+    {
+      name: "Redis (Upstash)",
+      status: redis.status === "ok" ? "online" : redis.status === "skipped" ? "degraded" : "offline",
+    },
+  ];
+
+  const hasCriticalIssue = catalogApi.status === "error" || database.status === "error";
+  const status = hasCriticalIssue ? "degraded" : "ok";
+
+  const body = {
+    timestamp: new Date().toISOString(),
+    status,
+    version: process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA?.slice(0, 7) || "dev",
+    checks: {
+      database,
+      catalog_api: catalogApi,
+      redis,
+    },
+    features: {
+      redis_rate_limit: isRedisRateLimitEnabled(),
+      search_cache: isSearchCacheEnabled(),
+    },
+    services,
+    checkedAt: new Date().toISOString(),
+  };
+
+  return NextResponse.json(body, {
+    status: hasCriticalIssue ? 503 : 200,
+    headers: { "Cache-Control": "no-store, max-age=0" },
+  });
 }

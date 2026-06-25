@@ -1,0 +1,70 @@
+{
+  "title": "Judge TCG — Production Health",
+  "widgets": [
+    {
+      "title": "Error Rate",
+      "displayType": "big_number",
+      "queries": [
+        {
+          "name": "Errors/min",
+          "aggregates": ["count()"],
+          "fields": ["count()"],
+          "conditions": "event.type:error",
+          "interval": "1m"
+        }
+      ]
+    },
+    {
+      "title": "P95 Latency — API",
+      "displayType": "big_number",
+      "queries": [
+        {
+          "name": "P95",
+          "aggregates": ["p95(transaction.duration)"],
+          "fields": ["p95(transaction.duration)"],
+          "conditions": "transaction.op:http.server",
+          "interval": "1m"
+        }
+      ]
+    },
+    {
+      "title": "Top Issues",
+      "displayType": "table",
+      "queries": [
+        {
+          "name": "Issues",
+          "aggregates": ["count()"],
+          "fields": ["issue", "title", "count()", "last_seen()"],
+          "conditions": "event.type:error",
+          "orderby": "-count()"
+        }
+      ]
+    },
+    {
+      "title": "Checkout Errors",
+      "displayType": "line",
+      "queries": [
+        {
+          "name": "Checkout",
+          "aggregates": ["count()"],
+          "fields": ["count()"],
+          "conditions": "event.type:error AND (checkout OR payment OR order)",
+          "interval": "1h"
+        }
+      ]
+    },
+    {
+      "title": "Performance — Page Load",
+      "displayType": "line",
+      "queries": [
+        {
+          "name": "LCP",
+          "aggregates": ["p75(measurements.lcp.value)"],
+          "fields": ["p75(measurements.lcp.value)"],
+          "conditions": "transaction.op:pageload",
+          "interval": "1h"
+        }
+      ]
+    }
+  ]
+}
