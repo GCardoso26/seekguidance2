@@ -1,5 +1,6 @@
 from functools import lru_cache
 
+from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -255,9 +256,17 @@ class Settings(BaseSettings):
     platform_pix_key: str | None = None
     platform_pix_key_type: str | None = None
     pix_webhook_internal_secret: str | None = None
+    # Alias legado (Render) — mesma chave PIX da plataforma para escrow/planos
+    escrow_pix_key: str | None = None
 
     # Preços externos (tcgapi.dev)
     tcg_api_key: str | None = None
+
+    @model_validator(mode="after")
+    def _merge_platform_pix_aliases(self) -> "Settings":
+        if not self.platform_pix_key and self.escrow_pix_key:
+            self.platform_pix_key = self.escrow_pix_key
+        return self
 
 
 @lru_cache

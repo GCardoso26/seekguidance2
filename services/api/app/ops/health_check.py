@@ -43,6 +43,11 @@ def service_status(env_key: str) -> str:
     return "ok" if os.getenv(env_key) else "disabled"
 
 
+def platform_pix_status() -> str:
+    keys = ("PLATFORM_PIX_KEY", "ESCROW_PIX_KEY", "OPENPIX_API_KEY")
+    return "ok" if any(os.getenv(k) for k in keys) else "disabled"
+
+
 async def build_health_payload() -> dict[str, Any]:
     db_ok = await check_database()
     redis_status = await check_redis()
@@ -57,6 +62,7 @@ async def build_health_payload() -> dict[str, Any]:
             "redis": redis_status,
             "stripe": service_status("STRIPE_SECRET_KEY"),
             "openpix": service_status("OPENPIX_API_KEY"),
+            "platform_pix": platform_pix_status(),
             "fcm": service_status("FIREBASE_PROJECT_ID"),
             "vapid": service_status("VAPID_PRIVATE_KEY"),
             "sentry": service_status("SENTRY_DSN"),

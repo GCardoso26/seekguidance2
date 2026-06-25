@@ -37,3 +37,11 @@ services:
         sync: false
       - key: CRON_SECRET
         sync: false
+      - key: PLATFORM_PIX_KEY
+        sync: false
+      - key: PLATFORM_PIX_KEY_TYPE
+        sync: false
+      - key: OPENPIX_API_KEY
+        sync: false
+      - key: OPENPIX_WEBHOOK_SECRET
+        sync: false
