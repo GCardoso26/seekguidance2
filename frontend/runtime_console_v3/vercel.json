@@ -19,6 +19,15 @@
       ]
     },
     {
+      "source": "/api/catalog/cards/search",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=300, stale-while-revalidate=86400"
+        }
+      ]
+    },
+    {
       "source": "/api/(.*)",
       "headers": [{ "key": "Cache-Control", "value": "no-store, max-age=0" }]
     },
@@ -36,5 +45,12 @@
       "source": "/api/proxy/:path*",
       "destination": "https://seekguidance.onrender.com/:path*"
     }
+  ],
+  "crons": [
+    { "path": "/api/cron/escrow-auto-actions", "schedule": "0 * * * *" },
+    { "path": "/api/cron/check-price-alerts", "schedule": "0 * * * *" },
+    { "path": "/api/cron/update-health-scores", "schedule": "0 3 * * 1" },
+    { "path": "/api/cron/sync-prices-external", "schedule": "0 */6 * * *" },
+    { "path": "/api/cron/expire-checkouts", "schedule": "0 * * * *" }
   ]
 }

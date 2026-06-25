@@ -1,3 +1,4 @@
+import { CommandPalette } from "@/components/search/CommandPalette";
 import { SentryInit } from "@/components/SentryInit";
 import { ConsoleFilterInit } from "@/components/ConsoleFilterInit";
 import { ServiceWorkerRegister } from "@/components/pwa/ServiceWorkerRegister";
@@ -140,6 +141,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <CartProvider>
                   <ErrorBoundary>
                     <LuxurySiteShell>{children}</LuxurySiteShell>
+                    <CommandPalette />
                   </ErrorBoundary>
                   <PWAInstallPrompt />
                 </CartProvider>
