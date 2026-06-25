@@ -10,6 +10,7 @@ import { CouponApply } from "@/components/checkout/CouponApply";
 import { formatShopPrice } from "@/lib/marketplace-shop";
 import { trackEvent } from "@/lib/analytics";
 import { CheckoutReservationBanner } from "@/components/checkout/CheckoutReservationBanner";
+import { EscrowToggle } from "@/components/escrow/EscrowToggle";
 import type { CheckoutSessionInfo } from "@/types/seller";
 
 const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? "";
@@ -17,7 +18,8 @@ const stripePromise = publishableKey ? loadStripe(publishableKey) : null;
 
 type Methods = {
   total_cents: number;
-  methods: { pix: boolean; stripe: boolean };
+  methods: { pix: boolean; stripe: boolean; escrow?: boolean };
+  escrow_fee_cents?: number;
   default_method: "pix" | "stripe";
   stores?: Array<{ store_id: string; store_name: string }>;
 };
@@ -81,6 +83,7 @@ export default function CheckoutPage() {
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; storeId: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [pixLoading, setPixLoading] = useState(false);
+  const [useEscrow, setUseEscrow] = useState(false);
 
   useEffect(() => {
     async function reserveStock() {
@@ -144,6 +147,7 @@ export default function CheckoutPage() {
         coupon_code: activeCoupon?.code ?? null,
         store_id: activeCoupon?.storeId ?? null,
         checkout_session_id: checkoutSession?.session_id ?? null,
+        use_escrow: useEscrow,
       }),
     });
     if (!res.ok) {
@@ -176,6 +180,7 @@ export default function CheckoutPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         checkout_session_id: checkoutSession?.session_id ?? null,
+        use_escrow: useEscrow,
       }),
     });
     if (!res.ok) {
@@ -214,7 +219,9 @@ export default function CheckoutPage() {
     if (pixData) setPixData(null);
   }
 
-  const previewTotal = Math.max(0, (methods?.total_cents ?? 0) - discountCents);
+  const productSubtotal = Math.max(0, (methods?.total_cents ?? 0) - discountCents);
+  const escrowFee = useEscrow ? Math.round(productSubtotal * 0.03) : 0;
+  const previewTotal = productSubtotal + escrowFee;
 
   return (
     <MobileLayout>
@@ -248,6 +255,21 @@ export default function CheckoutPage() {
               </span>
             )}
           </p>
+        )}
+
+        {methods?.stores?.length === 1 && (
+          <div className="mt-4">
+            <EscrowToggle
+              enabled={useEscrow}
+              onChange={(value) => {
+                setUseEscrow(value);
+                setPixData(null);
+                setClientSecret(null);
+              }}
+              amountCents={productSubtotal}
+              available={Boolean(methods.methods.escrow)}
+            />
+          </div>
         )}
 
         {methods?.stores?.length === 1 && (

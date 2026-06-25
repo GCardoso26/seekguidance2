@@ -5,6 +5,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import Image from "next/image";
 import Link from "next/link";
 import { AlertCircle, Image as ImageIcon, Sparkles, X, ZoomIn } from "lucide-react";
+import { CardValuationPanel } from "@/components/valuation/CardValuationPanel";
 import { CardActions } from "@/components/cards/CardActions";
 import { AddToCollectionButton } from "@/components/cards/AddToCollectionButton";
 import { CardCard } from "@/components/cards/CardCard";
@@ -321,6 +322,13 @@ export function CardDetailPage({ cardId }: CardDetailPageProps) {
                 </CardHeader>
                 <CardContent>
                   <PriceChart cardId={cardId} range={priceRange} condition={selectedCondition} />
+                  <div className="mt-6">
+                    <CardValuationPanel
+                      cardName={card.name}
+                      game={gameSlug}
+                      condition={selectedCondition ?? "NM"}
+                    />
+                  </div>
                 </CardContent>
               </Card>
                 </TabsContent>

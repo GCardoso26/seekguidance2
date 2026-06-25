@@ -7,10 +7,11 @@ from typing import Any
 from app.api.deps import DbSession, SettingsDep
 from app.api.v1.tournament_system import _require_user
 from app.marketplace import card_listings as card_listings_svc
-from app.marketplace import shop_cart, shop_connect, shop_coupons, shop_orders, shop_pix, shop_products, shop_reviews
+from app.marketplace import shop_cart, shop_connect, shop_coupons, shop_escrow, shop_orders, shop_pix, shop_products, shop_reviews
 from app.marketplace import shop_checkout as shop_checkout_svc
+from app.catalog.cron_auth import require_catalog_cron_auth
 from app.stores import store as store_svc
-from fastapi import APIRouter, Header, HTTPException, Request
+from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from fastapi.responses import PlainTextResponse
 from pydantic import BaseModel, Field
 
@@ -56,6 +57,12 @@ class CheckoutBody(BaseModel):
     coupon_code: str | None = None
     store_id: str | None = None
     checkout_session_id: str | None = None
+    use_escrow: bool = False
+
+
+class EscrowDisputeBody(BaseModel):
+    reason: str = Field(min_length=10, max_length=2000)
+    evidence: dict[str, Any] | None = None
 
 
 class OrderStatusBody(BaseModel):
@@ -291,6 +298,7 @@ async def shop_checkout(
         user_id,
         shipping_address=body.shipping_address,
         checkout_session_id=body.checkout_session_id,
+        use_escrow=body.use_escrow,
     )
 
 
@@ -317,6 +325,7 @@ async def checkout_pix(
         coupon_code=body.coupon_code,
         store_id=body.store_id,
         checkout_session_id=body.checkout_session_id,
+        use_escrow=body.use_escrow,
     )
 
 
@@ -542,9 +551,42 @@ async def get_order(
     x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
 ) -> dict[str, Any]:
     user_id = _require_user(x_judge_user_id)
-    order = await shop_orders.get_buyer_order(session, order_id, user_id)
+    order = await shop_orders.get_buyer_order_with_escrow(session, order_id, user_id)
     review = await shop_reviews.get_review_by_order(session, order_id, user_id)
     return {"order": order, "review": review}
+
+
+@router.post("/runtime/judge/marketplace/shop/escrow/{escrow_id}/confirm")
+async def confirm_escrow_delivery(
+    session: DbSession,
+    escrow_id: str,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    escrow = await shop_escrow.confirm_delivery(session, escrow_id, user_id)
+    return {"escrow": escrow}
+
+
+@router.post("/runtime/judge/marketplace/shop/escrow/{escrow_id}/dispute")
+async def dispute_escrow(
+    session: DbSession,
+    escrow_id: str,
+    body: EscrowDisputeBody,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    escrow = await shop_escrow.open_dispute(
+        session, escrow_id, user_id, reason=body.reason, evidence=body.evidence
+    )
+    return {"escrow": escrow}
+
+
+@router.post("/runtime/judge/marketplace/shop/escrow/cron/auto-actions")
+async def escrow_cron_auto_actions(
+    session: DbSession,
+    _: None = Depends(require_catalog_cron_auth),
+) -> dict[str, Any]:
+    return await shop_escrow.run_auto_actions(session)
 
 
 @router.get("/runtime/judge/marketplace/shop/pix/status/{txid}")

@@ -180,7 +180,9 @@ async def get_checkout_methods(session: AsyncSession, user_id: str) -> dict[str,
         "methods": {
             "pix": pix_ok,
             "stripe": stripe_ok,
+            "escrow": len(stores) == 1,
         },
+        "escrow_fee_cents": round(total_cents * 0.03) if len(stores) == 1 else 0,
         "default_method": default_method,
     }
 
@@ -193,8 +195,15 @@ async def create_pix_checkout(
     coupon_code: str | None = None,
     store_id: str | None = None,
     checkout_session_id: str | None = None,
+    use_escrow: bool = False,
 ) -> dict[str, Any]:
     from app.marketplace import checkout_atomic
+    from app.marketplace import shop_escrow
+
+    settings = get_settings()
+
+    if use_escrow and not settings.platform_pix_key:
+        raise HTTPException(503, "Compra protegida indisponível — PIX da plataforma não configurado")
 
     if checkout_session_id:
         checkout_data = await checkout_atomic.get_active_session(session, checkout_session_id, user_id)
@@ -206,6 +215,8 @@ async def create_pix_checkout(
     methods = await get_checkout_methods(session, user_id)
     if not methods["methods"]["pix"]:
         raise HTTPException(400, "PIX indisponível para itens do carrinho. Configure PIX na loja ou use cartão.")
+    if use_escrow and not methods["methods"].get("escrow"):
+        raise HTTPException(400, "Compra protegida disponível apenas para pedidos de uma loja")
 
     cart = await shop_cart.get_cart(session, user_id)
     items = list(cart.get("items") or [])
@@ -220,6 +231,7 @@ async def create_pix_checkout(
                 text(
                     """
                     SELECT p.*, s.name AS store_name, s.pix_key, s.pix_key_type,
+                           s.owner_id AS store_owner_id,
                            s.stripe_account_id, s.stripe_onboarding_complete, s.shop_enabled
                     FROM tcg_judge.store_products p
                     JOIN tcg_judge.stores s ON s.id = p.store_id
@@ -231,7 +243,7 @@ async def create_pix_checkout(
         ).mappings().first()
         if not product or not store_is_sellable(dict(product)):
             raise HTTPException(400, "Produto ou loja indisponível")
-        if not product.get("pix_key"):
+        if not use_escrow and not product.get("pix_key"):
             raise HTTPException(400, f"Loja sem PIX: {product.get('store_name')}")
 
         qty = int(item.get("quantity", 0))
@@ -243,7 +255,8 @@ async def create_pix_checkout(
                 "amount_cents": 0,
                 "lines": [],
                 "store_name": product["store_name"],
-                "pix_key": product["pix_key"],
+                "pix_key": str(settings.platform_pix_key) if use_escrow else product["pix_key"],
+                "store_owner_id": str(product["store_owner_id"]),
             }
         store_splits[store_id]["amount_cents"] += line_total
         store_splits[store_id]["lines"].append(
@@ -293,9 +306,16 @@ async def create_pix_checkout(
             coupon_id = str(coupon_result["coupon_id"])
             applied_code = str(coupon_result["code"])
 
-        final_cents = subtotal_cents - discount_cents
+        product_amount_cents = subtotal_cents - discount_cents
+        escrow_fee_cents = 0
+        if use_escrow:
+            escrow_fee_cents = shop_escrow.calculate_escrow_fees(product_amount_cents)["escrow_fee_cents"]
+        final_cents = product_amount_cents + escrow_fee_cents
         total_discount_cents += discount_cents
         total_charged_cents += final_cents
+
+        payment_method = "escrow_pix" if use_escrow else "pix"
+        charge_label = "Compra Protegida" if use_escrow else f"Pedido {split['store_name'][:40]}"
 
         txid = f"JTCG{uuid.uuid4().hex[:12].upper()}"
         gateway_result: dict[str, Any] = {}
@@ -304,8 +324,8 @@ async def create_pix_checkout(
                 txid=txid,
                 amount_cents=final_cents,
                 pix_key=str(split["pix_key"]),
-                pix_key_type=None,
-                description=f"Pedido {split['store_name'][:40]}",
+                pix_key_type=settings.platform_pix_key_type if use_escrow else None,
+                description=charge_label[:60],
                 expires_in_seconds=expiry_seconds,
             )
         except Exception as exc:
@@ -323,6 +343,8 @@ async def create_pix_checkout(
             if qr_b64:
                 qr_b64 = f"data:image/png;base64,{qr_b64}"
 
+        seller_release = product_amount_cents - escrow_fee_cents if use_escrow else product_amount_cents
+
         order_row = (
             await session.execute(
                 text(
@@ -331,11 +353,13 @@ async def create_pix_checkout(
                       buyer_id, store_id, status, total_cents,
                       platform_fee_cents, store_receives_cents,
                       shipping_address, payment_method, pix_txid,
-                      discount_cents, coupon_id, coupon_code, subtotal_cents
+                      discount_cents, coupon_id, coupon_code, subtotal_cents,
+                      use_escrow
                     ) VALUES (
                       :buyer, :store, 'pending', :total,
-                      0, :total, :addr::jsonb, 'pix', :txid,
-                      :disc, :cid, :ccode, :subtotal
+                      :fee, :store_recv, :addr::jsonb, :pm, :txid,
+                      :disc, :cid, :ccode, :subtotal,
+                      :use_escrow
                     )
                     RETURNING id
                     """
@@ -344,18 +368,32 @@ async def create_pix_checkout(
                     "buyer": user_id,
                     "store": store_id,
                     "total": final_cents,
+                    "fee": escrow_fee_cents,
+                    "store_recv": seller_release,
                     "addr": json.dumps(shipping_address) if shipping_address else None,
+                    "pm": payment_method,
                     "txid": txid,
                     "disc": discount_cents,
                     "cid": coupon_id,
                     "ccode": applied_code,
                     "subtotal": subtotal_cents,
+                    "use_escrow": use_escrow,
                 },
             )
         ).mappings().first()
         order_id = str(order_row["id"]) if order_row else None
         if not order_id:
             continue
+
+        if use_escrow:
+            await shop_escrow.create_escrow_for_order(
+                session,
+                shop_order_id=order_id,
+                buyer_id=user_id,
+                seller_id=str(split["store_owner_id"]),
+                amount_cents=product_amount_cents,
+                payment_method="pix",
+            )
 
         order_ids.append(order_id)
         for line in split["lines"]:
@@ -411,7 +449,11 @@ async def create_pix_checkout(
                 "amt": final_cents,
                 "exp": expires_at,
                 "payload": json.dumps(
-                    {"copy_payload": copy_payload, "checkout_session_id": session_id}
+                    {
+                        "copy_payload": copy_payload,
+                        "checkout_session_id": session_id,
+                        "use_escrow": use_escrow,
+                    }
                 ),
                 "provider": gateway_result.get("gateway_provider") or "manual",
                 "charge_id": gateway_result.get("gateway_charge_id"),
@@ -436,6 +478,8 @@ async def create_pix_checkout(
                 "discount_cents": discount_cents,
                 "coupon_code": applied_code,
                 "amount_cents": final_cents,
+                "escrow_fee_cents": escrow_fee_cents if use_escrow else 0,
+                "use_escrow": use_escrow,
                 "copy_payload": copy_payload,
                 "qr_code": qr_b64 if isinstance(qr_b64, str) and qr_b64.startswith("data:") else (
                     f"data:image/png;base64,{qr_b64}" if qr_b64 else None
@@ -525,18 +569,41 @@ async def confirm_pix_payment(
         ),
         {"txid": txid, "payload": payload_json},
     )
-    await session.execute(
-        text(
-            """
-            UPDATE tcg_judge.shop_orders
-            SET status = 'paid', paid_at = NOW(), updated_at = NOW()
-            WHERE id = :id AND status = 'pending'
-            """
-        ),
-        {"id": order_id},
+
+    order_row = (
+        await session.execute(
+            text("SELECT use_escrow, payment_method FROM tcg_judge.shop_orders WHERE id = :id"),
+            {"id": order_id},
+        )
+    ).mappings().first()
+    is_escrow = bool(
+        order_row
+        and (
+            order_row.get("use_escrow")
+            or str(order_row.get("payment_method", "")).startswith("escrow_")
+        )
     )
 
-    if not stock_finalized:
+    history_status = "processing" if is_escrow else "paid"
+    status_note = "Pagamento PIX em custódia (Compra Protegida)" if is_escrow else "Pagamento PIX confirmado"
+
+    if is_escrow:
+        from app.marketplace import shop_escrow
+
+        await shop_escrow.on_payment_received(session, order_id, pix_txid=txid)
+    else:
+        await session.execute(
+            text(
+                """
+                UPDATE tcg_judge.shop_orders
+                SET status = 'paid', paid_at = NOW(), updated_at = NOW()
+                WHERE id = :id AND status = 'pending'
+                """
+            ),
+            {"id": order_id},
+        )
+
+    if not stock_finalized and not is_escrow:
         items = (
             await session.execute(
                 text("SELECT product_id, quantity FROM tcg_judge.shop_order_items WHERE order_id = :oid"),
@@ -559,17 +626,21 @@ async def confirm_pix_payment(
         text(
             """
             INSERT INTO tcg_judge.shop_order_status_history (order_id, status, note)
-            VALUES (:oid, 'paid', 'Pagamento PIX confirmado')
+            VALUES (:oid, :status, :note)
             """
         ),
-        {"oid": order_id},
+        {"oid": order_id, "status": history_status, "note": status_note},
     )
 
     await notify_shop_event(
         session,
         "shop:pix_paid",
         order_id=order_id,
-        body="Pagamento PIX confirmado. O lojista preparará o envio.",
+        body=(
+            "Pagamento recebido em custódia. O lojista enviará em até 48h."
+            if is_escrow
+            else "Pagamento PIX confirmado. O lojista preparará o envio."
+        ),
     )
 
     try:

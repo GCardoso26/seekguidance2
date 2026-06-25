@@ -32,8 +32,10 @@ async def create_checkout(
     *,
     shipping_address: dict[str, Any] | None = None,
     checkout_session_id: str | None = None,
+    use_escrow: bool = False,
 ) -> dict[str, Any]:
     from app.marketplace import checkout_atomic
+    from app.marketplace import shop_escrow
 
     settings = get_settings()
     if not settings.stripe_secret_key:
@@ -60,6 +62,7 @@ async def create_checkout(
                     """
                     SELECT p.*, s.stripe_account_id, s.commission_rate, s.shop_enabled,
                            s.stripe_onboarding_complete, s.name AS store_name,
+                           s.owner_id AS store_owner_id,
                            COALESCE(p.reserved_stock, 0) AS reserved_stock
                     FROM tcg_judge.store_products p
                     JOIN tcg_judge.stores s ON s.id = p.store_id
@@ -91,6 +94,7 @@ async def create_checkout(
                 "amount_cents": 0,
                 "stripe_account_id": product["stripe_account_id"],
                 "commission_rate": float(product.get("commission_rate") or 0.15),
+                "store_owner_id": str(product["store_owner_id"]),
                 "lines": [],
             }
         store_splits[store_id]["amount_cents"] += line_total
@@ -108,10 +112,21 @@ async def create_checkout(
 
     transfer_group = f"cart_{cart['id']}"
     pending_orders: list[str] = []
+    total_escrow_fee = 0
+
+    if use_escrow and len(store_splits) != 1:
+        raise HTTPException(400, "Compra protegida disponível apenas para pedidos de uma loja")
 
     for store_id, split in store_splits.items():
         platform_fee = 0
-        store_receives = split["amount_cents"]
+        product_amount = split["amount_cents"]
+        if use_escrow:
+            fees = shop_escrow.calculate_escrow_fees(product_amount)
+            platform_fee = fees["escrow_fee_cents"]
+            total_escrow_fee += platform_fee
+            total_cents += platform_fee
+        store_receives = product_amount - platform_fee if use_escrow else split["amount_cents"]
+        payment_method = "escrow_stripe" if use_escrow else "stripe"
         order_row = (
             await session.execute(
                 text(
@@ -119,10 +134,12 @@ async def create_checkout(
                     INSERT INTO tcg_judge.shop_orders (
                       buyer_id, store_id, status, total_cents,
                       platform_fee_cents, store_receives_cents,
-                      shipping_address, stripe_transfer_group, payment_method
+                      shipping_address, stripe_transfer_group, payment_method,
+                      use_escrow
                     ) VALUES (
                       :buyer, :store, 'pending', :total,
-                      :fee, :store_recv, :addr::jsonb, :tg, 'stripe'
+                      :fee, :store_recv, :addr::jsonb, :tg, :pm,
+                      :use_escrow
                     )
                     RETURNING id
                     """
@@ -130,17 +147,28 @@ async def create_checkout(
                 {
                     "buyer": user_id,
                     "store": store_id,
-                    "total": split["amount_cents"],
+                    "total": product_amount + (platform_fee if use_escrow else 0),
                     "fee": platform_fee,
                     "store_recv": store_receives,
                     "addr": json.dumps(shipping_address) if shipping_address else None,
                     "tg": transfer_group,
+                    "pm": payment_method,
+                    "use_escrow": use_escrow,
                 },
             )
         ).mappings().first()
         order_id = str(order_row["id"]) if order_row else None
         if order_id:
             pending_orders.append(order_id)
+            if use_escrow:
+                await shop_escrow.create_escrow_for_order(
+                    session,
+                    shop_order_id=order_id,
+                    buyer_id=user_id,
+                    seller_id=str(split["store_owner_id"]),
+                    amount_cents=product_amount,
+                    payment_method="stripe",
+                )
             for line in split["lines"]:
                 await session.execute(
                     text(
@@ -178,6 +206,7 @@ async def create_checkout(
                 "order_ids": ",".join(pending_orders),
                 "store_splits": json.dumps(splits_meta),
                 "checkout_session_id": session_id,
+                "use_escrow": "true" if use_escrow else "false",
             },
         )
     except stripe.StripeError as exc:
@@ -214,4 +243,6 @@ async def create_checkout(
         "order_ids": pending_orders,
         "checkout_session_id": session_id,
         "expires_at": checkout_data.get("expires_at"),
+        "use_escrow": use_escrow,
+        "escrow_fee_cents": total_escrow_fee,
     }

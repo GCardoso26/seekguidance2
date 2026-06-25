@@ -164,6 +164,10 @@ async def update_order_status(
             body="Pedido entregue. Avalie sua compra!",
         )
 
+    from app.marketplace import shop_escrow
+
+    await shop_escrow.sync_escrow_with_order_status(session, order_id, status)
+
     await session.commit()
     return dict(row)
 
@@ -199,6 +203,18 @@ async def get_buyer_order(session: AsyncSession, order_id: str, buyer_id: str) -
     if not row:
         raise HTTPException(404, "Pedido não encontrado")
     return dict(row)
+
+
+async def get_buyer_order_with_escrow(
+    session: AsyncSession, order_id: str, buyer_id: str
+) -> dict[str, Any]:
+    from app.marketplace import shop_escrow
+
+    order = await get_buyer_order(session, order_id, buyer_id)
+    escrow = await shop_escrow.get_escrow_by_order(session, order_id)
+    if escrow:
+        order["escrow"] = escrow
+    return order
 
 
 async def store_dashboard_enhanced(session: AsyncSession, store_id: str, owner_id: str) -> dict[str, Any]:
@@ -314,6 +330,7 @@ async def handle_payment_intent_succeeded(session: AsyncSession, settings: Setti
     except json.JSONDecodeError:
         store_splits = {}
 
+    use_escrow = str(metadata.get("use_escrow", "")).lower() == "true"
     order_ids = [o.strip() for o in order_ids_raw.split(",") if o.strip()]
     checkout_session_id = metadata.get("checkout_session_id")
     stock_finalized = False
@@ -333,6 +350,8 @@ async def handle_payment_intent_succeeded(session: AsyncSession, settings: Setti
             logger.error("checkout_finalize_failed", session_id=checkout_session_id, error=str(exc))
 
     for store_id, amount_cents in store_splits.items():
+        if use_escrow:
+            continue
         store = (
             await session.execute(
                 text("SELECT stripe_account_id, commission_rate FROM tcg_judge.stores WHERE id = :id"),
@@ -360,17 +379,24 @@ async def handle_payment_intent_succeeded(session: AsyncSession, settings: Setti
 
     if order_ids:
         for oid in order_ids:
-            await session.execute(
-                text(
-                    """
-                    UPDATE tcg_judge.shop_orders
-                    SET status = 'paid', updated_at = NOW()
-                    WHERE id = :id AND status = 'pending'
-                    """
-                ),
-                {"id": oid},
-            )
-    elif payment_intent_id:
+            if use_escrow:
+                from app.marketplace import shop_escrow
+
+                await shop_escrow.on_payment_received(
+                    session, oid, payment_intent_id=payment_intent_id
+                )
+            else:
+                await session.execute(
+                    text(
+                        """
+                        UPDATE tcg_judge.shop_orders
+                        SET status = 'paid', updated_at = NOW()
+                        WHERE id = :id AND status = 'pending'
+                        """
+                    ),
+                    {"id": oid},
+                )
+    elif payment_intent_id and not use_escrow:
         await session.execute(
             text(
                 """

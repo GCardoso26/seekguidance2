@@ -30,22 +30,21 @@ export default function MyOrdersPage() {
             <p className="text-luxury-mist">Nenhum pedido ainda.</p>
           )}
           {orders.map((o) => (
-            <div key={String(o.id)} className="rounded-xl border border-white/10 bg-white/5 p-4">
+            <Link
+              key={String(o.id)}
+              href={`/marketplace/orders/${String(o.id)}`}
+              className="block rounded-xl border border-white/10 bg-white/5 p-4 hover:bg-white/10"
+            >
               <div className="flex flex-wrap justify-between gap-2">
                 <span className="font-mono text-sm">#{String(o.id).slice(0, 8)}</span>
                 <span className="text-xs uppercase text-luxury-mist">{String(o.status)}</span>
                 <span className="font-semibold">{formatShopPrice(Number(o.total_cents))}</span>
               </div>
               <p className="mt-1 text-sm text-luxury-mist">{String(o.store_name ?? "")}</p>
-              {String(o.status) === "delivered" && (
-                <Link
-                  href={`/pedidos/${String(o.id)}/avaliar`}
-                  className="mt-3 inline-block text-sm text-luxury-gold underline"
-                >
-                  Avaliar compra
-                </Link>
+              {Boolean(o.use_escrow) && (
+                <span className="mt-2 inline-block text-xs text-emerald-400">Compra Protegida</span>
               )}
-            </div>
+            </Link>
           ))}
         </div>
       </div>
