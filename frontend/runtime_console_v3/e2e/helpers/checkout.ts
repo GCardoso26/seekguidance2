@@ -1,14 +1,11 @@
-import { createClient } from "@supabase/supabase-js";
 import { hasAuthEnv } from "./supabase-auth";
+import { createSupabaseServiceClient } from "./supabase-client";
 
 const RACE_PRODUCT_NAME = "E2E Race Test Product";
 
 function getTcgJudgeAdmin() {
   if (!hasAuthEnv()) return null;
-  return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
-    auth: { autoRefreshToken: false, persistSession: false },
-    db: { schema: "tcg_judge" },
-  });
+  return createSupabaseServiceClient("tcg_judge");
 }
 
 export async function getOrCreateRaceProduct(): Promise<string | null> {

@@ -1,7 +1,7 @@
-import { createClient } from "@supabase/supabase-js";
 import { createChunks, stringToBase64URL } from "@supabase/ssr";
 import fs from "fs";
 import path from "path";
+import { createSupabaseAnonClient, createSupabaseServiceClient } from "./supabase-client";
 
 const AUTH_DIR = path.join(__dirname, "../.auth");
 
@@ -15,9 +15,7 @@ export function hasAuthEnv(): boolean {
 
 export function getAdminClient() {
   if (!hasAuthEnv()) return null;
-  return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  });
+  return createSupabaseServiceClient();
 }
 
 async function ensureUser(email: string, password: string, metadata: Record<string, string>) {
@@ -44,10 +42,9 @@ export async function signInAndSaveState(
   outfile: string,
   baseURL: string,
 ) {
-  const admin = getAdminClient();
-  if (!admin) return false;
+  if (!hasAuthEnv()) return false;
 
-  const anon = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);
+  const anon = createSupabaseAnonClient();
   const { data, error } = await anon.auth.signInWithPassword({ email, password });
   if (error || !data.session) throw error ?? new Error("No session");
 
@@ -86,7 +83,9 @@ export async function signInAndSaveState(
 
 export async function setupTestUsers(baseURL: string) {
   if (!hasAuthEnv()) {
-    console.warn("[e2e] Skipping auth setup — missing SUPABASE_SERVICE_ROLE_KEY");
+    console.warn(
+      "[e2e] Skipping auth setup — configure NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY e SUPABASE_SERVICE_ROLE_KEY",
+    );
     return false;
   }
 
