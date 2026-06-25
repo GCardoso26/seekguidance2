@@ -9,6 +9,7 @@ from app.marketplace.decklists import search_listings
 from app.players import store as player_store
 from app.public_api.auth import create_api_key, require_api_key
 from app.public_api.webhooks import create_webhook, list_webhooks
+from app.marketplace import shop_seller_api
 from app.search.tournaments import search_tournaments
 from app.tcg_adapters.registry import get_adapter, normalize_game_code
 from app.tournament.flow import get_standings
@@ -170,3 +171,31 @@ async def dev_usage(
         )
     ).mappings().first()
     return dict(row) if row else {"usage_count": 0}
+
+
+@router.get("/seller/store")
+async def public_seller_store(
+    session: DbSession,
+    key_info: dict = Depends(require_api_key),
+) -> dict[str, Any]:
+    return await shop_seller_api.seller_store_summary(session, str(key_info["owner_id"]))
+
+
+@router.get("/seller/products")
+async def public_seller_products(
+    session: DbSession,
+    key_info: dict = Depends(require_api_key),
+    limit: int = Query(default=50, ge=1, le=200),
+) -> dict[str, Any]:
+    products = await shop_seller_api.seller_list_products(session, str(key_info["owner_id"]), limit=limit)
+    return {"products": products}
+
+
+@router.get("/seller/orders")
+async def public_seller_orders(
+    session: DbSession,
+    key_info: dict = Depends(require_api_key),
+    limit: int = Query(default=50, ge=1, le=200),
+) -> dict[str, Any]:
+    orders = await shop_seller_api.seller_list_orders(session, str(key_info["owner_id"]), limit=limit)
+    return {"orders": orders}

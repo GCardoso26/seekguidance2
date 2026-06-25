@@ -30,6 +30,37 @@ export default function BuylistPage() {
     enabled: Boolean(storeId) && planHasFeature(plan, "buylist"),
   });
 
+  const { data: submissionsData, refetch: refetchSubmissions } = useQuery({
+    queryKey: ["seller-buylist-submissions", storeId],
+    queryFn: async () => {
+      const res = await fetch(
+        `/api/marketplace/shop/stores/${encodeURIComponent(storeId!)}/buylists/submissions?status=pending`,
+      );
+      if (!res.ok) throw new Error("fetch_failed");
+      return res.json() as Promise<{ submissions: Array<Record<string, unknown>> }>;
+    },
+    enabled: Boolean(storeId) && planHasFeature(plan, "buylist"),
+  });
+
+  const reviewMutation = useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: "accepted" | "rejected" }) => {
+      const res = await fetch(
+        `/api/marketplace/shop/stores/${encodeURIComponent(storeId!)}/buylists/submissions/${encodeURIComponent(id)}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status }),
+        },
+      );
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(String((err as { detail?: string }).detail ?? "Erro"));
+      }
+      return res.json();
+    },
+    onSuccess: () => void refetchSubmissions(),
+  });
+
   const createMutation = useMutation({
     mutationFn: async () => {
       const payload = {
@@ -153,6 +184,47 @@ export default function BuylistPage() {
                   >
                     Abrir link público
                   </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+          <h3 className="mb-3 font-semibold">Propostas pendentes</h3>
+          {(submissionsData?.submissions ?? []).length === 0 ? (
+            <p className="text-sm text-luxury-mist">Nenhuma proposta aguardando.</p>
+          ) : (
+            <ul className="space-y-3">
+              {(submissionsData?.submissions ?? []).map((s) => (
+                <li key={String(s.id)} className="rounded-lg border border-white/10 p-3 text-sm">
+                  <p className="font-medium">{String(s.buylist_title ?? "BuyList")}</p>
+                  <p className="text-luxury-mist">{formatBRL(Number(s.total_offer_cents ?? 0))}</p>
+                  <div className="mt-2 flex gap-2">
+                    <Button
+                      size="sm"
+                      disabled={reviewMutation.isPending}
+                      onClick={() => void reviewMutation.mutate({ id: String(s.id), status: "accepted" })}
+                    >
+                      Aceitar + Escrow
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={reviewMutation.isPending}
+                      onClick={() => void reviewMutation.mutate({ id: String(s.id), status: "rejected" })}
+                    >
+                      Recusar
+                    </Button>
+                  </div>
+                  {s.shop_order_id && (
+                    <Link
+                      href={`/vendedor/painel/vendas/${String(s.shop_order_id)}`}
+                      className="mt-2 inline-block text-luxury-gold underline"
+                    >
+                      Ver pedido escrow
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>

@@ -61,6 +61,17 @@ export default function ConfiguracoesPage() {
           </Link>
         </section>
 
+        <section className="rounded-xl border border-white/10 bg-white/5 p-6">
+          <h3 className="font-semibold">API (Pro)</h3>
+          <p className="mt-2 text-sm text-luxury-mist">Integração REST para estoque e pedidos.</p>
+          <Link
+            href="/vendedor/painel/configuracoes/api"
+            className="mt-3 inline-block text-sm text-luxury-gold underline"
+          >
+            Gerenciar API keys →
+          </Link>
+        </section>
+
         {storeId && (
           <section className="rounded-xl border border-white/10 bg-white/5 p-6">
             <h3 className="mb-3 font-semibold">Avaliações</h3>

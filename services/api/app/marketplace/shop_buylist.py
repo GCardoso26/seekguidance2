@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import secrets
 from typing import Any
 
@@ -270,7 +271,25 @@ async def update_submission_status(
 ) -> dict[str, Any]:
     if status not in {"accepted", "rejected", "completed", "cancelled"}:
         raise HTTPException(400, "Status inválido")
-    await _assert_store_owner(session, store_id, owner_id)
+    store = await _assert_store_owner(session, store_id, owner_id)
+
+    existing = (
+        await session.execute(
+            text(
+                """
+                SELECT bs.*, b.title AS buylist_title
+                FROM tcg_judge.buylist_submissions bs
+                JOIN tcg_judge.buylists b ON b.id = bs.buylist_id
+                WHERE bs.id = :id AND bs.store_id = :sid
+                """
+            ),
+            {"id": submission_id, "sid": store_id},
+        )
+    ).mappings().first()
+    if not existing:
+        raise HTTPException(404, "Proposta não encontrada")
+    if existing["status"] != "pending" and status == "accepted":
+        raise HTTPException(400, "Proposta já processada")
 
     row = (
         await session.execute(
@@ -288,17 +307,154 @@ async def update_submission_status(
     if not row:
         raise HTTPException(404, "Proposta não encontrada")
 
-    if status == "accepted":
+    sub = dict(row)
+    shop_order_id: str | None = sub.get("shop_order_id")
+
+    if status == "accepted" and not shop_order_id:
+        shop_order_id = await _create_buylist_escrow_order(
+            session,
+            store=store,
+            submission=sub,
+            buylist_title=str(existing.get("buylist_title") or "Coleção BuyList"),
+        )
+        await session.execute(
+            text(
+                """
+                UPDATE tcg_judge.buylist_submissions
+                SET shop_order_id = :oid, updated_at = NOW()
+                WHERE id = :id
+                """
+            ),
+            {"oid": shop_order_id, "id": submission_id},
+        )
+        sub["shop_order_id"] = shop_order_id
+
         from app.marketplace.shop_notifications import notify_shop_event
 
-        sub = dict(row)
         await notify_shop_event(
             session,
             "buylist:accepted",
             buyer_id=sub["seller_user_id"],
-            body="Sua proposta de venda de coleção foi aceita pela loja.",
+            body="Sua proposta foi aceita. Envie as cartas e aguarde o pagamento via Compra Protegida.",
+            data={
+                "submission_id": submission_id,
+                "store_id": store_id,
+                "shop_order_id": shop_order_id,
+            },
+        )
+    elif status == "rejected":
+        from app.marketplace.shop_notifications import notify_shop_event
+
+        await notify_shop_event(
+            session,
+            "buylist:rejected",
+            buyer_id=sub["seller_user_id"],
+            body="A loja não aceitou sua proposta de venda de coleção.",
             data={"submission_id": submission_id, "store_id": store_id},
         )
 
     await session.commit()
-    return dict(row)
+    sub["shop_order_id"] = shop_order_id
+    return sub
+
+
+async def _create_buylist_escrow_order(
+    session: AsyncSession,
+    *,
+    store: dict[str, Any],
+    submission: dict[str, Any],
+    buylist_title: str,
+) -> str:
+    from app.marketplace import shop_escrow
+
+    store_id = str(store["id"])
+    store_owner = str(store["owner_id"])
+    seller_user_id = str(submission["seller_user_id"])
+    buylist_id = str(submission["buylist_id"])
+    amount_cents = int(submission.get("total_offer_cents") or 0)
+    if amount_cents <= 0:
+        raise HTTPException(400, "Valor da proposta inválido")
+
+    fees = shop_escrow.calculate_escrow_fees(amount_cents)
+    total_cents = fees["total_cents"]
+    platform_fee = fees["escrow_fee_cents"]
+    store_receives = fees["seller_release_cents"]
+
+    order_row = (
+        await session.execute(
+            text(
+                """
+                INSERT INTO tcg_judge.shop_orders (
+                  buyer_id, store_id, status, total_cents,
+                  platform_fee_cents, store_receives_cents,
+                  payment_method, use_escrow,
+                  shipping_address
+                ) VALUES (
+                  :buyer, :store, 'pending', :total,
+                  :fee, :store_recv, 'escrow_buylist', true,
+                  CAST(:meta AS jsonb)
+                )
+                RETURNING id
+                """
+            ),
+            {
+                "buyer": store_owner,
+                "store": store_id,
+                "total": total_cents,
+                "fee": platform_fee,
+                "store_recv": store_receives,
+                "meta": json.dumps(
+                    {
+                        "kind": "buylist",
+                        "buylist_id": buylist_id,
+                        "submission_id": str(submission["id"]),
+                        "seller_user_id": seller_user_id,
+                        "title": buylist_title,
+                    }
+                ),
+            },
+        )
+    ).mappings().first()
+    if not order_row:
+        raise HTTPException(500, "Falha ao criar pedido BuyList")
+
+    order_id = str(order_row["id"])
+    items = (
+        await session.execute(
+            text("SELECT * FROM tcg_judge.buylist_items WHERE buylist_id = :bid"),
+            {"bid": buylist_id},
+        )
+    ).mappings().all()
+
+    for item in items:
+        qty = int(item["quantity"])
+        unit = int(item["offer_cents"])
+        await session.execute(
+            text(
+                """
+                INSERT INTO tcg_judge.shop_order_items (
+                  order_id, product_id, product_name, quantity,
+                  unit_price_cents, total_price_cents
+                ) VALUES (
+                  :oid, NULL, :name, :qty, :unit, :total
+                )
+                """
+            ),
+            {
+                "oid": order_id,
+                "name": f"{item['card_name']} (BuyList)",
+                "qty": qty,
+                "unit": unit,
+                "total": unit * qty,
+            },
+        )
+
+    await shop_escrow.create_escrow_for_order(
+        session,
+        shop_order_id=order_id,
+        buyer_id=store_owner,
+        seller_id=seller_user_id,
+        amount_cents=amount_cents,
+        payment_method="pix",
+    )
+    return order_id

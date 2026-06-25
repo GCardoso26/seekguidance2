@@ -47,10 +47,10 @@
     }
   ],
   "crons": [
-    { "path": "/api/cron/escrow-auto-actions", "schedule": "0 * * * *" },
-    { "path": "/api/cron/check-price-alerts", "schedule": "0 * * * *" },
+    { "path": "/api/cron/escrow-auto-actions", "schedule": "0 6 * * *" },
+    { "path": "/api/cron/check-price-alerts", "schedule": "0 7 * * *" },
     { "path": "/api/cron/update-health-scores", "schedule": "0 3 * * 1" },
-    { "path": "/api/cron/sync-prices-external", "schedule": "0 */6 * * *" },
-    { "path": "/api/cron/expire-checkouts", "schedule": "0 * * * *" }
+    { "path": "/api/cron/sync-prices-external", "schedule": "0 4 * * *" },
+    { "path": "/api/cron/expire-checkouts", "schedule": "0 5 * * *" }
   ]
 }
