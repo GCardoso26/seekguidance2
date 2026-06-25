@@ -1,12 +1,16 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { SellerHeader } from "@/components/seller-dashboard/SellerHeader";
 import { PeriodSelector } from "@/components/seller-dashboard/PeriodSelector";
 import { StatCard } from "@/components/seller-dashboard/StatCard";
+import { Button } from "@/components/ui/button";
+import { useSellerStore } from "@/hooks/useSellerStore";
 import { formatShopPrice } from "@/lib/marketplace-shop";
+import { planHasFeature } from "@/lib/seller-plans";
 
 const SalesChart = dynamic(
   () => import("@/components/dashboard/SalesChart").then((m) => m.SalesChart),
@@ -17,6 +21,8 @@ type Period = "7d" | "30d" | "90d" | "1y" | "all";
 
 export default function EstatisticasPage() {
   const [period, setPeriod] = useState<Period>("30d");
+  const { dashboard } = useSellerStore();
+  const plan = String((dashboard?.store as Record<string, unknown> | undefined)?.subscription_plan ?? "free");
 
   const { data, isLoading } = useQuery({
     queryKey: ["seller-stats", period],
@@ -25,7 +31,19 @@ export default function EstatisticasPage() {
       if (!res.ok) throw new Error("stats_failed");
       return res.json();
     },
+    enabled: planHasFeature(plan, "analytics"),
   });
+
+  if (!planHasFeature(plan, "analytics")) {
+    return (
+      <main className="p-8 text-center">
+        <p className="text-luxury-mist">Analytics disponível no plano Lojista.</p>
+        <Button asChild className="mt-4">
+          <Link href="/vendedor/painel/planos">Ver planos</Link>
+        </Button>
+      </main>
+    );
+  }
 
   const chartData = (data?.revenue?.chart ?? []).map(
     (row: { date?: string; revenue_cents?: number }) => ({

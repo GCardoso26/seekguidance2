@@ -508,6 +508,7 @@ async def create_buylist_pix_payment(
     from datetime import UTC, datetime, timedelta
 
     from app.core.config import get_settings
+    from app.marketplace.payments_gate import require_live_payments
     from app.marketplace.pix_gateway import get_pix_gateway
     from app.marketplace.shop_notifications import notify_shop_event
     from app.marketplace.shop_pix import PIX_EXPIRY_MINUTES, _build_copy_payload, _qr_base64
@@ -516,8 +517,7 @@ async def create_buylist_pix_payment(
     _require_buylist_plan(store)
 
     settings = get_settings()
-    if not settings.platform_pix_key:
-        raise HTTPException(503, "PIX da plataforma indisponível — configure PLATFORM_PIX_KEY")
+    require_live_payments(settings)
 
     sub = (
         await session.execute(

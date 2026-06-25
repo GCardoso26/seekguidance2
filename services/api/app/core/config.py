@@ -258,6 +258,8 @@ class Settings(BaseSettings):
     pix_webhook_internal_secret: str | None = None
     # Alias legado (Render) — mesma chave PIX da plataforma para escrow/planos
     escrow_pix_key: str | None = None
+    # Pagamentos PIX/checkout — false até Go-Live (PAYMENTS_ENABLED=true)
+    payments_enabled: bool = False
 
     # Preços externos (tcgapi.dev)
     tcg_api_key: str | None = None

@@ -324,6 +324,7 @@ export function CardDetailPage({ cardId }: CardDetailPageProps) {
                   <PriceChart cardId={cardId} range={priceRange} condition={selectedCondition} />
                   <div className="mt-6">
                     <CardValuationPanel
+                      cardId={cardId}
                       cardName={card.name}
                       game={gameSlug}
                       condition={selectedCondition ?? "NM"}

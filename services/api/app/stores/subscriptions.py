@@ -14,6 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 import stripe
 from app.core.config import Settings
+from app.marketplace.payments_gate import require_live_payments
 from app.marketplace.shop_notifications import notify_shop_event
 from app.marketplace.shop_store import (
     ENTERPRISE_PRICE_CENTS,
@@ -114,8 +115,7 @@ async def create_subscription_checkout(
             "session_id": checkout_session.id,
         }
 
-    if not settings.platform_pix_key:
-        raise HTTPException(503, "PIX Pro indisponível — configure PLATFORM_PIX_KEY")
+    require_live_payments(settings)
 
     txid = f"PRO{uuid.uuid4().hex[:12].upper()}"
     amount = PLAN_PRICES_CENTS[plan]

@@ -3,8 +3,27 @@
 ## Pré-deploy
 
 - [ ] `pytest tests/marketplace/test_pix_coupon.py -q` passando
+- [ ] `pytest tests/marketplace/test_sprint7.py -q` passando
 - [ ] `supabase db push --include-all` (migrations até `20260621130000`)
 - [ ] Env vars Vercel + Render configuradas (ver `DEPLOYMENT.md`)
+
+## Pagamentos (ativar só no Go-Live)
+
+Até o lançamento, `PAYMENTS_ENABLED=false` — BuyList, escrow e planos lojista funcionam sem cobrança PIX.
+
+No Go-Live, configure no Render:
+
+| Variável | Descrição |
+|----------|-----------|
+| `PAYMENTS_ENABLED` | `true` |
+| `PLATFORM_PIX_KEY` | Chave PIX da plataforma (escrow + planos) |
+| `PLATFORM_PIX_KEY_TYPE` | Tipo da chave (`random`, `cpf`, etc.) |
+| `OPENPIX_API_KEY` | Gateway automático (opcional) |
+| `TCG_API_KEY` | Preços tcgapi.dev (valuation) |
+| `UPSTASH_REDIS_*` | Cache busca (opcional) |
+
+Verifique: `curl https://seekguidance.onrender.com/v1/health` → `payments: live`
+
 
 ## Deploy
 

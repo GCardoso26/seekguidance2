@@ -8,12 +8,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 interface CardValuationPanelProps {
   cardName: string;
+  cardId?: string;
   game?: string;
   condition?: string;
 }
 
 export function CardValuationPanel({
   cardName,
+  cardId,
   game = "mtg",
   condition = "NM",
 }: CardValuationPanelProps) {
@@ -21,12 +23,18 @@ export function CardValuationPanel({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const params = new URLSearchParams({ name: cardName, game, condition });
+    const params = new URLSearchParams({ condition });
+    if (cardId) {
+      params.set("card_id", cardId);
+    } else {
+      params.set("name", cardName);
+      params.set("game", game);
+    }
     void fetch(`/api/valuation?${params}`)
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => setValuation(data))
       .finally(() => setLoading(false));
-  }, [cardName, game, condition]);
+  }, [cardName, cardId, game, condition]);
 
   if (loading) {
     return (

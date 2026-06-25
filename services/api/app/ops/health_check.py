@@ -48,6 +48,13 @@ def platform_pix_status() -> str:
     return "ok" if any(os.getenv(k) for k in keys) else "disabled"
 
 
+def payments_gate_status() -> str:
+    from app.core.config import get_settings
+    from app.marketplace.payments_gate import payments_status
+
+    return payments_status(get_settings())
+
+
 async def build_health_payload() -> dict[str, Any]:
     db_ok = await check_database()
     redis_status = await check_redis()
@@ -63,6 +70,7 @@ async def build_health_payload() -> dict[str, Any]:
             "stripe": service_status("STRIPE_SECRET_KEY"),
             "openpix": service_status("OPENPIX_API_KEY"),
             "platform_pix": platform_pix_status(),
+            "payments": payments_gate_status(),
             "fcm": service_status("FIREBASE_PROJECT_ID"),
             "vapid": service_status("VAPID_PRIVATE_KEY"),
             "sentry": service_status("SENTRY_DSN"),

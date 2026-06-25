@@ -207,6 +207,10 @@ class CrmNotesBody(BaseModel):
     notes: str = Field(max_length=5000)
 
 
+class InventoryImportBody(BaseModel):
+    csv: str = Field(min_length=1)
+
+
 @router.get("/runtime/judge/marketplace/shop/products")
 async def list_shop_products(
     session: DbSession,
@@ -969,6 +973,18 @@ async def store_inventory(
 ) -> dict[str, Any]:
     user_id = _require_user(x_judge_user_id)
     return await shop_inventory.inventory_summary(session, store_id, user_id)
+
+
+@router.post("/runtime/judge/marketplace/shop/stores/{store_id}/inventory/import-csv")
+async def store_inventory_import_csv(
+    session: DbSession,
+    store_id: str,
+    body: InventoryImportBody,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    result = await shop_inventory.import_products_csv(session, store_id, user_id, body.csv)
+    return result
 
 
 @router.get("/runtime/judge/marketplace/shop/stores/{store_id}/crm/customers")

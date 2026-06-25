@@ -199,11 +199,12 @@ async def create_pix_checkout(
 ) -> dict[str, Any]:
     from app.marketplace import checkout_atomic
     from app.marketplace import shop_escrow
+    from app.marketplace.payments_gate import require_live_payments
 
     settings = get_settings()
 
-    if use_escrow and not settings.platform_pix_key:
-        raise HTTPException(503, "Compra protegida indisponível — PIX da plataforma não configurado")
+    if use_escrow:
+        require_live_payments(settings)
 
     if checkout_session_id:
         checkout_data = await checkout_atomic.get_active_session(session, checkout_session_id, user_id)

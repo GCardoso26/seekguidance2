@@ -1,9 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useRef, useState } from "react";
 import { SellerHeader } from "@/components/seller-dashboard/SellerHeader";
+import { Button } from "@/components/ui/button";
 import { useSellerStore } from "@/hooks/useSellerStore";
+
+const CSV_TEMPLATE = `name,category,price_cents,stock,sku,description
+Booster Set X,booster,1990,24,BOOST-001,Display lacrado
+Sleeves Premium,sleeve,3490,50,SLV-01,65 unidades
+`;
 
 function formatBRL(cents: number) {
   return (cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -11,6 +18,13 @@ function formatBRL(cents: number) {
 
 export default function EstoquePage() {
   const { storeId, hasStore, isLoading } = useSellerStore();
+  const qc = useQueryClient();
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [importResult, setImportResult] = useState<{
+    imported: number;
+    skipped: number;
+    errors: string[];
+  } | null>(null);
 
   const { data, isLoading: loadingInv } = useQuery({
     queryKey: ["seller-inventory", storeId],
@@ -21,6 +35,33 @@ export default function EstoquePage() {
     },
     enabled: Boolean(storeId),
   });
+
+  const importMutation = useMutation({
+    mutationFn: async (csv: string) => {
+      const res = await fetch(
+        `/api/marketplace/shop/stores/${encodeURIComponent(storeId!)}/inventory/import-csv`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ csv }),
+        },
+      );
+      const payload = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(String((payload as { detail?: string }).detail ?? "Falha na importação"));
+      }
+      return payload as { imported: number; skipped: number; errors: string[] };
+    },
+    onSuccess: (result) => {
+      setImportResult(result);
+      void qc.invalidateQueries({ queryKey: ["seller-inventory", storeId] });
+    },
+  });
+
+  async function handleFile(file: File) {
+    const csv = await file.text();
+    importMutation.mutate(csv);
+  }
 
   if (isLoading) {
     return <main className="p-8 text-luxury-mist">Carregando…</main>;
@@ -61,6 +102,64 @@ export default function EstoquePage() {
               <p className="mt-1 text-2xl font-bold">{kpi.value}</p>
             </div>
           ))}
+        </div>
+
+        <div className="rounded-xl border border-white/10 bg-white/5 p-4 space-y-3">
+          <h3 className="font-semibold">Importar produtos (CSV)</h3>
+          <p className="text-sm text-luxury-mist">
+            Colunas: name, category, price_cents, stock, sku, description. Categorias: booster, sleeve,
+            deck_box, playmat, accessory, single.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <input
+              ref={fileRef}
+              type="file"
+              accept=".csv,text/csv"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) void handleFile(file);
+                e.target.value = "";
+              }}
+            />
+            <Button
+              variant="outline"
+              disabled={importMutation.isPending}
+              onClick={() => fileRef.current?.click()}
+            >
+              {importMutation.isPending ? "Importando…" : "Selecionar CSV"}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                const blob = new Blob([CSV_TEMPLATE], { type: "text/csv" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "estoque-template.csv";
+                a.click();
+                URL.revokeObjectURL(url);
+              }}
+            >
+              Baixar modelo
+            </Button>
+          </div>
+          {importMutation.isError && (
+            <p className="text-sm text-red-300">
+              {importMutation.error instanceof Error ? importMutation.error.message : "Erro na importação"}
+            </p>
+          )}
+          {importResult && (
+            <p className="text-sm text-emerald-300">
+              {importResult.imported} importado(s), {importResult.skipped} ignorado(s).
+              {importResult.errors.length > 0 && (
+                <span className="block mt-1 text-amber-200">
+                  {importResult.errors.slice(0, 3).join(" · ")}
+                </span>
+              )}
+            </p>
+          )}
         </div>
 
         <div className="rounded-xl border border-white/10 bg-white/5 p-4">

@@ -43,5 +43,7 @@ services:
         sync: false
       - key: OPENPIX_API_KEY
         sync: false
+      - key: PAYMENTS_ENABLED
+        value: "false"
       - key: OPENPIX_WEBHOOK_SECRET
         sync: false

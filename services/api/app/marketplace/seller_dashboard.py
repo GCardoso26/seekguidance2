@@ -21,6 +21,8 @@ _PERIOD_INTERVAL = {
     "all": None,
 }
 
+_REVENUE_FILTER = "o.status IN ('paid', 'processing', 'shipped', 'delivered')"
+
 
 async def resolve_owner_store(session: AsyncSession, owner_id: str) -> dict[str, Any]:
     row = (
@@ -146,9 +148,9 @@ async def get_seller_stats(session: AsyncSession, owner_id: str, period: Period 
             text(
                 f"""
                 SELECT
-                  COALESCE(SUM(o.store_receives_cents) FILTER (WHERE o.status = 'paid'), 0) AS revenue_cents,
-                  COUNT(*) FILTER (WHERE o.status = 'paid') AS sales_count,
-                  COUNT(DISTINCT o.buyer_id) FILTER (WHERE o.status = 'paid') AS unique_buyers
+                  COALESCE(SUM(o.store_receives_cents) FILTER (WHERE {_REVENUE_FILTER}), 0) AS revenue_cents,
+                  COUNT(*) FILTER (WHERE {_REVENUE_FILTER}) AS sales_count,
+                  COUNT(DISTINCT o.buyer_id) FILTER (WHERE {_REVENUE_FILTER}) AS unique_buyers
                 FROM tcg_judge.shop_orders o
                 WHERE o.store_id = :sid AND {time_filter}
                 """
@@ -162,8 +164,8 @@ async def get_seller_stats(session: AsyncSession, owner_id: str, period: Period 
             text(
                 f"""
                 SELECT DATE(o.created_at) AS date,
-                  COALESCE(SUM(o.store_receives_cents) FILTER (WHERE o.status = 'paid'), 0) AS revenue_cents,
-                  COUNT(*) FILTER (WHERE o.status = 'paid') AS count
+                  COALESCE(SUM(o.store_receives_cents) FILTER (WHERE {_REVENUE_FILTER}), 0) AS revenue_cents,
+                  COUNT(*) FILTER (WHERE {_REVENUE_FILTER}) AS count
                 FROM tcg_judge.shop_orders o
                 WHERE o.store_id = :sid AND {time_filter}
                 GROUP BY DATE(o.created_at)
@@ -183,7 +185,7 @@ async def get_seller_stats(session: AsyncSession, owner_id: str, period: Period 
                   SUM(i.unit_price_cents * i.quantity) AS revenue_cents
                 FROM tcg_judge.shop_order_items i
                 JOIN tcg_judge.shop_orders o ON o.id = i.order_id
-                WHERE o.store_id = :sid AND o.status = 'paid' AND {time_filter}
+                WHERE o.store_id = :sid AND {_REVENUE_FILTER} AND {time_filter}
                 GROUP BY i.product_name
                 ORDER BY count DESC
                 LIMIT 10

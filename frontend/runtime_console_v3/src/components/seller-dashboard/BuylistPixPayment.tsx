@@ -21,29 +21,53 @@ type Props = {
   amountCents?: number;
 };
 
+function parseErrorDetail(data: unknown, fallback: string): string {
+  if (!data || typeof data !== "object") return fallback;
+  const detail = (data as { detail?: unknown }).detail;
+  if (typeof detail === "string") return detail;
+  if (detail && typeof detail === "object") {
+    const code = (detail as { code?: string }).code;
+    const message = (detail as { message?: string }).message;
+    if (code === "payments_deferred") {
+      return message ?? "Pagamentos serão habilitados no Go-Live.";
+    }
+    if (message) return message;
+  }
+  return fallback;
+}
+
 export function BuylistPixPayment({ storeId, submissionId, title, amountCents }: Props) {
   const [pix, setPix] = useState<PixData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [deferred, setDeferred] = useState(false);
 
   async function generatePix() {
     setLoading(true);
     setError(null);
+    setDeferred(false);
     try {
       const res = await fetch(
         `/api/marketplace/shop/stores/${encodeURIComponent(storeId)}/buylists/submissions/${encodeURIComponent(submissionId)}/pay-pix`,
         { method: "POST" },
       );
-      const data = (await res.json().catch(() => ({}))) as {
-        detail?: string;
-        pix?: PixData;
-      };
+      const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        throw new Error(data.detail ?? "Falha ao gerar PIX");
+        const detail = parseErrorDetail(data, "Falha ao gerar PIX");
+        if (
+          res.status === 503 &&
+          typeof data === "object" &&
+          data !== null &&
+          (data as { detail?: { code?: string } }).detail?.code === "payments_deferred"
+        ) {
+          setDeferred(true);
+        }
+        throw new Error(detail);
       }
-      if (data.pix) {
+      const pixPayload = (data as { pix?: PixData }).pix;
+      if (pixPayload) {
         setPix({
-          ...data.pix,
+          ...pixPayload,
           store_name: title ?? "BuyList Escrow",
         });
       }
@@ -70,12 +94,24 @@ export function BuylistPixPayment({ storeId, submissionId, title, amountCents }:
     );
   }
 
+  if (deferred) {
+    return (
+      <div className="mt-3 rounded-lg border border-blue-500/30 bg-blue-950/20 p-3 text-sm text-blue-100">
+        <p className="font-medium">Pagamento PIX no Go-Live</p>
+        <p className="mt-1 text-blue-200/90">
+          A proposta foi aceita. O pagamento via escrow será habilitado quando a plataforma entrar em
+          produção com PIX configurado.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="mt-3">
       <Button size="sm" disabled={loading} onClick={() => void generatePix()}>
         {loading ? "Gerando PIX…" : "Pagar via PIX (escrow)"}
       </Button>
-      {error && <p className="mt-2 text-sm text-red-300">{error}</p>}
+      {error && !deferred && <p className="mt-2 text-sm text-red-300">{error}</p>}
     </div>
   );
 }

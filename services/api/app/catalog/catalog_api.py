@@ -17,6 +17,7 @@ from app.catalog.redis_cache import redis_ping
 from app.catalog.pipeline import run_full_ingestion, run_game_sync
 from app.catalog.search_index import meili_enabled
 from app.catalog.search_service import get_catalog_price_trends, list_catalog_sets, search_catalog_cards
+from app.pricing.valuation_service import get_card_valuation
 
 router = APIRouter(tags=["card-catalog"])
 
@@ -97,6 +98,15 @@ async def catalog_card_detail(session: DbSession, card_id: str) -> dict[str, Any
     if not detail:
         raise HTTPException(status_code=404, detail="Card not found")
     return detail
+
+
+@router.get("/runtime/judge/catalog/cards/{card_id}/valuation")
+async def catalog_card_valuation(
+    session: DbSession,
+    card_id: str,
+    condition: str = Query(default="NM"),
+) -> dict[str, Any]:
+    return await get_card_valuation(session, card_id, condition=condition)
 
 
 @router.get("/runtime/judge/catalog/cards/{card_id}/price-history")
