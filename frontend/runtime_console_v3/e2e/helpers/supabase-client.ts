@@ -1,4 +1,4 @@
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { createClient } from "@supabase/supabase-js";
 import ws from "ws";
 
 /** Node < 22 (ex.: CI com Node 20) não expõe WebSocket global — exigido pelo @supabase/realtime-js. */
@@ -7,7 +7,7 @@ const nodeClientOptions = {
   realtime: { transport: ws },
 } as const;
 
-export function createSupabaseServiceClient(schema?: string): SupabaseClient {
+export function createSupabaseServiceClient(schema?: string) {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
@@ -18,7 +18,7 @@ export function createSupabaseServiceClient(schema?: string): SupabaseClient {
   );
 }
 
-export function createSupabaseAnonClient(): SupabaseClient {
+export function createSupabaseAnonClient() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
