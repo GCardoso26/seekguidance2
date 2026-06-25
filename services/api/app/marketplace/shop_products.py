@@ -136,7 +136,7 @@ async def create_product(
         if count_row and int(count_row["c"]) >= limit:
             raise HTTPException(
                 403,
-                f"Plano gratuito permite até {limit} produtos. Assine Pro Loja para ilimitado.",
+                f"Limite de {limit} produtos no plano atual. Faça upgrade em /vendedor/painel/planos.",
             )
     if category not in PRODUCT_CATEGORIES:
         raise HTTPException(400, "Categoria inválida")

@@ -7,7 +7,20 @@ from typing import Any
 from app.api.deps import DbSession, SettingsDep
 from app.api.v1.tournament_system import _require_user
 from app.marketplace import card_listings as card_listings_svc
-from app.marketplace import shop_cart, shop_connect, shop_coupons, shop_escrow, shop_orders, shop_pix, shop_products, shop_reviews
+from app.marketplace import (
+    shop_buylist,
+    shop_cart,
+    shop_connect,
+    shop_coupons,
+    shop_crm,
+    shop_escrow,
+    shop_inventory,
+    shop_orders,
+    shop_pdv,
+    shop_pix,
+    shop_products,
+    shop_reviews,
+)
 from app.marketplace import shop_checkout as shop_checkout_svc
 from app.catalog.cron_auth import require_catalog_cron_auth
 from app.stores import store as store_svc
@@ -71,7 +84,7 @@ class OrderStatusBody(BaseModel):
 
 
 class SubscribeCheckoutBody(BaseModel):
-    plan: str = Field(default="pro", pattern="^(pro|enterprise)$")
+    plan: str = Field(default="lojista", pattern="^(lojista|pro|enterprise)$")
     payment_method: str = Field(default="card", pattern="^(card|pix)$")
     success_url: str | None = None
     cancel_url: str | None = None
@@ -150,7 +163,48 @@ class ListingUpdateBody(BaseModel):
 
 
 class StoreSubscribeBody(BaseModel):
-    plan: str = Field(default="pro", pattern="^(pro|enterprise)$")
+    plan: str = Field(default="lojista", pattern="^(lojista|pro|enterprise)$")
+
+
+class BuylistItemBody(BaseModel):
+    card_id: str | None = None
+    card_name: str = Field(min_length=1, max_length=200)
+    set_code: str | None = None
+    quantity: int = Field(default=1, ge=1)
+    condition: str | None = "near_mint"
+    offer_cents: int | None = Field(default=None, ge=0)
+
+
+class BuylistCreateBody(BaseModel):
+    title: str = Field(min_length=2, max_length=200)
+    discount_pct: float = Field(default=0.30, ge=0, le=0.9)
+    notes: str | None = None
+    items: list[BuylistItemBody] = Field(min_length=1)
+
+
+class BuylistSubmitBody(BaseModel):
+    message: str | None = None
+
+
+class BuylistSubmissionStatusBody(BaseModel):
+    status: str = Field(pattern="^(accepted|rejected|completed|cancelled)$")
+
+
+class PdvItemBody(BaseModel):
+    product_id: str | None = None
+    name: str | None = None
+    quantity: int = Field(default=1, ge=1)
+    price_cents: int = Field(ge=0)
+
+
+class PdvSaleBody(BaseModel):
+    items: list[PdvItemBody] = Field(min_length=1)
+    payment_method: str = Field(default="cash", pattern="^(cash|pix|card)$")
+    notes: str | None = None
+
+
+class CrmNotesBody(BaseModel):
+    notes: str = Field(max_length=5000)
 
 
 @router.get("/runtime/judge/marketplace/shop/products")
@@ -810,3 +864,181 @@ async def remove_listing(
 ) -> dict[str, Any]:
     user_id = _require_user(x_judge_user_id)
     return await card_listings_svc.delete_listing(session, listing_id, user_id)
+
+
+# --- Sprint 4: BuyList, CRM, Estoque, PDV ---
+
+
+@router.post("/runtime/judge/marketplace/shop/stores/{store_id}/buylists")
+async def create_store_buylist(
+    session: DbSession,
+    store_id: str,
+    body: BuylistCreateBody,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    buylist = await shop_buylist.create_buylist(
+        session,
+        store_id,
+        user_id,
+        title=body.title,
+        discount_pct=body.discount_pct,
+        notes=body.notes,
+        items=[i.model_dump() for i in body.items],
+    )
+    return {"buylist": buylist}
+
+
+@router.get("/runtime/judge/marketplace/shop/stores/{store_id}/buylists")
+async def list_store_buylists(
+    session: DbSession,
+    store_id: str,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    buylists = await shop_buylist.list_store_buylists(session, store_id, user_id)
+    return {"buylists": buylists}
+
+
+@router.get("/runtime/judge/marketplace/shop/buylists/public/{token}")
+async def get_public_buylist(session: DbSession, token: str) -> dict[str, Any]:
+    buylist = await shop_buylist.get_buylist_by_token(session, token)
+    return {"buylist": buylist}
+
+
+@router.post("/runtime/judge/marketplace/shop/buylists/public/{token}/submit")
+async def submit_public_buylist(
+    session: DbSession,
+    token: str,
+    body: BuylistSubmitBody,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    submission = await shop_buylist.submit_buylist(session, token, user_id, message=body.message)
+    return {"submission": submission}
+
+
+@router.get("/runtime/judge/marketplace/shop/stores/{store_id}/buylists/submissions")
+async def list_buylist_submissions(
+    session: DbSession,
+    store_id: str,
+    status: str | None = None,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    submissions = await shop_buylist.list_submissions(session, store_id, user_id, status=status)
+    return {"submissions": submissions}
+
+
+@router.patch("/runtime/judge/marketplace/shop/stores/{store_id}/buylists/submissions/{submission_id}")
+async def patch_buylist_submission(
+    session: DbSession,
+    store_id: str,
+    submission_id: str,
+    body: BuylistSubmissionStatusBody,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    submission = await shop_buylist.update_submission_status(
+        session, submission_id, store_id, user_id, body.status
+    )
+    return {"submission": submission}
+
+
+@router.get("/runtime/judge/marketplace/shop/stores/{store_id}/inventory")
+async def store_inventory(
+    session: DbSession,
+    store_id: str,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    return await shop_inventory.inventory_summary(session, store_id, user_id)
+
+
+@router.get("/runtime/judge/marketplace/shop/stores/{store_id}/crm/customers")
+async def list_crm_customers(
+    session: DbSession,
+    store_id: str,
+    segment: str | None = None,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    customers = await shop_crm.list_customers(session, store_id, user_id, segment=segment)
+    return {"customers": customers}
+
+
+@router.get("/runtime/judge/marketplace/shop/stores/{store_id}/crm/summary")
+async def crm_summary(
+    session: DbSession,
+    store_id: str,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    summary = await shop_crm.crm_summary(session, store_id, user_id)
+    return {"summary": summary}
+
+
+@router.post("/runtime/judge/marketplace/shop/stores/{store_id}/crm/sync")
+async def sync_crm_customers(
+    session: DbSession,
+    store_id: str,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    count = await shop_crm.sync_customers_from_orders(session, store_id, user_id)
+    return {"synced": count}
+
+
+@router.patch("/runtime/judge/marketplace/shop/stores/{store_id}/crm/customers/{customer_id}")
+async def patch_crm_customer(
+    session: DbSession,
+    store_id: str,
+    customer_id: str,
+    body: CrmNotesBody,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    customer = await shop_crm.update_customer_notes(session, store_id, user_id, customer_id, body.notes)
+    return {"customer": customer}
+
+
+@router.get("/runtime/judge/marketplace/shop/stores/{store_id}/pdv/products")
+async def search_pdv_products(
+    session: DbSession,
+    store_id: str,
+    q: str,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    products = await shop_pdv.search_pdv_products(session, store_id, user_id, q)
+    return {"products": products}
+
+
+@router.post("/runtime/judge/marketplace/shop/stores/{store_id}/pdv/sales")
+async def create_pdv_sale(
+    session: DbSession,
+    store_id: str,
+    body: PdvSaleBody,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    sale = await shop_pdv.create_pdv_sale(
+        session,
+        store_id,
+        user_id,
+        items=[i.model_dump() for i in body.items],
+        payment_method=body.payment_method,
+        notes=body.notes,
+    )
+    return {"sale": sale}
+
+
+@router.get("/runtime/judge/marketplace/shop/stores/{store_id}/pdv/sales")
+async def list_pdv_sales(
+    session: DbSession,
+    store_id: str,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    sales = await shop_pdv.list_pdv_sales(session, store_id, user_id)
+    return {"sales": sales}

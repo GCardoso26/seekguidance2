@@ -15,11 +15,20 @@ from sqlalchemy.ext.asyncio import AsyncSession
 import stripe
 from app.core.config import Settings
 from app.marketplace.shop_notifications import notify_shop_event
-from app.marketplace.shop_store import ENTERPRISE_PRICE_CENTS, PRO_PRICE_CENTS, effective_plan
+from app.marketplace.shop_store import (
+    ENTERPRISE_PRICE_CENTS,
+    LOJISTA_PRICE_CENTS,
+    PRO_PRICE_CENTS,
+    effective_plan,
+)
 
 logger = structlog.get_logger(__name__)
 
-PLAN_PRICES_CENTS = {"pro": PRO_PRICE_CENTS, "enterprise": ENTERPRISE_PRICE_CENTS}
+PLAN_PRICES_CENTS = {
+    "lojista": LOJISTA_PRICE_CENTS,
+    "pro": PRO_PRICE_CENTS,
+    "enterprise": ENTERPRISE_PRICE_CENTS,
+}
 
 
 async def get_subscription_status(session: AsyncSession, store_id: str, owner_id: str) -> dict[str, Any]:
@@ -73,11 +82,16 @@ async def create_subscription_checkout(
     if payment_method == "card":
         if not settings.stripe_secret_key:
             raise HTTPException(503, "Cartão indisponível — configure Stripe ou use PIX")
-        price_id = (
-            settings.stripe_price_store_pro if plan == "pro" else settings.stripe_price_store_enterprise
+        price_map = {
+            "lojista": settings.stripe_price_store_lojista,
+            "pro": settings.stripe_price_store_pro,
+            "enterprise": settings.stripe_price_store_enterprise,
+        }
+        price_id = price_map.get(plan) or (
+            settings.stripe_price_store_pro if plan == "lojista" else None
         )
         if not price_id:
-            raise HTTPException(503, "Preço Stripe Pro não configurado no servidor")
+            raise HTTPException(503, f"Preço Stripe {plan} não configurado no servidor")
 
         stripe.api_key = settings.stripe_secret_key
         try:

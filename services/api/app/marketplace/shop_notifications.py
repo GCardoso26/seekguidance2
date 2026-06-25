@@ -75,6 +75,8 @@ async def notify_shop_event(
         recipients = [store_owner_id]
     elif event_type == "shop:review_received" and store_owner_id:
         recipients = [store_owner_id]
+    elif event_type == "buylist:accepted" and buyer_id:
+        recipients = [buyer_id]
 
     if not recipients:
         return

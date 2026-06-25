@@ -3,22 +3,29 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { planHasFeature } from "@/lib/seller-plans";
 
 const NAV = [
-  { href: "/vendedor/painel", label: "Dashboard", icon: "📊" },
-  { href: "/vendedor/painel/listagens", label: "Listagens", icon: "🏷️" },
-  { href: "/vendedor/painel/vendas", label: "Vendas", icon: "📦" },
-  { href: "/vendedor/painel/estatisticas", label: "Estatísticas", icon: "📈" },
-  { href: "/vendedor/painel/configuracoes", label: "Configurações", icon: "⚙️" },
+  { href: "/vendedor/painel", label: "Dashboard", icon: "📊", feature: null },
+  { href: "/vendedor/painel/estoque", label: "Estoque", icon: "📋", feature: null },
+  { href: "/vendedor/painel/listagens", label: "Listagens", icon: "🏷️", feature: null },
+  { href: "/vendedor/painel/vendas", label: "Vendas", icon: "📦", feature: null },
+  { href: "/vendedor/painel/buylist", label: "BuyList", icon: "💰", feature: "buylist" },
+  { href: "/vendedor/painel/clientes", label: "Clientes", icon: "👥", feature: "crm" },
+  { href: "/vendedor/painel/pdv", label: "PDV", icon: "🛒", feature: "pdv" },
+  { href: "/vendedor/painel/estatisticas", label: "Estatísticas", icon: "📈", feature: "analytics" },
+  { href: "/vendedor/painel/planos", label: "Planos", icon: "⭐", feature: null },
+  { href: "/vendedor/painel/configuracoes", label: "Configurações", icon: "⚙️", feature: null },
 ];
 
 type Props = {
   sellerId?: string | null;
+  plan?: string;
   className?: string;
   onNavigate?: () => void;
 };
 
-export function Sidebar({ sellerId, className, onNavigate }: Props) {
+export function Sidebar({ sellerId, plan = "free", className, onNavigate }: Props) {
   const pathname = usePathname();
 
   return (
@@ -34,6 +41,7 @@ export function Sidebar({ sellerId, className, onNavigate }: Props) {
       </div>
       <nav className="flex-1 space-y-1 p-3">
         {NAV.map((item) => {
+          const locked = item.feature && !planHasFeature(plan, item.feature);
           const active =
             item.href === "/vendedor/painel"
               ? pathname === item.href
@@ -41,15 +49,18 @@ export function Sidebar({ sellerId, className, onNavigate }: Props) {
           return (
             <Link
               key={item.href}
-              href={item.href}
+              href={locked ? "/vendedor/painel/planos" : item.href}
               onClick={onNavigate}
               className={cn(
                 "flex items-center gap-2 rounded-lg px-3 py-2 transition-colors",
                 active ? "bg-luxury-gold/20 text-luxury-gold" : "text-luxury-mist hover:bg-white/5",
+                locked && "opacity-60",
               )}
+              title={locked ? "Disponível em plano superior" : undefined}
             >
               <span aria-hidden>{item.icon}</span>
               {item.label}
+              {locked && <span className="ml-auto text-xs">🔒</span>}
             </Link>
           );
         })}

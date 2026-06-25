@@ -435,12 +435,37 @@ async def handle_payment_intent_succeeded(session: AsyncSession, settings: Setti
 
     if order_ids:
         from app.gamification.xp import award_xp_for_paid_order
+        from app.marketplace import shop_crm
 
         for oid in order_ids:
             try:
                 await award_xp_for_paid_order(session, oid)
             except Exception as exc:
                 logger.warning("liga_pass_xp_failed", order_id=oid, error=str(exc))
+            try:
+                order_row = (
+                    await session.execute(
+                        text(
+                            """
+                            SELECT o.store_id, o.buyer_id, o.total_cents, p.display_name
+                            FROM tcg_judge.shop_orders o
+                            LEFT JOIN tcg_judge.player_profiles p ON p.id = o.buyer_id
+                            WHERE o.id = :id
+                            """
+                        ),
+                        {"id": oid},
+                    )
+                ).mappings().first()
+                if order_row and order_row.get("buyer_id"):
+                    await shop_crm.upsert_customer_from_order(
+                        session,
+                        store_id=str(order_row["store_id"]),
+                        customer_id=str(order_row["buyer_id"]),
+                        amount_cents=int(order_row.get("total_cents") or 0),
+                        display_name=order_row.get("display_name"),
+                    )
+            except Exception as exc:
+                logger.warning("crm_sync_failed", order_id=oid, error=str(exc))
     elif payment_intent_id:
         paid_orders = (
             await session.execute(

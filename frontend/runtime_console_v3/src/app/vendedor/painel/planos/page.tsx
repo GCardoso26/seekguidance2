@@ -1,0 +1,83 @@
+"use client";
+
+import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
+import { SellerHeader } from "@/components/seller-dashboard/SellerHeader";
+import { PlanCheckout } from "@/components/store/PlanCheckout";
+import { ProBadge } from "@/components/store/ProBadge";
+import { useSellerStore } from "@/hooks/useSellerStore";
+import { SELLER_PLANS, formatPlanPrice } from "@/lib/seller-plans";
+
+export default function PlanosPage() {
+  const { storeId, hasStore, dashboard, refetchDashboard } = useSellerStore();
+  const plan = String((dashboard?.store as Record<string, unknown> | undefined)?.subscription_plan ?? "free");
+
+  const { data: storeData } = useQuery({
+    queryKey: ["store-plan", storeId],
+    queryFn: async () => {
+      const res = await fetch(`/api/marketplace/shop/stores/${encodeURIComponent(storeId!)}`);
+      if (!res.ok) throw new Error("fetch_failed");
+      return res.json();
+    },
+    enabled: Boolean(storeId),
+  });
+
+  const currentPlan = String(storeData?.store?.subscription_plan ?? plan);
+
+  if (!hasStore || !storeId) {
+    return (
+      <main className="p-8 text-center">
+        <p className="text-luxury-mist">Cadastre uma loja para assinar um plano.</p>
+        <Link href="/stores/create" className="mt-4 inline-block text-luxury-gold underline">
+          Criar loja
+        </Link>
+      </main>
+    );
+  }
+
+  return (
+    <>
+      <SellerHeader />
+      <main className="flex-1 space-y-6 overflow-y-auto p-6">
+        <div className="flex items-center gap-2">
+          <h2 className="text-xl font-bold">Planos da loja</h2>
+          <ProBadge plan={currentPlan} />
+        </div>
+        <p className="text-sm text-luxury-mist">
+          Plano atual: <strong>{currentPlan}</strong> — receita via assinatura, sem comissão sobre vendas.
+        </p>
+
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {SELLER_PLANS.map((p) => {
+            const active = currentPlan === p.id;
+            return (
+              <div
+                key={p.id}
+                className={`rounded-xl border p-4 ${active ? "border-luxury-gold bg-luxury-gold/10" : "border-white/10 bg-white/5"}`}
+              >
+                <h3 className="text-lg font-semibold">{p.name}</h3>
+                <p className="mt-1 text-2xl font-bold text-luxury-gold">{formatPlanPrice(p.priceCents)}</p>
+                <ul className="mt-3 space-y-1 text-sm text-luxury-mist">
+                  {p.features.map((f) => (
+                    <li key={f}>✓ {f}</li>
+                  ))}
+                </ul>
+                {active && <p className="mt-3 text-xs text-luxury-gold">Plano ativo</p>}
+                {!active && p.id !== "free" && currentPlan === "free" && p.id === "lojista" && (
+                  <div className="mt-4">
+                    <PlanCheckout storeId={storeId} plan="lojista" onSuccess={() => void refetchDashboard()} />
+                  </div>
+                )}
+                {!active && p.id === "pro" && ["free", "lojista"].includes(currentPlan) && (
+                  <div className="mt-4">
+                    <PlanCheckout storeId={storeId} plan="pro" onSuccess={() => void refetchDashboard()} />
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </main>
+    </>
+  );
+}

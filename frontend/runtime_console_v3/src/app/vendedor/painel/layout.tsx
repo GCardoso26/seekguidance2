@@ -6,12 +6,13 @@ import { useSellerStore } from "@/hooks/useSellerStore";
 
 export default function VendedorPainelLayout({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { storeId, ownerId } = useSellerStore();
+  const { storeId, ownerId, dashboard } = useSellerStore();
+  const plan = String((dashboard?.store as Record<string, unknown> | undefined)?.subscription_plan ?? "free");
 
   return (
     <div className="flex min-h-screen bg-luxury-onyx text-white">
       <div className="hidden lg:block lg:w-64 lg:flex-shrink-0">
-        <Sidebar sellerId={ownerId ?? storeId} className="fixed left-0 top-0 z-30 h-screen w-64" />
+        <Sidebar sellerId={ownerId ?? storeId} plan={plan} className="fixed left-0 top-0 z-30 h-screen w-64" />
       </div>
 
       {mobileOpen && (
@@ -24,6 +25,7 @@ export default function VendedorPainelLayout({ children }: { children: React.Rea
           />
           <Sidebar
             sellerId={ownerId ?? storeId}
+            plan={plan}
             className="relative z-50 h-full w-64"
             onNavigate={() => setMobileOpen(false)}
           />

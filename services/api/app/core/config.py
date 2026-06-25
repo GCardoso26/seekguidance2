@@ -242,6 +242,7 @@ class Settings(BaseSettings):
     stripe_checkout_success_url: str | None = None
     stripe_checkout_cancel_url: str | None = None
     stripe_connect_webhook_secret: str | None = None
+    stripe_price_store_lojista: str | None = None
     stripe_price_store_pro: str | None = None
     stripe_price_store_enterprise: str | None = None
     marketplace_app_url: str | None = None
