@@ -2,8 +2,8 @@ import { test as base, expect } from "@playwright/test";
 import fs from "fs";
 import path from "path";
 
-const buyerState = path.join(__dirname, ".auth/buyer.json");
-const sellerState = path.join(__dirname, ".auth/seller.json");
+const buyerState = path.join(__dirname, "../.auth/buyer.json");
+const sellerState = path.join(__dirname, "../.auth/seller.json");
 
 function hasAuthState(file: string) {
   return fs.existsSync(file);
