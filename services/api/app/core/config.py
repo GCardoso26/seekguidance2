@@ -256,6 +256,9 @@ class Settings(BaseSettings):
     platform_pix_key_type: str | None = None
     pix_webhook_internal_secret: str | None = None
 
+    # Preços externos (tcgapi.dev)
+    tcg_api_key: str | None = None
+
 
 @lru_cache
 def get_settings() -> Settings:

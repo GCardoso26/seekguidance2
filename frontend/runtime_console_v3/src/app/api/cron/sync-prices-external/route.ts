@@ -52,5 +52,18 @@ export async function GET(req: NextRequest) {
     fetched: prices.length,
     upserted,
     tcgApiConfigured: Boolean(process.env.TCG_API_KEY),
+    renderSync: await syncViaRenderApi(game).catch(() => null),
   });
+}
+
+async function syncViaRenderApi(game: string) {
+  const base = process.env.TOURNAMENT_API_URL ?? process.env.NEXT_PUBLIC_TOURNAMENT_API_URL;
+  const secret = process.env.CRON_SECRET;
+  if (!base || !secret) return null;
+  const res = await fetch(
+    `${base.replace(/\/$/, "")}/runtime/judge/catalog/cron/sync-tcgapi-prices?game=${encodeURIComponent(game)}&limit=50`,
+    { method: "POST", headers: { Authorization: `Bearer ${secret}` }, cache: "no-store" },
+  );
+  if (!res.ok) return { ok: false, status: res.status };
+  return res.json();
 }

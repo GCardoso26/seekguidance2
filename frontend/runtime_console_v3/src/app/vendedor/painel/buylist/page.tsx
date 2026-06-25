@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { BuylistPixPayment } from "@/components/seller-dashboard/BuylistPixPayment";
 import { SellerHeader } from "@/components/seller-dashboard/SellerHeader";
 import { Button } from "@/components/ui/button";
 import { useSellerStore } from "@/hooks/useSellerStore";
@@ -13,6 +15,8 @@ function formatBRL(cents: number) {
 }
 
 export default function BuylistPage() {
+  const searchParams = useSearchParams();
+  const paySubmissionId = searchParams.get("pay");
   const { storeId, hasStore, dashboard } = useSellerStore();
   const plan = String((dashboard?.store as Record<string, unknown> | undefined)?.subscription_plan ?? "free");
   const qc = useQueryClient();
@@ -42,6 +46,18 @@ export default function BuylistPage() {
     enabled: Boolean(storeId) && planHasFeature(plan, "buylist"),
   });
 
+  const { data: acceptedData, refetch: refetchAccepted } = useQuery({
+    queryKey: ["seller-buylist-accepted", storeId],
+    queryFn: async () => {
+      const res = await fetch(
+        `/api/marketplace/shop/stores/${encodeURIComponent(storeId!)}/buylists/submissions?status=accepted`,
+      );
+      if (!res.ok) throw new Error("fetch_failed");
+      return res.json() as Promise<{ submissions: Array<Record<string, unknown>> }>;
+    },
+    enabled: Boolean(storeId) && planHasFeature(plan, "buylist"),
+  });
+
   const reviewMutation = useMutation({
     mutationFn: async ({ id, status }: { id: string; status: "accepted" | "rejected" }) => {
       const res = await fetch(
@@ -58,7 +74,10 @@ export default function BuylistPage() {
       }
       return res.json();
     },
-    onSuccess: () => void refetchSubmissions(),
+    onSuccess: () => {
+      void refetchSubmissions();
+      void refetchAccepted();
+    },
   });
 
   const createMutation = useMutation({
@@ -227,6 +246,52 @@ export default function BuylistPage() {
                   )}
                 </li>
               ))}
+            </ul>
+          )}
+        </div>
+
+        <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+          <h3 className="mb-3 font-semibold">Aceitas — aguardando PIX</h3>
+          {(acceptedData?.submissions ?? []).length === 0 ? (
+            <p className="text-sm text-luxury-mist">Nenhuma proposta aceita pendente de pagamento.</p>
+          ) : (
+            <ul className="space-y-3">
+              {(acceptedData?.submissions ?? []).map((s) => {
+                const id = String(s.id);
+                const needsPay = s.order_status === "pending" || !s.order_pix_txid;
+                const highlight = paySubmissionId === id;
+                return (
+                  <li
+                    key={id}
+                    id={`submission-${id}`}
+                    className={`rounded-lg border p-3 text-sm ${
+                      highlight ? "border-amber-500/50 bg-amber-500/5" : "border-white/10"
+                    }`}
+                  >
+                    <p className="font-medium">{String(s.buylist_title ?? "BuyList")}</p>
+                    <p className="text-luxury-mist">{formatBRL(Number(s.total_offer_cents ?? 0))}</p>
+                    {Boolean(s.shop_order_id) && (
+                      <Link
+                        href={`/vendedor/painel/vendas/${String(s.shop_order_id)}`}
+                        className="mt-1 inline-block text-luxury-gold underline"
+                      >
+                        Ver pedido escrow
+                      </Link>
+                    )}
+                    {needsPay && storeId && (
+                      <BuylistPixPayment
+                        storeId={storeId}
+                        submissionId={id}
+                        title={String(s.buylist_title ?? "")}
+                        amountCents={Number(s.total_offer_cents ?? 0)}
+                      />
+                    )}
+                    {!needsPay && (
+                      <p className="mt-2 text-xs text-emerald-400">PIX gerado — aguardando confirmação</p>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           )}
         </div>

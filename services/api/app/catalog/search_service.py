@@ -9,6 +9,7 @@ from typing import Any
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.catalog.redis_cache import get_search_cache, set_search_cache
 from app.catalog.search_index import meili_enabled, search_meili
 
 SORT_WHITELIST = frozenset(
@@ -204,6 +205,27 @@ async def search_catalog_cards(
 ) -> dict[str, Any]:
     sort_key = sort if sort in SORT_WHITELIST else "relevance"
     query = q.strip()
+
+    cache_params = {
+        "q": query,
+        "game": game,
+        "set": set_code,
+        "rarity": rarity,
+        "condition": condition,
+        "price_min": price_min,
+        "price_max": price_max,
+        "language": language,
+        "foil": foil,
+        "sort": sort_key,
+        "card_ids": card_ids,
+        "colors": colors,
+        "page": page,
+        "limit": limit,
+    }
+    if page == 1 and limit <= 48:
+        cached = get_search_cache(**cache_params)
+        if cached is not None:
+            return {**cached, "cached": True}
     game_code = game.upper() if game else None
     offset = (page - 1) * limit
     week_ago = datetime.now(UTC) - timedelta(days=7)
@@ -292,7 +314,7 @@ async def search_catalog_cards(
     cards = [_card_payload(dict(row)) for row in rows]
     total_pages = max(1, (total + limit - 1) // limit) if total else 0
 
-    return {
+    result = {
         "source": "meilisearch" if meili_ids is not None else "postgres",
         "cards": cards,
         "total": total,
@@ -300,6 +322,9 @@ async def search_catalog_cards(
         "totalPages": total_pages,
         "hasMore": page * limit < total,
     }
+    if page == 1 and limit <= 48:
+        set_search_cache(result, **cache_params)
+    return result
 
 
 async def get_catalog_price_trends(

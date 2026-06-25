@@ -45,9 +45,32 @@ async def _market_price_cents(session: AsyncSession, card_id: str | None) -> int
             {"cid": card_id},
         )
     ).mappings().first()
-    if not row or row["min_cents"] is None:
+    if row and row["min_cents"] is not None:
+        return int(row["min_cents"])
+
+    card_row = (
+        await session.execute(
+            text(
+                """
+                SELECT name, set_code, game_code
+                FROM tcg_judge.card_catalog
+                WHERE id = :cid
+                """
+            ),
+            {"cid": card_id},
+        )
+    ).mappings().first()
+    if not card_row:
         return None
-    return int(row["min_cents"])
+
+    from app.pricing.tcgapi_sync import fetch_tcgapi_price_cents
+
+    game_slug = str(card_row.get("game_code") or "MTG").lower()
+    return await fetch_tcgapi_price_cents(
+        str(card_row["name"]),
+        game=game_slug,
+        set_code=card_row.get("set_code"),
+    )
 
 
 def _offer_from_market(market_cents: int | None, discount_pct: float, fallback_cents: int = 0) -> int:
@@ -248,9 +271,11 @@ async def list_submissions(
         await session.execute(
             text(
                 f"""
-                SELECT bs.*, b.title AS buylist_title, b.public_token
+                SELECT bs.*, b.title AS buylist_title, b.public_token,
+                       o.status AS order_status, o.pix_txid AS order_pix_txid
                 FROM tcg_judge.buylist_submissions bs
                 JOIN tcg_judge.buylists b ON b.id = bs.buylist_id
+                LEFT JOIN tcg_judge.shop_orders o ON o.id = bs.shop_order_id
                 WHERE {' AND '.join(clauses)}
                 ORDER BY bs.created_at DESC
                 LIMIT 100
@@ -340,6 +365,18 @@ async def update_submission_status(
                 "submission_id": submission_id,
                 "store_id": store_id,
                 "shop_order_id": shop_order_id,
+            },
+        )
+        await notify_shop_event(
+            session,
+            "buylist:payment_required",
+            buyer_id=str(store["owner_id"]),
+            body="Proposta aceita. Pague via PIX para liberar o escrow da compra de coleção.",
+            data={
+                "submission_id": submission_id,
+                "store_id": store_id,
+                "shop_order_id": shop_order_id,
+                "pay_pix_path": f"/vendedor/painel/buylist?pay={submission_id}",
             },
         )
     elif status == "rejected":
@@ -458,3 +495,199 @@ async def _create_buylist_escrow_order(
         payment_method="pix",
     )
     return order_id
+
+
+async def create_buylist_pix_payment(
+    session: AsyncSession,
+    submission_id: str,
+    store_id: str,
+    owner_id: str,
+) -> dict[str, Any]:
+    """Gera cobrança PIX da plataforma para o lojista pagar o escrow BuyList."""
+    import uuid
+    from datetime import UTC, datetime, timedelta
+
+    from app.core.config import get_settings
+    from app.marketplace.pix_gateway import get_pix_gateway
+    from app.marketplace.shop_notifications import notify_shop_event
+    from app.marketplace.shop_pix import PIX_EXPIRY_MINUTES, _build_copy_payload, _qr_base64
+
+    store = await _assert_store_owner(session, store_id, owner_id)
+    _require_buylist_plan(store)
+
+    settings = get_settings()
+    if not settings.platform_pix_key:
+        raise HTTPException(503, "PIX da plataforma indisponível — configure PLATFORM_PIX_KEY")
+
+    sub = (
+        await session.execute(
+            text(
+                """
+                SELECT bs.*, b.title AS buylist_title
+                FROM tcg_judge.buylist_submissions bs
+                JOIN tcg_judge.buylists b ON b.id = bs.buylist_id
+                WHERE bs.id = :id AND bs.store_id = :sid AND bs.status = 'accepted'
+                """
+            ),
+            {"id": submission_id, "sid": store_id},
+        )
+    ).mappings().first()
+    if not sub:
+        raise HTTPException(404, "Proposta aceita não encontrada")
+
+    order_id = sub.get("shop_order_id")
+    if not order_id:
+        raise HTTPException(400, "Pedido escrow ainda não foi criado")
+
+    order = (
+        await session.execute(
+            text(
+                """
+                SELECT id, buyer_id, status, total_cents, payment_method, pix_txid, use_escrow
+                FROM tcg_judge.shop_orders
+                WHERE id = :oid AND store_id = :sid
+                """
+            ),
+            {"oid": str(order_id), "sid": store_id},
+        )
+    ).mappings().first()
+    if not order:
+        raise HTTPException(404, "Pedido não encontrado")
+    if str(order["buyer_id"]) != owner_id:
+        raise HTTPException(403, "Apenas o dono da loja pode pagar este pedido")
+    if order["status"] not in {"pending", "processing"}:
+        raise HTTPException(400, "Pedido já foi pago ou cancelado")
+
+    existing_txid = order.get("pix_txid")
+    if existing_txid:
+        pix_row = (
+            await session.execute(
+                text(
+                    """
+                    SELECT txid, amount_cents, status, expires_at, payload, pix_key
+                    FROM tcg_judge.pix_transactions
+                    WHERE txid = :txid
+                    """
+                ),
+                {"txid": str(existing_txid)},
+            )
+        ).mappings().first()
+        if pix_row and pix_row["status"] == "pending":
+            payload = {}
+            raw = pix_row.get("payload")
+            if raw:
+                try:
+                    payload = json.loads(raw) if isinstance(raw, str) else dict(raw)
+                except (json.JSONDecodeError, TypeError):
+                    payload = {}
+            qr = payload.get("qr_code")
+            return {
+                "order_id": str(order_id),
+                "submission_id": submission_id,
+                "txid": pix_row["txid"],
+                "amount_cents": int(pix_row["amount_cents"]),
+                "copy_payload": payload.get("copy_payload") or "",
+                "qr_code": qr,
+                "expires_at": (
+                    pix_row["expires_at"].isoformat()
+                    if hasattr(pix_row["expires_at"], "isoformat")
+                    else str(pix_row["expires_at"])
+                ),
+                "pix_key": pix_row.get("pix_key"),
+                "payment_method": "escrow_buylist",
+            }
+
+    amount_cents = int(order["total_cents"])
+    txid = f"BLST{uuid.uuid4().hex[:12].upper()}"
+    expires_at = datetime.now(UTC) + timedelta(minutes=PIX_EXPIRY_MINUTES)
+    gateway = get_pix_gateway(settings)
+    title = str(sub.get("buylist_title") or "BuyList")[:40]
+
+    gateway_result: dict[str, Any] = {}
+    try:
+        gateway_result = await gateway.create_charge(
+            txid=txid,
+            amount_cents=amount_cents,
+            pix_key=str(settings.platform_pix_key),
+            pix_key_type=settings.platform_pix_key_type,
+            description=f"BuyList Escrow — {title}",
+            expires_in_seconds=PIX_EXPIRY_MINUTES * 60,
+        )
+    except Exception:
+        pass
+
+    copy_payload = gateway_result.get("copy_payload") or _build_copy_payload(
+        store_name=str(store.get("name") or "Judge TCG"),
+        pix_key=str(settings.platform_pix_key),
+        amount_cents=amount_cents,
+        txid=txid,
+    )
+    qr_b64 = gateway_result.get("qr_code")
+    if not qr_b64 and copy_payload:
+        qr_raw = _qr_base64(copy_payload)
+        if qr_raw:
+            qr_b64 = f"data:image/png;base64,{qr_raw}"
+
+    await session.execute(
+        text(
+            """
+            INSERT INTO tcg_judge.pix_transactions (
+              order_id, txid, pix_key, pix_key_type, amount_cents, status, expires_at, payload,
+              gateway_provider, gateway_charge_id
+            ) VALUES (
+              :oid, :txid, :key, :key_type, :amt, 'pending', :exp, :payload,
+              :provider, :charge_id
+            )
+            """
+        ),
+        {
+            "oid": str(order_id),
+            "txid": txid,
+            "key": settings.platform_pix_key,
+            "key_type": settings.platform_pix_key_type or "random",
+            "amt": amount_cents,
+            "exp": expires_at,
+            "payload": json.dumps(
+                {
+                    "copy_payload": copy_payload,
+                    "qr_code": qr_b64,
+                    "kind": "escrow_buylist",
+                    "submission_id": submission_id,
+                    "store_id": store_id,
+                }
+            ),
+            "provider": gateway_result.get("gateway_provider") or "manual",
+            "charge_id": gateway_result.get("gateway_charge_id"),
+        },
+    )
+    await session.execute(
+        text(
+            """
+            UPDATE tcg_judge.shop_orders
+            SET pix_txid = :txid, updated_at = NOW()
+            WHERE id = :oid
+            """
+        ),
+        {"txid": txid, "oid": str(order_id)},
+    )
+
+    await notify_shop_event(
+        session,
+        "buylist:pix_created",
+        buyer_id=owner_id,
+        body=f"PIX BuyList gerado — R$ {amount_cents / 100:.2f}",
+        data={"submission_id": submission_id, "order_id": str(order_id), "txid": txid},
+    )
+    await session.commit()
+
+    return {
+        "order_id": str(order_id),
+        "submission_id": submission_id,
+        "txid": txid,
+        "amount_cents": amount_cents,
+        "copy_payload": copy_payload,
+        "qr_code": qr_b64,
+        "expires_at": expires_at.isoformat(),
+        "pix_key": settings.platform_pix_key,
+        "payment_method": "escrow_buylist",
+    }

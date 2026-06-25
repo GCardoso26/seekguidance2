@@ -13,6 +13,7 @@ from app.catalog.admin_auth import require_catalog_sync_auth
 from app.catalog.cron_auth import require_catalog_cron_auth
 from app.catalog.detail_service import get_card_detail, get_price_history
 from app.catalog.health import verify_ingestion, verify_ingestion_lite
+from app.catalog.redis_cache import redis_ping
 from app.catalog.pipeline import run_full_ingestion, run_game_sync
 from app.catalog.search_index import meili_enabled
 from app.catalog.search_service import get_catalog_price_trends, list_catalog_sets, search_catalog_cards
@@ -30,6 +31,7 @@ async def catalog_health(
     else:
         report = await verify_ingestion_lite(session)
     report["meilisearch"] = "ok" if meili_enabled() else "disabled"
+    report["redis"] = redis_ping()
     return report
 
 
@@ -167,3 +169,16 @@ async def catalog_cron_sync_game(
     if result.get("status") == "error":
         raise HTTPException(400, str(result.get("message", "sync failed")))
     return result
+
+
+@router.post("/runtime/judge/catalog/cron/sync-tcgapi-prices")
+async def catalog_cron_sync_tcgapi_prices(
+    session: DbSession,
+    game: str = Query(default="MTG"),
+    limit: int = Query(default=50, ge=1, le=200),
+    _: None = Depends(require_catalog_cron_auth),
+) -> dict[str, Any]:
+    """Sync preços externos tcgapi.dev → card_prices (cron Render/Vercel)."""
+    from app.pricing.tcgapi_sync import sync_tcgapi_prices
+
+    return await sync_tcgapi_prices(session, game=game, limit=limit)

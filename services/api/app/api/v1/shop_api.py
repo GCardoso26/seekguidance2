@@ -945,6 +945,22 @@ async def patch_buylist_submission(
     return {"submission": submission}
 
 
+@router.post(
+    "/runtime/judge/marketplace/shop/stores/{store_id}/buylists/submissions/{submission_id}/pay-pix"
+)
+async def buylist_submission_pay_pix(
+    session: DbSession,
+    store_id: str,
+    submission_id: str,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    pix = await shop_buylist.create_buylist_pix_payment(
+        session, submission_id, store_id, user_id
+    )
+    return {"pix": pix}
+
+
 @router.get("/runtime/judge/marketplace/shop/stores/{store_id}/inventory")
 async def store_inventory(
     session: DbSession,
