@@ -72,15 +72,19 @@ function PriceAlertForm({ card, onDone }: { card: UnifiedCard; onDone: () => voi
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
+  const [targetPercentage, setTargetPercentage] = useState(10);
+  const isChangeAlert = priceCondition === "change_up" || priceCondition === "change_down";
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     createAlert.mutate(
       {
         card_id: card.id,
-        target_price: targetPrice,
+        target_price: isChangeAlert ? 0 : targetPrice,
         condition: priceCondition,
         target_condition: targetCondition || undefined,
+        target_percentage: isChangeAlert ? targetPercentage : undefined,
       },
       {
         onSuccess: () => {
@@ -108,6 +112,41 @@ function PriceAlertForm({ card, onDone }: { card: UnifiedCard; onDone: () => voi
       {error && <p className="text-sm text-red-500">{error}</p>}
 
       <div>
+        <label htmlFor="price-condition" className="text-sm font-medium">
+          Tipo de alerta
+        </label>
+        <select
+          id="price-condition"
+          value={priceCondition}
+          onChange={(e) => setPriceCondition(e.target.value as AlertPriceCondition)}
+          className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+        >
+          <option value="below">Preço baixar até</option>
+          <option value="above">Preço subir até</option>
+          <option value="change_up">Alta de % em 7 dias</option>
+          <option value="change_down">Queda de % em 7 dias</option>
+        </select>
+      </div>
+
+      {isChangeAlert ? (
+        <div>
+          <label htmlFor="target-percentage" className="text-sm font-medium">
+            Variação (% em 7 dias)
+          </label>
+          <input
+            id="target-percentage"
+            type="number"
+            step="0.5"
+            min={1}
+            max={500}
+            value={targetPercentage}
+            onChange={(e) => setTargetPercentage(Number(e.target.value))}
+            className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            required
+          />
+        </div>
+      ) : (
+      <div>
         <label htmlFor="target-price" className="text-sm font-medium">
           Preço-alvo
         </label>
@@ -125,21 +164,7 @@ function PriceAlertForm({ card, onDone }: { card: UnifiedCard; onDone: () => voi
           Preço atual: {formatCurrency(card.lowestPrice || 0, currency)}
         </p>
       </div>
-
-      <div>
-        <label htmlFor="price-condition" className="text-sm font-medium">
-          Disparar quando preço
-        </label>
-        <select
-          id="price-condition"
-          value={priceCondition}
-          onChange={(e) => setPriceCondition(e.target.value as AlertPriceCondition)}
-          className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-        >
-          <option value="below">Baixar para (ou abaixo de)</option>
-          <option value="above">Subir para (ou acima de)</option>
-        </select>
-      </div>
+      )}
 
       <div>
         <label htmlFor="alert-card-condition" className="text-sm font-medium">

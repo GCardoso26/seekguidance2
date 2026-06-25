@@ -1,4 +1,4 @@
-export type AlertPriceCondition = "below" | "above";
+export type AlertPriceCondition = "below" | "above" | "change_up" | "change_down";
 export type AlertStatus = "active" | "triggered" | "disabled" | "expired";
 
 export interface PriceAlert {
@@ -19,6 +19,8 @@ export interface PriceAlert {
   pushNotified: boolean;
   createdAt: string;
   expiresAt: string;
+  targetPercentage?: number | null;
+  triggerCount?: number;
   triggeredAt?: string | null;
 }
 
@@ -28,4 +30,5 @@ export interface CreatePriceAlertInput {
   condition: AlertPriceCondition;
   target_condition?: string;
   target_foil?: boolean;
+  target_percentage?: number;
 }

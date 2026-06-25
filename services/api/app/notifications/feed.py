@@ -17,6 +17,7 @@ SHOP_LINKS: dict[str, str] = {
     "shop:pro_activated": "/vendedor/painel",
     "shop:review_received": "/vendedor/painel",
     "shop:review_edited": "/vendedor/painel",
+    "price_alert:triggered": "/alerts",
 }
 
 

@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { getTopMovers } from "@/lib/market/top-movers";
 
 export interface HealthScoreResult {
   game: string;
@@ -13,6 +14,8 @@ export interface HealthScoreResult {
   newListings7d: number;
   activeBuyers7d: number;
   activeSellers7d: number;
+  topGainers: import("@/lib/market/top-movers").TopMover[];
+  topLosers: import("@/lib/market/top-movers").TopMover[];
 }
 
 function getSupabaseAdmin() {
@@ -40,6 +43,8 @@ export async function calculateHealthScore(game: string): Promise<HealthScoreRes
       newListings7d: 0,
       activeBuyers7d: 0,
       activeSellers7d: 0,
+      topGainers: [],
+      topLosers: [],
     };
   }
 
@@ -60,16 +65,21 @@ export async function calculateHealthScore(game: string): Promise<HealthScoreRes
     .gte("recorded_at", sevenDaysAgo)
     .limit(500);
 
-  const avgPriceChange7d = 0;
+  const { gainers, losers } = await getTopMovers(game, 5);
+  const avgPriceChange7d =
+    gainers.length + losers.length > 0
+      ? [...gainers, ...losers].reduce((s, m) => s + m.changePct, 0) /
+        (gainers.length + losers.length)
+      : 0;
+
+  void recentPrices;
+  void gameCode;
 
   const { count: newListings7d } = await supabase
     .from("store_products")
     .select("*", { count: "exact", head: true })
     .eq("tcg_id", gameSlug)
     .gte("created_at", sevenDaysAgo);
-
-  void recentPrices;
-  void gameCode;
 
   const { data: activeUsers } = await supabase
     .from("escrow_transactions")
@@ -101,6 +111,8 @@ export async function calculateHealthScore(game: string): Promise<HealthScoreRes
     newListings7d: newListings7d ?? 0,
     activeBuyers7d: uniqueBuyers,
     activeSellers7d: uniqueSellers,
+    topGainers: gainers,
+    topLosers: losers,
   };
 }
 
@@ -122,6 +134,8 @@ export async function persistHealthScore(result: HealthScoreResult): Promise<voi
       newListings7d: result.newListings7d,
       activeBuyers7d: result.activeBuyers7d,
       activeSellers7d: result.activeSellers7d,
+      topGainers: result.topGainers,
+      topLosers: result.topLosers,
     },
     computed_at: new Date().toISOString(),
   });

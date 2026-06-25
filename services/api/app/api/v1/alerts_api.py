@@ -7,23 +7,26 @@ from typing import Any
 from app.alerts import price_alerts as alerts_svc
 from app.api.deps import DbSession
 from app.api.v1.tournament_system import _require_user
-from fastapi import APIRouter, Header, Query
+from fastapi import APIRouter, Depends, Header, Query
 from pydantic import BaseModel, Field
+
+from app.catalog.cron_auth import require_catalog_cron_auth
 
 router = APIRouter(tags=["price-alerts"])
 
 
 class AlertCreateBody(BaseModel):
     card_id: str
-    target_price: float = Field(gt=0)
-    condition: str = Field(default="below", pattern="^(below|above)$")
+    target_price: float = Field(default=0, ge=0)
+    condition: str = Field(default="below", pattern="^(below|above|change_up|change_down)$")
     target_condition: str | None = Field(default=None, pattern="^(NM|LP|MP|HP|DM)$")
     target_foil: bool | None = None
+    target_percentage: float | None = Field(default=None, gt=0, le=500)
 
 
 class AlertUpdateBody(BaseModel):
     target_price: float | None = Field(default=None, gt=0)
-    condition: str | None = Field(default=None, pattern="^(below|above)$")
+    condition: str | None = Field(default=None, pattern="^(below|above|change_up|change_down)$")
     status: str | None = Field(default=None, pattern="^(active|disabled)$")
 
 
@@ -42,6 +45,7 @@ async def create_alert(
         condition=body.condition,
         target_condition=body.target_condition,
         target_foil=body.target_foil,
+        target_percentage=body.target_percentage,
     )
     return {"alert": alert}
 
@@ -95,6 +99,14 @@ async def delete_alert(
 ) -> dict[str, Any]:
     user_id = _require_user(x_judge_user_id)
     return await alerts_svc.delete_price_alert(session, user_id, alert_id)
+
+
+@router.post("/runtime/judge/alerts/price/cron/check")
+async def cron_check_alerts(
+    session: DbSession,
+    _: None = Depends(require_catalog_cron_auth),
+) -> dict[str, Any]:
+    return await alerts_svc.check_price_alerts(session)
 
 
 @router.post("/runtime/judge/alerts/price/check")

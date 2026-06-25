@@ -22,10 +22,14 @@ def test_alert_payload_normalizes_fields():
         "created_at": "2026-01-01T00:00:00Z",
         "expires_at": "2026-04-01T00:00:00Z",
         "triggered_at": None,
+        "target_percentage": 15.5,
+        "trigger_count": 2,
     }
     payload = _alert_payload(row, current_cents=300)
     assert payload["cardName"] == "Lightning Bolt"
     assert payload["targetPrice"] == 2.5
     assert payload["condition"] == "below"
+    assert payload["targetPercentage"] == 15.5
+    assert payload["triggerCount"] == 2
     assert payload["currentPrice"] == 3.0
     assert payload["priceDifference"] == 20.0
