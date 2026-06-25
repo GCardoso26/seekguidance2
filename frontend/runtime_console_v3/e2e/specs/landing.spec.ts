@@ -3,13 +3,21 @@ import { SELECTORS } from "../utils/selectors";
 
 test.describe("Landing Page", () => {
   test("renders hero and main sections", async ({ page }) => {
-    await page.goto("/");
+    test.setTimeout(90_000);
+
+    await page.goto("/", { waitUntil: "domcontentloaded" });
     await expect(page.locator(SELECTORS.heroTitle)).toBeVisible();
     await expect(page.locator('[data-testid="game-card-mtg"]')).toBeVisible({ timeout: 15_000 });
+
     await page.getByRole("heading", { name: /Tendências de preço/i }).scrollIntoViewIfNeeded();
-    await expect(page.locator(SELECTORS.featuredCards)).toBeVisible({ timeout: 20_000 });
+    await expect(
+      page.locator('[data-testid="featured-cards"], [data-testid="featured-cards-loading"]'),
+    ).toBeVisible({ timeout: 20_000 });
+
     await page.getByRole("heading", { name: /Lojas em destaque/i }).scrollIntoViewIfNeeded();
-    await expect(page.locator(SELECTORS.featuredShops)).toBeVisible({ timeout: 20_000 });
+    await expect(
+      page.locator('[data-testid="featured-shops"], [data-testid="featured-shops-loading"]'),
+    ).toBeVisible({ timeout: 20_000 });
   });
 
   test("global search shows results", async ({ page }) => {

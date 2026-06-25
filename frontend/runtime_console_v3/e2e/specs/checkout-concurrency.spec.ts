@@ -1,4 +1,5 @@
 import path from "path";
+import fs from "fs";
 import { test, expect } from "@playwright/test";
 import { hasAuthEnv } from "../helpers/supabase-auth";
 import {
@@ -13,6 +14,10 @@ import {
 const buyerA = path.join(__dirname, "../.auth/buyer.json");
 const buyerB = path.join(__dirname, "../.auth/buyer-b.json");
 
+function hasBuyerStates() {
+  return fs.existsSync(buyerA) && fs.existsSync(buyerB);
+}
+
 test.describe("Checkout Concurrency", () => {
   test.beforeEach(() => {
     if (!hasAuthEnv()) {
@@ -23,7 +28,7 @@ test.describe("Checkout Concurrency", () => {
   test("deve permitir apenas uma compra quando 2 usuários tentam comprar o último item", async ({
     baseURL,
   }) => {
-    test.skip(!canRunCheckoutRace(), "Requer SUPABASE_SERVICE_ROLE_KEY e API_PROXY_TARGET");
+    test.skip(!canRunCheckoutRace() || !hasBuyerStates(), "Requer auth setup com buyer A e B");
 
     const productId = process.env.E2E_RACE_PRODUCT_ID ?? (await getOrCreateRaceProduct());
     if (!productId) {

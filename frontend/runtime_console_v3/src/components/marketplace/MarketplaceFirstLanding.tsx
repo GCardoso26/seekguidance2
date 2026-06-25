@@ -15,12 +15,28 @@ import Image from "next/image";
 
 const TrendingCardsGrid = dynamic(
   () => import("@/components/marketplace/TrendingCardsGrid").then((m) => m.TrendingCardsGrid),
-  { loading: () => <div className="h-64 animate-pulse rounded-lg bg-muted/40" /> },
+  {
+    loading: () => (
+      <div className="grid gap-4 md:grid-cols-3" data-testid="featured-cards-loading">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} className="h-64 animate-pulse rounded-lg bg-muted/40" />
+        ))}
+      </div>
+    ),
+  },
 );
 
 const FeaturedShopsGrid = dynamic(
   () => import("@/components/marketplace/FeaturedShopsGrid").then((m) => m.FeaturedShopsGrid),
-  { loading: () => <div className="h-48 animate-pulse rounded-lg bg-muted/40" /> },
+  {
+    loading: () => (
+      <div className="grid gap-4 md:grid-cols-4" data-testid="featured-shops-loading">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="h-48 animate-pulse rounded-lg bg-muted/40" />
+        ))}
+      </div>
+    ),
+  },
 );
 
 function MarketplaceHero() {

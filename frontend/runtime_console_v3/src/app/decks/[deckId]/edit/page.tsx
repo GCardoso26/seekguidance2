@@ -1,10 +1,9 @@
 "use client";
 
 import { use } from "react";
-import { useRouter } from "next/navigation";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import { DeckBuilder } from "@/components/deckbuilder/DeckBuilder";
-import { useJudgeAuth } from "@/features/auth/AuthProvider";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 
 export default function DeckEditPage({
   params,
@@ -12,12 +11,14 @@ export default function DeckEditPage({
   params: Promise<{ deckId: string }>;
 }) {
   const { deckId } = use(params);
-  const router = useRouter();
-  const { user, loading } = useJudgeAuth();
+  const { user, loading } = useRequireAuth(`/decks/${deckId}/edit`);
 
-  if (!loading && !user) {
-    router.push(`/login?next=/decks/${deckId}/edit`);
-    return null;
+  if (loading || !user) {
+    return (
+      <MobileLayout>
+        <div className="p-8 text-sm text-muted-foreground">Carregando…</div>
+      </MobileLayout>
+    );
   }
 
   return (

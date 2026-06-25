@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useJudgeAuth } from "@/features/auth/AuthProvider";
 import { useCreateDeck, useDeckFormats } from "@/hooks/useDeck";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { TOURNAMENT_GAMES } from "@/lib/tcg-adapters";
 import type { DeckFormat } from "@/types/deck";
 
@@ -21,7 +22,7 @@ type CatalogGame = {
 
 export default function NovoDeckPage() {
   const router = useRouter();
-  const { user, loading } = useJudgeAuth();
+  const { user, loading } = useRequireAuth("/decks/novo");
   const createDeck = useCreateDeck();
   const [name, setName] = useState("");
   const [game, setGame] = useState("mtg");
@@ -42,9 +43,14 @@ export default function NovoDeckPage() {
     if (formats.length > 0) setFormat(formats[0].slug);
   }, [formats]);
 
-  if (!loading && !user) {
-    router.push("/login?next=/decks/novo");
-    return null;
+  if (loading || !user) {
+    return (
+      <MobileLayout>
+        <main className="container mx-auto max-w-md px-4 py-16">
+          <p className="text-sm text-luxury-mist">Carregando…</p>
+        </main>
+      </MobileLayout>
+    );
   }
 
   const handleSubmit = async (e: React.FormEvent) => {

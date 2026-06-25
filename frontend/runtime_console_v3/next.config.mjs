@@ -5,9 +5,8 @@ const apiUrl =
   process.env.NEXT_PUBLIC_API_URL ||
   "https://seekguidance.onrender.com";
 
-const supabaseHost =
-  process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/^https?:\/\//, "").split("/")[0] ??
-  "*.supabase.co";
+const supabaseHostRaw = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/^https?:\/\//, "").split("/")[0];
+const supabaseHost = supabaseHostRaw && supabaseHostRaw.length > 0 ? supabaseHostRaw : "*.supabase.co";
 
 const isDev = process.env.NODE_ENV === "development";
 

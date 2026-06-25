@@ -7,8 +7,8 @@ import { Layers, Plus } from "lucide-react";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useJudgeAuth } from "@/features/auth/AuthProvider";
 import { useCreateDeck, useMyDecks } from "@/hooks/useDeck";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { DeckStatusBadge } from "@/components/deckbuilder/DeckStatusBadge";
 import { TOURNAMENT_GAMES } from "@/lib/tcg-adapters";
 import { DecksSkeleton } from "@/components/ui/skeletons";
@@ -16,24 +16,19 @@ import { formatCurrency } from "@/lib/format-currency";
 
 export default function DecksPage() {
   const router = useRouter();
-  const { user, loading } = useJudgeAuth();
+  const { user, loading } = useRequireAuth("/decks");
   const { data: decks = [], isLoading } = useMyDecks();
   const createDeck = useCreateDeck();
   const [name, setName] = useState("");
   const [game, setGame] = useState("mtg");
   const [format, setFormat] = useState("standard");
 
-  if (loading) {
+  if (loading || !user) {
     return (
       <MobileLayout>
         <DecksSkeleton />
       </MobileLayout>
     );
-  }
-
-  if (!user) {
-    router.push("/entrar?next=/decks");
-    return null;
   }
 
   const handleCreate = async () => {

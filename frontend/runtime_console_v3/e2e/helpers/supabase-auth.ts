@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { createChunks, stringToBase64URL } from "@supabase/ssr";
 import fs from "fs";
 import path from "path";
 
@@ -55,7 +56,7 @@ export async function signInAndSaveState(
   const hostname = new URL(baseURL).hostname;
   const projectRef = new URL(process.env.NEXT_PUBLIC_SUPABASE_URL!).hostname.split(".")[0];
   const cookieName = `sb-${projectRef}-auth-token`;
-  const cookieValue = JSON.stringify({
+  const sessionJson = JSON.stringify({
     access_token: data.session.access_token,
     refresh_token: data.session.refresh_token,
     expires_at: data.session.expires_at,
@@ -63,19 +64,19 @@ export async function signInAndSaveState(
     token_type: data.session.token_type,
     user: data.session.user,
   });
+  const encoded = `base64-${stringToBase64URL(sessionJson)}`;
+  const chunks = createChunks(cookieName, encoded);
 
   const state = {
-    cookies: [
-      {
-        name: cookieName,
-        value: cookieValue,
-        domain: hostname,
-        path: "/",
-        httpOnly: false,
-        secure: baseURL.startsWith("https"),
-        sameSite: "Lax" as const,
-      },
-    ],
+    cookies: chunks.map(({ name, value }) => ({
+      name,
+      value,
+      domain: hostname,
+      path: "/",
+      httpOnly: false,
+      secure: baseURL.startsWith("https"),
+      sameSite: "Lax" as const,
+    })),
     origins: [],
   };
 
