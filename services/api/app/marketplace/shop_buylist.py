@@ -428,7 +428,7 @@ async def _create_buylist_escrow_order(
                   shipping_address
                 ) VALUES (
                   :buyer, :store, 'pending', :total,
-                  :fee, :store_recv, 'escrow_buylist', true,
+                  :fee, :store_recv, 'escrow_pix', true,
                   CAST(:meta AS jsonb)
                 )
                 RETURNING id
