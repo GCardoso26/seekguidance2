@@ -42,10 +42,7 @@ class TournamentCreateBody(BaseModel):
     starts_at: datetime | None = None
 
 
-def _require_user(user_id: str | None) -> str:
-    if not user_id or not user_id.strip():
-        raise HTTPException(status_code=401, detail="Autenticação necessária")
-    return user_id.strip()
+from app.api.judge_user import require_judge_user as _require_user
 
 
 def _issue_to_dict(issue: Any) -> dict[str, Any]:

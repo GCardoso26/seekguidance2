@@ -9,6 +9,7 @@ import { PendingActions } from "@/components/seller-dashboard/PendingActions";
 import { MerchantKycCard } from "@/components/kyc/MerchantKycCard";
 import { useSellerStore } from "@/hooks/useSellerStore";
 import { useAccountStatus } from "@/hooks/useAccountStatus";
+import { needsOnboardingContinue } from "@/lib/kyc-onboarding";
 
 const SalesChart = dynamic(
   () => import("@/components/dashboard/SalesChart").then((m) => m.SalesChart),
@@ -20,7 +21,11 @@ export default function VendedorPainelDashboardPage() {
   const { data: accountStatus } = useAccountStatus();
   const store = dashboard?.store as Record<string, unknown> | undefined;
   const kycStatus = accountStatus?.merchant?.kyc_status;
-  const kycIncomplete = Boolean(kycStatus && kycStatus !== "verified");
+  const kycIncomplete = Boolean(
+    kycStatus &&
+      kycStatus !== "verified" &&
+      needsOnboardingContinue(kycStatus, accountStatus?.merchant?.rejection_reason),
+  );
 
   if (isLoading || dashboardLoading) {
     return (

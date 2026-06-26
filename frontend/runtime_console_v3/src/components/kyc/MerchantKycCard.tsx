@@ -7,6 +7,7 @@ import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { needsCpfCompletion, useAccountStatus } from "@/hooks/useAccountStatus";
 import { useSellerStore } from "@/hooks/useSellerStore";
+import { isKycAwaitingReview, needsOnboardingContinue } from "@/lib/kyc-onboarding";
 
 function parseApiDetail(payload: unknown): string {
   if (!payload || typeof payload !== "object") return "Falha ao iniciar KYC";
@@ -32,6 +33,16 @@ const STATUS_LABELS: Record<string, string> = {
   restricted: "Conta com limitações",
 };
 
+async function syncOnboardingStatus(storeId: string | null): Promise<void> {
+  if (storeId) {
+    await fetch(`/api/marketplace/shop/connect/refresh/${encodeURIComponent(storeId)}`, {
+      method: "POST",
+    });
+    return;
+  }
+  await fetch("/api/merchant/onboarding/sync", { method: "POST" });
+}
+
 async function fetchOnboardingLink(storeId: string | null): Promise<{ onboarding_url?: string }> {
   const body: { store_id?: string } = {};
   if (storeId) body.store_id = storeId;
@@ -56,7 +67,10 @@ export function MerchantKycCard() {
   const kyc = data?.merchant;
   const status = kyc?.kyc_status ?? "none";
   const cpfPending = needsCpfCompletion(data);
+  const awaitingReview = isKycAwaitingReview(status, kyc?.rejection_reason);
+  const showContinueButton = needsOnboardingContinue(status, kyc?.rejection_reason);
   const [onboardingRedirecting, setOnboardingRedirecting] = useState(false);
+  const [onboardingSyncing, setOnboardingSyncing] = useState(false);
   const [onboardingError, setOnboardingError] = useState<string | null>(null);
   const onboardingQueryHandled = useRef(false);
   const refreshAttemptStarted = useRef(false);
@@ -95,8 +109,19 @@ export function MerchantKycCard() {
     };
 
     if (mode === "success") {
-      void refetch();
-      clearOnboardingQuery();
+      if (storeLoading) return;
+      if (onboardingQueryHandled.current) return;
+      onboardingQueryHandled.current = true;
+      setOnboardingSyncing(true);
+      void (async () => {
+        try {
+          await syncOnboardingStatus(storeId);
+          await refetch();
+        } finally {
+          setOnboardingSyncing(false);
+          router.replace("/vendedor/painel");
+        }
+      })();
       return;
     }
 
@@ -133,10 +158,12 @@ export function MerchantKycCard() {
     })();
   }, [accountStatusLoading, refetch, router, status, storeId, storeLoading]);
 
-  if (onboardingRedirecting) {
+  if (onboardingRedirecting || onboardingSyncing) {
     return (
       <div className="rounded-xl border border-white/10 bg-white/5 p-4 text-center text-sm text-luxury-mist">
-        Redirecionando para continuar seu cadastro no Stripe…
+        {onboardingSyncing
+          ? "Atualizando status do seu cadastro…"
+          : "Redirecionando para continuar seu cadastro no Stripe…"}
       </div>
     );
   }
@@ -182,8 +209,17 @@ export function MerchantKycCard() {
 
   return (
     <div className={`rounded-xl border p-4 ${style}`}>
-      <h3 className="font-semibold">Status KYC — {STATUS_LABELS[status] ?? status}</h3>
-      {status === "pending" && (
+      <h3 className="font-semibold">
+        Status KYC —{" "}
+        {awaitingReview ? "Documentação em análise" : (STATUS_LABELS[status] ?? status)}
+      </h3>
+      {status === "pending" && awaitingReview && (
+        <p className="mt-2 text-sm">
+          Recebemos seus dados. A Stripe está analisando — isso pode levar algumas horas. Você será
+          notificado quando puder publicar produtos.
+        </p>
+      )}
+      {status === "pending" && !awaitingReview && (
         <p className="mt-2 text-sm">Complete seu cadastro no provedor de pagamentos para publicar produtos.</p>
       )}
       {status === "rejected" && kyc?.rejection_reason && (
@@ -192,7 +228,7 @@ export function MerchantKycCard() {
       {status === "restricted" && (
         <p className="mt-2 text-sm">Sua conta tem limitações temporárias. Envie as informações solicitadas.</p>
       )}
-      {status !== "verified" && (
+      {showContinueButton && (
         <Button
           variant="outline"
           className="mt-3 border-white/20"

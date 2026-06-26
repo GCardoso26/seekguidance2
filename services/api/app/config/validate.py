@@ -10,6 +10,8 @@ PRODUCTION_REQUIRED = [
     "STRIPE_SECRET_KEY",
     "REDIS_URL",
     "DATABASE_URL",
+    "CPF_SALT",
+    "SUPABASE_JWT_SECRET",
 ]
 
 PRODUCTION_RECOMMENDED = [
@@ -34,6 +36,10 @@ def validate_production_config(settings: Settings | None = None) -> list[str]:
             val = settings.redis_url
         elif key == "STRIPE_SECRET_KEY":
             val = settings.stripe_secret_key
+        elif key == "CPF_SALT":
+            val = settings.cpf_salt
+        elif key == "SUPABASE_JWT_SECRET":
+            val = settings.supabase_jwt_secret
         if not val:
             missing.append(key)
 

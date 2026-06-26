@@ -42,7 +42,8 @@ def _cpf_salt_bytes() -> bytes:
     salt = (settings.cpf_salt or os.getenv("CPF_SALT") or "").strip()
     if not salt:
         if settings.environment == "production":
-            logger.error("cpf_salt_missing_in_production")
+            raise RuntimeError("CPF_SALT is required in production")
+        logger.warning("cpf_salt_missing_using_dev_fallback")
         salt = _DEV_CPF_SALT
     return salt.encode()
 

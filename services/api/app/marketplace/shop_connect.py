@@ -107,10 +107,37 @@ async def create_account_onboarding_link(
     }
 
 
+async def _resolve_connect_account_id(
+    session: AsyncSession,
+    owner_id: str,
+    merchant: dict[str, Any],
+) -> str | None:
+    account_id = merchant.get("provider_account_id")
+    if account_id:
+        return str(account_id)
+    store = await get_owner_store(session, owner_id)
+    account_id = store.get("stripe_account_id") if store else None
+    if account_id:
+        await session.execute(
+            text(
+                """
+                UPDATE tcg_judge.merchant_profiles
+                SET provider_account_id = :aid, updated_at = NOW()
+                WHERE user_id = :uid AND provider_account_id IS NULL
+                """
+            ),
+            {"aid": str(account_id), "uid": owner_id},
+        )
+        await session.commit()
+    return str(account_id) if account_id else None
+
+
 async def refresh_onboarding_link_if_expired(
     session: AsyncSession,
     owner_id: str,
     merchant: dict[str, Any],
+    *,
+    force: bool = False,
 ) -> dict[str, Any]:
     """Regenera AccountLink se expirado ou ausente (lojista ainda não verified)."""
     if merchant.get("kyc_status") == "verified":
@@ -121,10 +148,7 @@ async def refresh_onboarding_link_if_expired(
             "refreshed": False,
         }
 
-    account_id = merchant.get("provider_account_id")
-    if not account_id:
-        store = await get_owner_store(session, owner_id)
-        account_id = store.get("stripe_account_id") if store else None
+    account_id = await _resolve_connect_account_id(session, owner_id, merchant)
     if not account_id:
         return {
             "kyc_status": merchant.get("kyc_status"),
@@ -133,25 +157,26 @@ async def refresh_onboarding_link_if_expired(
             "refreshed": False,
         }
 
-    expires_raw = merchant.get("onboarding_expires_at")
-    expires_at: datetime | None = None
-    if expires_raw:
-        if isinstance(expires_raw, datetime):
-            expires_at = expires_raw if expires_raw.tzinfo else expires_raw.replace(tzinfo=UTC)
-        else:
-            expires_at = datetime.fromisoformat(str(expires_raw).replace("Z", "+00:00"))
+    if not force:
+        expires_raw = merchant.get("onboarding_expires_at")
+        expires_at: datetime | None = None
+        if expires_raw:
+            if isinstance(expires_raw, datetime):
+                expires_at = expires_raw if expires_raw.tzinfo else expires_raw.replace(tzinfo=UTC)
+            else:
+                expires_at = datetime.fromisoformat(str(expires_raw).replace("Z", "+00:00"))
 
-    now = datetime.now(UTC)
-    url = merchant.get("onboarding_url")
-    if url and expires_at and expires_at > now:
-        return {
-            "kyc_status": merchant.get("kyc_status"),
-            "onboarding_url": url,
-            "onboarding_expires_at": expires_at.isoformat(),
-            "refreshed": False,
-        }
+        now = datetime.now(UTC)
+        url = merchant.get("onboarding_url")
+        if url and expires_at and expires_at > now:
+            return {
+                "kyc_status": merchant.get("kyc_status"),
+                "onboarding_url": url,
+                "onboarding_expires_at": expires_at.isoformat(),
+                "refreshed": False,
+            }
 
-    link = await create_account_onboarding_link(session, owner_id, str(account_id))
+    link = await create_account_onboarding_link(session, owner_id, account_id)
     return {
         "kyc_status": merchant.get("kyc_status"),
         "onboarding_url": link["onboarding_url"],
@@ -169,14 +194,11 @@ async def force_refresh_onboarding_link(
     if merchant.get("kyc_status") == "verified":
         return await refresh_onboarding_link_if_expired(session, owner_id, merchant)
 
-    account_id = merchant.get("provider_account_id")
-    if not account_id:
-        store = await get_owner_store(session, owner_id)
-        account_id = store.get("stripe_account_id") if store else None
+    account_id = await _resolve_connect_account_id(session, owner_id, merchant)
     if not account_id:
         raise HTTPException(404, "Conta Stripe Connect não encontrada")
 
-    link = await create_account_onboarding_link(session, owner_id, str(account_id))
+    link = await create_account_onboarding_link(session, owner_id, account_id)
     return {
         "kyc_status": merchant.get("kyc_status"),
         "onboarding_url": link["onboarding_url"],
@@ -262,6 +284,14 @@ async def start_connect_onboarding(
         "onboarding_expires_at": link_payload["onboarding_expires_at"],
         "stripe_account_id": account_id,
     }
+
+
+async def sync_merchant_kyc_for_owner(session: AsyncSession, owner_id: str) -> dict[str, Any]:
+    """Sincroniza kyc_status com Stripe após retorno do onboarding (return_url)."""
+    store = await get_owner_store(session, owner_id)
+    if not store:
+        return {"synced": False, "reason": "no_store", "kyc_status": None}
+    return await refresh_connect_status(session, str(store["id"]), owner_id)
 
 
 async def refresh_connect_status(session: AsyncSession, store_id: str, owner_id: str) -> dict[str, Any]:

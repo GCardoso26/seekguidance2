@@ -90,14 +90,18 @@ async def merchant_onboarding(
     user_id = _require_user(x_judge_user_id)
     await create_merchant_profile(session, user_id, store_id=body.store_id, require_cpf=False)
     existing = await get_merchant_profile(session, user_id)
-    if existing and existing.get("kyc_status") in ("rejected", "restricted"):
-        link = await shop_connect.force_refresh_onboarding_link(session, user_id, existing)
-        return {
-            "store_id": body.store_id,
-            "onboarding_url": link["onboarding_url"],
-            "onboarding_expires_at": link["onboarding_expires_at"],
-            "stripe_account_id": existing.get("provider_account_id"),
-        }
+    if existing and existing.get("kyc_status") not in (None, "verified"):
+        try:
+            link = await shop_connect.force_refresh_onboarding_link(session, user_id, existing)
+            return {
+                "store_id": body.store_id,
+                "onboarding_url": link["onboarding_url"],
+                "onboarding_expires_at": link["onboarding_expires_at"],
+                "stripe_account_id": existing.get("provider_account_id"),
+            }
+        except HTTPException as exc:
+            if exc.status_code != 404:
+                raise
     link = await shop_connect.start_connect_onboarding(session, user_id, store_id=body.store_id)
     if link.get("stripe_account_id"):
         await session.execute(
@@ -122,9 +126,29 @@ async def merchant_onboarding(
     return link
 
 
+@router.post("/runtime/judge/merchant/onboarding/sync")
+async def merchant_onboarding_sync(
+    session: DbSession,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    """Atualiza kyc_status a partir da conta Stripe Connect (ex.: retorno ?onboarding=success)."""
+    user_id = _require_user(x_judge_user_id)
+    await create_merchant_profile(session, user_id, require_cpf=False)
+    payload = await shop_connect.sync_merchant_kyc_for_owner(session, user_id)
+    if not payload.get("kyc_status") and payload.get("reason") == "no_store":
+        merchant = await get_merchant_profile(session, user_id)
+        return {
+            "synced": False,
+            "kyc_status": merchant.get("kyc_status") if merchant else None,
+            "reason": "no_store",
+        }
+    return {"synced": True, **payload}
+
+
 @router.get("/runtime/judge/merchant/onboarding/status")
 async def merchant_onboarding_status(
     session: DbSession,
+    force: bool = False,
     x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
 ) -> dict[str, Any]:
     """Status KYC + regeneração automática do link de onboarding se expirado."""
@@ -136,7 +160,9 @@ async def merchant_onboarding_status(
     if str(merchant.get("user_id")) != user_id:
         raise HTTPException(403, detail="Acesso negado ao perfil lojista")
 
-    status_payload = await shop_connect.refresh_onboarding_link_if_expired(session, user_id, merchant)
+    status_payload = await shop_connect.refresh_onboarding_link_if_expired(
+        session, user_id, merchant, force=force
+    )
     return {
         "has_profile": True,
         "kyc_status": status_payload.get("kyc_status"),
