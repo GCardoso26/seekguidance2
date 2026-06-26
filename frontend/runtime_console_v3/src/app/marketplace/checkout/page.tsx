@@ -7,6 +7,8 @@ import { loadStripe } from "@stripe/stripe-js";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import { EnhancedPixCheckoutPanel } from "@/components/checkout/EnhancedPixCheckoutPanel";
 import { CouponApply } from "@/components/checkout/CouponApply";
+import { CpfCheckoutModal } from "@/components/kyc/CpfCheckoutModal";
+import { needsCpfCompletion, useAccountStatus } from "@/hooks/useAccountStatus";
 import { formatShopPrice } from "@/lib/marketplace-shop";
 import { trackEvent } from "@/lib/analytics";
 import { CheckoutReservationBanner } from "@/components/checkout/CheckoutReservationBanner";
@@ -71,6 +73,8 @@ function StripeCheckoutForm({ totalCents }: { totalCents: number }) {
 }
 
 export default function CheckoutPage() {
+  const { data: accountStatus, isLoading: accountLoading } = useAccountStatus();
+  const [cpfModal, setCpfModal] = useState(false);
   const [methods, setMethods] = useState<Methods | null>(null);
   const [method, setMethod] = useState<"pix" | "stripe">("pix");
   const [pixData, setPixData] = useState<PixData | null>(null);
@@ -86,6 +90,13 @@ export default function CheckoutPage() {
   const [useEscrow, setUseEscrow] = useState(false);
 
   useEffect(() => {
+    if (accountLoading) return;
+    if (needsCpfCompletion(accountStatus)) {
+      setCpfModal(true);
+      setLoading(false);
+      return;
+    }
+
     async function reserveStock() {
       const res = await fetch("/api/checkout/initiate", {
         method: "POST",
@@ -106,7 +117,7 @@ export default function CheckoutPage() {
       setCheckoutSession(checkout);
     }
     void reserveStock();
-  }, []);
+  }, [accountLoading, accountStatus]);
 
   async function handleReservationExpired() {
     if (checkoutSession?.session_id) {
@@ -119,6 +130,8 @@ export default function CheckoutPage() {
   }
 
   useEffect(() => {
+    if (accountLoading || needsCpfCompletion(accountStatus)) return;
+
     async function loadMethods() {
       const res = await fetch("/api/marketplace/shop/checkout/methods");
       if (!res.ok) {
@@ -134,7 +147,7 @@ export default function CheckoutPage() {
       setLoading(false);
     }
     void loadMethods();
-  }, []);
+  }, [accountLoading, accountStatus]);
 
   async function startPix(coupon?: { code: string; storeId: string } | null) {
     setPixLoading(true);
@@ -350,6 +363,8 @@ export default function CheckoutPage() {
             </Elements>
           </div>
         )}
+
+        <CpfCheckoutModal open={cpfModal} onClose={() => setCpfModal(false)} />
       </div>
     </MobileLayout>
   );

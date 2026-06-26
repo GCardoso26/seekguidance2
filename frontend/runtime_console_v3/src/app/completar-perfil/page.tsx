@@ -5,12 +5,13 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { useJudgeAuth } from "@/features/auth/AuthProvider";
 import { Button } from "@/components/ui/button";
+import { normalizeInternalPath } from "@/lib/auth/safe-path";
 import { formatCpfMask, isValidCpf } from "@/lib/kyc/cpf";
 
 function CompletarPerfilForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const afterPath = searchParams.get("next") || "/onboarding";
+  const afterPath = normalizeInternalPath(searchParams.get("next") ?? "/onboarding", "/onboarding");
   const { user, loading } = useJudgeAuth();
   const [cpf, setCpf] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -61,7 +62,7 @@ function CompletarPerfilForm() {
         }
         throw new Error(typeof detail === "string" ? detail : "Não foi possível validar o CPF");
       }
-      router.replace(afterPath.startsWith("/") ? afterPath : "/onboarding");
+      router.replace(afterPath);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro ao validar CPF");
     } finally {

@@ -1,15 +1,6 @@
 import { ACCESS_COOKIE } from "@/lib/auth-cookies";
-import { decodeRuntimeTokenPayload } from "@/lib/decode-runtime-token";
+import { verifyRuntimeAccessToken, verifySupabaseAccessToken } from "@/lib/auth/verify-access-token";
 import { isAdminEmailServer } from "@/lib/judge-rbac-server";
-
-type JwtPayload = {
-  role?: string;
-  email?: string;
-};
-
-function decodeJwtPayload(token: string): JwtPayload | null {
-  return decodeRuntimeTokenPayload(token);
-}
 
 function supabaseAccessToken(request: { cookies: { getAll: () => { name: string; value: string }[] } }): string | null {
   const hit = request.cookies
@@ -28,18 +19,30 @@ function supabaseAccessToken(request: { cookies: { getAll: () => { name: string;
   return null;
 }
 
-export function isAdminRequest(request: {
+function runtimeAuthSecret(): string | null {
+  const secret = (process.env.RUNTIME_AUTH_SECRET ?? "").trim();
+  return secret || null;
+}
+
+function supabaseJwtSecret(): string | null {
+  const secret = (process.env.SUPABASE_JWT_SECRET ?? "").trim();
+  return secret || null;
+}
+
+export async function isAdminRequest(request: {
   cookies: { get: (name: string) => { value: string } | undefined; getAll: () => { name: string; value: string }[] };
-}): boolean {
+}): Promise<boolean> {
+  const runtimeSecret = runtimeAuthSecret();
   const access = request.cookies.get(ACCESS_COOKIE)?.value;
-  if (access) {
-    const payload = decodeJwtPayload(access);
+  if (access && runtimeSecret) {
+    const payload = await verifyRuntimeAccessToken(access, runtimeSecret);
     if (payload?.role === "admin") return true;
   }
 
+  const jwtSecret = supabaseJwtSecret();
   const sbToken = supabaseAccessToken(request);
-  if (sbToken) {
-    const payload = decodeJwtPayload(sbToken);
+  if (sbToken && jwtSecret) {
+    const payload = await verifySupabaseAccessToken(sbToken, jwtSecret);
     if (payload?.role === "admin") return true;
     const email = payload?.email?.toLowerCase();
     if (isAdminEmailServer(email)) return true;
