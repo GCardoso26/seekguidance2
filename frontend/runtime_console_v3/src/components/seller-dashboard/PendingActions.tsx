@@ -4,14 +4,23 @@ type Props = {
   shipments?: number;
   disputes?: number;
   lowStock?: number;
+  kycIncomplete?: boolean;
 };
 
-export function PendingActions({ shipments = 0, disputes = 0, lowStock = 0 }: Props) {
+export function PendingActions({
+  shipments = 0,
+  disputes = 0,
+  lowStock = 0,
+  kycIncomplete = false,
+}: Props) {
   const items = [
+    kycIncomplete
+      ? { count: 1, label: "completar cadastro KYC", href: "#kyc-status" }
+      : null,
     { count: shipments, label: "pedidos aguardando envio", href: "/vendedor/painel/vendas?status=paid" },
     { count: disputes, label: "disputas abertas", href: "/vendedor/painel/vendas?status=disputed" },
     { count: lowStock, label: "itens com estoque baixo", href: "/vendedor/painel/listagens" },
-  ].filter((i) => i.count > 0);
+  ].filter((i): i is { count: number; label: string; href: string } => Boolean(i && i.count > 0));
 
   if (items.length === 0) {
     return <p className="text-sm text-luxury-mist">Nenhuma ação pendente.</p>;
