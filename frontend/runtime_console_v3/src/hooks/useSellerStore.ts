@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { useJudgeAuth } from "@/features/auth/AuthProvider";
 
 export type SellerStore = {
   id: string;
@@ -10,6 +11,7 @@ export type SellerStore = {
 };
 
 export function useSellerStore() {
+  const { user } = useJudgeAuth();
   const storesQuery = useQuery({
     queryKey: ["my-stores"],
     queryFn: async () => {
@@ -37,7 +39,8 @@ export function useSellerStore() {
   return {
     store,
     storeId,
-    ownerId: store?.owner_id,
+    ownerId: store?.owner_id ?? user?.id ?? null,
+    storeSlug: store?.slug ?? null,
     isLoading: storesQuery.isLoading,
     hasStore: Boolean(storeId),
     dashboard: dashboardQuery.data,
