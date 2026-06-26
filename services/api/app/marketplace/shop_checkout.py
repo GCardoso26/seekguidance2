@@ -13,6 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 import stripe
 from app.core.config import get_settings
 from app.marketplace import shop_cart
+from app.marketplace.shop_commission import platform_fee_cents, store_receives_cents
 from app.marketplace.shop_store import store_has_stripe, store_is_sellable
 
 logger = structlog.get_logger(__name__)
@@ -121,14 +122,17 @@ async def create_checkout(
         raise HTTPException(400, "Compra protegida disponível apenas para pedidos de uma loja")
 
     for store_id, split in store_splits.items():
+        commission_rate = float(split.get("commission_rate") or 0.15)
+        product_amount = int(split["amount_cents"])
         platform_fee = 0
-        product_amount = split["amount_cents"]
         if use_escrow:
             fees = shop_escrow.calculate_escrow_fees(product_amount)
             platform_fee = fees["escrow_fee_cents"]
             total_escrow_fee += platform_fee
             total_cents += platform_fee
-        store_receives = product_amount - platform_fee if use_escrow else split["amount_cents"]
+        else:
+            platform_fee = platform_fee_cents(product_amount, commission_rate)
+        store_recv = product_amount - platform_fee
         payment_method = "escrow_stripe" if use_escrow else "stripe"
         order_row = (
             await session.execute(
@@ -152,7 +156,7 @@ async def create_checkout(
                     "store": store_id,
                     "total": product_amount + (platform_fee if use_escrow else 0),
                     "fee": platform_fee,
-                    "store_recv": store_receives,
+                    "store_recv": store_recv,
                     "addr": json.dumps(shipping_address) if shipping_address else None,
                     "tg": transfer_group,
                     "pm": payment_method,
@@ -198,6 +202,10 @@ async def create_checkout(
     await session.commit()
 
     splits_meta = {k: v["amount_cents"] for k, v in store_splits.items()}
+    transfer_splits_meta = {
+        k: store_receives_cents(int(v["amount_cents"]), float(v.get("commission_rate") or 0.15))
+        for k, v in store_splits.items()
+    }
     connect_destination_charge = len(store_splits) == 1 and not use_escrow
     pi_kwargs: dict[str, Any] = {
         "amount": total_cents,
@@ -207,6 +215,7 @@ async def create_checkout(
             "buyer_id": user_id,
             "order_ids": ",".join(pending_orders),
             "store_splits": json.dumps(splits_meta),
+            "store_transfer_splits": json.dumps(transfer_splits_meta),
             "checkout_session_id": session_id,
             "use_escrow": "true" if use_escrow else "false",
             "connect_destination_charge": "true" if connect_destination_charge else "false",
@@ -217,7 +226,7 @@ async def create_checkout(
         store_id, split = next(iter(store_splits.items()))
         commission_rate = float(split.get("commission_rate") or 0.15)
         product_total = int(split["amount_cents"])
-        platform_fee = int(round(product_total * commission_rate))
+        platform_fee = platform_fee_cents(product_total, commission_rate)
         pi_kwargs["application_fee_amount"] = platform_fee
         pi_kwargs["transfer_data"] = {"destination": str(split["stripe_account_id"])}
         pi_kwargs["metadata"]["platform_fee_cents"] = str(platform_fee)
