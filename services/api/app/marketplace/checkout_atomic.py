@@ -11,6 +11,7 @@ from fastapi import HTTPException, status
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.kyc.player_account import require_active_account
 from app.marketplace import shop_cart
 from app.players.store import ensure_player_profile
 
@@ -74,6 +75,7 @@ async def initiate_checkout(
 ) -> dict[str, Any]:
     """Reserva estoque com lock pessimista (FOR UPDATE NOWAIT)."""
     await ensure_player_profile(session, user_id)
+    await require_active_account(session, user_id)
     cart = await shop_cart.get_cart(session, user_id)
     if cart_id and str(cart.get("id")) != str(cart_id):
         raise HTTPException(404, "Carrinho não encontrado")

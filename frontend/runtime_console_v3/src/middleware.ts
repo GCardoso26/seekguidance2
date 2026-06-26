@@ -33,7 +33,7 @@ function readOAuthReturnPath(request: NextRequest): string | null {
   return null;
 }
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (isSuspiciousPath(pathname)) {
@@ -71,9 +71,17 @@ export function middleware(request: NextRequest) {
     return response;
   }
 
+  const needsSellerPanel =
+    pathname === "/vendedor/painel" || pathname.startsWith("/vendedor/painel/");
+  if (needsSellerPanel && !hasSupabaseSession(request)) {
+    const entrar = new URL("/entrar", request.url);
+    entrar.searchParams.set("next", pathname);
+    return NextResponse.redirect(entrar);
+  }
+
   const needsAdmin = ADMIN_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));
   if (needsAdmin) {
-    if (!isAdminRequest(request)) {
+    if (!(await isAdminRequest(request))) {
       const login = new URL("/login", request.url);
       login.searchParams.set("next", pathname);
       return NextResponse.redirect(login);

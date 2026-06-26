@@ -10,8 +10,12 @@ const COOKIE_NAME = "tcg_daily_q";
 type DailyState = { d: string; c: number; k: string };
 
 function signingSecret(): string {
+  const dedicated = (process.env.PLAN_LIMIT_SECRET ?? "").trim();
+  if (dedicated) return dedicated;
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("PLAN_LIMIT_SECRET must be set in production");
+  }
   return (
-    process.env.PLAN_LIMIT_SECRET ||
     process.env.SUPABASE_SERVICE_ROLE_KEY ||
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
     "dev-insecure-plan-limit"
