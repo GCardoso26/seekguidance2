@@ -26,6 +26,7 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 import stripe
+from app.payments.stripe_webhook_events import abort_stripe_webhook_event, begin_stripe_webhook_event
 from app.payments.webhooks import verify_stripe_webhook
 
 logger = structlog.get_logger(__name__)
@@ -122,38 +123,53 @@ async def stripe_webhook(request: Request, session: DbSession, settings: Setting
     secret = settings.stripe_connect_webhook_secret or settings.stripe_webhook_secret or ""
     event = verify_stripe_webhook(payload, sig, secret)
 
+    event_id = str(event.get("id") or "")
     etype = event["type"]
     data = event["data"]["object"]
 
-    if etype == "checkout.session.completed":
-        await _handle_checkout_completed(session, settings, data)
-    elif etype == "invoice.paid":
-        await _handle_invoice_paid(session, data)
-    elif etype == "invoice.payment_failed":
-        sub_id = data.get("subscription")
-        if sub_id:
-            await update_subscription_status(session, str(sub_id), "past_due")
-        uid = (data.get("metadata") or {}).get("user_id")
-        await record_analytics_events(
-            session,
-            [{"event": "checkout_failed", "user_id": uid, "properties": {"invoice_id": data.get("id")}}],
-        )
-    elif etype == "customer.subscription.updated":
-        await sync_subscription_from_stripe(session, data)
-    elif etype == "customer.subscription.deleted":
-        await cancel_subscription_row(session, str(data.get("id")), data.get("canceled_at"))
-        await record_analytics_events(
-            session,
-            [{"event": "subscription_cancelled", "properties": {"subscription_id": data.get("id")}}],
-        )
-    elif etype == "payment_intent.succeeded":
-        meta = data.get("metadata") or {}
-        if meta.get("store_splits") or meta.get("order_ids"):
-            from app.marketplace.shop_orders import handle_payment_intent_succeeded
+    if event_id:
+        claimed = await begin_stripe_webhook_event(session, event_id, etype)
+        if not claimed:
+            return JSONResponse({"status": "duplicate"})
 
-            await handle_payment_intent_succeeded(session, settings, data)
-    elif etype == "account.updated":
-        await _handle_connect_account_updated(session, event["id"], data)
+    try:
+        if etype == "checkout.session.completed":
+            await _handle_checkout_completed(session, settings, data)
+        elif etype == "invoice.paid":
+            await _handle_invoice_paid(session, data)
+        elif etype == "invoice.payment_failed":
+            sub_id = data.get("subscription")
+            if sub_id:
+                await update_subscription_status(session, str(sub_id), "past_due")
+            uid = (data.get("metadata") or {}).get("user_id")
+            await record_analytics_events(
+                session,
+                [{"event": "checkout_failed", "user_id": uid, "properties": {"invoice_id": data.get("id")}}],
+            )
+        elif etype == "customer.subscription.updated":
+            await sync_subscription_from_stripe(session, data)
+        elif etype == "customer.subscription.deleted":
+            await cancel_subscription_row(session, str(data.get("id")), data.get("canceled_at"))
+            await record_analytics_events(
+                session,
+                [{"event": "subscription_cancelled", "properties": {"subscription_id": data.get("id")}}],
+            )
+        elif etype == "payment_intent.succeeded":
+            meta = data.get("metadata") or {}
+            if meta.get("store_splits") or meta.get("order_ids"):
+                from app.marketplace.shop_orders import handle_payment_intent_succeeded
+
+                await handle_payment_intent_succeeded(session, settings, data)
+        elif etype == "account.updated":
+            await _handle_connect_account_updated(session, event_id, data)
+
+        await session.commit()
+    except Exception:
+        await session.rollback()
+        if event_id:
+            await abort_stripe_webhook_event(session, event_id)
+            await session.commit()
+        raise
 
     return JSONResponse({"status": "success"})
 

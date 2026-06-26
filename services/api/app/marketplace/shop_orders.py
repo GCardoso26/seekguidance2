@@ -13,9 +13,136 @@ from sqlalchemy.ext.asyncio import AsyncSession
 import stripe
 from app.core.config import Settings
 from app.marketplace import shop_cart
+from app.marketplace.shop_commission import store_receives_cents
 from app.marketplace.shop_notifications import notify_shop_event
 
 logger = structlog.get_logger(__name__)
+
+
+def _parse_store_transfer_amounts(metadata: dict[str, Any]) -> dict[str, int]:
+    raw = metadata.get("store_transfer_splits")
+    if raw:
+        try:
+            parsed = json.loads(raw)
+            if isinstance(parsed, dict):
+                return {str(k): int(v) for k, v in parsed.items()}
+        except (json.JSONDecodeError, TypeError, ValueError):
+            pass
+
+    gross_raw = metadata.get("store_splits", "{}")
+    try:
+        gross_splits: dict[str, int] = json.loads(gross_raw)
+    except json.JSONDecodeError:
+        return {}
+
+    return {str(store_id): store_receives_cents(int(amount)) for store_id, amount in gross_splits.items()}
+
+
+async def _transfer_store_payouts(
+    session: AsyncSession,
+    *,
+    order_ids: list[str],
+    payment_intent_id: str,
+    transfer_group: str | None,
+    store_transfer_amounts: dict[str, int],
+) -> None:
+    if order_ids:
+        rows = (
+            await session.execute(
+                text(
+                    """
+                    SELECT id, store_id, store_receives_cents, stripe_transfer_id
+                    FROM tcg_judge.shop_orders
+                    WHERE id = ANY(CAST(:oids AS uuid[]))
+                    """
+                ),
+                {"oids": order_ids},
+            )
+        ).mappings().all()
+        for order in rows:
+            oid = str(order["id"])
+            if order.get("stripe_transfer_id"):
+                logger.info("shop_transfer_skip_existing", order_id=oid)
+                continue
+            store_id = str(order["store_id"])
+            amount = int(order.get("store_receives_cents") or 0)
+            if amount <= 0:
+                amount = store_transfer_amounts.get(store_id, 0)
+            if amount <= 0:
+                continue
+            await _create_store_transfer(
+                session,
+                store_id=store_id,
+                amount_cents=amount,
+                payment_intent_id=payment_intent_id,
+                transfer_group=transfer_group,
+                order_id=oid,
+            )
+        return
+
+    for store_id, amount_cents in store_transfer_amounts.items():
+        if amount_cents <= 0:
+            continue
+        await _create_store_transfer(
+            session,
+            store_id=store_id,
+            amount_cents=amount_cents,
+            payment_intent_id=payment_intent_id,
+            transfer_group=transfer_group,
+            order_id=None,
+        )
+
+
+async def _create_store_transfer(
+    session: AsyncSession,
+    *,
+    store_id: str,
+    amount_cents: int,
+    payment_intent_id: str,
+    transfer_group: str | None,
+    order_id: str | None,
+) -> None:
+    store = (
+        await session.execute(
+            text("SELECT stripe_account_id FROM tcg_judge.stores WHERE id = :id"),
+            {"id": store_id},
+        )
+    ).mappings().first()
+    if not store or not store.get("stripe_account_id"):
+        logger.warning("shop_transfer_skip", store_id=store_id)
+        return
+
+    idem_suffix = order_id or store_id
+    idempotency_key = f"shop-pi-{payment_intent_id}-{idem_suffix}"[:255]
+
+    try:
+        transfer = stripe.Transfer.create(
+            amount=int(amount_cents),
+            currency="brl",
+            destination=str(store["stripe_account_id"]),
+            transfer_group=transfer_group,
+            metadata={
+                "store_id": store_id,
+                "payment_intent_id": payment_intent_id,
+                "order_id": order_id or "",
+            },
+            idempotency_key=idempotency_key,
+        )
+    except stripe.StripeError as exc:
+        logger.error("shop_transfer_failed", store_id=store_id, order_id=order_id, error=str(exc))
+        return
+
+    if order_id and transfer and getattr(transfer, "id", None):
+        await session.execute(
+            text(
+                """
+                UPDATE tcg_judge.shop_orders
+                SET stripe_transfer_id = :tid, updated_at = NOW()
+                WHERE id = :oid AND stripe_transfer_id IS NULL
+                """
+            ),
+            {"tid": str(transfer.id), "oid": order_id},
+        )
 
 
 async def list_buyer_orders(session: AsyncSession, buyer_id: str, limit: int = 20) -> list[dict[str, Any]]:
@@ -318,17 +445,11 @@ async def handle_payment_intent_succeeded(session: AsyncSession, settings: Setti
     buyer_id = metadata.get("buyer_id")
     cart_id = metadata.get("cart_id")
     order_ids_raw = metadata.get("order_ids", "")
-    store_splits_raw = metadata.get("store_splits", "{}")
     payment_intent_id = intent.get("id")
     transfer_group = intent.get("transfer_group")
 
     if not payment_intent_id:
         return
-
-    try:
-        store_splits: dict[str, int] = json.loads(store_splits_raw)
-    except json.JSONDecodeError:
-        store_splits = {}
 
     use_escrow = str(metadata.get("use_escrow", "")).lower() == "true"
     destination_charge = str(metadata.get("connect_destination_charge", "")).lower() == "true"
@@ -350,33 +471,16 @@ async def handle_payment_intent_succeeded(session: AsyncSession, settings: Setti
         except Exception as exc:
             logger.error("checkout_finalize_failed", session_id=checkout_session_id, error=str(exc))
 
-    for store_id, amount_cents in store_splits.items():
-        if use_escrow or destination_charge:
-            continue
-        store = (
-            await session.execute(
-                text("SELECT stripe_account_id, commission_rate FROM tcg_judge.stores WHERE id = :id"),
-                {"id": store_id},
-            )
-        ).mappings().first()
-        if not store or not store.get("stripe_account_id"):
-            logger.warning("shop_transfer_skip", store_id=store_id)
-            continue
+    store_transfer_amounts = _parse_store_transfer_amounts(metadata)
 
-        transfer_amount = int(amount_cents)
-        if transfer_amount <= 0:
-            continue
-
-        try:
-            stripe.Transfer.create(
-                amount=transfer_amount,
-                currency="brl",
-                destination=str(store["stripe_account_id"]),
-                transfer_group=transfer_group,
-                metadata={"store_id": store_id, "payment_intent_id": payment_intent_id},
-            )
-        except stripe.StripeError as exc:
-            logger.error("shop_transfer_failed", store_id=store_id, error=str(exc))
+    if not use_escrow and not destination_charge and store_transfer_amounts:
+        await _transfer_store_payouts(
+            session,
+            order_ids=order_ids,
+            payment_intent_id=str(payment_intent_id),
+            transfer_group=transfer_group,
+            store_transfer_amounts=store_transfer_amounts,
+        )
 
     if order_ids:
         for oid in order_ids:

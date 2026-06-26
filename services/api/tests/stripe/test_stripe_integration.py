@@ -45,10 +45,19 @@ def _clear_settings_cache():
 @pytest.fixture
 def mock_db():
     db = AsyncMock()
-    result = MagicMock()
-    result.mappings.return_value.first.return_value = None
-    db.execute = AsyncMock(return_value=result)
+
+    async def _execute(stmt, params=None):
+        result = MagicMock()
+        sql = str(stmt)
+        if "stripe_webhook_events" in sql and "INSERT" in sql.upper():
+            result.mappings.return_value.first.return_value = {"event_id": (params or {}).get("eid")}
+        else:
+            result.mappings.return_value.first.return_value = None
+        return result
+
+    db.execute = AsyncMock(side_effect=_execute)
     db.commit = AsyncMock()
+    db.rollback = AsyncMock()
     return db
 
 
