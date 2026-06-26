@@ -400,14 +400,9 @@ async def pix_webhook(
         import json
 
         try:
-            json_body = json.loads(raw.decode())
+            json.loads(raw.decode())
         except json.JSONDecodeError as exc:
             raise HTTPException(400, "Payload inválido") from exc
-
-        if isinstance(json_body, dict) and json_body.get("txid") and not headers.get("x-openpix-signature"):
-            return await shop_pix.confirm_pix_payment(
-                session, str(json_body["txid"]), webhook_payload=json_body
-            )
 
     return await shop_pix.handle_pix_gateway_webhook(session, settings, raw, headers)
 

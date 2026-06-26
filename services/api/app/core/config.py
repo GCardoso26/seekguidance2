@@ -264,6 +264,10 @@ class Settings(BaseSettings):
     # CPF — HMAC-SHA256 com salt global (openssl rand -hex 32)
     cpf_salt: str | None = None
 
+    # Supabase Auth — validação JWT nas rotas /runtime/judge (Project Settings → API → JWT Secret)
+    supabase_jwt_secret: str | None = None
+    judge_supabase_jwt_enforce: bool | None = None
+
     # Preços externos (tcgapi.dev)
     tcg_api_key: str | None = None
 
@@ -271,6 +275,24 @@ class Settings(BaseSettings):
     def _merge_platform_pix_aliases(self) -> "Settings":
         if not self.platform_pix_key and self.escrow_pix_key:
             self.platform_pix_key = self.escrow_pix_key
+        return self
+
+    def should_enforce_supabase_jwt(self) -> bool:
+        if self.judge_supabase_jwt_enforce is not None:
+            return bool(self.judge_supabase_jwt_enforce)
+        return self.environment == "production"
+
+    @model_validator(mode="after")
+    def _validate_production_secrets(self) -> "Settings":
+        if self.environment != "production":
+            return self
+        salt = (self.cpf_salt or "").strip()
+        if len(salt) < 32:
+            raise ValueError("CPF_SALT must be at least 32 characters in production")
+        if self.should_enforce_supabase_jwt():
+            jwt_secret = (self.supabase_jwt_secret or "").strip()
+            if len(jwt_secret) < 16:
+                raise ValueError("SUPABASE_JWT_SECRET is required in production")
         return self
 
 

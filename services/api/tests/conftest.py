@@ -20,3 +20,4 @@ os.environ.setdefault(
     "postgresql+asyncpg://tcgjudge:tcgjudge_dev@127.0.0.1:5432/tcg_judge",
 )
 os.environ.setdefault("REDIS_URL", "redis://127.0.0.1:6379/15")
+os.environ.setdefault("JUDGE_SUPABASE_JWT_ENFORCE", "false")

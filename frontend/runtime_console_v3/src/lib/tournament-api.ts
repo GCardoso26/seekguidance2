@@ -14,9 +14,13 @@ export async function tournamentProxyHeaders(): Promise<Record<string, string>> 
   const supabase = await createSupabaseServerClient();
   if (supabase) {
     const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (user) headers["X-Judge-User-Id"] = user.id;
+      data: { session },
+    } = await supabase.auth.getSession();
+    if (session?.access_token) {
+      headers.Authorization = `Bearer ${session.access_token}`;
+    }
+    const userId = session?.user?.id;
+    if (userId) headers["X-Judge-User-Id"] = userId;
   }
   return headers;
 }

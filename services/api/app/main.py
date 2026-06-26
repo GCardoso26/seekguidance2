@@ -47,6 +47,7 @@ from app.core.security.middleware import (
     safe_exception_middleware,
     security_headers_middleware,
 )
+from app.core.security.judge_user_middleware import judge_user_auth_middleware
 
 init_sentry()
 configure_logging()
@@ -105,13 +106,15 @@ app.add_middleware(
 
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
 
-    allow_headers=["Content-Type", "Authorization", "X-API-Key", "X-Forwarded-For"],
+    allow_headers=["Content-Type", "Authorization", "X-API-Key", "X-Forwarded-For", "X-Judge-User-Id"],
 
 )
 
 
 
 app.middleware("http")(https_redirect_middleware)
+
+app.middleware("http")(judge_user_auth_middleware)
 
 app.middleware("http")(safe_exception_middleware)
 
