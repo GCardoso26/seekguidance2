@@ -1,5 +1,5 @@
 import type { NextRequest } from "next/server";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { resolveSupabaseProxyAuth } from "@/lib/supabase/proxy-auth";
 import { cookies } from "next/headers";
 import { ACCESS_COOKIE } from "@/lib/auth-cookies";
 
@@ -11,16 +11,12 @@ export { fetchApiResilient };
 
 export async function tournamentProxyHeaders(): Promise<Record<string, string>> {
   const headers: Record<string, string> = { "Content-Type": "application/json" };
-  const supabase = await createSupabaseServerClient();
-  if (supabase) {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-    if (session?.access_token) {
-      headers.Authorization = `Bearer ${session.access_token}`;
-    }
-    const userId = session?.user?.id;
-    if (userId) headers["X-Judge-User-Id"] = userId;
+  const { userId, accessToken } = await resolveSupabaseProxyAuth();
+  if (accessToken) {
+    headers.Authorization = `Bearer ${accessToken}`;
+  }
+  if (userId) {
+    headers["X-Judge-User-Id"] = userId;
   }
   return headers;
 }
