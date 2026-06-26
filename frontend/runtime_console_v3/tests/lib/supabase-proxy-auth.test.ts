@@ -1,9 +1,14 @@
+import { combineChunks, stringFromBase64URL } from "@supabase/ssr";
 import { describe, expect, it } from "vitest";
 
-function decodeBase64Url(value: string): string {
-  const pad = "=".repeat((4 - (value.length % 4)) % 4);
-  const b64 = value.replace(/-/g, "+").replace(/_/g, "/") + pad;
-  return Buffer.from(b64, "base64").toString("utf8");
+const BASE64_PREFIX = "base64-";
+
+function parseSupabaseSessionPayload(raw: string) {
+  let decoded = raw;
+  if (decoded.startsWith(BASE64_PREFIX)) {
+    decoded = stringFromBase64URL(decoded.slice(BASE64_PREFIX.length));
+  }
+  return JSON.parse(decoded) as { access_token?: string; user?: { id?: string } };
 }
 
 describe("supabase session cookie parsing", () => {
@@ -12,10 +17,31 @@ describe("supabase session cookie parsing", () => {
       access_token: "jwt-token-example",
       user: { id: "user-382" },
     };
-    const encoded = `base64-${Buffer.from(JSON.stringify(session)).toString("base64url")}`;
-    const decoded = decodeBase64Url(encoded.slice("base64-".length));
-    const parsed = JSON.parse(decoded) as { access_token?: string; user?: { id?: string } };
+    const encoded = `${BASE64_PREFIX}${Buffer.from(JSON.stringify(session)).toString("base64url")}`;
+    const parsed = parseSupabaseSessionPayload(encoded);
     expect(parsed.access_token).toBe("jwt-token-example");
     expect(parsed.user?.id).toBe("user-382");
+  });
+
+  it("recombina cookies fragmentados (.0, .1)", async () => {
+    const session = {
+      access_token: "chunked-jwt",
+      user: { id: "user-chunk" },
+    };
+    const full = `${BASE64_PREFIX}${Buffer.from(JSON.stringify(session)).toString("base64url")}`;
+    const key = "sb-test-auth-token";
+    const chunk0 = full.slice(0, 200);
+    const chunk1 = full.slice(200);
+
+    const combined = await combineChunks(key, async (chunkName) => {
+      if (chunkName === `${key}.0`) return chunk0;
+      if (chunkName === `${key}.1`) return chunk1;
+      return null;
+    });
+
+    expect(combined).toBe(full);
+    const parsed = parseSupabaseSessionPayload(combined!);
+    expect(parsed.access_token).toBe("chunked-jwt");
+    expect(parsed.user?.id).toBe("user-chunk");
   });
 });

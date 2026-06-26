@@ -1,4 +1,4 @@
-import { combineChunks } from "@supabase/ssr";
+import { combineChunks, stringFromBase64URL } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -9,16 +9,10 @@ type SupabaseSessionJson = {
   user?: { id?: string };
 };
 
-function decodeBase64Url(value: string): string {
-  const pad = "=".repeat((4 - (value.length % 4)) % 4);
-  const b64 = value.replace(/-/g, "+").replace(/_/g, "/") + pad;
-  return Buffer.from(b64, "base64").toString("utf8");
-}
-
 function parseSupabaseSessionPayload(raw: string): SupabaseSessionJson | null {
   let decoded = raw;
   if (decoded.startsWith(BASE64_PREFIX)) {
-    decoded = decodeBase64Url(decoded.slice(BASE64_PREFIX.length));
+    decoded = stringFromBase64URL(decoded.slice(BASE64_PREFIX.length));
   }
   try {
     return JSON.parse(decoded) as SupabaseSessionJson;
@@ -46,30 +40,26 @@ export async function resolveSupabaseProxyAuth(): Promise<{
   userId: string | null;
   accessToken: string | null;
 }> {
+  const fromCookies = await readSessionFromCookies();
+  let accessToken = fromCookies?.access_token ?? null;
+  let userId = fromCookies?.user?.id ?? null;
+
   const supabase = await createSupabaseServerClient();
   if (!supabase) {
-    const fromCookies = await readSessionFromCookies();
-    return {
-      userId: fromCookies?.user?.id ?? null,
-      accessToken: fromCookies?.access_token ?? null,
-    };
+    return { userId, accessToken };
   }
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-
-  let accessToken = session?.access_token ?? null;
-  let userId = user?.id ?? session?.user?.id ?? null;
+  userId = userId ?? user?.id ?? null;
 
   if (!accessToken) {
-    const fromCookies = await readSessionFromCookies();
-    accessToken = fromCookies?.access_token ?? null;
-    userId = userId ?? fromCookies?.user?.id ?? null;
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    accessToken = session?.access_token ?? null;
+    userId = userId ?? session?.user?.id ?? null;
   }
 
   return { userId, accessToken };
