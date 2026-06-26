@@ -24,10 +24,26 @@ export async function GET() {
   }
 
   try {
+    const headers = await stripeApiHeaders(user.id);
+    if (!headers.Authorization) {
+      return NextResponse.json({
+        tier: "free",
+        status: "active",
+        features: DEFAULT_FEATURES,
+      });
+    }
+
     const res = await fetch(`${API_BASE}/runtime/judge/stripe/subscription`, {
-      headers: await stripeApiHeaders(user.id),
+      headers,
       cache: "no-store",
     });
+    if (res.status === 401) {
+      return NextResponse.json({
+        tier: "free",
+        status: "active",
+        features: DEFAULT_FEATURES,
+      });
+    }
     const text = await res.text();
     return new NextResponse(text, {
       status: res.status,
