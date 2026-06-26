@@ -65,15 +65,20 @@ async def judge_user_auth_middleware(request: Request, call_next: Callable) -> R
             return await call_next(request)
 
         secret = (settings.supabase_jwt_secret or "").strip()
-        if not secret:
-            logger.error("supabase_jwt_secret_missing_with_enforcement")
+        supabase_url = (settings.supabase_url or "").strip() or None
+        if not secret and not supabase_url:
+            logger.error("supabase_jwt_config_missing_with_enforcement")
             return JSONResponse(status_code=503, content={"detail": "Autenticação indisponível"})
 
         bearer = _extract_bearer(request)
         if not bearer:
             return JSONResponse(status_code=401, content={"detail": "Token de autenticação necessário"})
 
-        payload = verify_supabase_access_token(bearer, secret)
+        payload = verify_supabase_access_token(
+            bearer,
+            secret or None,
+            supabase_url=supabase_url,
+        )
         if not payload:
             return JSONResponse(status_code=401, content={"detail": "Token inválido ou expirado"})
 
