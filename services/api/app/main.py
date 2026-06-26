@@ -125,6 +125,14 @@ app.middleware("http")(redacted_logging_middleware)
 
 
 
+KYC_SENSITIVE_PATHS = frozenset(
+    {
+        "/runtime/judge/account/cpf",
+        "/runtime/judge/merchant/onboarding",
+    }
+)
+
+
 def _rate_limit_bucket(path: str, cfg) -> str | None:
 
     if path.startswith("/v1/chat"):
@@ -162,6 +170,17 @@ def _rate_limit_bucket(path: str, cfg) -> str | None:
 async def rate_limit_middleware(request: Request, call_next: Callable[[Request], Response]) -> Response:
 
     cfg = get_settings()
+
+    if request.method == "POST" and request.url.path in KYC_SENSITIVE_PATHS:
+        if not allow_request(
+            "kyc_sensitive",
+            client_key(request, trust_proxy=cfg.judge_trust_proxy_headers),
+            limit=5,
+            window_seconds=60.0,
+            redis_url=cfg.redis_url,
+        ):
+            return build_rate_limit_response()
+        return await call_next(request)
 
     bucket = _rate_limit_bucket(request.url.path, cfg)
 

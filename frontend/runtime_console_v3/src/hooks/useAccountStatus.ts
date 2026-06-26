@@ -15,10 +15,12 @@ export type AccountStatusPayload = {
     rejection_reason?: string | null;
     verified_at?: string | null;
     can_publish: boolean;
+    onboarding_url?: string | null;
+    onboarding_expires_at?: string | null;
   } | null;
 };
 
-export function useAccountStatus() {
+export function useAccountStatus(options?: { refetchInterval?: number }) {
   const { user } = useJudgeAuth();
   return useQuery({
     queryKey: ["account-status", user?.id],
@@ -28,6 +30,7 @@ export function useAccountStatus() {
       return res.json() as Promise<AccountStatusPayload>;
     },
     enabled: Boolean(user),
+    refetchInterval: options?.refetchInterval,
   });
 }
 

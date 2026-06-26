@@ -1,0 +1,1 @@
+"""Testes payments package."""

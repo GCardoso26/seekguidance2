@@ -261,6 +261,9 @@ class Settings(BaseSettings):
     # Pagamentos PIX/checkout — false até Go-Live (PAYMENTS_ENABLED=true)
     payments_enabled: bool = False
 
+    # CPF — HMAC-SHA256 com salt global (openssl rand -hex 32)
+    cpf_salt: str | None = None
+
     # Preços externos (tcgapi.dev)
     tcg_api_key: str | None = None
 

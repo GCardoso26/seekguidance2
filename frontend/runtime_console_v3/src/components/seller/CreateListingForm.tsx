@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { cardImageUrl } from "@/lib/format-currency";
 import type { UnifiedCard } from "@/types/card";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { useMerchantKycGuard } from "@/hooks/useMerchantKycGuard";
 
 const CONDITIONS: CardCondition[] = ["NM", "LP", "MP", "HP", "DM"];
 
@@ -19,6 +20,7 @@ interface CreateListingFormProps {
 
 export function CreateListingForm({ card }: CreateListingFormProps) {
   const router = useRouter();
+  const { isLoading: kycLoading, isBlocked } = useMerchantKycGuard();
   const [condition, setCondition] = useState<CardCondition>("NM");
   const [price, setPrice] = useState("");
   const [quantity, setQuantity] = useState("1");
@@ -72,6 +74,16 @@ export function CreateListingForm({ card }: CreateListingFormProps) {
       setIsLoading(false);
     }
   };
+
+  if (kycLoading || isBlocked) {
+    return (
+      <Card>
+        <CardContent className="py-8 text-center text-sm text-muted-foreground">
+          {kycLoading ? "Verificando status da loja…" : "Redirecionando…"}
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>

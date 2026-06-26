@@ -15,8 +15,27 @@ def test_valid_cpf_known():
     assert is_valid_cpf("52998224725")
 
 
-def test_hash_cpf_deterministic():
-    assert hash_cpf("529.982.247-25") == hash_cpf("52998224725")
+def test_hash_cpf_deterministic(monkeypatch):
+    monkeypatch.setenv("CPF_SALT", "test-salt-for-unit-tests-only")
+    from importlib import reload
+
+    import app.kyc.cpf as cpf_mod
+
+    reload(cpf_mod)
+    assert cpf_mod.hash_cpf("529.982.247-25") == cpf_mod.hash_cpf("52998224725")
+
+
+def test_hash_cpf_uses_hmac_not_plain_sha256(monkeypatch):
+    import hashlib
+
+    monkeypatch.setenv("CPF_SALT", "another-test-salt")
+    from importlib import reload
+
+    import app.kyc.cpf as cpf_mod
+
+    reload(cpf_mod)
+    plain = hashlib.sha256(b"52998224725").hexdigest()
+    assert cpf_mod.hash_cpf("52998224725") != plain
 
 
 def test_cpf_last4():

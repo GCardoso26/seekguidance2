@@ -14,6 +14,7 @@ function CompletarPerfilForm() {
   const { user, loading } = useJudgeAuth();
   const [cpf, setCpf] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [cpfDuplicate, setCpfDuplicate] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   if (!loading && !user) {
@@ -30,6 +31,7 @@ function CompletarPerfilForm() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    setCpfDuplicate(false);
     if (!isValidCpf(cpf)) {
       setError("CPF inválido. Verifique os dígitos.");
       return;
@@ -44,6 +46,16 @@ function CompletarPerfilForm() {
       const data = (await res.json().catch(() => ({}))) as { detail?: unknown };
       if (!res.ok) {
         const detail = data.detail;
+        if (typeof detail === "object" && detail && "code" in detail) {
+          const coded = detail as { code?: string; message?: string };
+          if (coded.code === "cpf_already_registered") {
+            setCpfDuplicate(true);
+            throw new Error(coded.message ?? "CPF já cadastrado em outra conta.");
+          }
+          if (coded.message) {
+            throw new Error(coded.message);
+          }
+        }
         if (typeof detail === "object" && detail && "message" in detail) {
           throw new Error(String((detail as { message: string }).message));
         }
@@ -85,6 +97,15 @@ function CompletarPerfilForm() {
           )}
         </div>
         {error && <p className="text-sm text-red-300">{error}</p>}
+        {cpfDuplicate && (
+          <p className="text-sm text-amber-200">
+            Já tem conta com este CPF?{" "}
+            <Link href="/entrar?next=/completar-perfil" className="font-medium text-luxury-gold underline">
+              Faça login
+            </Link>{" "}
+            com o e-mail que você usou no cadastro original.
+          </p>
+        )}
         <Button type="submit" className="w-full" disabled={submitting || !isValidCpf(cpf)}>
           {submitting ? "Validando…" : "Validar CPF e continuar"}
         </Button>

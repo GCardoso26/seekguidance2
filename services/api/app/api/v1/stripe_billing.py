@@ -26,6 +26,7 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 import stripe
+from app.payments.webhooks import verify_stripe_webhook
 
 logger = structlog.get_logger(__name__)
 router = APIRouter(tags=["stripe-billing"])
@@ -112,20 +113,14 @@ async def create_checkout(
 
 
 @router.post("/runtime/judge/stripe/webhook")
+@router.post("/runtime/judge/webhooks/payments")
 async def stripe_webhook(request: Request, session: DbSession, settings: SettingsDep) -> JSONResponse:
     _require_stripe(settings)
     stripe.api_key = settings.stripe_secret_key
     payload = await request.body()
     sig = request.headers.get("stripe-signature")
-    if not sig:
-        raise HTTPException(status_code=400, detail="Missing Stripe-Signature")
-
-    try:
-        event = stripe.Webhook.construct_event(payload, sig, settings.stripe_webhook_secret or "")
-    except ValueError as exc:
-        raise HTTPException(status_code=400, detail="Invalid payload") from exc
-    except stripe.SignatureVerificationError as exc:
-        raise HTTPException(status_code=400, detail="Invalid signature") from exc
+    secret = settings.stripe_connect_webhook_secret or settings.stripe_webhook_secret or ""
+    event = verify_stripe_webhook(payload, sig, secret)
 
     etype = event["type"]
     data = event["data"]["object"]
@@ -169,13 +164,20 @@ async def _handle_connect_account_updated(
     from app.kyc.merchant_kyc import stripe_account_to_kyc_status, update_merchant_kyc_from_stripe
 
     kyc_status, reason = stripe_account_to_kyc_status(account)
+    requirements = account.get("requirements") or {}
     await update_merchant_kyc_from_stripe(
         session,
         stripe_account_id=str(account.get("id") or ""),
         kyc_status=kyc_status,
         rejection_reason=reason,
         provider_event_id=event_id,
-        metadata={"charges_enabled": account.get("charges_enabled"), "payouts_enabled": account.get("payouts_enabled")},
+        metadata={
+            "charges_enabled": account.get("charges_enabled"),
+            "payouts_enabled": account.get("payouts_enabled"),
+            "disabled_reason": requirements.get("disabled_reason"),
+            "currently_due": requirements.get("currently_due"),
+            "pending_verification": requirements.get("pending_verification"),
+        },
     )
 
 

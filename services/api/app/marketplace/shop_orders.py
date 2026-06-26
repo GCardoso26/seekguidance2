@@ -331,6 +331,7 @@ async def handle_payment_intent_succeeded(session: AsyncSession, settings: Setti
         store_splits = {}
 
     use_escrow = str(metadata.get("use_escrow", "")).lower() == "true"
+    destination_charge = str(metadata.get("connect_destination_charge", "")).lower() == "true"
     order_ids = [o.strip() for o in order_ids_raw.split(",") if o.strip()]
     checkout_session_id = metadata.get("checkout_session_id")
     stock_finalized = False
@@ -350,7 +351,7 @@ async def handle_payment_intent_succeeded(session: AsyncSession, settings: Setti
             logger.error("checkout_finalize_failed", session_id=checkout_session_id, error=str(exc))
 
     for store_id, amount_cents in store_splits.items():
-        if use_escrow:
+        if use_escrow or destination_charge:
             continue
         store = (
             await session.execute(

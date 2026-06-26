@@ -7,9 +7,11 @@ import { Suspense } from "react";
 import { SellerHeader } from "@/components/seller-dashboard/SellerHeader";
 import { CreateListingForm } from "@/components/seller/CreateListingForm";
 import { Button } from "@/components/ui/button";
+import { useMerchantKycGuard } from "@/hooks/useMerchantKycGuard";
 import type { UnifiedCard } from "@/types/card";
 
 function NovaListagemContent() {
+  const { isLoading: kycLoading, isBlocked } = useMerchantKycGuard();
   const searchParams = useSearchParams();
   const cardId = searchParams.get("cardId");
 
@@ -26,6 +28,11 @@ function NovaListagemContent() {
 
   return (
     <main className="flex-1 space-y-4 overflow-y-auto p-6">
+      {(kycLoading || isBlocked) && (
+        <p className="text-luxury-mist">{kycLoading ? "Verificando status da loja…" : "Redirecionando…"}</p>
+      )}
+      {!kycLoading && !isBlocked && (
+        <>
       <Link href="/vendedor/painel/listagens" className="text-sm text-luxury-mist hover:underline">
         ← Voltar às listagens
       </Link>
@@ -42,6 +49,8 @@ function NovaListagemContent() {
       )}
       {cardId && isLoading && <p className="text-luxury-mist">Carregando carta…</p>}
       {card && <CreateListingForm card={card} />}
+        </>
+      )}
     </main>
   );
 }

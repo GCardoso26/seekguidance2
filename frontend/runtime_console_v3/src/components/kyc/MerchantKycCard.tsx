@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { useAccountStatus } from "@/hooks/useAccountStatus";
 import { useSellerStore } from "@/hooks/useSellerStore";
@@ -25,8 +25,25 @@ export function MerchantKycCard() {
   const kyc = data?.merchant;
   const status = kyc?.kyc_status ?? "none";
 
+  const { data: onboardingStatus } = useQuery({
+    queryKey: ["merchant-onboarding-status"],
+    queryFn: async () => {
+      const res = await fetch("/api/merchant/onboarding/status");
+      if (!res.ok) throw new Error("onboarding_status_failed");
+      return res.json() as Promise<{
+        onboarding_url?: string | null;
+        link_refreshed?: boolean;
+      }>;
+    },
+    enabled: Boolean(kyc && status !== "verified" && status !== "none"),
+    staleTime: 60_000,
+  });
+
   const onboardingMutation = useMutation({
     mutationFn: async () => {
+      if (onboardingStatus?.onboarding_url) {
+        return { onboarding_url: onboardingStatus.onboarding_url };
+      }
       const res = await fetch("/api/merchant/onboarding", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

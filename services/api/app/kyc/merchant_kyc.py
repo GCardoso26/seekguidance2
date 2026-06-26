@@ -269,14 +269,41 @@ async def update_merchant_kyc_from_stripe(
 
 
 def stripe_account_to_kyc_status(account: dict[str, Any]) -> tuple[str, str | None]:
-    """Mapeia objeto Account Stripe → kyc_status interno."""
-    disabled_reason = account.get("requirements", {}).get("disabled_reason")
-    if account.get("charges_enabled") and account.get("payouts_enabled"):
+    """Mapeia objeto Account Stripe → kyc_status interno.
+
+    Verified exige charges_enabled E payouts_enabled — evita marcar como aprovado
+    quando a conta bancária ainda está pendente.
+    """
+    requirements = account.get("requirements") or {}
+    disabled_reason = requirements.get("disabled_reason")
+    currently_due = requirements.get("currently_due") or []
+    pending_verification = requirements.get("pending_verification") or []
+
+    charges = bool(account.get("charges_enabled"))
+    payouts = bool(account.get("payouts_enabled"))
+
+    if charges and payouts:
         return "verified", None
-    if disabled_reason and "rejected" in str(disabled_reason):
-        return "rejected", str(disabled_reason)
+
     if disabled_reason:
-        return "restricted", str(disabled_reason)
+        reason = str(disabled_reason)
+        if "rejected" in reason.lower():
+            return "rejected", reason
+        return "restricted", reason
+
+    if currently_due or pending_verification:
+        parts: list[str] = []
+        if currently_due:
+            parts.append(f"pendências: {', '.join(str(x) for x in currently_due[:5])}")
+        if pending_verification:
+            parts.append(f"em verificação: {', '.join(str(x) for x in pending_verification[:5])}")
+        return "pending", "; ".join(parts) or "Documentação pendente"
+
+    if charges and not payouts:
+        return "restricted", "Conta bancária pendente para repasses"
+    if payouts and not charges:
+        return "restricted", "Recebimento de cartões pendente"
+
     if account.get("details_submitted"):
         return "pending", "Aguardando verificação Stripe"
     return "pending", None

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import hmac
 import os
 import re
 
@@ -12,6 +13,7 @@ import structlog
 logger = structlog.get_logger(__name__)
 
 CPF_RE = re.compile(r"^\d{11}$")
+_DEV_CPF_SALT = "dev-only-cpf-salt-not-for-production-use"
 
 
 def normalize_cpf(value: str) -> str:
@@ -33,8 +35,22 @@ def is_valid_cpf(value: str) -> bool:
     return digit(10) == int(cpf[9]) and digit(11) == int(cpf[10])
 
 
+def _cpf_salt_bytes() -> bytes:
+    from app.core.config import get_settings
+
+    settings = get_settings()
+    salt = (settings.cpf_salt or os.getenv("CPF_SALT") or "").strip()
+    if not salt:
+        if settings.environment == "production":
+            logger.error("cpf_salt_missing_in_production")
+        salt = _DEV_CPF_SALT
+    return salt.encode()
+
+
 def hash_cpf(value: str) -> str:
-    return hashlib.sha256(normalize_cpf(value).encode()).hexdigest()
+    """HMAC-SHA256 com salt global — resistente a rainbow tables de CPF."""
+    clean = normalize_cpf(value)
+    return hmac.new(_cpf_salt_bytes(), clean.encode(), hashlib.sha256).hexdigest()
 
 
 def cpf_last4(value: str) -> str:

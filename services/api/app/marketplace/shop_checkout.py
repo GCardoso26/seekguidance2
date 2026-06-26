@@ -198,20 +198,35 @@ async def create_checkout(
     await session.commit()
 
     splits_meta = {k: v["amount_cents"] for k, v in store_splits.items()}
+    connect_destination_charge = len(store_splits) == 1 and not use_escrow
+    pi_kwargs: dict[str, Any] = {
+        "amount": total_cents,
+        "currency": "brl",
+        "metadata": {
+            "cart_id": str(cart["id"]),
+            "buyer_id": user_id,
+            "order_ids": ",".join(pending_orders),
+            "store_splits": json.dumps(splits_meta),
+            "checkout_session_id": session_id,
+            "use_escrow": "true" if use_escrow else "false",
+            "connect_destination_charge": "true" if connect_destination_charge else "false",
+        },
+    }
+
+    if connect_destination_charge:
+        store_id, split = next(iter(store_splits.items()))
+        commission_rate = float(split.get("commission_rate") or 0.15)
+        product_total = int(split["amount_cents"])
+        platform_fee = int(round(product_total * commission_rate))
+        pi_kwargs["application_fee_amount"] = platform_fee
+        pi_kwargs["transfer_data"] = {"destination": str(split["stripe_account_id"])}
+        pi_kwargs["metadata"]["platform_fee_cents"] = str(platform_fee)
+        pi_kwargs["metadata"]["destination_store_id"] = store_id
+    else:
+        pi_kwargs["transfer_group"] = transfer_group
+
     try:
-        intent = stripe.PaymentIntent.create(
-            amount=total_cents,
-            currency="brl",
-            transfer_group=transfer_group,
-            metadata={
-                "cart_id": str(cart["id"]),
-                "buyer_id": user_id,
-                "order_ids": ",".join(pending_orders),
-                "store_splits": json.dumps(splits_meta),
-                "checkout_session_id": session_id,
-                "use_escrow": "true" if use_escrow else "false",
-            },
-        )
+        intent = stripe.PaymentIntent.create(**pi_kwargs)
     except stripe.StripeError as exc:
         logger.error("stripe_pi_create_error", error=str(exc))
         raise HTTPException(400, str(exc)) from exc

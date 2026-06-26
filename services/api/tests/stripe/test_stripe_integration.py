@@ -334,6 +334,16 @@ class TestWebhook:
         )
         assert r.status_code == 400
 
+    @patch("stripe.Webhook.construct_event")
+    def test_webhooks_payments_alias_invalid_signature(self, mock_construct, stripe_app):
+        mock_construct.side_effect = stripe.SignatureVerificationError("bad sig", sig_header="x")
+        r = client.post(
+            "/runtime/judge/webhooks/payments",
+            data=b"{}",
+            headers={"Stripe-Signature": "invalid"},
+        )
+        assert r.status_code == 400
+
 
 class TestCustomerPortal:
     @patch("app.api.v1.stripe_billing.record_analytics_events", new_callable=AsyncMock)

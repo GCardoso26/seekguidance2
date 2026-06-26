@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import structlog
@@ -13,6 +14,9 @@ import stripe
 from app.core.config import Settings, get_settings
 
 logger = structlog.get_logger(__name__)
+
+STRIPE_CONNECT_ACCOUNT_TYPE = "express"
+ONBOARDING_LINK_TTL_HOURS = 24
 
 
 def _init_stripe(settings: Settings) -> None:
@@ -29,6 +33,159 @@ async def get_owner_store(session: AsyncSession, owner_id: str) -> dict[str, Any
         )
     ).mappings().first()
     return dict(row) if row else None
+
+
+    return dict(row) if row else None
+
+
+def _onboarding_link_expires_at() -> datetime:
+    return datetime.now(UTC) + timedelta(hours=ONBOARDING_LINK_TTL_HOURS)
+
+
+async def _persist_merchant_onboarding_link(
+    session: AsyncSession,
+    owner_id: str,
+    *,
+    account_id: str,
+    onboarding_url: str,
+    expires_at: datetime,
+) -> None:
+    await session.execute(
+        text(
+            """
+            UPDATE tcg_judge.merchant_profiles
+            SET onboarding_url = :url,
+                onboarding_expires_at = :exp,
+                provider_account_id = COALESCE(provider_account_id, :aid),
+                updated_at = NOW()
+            WHERE user_id = :uid
+            """
+        ),
+        {"url": onboarding_url, "exp": expires_at, "aid": account_id, "uid": owner_id},
+    )
+
+
+async def create_account_onboarding_link(
+    session: AsyncSession,
+    owner_id: str,
+    account_id: str,
+    *,
+    refresh_url: str | None = None,
+    return_url: str | None = None,
+    persist: bool = True,
+) -> dict[str, Any]:
+    """Cria AccountLink Stripe e persiste URL + expiração no merchant_profiles."""
+    settings = get_settings()
+    _init_stripe(settings)
+    base_url = settings.marketplace_app_url or "https://judgetcg.com.br"
+    refresh = refresh_url or f"{base_url}/vendedor/painel?onboarding=refresh"
+    ret = return_url or f"{base_url}/vendedor/painel?onboarding=success"
+
+    try:
+        link = stripe.AccountLink.create(
+            account=account_id,
+            refresh_url=refresh,
+            return_url=ret,
+            type="account_onboarding",
+        )
+    except stripe.StripeError as exc:
+        logger.error("stripe_connect_link_error", error=str(exc))
+        raise HTTPException(400, str(exc)) from exc
+
+    expires_at = _onboarding_link_expires_at()
+    if persist:
+        await _persist_merchant_onboarding_link(
+            session,
+            owner_id,
+            account_id=account_id,
+            onboarding_url=link.url,
+            expires_at=expires_at,
+        )
+        await session.commit()
+
+    return {
+        "onboarding_url": link.url,
+        "onboarding_expires_at": expires_at.isoformat(),
+        "stripe_account_id": account_id,
+    }
+
+
+async def refresh_onboarding_link_if_expired(
+    session: AsyncSession,
+    owner_id: str,
+    merchant: dict[str, Any],
+) -> dict[str, Any]:
+    """Regenera AccountLink se expirado ou ausente (lojista ainda não verified)."""
+    if merchant.get("kyc_status") == "verified":
+        return {
+            "kyc_status": "verified",
+            "onboarding_url": None,
+            "onboarding_expires_at": None,
+            "refreshed": False,
+        }
+
+    account_id = merchant.get("provider_account_id")
+    if not account_id:
+        store = await get_owner_store(session, owner_id)
+        account_id = store.get("stripe_account_id") if store else None
+    if not account_id:
+        return {
+            "kyc_status": merchant.get("kyc_status"),
+            "onboarding_url": merchant.get("onboarding_url"),
+            "onboarding_expires_at": merchant.get("onboarding_expires_at"),
+            "refreshed": False,
+        }
+
+    expires_raw = merchant.get("onboarding_expires_at")
+    expires_at: datetime | None = None
+    if expires_raw:
+        if isinstance(expires_raw, datetime):
+            expires_at = expires_raw if expires_raw.tzinfo else expires_raw.replace(tzinfo=UTC)
+        else:
+            expires_at = datetime.fromisoformat(str(expires_raw).replace("Z", "+00:00"))
+
+    now = datetime.now(UTC)
+    url = merchant.get("onboarding_url")
+    if url and expires_at and expires_at > now:
+        return {
+            "kyc_status": merchant.get("kyc_status"),
+            "onboarding_url": url,
+            "onboarding_expires_at": expires_at.isoformat(),
+            "refreshed": False,
+        }
+
+    link = await create_account_onboarding_link(session, owner_id, str(account_id))
+    return {
+        "kyc_status": merchant.get("kyc_status"),
+        "onboarding_url": link["onboarding_url"],
+        "onboarding_expires_at": link["onboarding_expires_at"],
+        "refreshed": True,
+    }
+
+
+async def force_refresh_onboarding_link(
+    session: AsyncSession,
+    owner_id: str,
+    merchant: dict[str, Any],
+) -> dict[str, Any]:
+    """Regenera link de onboarding (ex.: KYC rejected — re-onboarding)."""
+    if merchant.get("kyc_status") == "verified":
+        return await refresh_onboarding_link_if_expired(session, owner_id, merchant)
+
+    account_id = merchant.get("provider_account_id")
+    if not account_id:
+        store = await get_owner_store(session, owner_id)
+        account_id = store.get("stripe_account_id") if store else None
+    if not account_id:
+        raise HTTPException(404, "Conta Stripe Connect não encontrada")
+
+    link = await create_account_onboarding_link(session, owner_id, str(account_id))
+    return {
+        "kyc_status": merchant.get("kyc_status"),
+        "onboarding_url": link["onboarding_url"],
+        "onboarding_expires_at": link["onboarding_expires_at"],
+        "refreshed": True,
+    }
 
 
 async def start_connect_onboarding(
@@ -63,7 +220,7 @@ async def start_connect_onboarding(
     if not account_id:
         try:
             account = stripe.Account.create(
-                type="express",
+                type=STRIPE_CONNECT_ACCOUNT_TYPE,
                 country="BR",
                 capabilities={
                     "card_payments": {"requested": True},
@@ -91,21 +248,23 @@ async def start_connect_onboarding(
             logger.error("stripe_connect_create_error", error=str(exc))
             raise HTTPException(400, str(exc)) from exc
 
-    refresh = refresh_url or f"{base_url}/store/onboarding?refresh=true"
+    refresh = refresh_url or f"{base_url}/vendedor/painel?onboarding=refresh"
     ret = return_url or f"{base_url}/vendedor/painel?onboarding=success"
 
-    try:
-        link = stripe.AccountLink.create(
-            account=account_id,
-            refresh_url=refresh,
-            return_url=ret,
-            type="account_onboarding",
-        )
-    except stripe.StripeError as exc:
-        logger.error("stripe_connect_link_error", error=str(exc))
-        raise HTTPException(400, str(exc)) from exc
+    link_payload = await create_account_onboarding_link(
+        session,
+        owner_id,
+        str(account_id),
+        refresh_url=refresh,
+        return_url=ret,
+    )
 
-    return {"store_id": str(store["id"]), "onboarding_url": link.url, "stripe_account_id": account_id}
+    return {
+        "store_id": str(store["id"]),
+        "onboarding_url": link_payload["onboarding_url"],
+        "onboarding_expires_at": link_payload["onboarding_expires_at"],
+        "stripe_account_id": account_id,
+    }
 
 
 async def refresh_connect_status(session: AsyncSession, store_id: str, owner_id: str) -> dict[str, Any]:

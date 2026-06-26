@@ -107,7 +107,11 @@ async def verify_and_bind_cpf(
             409,
             detail={
                 "code": "cpf_already_registered",
-                "message": "Este CPF já está vinculado a outra conta. Use recuperação de senha ou entre em contato com o suporte.",
+                "message": (
+                    "Este CPF já está vinculado a outra conta. "
+                    "Se você já se cadastrou antes, faça login com o e-mail original."
+                ),
+                "login_url": "/entrar",
             },
         )
 
@@ -128,6 +132,7 @@ async def verify_and_bind_cpf(
                     cpf_last4 = :last4,
                     cpf_verified_at = NOW(),
                     account_status = 'active',
+                    cpf_hash_version = 2,
                     updated_at = NOW()
                 WHERE id = :uid
                 RETURNING account_status, cpf_last4
