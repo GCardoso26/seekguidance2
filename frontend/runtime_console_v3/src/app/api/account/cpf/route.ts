@@ -3,10 +3,18 @@ import { TOURNAMENT_API_BASE, tournamentProxyHeaders } from "@/lib/tournament-ap
 
 export async function POST(req: NextRequest) {
   try {
+    const headers = await tournamentProxyHeaders();
+    if (!headers.Authorization) {
+      return NextResponse.json(
+        { detail: "Sessão expirada ou inválida. Faça login novamente." },
+        { status: 401 },
+      );
+    }
+
     const body = await req.json();
     const res = await fetch(`${TOURNAMENT_API_BASE}/runtime/judge/account/cpf`, {
       method: "POST",
-      headers: { ...(await tournamentProxyHeaders()), "Content-Type": "application/json" },
+      headers: { ...headers, "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
     const text = await res.text();
