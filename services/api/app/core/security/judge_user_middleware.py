@@ -65,7 +65,7 @@ async def judge_user_auth_middleware(request: Request, call_next: Callable) -> R
             return await call_next(request)
 
         secret = (settings.supabase_jwt_secret or "").strip()
-        supabase_url = (settings.supabase_url or "").strip() or None
+        supabase_url = settings.resolve_supabase_url()
         if not secret and not supabase_url:
             logger.error("supabase_jwt_config_missing_with_enforcement")
             return JSONResponse(status_code=503, content={"detail": "Autenticação indisponível"})

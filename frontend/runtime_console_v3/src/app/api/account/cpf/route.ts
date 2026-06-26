@@ -3,7 +3,7 @@ import { TOURNAMENT_API_BASE, tournamentProxyHeaders } from "@/lib/tournament-ap
 
 export async function POST(req: NextRequest) {
   try {
-    const headers = await tournamentProxyHeaders();
+    const headers = await tournamentProxyHeaders(req);
     if (!headers.Authorization) {
       return NextResponse.json(
         { detail: "Sessão expirada ou inválida. Faça login novamente." },
