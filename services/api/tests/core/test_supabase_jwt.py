@@ -48,6 +48,59 @@ def test_verify_supabase_access_token_rejects_expired():
     assert verify_supabase_access_token(token, secret) is None
 
 
+def test_verify_es256_via_jwks(monkeypatch):
+    import base64
+
+    import jwt
+    from cryptography.hazmat.primitives.asymmetric import ec
+    from jwt import PyJWK
+
+    def int_to_b64url(n: int, length: int) -> str:
+        return base64.urlsafe_b64encode(n.to_bytes(length, "big")).rstrip(b"=").decode()
+
+    private_key = ec.generate_private_key(ec.SECP256R1())
+    numbers = private_key.public_key().public_numbers()
+    kid = "test-es256-kid"
+    jwk = {
+        "kty": "EC",
+        "crv": "P-256",
+        "kid": kid,
+        "alg": "ES256",
+        "x": int_to_b64url(numbers.x, 32),
+        "y": int_to_b64url(numbers.y, 32),
+    }
+
+    class FakeJWKClient:
+        def get_signing_key_from_jwt(self, token: str) -> PyJWK:
+            return PyJWK.from_dict(jwk)
+
+    monkeypatch.setattr(
+        "app.core.security.supabase_jwt._jwks_client",
+        lambda _url: FakeJWKClient(),
+    )
+
+    token = jwt.encode(
+        {"sub": "user-es256", "exp": int(time.time()) + 3600},
+        private_key,
+        algorithm="ES256",
+        headers={"kid": kid},
+    )
+    payload = verify_supabase_access_token(
+        token,
+        None,
+        supabase_url="https://example.supabase.co",
+    )
+    assert payload is not None
+    assert payload["sub"] == "user-es256"
+
+
+def test_es256_without_supabase_url_falls_back_to_hs256_only():
+    header = base64.urlsafe_b64encode(json.dumps({"alg": "ES256", "typ": "JWT", "kid": "x"}).encode()).rstrip(b"=").decode()
+    payload = base64.urlsafe_b64encode(json.dumps({"sub": "u", "exp": int(time.time()) + 3600}).encode()).rstrip(b"=").decode()
+    token = f"{header}.{payload}.fakesig"
+    assert verify_supabase_access_token(token, "test-jwt-secret-32chars-minimum") is None
+
+
 def test_require_judge_user_uses_verified_context():
     token = verified_judge_user_id.set("verified-user")
     try:

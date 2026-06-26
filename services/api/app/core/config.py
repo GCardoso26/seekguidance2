@@ -264,7 +264,9 @@ class Settings(BaseSettings):
     # CPF — HMAC-SHA256 com salt global (openssl rand -hex 32)
     cpf_salt: str | None = None
 
-    # Supabase Auth — validação JWT nas rotas /runtime/judge (Project Settings → API → JWT Secret)
+    # Supabase Auth — validação JWT nas rotas /runtime/judge
+    # Projetos novos: ES256 via JWKS (SUPABASE_URL). Legado: HS256 (JWT Secret).
+    supabase_url: str | None = None
     supabase_jwt_secret: str | None = None
     judge_supabase_jwt_enforce: bool | None = None
 
@@ -291,8 +293,12 @@ class Settings(BaseSettings):
             raise ValueError("CPF_SALT must be at least 32 characters in production")
         if self.should_enforce_supabase_jwt():
             jwt_secret = (self.supabase_jwt_secret or "").strip()
-            if len(jwt_secret) < 16:
-                raise ValueError("SUPABASE_JWT_SECRET is required in production")
+            supabase_url = (self.supabase_url or "").strip()
+            if not supabase_url and len(jwt_secret) < 16:
+                raise ValueError(
+                    "SUPABASE_URL or SUPABASE_JWT_SECRET is required in production "
+                    "(projetos Supabase novos usam ES256 via JWKS)"
+                )
         return self
 
 
