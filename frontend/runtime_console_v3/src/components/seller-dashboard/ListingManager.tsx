@@ -11,10 +11,22 @@ import { EmptyState } from "./EmptyState";
 type Props = {
   listings: CardListing[];
   isLoading?: boolean;
+  page?: number;
+  total?: number;
+  limit?: number;
+  onPageChange?: (page: number) => void;
 };
 
-export function ListingManager({ listings, isLoading }: Props) {
+export function ListingManager({
+  listings,
+  isLoading,
+  page = 1,
+  total = 0,
+  limit = 24,
+  onPageChange,
+}: Props) {
   const queryClient = useQueryClient();
+  const totalPages = Math.max(1, Math.ceil(total / limit));
 
   async function deactivate(listingId: string) {
     await fetch(`/api/seller/listings/${encodeURIComponent(listingId)}`, { method: "DELETE" });
@@ -23,7 +35,7 @@ export function ListingManager({ listings, isLoading }: Props) {
 
   if (isLoading) return <p className="text-luxury-mist">Carregando listagens…</p>;
 
-  if (listings.length === 0) {
+  if (listings.length === 0 && total === 0) {
     return (
       <EmptyState
         title="Nenhuma listagem ainda"
@@ -38,35 +50,64 @@ export function ListingManager({ listings, isLoading }: Props) {
   }
 
   return (
-    <ul className="space-y-3">
-      {listings.map((listing) => (
-        <li
-          key={listing.id}
-          className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/5 p-4"
-        >
-          <div>
-            <Link href={`/loja/cartas/${listing.cardId}`} className="font-medium hover:underline">
-              {listing.cardName || "Carta"}
-            </Link>
-            <p className="text-xs text-luxury-mist">{listing.setName}</p>
-            <div className="mt-1 flex items-center gap-2">
-              <ConditionBadge condition={listing.condition as CardCondition} size="sm" />
-              <span className="text-sm font-semibold">
-                {formatCurrency(listing.price, listing.currency)}
-              </span>
-              <span className="text-xs text-luxury-mist">× {listing.quantity}</span>
+    <div className="space-y-4">
+      <ul className="space-y-3">
+        {listings.map((listing) => (
+          <li
+            key={listing.id}
+            className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/5 p-4"
+          >
+            <div>
+              <Link href={`/loja/cartas/${listing.cardId}`} className="font-medium hover:underline">
+                {listing.cardName || "Carta"}
+              </Link>
+              <p className="text-xs text-luxury-mist">{listing.setName}</p>
+              <div className="mt-1 flex items-center gap-2">
+                <ConditionBadge condition={listing.condition as CardCondition} size="sm" />
+                <span className="text-sm font-semibold">
+                  {formatCurrency(listing.price, listing.currency)}
+                </span>
+                <span className="text-xs text-luxury-mist">× {listing.quantity}</span>
+              </div>
             </div>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" asChild>
-              <Link href={`/vendedor/painel/listagens/${listing.id}`}>Editar</Link>
-            </Button>
-            <Button variant="ghost" size="sm" onClick={() => void deactivate(listing.id)}>
-              Desativar
-            </Button>
-          </div>
-        </li>
-      ))}
-    </ul>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" asChild>
+                <Link href={`/vendedor/painel/listagens/${listing.id}`}>Editar</Link>
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => void deactivate(listing.id)}>
+                Desativar
+              </Button>
+            </div>
+          </li>
+        ))}
+      </ul>
+
+      {totalPages > 1 && onPageChange && (
+        <div
+          className="flex justify-center gap-2 pt-2"
+          data-testid="seller-listings-pagination"
+        >
+          <button
+            type="button"
+            disabled={page <= 1}
+            onClick={() => onPageChange(page - 1)}
+            className="rounded-lg border border-white/10 px-3 py-1 text-sm disabled:opacity-40"
+          >
+            Anterior
+          </button>
+          <span className="px-2 py-1 text-sm text-luxury-mist">
+            {page} / {totalPages}
+          </span>
+          <button
+            type="button"
+            disabled={page >= totalPages}
+            onClick={() => onPageChange(page + 1)}
+            className="rounded-lg border border-white/10 px-3 py-1 text-sm disabled:opacity-40"
+          >
+            Próxima
+          </button>
+        </div>
+      )}
+    </div>
   );
 }
