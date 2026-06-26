@@ -6,6 +6,7 @@ import { SellerHeader } from "@/components/seller-dashboard/SellerHeader";
 import { DashboardStats } from "@/components/seller-dashboard/DashboardStats";
 import { RecentSalesTable } from "@/components/seller-dashboard/RecentSalesTable";
 import { PendingActions } from "@/components/seller-dashboard/PendingActions";
+import { MerchantKycCard } from "@/components/kyc/MerchantKycCard";
 import { useSellerStore } from "@/hooks/useSellerStore";
 
 const SalesChart = dynamic(
@@ -50,6 +51,7 @@ export default function VendedorPainelDashboardPage() {
     <>
       <SellerHeader displayName={String(store?.name ?? "")} />
       <main className="flex-1 space-y-6 overflow-y-auto p-6">
+        <MerchantKycCard />
         <DashboardStats kpis={dashboard?.kpis} revenue={dashboard?.revenue} />
 
         <div className="grid gap-6 lg:grid-cols-3">

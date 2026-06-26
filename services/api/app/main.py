@@ -13,6 +13,7 @@ from app.api.v1.gamification_api import router as gamification_api_router
 from app.api.v1.judge_assistant import router as judge_assistant_router
 from app.api.v1.judge_calls_api import router as judge_calls_router
 from app.api.v1.judge_product import router as judge_product_router
+from app.api.v1.kyc_api import router as kyc_api_router
 from app.api.v1.leagues_api import router as leagues_api_router
 from app.api.v1.marketplace_api import router as marketplace_api_router
 from app.api.v1.overlay_api import router as overlay_api_router
@@ -248,6 +249,7 @@ app.include_router(stripe_billing_router)
 app.include_router(tournament_system_router)
 app.include_router(tournament_flow_router)
 app.include_router(players_ecosystem_router)
+app.include_router(kyc_api_router)
 app.include_router(leagues_api_router)
 app.include_router(social_api_router)
 app.include_router(admin_api_router)

@@ -94,6 +94,10 @@ def _serialize_my_profile(prof: dict[str, Any]) -> dict[str, Any]:
             "state": prof.get("state"),
             "timezone": prof.get("timezone"),
         },
+        "accountStatus": prof.get("account_status") or "pending_cpf",
+        "cpfLast4": prof.get("cpf_last4"),
+        "cpfVerified": bool(prof.get("cpf_verified_at")),
+        "canPurchase": (prof.get("account_status") == "active"),
     }
 
 

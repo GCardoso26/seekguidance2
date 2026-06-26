@@ -1,12 +1,19 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { MobileLayout } from "@/components/layout/MobileLayout";
+import { CpfCheckoutModal } from "@/components/kyc/CpfCheckoutModal";
+import { needsCpfCompletion, useAccountStatus } from "@/hooks/useAccountStatus";
 import { formatShopPrice, type ShopCart } from "@/lib/marketplace-shop";
 
 export default function CartPage() {
+  const router = useRouter();
   const queryClient = useQueryClient();
+  const { data: accountStatus } = useAccountStatus();
+  const [cpfModal, setCpfModal] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ["shop-cart"],
@@ -60,11 +67,22 @@ export default function CartPage() {
               <span className="text-luxury-mist">Total</span>
               <span className="font-mono text-xl font-bold">{formatShopPrice(cart?.total_cents ?? 0)}</span>
             </div>
-            <Link href="/checkout" className="mt-4 block rounded-lg bg-luxury-gold py-3 text-center font-semibold text-luxury-onyx">
+            <button
+              type="button"
+              className="mt-4 block w-full rounded-lg bg-luxury-gold py-3 text-center font-semibold text-luxury-onyx"
+              onClick={() => {
+                if (needsCpfCompletion(accountStatus)) {
+                  setCpfModal(true);
+                  return;
+                }
+                router.push("/checkout");
+              }}
+            >
               Ir para checkout
-            </Link>
+            </button>
           </div>
         )}
+        <CpfCheckoutModal open={cpfModal} onClose={() => setCpfModal(false)} />
       </div>
     </MobileLayout>
   );

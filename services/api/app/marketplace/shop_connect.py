@@ -148,4 +148,18 @@ async def refresh_connect_status(session: AsyncSession, store_id: str, owner_id:
         {"complete": complete, "id": store_id},
     )
     await session.commit()
-    return {"complete": complete, "shop_enabled": complete or store.get("shop_enabled")}
+    from app.kyc.merchant_kyc import stripe_account_to_kyc_status, update_merchant_kyc_from_stripe
+
+    kyc_status, reason = stripe_account_to_kyc_status(dict(account))
+    await update_merchant_kyc_from_stripe(
+        session,
+        stripe_account_id=str(account_id),
+        kyc_status=kyc_status,
+        rejection_reason=reason,
+        metadata={"source": "refresh_connect_status"},
+    )
+    return {
+        "complete": complete,
+        "shop_enabled": complete or store.get("shop_enabled"),
+        "kyc_status": kyc_status,
+    }

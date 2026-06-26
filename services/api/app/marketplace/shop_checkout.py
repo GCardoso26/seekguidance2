@@ -34,8 +34,11 @@ async def create_checkout(
     checkout_session_id: str | None = None,
     use_escrow: bool = False,
 ) -> dict[str, Any]:
+    from app.kyc.player_account import require_active_account
     from app.marketplace import checkout_atomic
     from app.marketplace import shop_escrow
+
+    await require_active_account(session, user_id)
 
     settings = get_settings()
     if not settings.stripe_secret_key:

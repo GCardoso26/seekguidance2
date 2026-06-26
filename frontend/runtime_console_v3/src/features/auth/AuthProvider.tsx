@@ -30,6 +30,8 @@ type AuthContextValue = {
   loading: boolean;
   configured: boolean;
   signInWithGoogle: (redirectTo?: string) => Promise<void>;
+  signUpWithEmail: (email: string, password: string) => Promise<{ needsEmailConfirmation: boolean }>;
+  signInWithEmail: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
 };
 
@@ -134,6 +136,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [supabase],
   );
 
+  const signInWithEmail = useCallback(
+    async (email: string, password: string) => {
+      if (!supabase) throw new Error("Auth não configurado");
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+    },
+    [supabase],
+  );
+
+  const signUpWithEmail = useCallback(
+    async (email: string, password: string) => {
+      if (!supabase) throw new Error("Auth não configurado");
+      const { data, error } = await supabase.auth.signUp({ email, password });
+      if (error) throw error;
+      return { needsEmailConfirmation: !data.session };
+    },
+    [supabase],
+  );
+
   const signOut = useCallback(async () => {
     if (!supabase) return;
     redirectAttemptedRef.current = false;
@@ -148,9 +169,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       loading,
       configured,
       signInWithGoogle,
+      signUpWithEmail,
+      signInWithEmail,
       signOut,
     }),
-    [user, session, loading, configured, signInWithGoogle, signOut],
+    [user, session, loading, configured, signInWithGoogle, signUpWithEmail, signInWithEmail, signOut],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -165,6 +188,8 @@ export function useJudgeAuth(): AuthContextValue {
       loading: false,
       configured: false,
       signInWithGoogle: async () => {},
+      signUpWithEmail: async () => ({ needsEmailConfirmation: false }),
+      signInWithEmail: async () => {},
       signOut: async () => {},
     };
   }

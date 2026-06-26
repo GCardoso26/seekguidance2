@@ -119,6 +119,8 @@ async def create_listing(
     description: str | None = None,
     images: list[str] | None = None,
 ) -> dict[str, Any]:
+    from app.kyc.merchant_kyc import require_verified_merchant
+
     if condition.upper() not in VALID_CONDITIONS:
         raise HTTPException(400, "Condição inválida")
     if price_cents <= 0:
@@ -127,6 +129,7 @@ async def create_listing(
         raise HTTPException(400, "Quantidade inválida")
 
     card_uuid = _parse_uuid(card_id, field="card_id")
+    await require_verified_merchant(session, seller_id)
     card = await _get_card(session, card_uuid)
     store = await _seller_store(session, seller_id)
     store_id = str(store["id"])

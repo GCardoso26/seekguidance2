@@ -157,8 +157,26 @@ async def stripe_webhook(request: Request, session: DbSession, settings: Setting
             from app.marketplace.shop_orders import handle_payment_intent_succeeded
 
             await handle_payment_intent_succeeded(session, settings, data)
+    elif etype == "account.updated":
+        await _handle_connect_account_updated(session, event["id"], data)
 
     return JSONResponse({"status": "success"})
+
+
+async def _handle_connect_account_updated(
+    session: DbSession, event_id: str, account: dict[str, Any]
+) -> None:
+    from app.kyc.merchant_kyc import stripe_account_to_kyc_status, update_merchant_kyc_from_stripe
+
+    kyc_status, reason = stripe_account_to_kyc_status(account)
+    await update_merchant_kyc_from_stripe(
+        session,
+        stripe_account_id=str(account.get("id") or ""),
+        kyc_status=kyc_status,
+        rejection_reason=reason,
+        provider_event_id=event_id,
+        metadata={"charges_enabled": account.get("charges_enabled"), "payouts_enabled": account.get("payouts_enabled")},
+    )
 
 
 async def _handle_checkout_completed(session: DbSession, settings: SettingsDep, checkout: dict[str, Any]) -> None:

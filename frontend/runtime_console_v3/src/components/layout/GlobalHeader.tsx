@@ -8,6 +8,7 @@ import { GlobalSearchBar } from "@/components/home/GlobalSearchBar";
 import { GameTabs } from "@/components/navigation/GameTabs";
 import { GlobalNotificationBell } from "@/components/notifications/GlobalNotificationBell";
 import { CartHeaderButton } from "@/components/cart/CartHeaderButton";
+import { CpfRequiredBanner } from "@/components/kyc/CpfRequiredBanner";
 import { LigaPassWidget } from "@/components/gamification/LigaPassWidget";
 import { UserMenu } from "@/features/auth/UserMenu";
 import { useJudgeAuth } from "@/features/auth/AuthProvider";
@@ -61,7 +62,9 @@ export function GlobalHeader({ showGameTabs = true }: GlobalHeaderProps) {
   }
 
   return (
-    <header className="sticky top-0 z-40 border-b border-white/10 bg-luxury-obsidian/95 backdrop-blur">
+    <>
+      <CpfRequiredBanner />
+      <header className="sticky top-0 z-40 border-b border-white/10 bg-luxury-obsidian/95 backdrop-blur">
       <div className="mx-auto max-w-7xl px-4">
         <div className="flex h-14 items-center gap-3">
           <Link
@@ -112,5 +115,6 @@ export function GlobalHeader({ showGameTabs = true }: GlobalHeaderProps) {
         {showTabs && <GameTabs games={games} className="border-t border-white/5" />}
       </div>
     </header>
+    </>
   );
 }

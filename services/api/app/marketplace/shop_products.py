@@ -124,7 +124,10 @@ async def create_product(
     sku: str | None = None,
     images: list[str] | None = None,
 ) -> dict[str, Any]:
+    from app.kyc.merchant_kyc import require_verified_merchant
+
     store = await _assert_store_owner(session, store_id, owner_id)
+    await require_verified_merchant(session, owner_id)
     limit = product_limit_for_plan(effective_plan(store))
     if limit is not None:
         count_row = (
