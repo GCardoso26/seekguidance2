@@ -20,12 +20,18 @@ const NAV = [
 
 type Props = {
   sellerId?: string | null;
+  storeSlug?: string | null;
   plan?: string;
   className?: string;
   onNavigate?: () => void;
 };
 
-export function Sidebar({ sellerId, plan = "free", className, onNavigate }: Props) {
+export function Sidebar({ sellerId, storeSlug, plan = "free", className, onNavigate }: Props) {
+  const publicStoreHref = storeSlug
+    ? `/marketplace/loja/${storeSlug}`
+    : sellerId
+      ? `/vendedor/${sellerId}`
+      : null;
   const pathname = usePathname();
 
   return (
@@ -66,9 +72,9 @@ export function Sidebar({ sellerId, plan = "free", className, onNavigate }: Prop
         })}
       </nav>
       <div className="space-y-1 border-t border-white/10 p-3">
-        {sellerId && (
+        {publicStoreHref && (
           <Link
-            href={`/vendedor/${sellerId}`}
+            href={publicStoreHref}
             onClick={onNavigate}
             className="block rounded-lg px-3 py-2 text-luxury-mist hover:bg-white/5"
           >
