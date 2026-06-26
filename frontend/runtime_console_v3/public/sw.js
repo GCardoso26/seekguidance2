@@ -1,8 +1,8 @@
-const CACHE_SHELL = "tcg-judge-shell-v4";
+const CACHE_SHELL = "tcg-judge-shell-v5";
 const CACHE_API = "tcg-judge-api-v2";
 const CACHE_IMAGES = "tcg-judge-images-v1";
 const CACHE_FONTS = "tcg-judge-fonts-v1";
-const CACHE_PAGES = "tcg-judge-pages-v1";
+const CACHE_PAGES = "tcg-judge-pages-v2";
 
 const SHELL_URLS = ["/", "/offline", "/manifest.json", "/icon-192", "/icon-512"];
 
@@ -79,6 +79,12 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  // Chunks Next.js têm hash por deploy — nunca cachear (evita 404 + MIME text/plain).
+  if (url.pathname.startsWith("/_next/")) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
   if (IMAGE_EXT.test(url.pathname) || url.hostname.includes("scryfall.io")) {
     event.respondWith(cacheFirst(event.request, CACHE_IMAGES));
     return;
@@ -95,7 +101,7 @@ self.addEventListener("fetch", (event) => {
   }
 
   if (url.pathname.match(/\.(js|css)$/)) {
-    event.respondWith(cacheFirst(event.request, CACHE_SHELL));
+    event.respondWith(fetch(event.request));
     return;
   }
 

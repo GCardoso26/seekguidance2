@@ -438,10 +438,17 @@ async def runtime_judge_health_score(session: DbSession) -> dict[str, Any]:
     }
 
 
+_RESERVED_JUDGE_SLUGS = frozenset({"account", "merchant", "catalog", "health", "games"})
+
+
 @router.get("/runtime/judge/{game_slug}/status")
 async def runtime_judge_game_status(game_slug: str, session: DbSession) -> dict[str, Any]:
     """Status de corpus e ingestão por jogo (usado pelo CI de avaliação)."""
     slug = game_slug.strip().lower()
+    if slug in _RESERVED_JUDGE_SLUGS:
+        from fastapi import HTTPException
+
+        raise HTTPException(status_code=404, detail="Jogo não encontrado")
     games = await list_judge_games(session, settings)
     game = next((g for g in games if g["game_slug"] == slug), None)
     rag_ready = bool(game and game.get("rag_ready"))

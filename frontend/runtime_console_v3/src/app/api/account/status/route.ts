@@ -8,6 +8,16 @@ export async function GET() {
       cache: "no-store",
     });
     const text = await res.text();
+    if (res.ok) {
+      try {
+        const data = JSON.parse(text) as { player?: unknown };
+        if (!data?.player) {
+          return NextResponse.json({ detail: "Resposta inválida da API" }, { status: 502 });
+        }
+      } catch {
+        return NextResponse.json({ detail: "Resposta inválida da API" }, { status: 502 });
+      }
+    }
     return new NextResponse(text, { status: res.status, headers: { "Content-Type": "application/json" } });
   } catch {
     return NextResponse.json({ detail: "API indisponível" }, { status: 503 });

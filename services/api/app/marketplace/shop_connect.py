@@ -35,9 +35,6 @@ async def get_owner_store(session: AsyncSession, owner_id: str) -> dict[str, Any
     return dict(row) if row else None
 
 
-    return dict(row) if row else None
-
-
 def _onboarding_link_expires_at() -> datetime:
     return datetime.now(UTC) + timedelta(hours=ONBOARDING_LINK_TTL_HOURS)
 

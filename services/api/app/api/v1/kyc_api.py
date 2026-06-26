@@ -10,7 +10,7 @@ from app.kyc.merchant_kyc import create_merchant_profile, get_merchant_profile
 from app.kyc.player_account import get_account_status, verify_and_bind_cpf
 from app.marketplace import shop_connect
 from app.marketplace import shop_checkout as shop_checkout_svc
-from fastapi import APIRouter, Header
+from fastapi import APIRouter, Header, HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy import text
 
@@ -88,7 +88,7 @@ async def merchant_onboarding(
     x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
 ) -> dict[str, Any]:
     user_id = _require_user(x_judge_user_id)
-    await create_merchant_profile(session, user_id, store_id=body.store_id)
+    await create_merchant_profile(session, user_id, store_id=body.store_id, require_cpf=False)
     existing = await get_merchant_profile(session, user_id)
     if existing and existing.get("kyc_status") in ("rejected", "restricted"):
         link = await shop_connect.force_refresh_onboarding_link(session, user_id, existing)

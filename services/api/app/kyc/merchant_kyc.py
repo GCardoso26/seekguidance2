@@ -80,9 +80,11 @@ async def create_merchant_profile(
     user_id: str,
     *,
     store_id: str | None = None,
+    require_cpf: bool = True,
 ) -> dict[str, Any]:
     await ensure_player_profile(session, user_id)
-    await require_active_account(session, user_id)
+    if require_cpf:
+        await require_active_account(session, user_id)
 
     existing = await get_merchant_profile(session, user_id)
     if existing:

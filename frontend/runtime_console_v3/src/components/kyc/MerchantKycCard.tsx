@@ -1,9 +1,20 @@
 "use client";
 
+import Link from "next/link";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { useAccountStatus } from "@/hooks/useAccountStatus";
+import { needsCpfCompletion, useAccountStatus } from "@/hooks/useAccountStatus";
 import { useSellerStore } from "@/hooks/useSellerStore";
+
+function parseApiDetail(payload: unknown): string {
+  if (!payload || typeof payload !== "object") return "Falha ao iniciar KYC";
+  const detail = (payload as { detail?: unknown }).detail;
+  if (typeof detail === "string") return detail;
+  if (detail && typeof detail === "object" && "message" in detail) {
+    return String((detail as { message?: string }).message ?? "Falha ao iniciar KYC");
+  }
+  return "Falha ao iniciar KYC";
+}
 
 const STATUS_STYLES: Record<string, string> = {
   pending: "border-amber-500/40 bg-amber-950/30 text-amber-100",
@@ -21,9 +32,10 @@ const STATUS_LABELS: Record<string, string> = {
 
 export function MerchantKycCard() {
   const { storeId } = useSellerStore();
-  const { data, refetch } = useAccountStatus();
+  const { data, refetch, isError: accountStatusError } = useAccountStatus();
   const kyc = data?.merchant;
   const status = kyc?.kyc_status ?? "none";
+  const cpfPending = needsCpfCompletion(data);
 
   const { data: onboardingStatus } = useQuery({
     queryKey: ["merchant-onboarding-status"],
@@ -51,7 +63,7 @@ export function MerchantKycCard() {
       });
       const payload = await res.json().catch(() => ({}));
       if (!res.ok) {
-        throw new Error(String((payload as { detail?: string }).detail ?? "Falha ao iniciar KYC"));
+        throw new Error(parseApiDetail(payload));
       }
       return payload as { onboarding_url?: string };
     },
@@ -71,7 +83,25 @@ export function MerchantKycCard() {
         <p className="mt-1 text-sm text-luxury-mist">
           Ative o perfil lojista e complete a verificação de identidade (KYC) para publicar produtos.
         </p>
-        <Button className="mt-3" disabled={!storeId || onboardingMutation.isPending} onClick={() => void onboardingMutation.mutate()}>
+        {accountStatusError && (
+          <p className="mt-2 text-sm text-amber-200">
+            Não foi possível carregar o status da conta. Tente novamente em instantes.
+          </p>
+        )}
+        {cpfPending && (
+          <p className="mt-2 text-sm text-amber-200">
+            Recomendamos{" "}
+            <Link href="/completar-perfil" className="underline">
+              completar seu CPF
+            </Link>{" "}
+            antes de vender.
+          </p>
+        )}
+        <Button
+          className="mt-3"
+          disabled={!storeId || onboardingMutation.isPending}
+          onClick={() => void onboardingMutation.mutate()}
+        >
           {onboardingMutation.isPending ? "Abrindo…" : "Tornar-se lojista"}
         </Button>
         {onboardingMutation.isError && (

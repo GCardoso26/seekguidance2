@@ -20,6 +20,12 @@ export type AccountStatusPayload = {
   } | null;
 };
 
+function isAccountStatusPayload(data: unknown): data is AccountStatusPayload {
+  if (!data || typeof data !== "object") return false;
+  const player = (data as AccountStatusPayload).player;
+  return Boolean(player && typeof player === "object" && "can_purchase" in player);
+}
+
 export function useAccountStatus(options?: { refetchInterval?: number }) {
   const { user } = useJudgeAuth();
   return useQuery({
@@ -27,7 +33,9 @@ export function useAccountStatus(options?: { refetchInterval?: number }) {
     queryFn: async () => {
       const res = await fetch("/api/account/status");
       if (!res.ok) throw new Error("status_failed");
-      return res.json() as Promise<AccountStatusPayload>;
+      const data: unknown = await res.json();
+      if (!isAccountStatusPayload(data)) throw new Error("status_invalid");
+      return data;
     },
     enabled: Boolean(user),
     refetchInterval: options?.refetchInterval,
@@ -35,5 +43,5 @@ export function useAccountStatus(options?: { refetchInterval?: number }) {
 }
 
 export function needsCpfCompletion(status: AccountStatusPayload | undefined): boolean {
-  return Boolean(status && !status.player.can_purchase);
+  return Boolean(status?.player && !status.player.can_purchase);
 }

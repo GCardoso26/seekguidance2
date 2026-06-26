@@ -260,6 +260,8 @@ app.include_router(runtime_operational_router)
 
 app.include_router(runtime_deployments_router)
 
+# KYC antes de runtime_judge: /runtime/judge/{game_slug}/status capturava game_slug=account.
+app.include_router(kyc_api_router)
 app.include_router(runtime_judge_router)
 app.include_router(judge_product_router)
 app.include_router(judge_assistant_router)
@@ -268,7 +270,6 @@ app.include_router(stripe_billing_router)
 app.include_router(tournament_system_router)
 app.include_router(tournament_flow_router)
 app.include_router(players_ecosystem_router)
-app.include_router(kyc_api_router)
 app.include_router(leagues_api_router)
 app.include_router(social_api_router)
 app.include_router(admin_api_router)
