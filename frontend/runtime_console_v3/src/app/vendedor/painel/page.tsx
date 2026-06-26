@@ -8,6 +8,7 @@ import { RecentSalesTable } from "@/components/seller-dashboard/RecentSalesTable
 import { PendingActions } from "@/components/seller-dashboard/PendingActions";
 import { MerchantKycCard } from "@/components/kyc/MerchantKycCard";
 import { useSellerStore } from "@/hooks/useSellerStore";
+import { useAccountStatus } from "@/hooks/useAccountStatus";
 
 const SalesChart = dynamic(
   () => import("@/components/dashboard/SalesChart").then((m) => m.SalesChart),
@@ -16,7 +17,10 @@ const SalesChart = dynamic(
 
 export default function VendedorPainelDashboardPage() {
   const { hasStore, isLoading, dashboard, dashboardLoading } = useSellerStore();
+  const { data: accountStatus } = useAccountStatus();
   const store = dashboard?.store as Record<string, unknown> | undefined;
+  const kycStatus = accountStatus?.merchant?.kyc_status;
+  const kycIncomplete = Boolean(kycStatus && kycStatus !== "verified");
 
   if (isLoading || dashboardLoading) {
     return (
@@ -51,7 +55,9 @@ export default function VendedorPainelDashboardPage() {
     <>
       <SellerHeader displayName={String(store?.name ?? "")} />
       <main className="flex-1 space-y-6 overflow-y-auto p-6">
-        <MerchantKycCard />
+        <div id="kyc-status">
+          <MerchantKycCard />
+        </div>
         <DashboardStats kpis={dashboard?.kpis} revenue={dashboard?.revenue} />
 
         <div className="grid gap-6 lg:grid-cols-3">
@@ -69,6 +75,7 @@ export default function VendedorPainelDashboardPage() {
               shipments={dashboard?.pending?.shipments}
               disputes={dashboard?.pending?.disputes}
               lowStock={dashboard?.pending?.low_stock}
+              kycIncomplete={kycIncomplete}
             />
           </div>
         </div>
