@@ -1,27 +1,31 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
+import Link from "next/link";
 import { Suspense, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { OrdersManager } from "@/components/seller-dashboard/OrdersManager";
+import { PageError, PageHeader, PageShell } from "@/components/seller-dashboard/PageShell";
 import { SellerHeader } from "@/components/seller-dashboard/SellerHeader";
-import { SalesTable } from "@/components/seller-dashboard/SalesTable";
+import { useSellerPanel } from "@/contexts/SellerPanelContext";
+import { useSellerOrders, useSellerPendingOrdersCount } from "@/hooks/useSellerOrders";
 import { useSellerStore } from "@/hooks/useSellerStore";
-import type { StoreOrder } from "@/components/store/OrdersList";
+import { planHasFeature } from "@/lib/seller-plans";
+
+const PAGE_SIZE = 20;
 
 function VendasContent() {
   const searchParams = useSearchParams();
   const initialStatus = searchParams.get("status") ?? "";
+  const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState(initialStatus);
   const { storeId } = useSellerStore();
+  const { plan } = useSellerPanel();
+  const { data: pendingCount = 0 } = useSellerPendingOrdersCount(Boolean(storeId));
 
-  const { data, refetch } = useQuery({
-    queryKey: ["seller-orders", statusFilter],
-    queryFn: async () => {
-      const qs = statusFilter ? `?status=${encodeURIComponent(statusFilter)}` : "";
-      const res = await fetch(`/api/seller/orders${qs}`);
-      if (!res.ok) return { orders: [] };
-      return res.json() as Promise<{ orders: StoreOrder[] }>;
-    },
+  const { data, isLoading, error, refetch } = useSellerOrders({
+    page,
+    limit: PAGE_SIZE,
+    status: statusFilter,
     enabled: Boolean(storeId),
   });
 
@@ -30,17 +34,70 @@ function VendasContent() {
     window.open(`/api/marketplace/shop/stores/${encodeURIComponent(storeId)}/orders/export`, "_blank");
   }
 
+  function handleStatusChange(status: string) {
+    setStatusFilter(status);
+    setPage(1);
+  }
+
+  const total = data?.total ?? 0;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const showAnalytics = planHasFeature(plan, "analytics");
+
   return (
-    <main className="flex-1 space-y-4 overflow-y-auto p-6">
-      <h2 className="text-xl font-bold">Minhas vendas</h2>
-      <SalesTable
-        orders={data?.orders ?? []}
-        statusFilter={statusFilter}
-        onStatusChange={setStatusFilter}
-        onUpdated={() => void refetch()}
-        onExport={exportOrders}
+    <PageShell>
+      <PageHeader
+        title="Vendas"
+        description="Pedidos recebidos na sua loja."
+        meta={
+          pendingCount > 0 ? (
+            <span
+              className="mt-2 inline-flex items-center rounded-full bg-amber-500/20 px-2.5 py-0.5 text-xs font-medium text-amber-200"
+              data-testid="pending-orders-badge"
+            >
+              {pendingCount} pendente{pendingCount === 1 ? "" : "s"}
+            </span>
+          ) : null
+        }
       />
-    </main>
+
+      {!showAnalytics && (
+        <div className="rounded-xl border border-luxury-gold/30 bg-luxury-gold/5 px-4 py-3 text-sm text-luxury-mist">
+          Estatísticas avançadas disponíveis no plano Lojista.{" "}
+          <Link href="/vendedor/painel/planos" className="text-luxury-gold underline">
+            Ver planos
+          </Link>
+        </div>
+      )}
+      {showAnalytics && (
+        <p className="text-sm text-luxury-mist">
+          <Link href="/vendedor/painel/estatisticas" className="text-luxury-gold hover:underline">
+            Ver estatísticas de vendas →
+          </Link>
+          {totalPages > 1 && !isLoading ? (
+            <span className="ml-2 text-xs text-luxury-mist/70">
+              · página {page} de {totalPages}
+            </span>
+          ) : null}
+        </p>
+      )}
+
+      {error instanceof Error ? (
+        <PageError message="Não foi possível carregar seus pedidos." onRetry={() => void refetch()} />
+      ) : (
+        <OrdersManager
+          orders={data?.orders ?? []}
+          isLoading={isLoading}
+          page={page}
+          total={total}
+          limit={PAGE_SIZE}
+          statusFilter={statusFilter}
+          onStatusChange={handleStatusChange}
+          onPageChange={setPage}
+          onUpdated={() => void refetch()}
+          onExport={exportOrders}
+        />
+      )}
+    </PageShell>
   );
 }
 
