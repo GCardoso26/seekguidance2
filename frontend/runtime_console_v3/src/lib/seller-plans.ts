@@ -43,9 +43,17 @@ export function planHasFeature(plan: string | undefined, feature: string): boole
   const p = plan || "free";
   const lojistaPlus = new Set(["lojista", "pro", "enterprise"]);
   const proPlus = new Set(["pro", "enterprise"]);
+  if (feature === "listings") return true;
   if (["buylist", "crm", "analytics"].includes(feature)) return lojistaPlus.has(p);
   if (["pdv", "api"].includes(feature)) return proPlus.has(p);
   return false;
+}
+
+/** Verifica se o lojista ainda pode criar listagens dentro do limite do plano. */
+export function canCreateListing(plan: string | undefined, currentCount: number): boolean {
+  const def = SELLER_PLANS.find((item) => item.id === (plan || "free"));
+  if (!def?.productLimit) return true;
+  return currentCount < def.productLimit;
 }
 
 export function formatPlanPrice(cents: number): string {

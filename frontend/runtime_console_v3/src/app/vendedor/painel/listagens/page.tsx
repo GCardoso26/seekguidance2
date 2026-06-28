@@ -3,29 +3,53 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { SellerHeader } from "@/components/seller-dashboard/SellerHeader";
 import { ListingManager } from "@/components/seller-dashboard/ListingManager";
+import {
+  NovaListagemAction,
+  NovaListagemButton,
+} from "@/components/seller-dashboard/ListingsPagination";
+import { PageError, PageHeader, PageShell } from "@/components/seller-dashboard/PageShell";
+import { SellerHeader } from "@/components/seller-dashboard/SellerHeader";
 import { Button } from "@/components/ui/button";
+import { useSellerPanel } from "@/contexts/SellerPanelContext";
 import { buildSellerListingsQuery } from "@/lib/seller-listings-query";
-import type { CardListing } from "@/types/card";
+import { canCreateListing, planHasFeature } from "@/lib/seller-plans";
+import type { SellerListingRow } from "@/types/seller-listing";
 
 const PAGE_SIZE = 24;
 
 type ListingsResponse = {
-  listings: CardListing[];
+  listings: SellerListingRow[];
   total: number;
   page: number;
   limit: number;
 };
 
+function NovaListagemHeaderAction({ plan, total }: { plan: string; total: number }) {
+  if (!planHasFeature(plan, "listings")) {
+    return <NovaListagemAction href="/vendedor/painel/planos" label="Ver planos" />;
+  }
+  if (!canCreateListing(plan, total)) {
+    return (
+      <NovaListagemAction
+        href="/vendedor/painel/planos"
+        label="Limite atingido — fazer upgrade"
+      />
+    );
+  }
+  return <NovaListagemButton />;
+}
+
 export default function VendedorListagensPage() {
   const [page, setPage] = useState(1);
+  const { plan } = useSellerPanel();
 
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["seller-listings", page],
     queryFn: async () => {
       const res = await fetch(`/api/seller/listings?${buildSellerListingsQuery(page, PAGE_SIZE)}`);
       if (res.status === 401) throw new Error("login_required");
+      if (res.status === 403) throw new Error("plan_forbidden");
       if (!res.ok) throw new Error("fetch_failed");
       return res.json() as Promise<ListingsResponse>;
     },
@@ -35,7 +59,7 @@ export default function VendedorListagensPage() {
     return (
       <main className="p-6 text-center">
         <p className="text-luxury-mist">Faça login para gerenciar listagens.</p>
-        <Button asChild className="mt-4">
+        <Button asChild className="mt-4 bg-luxury-gold text-luxury-onyx">
           <Link href="/entrar?next=/vendedor/painel/listagens">Entrar</Link>
         </Button>
       </main>
@@ -47,39 +71,41 @@ export default function VendedorListagensPage() {
 
   return (
     <>
-      <SellerHeader
-        action={
-          <Button asChild>
-            <Link href="/vendedor/painel/listagens/nova">+ Nova listagem</Link>
-          </Button>
-        }
-      />
-      <main className="flex-1 space-y-4 overflow-y-auto p-6">
-        <div>
-          <h2 className="text-xl font-bold">Minhas listagens</h2>
-          <p className="text-sm text-luxury-mist">
-            Cartas do catálogo que você listou para venda.
-            {total > 0 && (
-              <span className="ml-2 text-luxury-mist/80">
-                ({total} {total === 1 ? "item" : "itens"})
-              </span>
-            )}
-          </p>
-        </div>
-        <ListingManager
-          listings={data?.listings ?? []}
-          isLoading={isLoading}
-          page={page}
-          total={total}
-          limit={PAGE_SIZE}
-          onPageChange={setPage}
+      <SellerHeader action={<NovaListagemHeaderAction plan={plan} total={total} />} />
+      <PageShell>
+        <PageHeader
+          title="Minhas listagens"
+          description="Cartas do catálogo que você listou para venda."
+          meta={
+            total > 0 ? (
+              <p className="mt-1 text-xs text-luxury-mist/80">
+                {total} {total === 1 ? "item" : "itens"}
+                {totalPages > 1 && !isLoading ? ` · página ${page} de ${totalPages}` : null}
+              </p>
+            ) : null
+          }
         />
-        {totalPages > 1 && !isLoading && (
-          <p className="text-center text-xs text-luxury-mist" data-testid="seller-listings-page-indicator">
-            Página {page} de {totalPages}
-          </p>
+
+        {error instanceof Error && error.message !== "login_required" ? (
+          <PageError
+            message={
+              error.message === "plan_forbidden"
+                ? "Seu plano não permite esta ação. Veja opções em Planos."
+                : "Não foi possível carregar suas listagens."
+            }
+            onRetry={() => void refetch()}
+          />
+        ) : (
+          <ListingManager
+            listings={data?.listings ?? []}
+            isLoading={isLoading}
+            page={page}
+            total={total}
+            limit={PAGE_SIZE}
+            onPageChange={setPage}
+          />
         )}
-      </main>
+      </PageShell>
     </>
   );
 }

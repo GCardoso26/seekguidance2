@@ -45,6 +45,57 @@ authTest.describe("Vendedor autenticado", () => {
       });
     }
   });
+
+  authTest("listagens mobile 375px mostra cards ou skeleton", async ({ sellerPage: page }) => {
+    await page.setViewportSize({ width: 375, height: 667 });
+    await page.goto("/vendedor/painel/listagens");
+    await authExpect(page).toHaveURL(/\/(vendedor\/painel\/listagens|loja\/suspensa|entrar)/, {
+      timeout: 20_000,
+    });
+    if (!page.url().includes("/vendedor/painel/listagens")) return;
+
+    const cards = page.getByTestId("listing-cards");
+    const skeleton = page.getByTestId("page-skeleton");
+    const empty = page.getByText(/nenhuma listagem/i);
+    await authExpect(cards.or(skeleton).or(empty)).toBeVisible({ timeout: 15_000 });
+    await authExpect(page.getByTestId("seller-listings-table")).toHaveCount(0);
+  });
+
+  authTest("seller acessa vendas com PageShell", async ({ sellerPage: page }) => {
+    await page.goto("/vendedor/painel/vendas");
+    await authExpect(page).toHaveURL(/\/(vendedor\/painel\/vendas|loja\/suspensa|entrar)/, {
+      timeout: 20_000,
+    });
+    if (!page.url().includes("/vendedor/painel/vendas")) return;
+    await authExpect(page.getByRole("heading", { name: /^vendas$/i })).toBeVisible({ timeout: 15_000 });
+  });
+
+  authTest("vendas mobile 375px mostra cards ou empty", async ({ sellerPage: page }) => {
+    await page.setViewportSize({ width: 375, height: 667 });
+    await page.goto("/vendedor/painel/vendas");
+    await authExpect(page).toHaveURL(/\/(vendedor\/painel\/vendas|loja\/suspensa|entrar)/, {
+      timeout: 20_000,
+    });
+    if (!page.url().includes("/vendedor/painel/vendas")) return;
+
+    const cards = page.getByTestId("order-cards");
+    const skeleton = page.getByTestId("page-skeleton");
+    const empty = page.getByTestId("orders-empty");
+    await authExpect(cards.or(skeleton).or(empty)).toBeVisible({ timeout: 15_000 });
+    await authExpect(page.getByTestId("seller-orders-table")).toHaveCount(0);
+  });
+
+  authTest("nova listagem exibe form RHF quando cardId presente", async ({ sellerPage: page }) => {
+    await page.goto("/vendedor/painel/listagens/nova");
+    await authExpect(page).toHaveURL(/\/(vendedor\/painel\/listagens\/nova|loja\/suspensa|entrar)/, {
+      timeout: 20_000,
+    });
+    if (!page.url().includes("/vendedor/painel/listagens/nova")) return;
+
+    const noCardHint = page.getByText(/buscar cartas|cardId/i);
+    const form = page.getByTestId("create-listing-form");
+    await authExpect(noCardHint.or(form)).toBeVisible({ timeout: 15_000 });
+  });
 });
 
 authTest.describe("Comprador — gate CPF", () => {

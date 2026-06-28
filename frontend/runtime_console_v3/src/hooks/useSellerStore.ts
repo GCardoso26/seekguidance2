@@ -34,13 +34,19 @@ export function useSellerStore() {
     },
     enabled: Boolean(storeId),
     staleTime: 30_000,
+    refetchInterval: 5 * 60 * 1000,
   });
+
+  const plan = String(
+    (dashboardQuery.data?.store as Record<string, unknown> | undefined)?.subscription_plan ?? "free",
+  );
 
   return {
     store,
     storeId,
     ownerId: store?.owner_id ?? user?.id ?? null,
     storeSlug: store?.slug ?? null,
+    plan,
     isLoading: storesQuery.isLoading,
     hasStore: Boolean(storeId),
     dashboard: dashboardQuery.data,

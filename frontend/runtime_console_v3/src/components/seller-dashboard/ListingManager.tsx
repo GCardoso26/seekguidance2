@@ -1,15 +1,23 @@
 "use client";
 
-import Link from "next/link";
+import dynamic from "next/dynamic";
+import { useCallback, useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
-import { ConditionBadge, type CardCondition } from "@/components/cards/ConditionBadge";
-import { formatCurrency } from "@/lib/format-currency";
-import type { CardListing } from "@/types/card";
+import type { SellerListingRow } from "@/types/seller-listing";
 import { EmptyState } from "./EmptyState";
+import { ListingCards } from "./ListingCards";
+import { ListingsPagination, NovaListagemButton } from "./ListingsPagination";
+import { PageSkeleton } from "./PageShell";
+
+const ListingsDesktopView = dynamic(
+  () => import("./ListingsDesktopView").then((mod) => mod.ListingsDesktopView),
+  { loading: () => <PageSkeleton rows={6} />, ssr: false },
+);
+
+type ViewMode = "pending" | "table" | "cards";
 
 type Props = {
-  listings: CardListing[];
+  listings: SellerListingRow[];
   isLoading?: boolean;
   page?: number;
   total?: number;
@@ -26,87 +34,43 @@ export function ListingManager({
   onPageChange,
 }: Props) {
   const queryClient = useQueryClient();
+  const [viewMode, setViewMode] = useState<ViewMode>("pending");
   const totalPages = Math.max(1, Math.ceil(total / limit));
 
-  async function deactivate(listingId: string) {
-    await fetch(`/api/seller/listings/${encodeURIComponent(listingId)}`, { method: "DELETE" });
-    await queryClient.invalidateQueries({ queryKey: ["seller-listings"] });
-  }
+  useEffect(() => {
+    const mobile = window.matchMedia("(max-width: 1023px)").matches;
+    setViewMode(mobile ? "cards" : "table");
+  }, []);
 
-  if (isLoading) return <p className="text-luxury-mist">Carregando listagens…</p>;
+  const deactivate = useCallback(
+    async (listingId: string) => {
+      await fetch(`/api/seller/listings/${encodeURIComponent(listingId)}`, { method: "DELETE" });
+      await queryClient.invalidateQueries({ queryKey: ["seller-listings"] });
+    },
+    [queryClient],
+  );
+
+  if (isLoading || viewMode === "pending") return <PageSkeleton rows={6} />;
 
   if (listings.length === 0 && total === 0) {
     return (
       <EmptyState
         title="Nenhuma listagem ainda"
-        description='Abra uma carta no catálogo ou crie uma nova listagem.'
-        action={
-          <Button asChild>
-            <Link href="/vendedor/painel/listagens/nova">Nova listagem</Link>
-          </Button>
-        }
+        description="Abra uma carta no catálogo ou crie uma nova listagem."
+        action={<NovaListagemButton />}
       />
     );
   }
 
   return (
     <div className="space-y-4">
-      <ul className="space-y-3">
-        {listings.map((listing) => (
-          <li
-            key={listing.id}
-            className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/5 p-4"
-          >
-            <div>
-              <Link href={`/loja/cartas/${listing.cardId}`} className="font-medium hover:underline">
-                {listing.cardName || "Carta"}
-              </Link>
-              <p className="text-xs text-luxury-mist">{listing.setName}</p>
-              <div className="mt-1 flex items-center gap-2">
-                <ConditionBadge condition={listing.condition as CardCondition} size="sm" />
-                <span className="text-sm font-semibold">
-                  {formatCurrency(listing.price, listing.currency)}
-                </span>
-                <span className="text-xs text-luxury-mist">× {listing.quantity}</span>
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" asChild>
-                <Link href={`/vendedor/painel/listagens/${listing.id}`}>Editar</Link>
-              </Button>
-              <Button variant="ghost" size="sm" onClick={() => void deactivate(listing.id)}>
-                Desativar
-              </Button>
-            </div>
-          </li>
-        ))}
-      </ul>
-
-      {totalPages > 1 && onPageChange && (
-        <div
-          className="flex justify-center gap-2 pt-2"
-          data-testid="seller-listings-pagination"
-        >
-          <button
-            type="button"
-            disabled={page <= 1}
-            onClick={() => onPageChange(page - 1)}
-            className="rounded-lg border border-white/10 px-3 py-1 text-sm disabled:opacity-40"
-          >
-            Anterior
-          </button>
-          <span className="px-2 py-1 text-sm text-luxury-mist">
-            {page} / {totalPages}
-          </span>
-          <button
-            type="button"
-            disabled={page >= totalPages}
-            onClick={() => onPageChange(page + 1)}
-            className="rounded-lg border border-white/10 px-3 py-1 text-sm disabled:opacity-40"
-          >
-            Próxima
-          </button>
-        </div>
+      {viewMode === "cards" ? (
+        <ListingCards listings={listings} onDeactivate={(id) => void deactivate(id)} />
+      ) : (
+        <ListingsDesktopView listings={listings} onDeactivate={(id) => void deactivate(id)} />
+      )}
+      {onPageChange && (
+        <ListingsPagination page={page} totalPages={totalPages} onPageChange={onPageChange} />
       )}
     </div>
   );

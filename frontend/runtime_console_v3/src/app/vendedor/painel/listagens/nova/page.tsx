@@ -2,20 +2,19 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
 import { Suspense } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { PageShell, PageSkeleton } from "@/components/seller-dashboard/PageShell";
+import { SellerCreateListingForm } from "@/components/seller-dashboard/SellerCreateListingForm";
 import { SellerHeader } from "@/components/seller-dashboard/SellerHeader";
-import { CreateListingForm } from "@/components/seller/CreateListingForm";
 import { Button } from "@/components/ui/button";
-import { useMerchantKycGuard } from "@/hooks/useMerchantKycGuard";
 import type { UnifiedCard } from "@/types/card";
 
 function NovaListagemContent() {
-  const { isLoading: kycLoading, isBlocked } = useMerchantKycGuard();
   const searchParams = useSearchParams();
   const cardId = searchParams.get("cardId");
 
-  const { data: card, isLoading } = useQuery({
+  const { data: card, isLoading, error } = useQuery({
     queryKey: ["listing-card", cardId],
     queryFn: async () => {
       const res = await fetch(`/api/games/mtg/cards/${encodeURIComponent(cardId!)}`);
@@ -27,31 +26,24 @@ function NovaListagemContent() {
   });
 
   return (
-    <main className="flex-1 space-y-4 overflow-y-auto p-6">
-      {(kycLoading || isBlocked) && (
-        <p className="text-luxury-mist">{kycLoading ? "Verificando status da loja…" : "Redirecionando…"}</p>
-      )}
-      {!kycLoading && !isBlocked && (
-        <>
-      <Link href="/vendedor/painel/listagens" className="text-sm text-luxury-mist hover:underline">
-        ← Voltar às listagens
-      </Link>
+    <PageShell>
       {!cardId && (
         <div className="rounded-xl border border-white/10 bg-white/5 p-6">
           <p className="text-luxury-mist">
             Para criar uma listagem, abra uma carta no catálogo e use &quot;Listar para venda&quot;, ou
             acesse com <code className="text-xs">?cardId=UUID</code> na URL.
           </p>
-          <Button asChild className="mt-4">
+          <Button asChild className="mt-4 bg-luxury-gold text-luxury-onyx">
             <Link href="/loja/busca">Buscar cartas</Link>
           </Button>
         </div>
       )}
-      {cardId && isLoading && <p className="text-luxury-mist">Carregando carta…</p>}
-      {card && <CreateListingForm card={card} />}
-        </>
+      {cardId && isLoading && <PageSkeleton rows={4} />}
+      {cardId && error && (
+        <p className="text-red-300">Carta não encontrada.</p>
       )}
-    </main>
+      {card && <SellerCreateListingForm card={card} />}
+    </PageShell>
   );
 }
 
@@ -59,7 +51,7 @@ export default function NovaListagemPage() {
   return (
     <>
       <SellerHeader action={null} />
-      <Suspense fallback={<p className="p-6 text-luxury-mist">Carregando…</p>}>
+      <Suspense fallback={<PageSkeleton rows={4} />}>
         <NovaListagemContent />
       </Suspense>
     </>
