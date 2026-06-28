@@ -12,7 +12,7 @@ function CompletarPerfilForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const afterPath = normalizeInternalPath(searchParams.get("next") ?? "/onboarding", "/onboarding");
-  const { user, loading } = useJudgeAuth();
+  const { user, session, loading } = useJudgeAuth();
   const [cpf, setCpf] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [cpfDuplicate, setCpfDuplicate] = useState(false);
@@ -39,9 +39,14 @@ function CompletarPerfilForm() {
     }
     setSubmitting(true);
     try {
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (session?.access_token) {
+        headers.Authorization = `Bearer ${session.access_token}`;
+      }
       const res = await fetch("/api/account/cpf", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
+        credentials: "include",
         body: JSON.stringify({ cpf }),
       });
       const data = (await res.json().catch(() => ({}))) as { detail?: unknown };

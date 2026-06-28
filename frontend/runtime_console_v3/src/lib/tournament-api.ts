@@ -9,9 +9,9 @@ export const TOURNAMENT_API_BASE = API_PROXY_BASE;
 
 export { fetchApiResilient };
 
-export async function tournamentProxyHeaders(): Promise<Record<string, string>> {
+export async function tournamentProxyHeaders(request?: NextRequest): Promise<Record<string, string>> {
   const headers: Record<string, string> = { "Content-Type": "application/json" };
-  const { userId, accessToken } = await resolveSupabaseProxyAuth();
+  const { userId, accessToken } = await resolveSupabaseProxyAuth(request);
   if (accessToken) {
     headers.Authorization = `Bearer ${accessToken}`;
   }
@@ -23,7 +23,7 @@ export async function tournamentProxyHeaders(): Promise<Record<string, string>> 
 
 /** Inclui JWT do Runtime Console (tcg_access) para operações admin do catálogo. */
 export async function catalogProxyHeaders(request?: NextRequest): Promise<Record<string, string>> {
-  const headers = await tournamentProxyHeaders();
+  const headers = await tournamentProxyHeaders(request);
   const jar = await cookies();
   const access = jar.get(ACCESS_COOKIE)?.value ?? request?.cookies.get(ACCESS_COOKIE)?.value;
   if (access) {

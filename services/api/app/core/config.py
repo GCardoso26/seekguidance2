@@ -267,11 +267,21 @@ class Settings(BaseSettings):
     # Supabase Auth — validação JWT nas rotas /runtime/judge
     # Projetos novos: ES256 via JWKS (SUPABASE_URL). Legado: HS256 (JWT Secret).
     supabase_url: str | None = None
+    supabase_project_ref: str | None = None
     supabase_jwt_secret: str | None = None
     judge_supabase_jwt_enforce: bool | None = None
 
     # Preços externos (tcgapi.dev)
     tcg_api_key: str | None = None
+
+    def resolve_supabase_url(self) -> str | None:
+        url = (self.supabase_url or "").strip().rstrip("/")
+        if url:
+            return url
+        ref = (self.supabase_project_ref or "").strip()
+        if ref:
+            return f"https://{ref}.supabase.co"
+        return None
 
     @model_validator(mode="after")
     def _merge_platform_pix_aliases(self) -> "Settings":
@@ -293,7 +303,7 @@ class Settings(BaseSettings):
             raise ValueError("CPF_SALT must be at least 32 characters in production")
         if self.should_enforce_supabase_jwt():
             jwt_secret = (self.supabase_jwt_secret or "").strip()
-            supabase_url = (self.supabase_url or "").strip()
+            supabase_url = self.resolve_supabase_url()
             if not supabase_url and len(jwt_secret) < 16:
                 raise ValueError(
                     "SUPABASE_URL or SUPABASE_JWT_SECRET is required in production "
