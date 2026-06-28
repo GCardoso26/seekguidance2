@@ -27,7 +27,7 @@ export function AskButton({
         {
           "--tcg-accent": accent,
           "--tcg-accent-fg": accentFg,
-        } as CSSProperties
+        } as CSSProperties & Record<string, string>
       }
       className={cn(
         "inline-flex w-full items-center justify-center rounded-full px-8 py-3 text-sm font-bold shadow-lg transition sm:w-auto",

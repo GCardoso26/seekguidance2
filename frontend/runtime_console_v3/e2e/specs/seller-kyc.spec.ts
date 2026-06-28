@@ -45,6 +45,21 @@ authTest.describe("Vendedor autenticado", () => {
       });
     }
   });
+
+  authTest("listagens mobile 375px mostra cards ou skeleton", async ({ sellerPage: page }) => {
+    await page.setViewportSize({ width: 375, height: 667 });
+    await page.goto("/vendedor/painel/listagens");
+    await authExpect(page).toHaveURL(/\/(vendedor\/painel\/listagens|loja\/suspensa|entrar)/, {
+      timeout: 20_000,
+    });
+    if (!page.url().includes("/vendedor/painel/listagens")) return;
+
+    const cards = page.getByTestId("listing-cards");
+    const skeleton = page.getByTestId("page-skeleton");
+    const empty = page.getByText(/nenhuma listagem/i);
+    await authExpect(cards.or(skeleton).or(empty)).toBeVisible({ timeout: 15_000 });
+    await authExpect(page.getByTestId("seller-listings-table")).toHaveCount(0);
+  });
 });
 
 authTest.describe("Comprador — gate CPF", () => {

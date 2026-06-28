@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Sidebar } from "@/components/seller-dashboard/Sidebar";
+import { SellerPanelProvider } from "@/contexts/SellerPanelContext";
 import { useMerchantKycGuard } from "@/hooks/useMerchantKycGuard";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { useSellerStore } from "@/hooks/useSellerStore";
@@ -63,7 +64,7 @@ export default function VendedorPainelLayout({ children }: { children: React.Rea
           </button>
           <span className="text-sm font-semibold">Painel do Vendedor</span>
         </div>
-        {children}
+        <SellerPanelProvider plan={plan}>{children}</SellerPanelProvider>
       </div>
     </div>
   );
