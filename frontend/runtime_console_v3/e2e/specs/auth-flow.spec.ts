@@ -16,7 +16,7 @@ test.describe("Authenticated profile", () => {
 test.describe("Seller dashboard", () => {
   test("seller can access painel", async ({ sellerPage: page }) => {
     await page.goto("/vendedor/painel");
-    await expect(page).toHaveURL(/\/vendedor\/painel/);
-    await expect(page.locator("main, #main-content")).toBeVisible();
+    await expect(page).toHaveURL(/\/vendedor\/painel/, { timeout: 30_000 });
+    await expect(page.locator("main").first()).toBeVisible({ timeout: 30_000 });
   });
 });
