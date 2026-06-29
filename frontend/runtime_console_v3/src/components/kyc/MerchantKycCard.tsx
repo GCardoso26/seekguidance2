@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { needsCpfCompletion, useAccountStatus } from "@/hooks/useAccountStatus";
 import { useSellerStore } from "@/hooks/useSellerStore";
 import { isKycAwaitingReview, needsOnboardingContinue } from "@/lib/kyc-onboarding";
+import { syncMerchantOnboardingFromStripe } from "@/lib/merchant-onboarding-return";
 
 function parseApiDetail(payload: unknown): string {
   if (!payload || typeof payload !== "object") return "Falha ao iniciar KYC";
@@ -34,13 +35,7 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 async function syncOnboardingStatus(storeId: string | null): Promise<void> {
-  if (storeId) {
-    await fetch(`/api/marketplace/shop/connect/refresh/${encodeURIComponent(storeId)}`, {
-      method: "POST",
-    });
-    return;
-  }
-  await fetch("/api/merchant/onboarding/sync", { method: "POST" });
+  await syncMerchantOnboardingFromStripe(storeId);
 }
 
 async function fetchOnboardingLink(storeId: string | null): Promise<{ onboarding_url?: string }> {
