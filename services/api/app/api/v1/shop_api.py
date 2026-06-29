@@ -203,6 +203,14 @@ class PdvSaleBody(BaseModel):
     notes: str | None = None
 
 
+class PdvPixBody(BaseModel):
+    items: list[PdvItemBody] = Field(min_length=1)
+
+
+class PdvSalePatchBody(BaseModel):
+    status: str = Field(default="paid", pattern="^paid$")
+
+
 class CrmNotesBody(BaseModel):
     notes: str = Field(max_length=5000)
 
@@ -1069,3 +1077,42 @@ async def list_pdv_sales(
     user_id = _require_user(x_judge_user_id)
     sales = await shop_pdv.list_pdv_sales(session, store_id, user_id)
     return {"sales": sales}
+
+
+@router.post("/runtime/judge/marketplace/shop/stores/{store_id}/pdv/pix")
+async def create_pdv_pix(
+    session: DbSession,
+    store_id: str,
+    body: PdvPixBody,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    return await shop_pdv.create_pdv_pix_charge(
+        session,
+        store_id,
+        user_id,
+        items=[i.model_dump() for i in body.items],
+    )
+
+
+@router.get("/runtime/judge/marketplace/shop/stores/{store_id}/pdv/pix/{transaction_id}/status")
+async def get_pdv_pix_status(
+    session: DbSession,
+    store_id: str,
+    transaction_id: str,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    return await shop_pdv.get_pdv_pix_status(session, store_id, user_id, transaction_id)
+
+
+@router.patch("/runtime/judge/marketplace/shop/stores/{store_id}/pdv/sales/{sale_id}")
+async def patch_pdv_sale(
+    session: DbSession,
+    store_id: str,
+    sale_id: str,
+    body: PdvSalePatchBody,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    return await shop_pdv.patch_pdv_sale(session, store_id, user_id, sale_id, status=body.status)

@@ -1,0 +1,36 @@
+import { expect, type Page } from "@playwright/test";
+
+
+
+/** Aguarda o layout do painel exibir conteúdo (main) após guards de auth/KYC. */
+
+export async function waitForSellerPanelReady(page: Page, timeout = 60_000) {
+
+  await expect(page.locator("main").first()).toBeVisible({ timeout });
+
+}
+
+
+
+/** Aguarda /completar-perfil sair do loading (form autenticado ou gate de login). */
+
+export async function waitForCompletarPerfilReady(page: Page, timeout = 25_000) {
+
+  await expect(
+
+    page
+
+      .getByTestId("completar-perfil-login-required")
+
+      .or(page.getByText(/faça login para continuar/i))
+
+      .or(page.getByRole("heading", { name: /completar perfil/i }))
+
+      .or(page.locator("#cpf"))
+
+      .first(),
+
+  ).toBeVisible({ timeout });
+
+}
+
