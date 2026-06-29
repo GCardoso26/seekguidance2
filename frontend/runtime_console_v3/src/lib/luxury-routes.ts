@@ -4,6 +4,7 @@ const EXACT_EXCLUDE = new Set([
   "/judge",
   "/login",
   "/entrar",
+  "/suporte",
   "/auth/callback",
 ]);
 
