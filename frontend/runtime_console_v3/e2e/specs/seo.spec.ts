@@ -10,7 +10,7 @@ test.describe("SEO basics", () => {
 
   test("loja/mtg page loads", async ({ page }) => {
     await page.goto("/loja/mtg", { waitUntil: "domcontentloaded", timeout: 60_000 });
-    await expect(page.locator("#main-content")).toBeVisible({ timeout: 15_000 });
+    await expect(page.locator("#main-content").first()).toBeVisible({ timeout: 15_000 });
   });
 
   test("robots.txt accessible", async ({ request }) => {

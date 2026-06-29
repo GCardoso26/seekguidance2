@@ -3,9 +3,14 @@ import { test, expect } from "@playwright/test";
 test.describe("Painel lojista", () => {
   test("estatísticas exige plano ou redireciona para upgrade", async ({ page }) => {
     await page.goto("/vendedor/painel/estatisticas");
-    await expect(page.locator("body")).toContainText(/Estatísticas|Analytics|planos|login/i, {
-      timeout: 15_000,
-    });
+    await expect(page).toHaveURL(
+      /\/(vendedor\/painel\/estatisticas|vendedor\/painel\/planos|entrar)/,
+      { timeout: 15_000 },
+    );
+    await expect(page.locator("body")).toContainText(
+      /Estatísticas|Analytics|planos|entrar|login/i,
+      { timeout: 15_000 },
+    );
   });
 });
 

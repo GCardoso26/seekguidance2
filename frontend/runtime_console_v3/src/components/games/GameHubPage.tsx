@@ -21,14 +21,12 @@ function GameHubContent() {
 
   if (!gameId) {
     return (
-      <MobileLayout>
-        <div className="container mx-auto px-4 py-16 text-center">
-          <h1 className="text-2xl font-bold">Jogo não encontrado</h1>
-          <Button asChild className="mt-6">
-            <Link href="/loja">Ver todos os jogos</Link>
-          </Button>
-        </div>
-      </MobileLayout>
+      <div className="container mx-auto px-4 py-16 text-center">
+        <h1 className="text-2xl font-bold">Jogo não encontrado</h1>
+        <Button asChild className="mt-6">
+          <Link href="/loja">Ver todos os jogos</Link>
+        </Button>
+      </div>
     );
   }
 
@@ -36,7 +34,7 @@ function GameHubContent() {
   const cardCount = health?.by_game?.[gameId] ?? 0;
 
   return (
-    <MobileLayout>
+    <>
       <section
         className="border-b border-border/40 py-12"
         style={{ backgroundColor: `${token.primary}12` }}
@@ -90,14 +88,16 @@ function GameHubContent() {
           </Link>
         </div>
       </div>
-    </MobileLayout>
+    </>
   );
 }
 
 export default function GameHubPage() {
   return (
-    <Suspense fallback={<MobileLayout><GameHubSkeleton /></MobileLayout>}>
-      <GameHubContent />
-    </Suspense>
+    <MobileLayout>
+      <Suspense fallback={<GameHubSkeleton />}>
+        <GameHubContent />
+      </Suspense>
+    </MobileLayout>
   );
 }
