@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { awardXpFireAndForget } from "@/lib/award-xp-client";
 import type {
   TournamentParticipantsAdminResponse,
   TournamentParticipantsPublicResponse,
@@ -79,7 +80,10 @@ export function useTournamentRegistration(tournamentId: string) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(displayName ? { display_name: displayName } : {}),
       }),
-    onSuccess: invalidate,
+    onSuccess: () => {
+      invalidate();
+      awardXpFireAndForget("tournament_registration", qc);
+    },
   });
 
   const cancel = useMutation({
@@ -117,6 +121,7 @@ export function useTournamentRegistration(tournamentId: string) {
 }
 
 export function useTournamentPaymentConfirm() {
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: async (paymentIntentId: string) =>
       apiJson("/api/payments/confirm", {
@@ -124,6 +129,9 @@ export function useTournamentPaymentConfirm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ payment_intent_id: paymentIntentId }),
       }),
+    onSuccess: () => {
+      awardXpFireAndForget("tournament_registration", qc);
+    },
   });
 }
 
