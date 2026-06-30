@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { formatShopPrice, type ShopProduct } from "@/lib/marketplace-shop";
 import { WishlistButton } from "@/components/marketplace/WishlistButton";
+import { PriceAlertButton } from "@/components/marketplace/PriceAlertButton";
 import { GAME_TOKENS } from "@/lib/tcg-tokens";
 import type { GameId } from "@/types/card";
 
@@ -45,7 +46,8 @@ export function ProductCard({ product, onAdd }: Props) {
             Esgotado
           </span>
         )}
-        <div className="absolute bottom-2 right-2 z-10">
+        <div className="absolute bottom-2 right-2 z-10 flex gap-1">
+          <PriceAlertButton productId={product.id} product={product} size="sm" />
           <WishlistButton productId={product.id} product={product} size="sm" />
         </div>
       </div>

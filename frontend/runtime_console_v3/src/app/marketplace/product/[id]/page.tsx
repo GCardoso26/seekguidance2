@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import { WishlistButton } from "@/components/marketplace/WishlistButton";
+import { PriceAlertButton } from "@/components/marketplace/PriceAlertButton";
 import { formatShopPrice, addProductToCart, type ShopProduct } from "@/lib/marketplace-shop";
 import { showToast } from "@/lib/toast";
 
@@ -58,7 +59,8 @@ export default function ProductDetailPage() {
               ) : (
                 <div className="flex h-full items-center justify-center text-luxury-mist">Sem imagem</div>
               )}
-              <div className="absolute right-3 top-3">
+              <div className="absolute right-3 top-3 flex gap-2">
+                <PriceAlertButton productId={product.id} product={product} />
                 <WishlistButton productId={product.id} product={product} />
               </div>
             </div>
