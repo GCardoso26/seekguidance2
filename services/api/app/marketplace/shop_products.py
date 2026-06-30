@@ -35,6 +35,8 @@ async def list_products(
     search: str | None = None,
     min_price_cents: int | None = None,
     max_price_cents: int | None = None,
+    conditions: list[str] | None = None,
+    in_stock: bool | None = None,
     sort: str = "created_at",
     page: int = 1,
     limit: int = 20,
@@ -64,6 +66,20 @@ async def list_products(
     if max_price_cents is not None:
         clauses.append("p.price_cents <= :maxp")
         params["maxp"] = max_price_cents
+    if in_stock:
+        clauses.append("p.stock > 0")
+    if conditions:
+        clauses.append(
+            """
+            EXISTS (
+              SELECT 1 FROM tcg_judge.card_listings cl
+              WHERE cl.store_product_id = p.id
+                AND cl.status = 'active'
+                AND cl.condition = ANY(:conditions)
+            )
+            """
+        )
+        params["conditions"] = conditions
 
     order = "p.created_at DESC"
     if sort == "price_asc":
@@ -73,6 +89,7 @@ async def list_products(
     elif sort == "name":
         order = "p.name ASC"
 
+    where_sql = " AND ".join(clauses)
     sql = f"""
         SELECT p.*,
                s.name AS store_name,
@@ -80,12 +97,26 @@ async def list_products(
                s.logo_url AS store_logo_url
         FROM tcg_judge.store_products p
         JOIN tcg_judge.stores s ON s.id = p.store_id
-        WHERE {' AND '.join(clauses)}
+        WHERE {where_sql}
         ORDER BY {order}
         LIMIT :lim OFFSET :off
     """
+    count_sql = f"""
+        SELECT COUNT(*)::int AS total
+        FROM tcg_judge.store_products p
+        JOIN tcg_judge.stores s ON s.id = p.store_id
+        WHERE {where_sql}
+    """
     rows = (await session.execute(text(sql), params)).mappings().all()
-    return {"products": [dict(r) for r in rows], "page": page, "limit": limit}
+    total_row = (await session.execute(text(count_sql), params)).mappings().first()
+    total = int(total_row["total"]) if total_row else 0
+    return {
+        "products": [dict(r) for r in rows],
+        "page": page,
+        "limit": limit,
+        "total": total,
+        "hasMore": page * limit < total,
+    }
 
 
 async def get_product(session: AsyncSession, product_id: str) -> dict[str, Any] | None:

@@ -1,37 +1,31 @@
 "use client";
 
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { DecklistCard } from "@/components/marketplace/DecklistCard";
-import { ProductGrid } from "@/components/marketplace/ProductGrid";
 import { MobileLayout } from "@/components/layout/MobileLayout";
-import type { ShopProduct } from "@/lib/marketplace-shop";
+import { ProductSkeleton } from "@/components/marketplace/ProductSkeleton";
 import { addProductToCart } from "@/lib/marketplace-shop";
 import { showToast } from "@/lib/toast";
 
+const MarketplaceShopBrowse = dynamic(
+  () => import("@/components/marketplace/MarketplaceShopBrowse").then((m) => m.MarketplaceShopBrowse),
+  { loading: () => <ProductSkeleton />, ssr: false },
+);
+
+const DecklistCard = dynamic(
+  () => import("@/components/marketplace/DecklistCard").then((m) => m.DecklistCard),
+  { ssr: false },
+);
+
 export default function MarketplacePage() {
   const [tab, setTab] = useState<"shop" | "decklists">("shop");
-  const [q, setQ] = useState("");
   const [deckQ, setDeckQ] = useState("");
-  const [category, setCategory] = useState("");
   const queryClient = useQueryClient();
 
-  const { data: shopData, isLoading: shopLoading } = useQuery({
-    queryKey: ["shop-products", q, category],
-    queryFn: async () => {
-      const params = new URLSearchParams();
-      if (q) params.set("search", q);
-      if (category) params.set("category", category);
-      const res = await fetch(`/api/marketplace/shop/products?${params}`);
-      if (!res.ok) return { products: [] as ShopProduct[] };
-      return res.json() as Promise<{ products: ShopProduct[] }>;
-    },
-    enabled: tab === "shop",
-  });
-
   const { data: deckItems = [], isLoading: deckLoading } = useQuery({
-    queryKey: ["marketplace", deckQ],
+    queryKey: ["marketplace", "decklists", deckQ],
     queryFn: async () => {
       const params = new URLSearchParams();
       if (deckQ) params.set("q", deckQ);
@@ -63,7 +57,7 @@ export default function MarketplacePage() {
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold">Marketplace</h1>
+            <h1 className="text-2xl font-bold text-luxury-frost">Marketplace</h1>
             <p className="text-sm text-luxury-mist">Produtos TCG e decklists de torneio</p>
           </div>
           <div className="flex gap-2">
@@ -73,7 +67,10 @@ export default function MarketplacePage() {
             <Link href="/marketplace/cart" className="rounded-lg border border-white/10 px-3 py-2 text-sm">
               Carrinho
             </Link>
-            <Link href="/store/dashboard" className="rounded-lg bg-luxury-gold px-3 py-2 text-sm font-semibold text-luxury-onyx">
+            <Link
+              href="/store/dashboard"
+              className="rounded-lg bg-luxury-gold px-3 py-2 text-sm font-semibold text-luxury-onyx"
+            >
               Minha loja
             </Link>
           </div>
@@ -97,17 +94,7 @@ export default function MarketplacePage() {
         </div>
 
         {tab === "shop" ? (
-          <div className="mt-6">
-            <ProductGrid
-              products={shopData?.products ?? []}
-              category={category}
-              search={q}
-              onCategoryChange={setCategory}
-              onSearchChange={setQ}
-              onAddToCart={addToCart}
-              isLoading={shopLoading}
-            />
-          </div>
+          <MarketplaceShopBrowse onAddToCart={addToCart} />
         ) : (
           <div className="mt-6">
             <input

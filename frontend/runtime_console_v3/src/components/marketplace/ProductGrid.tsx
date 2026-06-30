@@ -1,75 +1,68 @@
 "use client";
 
 import { ProductCard } from "@/components/marketplace/ProductCard";
-import { SHOP_CATEGORIES, type ShopProduct } from "@/lib/marketplace-shop";
+import { ProductEmpty } from "@/components/marketplace/ProductEmpty";
+import { ProductSkeleton } from "@/components/marketplace/ProductSkeleton";
+import { Button } from "@/components/ui/button";
+import type { ShopProduct } from "@/lib/marketplace-shop";
 
-type Props = {
+export interface ProductGridProps {
   products: ShopProduct[];
-  category: string;
-  search: string;
-  onCategoryChange: (value: string) => void;
-  onSearchChange: (value: string) => void;
-  onAddToCart: (productId: string) => void;
   isLoading?: boolean;
-};
+  total?: number;
+  hasMore?: boolean;
+  onLoadMore?: () => void;
+  isFetchingMore?: boolean;
+  onAddToCart?: (productId: string) => void;
+  onClearFilters?: () => void;
+}
 
 export function ProductGrid({
   products,
-  category,
-  search,
-  onCategoryChange,
-  onSearchChange,
-  onAddToCart,
   isLoading,
-}: Props) {
+  total = 0,
+  hasMore,
+  onLoadMore,
+  isFetchingMore,
+  onAddToCart,
+  onClearFilters,
+}: ProductGridProps) {
+  if (isLoading && products.length === 0) {
+    return <ProductSkeleton />;
+  }
+
+  if (!isLoading && products.length === 0) {
+    return <ProductEmpty onClear={onClearFilters} />;
+  }
+
   return (
-    <div className="grid gap-6 lg:grid-cols-[220px_1fr]">
-      <aside className="space-y-4 rounded-xl border border-white/10 bg-white/5 p-4">
-        <div>
-          <label className="text-xs uppercase tracking-wide text-luxury-mist">Buscar</label>
-          <input
-            value={search}
-            onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Nome do produto…"
-            className="mt-1 w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm"
-          />
-        </div>
-        <div>
-          <p className="text-xs uppercase tracking-wide text-luxury-mist">Categoria</p>
-          <div className="mt-2 flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={() => onCategoryChange("")}
-              className={`rounded-full px-3 py-1 text-xs ${!category ? "bg-luxury-gold text-luxury-onyx" : "bg-white/10"}`}
-            >
-              Todas
-            </button>
-            {SHOP_CATEGORIES.map((c) => (
-              <button
-                key={c.id}
-                type="button"
-                onClick={() => onCategoryChange(c.id)}
-                className={`rounded-full px-3 py-1 text-xs ${category === c.id ? "bg-luxury-gold text-luxury-onyx" : "bg-white/10"}`}
-              >
-                {c.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </aside>
-      <div>
-        {isLoading && <p className="text-luxury-mist">Carregando produtos…</p>}
-        {!isLoading && products.length === 0 && (
-          <p className="rounded-xl border border-dashed border-white/10 p-8 text-center text-luxury-mist">
-            Nenhum produto encontrado.
-          </p>
-        )}
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {products.map((p) => (
-            <ProductCard key={p.id} product={p} onAdd={onAddToCart} />
-          ))}
-        </div>
+    <div className="space-y-6" data-testid="marketplace-product-grid">
+      <p className="text-sm text-luxury-mist" aria-live="polite">
+        {total.toLocaleString("pt-BR")} produto{total === 1 ? "" : "s"}
+      </p>
+
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4">
+        {products.map((product) => (
+          <ProductCard key={product.id} product={product} onAdd={onAddToCart} />
+        ))}
       </div>
+
+      {hasMore && (
+        <div className="flex justify-center">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onLoadMore}
+            disabled={isFetchingMore}
+            loading={isFetchingMore}
+            className="border-white/20"
+          >
+            Carregar mais
+          </Button>
+        </div>
+      )}
+
+      {isFetchingMore && products.length > 0 && <ProductSkeleton count={4} />}
     </div>
   );
 }

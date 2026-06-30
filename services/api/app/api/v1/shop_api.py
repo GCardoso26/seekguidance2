@@ -229,12 +229,15 @@ async def list_shop_products(
     search: str | None = None,
     min_price: float | None = None,
     max_price: float | None = None,
+    condition: str | None = None,
+    in_stock: bool | None = None,
     sort: str = "created_at",
     page: int = 1,
     limit: int = 20,
 ) -> dict[str, Any]:
     min_cents = int(min_price * 100) if min_price is not None else None
     max_cents = int(max_price * 100) if max_price is not None else None
+    conditions = [c.strip() for c in (condition or "").split(",") if c.strip()] or None
     return await shop_products.list_products(
         session,
         tcg_id=tcg_id,
@@ -244,6 +247,8 @@ async def list_shop_products(
         search=search,
         min_price_cents=min_cents,
         max_price_cents=max_cents,
+        conditions=conditions,
+        in_stock=in_stock,
         sort=sort,
         page=max(1, page),
         limit=min(50, max(1, limit)),
