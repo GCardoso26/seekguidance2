@@ -4,6 +4,8 @@
 
 ### Adicionado
 
+- **Wishlist marketplace** (`/wishlist`): salvar produtos, badge no header, toggle no ProductCard e página de produto
+- **Hook** `useWishlist` + Vitest `wishlist.test.ts` + E2E `wishlist.spec.ts` (494 KB)
 - **Bracket visual de torneios** (`/tournament/[id]/bracket`, `/vendedor/painel/torneios/[id]/bracket`): Swiss, single/double elimination (visual), standings, controles organizador, export CSV
 - **Componentes** `SwissBracket`, `EliminationBracket`, `MatchCard`, `BracketLegend`, `BracketControls`, `TournamentBracketPanel`
 - **Hook** `useTournamentBracket` + lib `tournament-bracket.ts` + Vitest + E2E `tournament-bracket.spec.ts`

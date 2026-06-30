@@ -34,6 +34,9 @@ export default function MarketplacePage() {
             <Link href="/marketplace/cart" className="rounded-lg border border-white/10 px-3 py-2 text-sm">
               Carrinho
             </Link>
+            <Link href="/wishlist" className="rounded-lg border border-white/10 px-3 py-2 text-sm">
+              Wishlist
+            </Link>
             <Link
               href="/store/dashboard"
               className="rounded-lg bg-luxury-gold px-3 py-2 text-sm font-semibold text-luxury-onyx"
