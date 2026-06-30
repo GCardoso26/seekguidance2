@@ -4,6 +4,9 @@
 
 ### Adicionado
 
+- **Inscrições em torneios** (`/tournament/[id]`): página pública com status, vagas, lista anônima de inscritos, inscrição gratuita (modal) e paga (`/checkout` Stripe), gate CPF ativo
+- **BFF inscrições**: `registration/status`, `register`, `participants`, `payments/confirm`, gestão lojista em `/vendedor/painel/torneios/[id]/inscritos`
+- **Hook** `useTournamentRegistration` + Vitest `tournament-registration.test.ts` + E2E `tournament-registration.spec.ts` (101 specs E2E verdes)
 - **Marketplace comprador — filtros avançados** (`/marketplace`): painel desktop + drawer mobile, infinite scroll, sync URL (`q`, `game_id`, `min_price`, `max_price`, `condition`, `in_stock`, `store_id`), BFF `/api/marketplace/products`
 - **Painel lojista — Torneios** (`/vendedor/painel/torneios`): lista, criar torneio, cards/desktop, BFF `/api/tournament/tournaments/mine`, plano Lojista+
 - **Catálogo — filtro por coleção** case-insensitive (`LOWER(set_code)`) + sync apitcg MTG/SORCERY/DBFW/UARENA (PR #20)
@@ -15,6 +18,17 @@
 - Types `UnifiedCard` em `src/types/card.ts`
 - Documentação `docs/CARD_INGESTION.md`
 - Meilisearch no `docker-compose.yml`
+
+### Melhorado
+
+- E2E `landing.spec.ts`: navegação do grid de jogos mais resiliente (`domcontentloaded`, `force` click)
+
+### Limitações conhecidas (backend — issue pendente)
+
+- `entry_fee` não persiste na criação do torneio (schema FastAPI)
+- `register` não valida pagamento prévio
+- PIX torneio via Stripe (não gateway nativo marketplace)
+- Notificações a inscritos = stub BFF
 
 ## [1.0.0] — 2026-06-21
 

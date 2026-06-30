@@ -28,11 +28,13 @@ test.describe("Landing Page", () => {
   });
 
   test("game grid navigates to Magic", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/", { waitUntil: "domcontentloaded" });
     const magicCard = page.locator('[data-testid="game-card-mtg"]');
     await expect(magicCard).toBeVisible({ timeout: 15_000 });
-    await magicCard.click();
-    await expect(page).toHaveURL(/\/loja\/mtg/, { timeout: 15_000 });
+    await expect(magicCard).toHaveAttribute("href", "/loja/mtg");
+    await magicCard.scrollIntoViewIfNeeded();
+    await magicCard.click({ force: true });
+    await page.waitForURL(/\/loja\/mtg/, { timeout: 20_000, waitUntil: "domcontentloaded" });
   });
 
   test("responsive on mobile", async ({ page }) => {

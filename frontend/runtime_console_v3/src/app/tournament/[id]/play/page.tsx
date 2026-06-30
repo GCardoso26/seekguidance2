@@ -1,15 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { User } from "lucide-react";
 import { MobilePairingCard } from "@/components/tournament/MobilePairingCard";
 import { TimerDisplay } from "@/components/tournament/TimerDisplay";
 import { ResultReporter } from "@/components/tournament/ResultReporter";
 import { useJudgeAuth } from "@/features/auth/AuthProvider";
-import { usePlayerProfile } from "@/hooks/usePlayerProfile";
-import { useRegisterTournament, useRoundPairings, useTournamentDetail } from "@/hooks/useTournamentFlow";
+import {
+  useTournamentRegistration,
+  useTournamentRegistrationStatus,
+} from "@/hooks/useTournamentRegistration";
+import { useRoundPairings, useTournamentDetail } from "@/hooks/useTournamentFlow";
 import { Button } from "@/components/ui/button";
 import { showToast } from "@/lib/toast";
 
@@ -27,13 +30,15 @@ type Pairing = {
 
 function PlayView() {
   const params = useParams();
+  const router = useRouter();
   const id = String(params.id);
   const { user } = useJudgeAuth();
-  const { data: profile } = usePlayerProfile(user ? "me" : "");
   const { data: tournament } = useTournamentDetail(id);
-  const register = useRegisterTournament(id);
+  const { data: regStatus } = useTournamentRegistrationStatus(id, Boolean(user));
+  const { register } = useTournamentRegistration(id);
   const t = tournament as Record<string, unknown> | undefined;
   const currentRound = Number(t?.current_round ?? 1);
+  const entryFee = Number(t?.entry_fee_cents ?? 0);
   const { data: roundData, refetch } = useRoundPairings(id, currentRound);
   const round = (roundData as { round?: { id: string } })?.round;
   const pairings = ((roundData as { pairings?: Pairing[] })?.pairings ?? []) as Pairing[];
@@ -42,15 +47,14 @@ function PlayView() {
     (p) => user?.id && (p.player1_user_id === user.id || p.player2_user_id === user.id),
   );
 
-  const enroll = async () => {
-    try {
-      const name = profile?.displayName ?? user?.email?.split("@")[0];
-      await register.mutateAsync(name);
-      showToast("Inscrição confirmada!", "success");
-      void refetch();
-    } catch (e) {
-      showToast(e instanceof Error ? e.message : "Falha na inscrição", "error");
+  const isRegistered = regStatus?.status === "confirmed";
+
+  const enroll = () => {
+    if (entryFee > 0) {
+      router.push(`/tournament/${id}/checkout`);
+      return;
     }
+    router.push(`/tournament/${id}`);
   };
 
   const report = async (p1: number, p2: number) => {
@@ -79,7 +83,7 @@ function PlayView() {
         </p>
       )}
 
-      {user && !myPairing && (
+      {user && !myPairing && !isRegistered && (
         <div className="rounded-xl border border-white/10 p-6 text-center">
           <User className="mx-auto mb-2 h-8 w-8 text-luxury-mist/70" />
           <p className="font-medium">Você não está inscrito neste torneio</p>
@@ -87,11 +91,17 @@ function PlayView() {
           <Button
             className="mt-4 bg-luxury-gold text-luxury-onyx hover:bg-luxury-gold-light"
             disabled={register.isPending}
-            onClick={() => void enroll()}
+            onClick={enroll}
           >
-            {register.isPending ? "Inscrevendo…" : "Inscrever-se"}
+            Inscrever-se
           </Button>
         </div>
+      )}
+
+      {user && isRegistered && !myPairing && (
+        <p className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm text-emerald-300">
+          Inscrito ✓ — aguardando pairings da rodada.
+        </p>
       )}
 
       {myPairing && (
@@ -118,4 +128,3 @@ export default function TournamentPlayPage() {
     </QueryClientProvider>
   );
 }
-
