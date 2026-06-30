@@ -110,9 +110,6 @@ function PopularGamesSection() {
               className="h-12 w-12 object-contain"
             />
             <span className="text-center text-sm font-medium">{game.name}</span>
-            {game.cardCount > 0 && (
-              <span className="text-xs text-luxury-mist">{game.cardCount.toLocaleString("pt-BR")}</span>
-            )}
           </Link>
         ))}
       </div>

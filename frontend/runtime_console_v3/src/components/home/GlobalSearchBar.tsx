@@ -1,13 +1,13 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { Search, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
+import { CardImage } from "@/components/ui/CardImage";
 import { Input } from "@/components/ui/input";
 import { useDebounce } from "@/hooks/useDebounce";
-import { cardImageUrl, formatCurrency } from "@/lib/format-currency";
+import { cardImageUrl, formatCurrency, isSvgImageUrl } from "@/lib/format-currency";
 import { GAME_TOKENS } from "@/lib/tcg-tokens";
 import type { CatalogSearchResponse, GameId } from "@/types/card";
 import { cn } from "@/lib/utils";
@@ -144,7 +144,7 @@ export function GlobalSearchBar({
           id="global-search-results"
           data-testid="search-results"
           className={cn(
-            "absolute top-full z-50 mt-1 max-h-96 w-full overflow-y-auto rounded-lg border shadow-xl",
+            "absolute top-full z-30 mt-1 max-h-96 w-full overflow-y-auto rounded-lg border shadow-xl",
             isHeader
               ? "border-white/10 bg-luxury-obsidian"
               : "border-border bg-background",
@@ -160,6 +160,7 @@ export function GlobalSearchBar({
               {cards.map((card) => {
                 const token = GAME_TOKENS[card.game as GameId];
                 const price = card.lowestPrice ?? card.latestPrice?.price;
+                const imageSrc = cardImageUrl(card);
                 return (
                   <Link
                     key={card.id}
@@ -168,14 +169,14 @@ export function GlobalSearchBar({
                     className="flex items-center gap-3 rounded px-2 py-2 hover:bg-muted/50"
                   >
                     <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded">
-                      <Image
-                        src={cardImageUrl(card)}
-                        alt=""
+                      <CardImage
+                        src={imageSrc}
+                        alt={card.name}
                         fill
+                        listQuality
                         className="object-cover"
                         sizes="40px"
-                        quality={60}
-                        unoptimized={cardImageUrl(card).endsWith(".svg")}
+                        unoptimized={isSvgImageUrl(imageSrc)}
                       />
                     </div>
                     <div className="min-w-0 flex-1">

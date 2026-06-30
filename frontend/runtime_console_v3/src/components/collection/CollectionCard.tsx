@@ -1,8 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import { Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { CardImage } from "@/components/ui/CardImage";
 import { cardImageUrl } from "@/lib/format-currency";
 import type { CollectionItem } from "@/hooks/useDeck";
 import type { UnifiedCard } from "@/types/card";
@@ -38,7 +38,15 @@ export function CollectionCard({ item, onEdit, onRemove, busy }: CollectionCardP
   return (
     <li className="flex items-center gap-4 rounded-xl border border-white/10 bg-white/5 p-4">
       <div className="relative h-16 w-12 shrink-0 overflow-hidden rounded">
-        <Image src={cardImageUrl(card)} alt="" fill className="object-cover" sizes="48px" />
+        <CardImage
+          src={cardImageUrl(card)}
+          alt={item.card?.name ?? "Carta"}
+          fallbackLabel={item.card?.name}
+          fill
+          listQuality
+          className="object-cover"
+          sizes="48px"
+        />
       </div>
       <div className="min-w-0 flex-1">
         <p className="truncate font-medium text-luxury-frost">{item.card?.name}</p>

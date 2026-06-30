@@ -85,6 +85,8 @@ const nextConfig = {
       { protocol: "https", hostname: "**.scryfall.io" },
       { protocol: "https", hostname: "tcg-judge.com" },
       { protocol: "https", hostname: "judgetcg.com.br" },
+      { protocol: "https", hostname: "images.judgetcg.com.br" },
+      { protocol: "https", hostname: "**.judgetcg.com.br" },
       // Lorcana API
       { protocol: "https", hostname: "lorcana-api.com" },
       // Star Wars Unlimited

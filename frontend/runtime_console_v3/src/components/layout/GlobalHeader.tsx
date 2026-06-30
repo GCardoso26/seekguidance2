@@ -64,8 +64,9 @@ export function GlobalHeader({ showGameTabs = true }: GlobalHeaderProps) {
 
   return (
     <>
-      <CpfRequiredBanner />
-      <header className="sticky top-0 z-40 border-b border-white/10 bg-luxury-obsidian/95 backdrop-blur">
+      <div className="sticky top-0 z-50">
+        <CpfRequiredBanner />
+        <header className="border-b border-white/10 bg-luxury-obsidian/95 backdrop-blur">
       <div className="mx-auto max-w-7xl px-4">
         <div className="flex h-14 items-center gap-3">
           <Link
@@ -117,6 +118,7 @@ export function GlobalHeader({ showGameTabs = true }: GlobalHeaderProps) {
         {showTabs && <GameTabs games={games} className="border-t border-white/5" />}
       </div>
     </header>
+      </div>
     </>
   );
 }

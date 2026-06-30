@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
+import { CardImage } from "@/components/ui/CardImage";
 import { formatShopPrice, type ShopProduct } from "@/lib/marketplace-shop";
 import { WishlistButton } from "@/components/marketplace/WishlistButton";
 import { PriceAlertButton } from "@/components/marketplace/PriceAlertButton";
@@ -30,11 +30,15 @@ export function ProductCard({ product, onAdd }: Props) {
     <article className="flex flex-col overflow-hidden rounded-xl border border-white/10 bg-white/5">
       <div className="relative aspect-square bg-black/30">
         <Link href={`/marketplace/product/${product.id}`} className="block h-full w-full">
-          {image ? (
-            <Image src={image} alt={product.name} fill className="object-cover" unoptimized sizes="(max-width:768px) 50vw, 25vw" />
-          ) : (
-            <div className="flex h-full items-center justify-center text-sm text-luxury-mist">Sem imagem</div>
-          )}
+          <CardImage
+            src={image}
+            alt={product.name}
+            fallbackLabel={product.name}
+            fill
+            listQuality
+            className="object-cover"
+            sizes="(max-width:768px) 50vw, 25vw"
+          />
         </Link>
         {showNew && (
           <span className="pointer-events-none absolute left-2 top-2 rounded-full bg-luxury-gold px-2 py-0.5 text-[10px] font-bold uppercase text-luxury-onyx">
