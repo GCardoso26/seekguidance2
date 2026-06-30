@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { awardXpFireAndForget } from "@/lib/award-xp-client";
 import { buildPdvSaleFormValues, parsePdvSaleForm, pdvSaleToApiPayload } from "@/lib/pdv-sale-form";
 import type { PdvCartItem, PdvPaymentMethod, PdvSaleRecord } from "@/types/pdv";
 
@@ -48,6 +49,7 @@ export function usePdvSale(storeId: string | null) {
         void qc.invalidateQueries({ queryKey: ["pdv-search", sid] });
         void qc.invalidateQueries({ queryKey: ["seller-inventory"] });
       }
+      awardXpFireAndForget("seller_sale", qc);
     },
   });
 }

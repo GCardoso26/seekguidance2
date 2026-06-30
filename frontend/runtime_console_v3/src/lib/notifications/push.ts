@@ -19,7 +19,7 @@ export async function subscribeToPush(): Promise<boolean> {
     applicationServerKey: urlBase64ToUint8Array(vapidKey) as BufferSource,
   });
 
-  const res = await fetch("/api/notifications/subscribe", {
+  const res = await fetch("/api/notifications/push/subscribe", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(subscription.toJSON()),

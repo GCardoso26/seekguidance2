@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { mockMarkNotificationRead } from "@/lib/notifications-mock";
+import { mockDeleteNotification } from "@/lib/notifications-mock";
 import { TOURNAMENT_API_BASE, tournamentProxyHeaders } from "@/lib/tournament-api";
 
 type Params = { params: Promise<{ id: string }> };
 
-async function markRead(request: NextRequest, id: string) {
+export async function DELETE(request: NextRequest, { params }: Params) {
+  const { id } = await params;
   const supabase = await createSupabaseServerClient();
   if (!supabase) return NextResponse.json({ detail: "Autenticação indisponível" }, { status: 503 });
   const {
@@ -13,19 +14,17 @@ async function markRead(request: NextRequest, id: string) {
   } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ detail: "Não autenticado" }, { status: 401 });
 
-  const source = request.nextUrl.searchParams.get("source") || "social";
-
   try {
+    const source = request.nextUrl.searchParams.get("source") || "social";
     const res = await fetch(
-      `${TOURNAMENT_API_BASE}/runtime/judge/notifications/${id}/read?source=${encodeURIComponent(source)}`,
+      `${TOURNAMENT_API_BASE}/runtime/judge/notifications/${id}?source=${encodeURIComponent(source)}`,
       {
-        method: "POST",
+        method: "DELETE",
         headers: await tournamentProxyHeaders(request),
         cache: "no-store",
       },
     );
     if (res.ok) {
-      mockMarkNotificationRead(user.id, id);
       return new NextResponse(await res.text(), {
         status: res.status,
         headers: { "Content-Type": "application/json" },
@@ -35,17 +34,7 @@ async function markRead(request: NextRequest, id: string) {
     // stub
   }
 
-  const ok = mockMarkNotificationRead(user.id, id);
+  const ok = mockDeleteNotification(user.id, id);
   if (!ok) return NextResponse.json({ detail: "Notificação não encontrada" }, { status: 404 });
   return NextResponse.json({ ok: true });
-}
-
-export async function POST(request: NextRequest, { params }: Params) {
-  const { id } = await params;
-  return markRead(request, id);
-}
-
-export async function PATCH(request: NextRequest, { params }: Params) {
-  const { id } = await params;
-  return markRead(request, id);
 }

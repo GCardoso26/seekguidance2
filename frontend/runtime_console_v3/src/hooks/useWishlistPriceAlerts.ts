@@ -2,7 +2,12 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
+import { awardXpFireAndForget } from "@/lib/award-xp-client";
 import { useJudgeAuth } from "@/features/auth/AuthProvider";
+import {
+  NOTIFICATIONS_FEED_KEY,
+  NOTIFICATIONS_UNREAD_KEY,
+} from "@/lib/notifications";
 import type { ShopProduct } from "@/lib/marketplace-shop";
 import {
   normalizeAlertsResponse,
@@ -104,6 +109,29 @@ export function useDeletePriceAlert() {
     },
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: WISHLIST_PRICE_ALERTS_QUERY_KEY });
+    },
+  });
+}
+
+export function useSimulatePriceDrop() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: { product_id: string; new_price_cents: number }) => {
+      const res = await fetch("/api/wishlist/alerts/simulate-drop", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error("simulate_drop_failed");
+      return res.json() as Promise<{ triggered: boolean; notification?: unknown }>;
+    },
+    onSuccess: (data) => {
+      void qc.invalidateQueries({ queryKey: WISHLIST_PRICE_ALERTS_QUERY_KEY });
+      void qc.invalidateQueries({ queryKey: NOTIFICATIONS_FEED_KEY });
+      void qc.invalidateQueries({ queryKey: NOTIFICATIONS_UNREAD_KEY });
+      if (data.triggered) {
+        awardXpFireAndForget("price_alert_triggered", qc);
+      }
     },
   });
 }

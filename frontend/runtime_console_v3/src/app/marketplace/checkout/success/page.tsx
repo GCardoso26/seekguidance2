@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect } from "react";
 import { MobileLayout } from "@/components/layout/MobileLayout";
+import { awardXpFireAndForget } from "@/lib/award-xp-client";
 import { trackEvent } from "@/lib/analytics";
 
 function CheckoutSuccessContent() {
@@ -19,6 +20,7 @@ function CheckoutSuccessContent() {
         payment_method: searchParams.get("payment_method") ?? "stripe",
         source: "checkout_success",
       });
+      awardXpFireAndForget("marketplace_purchase");
     }
   }, [searchParams]);
 

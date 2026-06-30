@@ -155,3 +155,24 @@ export function mockSimulatePriceDrop(
 export function mockPriceAlertNotifications(userId: string): AppNotification[] {
   return [...notifBucket(userId)];
 }
+
+export function mockMarkPriceAlertNotificationRead(userId: string, id: string): boolean {
+  const item = notifBucket(userId).find((n) => n.id === id);
+  if (!item) return false;
+  item.readAt = new Date().toISOString();
+  return true;
+}
+
+export function mockDeletePriceAlertNotification(userId: string, id: string): boolean {
+  const list = notifBucket(userId);
+  const idx = list.findIndex((n) => n.id === id);
+  if (idx < 0) return false;
+  list.splice(idx, 1);
+  return true;
+}
+
+export function mockMarkAllPriceAlertNotificationsRead(userId: string): void {
+  for (const n of notifBucket(userId)) {
+    if (!n.readAt) n.readAt = new Date().toISOString();
+  }
+}
