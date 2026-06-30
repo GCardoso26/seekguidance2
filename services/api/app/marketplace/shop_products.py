@@ -10,7 +10,32 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.marketplace.shop_store import STORE_SELLABLE_SQL, effective_plan, product_limit_for_plan
 
-PRODUCT_CATEGORIES = frozenset({"booster", "sleeve", "deck_box", "playmat", "accessory", "single"})
+PRODUCT_CATEGORIES = frozenset({
+    "single",
+    "oversized",
+    "token",
+    "booster",
+    "booster_box",
+    "starter_deck",
+    "preconstructed_deck",
+    "bundle",
+    "box_set_display",
+    "tin",
+    "complete_set",
+    "sleeve",
+    "album",
+    "deck_box",
+    "playmat",
+    "dice",
+    "accessory",
+    "empty_storage",
+    "blisters",
+    "prerelease_pack",
+    "memorabilia",
+    "don_card",
+    "memory_gauge",
+    "art_card_token",
+})
 
 
 async def _assert_store_owner(session: AsyncSession, store_id: str, owner_id: str) -> dict[str, Any]:

@@ -3,6 +3,8 @@
 import { X } from "lucide-react";
 import { MARKETPLACE_CONDITIONS, type MarketplaceProductFilters } from "@/lib/marketplace-filters";
 import { MARKETPLACE_GAME_OPTIONS } from "@/lib/marketplace-games";
+import { getCategoriesForGame, categoryLabel, SHOP_CATEGORIES_FLAT } from "@/lib/tcg-product-categories";
+import type { GameId } from "@/types/card";
 import type { MarketplaceStoreOption } from "@/hooks/useMarketplaceProducts";
 
 export interface FilterFieldsProps {
@@ -84,6 +86,29 @@ export function FilterFields({ filters, onChange, onClear, stores }: FilterField
             </option>
           ))}
         </select>
+      </div>
+
+      <div>
+        <h4 className="mb-2 text-sm font-semibold text-luxury-frost">Categoria</h4>
+        <select
+          value={filters.category ?? ""}
+          onChange={(e) => onChange({ category: e.target.value || undefined, page: 1 })}
+          className="w-full rounded-md border border-white/10 bg-black/20 px-2 py-2 text-sm"
+          aria-label="Filtrar por categoria de produto"
+        >
+          <option value="">Todas</option>
+          {(filters.gameId
+            ? getCategoriesForGame(filters.gameId as GameId)
+            : SHOP_CATEGORIES_FLAT.map((c) => ({ id: c.id, label: c.label, imageUrl: "" }))
+          ).map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.label}
+              </option>
+            ))}
+        </select>
+        {filters.category && (
+          <p className="mt-1 text-xs text-luxury-mist">{categoryLabel(filters.category)}</p>
+        )}
       </div>
 
       {stores.length > 0 && (

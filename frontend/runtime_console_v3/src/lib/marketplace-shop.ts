@@ -1,14 +1,10 @@
+import { SHOP_CATEGORIES_FLAT } from "@/lib/tcg-product-categories";
+
 export function formatShopPrice(cents: number): string {
   return (cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
-export const SHOP_CATEGORIES = [
-  { id: "booster", label: "Booster" },
-  { id: "sleeve", label: "Sleeves" },
-  { id: "deck_box", label: "Deck Box" },
-  { id: "playmat", label: "Playmat" },
-  { id: "accessory", label: "Acessórios" },
-] as const;
+export const SHOP_CATEGORIES = SHOP_CATEGORIES_FLAT;
 
 export type ShopProduct = {
   id: string;
