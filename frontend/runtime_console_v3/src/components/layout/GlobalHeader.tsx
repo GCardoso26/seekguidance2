@@ -10,7 +10,7 @@ import { GlobalNotificationBell } from "@/components/notifications/GlobalNotific
 import { CartHeaderButton } from "@/components/cart/CartHeaderButton";
 import { WishlistBadge } from "@/components/marketplace/WishlistBadge";
 import { CpfRequiredBanner } from "@/components/kyc/CpfRequiredBanner";
-import { LigaPassWidget } from "@/components/gamification/LigaPassWidget";
+import { UserLevelBadge } from "@/components/gamification/UserLevelBadge";
 import { UserMenu } from "@/features/auth/UserMenu";
 import { useJudgeAuth } from "@/features/auth/AuthProvider";
 import { mapHealthToGames } from "@/lib/catalog-games";
@@ -92,7 +92,7 @@ export function GlobalHeader({ showGameTabs = true }: GlobalHeaderProps) {
           </div>
 
           <div className="flex shrink-0 items-center gap-1">
-            <LigaPassWidget compact />
+            <UserLevelBadge compact />
             <WishlistBadge />
             <CartHeaderButton />
             {loading ? (

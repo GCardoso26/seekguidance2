@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { MobileLayout } from "@/components/layout/MobileLayout";
@@ -15,7 +16,12 @@ import type { LigaPassLeaderboardEntry } from "@/types/gamification";
 import { LEVEL_COLORS } from "@/types/gamification";
 import { Award, Flame, Search, Trophy } from "lucide-react";
 
-type Metric = "competitive" | "consultations" | "streak" | "liga";
+const LeaderboardTable = dynamic(
+  () => import("@/components/gamification/LeaderboardTable").then((m) => m.LeaderboardTable),
+  { loading: () => <p className="text-sm text-luxury-mist">Carregando ranking…</p>, ssr: false },
+);
+
+type Metric = "competitive" | "consultations" | "streak" | "liga" | "xp";
 type Scope = "global" | "friends" | "state";
 
 type LeaderboardEntry = {
@@ -29,6 +35,7 @@ type LeaderboardEntry = {
 };
 
 const METRICS: { id: Metric; label: string; icon: typeof Trophy }[] = [
+  { id: "xp", label: "Níveis XP", icon: Trophy },
   { id: "liga", label: "Liga Pass", icon: Award },
   { id: "competitive", label: "Competitivo", icon: Trophy },
   { id: "consultations", label: "Consultas", icon: Search },
@@ -46,7 +53,7 @@ export default function LeaderboardPage() {
   const { user } = useJudgeAuth();
   const { data: profile } = usePlayerProfile(user ? "me" : "");
   const [game, setGame] = useState("magic");
-  const [metric, setMetric] = useState<Metric>("liga");
+  const [metric, setMetric] = useState<Metric>("xp");
   const [scope, setScope] = useState<Scope>("global");
 
   const format = "STANDARD";
@@ -79,7 +86,7 @@ export default function LeaderboardPage() {
         total: number;
       }>;
     },
-    enabled: metric !== "competitive" && metric !== "liga",
+    enabled: metric !== "competitive" && metric !== "liga" && metric !== "xp",
   });
 
   const entries = useMemo((): LeaderboardEntry[] => {
@@ -130,8 +137,18 @@ export default function LeaderboardPage() {
         </Link>
         <h1 className="mt-2 text-3xl font-bold">Leaderboard</h1>
         <p className="mt-1 text-sm text-luxury-mist">
-          {metric === "liga" ? "Ranking global Liga Pass (XP)" : "Top jogadores por TCG e categoria"}
+          {metric === "xp"
+            ? "Ranking global por nível e XP"
+            : metric === "liga"
+              ? "Ranking global Liga Pass (XP)"
+              : "Top jogadores por TCG e categoria"}
         </p>
+
+        {metric === "xp" && (
+          <div className="mt-6" data-testid="leaderboard-xp-tab">
+            <LeaderboardTable />
+          </div>
+        )}
 
         {metric === "liga" && user && (
           <div className="mt-4">
@@ -139,7 +156,7 @@ export default function LeaderboardPage() {
           </div>
         )}
 
-        {metric !== "liga" && (
+        {metric !== "liga" && metric !== "xp" && (
           <div className="mt-6 flex flex-wrap gap-2">
             {TOURNAMENT_GAMES.slice(0, 8).map((g) => (
               <button
@@ -177,7 +194,7 @@ export default function LeaderboardPage() {
           })}
         </div>
 
-        {metric !== "competitive" && metric !== "liga" && (
+        {metric !== "competitive" && metric !== "liga" && metric !== "xp" && (
           <div className="mt-3 flex gap-2">
             {(["global", "friends", "state"] as Scope[]).map((s) => (
               <button
@@ -202,11 +219,12 @@ export default function LeaderboardPage() {
         )}
 
         <ul className="mt-6 space-y-2">
-          {loading && <li className="text-sm text-luxury-mist">Carregando…</li>}
-          {!loading && entries.length === 0 && (
+          {metric !== "xp" && loading && <li className="text-sm text-luxury-mist">Carregando…</li>}
+          {metric !== "xp" && !loading && entries.length === 0 && (
             <li className="text-sm text-luxury-mist">Nenhum dado ainda para esta categoria.</li>
           )}
-          {entries.map((e) => (
+          {metric !== "xp" &&
+            entries.map((e) => (
             <li
               key={`${e.player_id}-${e.rank}`}
               className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 p-3"
