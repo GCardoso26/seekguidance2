@@ -8,6 +8,7 @@ import { GlobalSearchBar } from "@/components/home/GlobalSearchBar";
 import { GameTabs } from "@/components/navigation/GameTabs";
 import { GlobalNotificationBell } from "@/components/notifications/GlobalNotificationBell";
 import { CartHeaderButton } from "@/components/cart/CartHeaderButton";
+import { WishlistBadge } from "@/components/marketplace/WishlistBadge";
 import { CpfRequiredBanner } from "@/components/kyc/CpfRequiredBanner";
 import { LigaPassWidget } from "@/components/gamification/LigaPassWidget";
 import { UserMenu } from "@/features/auth/UserMenu";
@@ -92,6 +93,7 @@ export function GlobalHeader({ showGameTabs = true }: GlobalHeaderProps) {
 
           <div className="flex shrink-0 items-center gap-1">
             <LigaPassWidget compact />
+            <WishlistBadge />
             <CartHeaderButton />
             {loading ? (
               <div className="h-8 w-8 animate-pulse rounded-full bg-white/10" aria-hidden />

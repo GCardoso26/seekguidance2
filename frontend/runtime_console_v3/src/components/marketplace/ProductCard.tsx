@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { formatShopPrice, type ShopProduct } from "@/lib/marketplace-shop";
+import { WishlistButton } from "@/components/marketplace/WishlistButton";
 import { GAME_TOKENS } from "@/lib/tcg-tokens";
 import type { GameId } from "@/types/card";
 
@@ -26,23 +27,28 @@ export function ProductCard({ product, onAdd }: Props) {
 
   return (
     <article className="flex flex-col overflow-hidden rounded-xl border border-white/10 bg-white/5">
-      <Link href={`/marketplace/product/${product.id}`} className="relative aspect-square bg-black/30">
-        {image ? (
-          <Image src={image} alt={product.name} fill className="object-cover" unoptimized sizes="(max-width:768px) 50vw, 25vw" />
-        ) : (
-          <div className="flex h-full items-center justify-center text-sm text-luxury-mist">Sem imagem</div>
-        )}
+      <div className="relative aspect-square bg-black/30">
+        <Link href={`/marketplace/product/${product.id}`} className="block h-full w-full">
+          {image ? (
+            <Image src={image} alt={product.name} fill className="object-cover" unoptimized sizes="(max-width:768px) 50vw, 25vw" />
+          ) : (
+            <div className="flex h-full items-center justify-center text-sm text-luxury-mist">Sem imagem</div>
+          )}
+        </Link>
         {showNew && (
-          <span className="absolute left-2 top-2 rounded-full bg-luxury-gold px-2 py-0.5 text-[10px] font-bold uppercase text-luxury-onyx">
+          <span className="pointer-events-none absolute left-2 top-2 rounded-full bg-luxury-gold px-2 py-0.5 text-[10px] font-bold uppercase text-luxury-onyx">
             Novo
           </span>
         )}
         {outOfStock && (
-          <span className="absolute right-2 top-2 rounded-full bg-red-600/90 px-2 py-0.5 text-[10px] font-semibold text-white">
+          <span className="pointer-events-none absolute right-2 top-2 rounded-full bg-red-600/90 px-2 py-0.5 text-[10px] font-semibold text-white">
             Esgotado
           </span>
         )}
-      </Link>
+        <div className="absolute bottom-2 right-2 z-10">
+          <WishlistButton productId={product.id} product={product} size="sm" />
+        </div>
+      </div>
       <div className="flex flex-1 flex-col gap-1.5 p-3">
         <Link href={`/marketplace/product/${product.id}`} className="line-clamp-2 text-sm font-semibold text-white hover:text-luxury-gold">
           {product.name}
