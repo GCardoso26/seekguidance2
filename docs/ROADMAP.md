@@ -35,6 +35,7 @@ Pairings, timer, políticas por formato — integração opcional com APIs exter
 | **Marketplace filtros comprador** | ✅ | PR #20 + #21 mergeadas; 495 KB (meta ≤ 500 KB ADR-001) |
 | **Torneios painel lojista** | ✅ | `/vendedor/painel/torneios` — MVP |
 | **Inscrições em torneios** | ✅ | Página pública, checkout Stripe, painel inscritos — 469 KB |
+| **Bracket visual** | ✅ | Swiss + eliminatória, painel lojista, standings — 503 KB |
 | Wishlist | ⏳ | Próximo quick win |
 
 ## Fase 6 — Decisão de produto (2026-06-06)

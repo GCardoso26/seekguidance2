@@ -4,6 +4,10 @@
 
 ### Adicionado
 
+- **Bracket visual de torneios** (`/tournament/[id]/bracket`, `/vendedor/painel/torneios/[id]/bracket`): Swiss, single/double elimination (visual), standings, controles organizador, export CSV
+- **Componentes** `SwissBracket`, `EliminationBracket`, `MatchCard`, `BracketLegend`, `BracketControls`, `TournamentBracketPanel`
+- **Hook** `useTournamentBracket` + lib `tournament-bracket.ts` + Vitest + E2E `tournament-bracket.spec.ts`
+- **BFF** `POST /api/tournament/tournaments/[id]/bracket/start`
 - **Inscrições em torneios** (`/tournament/[id]`): página pública com status, vagas, lista anônima de inscritos, inscrição gratuita (modal) e paga (`/checkout` Stripe), gate CPF ativo
 - **BFF inscrições**: `registration/status`, `register`, `participants`, `payments/confirm`, gestão lojista em `/vendedor/painel/torneios/[id]/inscritos`
 - **Hook** `useTournamentRegistration` + Vitest `tournament-registration.test.ts` + E2E `tournament-registration.spec.ts` (101 specs E2E verdes)
@@ -28,7 +32,8 @@
 - `entry_fee` não persiste na criação do torneio (schema FastAPI)
 - `register` não valida pagamento prévio
 - PIX torneio via Stripe (não gateway nativo marketplace)
-- Notificações a inscritos = stub BFF
+- Double elimination: estrutura visual apenas; backend ainda usa Swiss → Top Cut → single elim
+- Rodadas suíças no painel: fetch fixo rounds 1–3 (expandir quando backend expor N rodadas)
 
 ## [1.0.0] — 2026-06-21
 

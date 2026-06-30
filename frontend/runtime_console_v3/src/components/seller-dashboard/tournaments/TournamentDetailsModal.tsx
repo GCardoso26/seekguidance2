@@ -70,6 +70,9 @@ export function TournamentDetailsModal({ tournament, open, onOpenChange }: Props
             <Button type="button" variant="outline" asChild>
               <Link href={`/vendedor/painel/torneios/${tournament.id}/inscritos`}>Inscritos</Link>
             </Button>
+            <Button type="button" variant="outline" asChild>
+              <Link href={`/vendedor/painel/torneios/${tournament.id}/bracket`}>Bracket</Link>
+            </Button>
             <Button type="button" asChild>
               <Link href={`/tournament/${tournament.id}/play`}>Gerenciar torneio</Link>
             </Button>
