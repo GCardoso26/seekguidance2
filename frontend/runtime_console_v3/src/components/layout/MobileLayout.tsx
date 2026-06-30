@@ -51,7 +51,7 @@ export function MobileLayout({ children }: { children: ReactNode }) {
         Pular para o conteúdo
       </a>
       <GlobalHeader />
-      <main id="main-content" className={cn("flex-1 animate-fade-in", hideNav ? "" : "pb-20 md:pb-0")}>
+      <main id="main-content" className={cn("relative z-0 flex-1 animate-fade-in", hideNav ? "" : "pb-20 md:pb-0")}>
         {children}
       </main>
       {!hideNav && (

@@ -13,11 +13,6 @@ interface GameTabsProps {
   className?: string;
 }
 
-function formatCount(n: number): string {
-  if (n >= 1000) return `${(n / 1000).toFixed(n >= 10000 ? 0 : 1)}k`;
-  return String(n);
-}
-
 export function GameTabs({ games, className }: GameTabsProps) {
   const pathname = usePathname();
   const activeSlug = pathname.match(/^\/loja\/([^/]+)/)?.[1] ?? null;
@@ -69,9 +64,6 @@ export function GameTabs({ games, className }: GameTabsProps) {
               className="h-4 w-4 rounded object-contain"
             />
             <span>{game.name}</span>
-            {game.cardCount > 0 && (
-              <span className="text-xs text-luxury-mist/90">({formatCount(game.cardCount)})</span>
-            )}
           </Link>
         );
       })}
