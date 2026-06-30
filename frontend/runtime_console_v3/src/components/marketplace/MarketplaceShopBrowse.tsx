@@ -1,38 +1,37 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, Suspense } from "react";
+import { useCallback, useMemo, useState, Suspense } from "react";
 import dynamic from "next/dynamic";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Input } from "@/components/ui/input";
-import { ProductGrid } from "@/components/marketplace/ProductGrid";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   filtersFromSearchParams,
   searchParamsFromFilters,
   type MarketplaceProductFilters,
   type MarketplaceSort,
 } from "@/lib/marketplace-filters";
+import { useDebounce } from "@/hooks/useDebounce";
 import { useMarketplaceProductsInfinite, useMarketplaceStores } from "@/hooks/useMarketplaceProducts";
+import { addProductToCart } from "@/lib/marketplace-shop";
+import { showToast } from "@/lib/toast";
 
 const ProductFilters = dynamic(
   () => import("@/components/marketplace/ProductFilters").then((m) => m.ProductFilters),
   { ssr: false, loading: () => <div className="hidden w-64 shrink-0 lg:block" /> },
 );
 
-interface MarketplaceShopBrowseProps {
-  onAddToCart: (productId: string) => void;
-}
+const ProductGrid = dynamic(
+  () => import("@/components/marketplace/ProductGrid").then((m) => m.ProductGrid),
+  { ssr: false, loading: () => null },
+);
 
-function MarketplaceShopBrowseInner({ onAddToCart }: MarketplaceShopBrowseProps) {
+function MarketplaceShopBrowseInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
 
   const [filters, setFilters] = useState<MarketplaceProductFilters>(() => filtersFromSearchParams(searchParams));
-  const [debouncedQ, setDebouncedQ] = useState(filters.q ?? "");
-
-  useEffect(() => {
-    const timer = setTimeout(() => setDebouncedQ(filters.q ?? ""), 300);
-    return () => clearTimeout(timer);
-  }, [filters.q]);
+  const debouncedQ = useDebounce(filters.q ?? "", 300);
 
   const queryFilters = useMemo(
     () => ({ ...filters, q: debouncedQ || undefined }),
@@ -70,18 +69,33 @@ function MarketplaceShopBrowseInner({ onAddToCart }: MarketplaceShopBrowseProps)
   const clearFilters = useCallback(() => {
     const cleared: MarketplaceProductFilters = { sortBy: "relevance" };
     setFilters(cleared);
-    setDebouncedQ("");
     syncURL(cleared);
   }, [syncURL]);
 
+  async function handleAddToCart(productId: string) {
+    const result = await addProductToCart(productId);
+    if (result.ok) {
+      await queryClient.invalidateQueries({ queryKey: ["shop-cart"] });
+      showToast("Produto adicionado ao carrinho", "success");
+      window.location.href = "/marketplace/cart";
+      return;
+    }
+    if (result.needsLogin) {
+      showToast("Faça login para adicionar ao carrinho", "error");
+      window.location.href = `/login?next=${encodeURIComponent("/marketplace")}`;
+      return;
+    }
+    showToast(result.message, "error");
+  }
+
   return (
     <div className="mt-6 flex flex-col gap-6">
-      <Input
+      <input
         type="search"
         value={filters.q ?? ""}
         onChange={(e) => updateFilters({ q: e.target.value || undefined })}
         placeholder="Buscar produtos…"
-        className="h-11 border-white/10 bg-white/5"
+        className="h-11 w-full rounded-md border border-white/10 bg-white/5 px-3 text-sm"
         aria-label="Buscar produtos"
         data-testid="marketplace-search"
       />
@@ -112,7 +126,7 @@ function MarketplaceShopBrowseInner({ onAddToCart }: MarketplaceShopBrowseProps)
             hasMore={Boolean(hasNextPage)}
             onLoadMore={() => fetchNextPage()}
             isFetchingMore={isFetchingNextPage}
-            onAddToCart={onAddToCart}
+            onAddToCart={handleAddToCart}
             onClearFilters={clearFilters}
           />
         </div>
@@ -121,10 +135,10 @@ function MarketplaceShopBrowseInner({ onAddToCart }: MarketplaceShopBrowseProps)
   );
 }
 
-export function MarketplaceShopBrowse(props: MarketplaceShopBrowseProps) {
+export function MarketplaceShopBrowse() {
   return (
-    <Suspense fallback={<ProductGrid products={[]} isLoading />}>
-      <MarketplaceShopBrowseInner {...props} />
+    <Suspense fallback={null}>
+      <MarketplaceShopBrowseInner />
     </Suspense>
   );
 }
