@@ -22,6 +22,8 @@ export type ShopProduct = {
   store_logo_url?: string | null;
   images?: string[];
   stock?: number;
+  created_at?: string | null;
+  condition?: string | null;
 };
 
 export type ShopCartItem = {
