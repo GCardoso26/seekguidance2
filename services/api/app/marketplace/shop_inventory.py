@@ -8,6 +8,8 @@ from fastapi import HTTPException
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.marketplace.shop_products import PRODUCT_CATEGORIES
+
 
 async def _assert_store_owner(session: AsyncSession, store_id: str, owner_id: str) -> None:
     row = (
@@ -83,7 +85,7 @@ def _parse_csv_row(row: dict[str, str], line_no: int) -> tuple[dict[str, Any] | 
     if not name:
         return None, None
     category = (row.get("category") or row.get("categoria") or "accessory").strip().lower()
-    if category not in {"booster", "sleeve", "deck_box", "playmat", "accessory", "single"}:
+    if category not in PRODUCT_CATEGORIES:
         return None, f"Linha {line_no}: categoria inválida ({category})"
     try:
         price_cents = int(row.get("price_cents") or row.get("preco_centavos") or row.get("price") or "0")

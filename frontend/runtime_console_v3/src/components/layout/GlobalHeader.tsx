@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { Layers, Scale, ShoppingBag, Users } from "lucide-react";
 import { GlobalSearchBar } from "@/components/home/GlobalSearchBar";
-import { GameTabs } from "@/components/navigation/GameTabs";
+import { GameMegaMenu } from "@/components/games/GameMegaMenu";
 import { GlobalNotificationBell } from "@/components/notifications/GlobalNotificationBell";
 import { CartHeaderButton } from "@/components/cart/CartHeaderButton";
 import { WishlistBadge } from "@/components/marketplace/WishlistBadge";
@@ -13,8 +13,6 @@ import { CpfRequiredBanner } from "@/components/kyc/CpfRequiredBanner";
 import { UserLevelBadge } from "@/components/gamification/UserLevelBadge";
 import { UserMenu } from "@/features/auth/UserMenu";
 import { useJudgeAuth } from "@/features/auth/AuthProvider";
-import { mapHealthToGames } from "@/lib/catalog-games";
-import { useCatalogHealth } from "@/hooks/useCatalogHealth";
 import { cn } from "@/lib/utils";
 
 type NavItem = { href: string; label: string; icon: typeof ShoppingBag };
@@ -54,8 +52,6 @@ interface GlobalHeaderProps {
 export function GlobalHeader({ showGameTabs = true }: GlobalHeaderProps) {
   const pathname = usePathname();
   const { user, loading } = useJudgeAuth();
-  const { data: health } = useCatalogHealth();
-  const games = mapHealthToGames(health);
   const showTabs = showGameTabs && (pathname.startsWith("/loja") || pathname === "/");
 
   if (pathname?.startsWith("/login") || pathname?.startsWith("/entrar") || pathname?.startsWith("/auth")) {
@@ -115,7 +111,7 @@ export function GlobalHeader({ showGameTabs = true }: GlobalHeaderProps) {
           </div>
         </div>
 
-        {showTabs && <GameTabs games={games} className="border-t border-white/5" />}
+        {showTabs && <GameMegaMenu />}
       </div>
     </header>
       </div>

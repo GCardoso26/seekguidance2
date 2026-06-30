@@ -8,6 +8,7 @@ export interface MarketplaceProductFilters {
   maxPrice?: number;
   condition?: string[];
   gameId?: GameId | string;
+  category?: string;
   storeId?: string;
   inStock?: boolean;
   sortBy?: MarketplaceSort;
@@ -52,6 +53,7 @@ export function filtersFromSearchParams(params: URLSearchParams): MarketplacePro
     maxPrice: params.get("max_price") ? Number(params.get("max_price")) : undefined,
     condition: params.get("condition")?.split(",").filter(Boolean),
     gameId: params.get("game_id") || undefined,
+    category: params.get("category") || undefined,
     storeId: params.get("store_id") || undefined,
     inStock: inStock === "true" ? true : inStock === "false" ? false : undefined,
     sortBy: (params.get("sort") as MarketplaceSort) || "relevance",
@@ -66,6 +68,7 @@ export function searchParamsFromFilters(filters: MarketplaceProductFilters): URL
   if (filters.maxPrice !== undefined) params.set("max_price", String(filters.maxPrice));
   if (filters.condition?.length) params.set("condition", filters.condition.join(","));
   if (filters.gameId) params.set("game_id", String(filters.gameId));
+  if (filters.category) params.set("category", filters.category);
   if (filters.storeId) params.set("store_id", filters.storeId);
   if (filters.inStock === true) params.set("in_stock", "true");
   if (filters.inStock === false) params.set("in_stock", "false");
@@ -81,6 +84,7 @@ export function buildMarketplaceProductsQuery(filters: MarketplaceProductFilters
   if (filters.maxPrice !== undefined) params.set("max_price", String(filters.maxPrice));
   if (filters.condition?.length) params.set("condition", filters.condition.join(","));
   if (filters.gameId) params.set("tcg_id", String(filters.gameId));
+  if (filters.category) params.set("category", filters.category);
   if (filters.storeId) params.set("store_id", filters.storeId);
   if (filters.inStock) params.set("in_stock", "true");
   params.set("sort", sortToApiParam(filters.sortBy));
@@ -95,6 +99,7 @@ export function countActiveMarketplaceFilters(filters: MarketplaceProductFilters
   if (filters.maxPrice !== undefined) n++;
   if (filters.condition?.length) n += filters.condition.length;
   if (filters.gameId) n++;
+  if (filters.category) n++;
   if (filters.storeId) n++;
   if (filters.inStock) n++;
   return n;
