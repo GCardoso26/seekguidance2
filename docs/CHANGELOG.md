@@ -4,6 +4,8 @@
 
 ### Adicionado
 
+- **Marketplace comprador — filtros avançados** (`/marketplace`): painel desktop + drawer mobile, infinite scroll, sync URL (`q`, `game_id`, `min_price`, `max_price`, `condition`, `in_stock`, `store_id`), BFF `/api/marketplace/products`
+- **Catálogo — filtro por coleção** case-insensitive (`LOWER(set_code)`) + sync apitcg MTG/SORCERY/DBFW/UARENA (PR #20)
 - Migration `20260621140000_card_catalog_phase0.sql` (external_ids, image_uris, card_prices, card_sync_runs)
 - Pipeline de ingestão (`app/catalog/pipeline.py`) com adapters MTG, Pokémon, Lorcana, YGO
 - Meilisearch indexer + fallback PostgreSQL ILIKE

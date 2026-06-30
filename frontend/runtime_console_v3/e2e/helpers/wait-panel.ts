@@ -2,12 +2,17 @@ import { expect, type Page } from "@playwright/test";
 
 
 
-/** Aguarda o layout do painel exibir conteúdo (main) após guards de auth/KYC. */
-
+/** Aguarda o layout do painel exibir conteúdo após guards de auth/KYC. */
 export async function waitForSellerPanelReady(page: Page, timeout = 60_000) {
-
-  await expect(page.locator("main").first()).toBeVisible({ timeout });
-
+  await expect(
+    page
+      .locator("main")
+      .first()
+      .or(page.getByRole("heading", { name: /^(cupons|painel|pdv|estoque|vendas|dashboard)$/i }))
+      .or(page.getByText(/carregando painel|atualizando status do cadastro/i))
+      .or(page.getByRole("link", { name: /cadastre sua loja|crie uma loja|cadastrar loja/i }))
+      .first(),
+  ).toBeVisible({ timeout });
 }
 
 

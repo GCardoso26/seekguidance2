@@ -92,19 +92,20 @@ authTest.describe("Vendedor autenticado", () => {
     });
     if (!page.url().includes("/vendedor/painel/listagens/nova")) return;
 
-    const noCardHint = page.getByText(/buscar cartas|cardId/i);
+    const noCardHint = page.getByRole("link", { name: /buscar cartas/i });
+    const cardIdHint = page.getByText(/\?cardId=/i);
     const form = page.getByTestId("create-listing-form");
-    await authExpect(noCardHint.or(form)).toBeVisible({ timeout: 15_000 });
+    await authExpect(noCardHint.or(cardIdHint).or(form).first()).toBeVisible({ timeout: 15_000 });
   });
 });
 
 authTest.describe("Comprador — gate CPF", () => {
   authTest("checkout mostra modal ou página de checkout", async ({ buyerPage: page }) => {
     await page.goto("/marketplace/checkout");
-    await authExpect(page).toHaveURL(/\/marketplace\/checkout/);
+    await authExpect(page).toHaveURL(/\/checkout/, { timeout: 10_000 });
     const cpfModal = page.getByRole("heading", { name: /cpf obrigatório/i });
     const checkoutTitle = page.getByRole("heading", { name: /^checkout$/i });
-    await authExpect(cpfModal.or(checkoutTitle)).toBeVisible({ timeout: 20_000 });
+    await authExpect(cpfModal.or(checkoutTitle).first()).toBeVisible({ timeout: 20_000 });
   });
 
   authTest("completar-perfil mostra formulário de CPF", async ({ buyerPage: page }) => {

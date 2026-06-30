@@ -7,16 +7,22 @@ test.describe("Marketplace — filtros avançados", () => {
     await expect(page.getByTestId("marketplace-search")).toBeVisible({ timeout: 15_000 });
 
     const desktopFilters = page.getByTestId("marketplace-filters-desktop");
-    if (await desktopFilters.isVisible()) {
-      await desktopFilters.getByLabel("Preço mínimo").fill("1");
-      await desktopFilters.getByLabel("Preço máximo").fill("500");
-    } else {
-      await page.getByTestId("marketplace-filters-open").click();
+    const mobileOpen = page.getByTestId("marketplace-filters-open");
+    const viewport = page.viewportSize();
+    const useMobileFilters = viewport != null && viewport.width < 1024;
+
+    if (useMobileFilters) {
+      await expect(mobileOpen).toBeVisible({ timeout: 15_000 });
+      await mobileOpen.click();
       const drawer = page.getByTestId("marketplace-filters-drawer");
       await expect(drawer).toBeVisible();
       await drawer.getByLabel("Preço mínimo").fill("1");
       await drawer.getByLabel("Preço máximo").fill("500");
       await page.getByTestId("marketplace-filters-apply").click();
+    } else {
+      await expect(desktopFilters).toBeVisible({ timeout: 15_000 });
+      await desktopFilters.getByLabel("Preço mínimo").fill("1");
+      await desktopFilters.getByLabel("Preço máximo").fill("500");
     }
 
     await expect(page).toHaveURL(/min_price=1/, { timeout: 10_000 });
@@ -38,8 +44,8 @@ test.describe("Marketplace — filtros avançados", () => {
     const drawer = page.getByTestId("marketplace-filters-drawer");
     await expect(drawer).toBeVisible();
     await drawer.getByLabel("Só produtos em estoque").check();
+    await expect(page).toHaveURL(/in_stock=true/, { timeout: 15_000 });
     await page.getByTestId("marketplace-filters-apply").click();
-
-    await expect(page).toHaveURL(/in_stock=true/, { timeout: 10_000 });
+    await expect(drawer).toBeHidden({ timeout: 5_000 });
   });
 });

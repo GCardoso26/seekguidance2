@@ -10,6 +10,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "e2e:setup-auth": "playwright test e2e/auth.setup.ts --project=setup",
+    "type-check": "tsc --noEmit",
     "lighthouse": "node scripts/lighthouse-audit.js",
     "lighthouse:ci": "lhci autorun",
     "lighthouse:listagens": "node scripts/lighthouse-listagens-baseline.mjs",
