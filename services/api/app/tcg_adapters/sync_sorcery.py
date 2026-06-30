@@ -7,7 +7,7 @@ from typing import Any
 import httpx
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.tcg_adapters.sync_common import maybe_commit_batch, normalize_name, upsert_card, upsert_set
+from app.tcg_adapters.sync_common import maybe_commit_batch, normalize_name, slug_set_code, upsert_card, upsert_set
 
 SORCERY_API = "https://api.sorcerytcg.com/api/cards"
 SORCERY_IMAGE = "https://cards.sorcerytcg.com/{slug}.jpg"
@@ -47,7 +47,7 @@ async def sync_sorcery(session: AsyncSession, *, limit: int | None = None) -> di
                 if not isinstance(set_entry, dict):
                     continue
                 set_name = str(set_entry.get("name") or "Unknown")
-                set_code = set_name.lower().replace(" ", "-")[:20]
+                set_code = slug_set_code(set_name)
                 if set_code not in seen_sets:
                     await upsert_set(
                         session,

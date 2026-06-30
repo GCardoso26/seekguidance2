@@ -121,8 +121,8 @@ def _build_where(
         params["game"] = game.upper()
 
     if set_code:
-        clauses.append("cc.set_code = :set_code")
-        params["set_code"] = set_code.upper()
+        clauses.append("LOWER(cc.set_code) = LOWER(:set_code)")
+        params["set_code"] = set_code.strip()
 
     if rarities:
         clauses.append("LOWER(cc.rarity) = ANY(:rarities)")
