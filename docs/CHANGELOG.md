@@ -4,6 +4,9 @@
 
 ### Adicionado
 
+- **Alertas de preço na wishlist** (`/wishlist/alerts`): any_drop, target_price, percentage_drop + notificações inbox
+- **Componentes** `PriceAlertButton`, `PriceAlertModal`, `WishlistAlertsPage`
+- **Hook** `useWishlistPriceAlerts` + BFF `/api/wishlist/alerts` (stub) + Vitest + E2E
 - **Wishlist marketplace** (`/wishlist`): salvar produtos, badge no header, toggle no ProductCard e página de produto
 - **Hook** `useWishlist` + Vitest `wishlist.test.ts` + E2E `wishlist.spec.ts` (494 KB)
 - **Bracket visual de torneios** (`/tournament/[id]/bracket`, `/vendedor/painel/torneios/[id]/bracket`): Swiss, single/double elimination (visual), standings, controles organizador, export CSV

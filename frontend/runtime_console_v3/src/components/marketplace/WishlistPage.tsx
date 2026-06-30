@@ -54,9 +54,18 @@ export function WishlistPage() {
 
   return (
     <div className="space-y-6" data-testid="wishlist-page-content">
-      <p className="text-sm text-luxury-mist">
-        {items.length} produto{items.length === 1 ? "" : "s"} salvos
-      </p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="text-sm text-luxury-mist">
+          {items.length} produto{items.length === 1 ? "" : "s"} salvos
+        </p>
+        <Link
+          href="/wishlist/alerts"
+          className="text-sm text-luxury-gold hover:underline"
+          data-testid="wishlist-alerts-link"
+        >
+          Alertas de preço →
+        </Link>
+      </div>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4">
         {items.map((item) => (
           <div key={item.product_id} className="flex flex-col gap-2" data-testid={`wishlist-item-${item.product_id}`}>
