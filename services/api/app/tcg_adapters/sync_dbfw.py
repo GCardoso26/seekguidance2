@@ -7,7 +7,7 @@ from typing import Any
 import httpx
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.tcg_adapters.sync_github_apitcg import fetch_apitcg_repo_cards
+from app.tcg_adapters.sync_github_apitcg import fetch_apitcg_repo_cards, resolve_apitcg_set
 from app.tcg_adapters.sync_common import maybe_commit_batch, normalize_name, upsert_card, upsert_set
 
 APITCG_REPO = "dragon-ball-fusion-tcg-data"
@@ -34,13 +34,7 @@ async def sync_dbfw(session: AsyncSession, *, limit: int | None = None) -> dict[
         for card in cards:
             if limit is not None and count >= limit:
                 break
-            set_info = card.get("set") or {}
-            set_code = str(
-                set_info.get("id") if isinstance(set_info, dict) else card.get("_file_set") or "FB"
-            )
-            set_name = (
-                set_info.get("name") if isinstance(set_info, dict) else str(set_info or set_code.upper())
-            )
+            set_code, set_name = resolve_apitcg_set(card, default_code="FB")
             if set_code not in seen_sets:
                 await upsert_set(
                     session,

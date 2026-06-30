@@ -15,6 +15,12 @@ def normalize_name(name: str) -> str:
     return re.sub(r"\s+", " ", name.strip().lower())
 
 
+def slug_set_code(name: str, *, max_len: int = 20) -> str:
+    """Gera código de coleção estável a partir do nome (Scryfall/Sorcery/apitcg)."""
+    slug = re.sub(r"[^a-z0-9]+", "-", name.strip().lower())
+    return slug.strip("-")[:max_len] or "unknown"
+
+
 def resolve_tcgdex_image(
     url: str | None,
     *,
