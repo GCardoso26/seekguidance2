@@ -33,9 +33,9 @@ Pairings, timer, políticas por formato — integração opcional com APIs exter
 | Painel lojista (10 rotas) | ✅ | Bundle médio ~424 KB |
 | PDV v1.1 (PIX automático) | ✅ | 436 KB First Load JS |
 | **Marketplace filtros comprador** | ✅ | PR #20 + #21 mergeadas; 495 KB (meta ≤ 500 KB ADR-001) |
+| **Torneios painel lojista** | 🚀 | `/vendedor/painel/torneios` — MVP entregue |
 | Catálogo — filtro por coleção MTG/apitcg | ✅ | PR #20 — case-insensitive + sync sets |
 | Wishlist | ⏳ | Próximo quick win |
-| Torneios painel | ⏳ | P1 — diferencial competitivo |
 
 ## Fase 6 — Decisão de produto (2026-06-06)
 

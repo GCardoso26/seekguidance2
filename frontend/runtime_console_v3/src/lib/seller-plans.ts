@@ -44,7 +44,7 @@ export function planHasFeature(plan: string | undefined, feature: string): boole
   const lojistaPlus = new Set(["lojista", "pro", "enterprise"]);
   const proPlus = new Set(["pro", "enterprise"]);
   if (feature === "listings") return true;
-  if (["buylist", "crm", "analytics"].includes(feature)) return lojistaPlus.has(p);
+  if (["buylist", "crm", "analytics", "tournaments"].includes(feature)) return lojistaPlus.has(p);
   if (["pdv", "api"].includes(feature)) return proPlus.has(p);
   return false;
 }

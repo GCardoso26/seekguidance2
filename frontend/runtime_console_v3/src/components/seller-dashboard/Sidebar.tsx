@@ -14,6 +14,7 @@ const NAV = [
   { href: "/vendedor/painel/clientes", label: "Clientes", icon: "👥", feature: "crm" },
   { href: "/vendedor/painel/pdv", label: "PDV", icon: "🛒", feature: "pdv" },
   { href: "/vendedor/painel/estatisticas", label: "Estatísticas", icon: "📈", feature: "analytics" },
+  { href: "/vendedor/painel/torneios", label: "Torneios", icon: "🏆", feature: "tournaments" },
   { href: "/vendedor/painel/planos", label: "Planos", icon: "⭐", feature: null },
   { href: "/vendedor/painel/configuracoes", label: "Configurações", icon: "⚙️", feature: null },
 ];
