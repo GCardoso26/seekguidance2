@@ -8,7 +8,7 @@ import { GlobalSearchBar } from "@/components/home/GlobalSearchBar";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import { Button } from "@/components/ui/button";
 import { useCatalogHealth } from "@/hooks/useCatalogHealth";
-import { mapHealthToGames } from "@/lib/catalog-games";
+import { getMegaMenuGames } from "@/lib/catalog-games";
 import { gameSlugFromId } from "@/lib/tcg-tokens";
 import type { GameId } from "@/types/card";
 import Image from "next/image";
@@ -42,7 +42,7 @@ const FeaturedShopsGrid = dynamic(
 function MarketplaceHero() {
   const { data: health } = useCatalogHealth();
   const totalCards = health?.total_cards ?? 50000;
-  const gameCount = mapHealthToGames(health).filter((g) => g.isAvailable).length || 13;
+  const gameCount = getMegaMenuGames(health).length;
 
   return (
     <section className="relative overflow-hidden border-b border-white/10 bg-gradient-to-b from-luxury-gold/10 to-luxury-onyx pb-12 pt-8">
@@ -88,7 +88,7 @@ function MarketplaceHero() {
 
 function PopularGamesSection() {
   const { data: health } = useCatalogHealth();
-  const games = mapHealthToGames(health).filter((g) => g.isAvailable);
+  const games = getMegaMenuGames(health);
 
   return (
     <section className="container mx-auto px-4 py-8">

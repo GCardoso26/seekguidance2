@@ -13,6 +13,7 @@ import {
   singlesSearchHref,
   type ProductCategoryId,
 } from "@/lib/tcg-product-categories";
+import { gameLandingPath } from "@/lib/game-routes";
 import { GAME_TOKENS } from "@/lib/tcg-tokens";
 import type { GameId } from "@/types/card";
 import { cn } from "@/lib/utils";
@@ -75,7 +76,7 @@ export function GameHubPanel({ gameId, slug, cardCount = 0, healthLoading }: Pro
             </div>
           </div>
           <Link
-            href={`/loja/${slug}`}
+            href={gameLandingPath(slug)}
             className="mt-4 inline-flex items-center gap-1.5 text-sm text-luxury-gold hover:underline"
           >
             <Compass className="h-4 w-4" />
@@ -101,7 +102,7 @@ export function GameHubPanel({ gameId, slug, cardCount = 0, healthLoading }: Pro
                 {sets.map((set) => (
                   <li key={set.code ?? set.name}>
                     <Link
-                      href={`/loja/${slug}/busca?set=${encodeURIComponent(set.code ?? set.name)}`}
+                      href={`${singlesSearchHref(slug)}?set=${encodeURIComponent(set.code ?? set.name)}`}
                       className="block truncate text-sm text-luxury-frost hover:text-luxury-gold"
                     >
                       {set.code && (

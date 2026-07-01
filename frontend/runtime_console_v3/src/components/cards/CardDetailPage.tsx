@@ -15,6 +15,9 @@ import { SellerOffersTable } from "@/components/cards/SellerOffersTable";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import { CreateListingForm } from "@/components/seller/CreateListingForm";
 import { CardRulesTab } from "@/components/cards/CardRulesTab";
+import { CardVersionsTab } from "@/components/cards/CardVersionsTab";
+import { CardInfoTab } from "@/components/cards/CardInfoTab";
+import { gameCardDetailPath, gameCardsPath, gameLandingPath } from "@/lib/game-routes";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -88,14 +91,14 @@ export function CardDetailPage({ cardId }: CardDetailPageProps) {
             </li>
             <li aria-hidden="true">/</li>
             <li>
-              <Link href={`/loja/${gameSlug}`} className="hover:text-foreground">
+              <Link href={gameLandingPath(gameSlug)} className="hover:text-foreground">
                 {gameToken?.name || card.game}
               </Link>
             </li>
             <li aria-hidden="true">/</li>
             <li>
               <Link
-                href={`/loja/busca?game=${encodeURIComponent(String(card.game))}&set=${encodeURIComponent(card.set?.code || "")}`}
+                href={`${gameCardsPath(gameSlug)}?set=${encodeURIComponent(card.set?.code || "")}`}
                 className="hover:text-foreground"
               >
                 {card.set?.name}
@@ -269,14 +272,26 @@ export function CardDetailPage({ cardId }: CardDetailPageProps) {
                 </div>
               </div>
 
-              <Tabs defaultValue="precos" className="space-y-4">
-                <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="precos">Preços</TabsTrigger>
-                  <TabsTrigger value="historico">Histórico</TabsTrigger>
+              <Tabs defaultValue="marketplace" className="space-y-4">
+                <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4">
+                  <TabsTrigger value="versions">Versões</TabsTrigger>
+                  <TabsTrigger value="marketplace">Marketplace</TabsTrigger>
+                  <TabsTrigger value="info">Info</TabsTrigger>
                   <TabsTrigger value="regras">Regras</TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="precos">
+                <TabsContent value="versions">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg">Versões da carta</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <CardVersionsTab card={card} relatedCards={relatedCards} />
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="marketplace" className="space-y-4">
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg">Ofertas ({listings.length})</CardTitle>
@@ -290,9 +305,7 @@ export function CardDetailPage({ cardId }: CardDetailPageProps) {
                   {buyError && <p className="mt-3 text-sm text-red-500">{buyError}</p>}
                 </CardContent>
               </Card>
-                </TabsContent>
 
-                <TabsContent value="historico">
               <Card>
                 <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <CardTitle className="text-lg">Histórico de Preço</CardTitle>
@@ -334,6 +347,17 @@ export function CardDetailPage({ cardId }: CardDetailPageProps) {
               </Card>
                 </TabsContent>
 
+                <TabsContent value="info">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg">Informações</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <CardInfoTab card={card} />
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
                 <TabsContent value="regras">
                   <Card>
                     <CardContent className="pt-6">
@@ -350,7 +374,7 @@ export function CardDetailPage({ cardId }: CardDetailPageProps) {
                   <h2 className="mb-4 text-lg font-semibold">Cartas Relacionadas</h2>
                   <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                     {relatedCards.slice(0, 4).map((related) => (
-                      <Link key={related.id} href={`/loja/cartas/${related.id}`} className="block">
+                      <Link key={related.id} href={gameCardDetailPath(gameSlug, related.id)} className="block">
                         <CardCard card={related} variant="compact" showPrice source="related" />
                       </Link>
                     ))}

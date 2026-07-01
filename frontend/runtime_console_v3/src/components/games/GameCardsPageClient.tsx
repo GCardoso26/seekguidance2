@@ -6,12 +6,17 @@ import Image from "next/image";
 import { FacetedSearch } from "@/components/search/FacetedSearch";
 import { CatalogSearchSkeleton } from "@/components/search/CatalogSearchSkeleton";
 import { MobileLayout } from "@/components/layout/MobileLayout";
-import { gameCardsPath } from "@/lib/game-routes";
+import {
+  gameCardDetailPath,
+  gameCardsPath,
+  gameExpansionsPath,
+  gameLandingPath,
+} from "@/lib/game-routes";
 import { gameIdFromSlug, GAME_TOKENS } from "@/lib/tcg-tokens";
 import type { GameId } from "@/types/card";
 import { getGameConfig } from "@/lib/games";
 
-function GameBuscaContent({ slug }: { slug: string }) {
+function GameCardsContent({ slug }: { slug: string }) {
   const gameId = gameIdFromSlug(slug);
   if (!gameId) {
     return (
@@ -28,6 +33,7 @@ function GameBuscaContent({ slug }: { slug: string }) {
 
   const token = GAME_TOKENS[gameId as GameId];
   const config = getGameConfig(gameId as GameId);
+  const cardsPath = gameCardsPath(slug);
 
   return (
     <MobileLayout>
@@ -36,17 +42,25 @@ function GameBuscaContent({ slug }: { slug: string }) {
         style={{ backgroundColor: `${token.primary}10` }}
       >
         <div className="container mx-auto px-4">
-          <Link href="/loja" className="text-sm text-muted-foreground hover:text-foreground">
-            ← Todos os jogos
+          <Link href={gameLandingPath(slug)} className="text-sm text-muted-foreground hover:text-foreground">
+            ← {token.name}
           </Link>
-          <div className="mt-4 flex items-center gap-4">
-            <Image src={token.logo} alt="" width={56} height={56} className="h-14 w-14 object-contain" />
-            <div>
-              <h1 className="text-2xl font-bold" style={{ color: token.primary }}>
-                {token.name}
-              </h1>
-              <p className="text-sm text-muted-foreground">Busca no catálogo de {token.name}</p>
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <Image src={token.logo} alt="" width={56} height={56} className="h-14 w-14 object-contain" />
+              <div>
+                <h1 className="text-2xl font-bold" style={{ color: token.primary }}>
+                  Cartas — {token.name}
+                </h1>
+                <p className="text-sm text-muted-foreground">Busca com filtros avançados</p>
+              </div>
             </div>
+            <Link
+              href={gameExpansionsPath(slug)}
+              className="text-sm text-primary hover:underline"
+            >
+              Ver expansões →
+            </Link>
           </div>
         </div>
       </section>
@@ -54,7 +68,7 @@ function GameBuscaContent({ slug }: { slug: string }) {
       <div className="container mx-auto px-4 py-8">
         <FacetedSearch
           initialGame={gameId}
-          searchBasePath={gameCardsPath(slug)}
+          searchBasePath={cardsPath}
           cardDetailPath={`/${slug}/cards`}
         />
         <p className="mt-6 text-xs text-muted-foreground">
@@ -65,10 +79,13 @@ function GameBuscaContent({ slug }: { slug: string }) {
   );
 }
 
-export function GameBuscaClient({ slug }: { slug: string }) {
+export function GameCardsPageClient({ slug }: { slug: string }) {
   return (
     <Suspense fallback={<CatalogSearchSkeleton />}>
-      <GameBuscaContent slug={slug} />
+      <GameCardsContent slug={slug} />
     </Suspense>
   );
 }
+
+// re-export for card detail breadcrumb helper
+export { gameCardDetailPath };
