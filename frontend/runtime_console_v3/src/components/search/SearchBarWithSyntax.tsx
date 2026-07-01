@@ -1,12 +1,11 @@
 "use client";
 
-import { useState, useRef, useCallback, useMemo } from "react";
+import { useState, useRef, useMemo } from "react";
 import { useSearchSyntax } from "@/hooks/useSearchSyntax";
 import { useSyntaxAutocomplete } from "@/hooks/useSyntaxAutocomplete";
 import {
   FIELD_COLORS,
   parseActiveSyntaxContext,
-  supportsValueAutocomplete,
 } from "@/lib/marketplace-search-syntax";
 import { Search, X } from "lucide-react";
 
