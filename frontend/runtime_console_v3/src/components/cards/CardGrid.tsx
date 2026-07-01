@@ -5,6 +5,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { Button } from "@/components/ui/button";
 import { cardImageUrl, formatCurrency } from "@/lib/format-currency";
 import { GAME_TOKENS } from "@/lib/tcg-tokens";
+import { Search } from "lucide-react";
 import type { GameId, UnifiedCard } from "@/types/card";
 
 export interface CardGridProps {
@@ -90,7 +91,7 @@ export function CardGrid({
   if (!isLoading && cards.length === 0) {
     return (
       <EmptyState
-        type="search"
+        icon={<Search className="h-10 w-10 text-muted-foreground" aria-hidden />}
         title={emptyMessage}
         description="Tente ajustar seus filtros ou buscar por outro termo."
         action={{ label: "Limpar filtros", href: "/loja/mtg/busca" }}
