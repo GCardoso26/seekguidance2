@@ -46,12 +46,14 @@ const config: Config = {
         "card-hover": "0 4px 12px rgba(0,0,0,0.12), 0 2px 4px rgba(0,0,0,0.08)",
       },
       animation: {
+        "fade-in": "fadeIn 0.2s ease-out",
         "gradient-shift": "gradientShift 15s ease infinite",
         float: "float 6s ease-in-out infinite",
         marquee: "marquee 40s linear infinite",
         shimmer: "shimmer 8s ease-in-out infinite",
       },
       keyframes: {
+        fadeIn: { "0%": { opacity: "0" }, "100%": { opacity: "1" } },
         gradientShift: {
           "0%, 100%": { backgroundPosition: "0% 50%" },
           "50%": { backgroundPosition: "100% 50%" },

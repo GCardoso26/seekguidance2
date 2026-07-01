@@ -60,3 +60,64 @@ export function syntaxFiltersToSearchParams(filters: SyntaxFilter[]): URLSearchP
   }
   return params;
 }
+
+export const KNOWN_VALUES: Record<string, string[]> = {
+  color: ["W", "U", "B", "R", "G", "C", "M", "White", "Blue", "Black", "Red", "Green", "Colorless"],
+  rarity: ["common", "uncommon", "rare", "mythic", "special", "bonus"],
+  foil: ["true", "false", "yes", "no"],
+  signed: ["true", "false", "yes", "no"],
+  graded: ["true", "false", "yes", "no"],
+  grading_company: ["PSA", "BGS", "CGC", "SGC", "ACE"],
+};
+
+export const FIELD_COLORS: Record<string, string> = {
+  name: "bg-blue-500/15 text-blue-400",
+  set: "bg-purple-500/15 text-purple-400",
+  color: "bg-red-500/15 text-red-400",
+  rarity: "bg-yellow-500/15 text-yellow-400",
+  cmc: "bg-green-500/15 text-green-400",
+  type: "bg-indigo-500/15 text-indigo-400",
+  artist: "bg-pink-500/15 text-pink-400",
+  foil: "bg-amber-500/15 text-amber-400",
+  graded: "bg-emerald-500/15 text-emerald-400",
+};
+
+const VALUE_AUTOCOMPLETE_FIELDS = new Set(["set", "color", "colors", "artist", "rarity", "type", "types"]);
+
+export function isKnownValue(field: string, value: string): boolean {
+  const known = KNOWN_VALUES[field.toLowerCase()];
+  if (!known) return true;
+  return known.some((k) => k.toLowerCase() === value.toLowerCase());
+}
+
+export function suggestValue(field: string, value: string): string | null {
+  const known = KNOWN_VALUES[field.toLowerCase()];
+  if (!known) return null;
+  const match = known.find((k) => k.toLowerCase().startsWith(value.toLowerCase()));
+  return match ?? null;
+}
+
+export function supportsValueAutocomplete(field: string): boolean {
+  return VALUE_AUTOCOMPLETE_FIELDS.has(field.toLowerCase());
+}
+
+export function parseActiveSyntaxContext(beforeCursor: string): {
+  mode: "field" | "value" | "none";
+  field: string | null;
+  valueQuery: string;
+} {
+  const valueMatch = beforeCursor.match(/([a-zA-Z_]+)\s*:\s*("([^"]*)"?)?([^:\s"]*)$/);
+  if (valueMatch) {
+    const field = valueMatch[1].toLowerCase();
+    const quoted = valueMatch[3];
+    const partial = quoted ?? valueMatch[4] ?? "";
+    if (supportsValueAutocomplete(field)) {
+      return { mode: "value", field, valueQuery: partial };
+    }
+  }
+  const fieldMatch = beforeCursor.match(/([a-zA-Z_]+)$/);
+  if (fieldMatch && !beforeCursor.endsWith(":")) {
+    return { mode: "field", field: fieldMatch[1].toLowerCase(), valueQuery: "" };
+  }
+  return { mode: "none", field: null, valueQuery: "" };
+}

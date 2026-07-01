@@ -4,6 +4,7 @@ import { useState } from "react";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import { SellerProfileHeader } from "@/components/seller-profile/SellerProfileHeader";
 import { SellerProfileStats } from "@/components/seller-profile/SellerProfileStats";
+import { SellerAnalyticsPanel } from "@/components/seller-profile/SellerAnalyticsPanel";
 import { SellerProductFilters } from "@/components/seller-profile/SellerProductFilters";
 import { SellerProductGrid } from "@/components/seller-profile/SellerProductGrid";
 import { SellerReviews } from "@/components/seller-profile/SellerReviews";
@@ -27,12 +28,14 @@ export function SellerProfilePageClient({ seller }: Props) {
 
   return (
     <MobileLayout>
-      <div
-        className="container mx-auto max-w-6xl px-4 py-8"
-        {...swipe}
-      >
+      <div className="container mx-auto max-w-6xl px-4 py-8" {...swipe}>
         <SellerProfileHeader seller={seller} />
         <SellerProfileStats seller={seller} />
+        <SellerAnalyticsPanel
+          username={seller.username}
+          selectedGame={filters.gameId}
+          onFilterGame={(partial) => setFilters((prev) => ({ ...prev, ...partial }))}
+        />
 
         <div className="mt-6 flex gap-2 border-b border-border/50">
           <button
