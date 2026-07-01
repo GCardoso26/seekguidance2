@@ -16,6 +16,7 @@ from app.api.v1.judge_product import router as judge_product_router
 from app.api.v1.kyc_api import router as kyc_api_router
 from app.api.v1.leagues_api import router as leagues_api_router
 from app.api.v1.marketplace_api import router as marketplace_api_router
+from app.api.v1.marketplace_sellers_api import router as marketplace_sellers_api_router
 from app.api.v1.overlay_api import router as overlay_api_router
 from app.api.v1.players_ecosystem import router as players_ecosystem_router
 from app.api.v1.public_api_v1 import router as public_api_v1_router
@@ -278,6 +279,7 @@ app.include_router(social_api_router)
 app.include_router(admin_api_router)
 app.include_router(stores_api_router)
 app.include_router(marketplace_api_router)
+app.include_router(marketplace_sellers_api_router)
 app.include_router(overlay_api_router)
 app.include_router(public_api_v1_router)
 app.include_router(reviews_api_router)

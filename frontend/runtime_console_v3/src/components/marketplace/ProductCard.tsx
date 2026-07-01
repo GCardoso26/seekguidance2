@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { CardImage } from "@/components/ui/CardImage";
 import { formatShopPrice, type ShopProduct } from "@/lib/marketplace-shop";
@@ -21,14 +22,19 @@ function isNewProduct(createdAt?: string | null): boolean {
 }
 
 export function ProductCard({ product, onAdd }: Props) {
+  const [isHovered, setIsHovered] = useState(false);
   const image = product.images?.[0];
   const gameToken = product.tcg_id ? GAME_TOKENS[product.tcg_id as GameId] : null;
   const showNew = isNewProduct(product.created_at);
   const outOfStock = product.stock !== undefined && product.stock <= 0;
 
   return (
-    <article className="flex flex-col overflow-hidden rounded-xl border border-white/10 bg-white/5">
-      <div className="relative aspect-square bg-black/30">
+    <article
+      className="group flex flex-col overflow-hidden rounded-xl border border-white/10 bg-white/5 transition-all duration-200 hover:border-primary/30 hover:shadow-card-hover"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <div className="relative aspect-square overflow-hidden bg-black/30">
         <Link href={`/marketplace/product/${product.id}`} className="block h-full w-full">
           <CardImage
             src={image}
@@ -36,7 +42,7 @@ export function ProductCard({ product, onAdd }: Props) {
             fallbackLabel={product.name}
             fill
             listQuality
-            className="object-cover"
+            className={`object-cover transition-transform duration-300 ${isHovered ? "scale-110" : "scale-100"}`}
             sizes="(max-width:768px) 50vw, 25vw"
           />
         </Link>
@@ -50,13 +56,13 @@ export function ProductCard({ product, onAdd }: Props) {
             Esgotado
           </span>
         )}
-        <div className="absolute bottom-2 right-2 z-10 flex gap-1">
+        <div className={`absolute bottom-2 right-2 z-10 flex gap-1 transition-opacity ${isHovered ? "opacity-100" : "opacity-80"}`}>
           <PriceAlertButton productId={product.id} product={product} size="sm" />
           <WishlistButton productId={product.id} product={product} size="sm" />
         </div>
       </div>
       <div className="flex flex-1 flex-col gap-1.5 p-3">
-        <Link href={`/marketplace/product/${product.id}`} className="line-clamp-2 text-sm font-semibold text-white hover:text-luxury-gold">
+        <Link href={`/marketplace/product/${product.id}`} className="line-clamp-2 text-sm font-semibold text-white transition-colors group-hover:text-primary">
           {product.name}
         </Link>
         {gameToken && <span className="text-[10px] uppercase tracking-wide text-luxury-mist">{gameToken.name}</span>}
@@ -77,7 +83,7 @@ export function ProductCard({ product, onAdd }: Props) {
             e.stopPropagation();
             onAdd?.(product.id);
           }}
-          className="mt-auto rounded-lg bg-luxury-gold px-3 py-2 text-sm font-semibold text-luxury-onyx disabled:cursor-not-allowed disabled:opacity-50"
+          className="mt-auto rounded-lg bg-luxury-gold px-3 py-2 text-sm font-semibold text-luxury-onyx opacity-100 transition-opacity group-hover:opacity-100 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {outOfStock ? "Indisponível" : "Adicionar"}
         </button>

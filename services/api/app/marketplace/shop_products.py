@@ -83,8 +83,19 @@ async def list_products(
         clauses.append("LOWER(s.slug) = LOWER(:slug)")
         params["slug"] = store_slug
     if search:
-        clauses.append("p.name ILIKE :q")
-        params["q"] = f"%{search.strip()}%"
+        from app.core.search.syntax_parser import syntax_parser
+
+        parsed = syntax_parser.parse(search)
+        if parsed["filters"]:
+            syntax_clauses, syntax_params = syntax_parser.shop_sql_clauses(parsed)
+            clauses.extend(syntax_clauses)
+            params.update(syntax_params)
+        text_q = parsed["text_query"] or (
+            search if not parsed["filters"] else ""
+        )
+        if text_q:
+            clauses.append("p.name ILIKE :q")
+            params["q"] = f"%{text_q.strip()}%"
     if min_price_cents is not None:
         clauses.append("p.price_cents >= :minp")
         params["minp"] = min_price_cents

@@ -90,13 +90,11 @@ function MarketplaceShopBrowseInner() {
 
   return (
     <div className="mt-6 flex flex-col gap-6">
-      <input
-        type="search"
+      <SearchBarWithSyntax
         value={filters.q ?? ""}
-        onChange={(e) => updateFilters({ q: e.target.value || undefined })}
-        placeholder="Buscar produtos…"
-        className="h-11 w-full rounded-md border border-white/10 bg-white/5 px-3 text-sm"
-        aria-label="Buscar produtos"
+        onChange={(v) => updateFilters({ q: v || undefined })}
+        onSubmit={(v) => updateFilters({ q: v || undefined })}
+        placeholder="Buscar produtos… name:set:cmd foil:true"
         data-testid="marketplace-search"
       />
 
