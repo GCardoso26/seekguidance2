@@ -1,5 +1,5 @@
 import { ALL_GAME_IDS, GAME_TOKENS } from "@/lib/tcg-tokens";
-import type { CatalogHealthReport } from "@/types/card";
+import type { CatalogHealthReport, GameId } from "@/types/card";
 
 export interface GameInfo {
   id: string;
@@ -54,4 +54,32 @@ export function mapHealthToGames(health?: CatalogHealthReport | null): GameInfo[
 
 export function countAvailableGames(health?: CatalogHealthReport | null): number {
   return mapHealthToGames(health).filter((g) => g.isAvailable).length;
+}
+
+/** Jogos sempre visíveis no mega-menu do header (independente do health da API). */
+export const MEGA_MENU_GAME_IDS = [
+  "LORCANA",
+  "MTG",
+  "POKEMON",
+  "YGO",
+  "FAB",
+  "DIGIMON",
+  "ONEPIECE",
+  "SWU",
+] as const satisfies readonly GameId[];
+
+export function getMegaMenuGames(health?: CatalogHealthReport | null): GameInfo[] {
+  const byHealth = new Map(mapHealthToGames(health).map((g) => [g.id, g]));
+  return MEGA_MENU_GAME_IDS.map((id) => {
+    const fromApi = byHealth.get(id);
+    const token = GAME_TOKENS[id];
+    return {
+      id,
+      name: token.name,
+      logoUrl: token.logo,
+      cardCount: fromApi?.cardCount ?? 0,
+      primaryColor: token.primary,
+      isAvailable: true,
+    };
+  });
 }
