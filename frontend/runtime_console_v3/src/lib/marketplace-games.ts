@@ -1,4 +1,7 @@
-/** Lista compacta de jogos para filtros do marketplace (evita importar GAME_TOKENS). */
+/** Jogos suportados no header picker (CardTrader-style). */
+import { GAME_TOKENS, ALL_GAME_IDS } from "@/lib/tcg-tokens";
+import type { GameId } from "@/types/card";
+
 export const MARKETPLACE_GAME_OPTIONS = [
   { id: "MTG", name: "Magic: The Gathering" },
   { id: "POKEMON", name: "Pokémon TCG" },
@@ -14,3 +17,14 @@ export const MARKETPLACE_GAME_OPTIONS = [
   { id: "DBFW", name: "Dragon Ball Fusion World" },
   { id: "VANGUARD", name: "Cardfight!! Vanguard" },
 ] as const;
+
+export const SUPPORTED_GAMES = ALL_GAME_IDS.map((id: GameId) => {
+  const t = GAME_TOKENS[id];
+  return {
+    id,
+    slug: t.slug,
+    name: t.name,
+    short_name: t.name.split(":")[0].split(" ")[0],
+    logo_url: t.logo,
+  };
+});

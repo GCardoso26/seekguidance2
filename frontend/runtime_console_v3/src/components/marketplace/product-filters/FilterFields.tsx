@@ -3,6 +3,7 @@
 import { X } from "lucide-react";
 import { MARKETPLACE_CONDITIONS, type MarketplaceProductFilters } from "@/lib/marketplace-filters";
 import { MARKETPLACE_GAME_OPTIONS } from "@/lib/marketplace-games";
+import { MarketplaceFiltersAdvanced } from "@/components/marketplace/MarketplaceFiltersAdvanced";
 import { getCategoriesForGame, categoryLabel, SHOP_CATEGORIES_FLAT } from "@/lib/tcg-product-categories";
 import type { GameId } from "@/types/card";
 import type { MarketplaceStoreOption } from "@/hooks/useMarketplaceProducts";
@@ -140,6 +141,8 @@ export function FilterFields({ filters, onChange, onClear, stores }: FilterField
         />
         <span className="text-sm text-luxury-mist">Só produtos em estoque</span>
       </label>
+
+      <MarketplaceFiltersAdvanced filters={filters} onChange={onChange} />
 
       <button
         type="button"

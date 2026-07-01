@@ -11,6 +11,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from app.api.deps import DbSession
 from app.catalog.admin_auth import require_catalog_sync_auth
 from app.catalog.cron_auth import require_catalog_cron_auth
+from app.catalog.card_versions import get_card_versions
 from app.catalog.detail_service import get_card_detail, get_price_history
 from app.catalog.health import verify_ingestion, verify_ingestion_lite
 from app.catalog.redis_cache import redis_ping
@@ -98,6 +99,25 @@ async def catalog_card_detail(session: DbSession, card_id: str) -> dict[str, Any
     if not detail:
         raise HTTPException(status_code=404, detail="Card not found")
     return detail
+
+
+@router.get("/runtime/judge/catalog/cards/{card_id}/versions")
+async def catalog_card_versions(
+    session: DbSession,
+    card_id: str,
+    foil_only: bool | None = Query(default=None),
+    in_stock: bool | None = Query(default=None, description="Apenas versões com itens disponíveis"),
+    sort: str = Query(default="release_date_desc"),
+) -> dict[str, Any]:
+    allowed = {"release_date_desc", "release_date_asc", "price_asc", "price_desc"}
+    sort_key = sort if sort in allowed else "release_date_desc"
+    return await get_card_versions(
+        session,
+        card_id,
+        foil_only=foil_only,
+        in_stock=in_stock,
+        sort=sort_key,  # type: ignore[arg-type]
+    )
 
 
 @router.get("/runtime/judge/catalog/cards/{card_id}/valuation")

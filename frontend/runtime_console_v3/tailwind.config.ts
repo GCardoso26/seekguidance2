@@ -15,6 +15,10 @@ const config: Config = {
         },
         border: "hsl(var(--border))",
         primary: "hsl(var(--primary))",
+        hub: {
+          DEFAULT: "#FF6B00",
+          500: "#FF6B00",
+        },
         success: "hsl(var(--success))",
         warning: "hsl(var(--warning))",
         danger: "hsl(var(--danger))",
@@ -36,6 +40,10 @@ const config: Config = {
         sans: ["var(--font-geist-sans)", "system-ui", "sans-serif"],
         mono: ["var(--font-geist-mono)", "monospace"],
         display: ["var(--font-geist-sans)", "Inter", "system-ui", "sans-serif"],
+      },
+      boxShadow: {
+        card: "0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)",
+        "card-hover": "0 4px 12px rgba(0,0,0,0.12), 0 2px 4px rgba(0,0,0,0.08)",
       },
       animation: {
         "gradient-shift": "gradientShift 15s ease infinite",

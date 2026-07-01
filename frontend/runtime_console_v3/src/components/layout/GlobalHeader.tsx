@@ -6,6 +6,8 @@ import type { ReactNode } from "react";
 import { Layers, Scale, ShoppingBag, Users } from "lucide-react";
 import { GlobalSearchBar } from "@/components/home/GlobalSearchBar";
 import { GameMegaMenu } from "@/components/games/GameMegaMenu";
+import { HeaderNavActions } from "@/components/layout/HeaderNavActions";
+import { HeaderGamePicker } from "@/components/layout/HeaderGamePicker";
 import { GlobalNotificationBell } from "@/components/notifications/GlobalNotificationBell";
 import { CartHeaderButton } from "@/components/cart/CartHeaderButton";
 import { WishlistBadge } from "@/components/marketplace/WishlistBadge";
@@ -52,7 +54,9 @@ interface GlobalHeaderProps {
 export function GlobalHeader({ showGameTabs = true }: GlobalHeaderProps) {
   const pathname = usePathname();
   const { user, loading } = useJudgeAuth();
-  const showTabs = showGameTabs && (pathname.startsWith("/loja") || pathname === "/");
+  const showTabs =
+    showGameTabs &&
+    (pathname.startsWith("/loja") || pathname === "/" || Boolean(pathname.match(/^\/[a-z-]+\/cards/)));
 
   if (pathname?.startsWith("/login") || pathname?.startsWith("/entrar") || pathname?.startsWith("/auth")) {
     return null;
@@ -74,11 +78,15 @@ export function GlobalHeader({ showGameTabs = true }: GlobalHeaderProps) {
                 <span className="hidden sm:inline">Judge TCG</span>
               </Link>
 
-              <nav className="hidden items-center gap-0.5 lg:flex" aria-label="Principal">
+              <HeaderGamePicker />
+
+              <nav className="hidden items-center gap-0.5 xl:flex" aria-label="Principal">
                 {NAV.map((item) => (
                   <DesktopNavLink key={item.href} {...item} />
                 ))}
               </nav>
+
+              <HeaderNavActions />
 
               <div className="min-w-0 flex-1">
                 <GlobalSearchBar

@@ -206,6 +206,19 @@ async def search_catalog_cards(
     sort_key = sort if sort in SORT_WHITELIST else "relevance"
     query = q.strip()
 
+    syntax_extra_clauses: list[str] = []
+    syntax_params_extra: dict[str, Any] = {}
+    from app.core.search.syntax_parser import syntax_parser
+
+    if query and (":" in query or "=" in query):
+        parsed = syntax_parser.parse(query)
+        if parsed["filters"]:
+            syntax_extra_clauses, syntax_params_extra = syntax_parser.catalog_sql_clauses(parsed)
+        if parsed["text_query"]:
+            query = parsed["text_query"]
+        elif parsed["filters"]:
+            query = ""
+
     cache_params = {
         "q": query,
         "game": game,
@@ -255,6 +268,10 @@ async def search_catalog_cards(
         card_ids=card_ids,
         colors=color_list,
     )
+
+    if syntax_extra_clauses:
+        where_sql = f"{where_sql} AND {' AND '.join(syntax_extra_clauses)}"
+        params = {**params, **syntax_params_extra}
 
     base_from = f"""
         FROM tcg_judge.card_catalog cc
