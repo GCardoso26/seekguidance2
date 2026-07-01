@@ -14,6 +14,7 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { useMarketplaceProductsInfinite, useMarketplaceStores } from "@/hooks/useMarketplaceProducts";
 import { addProductToCart } from "@/lib/marketplace-shop";
 import { showToast } from "@/lib/toast";
+import { SearchBarWithSyntax } from "@/components/search/SearchBarWithSyntax";
 
 const ProductFilters = dynamic(
   () => import("@/components/marketplace/ProductFilters").then((m) => m.ProductFilters),
