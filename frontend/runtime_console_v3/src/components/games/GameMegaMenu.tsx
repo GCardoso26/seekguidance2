@@ -12,13 +12,11 @@ import {
   singlesSearchHref,
   type ProductCategoryId,
 } from "@/lib/tcg-product-categories";
-import { mapHealthToGames } from "@/lib/catalog-games";
+import { getMegaMenuGames } from "@/lib/catalog-games";
 import { useCatalogHealth } from "@/hooks/useCatalogHealth";
 import { GAME_TOKENS, gameSlugFromId } from "@/lib/tcg-tokens";
 import type { GameId } from "@/types/card";
 import { cn } from "@/lib/utils";
-
-const PRIORITY_SLUGS = ["lorcana", "mtg", "pokemon", "yugioh", "fab", "digimon", "onepiece"];
 
 type Props = {
   className?: string;
@@ -27,19 +25,11 @@ type Props = {
 export function GameMegaMenu({ className }: Props) {
   const pathname = usePathname();
   const { data: health } = useCatalogHealth();
-  const games = mapHealthToGames(health).filter((g) => g.isAvailable);
+  const games = getMegaMenuGames(health);
   const [openSlug, setOpenSlug] = useState<string | null>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
 
   const activeSlug = pathname.match(/^\/loja\/([^/]+)/)?.[1] ?? null;
-
-  const sorted = [...games].sort((a, b) => {
-    const sa = gameSlugFromId(a.id as GameId);
-    const sb = gameSlugFromId(b.id as GameId);
-    const ai = PRIORITY_SLUGS.indexOf(sa);
-    const bi = PRIORITY_SLUGS.indexOf(sb);
-    return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
-  });
 
   const close = useCallback(() => setOpenSlug(null), []);
 
@@ -74,7 +64,7 @@ export function GameMegaMenu({ className }: Props) {
           Todos
         </Link>
 
-        {sorted.map((game) => {
+        {games.map((game) => {
           const slug = gameSlugFromId(game.id as GameId);
           const token = GAME_TOKENS[game.id as GameId];
           const active = activeSlug === slug;
@@ -97,7 +87,7 @@ export function GameMegaMenu({ className }: Props) {
                 )}
               >
                 <Image src={game.logoUrl || token.logo} alt="" width={16} height={16} className="h-4 w-4 rounded object-contain" />
-                <span className="max-w-[8rem] truncate">{game.name}</span>
+                <span className="max-w-[9rem] truncate sm:max-w-none">{game.name}</span>
                 <ChevronDown className={cn("h-3.5 w-3.5 transition", isOpen && "rotate-180")} />
               </button>
 
