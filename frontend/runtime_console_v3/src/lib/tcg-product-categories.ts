@@ -262,13 +262,15 @@ export function marketplaceCategoryHref(gameSlug: string, categoryId: ProductCat
   return `/marketplace?${params.toString()}`;
 }
 
-/** Singles → busca de cartas no catálogo */
+/** Singles → busca de cartas no catálogo (namespace CardTrader) */
 export function singlesSearchHref(gameSlug: string): string {
-  return `/loja/${gameSlug}/busca`;
+  return `/${gameSlug}/cards`;
 }
 
+import { gameExpansionsPath } from "@/lib/game-routes";
+
 export function expansionsHref(gameSlug: string): string {
-  return `/loja/${gameSlug}/busca?view=sets`;
+  return gameExpansionsPath(gameSlug);
 }
 
 /** Lista de jogos para navegação (ordem marketplace). */

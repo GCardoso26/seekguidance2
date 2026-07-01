@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { gameLandingPath } from "@/lib/game-routes";
 import { cn } from "@/lib/utils";
 
 interface GameCardProps {
@@ -27,7 +28,7 @@ export function GameCard({
 }: GameCardProps) {
   return (
     <Link
-      href={`/loja/${slug}`}
+      href={gameLandingPath(slug)}
       className={cn(
         "group relative flex flex-col overflow-hidden rounded-2xl border bg-card p-5 transition-all hover:shadow-lg hover:-translate-y-0.5",
         !isAvailable && "opacity-60",

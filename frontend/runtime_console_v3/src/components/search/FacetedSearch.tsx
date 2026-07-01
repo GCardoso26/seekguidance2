@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { LayoutGrid, List } from "lucide-react";
 import { CardGrid } from "@/components/cards/CardGrid";
 import { QuickViewModal } from "@/components/cards/QuickViewModal";
-import { SearchFiltersPanel } from "@/components/search/SearchFiltersPanel";
+import { ProductFiltersSidebar } from "@/components/marketplace/ProductFiltersSidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -28,6 +28,7 @@ export function FacetedSearch({
   initialGame,
   initialQuery,
   searchBasePath = "/loja/busca",
+  cardDetailPath,
 }: FacetedSearchProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -120,7 +121,7 @@ export function FacetedSearch({
       </div>
 
       <div className="flex flex-col gap-6 lg:flex-row">
-        <SearchFiltersPanel
+        <ProductFiltersSidebar
           filters={filters}
           onChange={updateFilters}
           onClear={clearFilters}
@@ -187,7 +188,13 @@ export function FacetedSearch({
             isLoading={isLoading || isFetchingNextPage}
             hasMore={Boolean(hasNextPage)}
             onLoadMore={() => fetchNextPage()}
-            onViewDetail={(id) => setQuickViewCardId(id)}
+            onViewDetail={(id) => {
+              if (cardDetailPath) {
+                router.push(`${cardDetailPath}/${encodeURIComponent(id)}`);
+              } else {
+                setQuickViewCardId(id);
+              }
+            }}
             onAddToDeck={(card) => router.push(`/decks?add=${card.id}`)}
             onAddToCart={() => router.push("/carrinho")}
           />

@@ -62,58 +62,58 @@ export function GlobalHeader({ showGameTabs = true }: GlobalHeaderProps) {
     <>
       <div className="sticky top-0 z-50">
         <CpfRequiredBanner />
-        <header className="border-b border-white/10 bg-luxury-obsidian/95 backdrop-blur">
-      <div className="mx-auto max-w-7xl px-4">
-        <div className="flex h-14 items-center gap-3">
-          <Link
-            href="/"
-            className="flex shrink-0 items-center gap-2 text-sm font-semibold text-luxury-gold"
-            data-testid="header-logo"
-          >
-            <span className="text-lg">⚖️</span>
-            <span className="hidden sm:inline">Judge TCG</span>
-          </Link>
-
-          <nav className="hidden items-center gap-0.5 lg:flex" aria-label="Principal">
-            {NAV.map((item) => (
-              <DesktopNavLink key={item.href} {...item} />
-            ))}
-          </nav>
-
-          <div className="min-w-0 flex-1">
-            <GlobalSearchBar
-              variant="header"
-              placeholder="Buscar cards, sellers, decks…"
-              className="max-w-none"
-            />
-          </div>
-
-          <div className="flex shrink-0 items-center gap-1">
-            <UserLevelBadge compact />
-            <WishlistBadge />
-            <CartHeaderButton />
-            {loading ? (
-              <div className="h-8 w-8 animate-pulse rounded-full bg-white/10" aria-hidden />
-            ) : user ? (
-              <>
-                <GlobalNotificationBell />
-                <UserMenu />
-              </>
-            ) : (
+        <header className="relative overflow-visible border-b border-white/10 bg-luxury-obsidian/95 backdrop-blur">
+          <div className="mx-auto max-w-7xl px-4">
+            <div className="flex h-14 items-center gap-3">
               <Link
-                href="/entrar"
-                data-testid="login-submit"
-                className="rounded-lg bg-luxury-gold px-4 py-2 text-sm font-medium text-luxury-onyx transition hover:bg-luxury-gold/90"
+                href="/"
+                className="flex shrink-0 items-center gap-2 text-sm font-semibold text-luxury-gold"
+                data-testid="header-logo"
               >
-                Entrar
+                <span className="text-lg">⚖️</span>
+                <span className="hidden sm:inline">Judge TCG</span>
               </Link>
-            )}
-          </div>
-        </div>
 
-        {showTabs && <GameMegaMenu />}
-      </div>
-    </header>
+              <nav className="hidden items-center gap-0.5 lg:flex" aria-label="Principal">
+                {NAV.map((item) => (
+                  <DesktopNavLink key={item.href} {...item} />
+                ))}
+              </nav>
+
+              <div className="min-w-0 flex-1">
+                <GlobalSearchBar
+                  variant="header"
+                  placeholder="Buscar cards, sellers, decks…"
+                  className="max-w-none"
+                />
+              </div>
+
+              <div className="flex shrink-0 items-center gap-1">
+                <UserLevelBadge compact />
+                <WishlistBadge />
+                <CartHeaderButton />
+                {loading ? (
+                  <div className="h-8 w-8 animate-pulse rounded-full bg-white/10" aria-hidden />
+                ) : user ? (
+                  <>
+                    <GlobalNotificationBell />
+                    <UserMenu />
+                  </>
+                ) : (
+                  <Link
+                    href="/entrar"
+                    data-testid="login-submit"
+                    className="rounded-lg bg-luxury-gold px-4 py-2 text-sm font-medium text-luxury-onyx transition hover:bg-luxury-gold/90"
+                  >
+                    Entrar
+                  </Link>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {showTabs && <GameMegaMenu />}
+        </header>
       </div>
     </>
   );

@@ -13,7 +13,7 @@ import { usePagePerformance } from "@/hooks/usePagePerformance";
 
 function GameHubContent() {
   const params = useParams();
-  const slug = String(params.game ?? "");
+  const slug = String(params.game ?? params.gameSlug ?? "");
   const gameId = gameIdFromSlug(slug);
   const { data: health, isLoading: healthLoading } = useCatalogHealth();
   usePagePerformance(`loja/${slug}`);
