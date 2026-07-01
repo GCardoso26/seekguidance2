@@ -1,7 +1,13 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useMemo } from "react";
 import { useSearchSyntax } from "@/hooks/useSearchSyntax";
+import { useSyntaxAutocomplete } from "@/hooks/useSyntaxAutocomplete";
+import {
+  FIELD_COLORS,
+  parseActiveSyntaxContext,
+  supportsValueAutocomplete,
+} from "@/lib/marketplace-search-syntax";
 import { Search, X } from "lucide-react";
 
 const SYNTAX_SUGGESTIONS = [
@@ -21,6 +27,7 @@ type Props = {
   onSubmit?: (value: string) => void;
   placeholder?: string;
   className?: string;
+  game?: string;
   "data-testid"?: string;
 };
 
@@ -30,6 +37,7 @@ export function SearchBarWithSyntax({
   onSubmit,
   placeholder,
   className,
+  game = "mtg",
   "data-testid": testId,
 }: Props) {
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -38,31 +46,54 @@ export function SearchBarWithSyntax({
   const inputRef = useRef<HTMLInputElement>(null);
   const parsed = useSearchSyntax(value);
 
-  const getCurrentField = useCallback(() => {
-    const beforeCursor = value.slice(0, cursorPosition);
-    const match = beforeCursor.match(/([a-zA-Z_]+)$/);
-    return match ? match[1].toLowerCase() : null;
-  }, [value, cursorPosition]);
+  const beforeCursor = value.slice(0, cursorPosition);
+  const syntaxContext = useMemo(() => parseActiveSyntaxContext(beforeCursor), [beforeCursor]);
 
-  const currentField = getCurrentField();
-  const filteredSuggestions = currentField
-    ? SYNTAX_SUGGESTIONS.filter((s) => s.field.startsWith(currentField))
-    : [];
+  const filteredFieldSuggestions =
+    syntaxContext.mode === "field" && syntaxContext.field
+      ? SYNTAX_SUGGESTIONS.filter((s) => s.field.startsWith(syntaxContext.field!))
+      : [];
 
-  function insertSuggestion(suggestion: (typeof SYNTAX_SUGGESTIONS)[number]) {
-    const beforeCursor = value.slice(0, cursorPosition);
+  const valueAutocompleteEnabled =
+    syntaxContext.mode === "value" && Boolean(syntaxContext.field);
+  const { data: valueSuggestions = [], isLoading: valuesLoading } = useSyntaxAutocomplete(
+    syntaxContext.field,
+    game,
+    syntaxContext.valueQuery,
+    valueAutocompleteEnabled && showSuggestions,
+  );
+
+  const isValueMode = valueAutocompleteEnabled;
+  const suggestionCount = isValueMode ? valueSuggestions.length : filteredFieldSuggestions.length;
+
+  function insertFieldSuggestion(suggestion: (typeof SYNTAX_SUGGESTIONS)[number]) {
     const afterCursor = value.slice(cursorPosition);
     const newBefore = beforeCursor.replace(/[a-zA-Z_]+$/, suggestion.example);
-    const newValue = `${newBefore} ${afterCursor}`.trim();
-    onChange(newValue);
+    onChange(`${newBefore} ${afterCursor}`.trim());
     setShowSuggestions(false);
     setHighlightedIndex(-1);
+    focusCursor(newBefore.length + 1);
+  }
+
+  function insertValueSuggestion(suggestionValue: string) {
+    const field = syntaxContext.field!;
+    const needsQuotes = suggestionValue.includes(" ");
+    const formatted = needsQuotes ? `"${suggestionValue}"` : suggestionValue;
+    const replaced = beforeCursor.replace(
+      new RegExp(`(${field}\\s*:\\s*)("([^"]*)"?)?([^:\\s"]*)$`),
+      `$1${formatted}`,
+    );
+    const afterCursor = value.slice(cursorPosition);
+    onChange(`${replaced}${afterCursor}`.trimStart());
+    setShowSuggestions(false);
+    setHighlightedIndex(-1);
+    focusCursor(replaced.length);
+  }
+
+  function focusCursor(pos: number) {
     setTimeout(() => {
-      if (inputRef.current) {
-        const newPos = newBefore.length + 1;
-        inputRef.current.setSelectionRange(newPos, newPos);
-        inputRef.current.focus();
-      }
+      inputRef.current?.setSelectionRange(pos, pos);
+      inputRef.current?.focus();
     }, 0);
   }
 
@@ -78,8 +109,12 @@ export function SearchBarWithSyntax({
 
   function handleKeyDown(e: React.KeyboardEvent) {
     if (e.key === "Enter") {
-      if (highlightedIndex >= 0 && filteredSuggestions[highlightedIndex]) {
-        insertSuggestion(filteredSuggestions[highlightedIndex]);
+      if (highlightedIndex >= 0) {
+        if (isValueMode && valueSuggestions[highlightedIndex]) {
+          insertValueSuggestion(valueSuggestions[highlightedIndex].value);
+        } else if (filteredFieldSuggestions[highlightedIndex]) {
+          insertFieldSuggestion(filteredFieldSuggestions[highlightedIndex]);
+        }
       } else {
         onSubmit?.(value);
         setShowSuggestions(false);
@@ -88,13 +123,17 @@ export function SearchBarWithSyntax({
       setShowSuggestions(false);
     } else if (e.key === "ArrowDown") {
       e.preventDefault();
-      setHighlightedIndex((i) => Math.min(i + 1, filteredSuggestions.length - 1));
+      setHighlightedIndex((i) => Math.min(i + 1, suggestionCount - 1));
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
       setHighlightedIndex((i) => Math.max(i - 1, -1));
     } else if (e.key === "Tab" && highlightedIndex >= 0) {
       e.preventDefault();
-      insertSuggestion(filteredSuggestions[highlightedIndex]);
+      if (isValueMode && valueSuggestions[highlightedIndex]) {
+        insertValueSuggestion(valueSuggestions[highlightedIndex].value);
+      } else if (filteredFieldSuggestions[highlightedIndex]) {
+        insertFieldSuggestion(filteredFieldSuggestions[highlightedIndex]);
+      }
     }
   }
 
@@ -111,6 +150,10 @@ export function SearchBarWithSyntax({
     );
   }
 
+  const showPopover =
+    showSuggestions &&
+    (isValueMode || (syntaxContext.mode === "field" && filteredFieldSuggestions.length > 0));
+
   return (
     <div className="relative">
       <div className="relative">
@@ -123,12 +166,17 @@ export function SearchBarWithSyntax({
             onChange(e.target.value);
             setCursorPosition(e.target.selectionStart || 0);
             setShowSuggestions(true);
+            setHighlightedIndex(-1);
           }}
           onKeyDown={handleKeyDown}
           onFocus={() => setShowSuggestions(true)}
           onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+          onClick={(e) => setCursorPosition((e.target as HTMLInputElement).selectionStart || 0)}
           placeholder={placeholder || "Buscar cards…"}
-          className={className ?? "h-11 w-full rounded-md border border-white/10 bg-white/5 py-2.5 pl-10 pr-20 text-sm"}
+          className={
+            className ??
+            "h-11 w-full rounded-md border border-white/10 bg-white/5 py-2.5 pl-10 pr-20 text-sm"
+          }
           data-testid={testId}
         />
         <div className="absolute right-3 top-1/2 flex -translate-y-1/2 items-center gap-1">
@@ -148,27 +196,59 @@ export function SearchBarWithSyntax({
         </div>
       </div>
 
-      {showSuggestions && filteredSuggestions.length > 0 && (
-        <div className="absolute left-0 right-0 top-full z-50 mt-1 rounded-lg border bg-popover py-1 shadow-lg">
-          <p className="px-3 py-1.5 text-xs uppercase text-muted-foreground">Campos de busca</p>
-          {filteredSuggestions.map((suggestion, index) => (
-            <button
-              key={suggestion.field}
-              type="button"
-              className={`flex w-full items-center gap-3 px-3 py-2 text-left hover:bg-muted ${
-                index === highlightedIndex ? "bg-muted" : ""
-              }`}
-              onMouseDown={(e) => e.preventDefault()}
-              onClick={() => insertSuggestion(suggestion)}
-              onMouseEnter={() => setHighlightedIndex(index)}
-            >
-              <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
-                {suggestion.field}
-              </code>
-              <span className="text-sm">{suggestion.description}</span>
-              <span className="ml-auto text-xs text-muted-foreground">{suggestion.example}</span>
-            </button>
-          ))}
+      {showPopover && (
+        <div
+          className="absolute left-0 right-0 top-full z-50 mt-1 max-h-64 overflow-y-auto rounded-lg border bg-popover py-1 shadow-lg sm:left-0 sm:right-auto sm:w-72"
+          data-testid="syntax-autocomplete-popover"
+        >
+          <p className="px-3 py-1.5 text-xs uppercase text-muted-foreground">
+            {isValueMode ? `Valores — ${syntaxContext.field}` : "Campos de busca"}
+          </p>
+          {valuesLoading && isValueMode && (
+            <p className="px-3 py-2 text-sm text-muted-foreground">Carregando…</p>
+          )}
+          {!valuesLoading && isValueMode && valueSuggestions.length === 0 && (
+            <p className="px-3 py-2 text-sm text-muted-foreground">Nenhum valor encontrado</p>
+          )}
+          {isValueMode && !valuesLoading
+            ? valueSuggestions.map((suggestion, index) => (
+                <button
+                  key={suggestion.value}
+                  type="button"
+                  className={`flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm hover:bg-muted ${
+                    index === highlightedIndex ? "bg-muted" : ""
+                  }`}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => insertValueSuggestion(suggestion.value)}
+                  onMouseEnter={() => setHighlightedIndex(index)}
+                >
+                  <span
+                    dangerouslySetInnerHTML={{
+                      __html: suggestion.highlight || suggestion.value,
+                    }}
+                  />
+                  {suggestion.count > 0 && (
+                    <span className="text-xs text-muted-foreground">{suggestion.count}</span>
+                  )}
+                </button>
+              ))
+            : filteredFieldSuggestions.map((suggestion, index) => (
+                <button
+                  key={suggestion.field}
+                  type="button"
+                  className={`flex w-full items-center gap-3 px-3 py-2 text-left hover:bg-muted ${
+                    index === highlightedIndex ? "bg-muted" : ""
+                  }`}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => insertFieldSuggestion(suggestion)}
+                  onMouseEnter={() => setHighlightedIndex(index)}
+                >
+                  <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
+                    {suggestion.field}
+                  </code>
+                  <span className="text-sm">{suggestion.description}</span>
+                </button>
+              ))}
         </div>
       )}
 
@@ -177,7 +257,9 @@ export function SearchBarWithSyntax({
           {parsed.filters.map((filter, i) => (
             <span
               key={`${filter.field}-${i}`}
-              className="inline-flex items-center gap-1 rounded-full bg-primary/5 px-2 py-1 text-xs text-primary"
+              className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs ${
+                FIELD_COLORS[String(filter.field)] ?? "bg-primary/5 text-primary"
+              }`}
             >
               <span className="font-medium">{filter.field}</span>
               <span className="text-muted-foreground">{filter.operator}</span>

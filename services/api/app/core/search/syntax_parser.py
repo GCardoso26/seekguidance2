@@ -176,5 +176,37 @@ class SearchSyntaxParser:
         }
         return op_map.get(filt.operator, f"{column_expr} = :{key}")
 
+    VALID_FIELD_VALUES: dict[str, dict[str, list[str]] | list[str]] = {
+        "color": {
+            "mtg": ["W", "U", "B", "R", "G", "C", "M", "White", "Blue", "Black", "Red", "Green", "Colorless", "Multicolor"],
+            "pokemon": ["Grass", "Fire", "Water", "Lightning", "Psychic", "Fighting", "Darkness", "Metal", "Fairy", "Dragon", "Colorless"],
+        },
+        "rarity": {
+            "mtg": ["common", "uncommon", "rare", "mythic", "special", "bonus", "land"],
+            "pokemon": ["Common", "Uncommon", "Rare", "Rare Holo", "Ultra Rare", "Secret Rare", "Promo"],
+        },
+        "foil": ["true", "false", "yes", "no", "1", "0"],
+        "signed": ["true", "false", "yes", "no"],
+        "graded": ["true", "false", "yes", "no"],
+        "grading_company": ["PSA", "BGS", "CGC", "SGC", "ACE"],
+    }
+
+    def validate_syntax_value(self, field: str, value: str, game: str = "mtg") -> tuple[bool, str | None]:
+        field_key = field.lower()
+        raw = str(value).strip()
+        known = self.VALID_FIELD_VALUES.get(field_key)
+        if known is None:
+            return True, None
+        options: list[str]
+        if isinstance(known, dict):
+            options = known.get(game.lower(), known.get("mtg", []))
+        else:
+            options = known
+        lower_opts = [o.lower() for o in options]
+        if raw.lower() in lower_opts:
+            return True, None
+        prefix = next((options[i] for i, o in enumerate(lower_opts) if o.startswith(raw.lower())), None)
+        return False, prefix
+
 
 syntax_parser = SearchSyntaxParser()

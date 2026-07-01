@@ -304,6 +304,7 @@ async def get_seller_products(
     graded: bool | None = None,
     price_min: int | None = None,
     price_max: int | None = None,
+    game_id: str | None = None,
     sort: Literal["price_asc", "price_desc", "name", "newest"] = "price_asc",
 ) -> dict[str, Any]:
     row = await _resolve_seller_row(session, username)
@@ -337,6 +338,18 @@ async def get_seller_products(
         params["pmax"] = price_max
     if signed or altered or graded:
         clauses.append("FALSE")
+    if game_id:
+        clauses.append(
+            """EXISTS (
+                SELECT 1 FROM tcg_judge.catalog_games cg
+                WHERE cg.game_code = cc.game_code
+                  AND (
+                    LOWER(cg.slug) = LOWER(:game_id)
+                    OR LOWER(cg.game_code) = REPLACE(LOWER(:game_id), '-', '_')
+                  )
+            )"""
+        )
+        params["game_id"] = game_id.strip()
 
     order_map = {
         "price_asc": "cl.price_cents ASC",
@@ -376,6 +389,7 @@ async def get_seller_products(
         SELECT COUNT(*)::int AS total
         FROM tcg_judge.card_listings cl
         JOIN tcg_judge.stores s ON s.id = cl.store_id
+        JOIN tcg_judge.card_catalog cc ON cc.id = cl.card_id
         WHERE {where_sql}
     """
 

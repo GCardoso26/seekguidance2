@@ -13,5 +13,6 @@ export function searchParamsFromSellerProductFilters(
   if (filters.minPrice !== undefined) params.set("price_min", String(filters.minPrice * 100));
   if (filters.maxPrice !== undefined) params.set("price_max", String(filters.maxPrice * 100));
   if (filters.sortBy) params.set("sort", filters.sortBy);
+  if (filters.gameId) params.set("game_id", filters.gameId);
   return params;
 }

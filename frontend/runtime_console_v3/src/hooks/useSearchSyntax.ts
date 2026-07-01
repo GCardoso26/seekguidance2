@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { parseSearchSyntax } from "@/lib/marketplace-search-syntax";
+import { parseSearchSyntax, isKnownValue, suggestValue } from "@/lib/marketplace-search-syntax";
 
 export type ParsedSyntax = {
   textQuery: string;
@@ -18,8 +18,13 @@ export function useSearchSyntax(query: string): ParsedSyntax & { isValid: boolea
       "rarity", "foil", "signed", "graded", "lang", "language",
     ]);
     for (const f of syntaxFilters) {
-      if (!known.has(String(f.field))) {
+      if (!known.has(String(f.field)) && !["foil", "signed", "graded", "lang", "language", "oracle", "artist", "set", "type", "rarity", "cmc", "power", "toughness"].includes(String(f.field))) {
         errors.push(`Campo desconhecido: ${f.field}`);
+      } else if (typeof f.value === "string" && !isKnownValue(String(f.field), f.value)) {
+        const suggestion = suggestValue(String(f.field), f.value);
+        if (suggestion) {
+          errors.push(`Valor desconhecido para ${f.field}; sugestão: ${suggestion}`);
+        }
       }
     }
     return {

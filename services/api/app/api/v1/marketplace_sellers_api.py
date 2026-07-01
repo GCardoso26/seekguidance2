@@ -4,13 +4,17 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from fastapi import APIRouter, Header, HTTPException, Query
+from fastapi import APIRouter, Header, HTTPException, Query, Request
 from pydantic import BaseModel, Field
 
 from app.api.deps import DbSession
 from app.api.v1.tournament_system import _require_user
+from app.core.config import get_settings
+from app.core.rate_limit import allow_request, build_rate_limit_response, client_key
+from app.core.search.syntax_values import VALID_SYNTAX_VALUE_FIELDS, fetch_syntax_values
 from app.marketplace import marketplace_sellers as sellers_svc
 from app.marketplace import shop_reviews as shop_reviews_svc
+from app.marketplace.seller_analytics import get_seller_analytics
 from app.players.store import get_profile_by_handle
 
 router = APIRouter(tags=["marketplace-sellers"])
@@ -107,6 +111,7 @@ async def get_marketplace_seller_products(
     graded: bool | None = None,
     price_min: int | None = None,
     price_max: int | None = None,
+    game_id: str | None = None,
     sort: Literal["price_asc", "price_desc", "name", "newest"] = "price_asc",
 ) -> dict[str, Any]:
     return await sellers_svc.get_seller_products(
@@ -122,6 +127,7 @@ async def get_marketplace_seller_products(
         graded=graded,
         price_min=price_min,
         price_max=price_max,
+        game_id=game_id,
         sort=sort,
     )
 
@@ -188,6 +194,36 @@ async def create_marketplace_seller_review(
         item_as_described=body.condition_accuracy is not None and body.condition_accuracy >= 4,
     )
     return _serialize_review(row)
+
+
+@router.get("/runtime/judge/marketplace/sellers/{username}/analytics")
+async def get_marketplace_seller_analytics(session: DbSession, username: str) -> dict[str, Any]:
+    return await get_seller_analytics(session, username)
+
+
+@router.get("/runtime/judge/marketplace/search/syntax-values")
+async def get_syntax_values(
+    request: Request,
+    session: DbSession,
+    field: str = Query(..., min_length=1),
+    game: str = Query(default="mtg"),
+    q: str = Query(default=""),
+    limit: int = Query(default=10, ge=1, le=20),
+) -> dict[str, Any]:
+    settings = get_settings()
+    ip = client_key(request, trust_proxy=settings.judge_trust_proxy_headers)
+    if not allow_request(
+        "syntax_autocomplete",
+        ip,
+        limit=30,
+        window_seconds=60,
+        redis_url=settings.redis_url,
+    ):
+        return build_rate_limit_response()
+
+    if field.strip().lower() not in VALID_SYNTAX_VALUE_FIELDS:
+        raise HTTPException(400, f"Campo inválido: {field}")
+    return await fetch_syntax_values(session, field=field, game=game, q=q, limit=limit)
 
 
 @router.get("/runtime/judge/marketplace/search/parse")
