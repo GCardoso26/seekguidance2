@@ -286,7 +286,7 @@ export function CardDetailPage({ cardId }: CardDetailPageProps) {
                       <CardTitle className="text-lg">Versões da carta</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <CardVersionsTab card={card} relatedCards={relatedCards} />
+                      <CardVersionsTab cardId={cardId} card={card} relatedCards={relatedCards} />
                     </CardContent>
                   </Card>
                 </TabsContent>
