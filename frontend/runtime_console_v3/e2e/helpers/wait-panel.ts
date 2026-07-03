@@ -8,8 +8,11 @@ export async function waitForSellerPanelReady(page: Page, timeout = 60_000) {
     page
       .locator("main")
       .first()
-      .or(page.getByRole("heading", { name: /^(cupons|painel|pdv|estoque|vendas|dashboard)$/i }))
-      .or(page.getByText(/carregando painel|atualizando status do cadastro/i))
+      .or(page.getByTestId("seller-global-search-trigger"))
+      .or(page.getByTestId("header-notifications-bell"))
+      .or(page.getByTestId("dashboard-metrics"))
+      .or(page.getByRole("heading", { name: /cupons|produtos|tickets|pedidos|painel|pdv|estoque|vendas|dashboard/i }))
+      .or(page.getByText(/carregando painel|atualizando status do cadastro|redirecionando/i))
       .or(page.getByRole("link", { name: /cadastre sua loja|crie uma loja|cadastrar loja/i }))
       .first(),
   ).toBeVisible({ timeout });

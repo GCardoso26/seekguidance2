@@ -27,6 +27,8 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
           API_PROXY_TARGET: https://seekguidance.onrender.com
+          NEXT_PUBLIC_FEATURE_GLOBAL_SEARCH: "true"
+          NEXT_PUBLIC_FEATURE_HEADER_NOTIFICATIONS: "true"
       - run: npx playwright test --project=chromium
         env:
           CI: true

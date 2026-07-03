@@ -25,6 +25,7 @@ export async function POST(req: NextRequest) {
       headers: { ...(await tournamentProxyHeaders()), "Content-Type": "application/json" },
       body,
     });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const text = await res.text();
     return new NextResponse(text, { status: res.status, headers: { "Content-Type": "application/json" } });
   } catch {

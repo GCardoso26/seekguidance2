@@ -19,8 +19,8 @@ authTest.describe("Seller products", () => {
   authTest("products page shows categories", async ({ sellerPage: page }) => {
     await page.goto("/vendedor/painel/catalogo/produtos");
     await waitForSellerPanelReady(page);
-    await expect(page.getByText("Sleeves")).toBeVisible({ timeout: 20_000 });
-    await expect(page.getByText("Deck Box")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Sleeves" })).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByRole("button", { name: "Deck Box" })).toBeVisible();
   });
 });
 
@@ -47,6 +47,6 @@ authTest.describe("Seller tickets", () => {
     await page.getByText("+ Novo Ticket").click();
     await page.getByLabel("Assunto").fill("Pedido não recebido");
     await page.getByText("Criar").click();
-    await expect(page.getByText("Ticket criado")).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText("Ticket criado", { exact: true })).toBeVisible({ timeout: 15_000 });
   });
 });

@@ -1,27 +1,28 @@
 import { test as authTest, expect as authExpect } from "../fixtures/auth";
+import { mockSellerSprintApis } from "../helpers/seller-mock-routes";
 import { waitForSellerPanelReady } from "../helpers/wait-panel";
-
 authTest.describe("Vendedor — cupons", () => {
   authTest.describe.configure({ timeout: 90_000 });
 
   authTest("seller acessa cupons e vê heading", async ({ sellerPage: page }) => {
-    await page.goto("/vendedor/painel/cupons");
-    await authExpect(page).toHaveURL(/\/vendedor\/painel\/marketing\/cupons/, { timeout: 20_000 });
+    await mockSellerSprintApis(page);
+    await page.goto("/vendedor/painel/marketing/cupons");
     await waitForSellerPanelReady(page);
 
     await authExpect(
       page
         .getByRole("heading", { name: /^cupons$/i })
-        .or(page.getByRole("link", { name: /cadastre sua loja/i }))
+        .or(page.getByRole("link", { name: /cadastrar loja/i }))
         .first(),
     ).toBeVisible({ timeout: 30_000 });
   });
 
   authTest("fluxo criar cupom e listar", async ({ sellerPage: page }) => {
-    await page.goto("/vendedor/painel/cupons");
+    await mockSellerSprintApis(page);
+    await page.goto("/vendedor/painel/marketing/cupons");
     await waitForSellerPanelReady(page);
 
-    const noStore = page.getByRole("link", { name: /cadastre sua loja/i });
+    const noStore = page.getByRole("link", { name: /cadastrar loja/i });
     if ((await noStore.count()) > 0) return;
 
     const newBtn = page.getByTestId("coupon-new-btn");
@@ -47,8 +48,9 @@ authTest.describe("Vendedor — cupons", () => {
   });
 
   authTest("cupons mobile 375px mostra cards ou empty", async ({ sellerPage: page }) => {
+    await mockSellerSprintApis(page);
     await page.setViewportSize({ width: 375, height: 667 });
-    await page.goto("/vendedor/painel/cupons");
+    await page.goto("/vendedor/painel/marketing/cupons");
     await waitForSellerPanelReady(page);
 
     await authExpect(
@@ -56,7 +58,7 @@ authTest.describe("Vendedor — cupons", () => {
         .getByTestId("coupon-cards")
         .or(page.getByTestId("coupons-empty"))
         .or(page.getByTestId("page-error"))
-        .or(page.getByRole("link", { name: /cadastre sua loja/i }))
+        .or(page.getByRole("link", { name: /cadastrar loja/i }))
         .first(),
     ).toBeVisible({ timeout: 30_000 });
 

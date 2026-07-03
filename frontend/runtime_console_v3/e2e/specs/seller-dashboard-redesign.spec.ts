@@ -1,10 +1,12 @@
 import { test as authTest, expect } from "../fixtures/auth";
+import { mockSellerSprintApis } from "../helpers/seller-mock-routes";
 import { waitForSellerPanelReady } from "../helpers/wait-panel";
 
 authTest.describe("Seller dashboard redesign", () => {
   authTest.describe.configure({ timeout: 90_000 });
 
   authTest("dashboard shows operational metrics", async ({ sellerPage: page }) => {
+    await mockSellerSprintApis(page);
     await page.goto("/vendedor/painel");
     await waitForSellerPanelReady(page);
     await expect(page.getByTestId("dashboard-metrics")).toBeVisible({ timeout: 20_000 });
