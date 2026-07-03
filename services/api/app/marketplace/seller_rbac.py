@@ -8,6 +8,9 @@ from typing import Any
 # Módulos × ações
 PermissionMatrix = dict[str, dict[str, bool]]
 
+_ACTIONS = ("view", "create", "edit", "delete", "export", "approve")
+_DENY = dict.fromkeys(_ACTIONS, False)
+
 ROLE_DEFAULTS: dict[str, PermissionMatrix] = {
     "store_owner": {
         m: {a: True for a in ("view", "create", "edit", "delete", "export", "approve")}
@@ -33,45 +36,45 @@ ROLE_DEFAULTS: dict[str, PermissionMatrix] = {
         "finance": {"view": False, "create": False, "edit": False, "delete": False, "export": False, "approve": False},
         "settings": {"view": False, "create": False, "edit": False, "delete": False, "export": False, "approve": False},
         "team": {"view": False, "create": False, "edit": False, "delete": False, "export": False, "approve": False},
-        "marketing": {"view": False, "create": False, "edit": False, "delete": False, "export": False, "approve": False},
+        "marketing": _DENY,
     },
     "stock_keeper": {
-        "orders": {"view": False, "create": False, "edit": False, "delete": False, "export": False, "approve": False},
-        "customers": {"view": False, "create": False, "edit": False, "delete": False, "export": False, "approve": False},
+        "orders": _DENY,
+        "customers": _DENY,
         "inventory": {"view": True, "create": True, "edit": True, "delete": False, "export": False, "approve": False},
         "catalog": {"view": True, "create": False, "edit": False, "delete": False, "export": False, "approve": False},
         "tickets": {"view": False, "create": False, "edit": False, "delete": False, "export": False, "approve": False},
         "finance": {"view": False, "create": False, "edit": False, "delete": False, "export": False, "approve": False},
         "settings": {"view": False, "create": False, "edit": False, "delete": False, "export": False, "approve": False},
         "team": {"view": False, "create": False, "edit": False, "delete": False, "export": False, "approve": False},
-        "marketing": {"view": False, "create": False, "edit": False, "delete": False, "export": False, "approve": False},
+        "marketing": _DENY,
     },
     "support": {
         "orders": {"view": True, "create": False, "edit": False, "delete": False, "export": False, "approve": False},
         "customers": {"view": True, "create": False, "edit": False, "delete": False, "export": False, "approve": False},
-        "inventory": {"view": False, "create": False, "edit": False, "delete": False, "export": False, "approve": False},
+        "inventory": _DENY,
         "catalog": {"view": False, "create": False, "edit": False, "delete": False, "export": False, "approve": False},
         "tickets": {"view": True, "create": True, "edit": True, "delete": False, "export": False, "approve": False},
         "finance": {"view": False, "create": False, "edit": False, "delete": False, "export": False, "approve": False},
         "settings": {"view": False, "create": False, "edit": False, "delete": False, "export": False, "approve": False},
         "team": {"view": False, "create": False, "edit": False, "delete": False, "export": False, "approve": False},
-        "marketing": {"view": False, "create": False, "edit": False, "delete": False, "export": False, "approve": False},
+        "marketing": _DENY,
     },
     "finance": {
         "orders": {"view": True, "create": False, "edit": False, "delete": False, "export": True, "approve": False},
-        "customers": {"view": False, "create": False, "edit": False, "delete": False, "export": False, "approve": False},
-        "inventory": {"view": False, "create": False, "edit": False, "delete": False, "export": False, "approve": False},
+        "customers": _DENY,
+        "inventory": _DENY,
         "catalog": {"view": False, "create": False, "edit": False, "delete": False, "export": False, "approve": False},
         "tickets": {"view": False, "create": False, "edit": False, "delete": False, "export": False, "approve": False},
         "finance": {"view": True, "create": False, "edit": False, "delete": False, "export": True, "approve": False},
         "settings": {"view": False, "create": False, "edit": False, "delete": False, "export": False, "approve": False},
         "team": {"view": False, "create": False, "edit": False, "delete": False, "export": False, "approve": False},
-        "marketing": {"view": False, "create": False, "edit": False, "delete": False, "export": False, "approve": False},
+        "marketing": _DENY,
     },
     "marketing": {
-        "orders": {"view": False, "create": False, "edit": False, "delete": False, "export": False, "approve": False},
+        "orders": _DENY,
         "customers": {"view": True, "create": False, "edit": False, "delete": False, "export": True, "approve": False},
-        "inventory": {"view": False, "create": False, "edit": False, "delete": False, "export": False, "approve": False},
+        "inventory": _DENY,
         "catalog": {"view": True, "create": False, "edit": False, "delete": False, "export": False, "approve": False},
         "tickets": {"view": False, "create": False, "edit": False, "delete": False, "export": False, "approve": False},
         "finance": {"view": False, "create": False, "edit": False, "delete": False, "export": False, "approve": False},

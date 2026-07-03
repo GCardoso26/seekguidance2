@@ -5,7 +5,6 @@ from __future__ import annotations
 import asyncio
 from typing import Any
 
-from fastapi import HTTPException
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 

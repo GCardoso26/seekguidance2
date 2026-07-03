@@ -147,7 +147,13 @@ async def _recent_orders_overview(session: AsyncSession, store_id: str, *, limit
     return [dict(r) for r in rows]
 
 
-async def _low_stock_items(session: AsyncSession, store_id: str, owner_id: str, *, threshold: int = 3) -> list[dict[str, Any]]:
+async def _low_stock_items(
+    session: AsyncSession,
+    store_id: str,
+    owner_id: str,
+    *,
+    threshold: int = 3,
+) -> list[dict[str, Any]]:
     rows = (
         await session.execute(
             text(

@@ -1,7 +1,7 @@
 """Testes do catálogo vendedor."""
 
-from app.marketplace.seller_catalog import DEFAULT_GAME_CONFIG
 from app.catalog.games_service import game_code_from_slug
+from app.marketplace.seller_catalog import DEFAULT_GAME_CONFIG
 
 
 def test_default_game_config_has_conditions():

@@ -6,8 +6,10 @@ describe("buildSellerOrdersQuery", () => {
     expect(buildSellerOrdersQuery(2, 20)).toBe("page=2&limit=20");
   });
 
-  it("inclui status quando informado", () => {
-    expect(buildSellerOrdersQuery(1, 10, "pending")).toBe("page=1&limit=10&status=pending");
+  it("inclui tab quando informada", () => {
+    expect(buildSellerOrdersQuery(1, 10, { tab: "pending_payment" })).toBe(
+      "page=1&limit=10&tab=pending_payment",
+    );
   });
 
   it("normaliza página mínima", () => {

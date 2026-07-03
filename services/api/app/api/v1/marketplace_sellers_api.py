@@ -4,9 +4,6 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from fastapi import APIRouter, Header, HTTPException, Query, Request
-from pydantic import BaseModel, Field
-
 from app.api.deps import DbSession
 from app.api.v1.tournament_system import _require_user
 from app.core.config import get_settings
@@ -16,6 +13,8 @@ from app.marketplace import marketplace_sellers as sellers_svc
 from app.marketplace import shop_reviews as shop_reviews_svc
 from app.marketplace.seller_analytics import get_seller_analytics
 from app.players.store import get_profile_by_handle
+from fastapi import APIRouter, Header, HTTPException, Query, Request
+from pydantic import BaseModel, Field
 
 router = APIRouter(tags=["marketplace-sellers"])
 

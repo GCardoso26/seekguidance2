@@ -2,8 +2,6 @@
 
 from datetime import UTC, datetime
 
-from app.marketplace.seller_dashboard import get_dashboard_overview
-
 
 def test_dashboard_overview_cache_key_roundtrip(monkeypatch):
     from app.marketplace import seller_dashboard_overview_cache as cache

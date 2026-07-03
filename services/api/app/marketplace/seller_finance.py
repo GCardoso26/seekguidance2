@@ -177,7 +177,9 @@ async def get_pix_summary(session: AsyncSession, owner_id: str) -> dict[str, Any
                 """
                 SELECT
                   COUNT(*) FILTER (WHERE status = 'pending' AND payment_method = 'pix')::int AS pending,
-                  COUNT(*) FILTER (WHERE status IN ('paid','shipped','delivered') AND payment_method = 'pix')::int AS confirmed,
+                  COUNT(*) FILTER (
+                    WHERE status IN ('paid','shipped','delivered') AND payment_method = 'pix'
+                  )::int AS confirmed,
                   COALESCE(SUM(store_receives_cents) FILTER (
                     WHERE status IN ('paid','shipped','delivered') AND payment_method = 'pix'
                   ), 0)::bigint AS revenue_cents

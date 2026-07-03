@@ -6,7 +6,6 @@ import json
 from typing import Any
 
 import structlog
-
 from app.core.config import get_settings
 from app.core.rate_limit import _get_redis
 

@@ -185,4 +185,11 @@ async def sync_scryfall(session: AsyncSession, *, limit: int | None = None) -> d
 
     if batch:
         await session.commit()
-    return {"status": "ok", "game": "MTG", "synced": count, "sets_synced": sets_synced, "source": "scryfall", "mode": "bulk"}
+    return {
+        "status": "ok",
+        "game": "MTG",
+        "synced": count,
+        "sets_synced": sets_synced,
+        "source": "scryfall",
+        "mode": "bulk",
+    }

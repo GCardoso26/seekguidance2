@@ -6,12 +6,11 @@ import html
 import re
 from typing import Any
 
+from app.core.search.syntax_parser import syntax_parser
+from app.core.search.syntax_values_cache import get_syntax_values_cache, set_syntax_values_cache
 from fastapi import HTTPException
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from app.core.search.syntax_parser import syntax_parser
-from app.core.search.syntax_values_cache import get_syntax_values_cache, set_syntax_values_cache
 
 VALID_SYNTAX_VALUE_FIELDS = frozenset({"set", "color", "colors", "artist", "rarity", "type", "types"})
 

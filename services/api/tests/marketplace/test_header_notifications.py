@@ -1,6 +1,5 @@
 """Testes de notificações do header lojista."""
 
-from app.marketplace.seller_header_notifications import get_header_notifications
 
 
 def test_header_category_types():

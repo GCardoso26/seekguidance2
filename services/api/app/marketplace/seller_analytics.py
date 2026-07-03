@@ -9,11 +9,11 @@ from fastapi import HTTPException
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.marketplace import shop_reviews as shop_reviews_svc
 from app.marketplace.seller_analytics_cache import (
     get_seller_analytics_cache,
     set_seller_analytics_cache,
 )
-from app.marketplace import shop_reviews as shop_reviews_svc
 from app.players.store import get_profile_by_handle
 
 _GAME_NAMES: dict[str, str] = {
@@ -78,13 +78,17 @@ def compute_seller_badges(
             "description": "Loja verificada",
             "icon": "badge-check",
         })
-    if member_since and (now - member_since.replace(tzinfo=UTC if member_since.tzinfo is None else member_since.tzinfo)) < timedelta(days=90):
-        badges.append({
-            "id": "new_seller",
-            "name": "Novo Vendedor",
-            "description": "Membro há menos de 90 dias",
-            "icon": "sparkles",
-        })
+    if member_since:
+        since = member_since.replace(
+            tzinfo=UTC if member_since.tzinfo is None else member_since.tzinfo,
+        )
+        if (now - since) < timedelta(days=90):
+            badges.append({
+                "id": "new_seller",
+                "name": "Novo Vendedor",
+                "description": "Membro há menos de 90 dias",
+                "icon": "sparkles",
+            })
     if sell_through_rate >= 0.70 and total_sales >= 500:
         badges.append({
             "id": "power_seller",
