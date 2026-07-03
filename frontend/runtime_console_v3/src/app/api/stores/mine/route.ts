@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { fetchApiResilient, tournamentProxyHeaders } from "@/lib/tournament-api";
-import { useSellerCiMocks } from "@/lib/seller-ci-mock";
+import { preferSellerCiMocks } from "@/lib/seller-ci-mock";
 
 export const maxDuration = 60;
 
@@ -14,7 +14,7 @@ const E2E_STORE = [
 ];
 
 export async function GET() {
-  if (useSellerCiMocks()) {
+  if (preferSellerCiMocks()) {
     return NextResponse.json(E2E_STORE);
   }
   try {
