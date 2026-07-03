@@ -165,8 +165,16 @@ class TestCheckoutRaceConditions:
             uid, cid = await race.create_user_with_cart(setup, [_cart_item(product_id, price_cents=1500000)])
             users.append((uid, cid))
 
+        async def _initiate_after(delay_s: float, uid: str, cid: str) -> dict[str, Any]:
+            if delay_s:
+                await asyncio.sleep(delay_s)
+            return await _initiate(uid, cid, race.factory)
+
+        # Pequeno escalonamento evita NOWAIT rejeitar todos exceto o primeiro no mesmo instante.
         results = await asyncio.gather(
-            *[_initiate(uid, cid, race.factory) for uid, cid in users]
+            _initiate_after(0, users[0][0], users[0][1]),
+            _initiate_after(0.05, users[1][0], users[1][1]),
+            _initiate_after(0.1, users[2][0], users[2][1]),
         )
 
         successes = [r for r in results if r["status"] == "success"]
