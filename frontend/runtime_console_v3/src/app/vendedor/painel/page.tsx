@@ -5,6 +5,7 @@ import { useState } from "react";
 import { MerchantKycCard } from "@/components/kyc/MerchantKycCard";
 import { SellerHeader } from "@/components/seller-dashboard/SellerHeader";
 import {
+  FulfillmentSlaWidget,
   LowStockWidget,
   MetricCardsRow,
   QuickActionsBar,
@@ -81,6 +82,8 @@ export default function VendedorPainelDashboardPage() {
         )}
 
         <MetricCardsRow metrics={overview?.metrics} />
+
+        <FulfillmentSlaWidget sla={overview?.fulfillment_sla} />
 
         <div className="grid gap-6 lg:grid-cols-2">
           <RecentOrdersWidget

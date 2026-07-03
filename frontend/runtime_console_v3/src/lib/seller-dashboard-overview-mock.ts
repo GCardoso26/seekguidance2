@@ -60,6 +60,12 @@ export function dashboardOverviewMock(): DashboardOverviewResponse {
       },
     ],
     open_tickets: 3,
+    fulfillment_sla: {
+      picking_overdue: 2,
+      packing_overdue: 1,
+      shipping_overdue: 0,
+      tracking_delayed: 0,
+    },
     generated_at: now,
   };
 }

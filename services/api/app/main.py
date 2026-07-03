@@ -27,6 +27,8 @@ from app.api.v1.runtime_ingestion_admin import router as runtime_ingestion_admin
 from app.api.v1.runtime_judge import router as runtime_judge_router
 from app.api.v1.runtime_minimal import router as runtime_minimal_router
 from app.api.v1.runtime_operational import router as runtime_operational_router
+from app.api.v1.carrier_api import router as carrier_api_router
+from app.api.v1.platform_api import router as platform_api_router
 from app.api.v1.seller_dashboard_api import router as seller_dashboard_router
 from app.api.v1.shop_api import router as shop_api_router
 from app.api.v1.social_api import router as social_api_router
@@ -288,6 +290,8 @@ app.include_router(shop_api_router)
 app.include_router(checkout_router)
 app.include_router(seller_router)
 app.include_router(seller_dashboard_router)
+app.include_router(platform_api_router)
+app.include_router(carrier_api_router)
 app.include_router(catalog_api_router)
 app.include_router(catalog_games_api_router)
 app.include_router(alerts_api_router)

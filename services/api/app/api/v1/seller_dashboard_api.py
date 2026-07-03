@@ -15,6 +15,7 @@ from app.marketplace import seller_header_notifications as seller_hdr_notif
 from app.marketplace import seller_search as seller_search_svc
 from app.marketplace import seller_team as seller_team_svc
 from app.marketplace import seller_tickets as seller_tix
+from app.marketplace import seller_fulfillment as seller_ff
 from app.marketplace import shop_orders
 from app.marketplace import shop_products as shop_products_svc
 from fastapi import APIRouter, Header, HTTPException
@@ -25,6 +26,18 @@ router = APIRouter(tags=["seller-dashboard"])
 
 class ShippingBody(BaseModel):
     tracking_code: str = Field(min_length=1, max_length=120)
+    carrier: str | None = None
+
+
+class FulfillmentCommandBody(BaseModel):
+    command: str = Field(min_length=1, max_length=64)
+    carrier: str | None = None
+    tracking_code: str | None = None
+
+
+class BulkFulfillmentCommandBody(BaseModel):
+    order_ids: list[str] = Field(min_length=1, max_length=50)
+    command: str = Field(min_length=1, max_length=64)
     carrier: str | None = None
 
 
@@ -230,10 +243,61 @@ async def seller_order_ship(
     x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
 ) -> dict[str, Any]:
     user_id = _require_user(x_judge_user_id)
-    order = await shop_orders.update_order_status(
-        session, order_id, user_id, "shipped", tracking_code=body.tracking_code
+    result = await seller_ff.execute_fulfillment_command(
+        session,
+        order_id,
+        user_id,
+        "confirm_ship",
+        carrier=body.carrier,
+        tracking_code=body.tracking_code,
     )
-    return {"order": order}
+    order = await seller_dash.get_store_order(session, order_id, user_id)
+    return {"order": order, "fulfillment": result.get("fulfillment")}
+
+
+@router.get("/runtime/judge/seller/orders/{order_id}/fulfillment")
+async def seller_order_fulfillment_get(
+    session: DbSession,
+    order_id: str,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    projection = await seller_ff.get_fulfillment_projection(session, order_id, user_id)
+    return {"fulfillment": projection}
+
+
+@router.post("/runtime/judge/seller/orders/{order_id}/fulfillment/commands")
+async def seller_order_fulfillment_command(
+    session: DbSession,
+    order_id: str,
+    body: FulfillmentCommandBody,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    return await seller_ff.execute_fulfillment_command(
+        session,
+        order_id,
+        user_id,
+        body.command,
+        carrier=body.carrier,
+        tracking_code=body.tracking_code,
+    )
+
+
+@router.post("/runtime/judge/seller/orders/bulk/fulfillment/commands")
+async def seller_orders_bulk_fulfillment_command(
+    session: DbSession,
+    body: BulkFulfillmentCommandBody,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    return await seller_ff.bulk_execute_fulfillment_commands(
+        session,
+        user_id,
+        body.order_ids,
+        body.command,
+        carrier=body.carrier,
+    )
 
 
 @router.get("/runtime/judge/seller/stats")

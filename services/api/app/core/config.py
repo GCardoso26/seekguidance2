@@ -256,6 +256,13 @@ class Settings(BaseSettings):
     platform_pix_key: str | None = None
     platform_pix_key_type: str | None = None
     pix_webhook_internal_secret: str | None = None
+
+    # Melhor Envio (Fulfillment WF-006)
+    melhor_envio_token: str | None = None
+    melhor_envio_sandbox: bool = True
+    melhor_envio_default_service_id: int = 1
+    melhor_envio_from_address: str | None = None
+    melhor_envio_webhook_secret: str | None = None
     # Alias legado (Render) — mesma chave PIX da plataforma para escrow/planos
     escrow_pix_key: str | None = None
     # Pagamentos PIX/checkout — false até Go-Live (PAYMENTS_ENABLED=true)

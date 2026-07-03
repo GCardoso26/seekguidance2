@@ -3,8 +3,10 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { useQuery } from "@tanstack/react-query";
 import { X } from "lucide-react";
+import { FulfillmentActions, FulfillmentWorkflowStepper } from "@/components/seller-fulfillment";
 import { SaleStatusBadge } from "@/components/seller-dashboard/SaleStatusBadge";
 import { OrderActions } from "@/components/store/OrderActions";
+import { useFulfillment } from "@/hooks/useFulfillment";
 import { formatShopPrice } from "@/lib/marketplace-shop";
 
 type Props = {
@@ -24,6 +26,13 @@ export function OrderDetailDrawer({ orderId, open, onOpenChange, onUpdated }: Pr
     },
     enabled: Boolean(orderId && open),
   });
+
+  const {
+    data: fulfillment,
+    executeCommand,
+    isExecuting,
+    refetch: refetchFulfillment,
+  } = useFulfillment(orderId, open);
 
   const order = data?.order as Record<string, unknown> | undefined;
   const items = Array.isArray(order?.items)
@@ -60,10 +69,39 @@ export function OrderDetailDrawer({ orderId, open, onOpenChange, onUpdated }: Pr
                   </span>
                 </div>
 
-                {Boolean(order.tracking_code) && (
+                {Boolean(order.tracking_code || fulfillment?.shipment_tracking_code) && (
                   <p className="text-sm text-luxury-mist">
-                    Rastreio: {String(order.tracking_code)}
+                    Rastreio:{" "}
+                    {String(fulfillment?.shipment_tracking_code ?? order.tracking_code)}
+                    {fulfillment?.carrier ? ` (${fulfillment.carrier})` : null}
                   </p>
+                )}
+
+                {fulfillment?.label_url && (
+                  <a
+                    href={fulfillment.label_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-luxury-gold underline"
+                  >
+                    Baixar etiqueta
+                  </a>
+                )}
+
+                {fulfillment && (
+                  <>
+                    <FulfillmentWorkflowStepper status={fulfillment.fulfillment_status} />
+                    <FulfillmentActions
+                      status={fulfillment.fulfillment_status}
+                      disabled={isExecuting}
+                      onCommand={async (body) => {
+                        await executeCommand(body);
+                        await refetch();
+                        await refetchFulfillment();
+                        onUpdated?.();
+                      }}
+                    />
+                  </>
                 )}
 
                 <div>
@@ -84,16 +122,18 @@ export function OrderDetailDrawer({ orderId, open, onOpenChange, onUpdated }: Pr
                   </ul>
                 </div>
 
-                <OrderActions
-                  orderId={String(order.id)}
-                  status={String(order.status)}
-                  paymentMethod={order.payment_method as string | undefined}
-                  pixTxid={order.pix_txid as string | undefined}
-                  onUpdated={() => {
-                    void refetch();
-                    onUpdated?.();
-                  }}
-                />
+                {!fulfillment && (
+                  <OrderActions
+                    orderId={String(order.id)}
+                    status={String(order.status)}
+                    paymentMethod={order.payment_method as string | undefined}
+                    pixTxid={order.pix_txid as string | undefined}
+                    onUpdated={() => {
+                      void refetch();
+                      onUpdated?.();
+                    }}
+                  />
+                )}
               </div>
             )}
           </div>

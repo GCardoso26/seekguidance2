@@ -47,3 +47,15 @@ services:
         value: "false"
       - key: OPENPIX_WEBHOOK_SECRET
         sync: false
+      - key: MELHOR_ENVIO_TOKEN
+        sync: false
+      - key: MELHOR_ENVIO_SANDBOX
+        value: "true"
+      - key: MELHOR_ENVIO_DEFAULT_SERVICE_ID
+        value: "1"
+      - key: MELHOR_ENVIO_FROM_ADDRESS
+        sync: false
+      - key: MELHOR_ENVIO_WEBHOOK_SECRET
+        sync: false
+      - key: PLATFORM_CRON_SECRET
+        sync: false

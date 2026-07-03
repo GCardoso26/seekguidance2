@@ -56,6 +56,8 @@ def payments_gate_status() -> str:
 
 
 async def build_health_payload() -> dict[str, Any]:
+    from app.integrations.melhor_envio.validate import melhor_envio_config_snapshot
+
     db_ok = await check_database()
     redis_status = await check_redis()
     core_ok = db_ok and redis_status in {"ok", "disabled"}
@@ -74,5 +76,6 @@ async def build_health_payload() -> dict[str, Any]:
             "fcm": service_status("FIREBASE_PROJECT_ID"),
             "vapid": service_status("VAPID_PRIVATE_KEY"),
             "sentry": service_status("SENTRY_DSN"),
+            "melhor_envio": melhor_envio_config_snapshot(),
         },
     }

@@ -6,7 +6,9 @@ import {
   getSortedRowModel,
   useReactTable,
   type ColumnDef,
+  type RowSelectionState,
   type SortingState,
+  type OnChangeFn,
 } from "@tanstack/react-table";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -16,6 +18,10 @@ type Props<T> = {
   columns: ColumnDef<T, unknown>[];
   testId?: string;
   emptyMessage?: string;
+  enableRowSelection?: boolean;
+  rowSelection?: RowSelectionState;
+  onRowSelectionChange?: OnChangeFn<RowSelectionState>;
+  getRowId?: (row: T) => string;
 };
 
 export function DataTable<T>({
@@ -23,14 +29,21 @@ export function DataTable<T>({
   columns,
   testId = "seller-data-table",
   emptyMessage = "Nenhum registro.",
+  enableRowSelection = false,
+  rowSelection,
+  onRowSelectionChange,
+  getRowId,
 }: Props<T>) {
   const [sorting, setSorting] = useState<SortingState>([]);
 
   const table = useReactTable({
     data,
     columns,
-    state: { sorting },
+    state: { sorting, ...(enableRowSelection && rowSelection !== undefined ? { rowSelection } : {}) },
     onSortingChange: setSorting,
+    onRowSelectionChange,
+    enableRowSelection,
+    getRowId: getRowId as ((row: T) => string) | undefined,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
   });

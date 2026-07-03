@@ -563,6 +563,9 @@ async def handle_payment_intent_succeeded(session: AsyncSession, settings: Setti
                     ),
                     {"id": oid},
                 )
+                from app.marketplace.seller_fulfillment import on_order_paid_enqueue_fulfillment
+
+                await on_order_paid_enqueue_fulfillment(session, oid)
     elif payment_intent_id and not use_escrow:
         await session.execute(
             text(
