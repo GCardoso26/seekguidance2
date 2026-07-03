@@ -1,9 +1,9 @@
 "use client";
 
 import { usePathname, useSearchParams } from "next/navigation";
-import Link from "next/link";
 import { Suspense, useState } from "react";
 import { Sidebar } from "@/components/seller-dashboard/Sidebar";
+import { SellerPanelTopBar } from "@/components/seller-dashboard/SellerPanelTopBar";
 import { SellerPanelProvider } from "@/contexts/SellerPanelContext";
 import { useMerchantKycGuard } from "@/hooks/useMerchantKycGuard";
 import { useMerchantOnboardingSync } from "@/hooks/useMerchantOnboardingSync";
@@ -71,23 +71,13 @@ function VendedorPainelLayoutInner({ children }: { children: React.ReactNode }) 
       )}
 
       <div className={`flex min-h-screen flex-1 flex-col ${isPdvRoute ? "" : "lg:ml-64"}`}>
-        <div className={`flex items-center gap-3 border-b border-white/10 px-4 py-3 ${isPdvRoute ? "lg:flex" : "lg:hidden"}`}>
-          {!isPdvRoute && (
-            <button
-              type="button"
-              onClick={() => setMobileOpen(true)}
-              className="rounded-lg bg-white/10 px-3 py-2 text-sm lg:hidden"
-            >
-              ☰ Menu
-            </button>
-          )}
-          <span className="text-sm font-semibold">{isPdvRoute ? "PDV — Balcão" : "Painel do Vendedor"}</span>
-          {isPdvRoute && (
-            <Link href="/vendedor/painel" className="ml-auto text-xs text-luxury-gold underline lg:hidden">
-              Painel
-            </Link>
-          )}
-        </div>
+        {!isPdvRoute && (
+          <SellerPanelTopBar
+            title={isPdvRoute ? "PDV — Balcão" : "Painel do Vendedor"}
+            showMenuButton
+            onMenuClick={() => setMobileOpen(true)}
+          />
+        )}
         <SellerPanelProvider plan={plan}>{children}</SellerPanelProvider>
       </div>
     </div>

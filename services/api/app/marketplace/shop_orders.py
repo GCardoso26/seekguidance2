@@ -170,8 +170,13 @@ async def list_store_orders(
     owner_id: str,
     *,
     status: str | None = None,
+    tab: str | None = None,
+    search: str | None = None,
     date_from: str | None = None,
     date_to: str | None = None,
+    min_value_cents: int | None = None,
+    max_value_cents: int | None = None,
+    payment_method: str | None = None,
     page: int = 1,
     limit: int = 50,
 ) -> dict[str, Any]:
@@ -186,25 +191,79 @@ async def list_store_orders(
 
     conditions = ["o.store_id = :sid"]
     params: dict[str, Any] = {"sid": store_id, "lim": min(100, max(1, limit)), "off": (max(1, page) - 1) * limit}
+    needs_profile_join = bool(search)
 
-    if status:
+    effective_tab = tab or None
+    if effective_tab and effective_tab != "all":
+        if effective_tab in {"pending_payment", "pending"}:
+            conditions.append("o.status = 'pending'")
+        elif effective_tab == "paid":
+            conditions.append("o.status = 'paid'")
+        elif effective_tab == "to_separate":
+            conditions.append("(o.status IN ('paid', 'processing') AND o.shipped_at IS NULL)")
+        elif effective_tab == "shipped":
+            conditions.append("o.status = 'shipped'")
+        elif effective_tab == "delivered":
+            conditions.append("o.status = 'delivered'")
+        elif effective_tab == "cancelled":
+            conditions.append("o.status = 'cancelled'")
+        elif effective_tab == "refunded":
+            conditions.append("1 = 0")
+    elif status:
         conditions.append("o.status = :status")
         params["status"] = status
+
+    if search:
+        term = search.strip()
+        if term:
+            params["search_pat"] = f"%{term}%"
+            params["search_exact"] = term
+            conditions.append(
+                """(
+                    o.id::text ILIKE :search_pat
+                    OR COALESCE(p.display_name, '') ILIKE :search_pat
+                    OR COALESCE(p.handle, '') ILIKE :search_pat
+                    OR COALESCE(o.tracking_code, '') = :search_exact
+                    OR EXISTS (
+                        SELECT 1 FROM tcg_judge.shop_order_items oi
+                        LEFT JOIN tcg_judge.store_products sp ON sp.id = oi.product_id
+                        WHERE oi.order_id = o.id AND (
+                            oi.product_name ILIKE :search_pat
+                            OR COALESCE(sp.sku, '') ILIKE :search_pat
+                        )
+                    )
+                )"""
+            )
+
     if date_from:
         conditions.append("o.created_at >= CAST(:df AS timestamptz)")
         params["df"] = date_from
     if date_to:
         conditions.append("o.created_at <= CAST(:dt AS timestamptz)")
         params["dt"] = date_to
+    if min_value_cents is not None:
+        conditions.append("o.total_cents >= :min_val")
+        params["min_val"] = min_value_cents
+    if max_value_cents is not None:
+        conditions.append("o.total_cents <= :max_val")
+        params["max_val"] = max_value_cents
+    if payment_method:
+        conditions.append("o.payment_method = :pm")
+        params["pm"] = payment_method
 
     where = " AND ".join(conditions)
+    profile_join = "LEFT JOIN tcg_judge.player_profiles p ON p.id = o.buyer_id" if needs_profile_join else ""
+    buyer_select = ", p.display_name AS buyer_name" if needs_profile_join else ""
+
     rows = (
         await session.execute(
             text(
                 f"""
                 SELECT o.*,
                   (SELECT json_agg(i.*) FROM tcg_judge.shop_order_items i WHERE i.order_id = o.id) AS items
+                  {buyer_select}
                 FROM tcg_judge.shop_orders o
+                {profile_join}
                 WHERE {where}
                 ORDER BY o.created_at DESC
                 LIMIT :lim OFFSET :off
@@ -214,10 +273,13 @@ async def list_store_orders(
         )
     ).mappings().all()
 
+    count_params = {k: v for k, v in params.items() if k not in {"lim", "off"}}
+    count_from = "tcg_judge.shop_orders o"
+    count_join = profile_join
     count_row = (
         await session.execute(
-            text(f"SELECT COUNT(*) AS total FROM tcg_judge.shop_orders o WHERE {where}"),
-            {k: v for k, v in params.items() if k not in {"lim", "off"}},
+            text(f"SELECT COUNT(*) AS total FROM {count_from} {count_join} WHERE {where}"),
+            count_params,
         )
     ).mappings().first()
 

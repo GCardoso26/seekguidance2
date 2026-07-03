@@ -58,6 +58,17 @@ const marketplaceRedirects = [
   { source: "/store/pro", destination: "/vendedor/painel/pro", permanent: true },
   { source: "/store/onboarding", destination: "/vendedor/painel/onboarding", permanent: true },
   { source: "/store/:path*", destination: "/vendedor/painel/:path*", permanent: true },
+
+  // === Redesign painel lojista (flow-based) ===
+  { source: "/vendedor/painel/listagens", destination: "/vendedor/painel/catalogo/cartas", permanent: true },
+  { source: "/vendedor/painel/listagens/nova", destination: "/vendedor/painel/catalogo/cartas?action=new", permanent: true },
+  { source: "/vendedor/painel/listagens/:listingId", destination: "/vendedor/painel/catalogo/cartas/:listingId", permanent: true },
+  { source: "/vendedor/painel/vendas", destination: "/vendedor/painel/pedidos", permanent: true },
+  { source: "/vendedor/painel/vendas/:orderId", destination: "/vendedor/painel/pedidos?drawer=:orderId", permanent: true },
+  { source: "/vendedor/painel/estoque", destination: "/vendedor/painel/estoque/estoque", permanent: true },
+  { source: "/vendedor/painel/clientes", destination: "/vendedor/painel/clientes/lista", permanent: true },
+  { source: "/vendedor/painel/cupons", destination: "/vendedor/painel/marketing/cupons", permanent: true },
+  { source: "/vendedor/painel/buylist", destination: "/vendedor/painel/marketing/buylist", permanent: true },
 ];
 
 const nextConfig = {

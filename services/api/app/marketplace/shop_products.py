@@ -300,6 +300,61 @@ async def update_product(
     return dict(row) if row else {}
 
 
+async def list_seller_products(
+    session: AsyncSession,
+    store_id: str,
+    owner_id: str,
+    *,
+    category: str | None = None,
+    search: str | None = None,
+    page: int = 1,
+    limit: int = 25,
+) -> dict[str, Any]:
+    await _assert_store_owner(session, store_id, owner_id)
+    clauses = [
+        "p.store_id = :sid",
+        "p.catalog_card_id IS NULL",
+        "p.category NOT IN ('single', 'oversized', 'token')",
+    ]
+    params: dict[str, Any] = {
+        "sid": store_id,
+        "lim": min(100, max(1, limit)),
+        "off": (max(1, page) - 1) * limit,
+    }
+    if category:
+        if category not in PRODUCT_CATEGORIES:
+            raise HTTPException(400, "Categoria inválida")
+        clauses.append("p.category = :cat")
+        params["cat"] = category
+    if search:
+        params["q"] = f"%{search.strip()}%"
+        clauses.append("p.name ILIKE :q")
+
+    where = " AND ".join(clauses)
+    rows = (
+        await session.execute(
+            text(
+                f"""
+                SELECT p.*
+                FROM tcg_judge.store_products p
+                WHERE {where}
+                ORDER BY p.updated_at DESC
+                LIMIT :lim OFFSET :off
+                """
+            ),
+            params,
+        )
+    ).mappings().all()
+    count = (
+        await session.execute(
+            text(f"SELECT COUNT(*) AS total FROM tcg_judge.store_products p WHERE {where}"),
+            {k: v for k, v in params.items() if k not in {"lim", "off"}},
+        )
+    ).mappings().first()
+    total = int(count["total"]) if count else 0
+    return {"products": [dict(r) for r in rows], "total": total, "page": page, "limit": limit}
+
+
 async def list_store_products(
     session: AsyncSession, store_id: str, owner_id: str
 ) -> list[dict[str, Any]]:

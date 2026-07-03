@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import asyncio
+from datetime import UTC, datetime
 from typing import Any, Literal
 
 from fastapi import HTTPException
@@ -9,6 +11,7 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.marketplace import card_listings as card_listings_svc
+from app.marketplace import seller_dashboard_overview_cache as overview_cache
 from app.marketplace import shop_orders
 
 Period = Literal["7d", "30d", "90d", "1y", "all"]
@@ -42,6 +45,200 @@ async def resolve_owner_store(session: AsyncSession, owner_id: str) -> dict[str,
     if not row:
         raise HTTPException(404, "Loja não encontrada")
     return dict(row)
+
+
+async def _count_pending_payment(session: AsyncSession, store_id: str) -> int:
+    row = (
+        await session.execute(
+            text(
+                """
+                SELECT COUNT(*) AS cnt
+                FROM tcg_judge.shop_orders
+                WHERE store_id = :sid AND status = 'pending'
+                """
+            ),
+            {"sid": store_id},
+        )
+    ).mappings().first()
+    return int(row["cnt"] if row else 0)
+
+
+async def _count_to_separate(session: AsyncSession, store_id: str) -> int:
+    row = (
+        await session.execute(
+            text(
+                """
+                SELECT COUNT(*) AS cnt
+                FROM tcg_judge.shop_orders
+                WHERE store_id = :sid
+                  AND status IN ('paid', 'processing')
+                  AND shipped_at IS NULL
+                """
+            ),
+            {"sid": store_id},
+        )
+    ).mappings().first()
+    return int(row["cnt"] if row else 0)
+
+
+async def _count_shipped_today(session: AsyncSession, store_id: str) -> int:
+    row = (
+        await session.execute(
+            text(
+                """
+                SELECT COUNT(*) AS cnt
+                FROM tcg_judge.shop_orders
+                WHERE store_id = :sid
+                  AND status = 'shipped'
+                  AND shipped_at >= CURRENT_DATE
+                """
+            ),
+            {"sid": store_id},
+        )
+    ).mappings().first()
+    return int(row["cnt"] if row else 0)
+
+
+async def _revenue_today(session: AsyncSession, store_id: str) -> dict[str, int]:
+    row = (
+        await session.execute(
+            text(
+                """
+                SELECT
+                  COALESCE(SUM(store_receives_cents), 0) AS revenue_cents,
+                  COALESCE(SUM(store_receives_cents) FILTER (
+                    WHERE created_at >= CURRENT_DATE - INTERVAL '1 day'
+                      AND created_at < CURRENT_DATE
+                  ), 0) AS yesterday_cents
+                FROM tcg_judge.shop_orders
+                WHERE store_id = :sid
+                  AND status IN ('paid', 'processing', 'shipped', 'delivered')
+                  AND created_at >= CURRENT_DATE
+                """
+            ),
+            {"sid": store_id},
+        )
+    ).mappings().first()
+    if not row:
+        return {"revenue_cents": 0, "yesterday_cents": 0}
+    return {
+        "revenue_cents": int(row["revenue_cents"] or 0),
+        "yesterday_cents": int(row["yesterday_cents"] or 0),
+    }
+
+
+async def _recent_orders_overview(session: AsyncSession, store_id: str, *, limit: int = 5) -> list[dict[str, Any]]:
+    rows = (
+        await session.execute(
+            text(
+                """
+                SELECT o.id, o.status, o.total_cents, o.created_at, o.payment_method,
+                       p.display_name AS customer_name
+                FROM tcg_judge.shop_orders o
+                LEFT JOIN tcg_judge.player_profiles p ON p.id = o.buyer_id
+                WHERE o.store_id = :sid
+                ORDER BY o.created_at DESC
+                LIMIT :lim
+                """
+            ),
+            {"sid": store_id, "lim": limit},
+        )
+    ).mappings().all()
+    return [dict(r) for r in rows]
+
+
+async def _low_stock_items(session: AsyncSession, store_id: str, owner_id: str, *, threshold: int = 3) -> list[dict[str, Any]]:
+    rows = (
+        await session.execute(
+            text(
+                """
+                SELECT l.id, cc.name AS title, l.quantity AS stock,
+                       cc.image_url, cc.game_code AS game_name, 'listing' AS item_type
+                FROM tcg_judge.card_listings l
+                JOIN tcg_judge.card_catalog cc ON cc.id = l.card_id
+                WHERE l.store_id = :sid AND l.status = 'active' AND l.quantity < :thr
+                UNION ALL
+                SELECT p.id, p.name AS title, p.stock,
+                       COALESCE(p.images[1], NULL) AS image_url,
+                       p.category AS game_name, 'product' AS item_type
+                FROM tcg_judge.store_products p
+                WHERE p.store_id = :sid AND p.is_active AND p.stock < :thr
+                ORDER BY stock ASC
+                LIMIT 10
+                """
+            ),
+            {"sid": store_id, "thr": threshold, "uid": owner_id},
+        )
+    ).mappings().all()
+    return [dict(r) for r in rows]
+
+
+async def _count_open_tickets(session: AsyncSession, store_id: str) -> int:
+    try:
+        row = (
+            await session.execute(
+                text(
+                    """
+                    SELECT COUNT(*) AS cnt
+                    FROM tcg_judge.support_tickets
+                    WHERE store_id = :sid
+                      AND status IN ('open', 'in_progress', 'waiting_customer')
+                    """
+                ),
+                {"sid": store_id},
+            )
+        ).mappings().first()
+        return int(row["cnt"] if row else 0)
+    except Exception:
+        return 0
+
+
+async def get_dashboard_overview(session: AsyncSession, owner_id: str) -> dict[str, Any]:
+    store = await resolve_owner_store(session, owner_id)
+    store_id = str(store["id"])
+
+    cached = overview_cache.get_dashboard_overview_cache(store_id)
+    if cached:
+        return cached
+
+    (
+        pending_payment,
+        to_separate,
+        shipped_today,
+        revenue,
+        recent_orders,
+        low_stock,
+        open_tickets,
+    ) = await asyncio.gather(
+        _count_pending_payment(session, store_id),
+        _count_to_separate(session, store_id),
+        _count_shipped_today(session, store_id),
+        _revenue_today(session, store_id),
+        _recent_orders_overview(session, store_id),
+        _low_stock_items(session, store_id, owner_id),
+        _count_open_tickets(session, store_id),
+    )
+
+    revenue_cents = revenue["revenue_cents"]
+    yesterday_cents = revenue["yesterday_cents"]
+    delta_cents = revenue_cents - yesterday_cents
+
+    result = {
+        "metrics": {
+            "pending_payment": pending_payment,
+            "to_separate": to_separate,
+            "shipped_today": shipped_today,
+            "revenue_today_cents": revenue_cents,
+            "revenue_delta_cents": delta_cents,
+        },
+        "recent_orders": recent_orders,
+        "low_stock": low_stock,
+        "open_tickets": open_tickets,
+        "generated_at": datetime.now(UTC).isoformat(),
+    }
+
+    overview_cache.set_dashboard_overview_cache(store_id, result)
+    return result
 
 
 async def get_dashboard(session: AsyncSession, owner_id: str) -> dict[str, Any]:

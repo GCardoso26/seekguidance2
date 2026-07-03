@@ -39,6 +39,17 @@ export default function ConfiguracoesPage() {
         </section>
 
         <section className="rounded-xl border border-white/10 bg-white/5 p-6">
+          <h3 className="font-semibold">Notificações</h3>
+          <p className="mt-2 text-sm text-luxury-mist">E-mail e push para eventos da loja.</p>
+          <Link
+            href="/vendedor/painel/configuracoes/notificacoes"
+            className="mt-3 inline-block text-sm text-luxury-gold underline"
+          >
+            Configurar notificações →
+          </Link>
+        </section>
+
+        <section className="rounded-xl border border-white/10 bg-white/5 p-6">
           <h3 className="font-semibold">Pagamento</h3>
           <p className="mt-2 text-sm text-luxury-mist">
             PIX: {storeData?.pix_key ? "Configurado" : "Pendente"}
