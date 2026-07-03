@@ -22,6 +22,41 @@ async def _ensure_owner(session: AsyncSession, store_id: str, owner_id: str) -> 
     return store
 
 
+async def resolve_store_actor(
+    session: AsyncSession,
+    actor_id: str,
+    *,
+    order_id: str | None = None,
+) -> dict[str, Any]:
+    """Resolve role/permissões do ator no contexto de um pedido ou loja."""
+    if order_id:
+        order = (
+            await session.execute(
+                text(
+                    """
+                    SELECT o.store_id, s.owner_id
+                    FROM tcg_judge.shop_orders o
+                    JOIN tcg_judge.stores s ON s.id = o.store_id
+                    WHERE o.id = CAST(:oid AS uuid)
+                    """
+                ),
+                {"oid": order_id},
+            )
+        ).mappings().first()
+        if not order:
+            raise HTTPException(404, "Pedido não encontrado")
+        store_id = str(order["store_id"])
+        owner_id = str(order["owner_id"])
+    else:
+        store = await resolve_owner_store(session, actor_id)
+        store_id = str(store["id"])
+        owner_id = actor_id
+
+    role_info = await get_user_role(session, store_id, actor_id, owner_id=owner_id)
+    role_info["store_id"] = store_id
+    return role_info
+
+
 async def get_user_role(
     session: AsyncSession,
     store_id: str,

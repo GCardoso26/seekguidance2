@@ -1,6 +1,6 @@
 "use client";
 
-import type { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef, RowSelectionState } from "@tanstack/react-table";
 import { DataTable } from "@/components/seller-dashboard/DataTable";
 import { SaleStatusBadge } from "@/components/seller-dashboard/SaleStatusBadge";
 import { formatShopPrice } from "@/lib/marketplace-shop";
@@ -12,8 +12,42 @@ function formatOrderDate(iso: string | undefined): string {
   return Number.isNaN(d.getTime()) ? "—" : d.toLocaleDateString("pt-BR");
 }
 
-function buildColumns(onRowClick: (id: string) => void): ColumnDef<SellerOrderRow, unknown>[] {
-  return [
+function buildColumns(
+  onRowClick: (id: string) => void,
+  selectable: boolean,
+): ColumnDef<SellerOrderRow, unknown>[] {
+  const cols: ColumnDef<SellerOrderRow, unknown>[] = [];
+
+  if (selectable) {
+    cols.push({
+      id: "select",
+      header: ({ table }) => (
+        <input
+          type="checkbox"
+          aria-label="Selecionar todos"
+          checked={table.getIsAllPageRowsSelected()}
+          ref={(el) => {
+            if (el) el.indeterminate = table.getIsSomePageRowsSelected();
+          }}
+          onChange={table.getToggleAllPageRowsSelectedHandler()}
+          className="rounded border-white/20"
+        />
+      ),
+      cell: ({ row }) => (
+        <input
+          type="checkbox"
+          aria-label={`Selecionar pedido ${row.original.id.slice(0, 8)}`}
+          checked={row.getIsSelected()}
+          onClick={(e) => e.stopPropagation()}
+          onChange={row.getToggleSelectedHandler()}
+          className="rounded border-white/20"
+        />
+      ),
+      enableSorting: false,
+    });
+  }
+
+  cols.push(
     {
       id: "id",
       accessorKey: "id",
@@ -65,20 +99,35 @@ function buildColumns(onRowClick: (id: string) => void): ColumnDef<SellerOrderRo
         <span className="text-luxury-mist">{formatOrderDate(row.original.created_at)}</span>
       ),
     },
-  ];
+  );
+
+  return cols;
 }
 
 type Props = {
   orders: SellerOrderRow[];
   onSelectOrder: (orderId: string) => void;
+  selectable?: boolean;
+  rowSelection?: RowSelectionState;
+  onRowSelectionChange?: (state: RowSelectionState) => void;
 };
 
-export function OrdersDataTable({ orders, onSelectOrder }: Props) {
+export function OrdersDataTable({
+  orders,
+  onSelectOrder,
+  selectable = false,
+  rowSelection,
+  onRowSelectionChange,
+}: Props) {
   return (
     <DataTable
       data={orders}
-      columns={buildColumns(onSelectOrder)}
+      columns={buildColumns(onSelectOrder, selectable)}
       emptyMessage="Nenhum pedido encontrado."
+      enableRowSelection={selectable}
+      rowSelection={rowSelection}
+      onRowSelectionChange={onRowSelectionChange}
+      getRowId={(row) => row.id}
     />
   );
 }

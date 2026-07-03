@@ -12,6 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.marketplace import card_listings as card_listings_svc
 from app.marketplace import seller_dashboard_overview_cache as overview_cache
+from app.marketplace import seller_fulfillment as seller_ff
 from app.marketplace import shop_orders
 
 Period = Literal["7d", "30d", "90d", "1y", "all"]
@@ -215,6 +216,7 @@ async def get_dashboard_overview(session: AsyncSession, owner_id: str) -> dict[s
         recent_orders,
         low_stock,
         open_tickets,
+        fulfillment_sla,
     ) = await asyncio.gather(
         _count_pending_payment(session, store_id),
         _count_to_separate(session, store_id),
@@ -223,6 +225,7 @@ async def get_dashboard_overview(session: AsyncSession, owner_id: str) -> dict[s
         _recent_orders_overview(session, store_id),
         _low_stock_items(session, store_id, owner_id),
         _count_open_tickets(session, store_id),
+        seller_ff.get_fulfillment_sla_metrics(session, store_id),
     )
 
     revenue_cents = revenue["revenue_cents"]
@@ -237,6 +240,7 @@ async def get_dashboard_overview(session: AsyncSession, owner_id: str) -> dict[s
             "revenue_today_cents": revenue_cents,
             "revenue_delta_cents": delta_cents,
         },
+        "fulfillment_sla": fulfillment_sla,
         "recent_orders": recent_orders,
         "low_stock": low_stock,
         "open_tickets": open_tickets,

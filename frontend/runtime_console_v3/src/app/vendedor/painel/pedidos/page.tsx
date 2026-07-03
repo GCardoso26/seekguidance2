@@ -1,12 +1,14 @@
 "use client";
 
-import { Suspense, useCallback, useEffect, useState } from "react";
+import type { RowSelectionState } from "@tanstack/react-table";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { OrdersPagination } from "@/components/seller-dashboard/OrdersPagination";
 import { PageError, PageHeader, PageShell } from "@/components/seller-dashboard/PageShell";
 import { SellerHeader } from "@/components/seller-dashboard/SellerHeader";
 import {
   OrderDetailDrawer,
+  OrdersBulkActionBar,
   OrdersDataTable,
   OrdersFilterBar,
   OrdersTabs,
@@ -28,6 +30,14 @@ function PedidosContent() {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("");
   const [drawerOrderId, setDrawerOrderId] = useState<string | null>(drawerParam);
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+
+  const selectedOrderIds = useMemo(
+    () => Object.keys(rowSelection).filter((id) => rowSelection[id]),
+    [rowSelection],
+  );
+
+  const bulkEnabled = tab === "to_separate" || tab === "paid";
 
   const { storeId } = useSellerStore();
   const { data: pendingCount = 0 } = useSellerPendingOrdersCount(Boolean(storeId));
@@ -39,6 +49,7 @@ function PedidosContent() {
 
   useEffect(() => {
     setPage(1);
+    setRowSelection({});
   }, [tab, debouncedSearch, paymentMethod]);
 
   useEffect(() => {
@@ -123,8 +134,19 @@ function PedidosContent() {
         <p className="text-sm text-luxury-mist">Carregando pedidos…</p>
       ) : (
         <>
-          <OrdersDataTable orders={data?.orders ?? []} onSelectOrder={openDrawer} />
+          <OrdersDataTable
+            orders={data?.orders ?? []}
+            onSelectOrder={openDrawer}
+            selectable={bulkEnabled}
+            rowSelection={rowSelection}
+            onRowSelectionChange={setRowSelection}
+          />
           <OrdersPagination page={page} totalPages={totalPages} onPageChange={setPage} />
+          <OrdersBulkActionBar
+            selectedIds={selectedOrderIds}
+            onClear={() => setRowSelection({})}
+            onDone={() => void refetch()}
+          />
         </>
       )}
 

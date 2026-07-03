@@ -1,3 +1,4 @@
+export { FulfillmentSlaWidget } from "./FulfillmentSlaWidget";
 export { LowStockWidget } from "./LowStockWidget";
 export { MetricCardsRow } from "./MetricCardsRow";
 export { QuickActionsBar } from "./QuickActionsBar";

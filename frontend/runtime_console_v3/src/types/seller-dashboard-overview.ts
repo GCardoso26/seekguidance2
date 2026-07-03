@@ -26,8 +26,16 @@ export type DashboardLowStockItem = {
   item_type?: "listing" | "product";
 };
 
+export type FulfillmentSlaMetrics = {
+  picking_overdue: number;
+  packing_overdue: number;
+  shipping_overdue: number;
+  tracking_delayed: number;
+};
+
 export type DashboardOverviewResponse = {
   metrics: DashboardOverviewMetrics;
+  fulfillment_sla?: FulfillmentSlaMetrics;
   recent_orders: DashboardRecentOrder[];
   low_stock: DashboardLowStockItem[];
   open_tickets: number;

@@ -605,6 +605,9 @@ async def confirm_pix_payment(
             ),
             {"id": order_id},
         )
+        from app.marketplace.seller_fulfillment import on_order_paid_enqueue_fulfillment
+
+        await on_order_paid_enqueue_fulfillment(session, order_id)
 
     if not stock_finalized and not is_escrow:
         items = (
