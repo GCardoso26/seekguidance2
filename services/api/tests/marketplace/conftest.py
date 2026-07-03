@@ -96,12 +96,6 @@ class RaceFixture:
     ) -> tuple[str, str]:
         user_id = str(uuid.uuid4())
         await ensure_player_profile(session, user_id)
-        await session.execute(
-            text(
-                "UPDATE tcg_judge.player_profiles SET account_status = 'active' WHERE id = :id"
-            ),
-            {"id": user_id},
-        )
         await session.commit()
 
         cart_row = (

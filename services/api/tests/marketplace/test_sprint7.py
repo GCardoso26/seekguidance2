@@ -3,9 +3,8 @@
 from __future__ import annotations
 
 import pytest
-from fastapi import HTTPException
-
 from app.marketplace.payments_gate import is_payments_live, payments_status, require_live_payments
+from fastapi import HTTPException
 
 
 class FakeSettings:

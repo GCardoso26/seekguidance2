@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import pytest
-
 from app.catalog.redis_cache import _search_cache_key, redis_ping
 
 

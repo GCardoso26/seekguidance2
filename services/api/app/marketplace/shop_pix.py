@@ -198,8 +198,7 @@ async def create_pix_checkout(
     use_escrow: bool = False,
 ) -> dict[str, Any]:
     from app.kyc.player_account import require_active_account
-    from app.marketplace import checkout_atomic
-    from app.marketplace import shop_escrow
+    from app.marketplace import checkout_atomic, shop_escrow
     from app.marketplace.payments_gate import require_live_payments
 
     settings = get_settings()

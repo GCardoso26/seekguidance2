@@ -21,13 +21,13 @@ from app.judge.stripe_service import (
     update_subscription_status,
     upsert_subscription,
 )
+from app.payments.stripe_webhook_events import abort_stripe_webhook_event, begin_stripe_webhook_event
+from app.payments.webhooks import verify_stripe_webhook
 from fastapi import APIRouter, Header, HTTPException, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 import stripe
-from app.payments.stripe_webhook_events import abort_stripe_webhook_event, begin_stripe_webhook_event
-from app.payments.webhooks import verify_stripe_webhook
 
 logger = structlog.get_logger(__name__)
 router = APIRouter(tags=["stripe-billing"])

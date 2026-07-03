@@ -36,8 +36,7 @@ async def create_checkout(
     use_escrow: bool = False,
 ) -> dict[str, Any]:
     from app.kyc.player_account import require_active_account
-    from app.marketplace import checkout_atomic
-    from app.marketplace import shop_escrow
+    from app.marketplace import checkout_atomic, shop_escrow
 
     await require_active_account(session, user_id)
 

@@ -2,10 +2,9 @@
 
 from __future__ import annotations
 
-from fastapi import HTTPException
-
 from app.core.config import get_settings
 from app.core.security.judge_user_context import verified_judge_user_id
+from fastapi import HTTPException
 
 
 def require_judge_user(user_id: str | None) -> str:

@@ -5,11 +5,11 @@ from __future__ import annotations
 from typing import Any
 
 from app.api.deps import DbSession
+from app.marketplace import shop_seller_api
 from app.marketplace.decklists import search_listings
 from app.players import store as player_store
 from app.public_api.auth import create_api_key, require_api_key
 from app.public_api.webhooks import create_webhook, list_webhooks
-from app.marketplace import shop_seller_api
 from app.search.tournaments import search_tournaments
 from app.tcg_adapters.registry import get_adapter, normalize_game_code
 from app.tournament.flow import get_standings

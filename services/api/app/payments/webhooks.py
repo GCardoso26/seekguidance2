@@ -4,8 +4,9 @@ from __future__ import annotations
 
 from typing import Any
 
-import stripe
 from fastapi import HTTPException
+
+import stripe
 
 
 def verify_stripe_webhook(payload: bytes, sig_header: str | None, secret: str) -> dict[str, Any]:

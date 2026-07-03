@@ -8,8 +8,8 @@ from app.api.deps import DbSession
 from app.api.v1.tournament_system import _require_user
 from app.kyc.merchant_kyc import create_merchant_profile, get_merchant_profile
 from app.kyc.player_account import get_account_status, verify_and_bind_cpf
-from app.marketplace import shop_connect
 from app.marketplace import shop_checkout as shop_checkout_svc
+from app.marketplace import shop_connect
 from fastapi import APIRouter, Header, HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy import text

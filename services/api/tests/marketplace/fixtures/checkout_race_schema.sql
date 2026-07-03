@@ -10,7 +10,8 @@ CREATE TABLE IF NOT EXISTS tcg_judge.judge_profiles (
 CREATE TABLE IF NOT EXISTS tcg_judge.player_profiles (
   id TEXT PRIMARY KEY,
   handle VARCHAR(30) UNIQUE NOT NULL,
-  display_name VARCHAR(100) NOT NULL DEFAULT 'Test'
+  display_name VARCHAR(100) NOT NULL DEFAULT 'Test',
+  account_status TEXT NOT NULL DEFAULT 'active'
 );
 
 CREATE TABLE IF NOT EXISTS tcg_judge.notification_preferences (
