@@ -1,9 +1,22 @@
 import { NextResponse } from "next/server";
 import { fetchApiResilient, tournamentProxyHeaders } from "@/lib/tournament-api";
+import { useSellerCiMocks } from "@/lib/seller-ci-mock";
 
 export const maxDuration = 60;
 
+const E2E_STORE = [
+  {
+    id: "e2e-store-1",
+    slug: "e2e-test-store",
+    name: "E2E Test Store",
+    owner_id: "e2e-seller",
+  },
+];
+
 export async function GET() {
+  if (useSellerCiMocks()) {
+    return NextResponse.json(E2E_STORE);
+  }
   try {
     const res = await fetchApiResilient(`/runtime/judge/stores/mine`, {
       headers: await tournamentProxyHeaders(),

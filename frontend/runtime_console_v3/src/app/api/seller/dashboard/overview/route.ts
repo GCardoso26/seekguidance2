@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
 import { TOURNAMENT_API_BASE, tournamentProxyHeaders } from "@/lib/tournament-api";
 import { dashboardOverviewMock } from "@/lib/seller-dashboard-overview-mock";
+import { useSellerCiMocks } from "@/lib/seller-ci-mock";
 
 export async function GET() {
+  if (useSellerCiMocks()) {
+    return NextResponse.json(dashboardOverviewMock());
+  }
   try {
     const res = await fetch(`${TOURNAMENT_API_BASE}/runtime/judge/seller/dashboard/overview`, {
       headers: await tournamentProxyHeaders(),

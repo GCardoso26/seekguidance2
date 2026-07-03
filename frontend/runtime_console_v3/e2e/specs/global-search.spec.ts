@@ -10,11 +10,9 @@ authTest.describe("Global search sprint 4", () => {
     await page.goto("/vendedor/painel");
     await waitForSellerPanelReady(page);
     const trigger = page.getByTestId("seller-global-search-trigger");
-    if (await trigger.isVisible()) {
-      await trigger.click();
-    } else {
-      await page.keyboard.press("Control+k");
-    }
+    await expect(trigger).toBeVisible({ timeout: 20_000 });
+    await trigger.click();
+    await expect(page.getByRole("dialog", { name: "Busca global" })).toBeVisible({ timeout: 15_000 });
     await expect(page.getByTestId("seller-global-search-input")).toBeVisible({ timeout: 15_000 });
     await page.getByPlaceholder("Pesquisar...").fill("185");
     await expect(page.getByText("#18555")).toBeVisible({ timeout: 15_000 });

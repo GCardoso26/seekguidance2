@@ -1,10 +1,12 @@
 import { test as authTest, expect } from "../fixtures/auth";
+import { mockSellerSprintApis } from "../helpers/seller-mock-routes";
 import { waitForSellerPanelReady } from "../helpers/wait-panel";
 
 authTest.describe("Seller team sprint 3", () => {
   authTest.describe.configure({ timeout: 90_000 });
 
   authTest("team page shows users and permissions", async ({ sellerPage: page }) => {
+    await mockSellerSprintApis(page);
     await page.goto("/vendedor/painel/equipe/usuarios");
     await waitForSellerPanelReady(page);
     await expect(page.getByText("Ana Paula")).toBeVisible({ timeout: 20_000 });
@@ -16,6 +18,7 @@ authTest.describe("Seller team sprint 3", () => {
   });
 
   authTest("team logs page shows audit entries", async ({ sellerPage: page }) => {
+    await mockSellerSprintApis(page);
     await page.goto("/vendedor/painel/equipe/logs");
     await waitForSellerPanelReady(page);
     await expect(page.getByText("Logs de auditoria")).toBeVisible({ timeout: 20_000 });
@@ -27,6 +30,7 @@ authTest.describe("Seller finance sprint 3", () => {
   authTest.describe.configure({ timeout: 90_000 });
 
   authTest("finance page shows revenue chart", async ({ sellerPage: page }) => {
+    await mockSellerSprintApis(page);
     await page.goto("/vendedor/painel/financeiro/receitas");
     await waitForSellerPanelReady(page);
     await expect(page.getByText("Receitas")).toBeVisible({ timeout: 20_000 });
@@ -34,6 +38,7 @@ authTest.describe("Seller finance sprint 3", () => {
   });
 
   authTest("payouts page shows pending balance", async ({ sellerPage: page }) => {
+    await mockSellerSprintApis(page);
     await page.goto("/vendedor/painel/financeiro/repasses");
     await waitForSellerPanelReady(page);
     await expect(page.getByText("Repasses")).toBeVisible({ timeout: 20_000 });
