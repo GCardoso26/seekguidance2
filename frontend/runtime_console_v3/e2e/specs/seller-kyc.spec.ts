@@ -34,55 +34,57 @@ authTest.describe("Vendedor autenticado", () => {
     await authExpect(page.locator("main, #main-content, body")).toBeVisible();
   });
 
-  authTest("seller vê listagens ou redirecionamento KYC", async ({ sellerPage: page }) => {
+  authTest("seller vê catálogo de cartas ou redirecionamento KYC", async ({ sellerPage: page }) => {
     await page.goto("/vendedor/painel/listagens");
-    await authExpect(page).toHaveURL(/\/(vendedor\/painel\/listagens|loja\/suspensa|entrar)/, {
-      timeout: 20_000,
-    });
-    if (page.url().includes("/vendedor/painel/listagens")) {
-      await authExpect(page.getByRole("heading", { name: /minhas listagens/i })).toBeVisible({
+    await authExpect(page).toHaveURL(
+      /\/(vendedor\/painel\/catalogo\/cartas|loja\/suspensa|entrar)/,
+      { timeout: 20_000 },
+    );
+    if (page.url().includes("/catalogo/cartas")) {
+      await authExpect(page.getByPlaceholder("Pesquisar carta…")).toBeVisible({
         timeout: 15_000,
       });
     }
   });
 
-  authTest("listagens mobile 375px mostra cards ou skeleton", async ({ sellerPage: page }) => {
+  authTest("catálogo mobile 375px mostra busca ou skeleton", async ({ sellerPage: page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto("/vendedor/painel/listagens");
-    await authExpect(page).toHaveURL(/\/(vendedor\/painel\/listagens|loja\/suspensa|entrar)/, {
-      timeout: 20_000,
-    });
-    if (!page.url().includes("/vendedor/painel/listagens")) return;
+    await authExpect(page).toHaveURL(
+      /\/(vendedor\/painel\/catalogo\/cartas|loja\/suspensa|entrar)/,
+      { timeout: 20_000 },
+    );
+    if (!page.url().includes("/catalogo/cartas")) return;
 
-    const cards = page.getByTestId("listing-cards");
-    const skeleton = page.getByTestId("page-skeleton");
-    const empty = page.getByText(/nenhuma listagem/i);
-    await authExpect(cards.or(skeleton).or(empty)).toBeVisible({ timeout: 15_000 });
-    await authExpect(page.getByTestId("seller-listings-table")).toHaveCount(0);
+    const search = page.getByPlaceholder("Pesquisar carta…");
+    const skeleton = page.getByText(/carregando|buscando cartas/i);
+    await authExpect(search.or(skeleton).first()).toBeVisible({ timeout: 15_000 });
   });
 
-  authTest("seller acessa vendas com PageShell", async ({ sellerPage: page }) => {
+  authTest("seller acessa pedidos com PageShell", async ({ sellerPage: page }) => {
     await page.goto("/vendedor/painel/vendas");
-    await authExpect(page).toHaveURL(/\/(vendedor\/painel\/vendas|loja\/suspensa|entrar)/, {
-      timeout: 20_000,
+    await authExpect(page).toHaveURL(
+      /\/(vendedor\/painel\/pedidos|loja\/suspensa|entrar)/,
+      { timeout: 20_000 },
+    );
+    if (!page.url().includes("/pedidos")) return;
+    await authExpect(page.getByRole("heading", { name: /^pedidos$/i })).toBeVisible({
+      timeout: 15_000,
     });
-    if (!page.url().includes("/vendedor/painel/vendas")) return;
-    await authExpect(page.getByRole("heading", { name: /^vendas$/i })).toBeVisible({ timeout: 15_000 });
   });
 
-  authTest("vendas mobile 375px mostra cards ou empty", async ({ sellerPage: page }) => {
+  authTest("pedidos mobile 375px mostra tabs ou empty", async ({ sellerPage: page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto("/vendedor/painel/vendas");
-    await authExpect(page).toHaveURL(/\/(vendedor\/painel\/vendas|loja\/suspensa|entrar)/, {
-      timeout: 20_000,
-    });
-    if (!page.url().includes("/vendedor/painel/vendas")) return;
+    await authExpect(page).toHaveURL(
+      /\/(vendedor\/painel\/pedidos|loja\/suspensa|entrar)/,
+      { timeout: 20_000 },
+    );
+    if (!page.url().includes("/pedidos")) return;
 
-    const cards = page.getByTestId("order-cards");
-    const skeleton = page.getByTestId("page-skeleton");
-    const empty = page.getByTestId("orders-empty");
-    await authExpect(cards.or(skeleton).or(empty)).toBeVisible({ timeout: 15_000 });
-    await authExpect(page.getByTestId("seller-orders-table")).toHaveCount(0);
+    const tabs = page.getByRole("tab", { name: /todos|aguardando/i });
+    const loading = page.getByText(/carregando pedidos/i);
+    await authExpect(tabs.or(loading).first()).toBeVisible({ timeout: 15_000 });
   });
 
   authTest("nova listagem exibe form RHF quando cardId presente", async ({ sellerPage: page }) => {

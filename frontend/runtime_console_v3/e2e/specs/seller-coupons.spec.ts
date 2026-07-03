@@ -6,7 +6,7 @@ authTest.describe("Vendedor — cupons", () => {
 
   authTest("seller acessa cupons e vê heading", async ({ sellerPage: page }) => {
     await page.goto("/vendedor/painel/cupons");
-    await authExpect(page).toHaveURL(/\/vendedor\/painel\/cupons/, { timeout: 20_000 });
+    await authExpect(page).toHaveURL(/\/vendedor\/painel\/marketing\/cupons/, { timeout: 20_000 });
     await waitForSellerPanelReady(page);
 
     await authExpect(
