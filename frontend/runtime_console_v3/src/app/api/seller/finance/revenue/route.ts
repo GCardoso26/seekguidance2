@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { TOURNAMENT_API_BASE, tournamentProxyHeaders } from "@/lib/tournament-api";
 import { sellerFinanceRevenueMock } from "@/lib/seller-finance-mock";
-import { useSellerCiMocks } from "@/lib/seller-ci-mock";
+import { preferSellerCiMocks } from "@/lib/seller-ci-mock";
 
 export async function GET(req: NextRequest) {
-  if (useSellerCiMocks()) {
+  if (preferSellerCiMocks()) {
     return NextResponse.json(sellerFinanceRevenueMock());
   }
   try {
