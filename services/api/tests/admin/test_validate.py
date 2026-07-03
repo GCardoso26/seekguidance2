@@ -17,6 +17,8 @@ def test_production_missing_stripe():
         redis_url="redis://x",
         environment="production",
         stripe_secret_key=None,
+        cpf_salt="x" * 32,
+        supabase_jwt_secret="y" * 16,
     )
     missing = validate_production_config(settings)
     assert "STRIPE_SECRET_KEY" in missing
