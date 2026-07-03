@@ -14,8 +14,9 @@ test.describe("Seller analytics", () => {
 
   test("distribuição de ratings e jogos aparecem", async ({ page }) => {
     await page.goto("/seller/cardseekers", { waitUntil: "domcontentloaded" });
-    await expect(page.getByTestId("seller-analytics-panel")).toBeVisible({ timeout: 15_000 });
-    await expect(page.getByText(/Magic: The Gathering/i)).toBeVisible();
-    await expect(page.getByText(/avaliações/i)).toBeVisible();
+    const panel = page.getByTestId("seller-analytics-panel");
+    await expect(panel).toBeVisible({ timeout: 15_000 });
+    await expect(panel.getByText(/Magic: The Gathering/i)).toBeVisible();
+    await expect(panel.getByText(/avaliações/i)).toBeVisible();
   });
 });

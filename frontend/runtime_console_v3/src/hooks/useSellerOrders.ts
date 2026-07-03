@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { buildSellerOrdersQuery } from "@/lib/seller-orders-query";
+import { buildSellerOrdersQuery, type OrderTabId } from "@/lib/seller-orders-query";
 import { normalizeSellerOrder, type SellerOrderRow } from "@/types/seller-order";
 
 export type SellerOrdersResponse = {
@@ -15,11 +15,31 @@ type Options = {
   page?: number;
   limit?: number;
   status?: string;
+  tab?: OrderTabId;
+  search?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  minValue?: number;
+  maxValue?: number;
+  paymentMethod?: string;
   enabled?: boolean;
 };
 
-async function fetchSellerOrders(page: number, limit: number, status?: string): Promise<SellerOrdersResponse> {
-  const qs = buildSellerOrdersQuery(page, limit, status);
+async function fetchSellerOrders(
+  page: number,
+  limit: number,
+  options: Omit<Options, "page" | "limit" | "enabled">,
+): Promise<SellerOrdersResponse> {
+  const qs = buildSellerOrdersQuery(page, limit, {
+    tab: options.tab,
+    status: options.status,
+    search: options.search,
+    dateFrom: options.dateFrom,
+    dateTo: options.dateTo,
+    minValue: options.minValue,
+    maxValue: options.maxValue,
+    paymentMethod: options.paymentMethod,
+  });
   const res = await fetch(`/api/seller/orders?${qs}`);
   if (res.status === 401) throw new Error("login_required");
   if (!res.ok) throw new Error("fetch_failed");
@@ -37,11 +57,46 @@ async function fetchSellerOrders(page: number, limit: number, status?: string): 
   };
 }
 
-export function useSellerOrders({ page = 1, limit = 20, status = "", enabled = true }: Options = {}) {
+export function useSellerOrders({
+  page = 1,
+  limit = 20,
+  status = "",
+  tab,
+  search,
+  dateFrom,
+  dateTo,
+  minValue,
+  maxValue,
+  paymentMethod,
+  enabled = true,
+}: Options = {}) {
   const statusFilter = status || undefined;
+  const tabFilter = tab && tab !== "all" ? tab : undefined;
   return useQuery({
-    queryKey: ["seller-orders", page, limit, statusFilter ?? "all"],
-    queryFn: () => fetchSellerOrders(page, limit, statusFilter),
+    queryKey: [
+      "seller-orders",
+      page,
+      limit,
+      tabFilter ?? "all",
+      statusFilter ?? "",
+      search ?? "",
+      dateFrom ?? "",
+      dateTo ?? "",
+      minValue ?? "",
+      maxValue ?? "",
+      paymentMethod ?? "",
+    ],
+    queryFn: () =>
+      fetchSellerOrders(page, limit, {
+        tab: tabFilter,
+        status: statusFilter,
+        search,
+        dateFrom,
+        dateTo,
+        minValue,
+        maxValue,
+        paymentMethod,
+      }),
     enabled,
   });
 }
@@ -51,7 +106,7 @@ export function useSellerPendingOrdersCount(enabled = true) {
   return useQuery({
     queryKey: ["seller-orders-pending-count"],
     queryFn: async () => {
-      const data = await fetchSellerOrders(1, 1, "pending");
+      const data = await fetchSellerOrders(1, 1, { tab: "pending_payment" });
       return data.total;
     },
     enabled,

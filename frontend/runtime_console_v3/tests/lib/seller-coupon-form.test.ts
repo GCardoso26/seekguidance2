@@ -51,7 +51,7 @@ describe("seller-coupon-form", () => {
       code: "FIXO15",
       discount_type: "fixed",
       discount_value: 1500,
-      max_uses: null,
+      max_uses: "",
       min_order_value: 0,
       is_active: true,
     });

@@ -104,16 +104,16 @@ class SearchSyntaxParser:
                 clauses.append(f"cc.game_data->>'colors' ILIKE :{key}")
                 params[key] = f"%{f.value}%"
             elif f.field == "cmc":
-                clauses.append(self._numeric_clause(f"NULLIF(cc.game_data->>'cmc', '')::float", f, key))
+                clauses.append(self._numeric_clause("NULLIF(cc.game_data->>'cmc', '')::float", f, key))
                 params[key] = f.value
             elif f.field in ("type", "types"):
                 clauses.append(f"cc.game_data->>'type_line' ILIKE :{key}")
                 params[key] = f"%{f.value}%"
             elif f.field == "power":
-                clauses.append(self._numeric_clause(f"NULLIF(cc.game_data->>'power', '*')::float", f, key))
+                clauses.append(self._numeric_clause("NULLIF(cc.game_data->>'power', '*')::float", f, key))
                 params[key] = f.value
             elif f.field == "toughness":
-                clauses.append(self._numeric_clause(f"NULLIF(cc.game_data->>'toughness', '*')::float", f, key))
+                clauses.append(self._numeric_clause("NULLIF(cc.game_data->>'toughness', '*')::float", f, key))
                 params[key] = f.value
             elif f.field == "artist":
                 clauses.append(f"cc.game_data->>'artist' ILIKE :{key}")
@@ -178,8 +178,14 @@ class SearchSyntaxParser:
 
     VALID_FIELD_VALUES: dict[str, dict[str, list[str]] | list[str]] = {
         "color": {
-            "mtg": ["W", "U", "B", "R", "G", "C", "M", "White", "Blue", "Black", "Red", "Green", "Colorless", "Multicolor"],
-            "pokemon": ["Grass", "Fire", "Water", "Lightning", "Psychic", "Fighting", "Darkness", "Metal", "Fairy", "Dragon", "Colorless"],
+            "mtg": [
+                "W", "U", "B", "R", "G", "C", "M",
+                "White", "Blue", "Black", "Red", "Green", "Colorless", "Multicolor",
+            ],
+            "pokemon": [
+                "Grass", "Fire", "Water", "Lightning", "Psychic", "Fighting",
+                "Darkness", "Metal", "Fairy", "Dragon", "Colorless",
+            ],
         },
         "rarity": {
             "mtg": ["common", "uncommon", "rare", "mythic", "special", "bonus", "land"],

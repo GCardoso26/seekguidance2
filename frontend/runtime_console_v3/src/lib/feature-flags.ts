@@ -1,0 +1,16 @@
+export const FEATURES = {
+  SELLER_ANALYTICS: process.env.NEXT_PUBLIC_FEATURE_SELLER_ANALYTICS !== "false",
+  SYNTAX_SEARCH: process.env.NEXT_PUBLIC_FEATURE_SYNTAX_SEARCH !== "false",
+  REVIEWS: process.env.NEXT_PUBLIC_FEATURE_REVIEWS !== "false",
+  GLOBAL_SEARCH: process.env.NEXT_PUBLIC_FEATURE_GLOBAL_SEARCH !== "false",
+  HEADER_NOTIFICATIONS: process.env.NEXT_PUBLIC_FEATURE_HEADER_NOTIFICATIONS !== "false",
+  TICKETS: process.env.NEXT_PUBLIC_FEATURE_TICKETS !== "false",
+  TEAM_RBAC: process.env.NEXT_PUBLIC_FEATURE_TEAM_RBAC !== "false",
+  FINANCE_DASHBOARD: process.env.NEXT_PUBLIC_FEATURE_FINANCE_DASHBOARD !== "false",
+} as const;
+
+export type FeatureKey = keyof typeof FEATURES;
+
+export function isFeatureEnabled(key: FeatureKey): boolean {
+  return FEATURES[key];
+}

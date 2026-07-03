@@ -6,6 +6,7 @@ from datetime import datetime
 from typing import Any
 
 from app.api.deps import DbSession
+from app.api.judge_user import require_judge_user as _require_user
 from app.tcg_adapters.registry import GAME_CODE_TO_SLUG, get_adapter, list_tournament_games, normalize_game_code
 from app.tcg_adapters.types import ParsedDecklist
 from fastapi import APIRouter, Header, HTTPException, Query
@@ -40,9 +41,6 @@ class TournamentCreateBody(BaseModel):
     decklist_required: bool | None = None
     max_players: int = 128
     starts_at: datetime | None = None
-
-
-from app.api.judge_user import require_judge_user as _require_user
 
 
 def _issue_to_dict(issue: Any) -> dict[str, Any]:

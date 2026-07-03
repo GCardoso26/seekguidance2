@@ -1,10 +1,10 @@
 """Testes de verificação de assinatura Stripe webhook."""
 
 import pytest
-import stripe
+from app.payments.webhooks import verify_stripe_webhook
 from fastapi import HTTPException
 
-from app.payments.webhooks import verify_stripe_webhook
+import stripe
 
 
 def test_verify_stripe_webhook_missing_signature():

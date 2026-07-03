@@ -95,8 +95,12 @@ def test_verify_es256_via_jwks(monkeypatch):
 
 
 def test_es256_without_supabase_url_falls_back_to_hs256_only():
-    header = base64.urlsafe_b64encode(json.dumps({"alg": "ES256", "typ": "JWT", "kid": "x"}).encode()).rstrip(b"=").decode()
-    payload = base64.urlsafe_b64encode(json.dumps({"sub": "u", "exp": int(time.time()) + 3600}).encode()).rstrip(b"=").decode()
+    header = base64.urlsafe_b64encode(
+        json.dumps({"alg": "ES256", "typ": "JWT", "kid": "x"}).encode(),
+    ).rstrip(b"=").decode()
+    payload = base64.urlsafe_b64encode(
+        json.dumps({"sub": "u", "exp": int(time.time()) + 3600}).encode(),
+    ).rstrip(b"=").decode()
     token = f"{header}.{payload}.fakesig"
     assert verify_supabase_access_token(token, "test-jwt-secret-32chars-minimum") is None
 

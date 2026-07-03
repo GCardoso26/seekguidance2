@@ -17,9 +17,9 @@ export function PendingActions({
     kycIncomplete
       ? { count: 1, label: "completar cadastro KYC", href: "#kyc-status" }
       : null,
-    { count: shipments, label: "pedidos aguardando envio", href: "/vendedor/painel/vendas?status=paid" },
-    { count: disputes, label: "disputas abertas", href: "/vendedor/painel/vendas?status=disputed" },
-    { count: lowStock, label: "itens com estoque baixo", href: "/vendedor/painel/listagens" },
+    { count: shipments, label: "pedidos aguardando envio", href: "/vendedor/painel/pedidos?tab=to_separate" },
+    { count: disputes, label: "disputas abertas", href: "/vendedor/painel/pedidos?tab=cancelled" },
+    { count: lowStock, label: "itens com estoque baixo", href: "/vendedor/painel/estoque/estoque" },
   ].filter((i): i is { count: number; label: string; href: string } => Boolean(i && i.count > 0));
 
   if (items.length === 0) {

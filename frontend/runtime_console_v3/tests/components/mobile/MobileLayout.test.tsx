@@ -49,7 +49,7 @@ describe("MobileLayout", () => {
     expect(screen.getByText("Conteúdo")).toBeTruthy();
     const mobileNav = screen.getByRole("navigation", { name: "Navegação mobile" });
     expect(within(mobileNav).getByText("Loja")).toBeTruthy();
-    expect(within(mobileNav).getByText("Comunidade")).toBeTruthy();
+    expect(within(mobileNav).getByText("Decks")).toBeTruthy();
     expect(within(mobileNav).getByText("Perfil")).toBeTruthy();
   });
 });

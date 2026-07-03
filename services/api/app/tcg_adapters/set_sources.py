@@ -321,7 +321,7 @@ async def fetch_dbfw_sets(client: httpx.AsyncClient) -> list[dict[str, Any]]:
 
 async def fetch_vanguard_sets(client: httpx.AsyncClient) -> list[dict[str, Any]]:
     res = await client.get(
-        f"https://tcgcsv.com/tcgplayer/16/groups",
+        "https://tcgcsv.com/tcgplayer/16/groups",
         headers={"User-Agent": "JudgeTCG/1.0 (catalog sync; contact@judgetcg.com.br)"},
     )
     if not res.is_success:

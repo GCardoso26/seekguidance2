@@ -1,25 +1,36 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import Link from "next/link";
-import { SellerHeader } from "@/components/seller-dashboard/SellerHeader";
-import { DashboardStats } from "@/components/seller-dashboard/DashboardStats";
-import { RecentSalesTable } from "@/components/seller-dashboard/RecentSalesTable";
-import { PendingActions } from "@/components/seller-dashboard/PendingActions";
+import { useState } from "react";
 import { MerchantKycCard } from "@/components/kyc/MerchantKycCard";
-import { useSellerStore } from "@/hooks/useSellerStore";
+import { SellerHeader } from "@/components/seller-dashboard/SellerHeader";
+import {
+  LowStockWidget,
+  MetricCardsRow,
+  QuickActionsBar,
+  RecentOrdersWidget,
+  TicketsWidget,
+} from "@/components/seller-dashboard/overview";
+import { OrderDetailDrawer } from "@/components/seller-orders";
 import { useAccountStatus } from "@/hooks/useAccountStatus";
+import { useDashboardOverview } from "@/hooks/useDashboardOverview";
+import { useJudgeAuth } from "@/features/auth/AuthProvider";
+import { useSellerStore } from "@/hooks/useSellerStore";
 import { needsOnboardingContinue } from "@/lib/kyc-onboarding";
 
-const SalesChart = dynamic(
-  () => import("@/components/dashboard/SalesChart").then((m) => m.SalesChart),
-  { loading: () => <div className="h-64 animate-pulse rounded-xl bg-white/5" />, ssr: false },
-);
+function greetingForHour(hour: number): string {
+  if (hour < 12) return "Bom dia";
+  if (hour < 18) return "Boa tarde";
+  return "Boa noite";
+}
 
 export default function VendedorPainelDashboardPage() {
-  const { hasStore, isLoading, dashboard, dashboardLoading } = useSellerStore();
+  const { user } = useJudgeAuth();
+  const { hasStore, isLoading } = useSellerStore();
+  const { data: overview, isLoading: overviewLoading } = useDashboardOverview(hasStore);
   const { data: accountStatus } = useAccountStatus();
-  const store = dashboard?.store as Record<string, unknown> | undefined;
+  const [drawerOrderId, setDrawerOrderId] = useState<string | null>(null);
+
   const kycStatus = accountStatus?.merchant?.kyc_status;
   const kycIncomplete = Boolean(
     kycStatus &&
@@ -27,7 +38,13 @@ export default function VendedorPainelDashboardPage() {
       needsOnboardingContinue(kycStatus, accountStatus?.merchant?.rejection_reason),
   );
 
-  if (isLoading || dashboardLoading) {
+  const displayName =
+    (user?.user_metadata?.full_name as string | undefined)?.split(" ")[0] ??
+    user?.email?.split("@")[0] ??
+    "Vendedor";
+  const greeting = `${greetingForHour(new Date().getHours())}, ${displayName}`;
+
+  if (isLoading || overviewLoading) {
     return (
       <main className="flex flex-1 items-center justify-center p-8">
         <p className="text-luxury-mist">Carregando painel…</p>
@@ -49,47 +66,43 @@ export default function VendedorPainelDashboardPage() {
     );
   }
 
-  const chartData = (dashboard?.sales_chart ?? []).map(
-    (row: { day?: string; date?: string; revenue_cents?: number }) => ({
-      day: String(row.day ?? row.date ?? ""),
-      revenue_cents: Number(row.revenue_cents ?? 0),
-    }),
-  );
-
   return (
     <>
-      <SellerHeader displayName={String(store?.name ?? "")} />
-      <main className="flex-1 space-y-6 overflow-y-auto p-6">
-        <div id="kyc-status">
-          <MerchantKycCard />
-        </div>
-        <DashboardStats kpis={dashboard?.kpis} revenue={dashboard?.revenue} />
-
-        <div className="grid gap-6 lg:grid-cols-3">
-          <div className="rounded-xl border border-white/10 bg-white/5 p-4 lg:col-span-2">
-            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-luxury-mist">
-              Vendas (30 dias)
-            </h2>
-            <SalesChart data={chartData} />
+      <SellerHeader
+        displayName={greeting}
+        subtitle="Visão operacional da sua loja"
+        action={null}
+      />
+      <main className="flex-1 space-y-6 overflow-y-auto p-4 md:p-6">
+        {kycIncomplete && (
+          <div id="kyc-status">
+            <MerchantKycCard />
           </div>
-          <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-luxury-mist">
-              Ações pendentes
-            </h2>
-            <PendingActions
-              shipments={dashboard?.pending?.shipments}
-              disputes={dashboard?.pending?.disputes}
-              lowStock={dashboard?.pending?.low_stock}
-              kycIncomplete={kycIncomplete}
-            />
+        )}
+
+        <MetricCardsRow metrics={overview?.metrics} />
+
+        <div className="grid gap-6 lg:grid-cols-2">
+          <RecentOrdersWidget
+            orders={overview?.recent_orders ?? []}
+            onSelectOrder={setDrawerOrderId}
+          />
+          <div className="space-y-6">
+            <LowStockWidget items={overview?.low_stock ?? []} />
+            <TicketsWidget count={overview?.open_tickets ?? 0} />
           </div>
         </div>
 
-        <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-          <h2 className="mb-3 text-lg font-semibold">Vendas recentes</h2>
-          <RecentSalesTable orders={dashboard?.recent_orders ?? []} />
-        </div>
+        <QuickActionsBar />
       </main>
+
+      <OrderDetailDrawer
+        orderId={drawerOrderId}
+        open={Boolean(drawerOrderId)}
+        onOpenChange={(open) => {
+          if (!open) setDrawerOrderId(null);
+        }}
+      />
     </>
   );
 }

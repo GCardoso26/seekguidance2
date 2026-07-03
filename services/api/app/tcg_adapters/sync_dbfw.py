@@ -7,8 +7,8 @@ from typing import Any
 import httpx
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.tcg_adapters.sync_github_apitcg import fetch_apitcg_repo_cards, resolve_apitcg_set
 from app.tcg_adapters.sync_common import maybe_commit_batch, normalize_name, upsert_card, upsert_set
+from app.tcg_adapters.sync_github_apitcg import fetch_apitcg_repo_cards, resolve_apitcg_set
 
 APITCG_REPO = "dragon-ball-fusion-tcg-data"
 

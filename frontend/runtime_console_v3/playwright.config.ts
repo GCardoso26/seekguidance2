@@ -4,6 +4,7 @@ import { loadE2eEnv } from "./e2e/load-env";
 loadE2eEnv(__dirname);
 
 const webServerEnv = {
+  CI: process.env.CI || "",
   API_PROXY_TARGET: process.env.API_PROXY_TARGET || "https://seekguidance.onrender.com",
   NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL || "",
   NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "",

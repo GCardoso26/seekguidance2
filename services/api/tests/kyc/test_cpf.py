@@ -1,6 +1,6 @@
 """Testes CPF / registro."""
 
-from app.kyc.cpf import cpf_last4, hash_cpf, is_valid_cpf, normalize_cpf
+from app.kyc.cpf import cpf_last4, is_valid_cpf, normalize_cpf
 
 
 def test_normalize_cpf():

@@ -41,6 +41,7 @@ from app.config.sentry import init_sentry
 from app.core.config import get_settings
 from app.core.logging import configure_logging
 from app.core.rate_limit import allow_request, build_rate_limit_response, client_key
+from app.core.security.judge_user_middleware import judge_user_auth_middleware
 from app.core.security.middleware import (
     https_redirect_middleware,
     operational_guard_middleware,
@@ -48,7 +49,6 @@ from app.core.security.middleware import (
     safe_exception_middleware,
     security_headers_middleware,
 )
-from app.core.security.judge_user_middleware import judge_user_auth_middleware
 
 init_sentry()
 configure_logging()

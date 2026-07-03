@@ -20,4 +20,22 @@ Next.js 14, React 18, TypeScript, Tailwind, Radix, Zustand, TanStack Query, Rech
 
 See `infra/runtime_console_v3/` and `docs/FRONTEND_DEPLOYMENT.md`.
 
-Legacy HTML consoles in `apps/runtime_*_console/` remain available.
+## Painel do Vendedor (`/vendedor/painel`)
+
+Fluxo operacional reorganizado em sprints:
+
+| Módulo | Rotas |
+|--------|--------|
+| Dashboard | `/vendedor/painel` |
+| Pedidos | `/vendedor/painel/pedidos` |
+| Catálogo | `/catalogo/cartas`, `/produtos`, `/expansoes`, `/jogos` |
+| Clientes | `/clientes/lista` |
+| Atendimento | `/atendimento/tickets` |
+| Financeiro | `/financeiro/receitas`, `/repasses`, `/stripe`, `/pix` |
+| Equipe | `/equipe/usuarios`, `/permissoes`, `/logs` |
+| Configurações | `/configuracoes`, `/notificacoes` |
+
+**Atalhos:** `Ctrl+K` / `⌘K` busca global · `?` atalhos de teclado
+
+**Feature flags:** `src/lib/feature-flags.ts` (`NEXT_PUBLIC_FEATURE_*`)
+

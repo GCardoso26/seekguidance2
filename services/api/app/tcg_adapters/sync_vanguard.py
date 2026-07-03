@@ -62,7 +62,7 @@ async def _fetch_json(client: httpx.AsyncClient, url: str) -> dict[str, Any] | l
     if not res.is_success:
         return {}
     payload = res.json()
-    return payload if isinstance(payload, (dict, list)) else {}
+    return payload if isinstance(payload, dict | list) else {}
 
 
 async def sync_vanguard(session: AsyncSession, *, limit: int | None = None) -> dict[str, Any]:

@@ -2,14 +2,13 @@
 
 from __future__ import annotations
 
+from datetime import UTC, datetime
 from typing import Any
 
 from app.api.deps import DbSession
 from app.api.v1.tournament_system import _require_user
 from app.marketplace import checkout_atomic
 from app.marketplace import seller_service as seller_svc
-from datetime import UTC, datetime
-
 from fastapi import APIRouter, Header, Query
 from pydantic import BaseModel
 

@@ -2,20 +2,19 @@
 
 from __future__ import annotations
 
-from typing import Any
-
 from datetime import UTC, datetime
+from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.api.deps import DbSession
 from app.catalog.admin_auth import require_catalog_sync_auth
-from app.catalog.cron_auth import require_catalog_cron_auth
 from app.catalog.card_versions import get_card_versions
+from app.catalog.cron_auth import require_catalog_cron_auth
 from app.catalog.detail_service import get_card_detail, get_price_history
 from app.catalog.health import verify_ingestion, verify_ingestion_lite
-from app.catalog.redis_cache import redis_ping
 from app.catalog.pipeline import run_full_ingestion, run_game_sync
+from app.catalog.redis_cache import redis_ping
 from app.catalog.search_index import meili_enabled
 from app.catalog.search_service import get_catalog_price_trends, list_catalog_sets, search_catalog_cards
 from app.pricing.valuation_service import get_card_valuation
