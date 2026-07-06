@@ -1,6 +1,8 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+
+export type ReconciliationItem = {
   payment_id: string;
   shop_order_id: string | null;
   payment_status: string;

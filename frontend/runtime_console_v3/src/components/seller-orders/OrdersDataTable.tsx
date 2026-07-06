@@ -1,6 +1,6 @@
 "use client";
 
-import type { ColumnDef, RowSelectionState } from "@tanstack/react-table";
+import type { ColumnDef, OnChangeFn, RowSelectionState } from "@tanstack/react-table";
 import { DataTable } from "@/components/seller-dashboard/DataTable";
 import { SaleStatusBadge } from "@/components/seller-dashboard/SaleStatusBadge";
 import { formatShopPrice } from "@/lib/marketplace-shop";
@@ -109,7 +109,7 @@ type Props = {
   onSelectOrder: (orderId: string) => void;
   selectable?: boolean;
   rowSelection?: RowSelectionState;
-  onRowSelectionChange?: (state: RowSelectionState) => void;
+  onRowSelectionChange?: OnChangeFn<RowSelectionState>;
 };
 
 export function OrdersDataTable({
