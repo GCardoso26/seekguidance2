@@ -62,3 +62,76 @@ export function sellerNotificationSettingsMock() {
     },
   };
 }
+
+export function sellerFinanceReconciliationMock() {
+  return {
+    items: [
+      {
+        payment_id: "pay-001",
+        shop_order_id: "ord-001",
+        payment_status: "Approved",
+        payment_amount: 15000,
+        store_amount_cents: 13500,
+        order_status: "paid",
+        order_amount: 15000,
+        stripe_transfer_id: "tr_abc",
+        reconciliation_status: "ok",
+      },
+      {
+        payment_id: "pay-002",
+        shop_order_id: "ord-002",
+        payment_status: "Approved",
+        payment_amount: 8000,
+        store_amount_cents: 7200,
+        order_status: "paid",
+        order_amount: 8000,
+        stripe_transfer_id: null,
+        reconciliation_status: "transfer_pending",
+      },
+    ],
+    total: 2,
+    issues_count: 1,
+    issues: [],
+    healthy: false,
+  };
+}
+
+export function sellerFinanceChargebacksMock() {
+  return {
+    open_count: 1,
+    items: [
+      {
+        id: "cb-001",
+        payment_id: "pay-003",
+        shop_order_id: "ord-003",
+        stripe_dispute_id: "dp_demo",
+        status: "opened",
+        amount_cents: 12000,
+        reason: "fraudulent",
+        evidence_due_by: new Date(Date.now() + 7 * 86400000).toISOString(),
+        opened_at: new Date().toISOString(),
+        resolved_at: null,
+        payment_method: "stripe",
+      },
+    ],
+  };
+}
+
+export function sellerFinanceAuditTrailMock() {
+  return {
+    events: [
+      {
+        id: "ev-001",
+        payment_id: "pay-001",
+        from_status: "Captured",
+        to_status: "Approved",
+        event_type: "PaymentApproved",
+        created_at: new Date().toISOString(),
+        shop_order_id: "ord-001",
+        amount_cents: 15000,
+        payment_method: "stripe",
+      },
+    ],
+    total: 1,
+  };
+}

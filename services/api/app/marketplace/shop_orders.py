@@ -566,6 +566,18 @@ async def handle_payment_intent_succeeded(session: AsyncSession, settings: Setti
                 from app.marketplace.seller_fulfillment import on_order_paid_enqueue_fulfillment
 
                 await on_order_paid_enqueue_fulfillment(session, oid)
+
+        from app.payments.payment_aggregate import record_payment_captured
+
+        for oid in order_ids:
+            try:
+                await record_payment_captured(
+                    session,
+                    shop_order_id=oid,
+                    stripe_payment_intent_id=str(payment_intent_id),
+                )
+            except Exception as exc:
+                logger.warning("payment_aggregate_capture_failed", order_id=oid, error=str(exc))
     elif payment_intent_id and not use_escrow:
         await session.execute(
             text(

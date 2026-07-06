@@ -767,6 +767,47 @@ async def seller_finance_pix(
     return await seller_fin.get_pix_summary(session, user_id)
 
 
+@router.get("/runtime/judge/seller/finance/reconciliation")
+async def seller_finance_reconciliation(
+    session: DbSession,
+    limit: int = 100,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    from app.payments.reconciliation import get_reconciliation_report
+
+    user_id = _require_user(x_judge_user_id)
+    return await get_reconciliation_report(session, user_id, limit=limit)
+
+
+@router.get("/runtime/judge/seller/finance/chargebacks")
+async def seller_finance_chargebacks(
+    session: DbSession,
+    status: str | None = None,
+    limit: int = 50,
+    offset: int = 0,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    from app.payments.reconciliation import get_chargebacks_list
+
+    user_id = _require_user(x_judge_user_id)
+    return await get_chargebacks_list(
+        session, user_id, status=status, limit=limit, offset=offset
+    )
+
+
+@router.get("/runtime/judge/seller/finance/audit-trail")
+async def seller_finance_audit_trail(
+    session: DbSession,
+    limit: int = 50,
+    offset: int = 0,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    from app.payments.reconciliation import get_audit_trail
+
+    user_id = _require_user(x_judge_user_id)
+    return await get_audit_trail(session, user_id, limit=limit, offset=offset)
+
+
 @router.get("/runtime/judge/seller/settings/notifications")
 async def seller_notification_settings_get(
     session: DbSession,

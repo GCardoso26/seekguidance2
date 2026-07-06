@@ -21,7 +21,12 @@ from app.judge.stripe_service import (
     update_subscription_status,
     upsert_subscription,
 )
-from app.payments.stripe_webhook_events import abort_stripe_webhook_event, begin_stripe_webhook_event
+from app.payments.stripe_webhook_events import (
+    abort_stripe_webhook_event,
+    begin_stripe_webhook_event,
+    complete_stripe_webhook_event,
+    compute_payload_hash,
+)
 from app.payments.webhooks import verify_stripe_webhook
 from fastapi import APIRouter, Header, HTTPException, Request
 from fastapi.responses import JSONResponse
@@ -126,9 +131,12 @@ async def stripe_webhook(request: Request, session: DbSession, settings: Setting
     event_id = str(event.get("id") or "")
     etype = event["type"]
     data = event["data"]["object"]
+    payload_hash = compute_payload_hash(payload)
 
     if event_id:
-        claimed = await begin_stripe_webhook_event(session, event_id, etype)
+        claimed = await begin_stripe_webhook_event(
+            session, event_id, etype, payload_hash=payload_hash
+        )
         if not claimed:
             return JSONResponse({"status": "duplicate"})
 
@@ -160,9 +168,27 @@ async def stripe_webhook(request: Request, session: DbSession, settings: Setting
                 from app.marketplace.shop_orders import handle_payment_intent_succeeded
 
                 await handle_payment_intent_succeeded(session, settings, data)
+        elif etype == "payment_intent.payment_failed":
+            meta = data.get("metadata") or {}
+            if meta.get("order_ids"):
+                from app.payments.payment_aggregate import record_payment_failed
+
+                for oid in [o.strip() for o in str(meta.get("order_ids", "")).split(",") if o.strip()]:
+                    await record_payment_failed(
+                        session,
+                        shop_order_id=oid,
+                        stripe_payment_intent_id=str(data.get("id") or ""),
+                        reason=str(data.get("last_payment_error", {}).get("message") or "failed"),
+                    )
+        elif etype in ("charge.dispute.created", "charge.dispute.updated"):
+            from app.payments.chargeback_service import open_chargeback_from_stripe_dispute
+
+            await open_chargeback_from_stripe_dispute(session, data)
         elif etype == "account.updated":
             await _handle_connect_account_updated(session, event_id, data)
 
+        if event_id:
+            await complete_stripe_webhook_event(session, event_id)
         await session.commit()
     except Exception:
         await session.rollback()

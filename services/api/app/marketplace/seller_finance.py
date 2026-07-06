@@ -133,14 +133,26 @@ async def get_stripe_summary(session: AsyncSession, owner_id: str) -> dict[str, 
         await session.execute(
             text(
                 """
-                SELECT COUNT(*)::int AS cnt
-                FROM tcg_judge.shop_orders
-                WHERE store_id = :sid AND status = 'disputed'
+                SELECT COUNT(*)::int AS cnt FROM tcg_judge.chargebacks
+                WHERE store_id = :sid AND status IN ('opened', 'under_review')
                 """
             ),
             {"sid": store_id},
         )
     ).mappings().first()
+    if not disputes or int(disputes["cnt"]) == 0:
+        disputes = (
+            await session.execute(
+                text(
+                    """
+                    SELECT COUNT(*)::int AS cnt
+                    FROM tcg_judge.shop_orders
+                    WHERE store_id = :sid AND status = 'disputed'
+                    """
+                ),
+                {"sid": store_id},
+            )
+        ).mappings().first()
 
     stripe_orders = (
         await session.execute(

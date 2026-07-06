@@ -24,6 +24,9 @@ async def dispatch(
         "fulfillment.tracking_sync": _handle_fulfillment_tracking_sync,
         "fulfillment.carrier_webhook": _handle_carrier_webhook,
         "platform.publish_outbox": _handle_publish_outbox,
+        "payment.reconcile": _handle_payment_reconcile,
+        "settlement.batch": _handle_settlement_batch,
+        "chargeback.process": _handle_chargeback_process,
     }
     handler = handlers.get(job_type)
     if not handler:
@@ -84,6 +87,37 @@ async def _handle_carrier_webhook(
 
     await seller_fulfillment.process_carrier_webhook_event(
         session, str(payload["webhook_event_id"])
+    )
+
+
+async def _handle_payment_reconcile(
+    session: AsyncSession, payload: dict[str, Any], job: dict[str, Any]
+) -> None:
+    from app.payments.reconciliation import reconcile_single_payment
+
+    payment_id = str(payload["payment_id"])
+    await reconcile_single_payment(session, payment_id=payment_id)
+
+
+async def _handle_settlement_batch(
+    session: AsyncSession, payload: dict[str, Any], job: dict[str, Any]
+) -> None:
+    from app.payments.settlement_service import run_settlement_batch_for_all_stores
+
+    correlation_id = str(job.get("correlation_id") or payload.get("correlation_id", ""))
+    await run_settlement_batch_for_all_stores(session, correlation_id=correlation_id or None)
+
+
+async def _handle_chargeback_process(
+    session: AsyncSession, payload: dict[str, Any], job: dict[str, Any]
+) -> None:
+    from app.payments.chargeback_service import process_chargeback_job
+
+    correlation_id = str(job.get("correlation_id") or payload.get("correlation_id", ""))
+    await process_chargeback_job(
+        session,
+        payment_id=str(payload["payment_id"]),
+        correlation_id=correlation_id or None,
     )
 
 

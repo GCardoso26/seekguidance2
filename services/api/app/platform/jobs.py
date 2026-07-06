@@ -19,6 +19,9 @@ JOB_FULFILLMENT_GENERATE_LABEL = "fulfillment.generate_label"
 JOB_FULFILLMENT_TRACKING_SYNC = "fulfillment.tracking_sync"
 JOB_FULFILLMENT_CARRIER_WEBHOOK = "fulfillment.carrier_webhook"
 JOB_OUTBOX_PUBLISH = "platform.publish_outbox"
+JOB_PAYMENT_RECONCILE = "payment.reconcile"
+JOB_SETTLEMENT_BATCH = "settlement.batch"
+JOB_CHARGE_BACK_PROCESS = "chargeback.process"
 
 
 async def enqueue_job(

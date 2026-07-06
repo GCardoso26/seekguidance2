@@ -109,6 +109,9 @@ export const SIDEBAR_ITEMS: SidebarItem[] = [
       { id: "payouts", label: "Repasses", icon: DollarSign, href: "/vendedor/painel/financeiro/repasses" },
       { id: "stripe", label: "Stripe", icon: DollarSign, href: "/vendedor/painel/financeiro/stripe" },
       { id: "pix", label: "PIX", icon: DollarSign, href: "/vendedor/painel/financeiro/pix" },
+      { id: "reconciliation", label: "Reconciliação", icon: DollarSign, href: "/vendedor/painel/financeiro/reconciliacao" },
+      { id: "chargebacks", label: "Chargebacks", icon: DollarSign, href: "/vendedor/painel/financeiro/chargebacks" },
+      { id: "audit", label: "Auditoria", icon: DollarSign, href: "/vendedor/painel/financeiro/auditoria" },
     ],
   },
   {

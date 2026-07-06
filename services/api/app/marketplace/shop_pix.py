@@ -609,6 +609,17 @@ async def confirm_pix_payment(
 
         await on_order_paid_enqueue_fulfillment(session, order_id)
 
+    try:
+        from app.payments.payment_aggregate import record_payment_captured
+
+        await record_payment_captured(
+            session,
+            shop_order_id=order_id,
+            pix_txid=txid,
+        )
+    except Exception as exc:
+        logger.warning("payment_aggregate_pix_capture_failed", order_id=order_id, error=str(exc))
+
     if not stock_finalized and not is_escrow:
         items = (
             await session.execute(

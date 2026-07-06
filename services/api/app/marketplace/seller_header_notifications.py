@@ -40,9 +40,18 @@ async def _count_chargebacks(session: AsyncSession, store_id: str) -> int:
             await session.execute(
                 text(
                     """
-                    SELECT COUNT(*) AS cnt
-                    FROM tcg_judge.shop_orders
-                    WHERE store_id = :sid AND status = 'disputed'
+                    SELECT COUNT(*)::int AS cnt FROM (
+                      SELECT id FROM tcg_judge.chargebacks
+                      WHERE store_id = CAST(:sid AS uuid)
+                        AND status IN ('opened', 'under_review')
+                      UNION ALL
+                      SELECT NULL::uuid FROM tcg_judge.shop_orders
+                      WHERE store_id = CAST(:sid AS uuid) AND status = 'disputed'
+                        AND NOT EXISTS (
+                          SELECT 1 FROM tcg_judge.chargebacks cb
+                          WHERE cb.shop_order_id = shop_orders.id
+                        )
+                    ) t
                     """
                 ),
                 {"sid": store_id},
