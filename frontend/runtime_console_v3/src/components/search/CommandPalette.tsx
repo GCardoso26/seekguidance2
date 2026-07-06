@@ -190,7 +190,6 @@ export function CommandPalette() {
                           fill
                           className="object-cover"
                           sizes="32px"
-                          unoptimized={img.endsWith(".svg")}
                         />
                       </div>
                       <span className="min-w-0 flex-1 truncate text-sm">{card.name}</span>

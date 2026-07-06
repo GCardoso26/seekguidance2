@@ -1,12 +1,12 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { ConditionBadge, type CardCondition } from "@/components/cards/ConditionBadge";
+import { CardImage } from "@/components/ui/CardImage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cardImageUrl } from "@/lib/format-currency";
@@ -90,13 +90,12 @@ export function SellerCreateListingForm({ card }: Props) {
       <h2 className="text-lg font-bold text-white">Nova listagem</h2>
       <div className="mt-4 flex items-center gap-3">
         <div className="relative h-16 w-11 shrink-0 overflow-hidden rounded">
-          <Image
+          <CardImage
             src={imageSrc}
             alt={card.name}
             fill
             className="object-cover"
             sizes="44px"
-            unoptimized={imageSrc.endsWith(".svg")}
           />
         </div>
         <div>

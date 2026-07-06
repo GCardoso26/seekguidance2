@@ -87,13 +87,40 @@ export function FacetedSearch({
   const updateFilters = useCallback(
     (updates: Partial<SearchFilters>) => {
       setFilters((prev) => {
-        const next = { ...prev, ...updates };
+        const gameChanged =
+          updates.game !== undefined && updates.game !== prev.game;
+        const next: SearchFilters = { ...prev, ...updates };
+        if (gameChanged) {
+          next.set = undefined;
+          if (next.game !== "MTG") {
+            next.colors = undefined;
+          }
+        }
         syncURL(next);
         return next;
       });
     },
     [syncURL],
   );
+
+  useEffect(() => {
+    const fromUrl = filtersFromSearchParams(searchParams);
+    setFilters({
+      ...fromUrl,
+      q: initialQuery || fromUrl.q,
+      game: initialGame || fromUrl.game,
+      sortBy: fromUrl.sortBy ?? "relevance",
+    });
+    setDebouncedQ(initialQuery || fromUrl.q || "");
+  }, [searchParams, initialGame, initialQuery]);
+
+  useEffect(() => {
+    if (!filters.set || availableSets.length === 0) return;
+    const isValid = availableSets.some((s) => s.code === filters.set);
+    if (!isValid) {
+      updateFilters({ set: undefined });
+    }
+  }, [availableSets, filters.set, updateFilters]);
 
   const clearFilters = useCallback(() => {
     const cleared: SearchFilters = {

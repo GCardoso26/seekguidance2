@@ -25,7 +25,7 @@ import { useCardDetail } from "@/hooks/useCardDetail";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { useAddListingToCart } from "@/hooks/useShopCart";
 import type { PriceHistoryRange } from "@/hooks/usePriceHistory";
-import { cardImageUrl, formatCurrency } from "@/lib/format-currency";
+import { cardImageUrl, formatCurrency, shouldBypassImageOptimizer } from "@/lib/format-currency";
 import { isListingPurchasable } from "@/lib/listing-utils";
 import { GAME_TOKENS } from "@/lib/tcg-tokens";
 import type { CardListing, GameId } from "@/types/card";
@@ -131,7 +131,7 @@ export function CardDetailPage({ cardId }: CardDetailPageProps) {
                         className="object-cover"
                         sizes="(max-width: 1024px) 100vw, 50vw"
                         onError={() => setImageError(true)}
-                        unoptimized={imageSrc.endsWith(".svg")}
+                        unoptimized={shouldBypassImageOptimizer(imageSrc)}
                       />
                     ) : (
                       <div className="flex h-full items-center justify-center bg-muted">
@@ -412,7 +412,7 @@ export function CardDetailPage({ cardId }: CardDetailPageProps) {
                 width={744}
                 height={1040}
                 className="max-h-full max-w-full object-contain"
-                unoptimized={imageSrc.endsWith(".svg")}
+                unoptimized={shouldBypassImageOptimizer(imageSrc)}
               />
               <Dialog.Close asChild>
                 <button

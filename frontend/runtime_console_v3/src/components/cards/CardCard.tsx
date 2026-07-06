@@ -67,7 +67,6 @@ export function CardCard({
           className="object-cover transition-transform duration-500 group-hover:scale-110"
           listQuality={!priority}
           priority={priority}
-          unoptimized={imageSrc.endsWith(".svg")}
         />
 
         {hasFoil && (

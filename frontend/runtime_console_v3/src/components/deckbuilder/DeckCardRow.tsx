@@ -30,7 +30,6 @@ export function DeckCardRow({
           fill
           className="object-cover"
           sizes="32px"
-          unoptimized={imageSrc.endsWith(".svg")}
         />
       </div>
 

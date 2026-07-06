@@ -44,7 +44,6 @@ export function DraggableSearchCard({
         fill
         className="object-cover"
         sizes="120px"
-        unoptimized={imageSrc.endsWith(".svg")}
       />
     </button>
   );

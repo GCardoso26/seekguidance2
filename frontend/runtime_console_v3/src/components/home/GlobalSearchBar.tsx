@@ -176,7 +176,6 @@ export function GlobalSearchBar({
                         listQuality
                         className="object-cover"
                         sizes="40px"
-                        unoptimized={isSvgImageUrl(imageSrc)}
                       />
                     </div>
                     <div className="min-w-0 flex-1">

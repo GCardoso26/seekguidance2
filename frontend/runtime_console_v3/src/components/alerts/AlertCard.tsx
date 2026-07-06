@@ -34,7 +34,6 @@ export function AlertCard({ alert }: AlertCardProps) {
             fill
             className="object-cover"
             sizes="44px"
-            unoptimized={imageSrc.endsWith(".svg")}
           />
         </Link>
         <div className="min-w-0 flex-1">

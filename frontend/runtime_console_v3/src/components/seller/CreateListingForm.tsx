@@ -7,6 +7,7 @@ import { ConditionBadge, type CardCondition } from "@/components/cards/Condition
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { CardImage } from "@/components/ui/CardImage";
 import { cardImageUrl } from "@/lib/format-currency";
 import type { UnifiedCard } from "@/types/card";
 import { useAnalytics } from "@/hooks/useAnalytics";
@@ -94,7 +95,7 @@ export function CreateListingForm({ card }: CreateListingFormProps) {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="flex items-center gap-3">
             <div className="relative h-16 w-11 shrink-0 overflow-hidden rounded">
-              <Image src={imageSrc} alt={card.name} fill className="object-cover" sizes="44px" unoptimized={imageSrc.endsWith(".svg")} />
+              <CardImage src={imageSrc} alt={card.name} fill className="object-cover" sizes="44px" />
             </div>
             <div>
               <p className="font-medium">{card.name}</p>
