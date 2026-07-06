@@ -40,8 +40,9 @@ async def catalog_health(
 async def catalog_sets(
     session: DbSession,
     game: str | None = Query(default=None),
+    limit: int = Query(default=500, ge=1, le=1000),
 ) -> dict[str, Any]:
-    sets = await list_catalog_sets(session, game=game)
+    sets = await list_catalog_sets(session, game=game, limit=limit)
     return {"sets": sets}
 
 

@@ -79,7 +79,11 @@ def _listing_payload(row: dict[str, Any]) -> dict[str, Any]:
             if u
         ]
 
-    reputation = float(row.get("seller_reputation") or row.get("average_rating") or 4.5)
+    reputation_raw = row.get("seller_trust_score") or row.get("seller_reputation") or row.get("average_rating")
+    if row.get("seller_trust_score"):
+        reputation = float(row["seller_trust_score"]) / 20.0
+    else:
+        reputation = float(reputation_raw or 4.5)
     product_id = row.get("store_product_id")
 
     return {
@@ -275,6 +279,19 @@ async def create_listing(
     except Exception:
         pass
 
+    if listing_id and store_id:
+        try:
+            from app.analytics.event_bridge import enqueue_analytics_rebuild
+
+            await enqueue_analytics_rebuild(
+                session,
+                store_id=str(store_id),
+                event_type="ListingPublished",
+                source_id=str(listing_id),
+            )
+        except Exception:
+            pass
+
     await session.commit()
     return await get_listing_by_id(session, str(listing_id))
 
@@ -290,6 +307,7 @@ async def get_listing_by_id(session: AsyncSession, listing_id: str) -> dict[str,
                        pp.avatar_url AS seller_avatar,
                        s.name AS store_name,
                        s.logo_url AS store_logo,
+                       COALESCE(rp.trust_score, 75) AS seller_trust_score,
                        s.average_rating AS seller_reputation,
                        cc.name AS card_name,
                        cc.set_name,
@@ -298,6 +316,7 @@ async def get_listing_by_id(session: AsyncSession, listing_id: str) -> dict[str,
                 FROM tcg_judge.card_listings cl
                 JOIN tcg_judge.player_profiles pp ON pp.id = cl.seller_id
                 JOIN tcg_judge.stores s ON s.id = cl.store_id
+                LEFT JOIN tcg_judge.store_reputation_projection rp ON rp.store_id = s.id
                 JOIN tcg_judge.card_catalog cc ON cc.id = cl.card_id
                 WHERE cl.id = :id
                 """

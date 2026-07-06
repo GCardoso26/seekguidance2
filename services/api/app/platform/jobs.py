@@ -22,6 +22,11 @@ JOB_OUTBOX_PUBLISH = "platform.publish_outbox"
 JOB_PAYMENT_RECONCILE = "payment.reconcile"
 JOB_SETTLEMENT_BATCH = "settlement.batch"
 JOB_CHARGE_BACK_PROCESS = "chargeback.process"
+JOB_REPUTATION_RECALCULATE = "reputation.recalculate"
+JOB_REPUTATION_SLA_CHECK = "reputation.sla_check"
+JOB_ANALYTICS_REBUILD = "analytics.rebuild"
+JOB_PRICING_SUGGEST = "pricing.suggest"
+JOB_CHURN_SCORE = "churn.score"
 
 
 async def enqueue_job(

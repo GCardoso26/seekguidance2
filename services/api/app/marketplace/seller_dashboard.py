@@ -200,6 +200,42 @@ async def _count_open_tickets(session: AsyncSession, store_id: str) -> int:
         return 0
 
 
+async def _reputation_overview(session: AsyncSession, store_id: str) -> dict[str, Any]:
+    try:
+        row = (
+            await session.execute(
+                text(
+                    """
+                    SELECT trust_score, seller_level, badges, anti_fraud_flags,
+                           sla_violations, chargebacks_open
+                    FROM tcg_judge.seller_scores
+                    WHERE store_id = CAST(:sid AS uuid)
+                    """
+                ),
+                {"sid": store_id},
+            )
+        ).mappings().first()
+        if not row:
+            return {
+                "trust_score": 75.0,
+                "seller_level": "new",
+                "badges": ["new_seller"],
+                "alerts_count": 0,
+            }
+        alerts = int(row.get("sla_violations") or 0) + int(row.get("chargebacks_open") or 0)
+        flags = row.get("anti_fraud_flags") or []
+        if flags:
+            alerts += len(flags)
+        return {
+            "trust_score": float(row["trust_score"]),
+            "seller_level": str(row["seller_level"]),
+            "badges": list(row.get("badges") or []),
+            "alerts_count": alerts,
+        }
+    except Exception:
+        return {"trust_score": 75.0, "seller_level": "new", "badges": [], "alerts_count": 0}
+
+
 async def get_dashboard_overview(session: AsyncSession, owner_id: str) -> dict[str, Any]:
     store = await resolve_owner_store(session, owner_id)
     store_id = str(store["id"])
@@ -217,6 +253,7 @@ async def get_dashboard_overview(session: AsyncSession, owner_id: str) -> dict[s
         low_stock,
         open_tickets,
         fulfillment_sla,
+        reputation_summary,
     ) = await asyncio.gather(
         _count_pending_payment(session, store_id),
         _count_to_separate(session, store_id),
@@ -226,6 +263,7 @@ async def get_dashboard_overview(session: AsyncSession, owner_id: str) -> dict[s
         _low_stock_items(session, store_id, owner_id),
         _count_open_tickets(session, store_id),
         seller_ff.get_fulfillment_sla_metrics(session, store_id),
+        _reputation_overview(session, store_id),
     )
 
     revenue_cents = revenue["revenue_cents"]
@@ -241,6 +279,7 @@ async def get_dashboard_overview(session: AsyncSession, owner_id: str) -> dict[s
             "revenue_delta_cents": delta_cents,
         },
         "fulfillment_sla": fulfillment_sla,
+        "reputation": reputation_summary,
         "recent_orders": recent_orders,
         "low_stock": low_stock,
         "open_tickets": open_tickets,

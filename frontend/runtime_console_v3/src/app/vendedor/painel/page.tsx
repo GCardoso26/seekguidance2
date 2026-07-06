@@ -13,6 +13,7 @@ import {
   TicketsWidget,
 } from "@/components/seller-dashboard/overview";
 import { OrderDetailDrawer } from "@/components/seller-orders";
+import { ReputationOverviewWidget } from "@/components/seller-reputation/ReputationOverviewWidget";
 import { useAccountStatus } from "@/hooks/useAccountStatus";
 import { useDashboardOverview } from "@/hooks/useDashboardOverview";
 import { useJudgeAuth } from "@/features/auth/AuthProvider";
@@ -82,6 +83,8 @@ export default function VendedorPainelDashboardPage() {
         )}
 
         <MetricCardsRow metrics={overview?.metrics} />
+
+        <ReputationOverviewWidget reputation={overview?.reputation} />
 
         <FulfillmentSlaWidget sla={overview?.fulfillment_sla} />
 

@@ -332,6 +332,33 @@ async def execute_fulfillment_command(
         correlation_id=correlation_id,
     )
 
+    if target_status == "Completed":
+        try:
+            from app.reputation.reputation_engine import enqueue_reputation_recalc
+
+            await enqueue_reputation_recalc(
+                session,
+                store_id=str(actor["store_id"]),
+                event_type="OrderCompleted",
+                source_id=fid,
+                correlation_id=correlation_id,
+            )
+        except Exception as exc:
+            logger.warning("reputation_fulfillment_enqueue_failed", fulfillment_id=fid, error=str(exc))
+
+        try:
+            from app.analytics.event_bridge import enqueue_analytics_rebuild
+
+            await enqueue_analytics_rebuild(
+                session,
+                store_id=str(actor["store_id"]),
+                event_type="FulfillmentCompleted",
+                source_id=fid,
+                correlation_id=correlation_id,
+            )
+        except Exception as exc:
+            logger.warning("analytics_fulfillment_enqueue_failed", fulfillment_id=fid, error=str(exc))
+
     if command == "confirm_ship" and tracking_code:
         await _upsert_shipment(
             session,

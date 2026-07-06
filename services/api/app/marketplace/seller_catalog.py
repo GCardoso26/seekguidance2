@@ -32,7 +32,7 @@ async def search_catalog_cards(
     result = await search_game_cards(
         session,
         game,
-        query=q or "",
+        q=q or "",
         page=page,
         limit=min(limit, 48),
     )

@@ -9,6 +9,7 @@ export type CatalogCard = {
   set_code?: string;
   rarity?: string;
   image_url?: string | null;
+  imageUris?: { normal?: string; small?: string; large?: string } | null;
   lowest_price_cents?: number;
 };
 

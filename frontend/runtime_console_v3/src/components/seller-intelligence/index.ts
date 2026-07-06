@@ -1,0 +1,1 @@
+export { IntelligencePage } from "./IntelligencePage";

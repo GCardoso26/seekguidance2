@@ -15,6 +15,7 @@ const CARD_IMAGE_PLACEHOLDER = "/logos/default-tcg.svg";
 
 type CardImageSource = {
   imageUris?: { normal?: string; small?: string; large?: string } | null;
+  image_uris?: { normal?: string; small?: string; large?: string } | null;
   image_url?: string | null;
   imageUrl?: string | null;
 };
@@ -27,9 +28,20 @@ function pickImageUrl(...candidates: (string | null | undefined)[]): string | nu
   return null;
 }
 
+function normalizeUris(
+  uris?: { normal?: string; small?: string; large?: string } | null,
+): { normal?: string; small?: string; large?: string } | null {
+  if (!uris) return null;
+  return {
+    normal: uris.normal,
+    small: uris.small,
+    large: uris.large,
+  };
+}
+
 /** Resolve URL de imagem de carta (API, catálogo ou marketplace) com fallback local. */
 export function cardImageUrl(card: CardImageSource): string {
-  const uris = card.imageUris;
+  const uris = normalizeUris(card.imageUris) ?? normalizeUris(card.image_uris);
   return (
     pickImageUrl(uris?.normal, uris?.large, uris?.small, card.image_url, card.imageUrl) ??
     CARD_IMAGE_PLACEHOLDER

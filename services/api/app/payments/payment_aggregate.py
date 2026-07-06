@@ -327,6 +327,27 @@ async def record_payment_captured(
         correlation_id=cid,
         priority=1,
     )
+
+    order_row = (
+        await session.execute(
+            text("SELECT store_id FROM tcg_judge.shop_orders WHERE id = CAST(:oid AS uuid)"),
+            {"oid": shop_order_id},
+        )
+    ).mappings().first()
+    if order_row:
+        try:
+            from app.reputation.reputation_engine import enqueue_reputation_recalc
+
+            await enqueue_reputation_recalc(
+                session,
+                store_id=str(order_row["store_id"]),
+                event_type="OrderPaid",
+                source_id=payment_id,
+                correlation_id=cid,
+            )
+        except Exception as exc:
+            logger.warning("reputation_enqueue_failed", order_id=shop_order_id, error=str(exc))
+
     return payment_id
 
 
@@ -425,6 +446,26 @@ async def mark_payment_chargeback(
         correlation_id=correlation_id,
         priority=2,
     )
+
+    pay_row = (
+        await session.execute(
+            text("SELECT store_id FROM tcg_judge.payments WHERE id = CAST(:pid AS uuid)"),
+            {"pid": payment_id},
+        )
+    ).mappings().first()
+    if pay_row:
+        try:
+            from app.reputation.reputation_engine import enqueue_reputation_recalc
+
+            await enqueue_reputation_recalc(
+                session,
+                store_id=str(pay_row["store_id"]),
+                event_type="ChargebackOpened",
+                source_id=payment_id,
+                correlation_id=correlation_id,
+            )
+        except Exception as exc:
+            logger.warning("reputation_chargeback_enqueue_failed", payment_id=payment_id, error=str(exc))
 
 
 async def get_payment_audit_trail(

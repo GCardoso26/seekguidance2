@@ -808,6 +808,112 @@ async def seller_finance_audit_trail(
     return await get_audit_trail(session, user_id, limit=limit, offset=offset)
 
 
+@router.get("/runtime/judge/seller/reputation")
+async def seller_reputation_get(
+    session: DbSession,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    from app.marketplace.seller_dashboard import resolve_owner_store
+    from app.reputation.reputation_engine import get_seller_reputation_dashboard
+
+    user_id = _require_user(x_judge_user_id)
+    store = await resolve_owner_store(session, user_id)
+    return await get_seller_reputation_dashboard(session, str(store["id"]))
+
+
+@router.get("/runtime/judge/seller/reputation/history")
+async def seller_reputation_history(
+    session: DbSession,
+    limit: int = 30,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    from app.marketplace.seller_dashboard import resolve_owner_store
+    from sqlalchemy import text
+
+    user_id = _require_user(x_judge_user_id)
+    store = await resolve_owner_store(session, user_id)
+    rows = (
+        await session.execute(
+            text(
+                """
+                SELECT from_score, to_score, from_level, to_level, event_type, version, created_at
+                FROM tcg_judge.reputation_score_history
+                WHERE store_id = CAST(:sid AS uuid)
+                ORDER BY created_at DESC
+                LIMIT :lim
+                """
+            ),
+            {"sid": str(store["id"]), "lim": limit},
+        )
+    ).mappings().all()
+    return {"history": [dict(r) for r in rows]}
+
+
+@router.get("/runtime/judge/seller/intelligence")
+async def seller_intelligence_dashboard(
+    session: DbSession,
+    period: Literal["7d", "30d", "90d"] = "30d",
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    from app.analytics.intelligence_service import get_intelligence_dashboard
+
+    user_id = _require_user(x_judge_user_id)
+    return await get_intelligence_dashboard(session, user_id, period=period)
+
+
+@router.get("/runtime/judge/seller/intelligence/insights")
+async def seller_intelligence_insights(
+    session: DbSession,
+    period: Literal["7d", "30d", "90d"] = "30d",
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    from app.analytics.intelligence_service import get_sales_insights
+
+    user_id = _require_user(x_judge_user_id)
+    return await get_sales_insights(session, user_id, period=period)
+
+
+@router.get("/runtime/judge/seller/intelligence/listings")
+async def seller_intelligence_listings(
+    session: DbSession,
+    limit: int = 30,
+    sort: str = "revenue",
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    from app.analytics.intelligence_service import get_listing_performance
+
+    user_id = _require_user(x_judge_user_id)
+    return await get_listing_performance(session, user_id, limit=limit, sort=sort)
+
+
+@router.get("/runtime/judge/seller/intelligence/pricing")
+async def seller_intelligence_pricing(
+    session: DbSession,
+    limit: int = 30,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    from app.analytics.pricing_intelligence import get_pricing_suggestions_read
+    from app.marketplace.seller_dashboard import resolve_owner_store
+
+    user_id = _require_user(x_judge_user_id)
+    store = await resolve_owner_store(session, user_id)
+    return await get_pricing_suggestions_read(session, store_id=str(store["id"]), limit=limit)
+
+
+@router.get("/runtime/judge/seller/intelligence/churn")
+async def seller_intelligence_churn(
+    session: DbSession,
+    limit: int = 20,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    from app.analytics.churn_scoring import get_churn_at_risk
+    from app.marketplace.seller_dashboard import resolve_owner_store
+
+    user_id = _require_user(x_judge_user_id)
+    store = await resolve_owner_store(session, user_id)
+    return await get_churn_at_risk(session, store_id=str(store["id"]), limit=limit)
+
+
 @router.get("/runtime/judge/seller/settings/notifications")
 async def seller_notification_settings_get(
     session: DbSession,

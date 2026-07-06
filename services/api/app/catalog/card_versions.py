@@ -9,6 +9,8 @@ from fastapi import HTTPException
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.catalog.image_utils import resolve_card_image
+
 
 def _parse_uuid(card_id: str) -> UUID:
     try:
@@ -59,15 +61,15 @@ async def get_card_versions(
                   cc.rarity,
                   cc.image_url,
                   cc.image_uris,
-                  te.release_date,
+                  cs.release_date,
                   COALESCE(lst.cnt, 0)::int AS listing_count,
                   COALESCE(lst.min_price, price.min_cents) AS lowest_cents,
                   COALESCE(lst.max_price, price.max_cents) AS highest_cents,
                   COALESCE(lst.foil_avail, false) AS foil_available,
                   COALESCE(lst.non_foil_avail, false) AS non_foil_available
                 FROM tcg_judge.card_catalog cc
-                LEFT JOIN tcg_judge.tcg_expansions te
-                  ON te.game_code = cc.game_code AND LOWER(te.code) = LOWER(cc.set_code)
+                LEFT JOIN tcg_judge.card_sets cs
+                  ON cs.game_code = cc.game_code AND LOWER(cs.code) = LOWER(cc.set_code)
                 LEFT JOIN LATERAL (
                   SELECT
                     COUNT(*)::int AS cnt,
@@ -103,11 +105,8 @@ async def get_card_versions(
         if in_stock and listing_count == 0:
             continue
 
-        image_url = row.get("image_url")
-        if not image_url:
-            uris = row.get("image_uris") or {}
-            if isinstance(uris, dict):
-                image_url = uris.get("normal") or uris.get("small")
+        resolved = resolve_card_image(dict(row))
+        image_url = resolved["normal"] or None
 
         low = row.get("lowest_cents")
         high = row.get("highest_cents")

@@ -26,6 +26,8 @@ SLUG_TO_CODE: dict[str, str] = {
     "union-arena": "UARENA",
     "dbfw": "DBFW",
     "db-fusion-world": "DBFW",
+    "dragonball": "DBFW",
+    "dragon_ball": "DBFW",
     "vanguard": "VANGUARD",
     "cardfight-vanguard": "VANGUARD",
 }
@@ -160,55 +162,103 @@ async def get_catalog_game(session: AsyncSession, slug: str) -> dict[str, Any] |
     return _row_to_game(dict(row))
 
 
+def _resolve_game_code(game: str | None) -> str | None:
+    if not game:
+        return None
+    return game_code_from_slug(game) or game.strip().upper()
+
+
+async def list_merged_catalog_sets(
+    session: AsyncSession,
+    *,
+    game: str | None = None,
+    limit: int = 500,
+) -> list[dict[str, Any]]:
+    """Lista expansões mesclando card_sets (metadados) com agregados de card_catalog."""
+    code = _resolve_game_code(game)
+    params: dict[str, Any] = {"limit": max(1, min(limit, 1000))}
+    game_clause_registry = ""
+    game_clause_catalog = ""
+    if code:
+        params["g"] = code
+        game_clause_registry = "WHERE cs.game_code = :g"
+        game_clause_catalog = "AND cc.game_code = :g"
+
+    rows = (
+        await session.execute(
+            text(
+                f"""
+                WITH catalog_agg AS (
+                  SELECT
+                    cc.game_code,
+                    cc.set_code AS code,
+                    MAX(cc.set_name) AS name,
+                    COUNT(*)::INTEGER AS card_count
+                  FROM tcg_judge.card_catalog cc
+                  WHERE cc.set_code IS NOT NULL AND cc.set_code <> ''
+                  {game_clause_catalog}
+                  GROUP BY cc.game_code, cc.set_code
+                ),
+                registry AS (
+                  SELECT
+                    cs.game_code,
+                    cs.code,
+                    cs.name,
+                    cs.release_date,
+                    cs.card_count AS registry_count,
+                    cs.icon_url
+                  FROM tcg_judge.card_sets cs
+                  {game_clause_registry}
+                )
+                SELECT
+                  COALESCE(r.code, c.code) AS code,
+                  COALESCE(r.name, c.name, c.code) AS name,
+                  COALESCE(c.card_count, r.registry_count, 0) AS card_count,
+                  r.release_date,
+                  r.icon_url,
+                  COALESCE(r.game_code, c.game_code) AS game_code
+                FROM registry r
+                FULL OUTER JOIN catalog_agg c
+                  ON r.game_code = c.game_code
+                 AND LOWER(r.code) = LOWER(c.code)
+                ORDER BY r.release_date DESC NULLS LAST, name ASC
+                LIMIT :limit
+                """
+            ),
+            params,
+        )
+    ).mappings().all()
+
+    return [
+        {
+            "code": str(r["code"]),
+            "name": str(r["name"] or r["code"]),
+            "cardCount": int(r["card_count"] or 0),
+            "card_count": int(r["card_count"] or 0),
+            "release_date": str(r["release_date"]) if r.get("release_date") else None,
+            "icon_url": r.get("icon_url"),
+            "game_code": r.get("game_code"),
+        }
+        for r in rows
+        if r.get("code")
+    ]
+
+
 async def list_game_sets(session: AsyncSession, slug: str) -> list[dict[str, Any]]:
     code = game_code_from_slug(slug)
     if not code:
         return []
 
-    rows = (
-        await session.execute(
-            text(
-                """
-                SELECT code, name, release_date, card_count, icon_url, external_id
-                FROM tcg_judge.card_sets
-                WHERE game_code = :g
-                ORDER BY release_date DESC NULLS LAST, name ASC
-                """
-            ),
-            {"g": code},
-        )
-    ).mappings().all()
-
-    if rows:
-        return [
-            {
-                "code": r["code"],
-                "name": r["name"],
-                "release_date": str(r["release_date"]) if r.get("release_date") else None,
-                "card_count": int(r["card_count"]) if r.get("card_count") is not None else None,
-                "icon_url": r.get("icon_url"),
-            }
-            for r in rows
-        ]
-
-    # Fallback: agregar de card_catalog
-    agg = (
-        await session.execute(
-            text(
-                """
-                SELECT set_code AS code, set_name AS name, COUNT(*)::INTEGER AS card_count
-                FROM tcg_judge.card_catalog
-                WHERE game_code = :g AND set_code IS NOT NULL
-                GROUP BY set_code, set_name
-                ORDER BY set_name ASC
-                """
-            ),
-            {"g": code},
-        )
-    ).mappings().all()
+    merged = await list_merged_catalog_sets(session, game=code)
     return [
-        {"code": r["code"], "name": r["name"] or r["code"], "card_count": int(r["card_count"])}
-        for r in agg
+        {
+            "code": s["code"],
+            "name": s["name"],
+            "release_date": s.get("release_date"),
+            "card_count": s.get("card_count"),
+            "icon_url": s.get("icon_url"),
+        }
+        for s in merged
     ]
 
 

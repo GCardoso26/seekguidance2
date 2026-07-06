@@ -9,6 +9,7 @@ from typing import Any
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.catalog.image_utils import resolve_card_image
 from app.catalog.redis_cache import get_search_cache, set_search_cache
 from app.catalog.search_index import meili_enabled, search_meili
 
@@ -24,12 +25,10 @@ def _split_csv(value: str | None) -> list[str]:
 
 
 def _card_payload(row: dict[str, Any]) -> dict[str, Any]:
-    image_uris = row.get("image_uris") or {}
-    if isinstance(image_uris, str):
-        image_uris = {}
-    normal = image_uris.get("normal") or row.get("image_url")
-    small = image_uris.get("small") or normal
-    large = image_uris.get("large") or normal
+    resolved = resolve_card_image(row)
+    normal = resolved["normal"] or None
+    small = resolved["small"] or normal
+    large = resolved["large"] or normal
 
     latest_cents = row.get("latest_price_cents")
     lowest_cents = row.get("lowest_price_cents")
@@ -69,6 +68,7 @@ def _card_payload(row: dict[str, Any]) -> dict[str, Any]:
             "normal": normal or "",
             "large": large or normal or "",
         },
+        "image_url": normal or "",
         "gameData": row.get("game_data") or {},
         "source": row.get("source") or row["game_code"].lower(),
         "version": int(row.get("version") or 1),
@@ -387,20 +387,12 @@ async def get_catalog_price_trends(
     return unique
 
 
-async def list_catalog_sets(session: AsyncSession, *, game: str | None = None) -> list[dict[str, str]]:
-    sql = """
-        SELECT set_code AS code, MAX(set_name) AS name, COUNT(*) AS card_count
-        FROM tcg_judge.card_catalog
-        WHERE set_code IS NOT NULL AND set_code <> ''
-    """
-    params: dict[str, Any] = {}
-    if game:
-        sql += " AND game_code = :game"
-        params["game"] = game.upper()
-    sql += " GROUP BY set_code ORDER BY name LIMIT 500"
+async def list_catalog_sets(
+    session: AsyncSession,
+    *,
+    game: str | None = None,
+    limit: int = 500,
+) -> list[dict[str, Any]]:
+    from app.catalog.games_service import list_merged_catalog_sets
 
-    rows = (await session.execute(text(sql), params)).mappings().all()
-    return [
-        {"code": str(r["code"]), "name": str(r["name"] or r["code"]), "cardCount": str(r["card_count"])}
-        for r in rows
-    ]
+    return await list_merged_catalog_sets(session, game=game, limit=limit)

@@ -33,9 +33,17 @@ export type FulfillmentSlaMetrics = {
   tracking_delayed: number;
 };
 
+export type ReputationOverview = {
+  trust_score: number;
+  seller_level: string;
+  badges: string[];
+  alerts_count: number;
+};
+
 export type DashboardOverviewResponse = {
   metrics: DashboardOverviewMetrics;
   fulfillment_sla?: FulfillmentSlaMetrics;
+  reputation?: ReputationOverview;
   recent_orders: DashboardRecentOrder[];
   low_stock: DashboardLowStockItem[];
   open_tickets: number;

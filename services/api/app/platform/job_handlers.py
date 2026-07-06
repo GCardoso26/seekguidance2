@@ -27,6 +27,11 @@ async def dispatch(
         "payment.reconcile": _handle_payment_reconcile,
         "settlement.batch": _handle_settlement_batch,
         "chargeback.process": _handle_chargeback_process,
+        "reputation.recalculate": _handle_reputation_recalculate,
+        "reputation.sla_check": _handle_reputation_sla_check,
+        "analytics.rebuild": _handle_analytics_rebuild,
+        "pricing.suggest": _handle_pricing_suggest,
+        "churn.score": _handle_churn_score,
     }
     handler = handlers.get(job_type)
     if not handler:
@@ -119,6 +124,63 @@ async def _handle_chargeback_process(
         payment_id=str(payload["payment_id"]),
         correlation_id=correlation_id or None,
     )
+
+
+async def _handle_reputation_recalculate(
+    session: AsyncSession, payload: dict[str, Any], job: dict[str, Any]
+) -> None:
+    from app.reputation.reputation_engine import recalculate_store_reputation
+
+    correlation_id = str(job.get("correlation_id") or payload.get("correlation_id", ""))
+    await recalculate_store_reputation(
+        session,
+        store_id=str(payload["store_id"]),
+        correlation_id=correlation_id or None,
+        trigger_event=payload.get("trigger_event"),
+    )
+
+
+async def _handle_reputation_sla_check(
+    session: AsyncSession, payload: dict[str, Any], job: dict[str, Any]
+) -> None:
+    from app.reputation.reputation_engine import run_sla_check_all_stores
+
+    correlation_id = str(job.get("correlation_id") or payload.get("correlation_id", ""))
+    await run_sla_check_all_stores(session, correlation_id=correlation_id or None)
+
+
+async def _handle_analytics_rebuild(
+    session: AsyncSession, payload: dict[str, Any], job: dict[str, Any]
+) -> None:
+    from app.analytics.event_bridge import enqueue_churn_score, enqueue_pricing_suggest
+    from app.analytics.projections import rebuild_store_projections
+
+    store_id = str(payload["store_id"])
+    correlation_id = str(job.get("correlation_id") or payload.get("correlation_id", ""))
+    await rebuild_store_projections(
+        session,
+        store_id=store_id,
+        correlation_id=correlation_id or None,
+        trigger_event=payload.get("trigger_event"),
+    )
+    await enqueue_pricing_suggest(session, store_id=store_id, correlation_id=correlation_id or None)
+    await enqueue_churn_score(session, store_id=store_id, correlation_id=correlation_id or None)
+
+
+async def _handle_pricing_suggest(
+    session: AsyncSession, payload: dict[str, Any], job: dict[str, Any]
+) -> None:
+    from app.analytics.pricing_intelligence import compute_pricing_suggestions
+
+    await compute_pricing_suggestions(session, store_id=str(payload["store_id"]))
+
+
+async def _handle_churn_score(
+    session: AsyncSession, payload: dict[str, Any], job: dict[str, Any]
+) -> None:
+    from app.analytics.churn_scoring import compute_churn_scores
+
+    await compute_churn_scores(session, store_id=str(payload["store_id"]))
 
 
 async def _handle_publish_outbox(

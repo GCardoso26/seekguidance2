@@ -126,11 +126,27 @@ export const SIDEBAR_ITEMS: SidebarItem[] = [
     ],
   },
   {
+    id: "reputation",
+    label: "Reputação",
+    icon: TrendingUp,
+    href: "/vendedor/painel/reputacao",
+  },
+  {
     id: "analytics",
     label: "Estatísticas",
     icon: TrendingUp,
     href: "/vendedor/painel/estatisticas",
     feature: "analytics",
+    children: [
+      { id: "stats-overview", label: "Visão geral", icon: TrendingUp, href: "/vendedor/painel/estatisticas" },
+      {
+        id: "stats-intelligence",
+        label: "Inteligência",
+        icon: TrendingUp,
+        href: "/vendedor/painel/estatisticas/inteligencia",
+        feature: "analytics",
+      },
+    ],
   },
   {
     id: "team",

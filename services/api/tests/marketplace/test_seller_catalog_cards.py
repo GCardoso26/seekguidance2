@@ -18,6 +18,11 @@ def test_game_slug_pokemon():
     assert game_code_from_slug("pokemon") == "POKEMON"
 
 
+def test_game_slug_dragon_ball():
+    assert game_code_from_slug("dragon_ball") == "DBFW"
+    assert game_code_from_slug("dbfw") == "DBFW"
+
+
 def test_catalog_search_contract():
     sample = {"cards": [], "total": 0, "page": 1, "limit": 24, "has_more": False}
     assert "cards" in sample

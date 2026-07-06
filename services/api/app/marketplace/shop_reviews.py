@@ -122,6 +122,19 @@ async def create_shop_review(
         body=f"Nova avaliação: {rating}/5 estrelas",
         data={"order_id": order_id, "rating": rating},
     )
+
+    try:
+        from app.reputation.reputation_engine import enqueue_reputation_recalc
+
+        await enqueue_reputation_recalc(
+            session,
+            store_id=str(order["store_id"]),
+            event_type="ReviewCreated",
+            source_id=str(row["id"]) if row else order_id,
+        )
+    except Exception:
+        pass
+
     await session.commit()
     return dict(row) if row else {}
 
