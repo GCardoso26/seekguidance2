@@ -50,15 +50,22 @@ export function FacetedSearch({
     return () => clearTimeout(timer);
   }, [filters.q]);
 
-  const queryFilters = useMemo(
-    () => ({ ...filters, q: debouncedQ || undefined }),
-    [filters, debouncedQ],
-  );
+  const { data: availableSets = [] } = useCatalogSets(filters.game);
+
+  const queryFilters = useMemo(() => {
+    const setIsValid =
+      !filters.set ||
+      (availableSets.length > 0 && availableSets.some((s) => s.code === filters.set));
+
+    return {
+      ...filters,
+      q: debouncedQ || undefined,
+      set: setIsValid ? filters.set : undefined,
+    };
+  }, [filters, debouncedQ, availableSets]);
 
   const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useCardSearch(queryFilters);
-
-  const { data: availableSets = [] } = useCatalogSets(filters.game);
 
   const cards = useMemo(() => data?.pages.flatMap((p) => p.cards) ?? [], [data]);
   const total = data?.pages[0]?.total ?? 0;

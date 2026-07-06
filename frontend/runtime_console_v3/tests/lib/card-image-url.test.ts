@@ -29,4 +29,14 @@ describe("card image helpers", () => {
   it("usa placeholder quando imagem ausente", () => {
     expect(cardImageUrl({})).toBe("/logos/default-tcg.svg");
   });
+
+  it("reescreve URLs Sorcery com host quebrado para CloudFront", () => {
+    expect(
+      cardImageUrl({
+        image_uris: {
+          normal: "https://cards.sorcerytcg.com/art-13_treasures_of_britain-b-s.jpg",
+        },
+      }),
+    ).toBe("https://d27a44hjr9gen3.cloudfront.net/art/13_treasures_of_britain_b_s.png");
+  });
 });

@@ -1,6 +1,6 @@
 const CACHE_SHELL = "tcg-judge-shell-v5";
 const CACHE_API = "tcg-judge-api-v2";
-const CACHE_IMAGES = "tcg-judge-images-v1";
+const CACHE_IMAGES = "tcg-judge-images-v2";
 const CACHE_FONTS = "tcg-judge-fonts-v1";
 const CACHE_PAGES = "tcg-judge-pages-v2";
 
@@ -86,7 +86,13 @@ self.addEventListener("fetch", (event) => {
   }
 
   if (IMAGE_EXT.test(url.pathname) || url.hostname.includes("scryfall.io")) {
-    event.respondWith(cacheFirst(event.request, CACHE_IMAGES));
+    if (url.origin !== self.location.origin) {
+      event.respondWith(fetch(event.request));
+      return;
+    }
+    event.respondWith(
+      cacheFirst(event.request, CACHE_IMAGES).catch(() => fetch(event.request)),
+    );
     return;
   }
 

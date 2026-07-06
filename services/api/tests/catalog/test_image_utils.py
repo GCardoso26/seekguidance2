@@ -1,6 +1,11 @@
 """Testes de resolução de imagens do catálogo."""
 
-from app.catalog.image_utils import parse_image_uris, resolve_card_image
+from app.catalog.image_utils import (
+    normalize_sorcery_image_url,
+    parse_image_uris,
+    resolve_card_image,
+    sorcery_slug_to_image_url,
+)
 
 
 def test_parse_image_uris_from_dict():
@@ -27,3 +32,26 @@ def test_resolve_card_image_prefers_image_uris():
         }
     )
     assert uris["normal"] == "https://example.com/new.jpg"
+
+
+def test_sorcery_slug_to_image_url():
+    url = sorcery_slug_to_image_url("alp-apprentice_wizard-b-s")
+    assert url == "https://d27a44hjr9gen3.cloudfront.net/alp/apprentice_wizard_b_s.png"
+
+
+def test_normalize_sorcery_image_url_rewrites_broken_host():
+    broken = "https://cards.sorcerytcg.com/art-13_treasures_of_britain-b-s.jpg"
+    fixed = normalize_sorcery_image_url(broken)
+    assert fixed == "https://d27a44hjr9gen3.cloudfront.net/art/13_treasures_of_britain_b_s.png"
+
+
+def test_resolve_card_image_rewrites_sorcery_urls():
+    uris = resolve_card_image(
+        {
+            "game_code": "SORCERY",
+            "card_number": "alp-apprentice_wizard-b-s",
+            "image_url": "https://cards.sorcerytcg.com/alp-apprentice_wizard-b-s.jpg",
+            "image_uris": {"normal": "https://cards.sorcerytcg.com/alp-apprentice_wizard-b-s.jpg"},
+        }
+    )
+    assert uris["normal"] == "https://d27a44hjr9gen3.cloudfront.net/alp/apprentice_wizard_b_s.png"

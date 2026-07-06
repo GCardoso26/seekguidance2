@@ -3,7 +3,41 @@
 from __future__ import annotations
 
 import json
+import re
 from typing import Any
+
+SORCERY_CDN = "https://d27a44hjr9gen3.cloudfront.net"
+_SORCERY_SLUG_RE = re.compile(r"^([a-z]+)-(.+)-([a-z]+)-([sf])$")
+_BROKEN_SORCERY_HOST = "cards.sorcerytcg.com"
+
+
+def sorcery_slug_to_image_url(slug: str | None) -> str | None:
+    """Converte variant slug da API Sorcery em URL do CDN público (Curiosa/CloudFront)."""
+    if not slug or not slug.strip():
+        return None
+    match = _SORCERY_SLUG_RE.match(slug.strip())
+    if not match:
+        return None
+    set_prefix, name, product, finish = match.groups()
+    return f"{SORCERY_CDN}/{set_prefix}/{name}_{product}_{finish}.png"
+
+
+def normalize_sorcery_image_url(
+    url: str | None,
+    *,
+    card_number: str | None = None,
+) -> str | None:
+    """Reescreve URLs legadas cards.sorcerytcg.com (host inexistente) para CloudFront."""
+    slug: str | None = None
+    if url and _BROKEN_SORCERY_HOST in url:
+        filename = url.rsplit("/", 1)[-1]
+        slug = filename.removesuffix(".jpg").removesuffix(".png").removesuffix(".webp")
+    elif card_number and _SORCERY_SLUG_RE.match(card_number.strip()):
+        slug = card_number.strip()
+
+    if slug:
+        return sorcery_slug_to_image_url(slug) or url
+    return url
 
 
 def parse_image_uris(raw: Any) -> dict[str, str]:
@@ -36,10 +70,29 @@ def parse_image_uris(raw: Any) -> dict[str, str]:
     }
 
 
+def _rewrite_sorcery_uris(uris: dict[str, str], card_number: str | None) -> dict[str, str]:
+    for key in ("small", "normal", "large"):
+        value = uris.get(key) or ""
+        if value:
+            uris[key] = normalize_sorcery_image_url(value, card_number=card_number) or value
+    return uris
+
+
 def resolve_card_image(row: dict[str, Any]) -> dict[str, str]:
     """Resolve imageUris a partir de image_uris e image_url."""
+    card_number = row.get("card_number")
+    is_sorcery = str(row.get("game_code") or "").upper() == "SORCERY"
+
     uris = parse_image_uris(row.get("image_uris"))
     fallback = (row.get("image_url") or "").strip()
+    if is_sorcery:
+        fallback = normalize_sorcery_image_url(fallback, card_number=card_number) or fallback
+        uris = _rewrite_sorcery_uris(uris, card_number)
+        if not uris["normal"] and card_number:
+            slug_url = sorcery_slug_to_image_url(str(card_number))
+            if slug_url:
+                uris = {"small": slug_url, "normal": slug_url, "large": slug_url}
+
     if fallback and not uris["normal"]:
         uris = {"small": fallback, "normal": fallback, "large": fallback}
     return uris

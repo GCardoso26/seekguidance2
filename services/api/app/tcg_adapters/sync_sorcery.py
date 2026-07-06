@@ -8,15 +8,13 @@ import httpx
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.tcg_adapters.sync_common import maybe_commit_batch, normalize_name, slug_set_code, upsert_card, upsert_set
+from app.catalog.image_utils import sorcery_slug_to_image_url
 
 SORCERY_API = "https://api.sorcerytcg.com/api/cards"
-SORCERY_IMAGE = "https://cards.sorcerytcg.com/{slug}.jpg"
 
 
 def _sorcery_image(slug: str | None) -> str | None:
-    if not slug:
-        return None
-    return SORCERY_IMAGE.format(slug=slug)
+    return sorcery_slug_to_image_url(slug)
 
 
 async def sync_sorcery(session: AsyncSession, *, limit: int | None = None) -> dict[str, Any]:

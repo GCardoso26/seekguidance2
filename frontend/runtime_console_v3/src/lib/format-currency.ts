@@ -12,6 +12,22 @@ export function formatCurrency(value: number, currency = "USD"): string {
 }
 
 const CARD_IMAGE_PLACEHOLDER = "/logos/default-tcg.svg";
+const SORCERY_CDN = "https://d27a44hjr9gen3.cloudfront.net";
+const SORCERY_SLUG_RE = /^([a-z]+)-(.+)-([a-z]+)-([sf])$/;
+
+function sorcerySlugToCdnUrl(slug: string): string | null {
+  const match = SORCERY_SLUG_RE.exec(slug.trim());
+  if (!match) return null;
+  const [, setPrefix, name, product, finish] = match;
+  return `${SORCERY_CDN}/${setPrefix}/${name}_${product}_${finish}.png`;
+}
+
+function normalizeSorceryImageUrl(url: string): string {
+  if (!url.includes("cards.sorcerytcg.com")) return url;
+  const filename = url.split("/").pop() ?? "";
+  const slug = filename.replace(/\.(jpg|jpeg|png|webp)$/i, "");
+  return sorcerySlugToCdnUrl(slug) ?? url;
+}
 
 type CardImageSource = {
   imageUris?: { normal?: string; small?: string; large?: string } | null;
@@ -42,10 +58,10 @@ function normalizeUris(
 /** Resolve URL de imagem de carta (API, catálogo ou marketplace) com fallback local. */
 export function cardImageUrl(card: CardImageSource): string {
   const uris = normalizeUris(card.imageUris) ?? normalizeUris(card.image_uris);
-  return (
+  const raw =
     pickImageUrl(uris?.normal, uris?.large, uris?.small, card.image_url, card.imageUrl) ??
-    CARD_IMAGE_PLACEHOLDER
-  );
+    CARD_IMAGE_PLACEHOLDER;
+  return normalizeSorceryImageUrl(raw);
 }
 
 export function isSvgImageUrl(url: string): boolean {
