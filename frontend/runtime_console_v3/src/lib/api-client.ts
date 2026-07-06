@@ -28,3 +28,18 @@ export async function fetchWithRetry(
     { timeout: 8000, retries: 0 },
   );
 }
+
+/** Busca catálogo via BFF — timeout maior para cold start do Render. */
+export async function fetchCatalogApi(
+  url: string,
+  options: RequestInit = {},
+): Promise<Response> {
+  return fetchWithTimeout(
+    async (signal) => {
+      const res = await fetch(url, { ...options, signal });
+      if (res.status >= 500) throw new Error(`Server error: ${res.status}`);
+      return res;
+    },
+    { timeout: 15_000, retries: 2 },
+  );
+}

@@ -7,9 +7,12 @@ export const API_PROXY_BASE = (
 
 /** Vercel Hobby: funções serverless ~10s. Budget total para retries. */
 export const API_FETCH_TIMEOUT_MS = 7_000;
-export const SERVERLESS_BUDGET_MS = 9_000;
+export const SERVERLESS_BUDGET_MS = 9_800;
 const WAKE_RETRY_STATUSES = new Set([502, 503, 504]);
-const WAKE_RETRY_DELAY_MS = 1_200;
+const WAKE_RETRY_DELAY_MS = 600;
+/** Timeouts curtos por tentativa — cabem 2–3 wake retries no budget de 10s. */
+const ATTEMPT_TIMEOUTS_MS = [3_400, 4_200, 3_400] as const;
+const MIN_REMAINING_FOR_ATTEMPT_MS = 800;
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -44,11 +47,14 @@ export async function fetchApiResilient(
   let lastError: unknown;
   let lastResponse: Response | null = null;
 
-  for (let attempt = 0; attempt < 3; attempt += 1) {
+  for (let attempt = 0; attempt < ATTEMPT_TIMEOUTS_MS.length; attempt += 1) {
     const remaining = deadline - Date.now();
-    if (remaining < 1_500) break;
+    if (remaining < MIN_REMAINING_FOR_ATTEMPT_MS) break;
 
-    const timeoutMs = Math.min(API_FETCH_TIMEOUT_MS, remaining - 200);
+    const timeoutMs = Math.min(
+      ATTEMPT_TIMEOUTS_MS[attempt] ?? API_FETCH_TIMEOUT_MS,
+      remaining - 100,
+    );
     try {
       const res = await fetchApiWithTimeout(path, init, timeoutMs);
       if (res.ok || !WAKE_RETRY_STATUSES.has(res.status)) {
@@ -59,7 +65,11 @@ export async function fetchApiResilient(
       lastError = err;
     }
 
-    if (attempt < 2 && deadline - Date.now() > WAKE_RETRY_DELAY_MS + 1_000) {
+    const afterAttempt = deadline - Date.now();
+    if (
+      attempt < ATTEMPT_TIMEOUTS_MS.length - 1 &&
+      afterAttempt > WAKE_RETRY_DELAY_MS + MIN_REMAINING_FOR_ATTEMPT_MS
+    ) {
       await sleep(WAKE_RETRY_DELAY_MS);
     }
   }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import { fetchWithRetry } from "@/lib/api-client";
+import { fetchCatalogApi } from "@/lib/api-client";
 import { withPerformanceTracking } from "@/lib/performance";
 import type { CatalogSearchResponse } from "@/types/card";
 import type { CatalogSetOption, SearchFilters } from "@/types/search";
@@ -32,7 +32,7 @@ function buildSearchParams(filters: SearchFilters, page: number): URLSearchParam
 const fetchCardSearch = withPerformanceTracking(
   async (filters: SearchFilters, page: number): Promise<CatalogSearchResponse> => {
     const params = buildSearchParams(filters, page);
-    const res = await fetchWithRetry(`/api/catalog/cards/search?${params.toString()}`);
+    const res = await fetchCatalogApi(`/api/catalog/cards/search?${params.toString()}`);
     if (!res.ok) {
       throw new Error("Falha ao buscar cartas");
     }
@@ -51,6 +51,8 @@ export function useCardSearch(filters: SearchFilters) {
     getNextPageParam: (last) => (last.hasMore ? last.page + 1 : undefined),
     staleTime: 60_000,
     placeholderData: (prev) => prev,
+    retry: 3,
+    retryDelay: (attempt) => Math.min(1_500 * 2 ** attempt, 8_000),
   });
 }
 
@@ -59,12 +61,14 @@ export function useCatalogSets(game?: string) {
     queryKey: ["catalog", "sets", game],
     queryFn: async () => {
       const params = game ? `?game=${encodeURIComponent(game)}` : "";
-      const res = await fetch(`/api/catalog/sets${params}`);
+      const res = await fetchCatalogApi(`/api/catalog/sets${params}`);
       if (!res.ok) throw new Error("sets_unavailable");
       const data = (await res.json()) as { sets: CatalogSetOption[] };
       return data.sets;
     },
     staleTime: 300_000,
+    retry: 3,
+    retryDelay: (attempt) => Math.min(1_500 * 2 ** attempt, 8_000),
   });
 }
 

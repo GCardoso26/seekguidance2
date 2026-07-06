@@ -64,7 +64,7 @@ export function FacetedSearch({
     };
   }, [filters, debouncedQ, availableSets]);
 
-  const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage } =
+  const { data, isLoading, isError, isFetching, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useCardSearch(queryFilters);
 
   const cards = useMemo(() => data?.pages.flatMap((p) => p.cards) ?? [], [data]);
@@ -212,7 +212,9 @@ export function FacetedSearch({
 
           {isError && (
             <p className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-400">
-              Erro ao carregar cartas. Tente novamente em instantes.
+              {isFetching
+                ? "Servidor iniciando — tentando reconectar ao catálogo…"
+                : "Erro ao carregar cartas. O backend pode estar acordando (Render). Aguarde alguns segundos e recarregue a página."}
             </p>
           )}
 

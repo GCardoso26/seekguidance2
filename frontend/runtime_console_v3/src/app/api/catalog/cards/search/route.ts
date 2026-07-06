@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { API_PROXY_BASE, API_FETCH_TIMEOUT_MS } from "@/lib/api-proxy-base";
+import { fetchApiResilient } from "@/lib/api-proxy-base";
 import {
   checkDistributedRateLimit,
   clientIpFromRequest,
@@ -89,14 +89,10 @@ export async function GET(request: NextRequest) {
   const proxyStart = Date.now();
 
   try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), API_FETCH_TIMEOUT_MS);
-
-    const res = await fetch(`${API_PROXY_BASE}/runtime/judge/catalog/cards/search?${params}`, {
-      signal: controller.signal,
-      next: { revalidate: 60 },
-    });
-    clearTimeout(timeoutId);
+    const res = await fetchApiResilient(
+      `/runtime/judge/catalog/cards/search?${params}`,
+      { next: { revalidate: 60 } },
+    );
 
     const proxyMs = Date.now() - proxyStart;
     const data = await res.json();
