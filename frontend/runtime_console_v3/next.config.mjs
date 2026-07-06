@@ -99,8 +99,10 @@ const nextConfig = {
       { protocol: "https", hostname: "judgetcg.com.br" },
       { protocol: "https", hostname: "images.judgetcg.com.br" },
       { protocol: "https", hostname: "**.judgetcg.com.br" },
-      // Lorcana API
+      // Lorcana API + CDN oficial Ravensburger
       { protocol: "https", hostname: "lorcana-api.com" },
+      { protocol: "https", hostname: "api.lorcana.ravensburger.com" },
+      { protocol: "https", hostname: "**.ravensburger.com" },
       // Star Wars Unlimited
       { protocol: "https", hostname: "cdn.swu-db.com" },
       { protocol: "https", hostname: "**.swu-db.com" },

@@ -51,3 +51,14 @@ export function cardImageUrl(card: CardImageSource): string {
 export function isSvgImageUrl(url: string): boolean {
   return url.endsWith(".svg") || url.startsWith("data:image/svg");
 }
+
+/** URLs absolutas de CDNs de TCG — bypass do otimizador Next (/_next/image). */
+export function isExternalCardImageUrl(url: string): boolean {
+  const trimmed = url?.trim();
+  if (!trimmed || trimmed.startsWith("/") || trimmed.startsWith("data:")) return false;
+  return /^https?:\/\//i.test(trimmed);
+}
+
+export function shouldBypassImageOptimizer(url: string): boolean {
+  return isSvgImageUrl(url) || isExternalCardImageUrl(url);
+}

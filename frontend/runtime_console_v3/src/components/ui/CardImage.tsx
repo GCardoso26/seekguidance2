@@ -2,6 +2,7 @@
 
 import Image, { type ImageProps } from "next/image";
 import { useCallback, useMemo, useState } from "react";
+import { shouldBypassImageOptimizer } from "@/lib/format-currency";
 import { cn } from "@/lib/utils";
 
 type CardImageProps = Omit<ImageProps, "onError" | "onLoad" | "placeholder" | "blurDataURL" | "src"> & {
@@ -27,12 +28,14 @@ export function CardImage({
   listQuality = false,
   quality,
   priority,
+  unoptimized: unoptimizedProp,
   ...props
 }: CardImageProps) {
   const [error, setError] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
   const blurDataURL = useMemo(() => buildPlaceholderSvg(alt || fallbackLabel || "Card"), [alt, fallbackLabel]);
+  const unoptimized = unoptimizedProp ?? shouldBypassImageOptimizer(src ?? "");
 
   const handleError = useCallback(() => setError(true), []);
   const handleLoad = useCallback(() => setLoaded(true), []);
@@ -79,6 +82,7 @@ export function CardImage({
         loading={priority ? "eager" : "lazy"}
         sizes={props.sizes ?? "(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 16vw"}
         priority={priority}
+        unoptimized={unoptimized}
         {...props}
       />
     </div>
