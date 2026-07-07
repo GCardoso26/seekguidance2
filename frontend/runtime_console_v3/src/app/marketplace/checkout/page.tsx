@@ -5,10 +5,14 @@ import { useEffect, useState } from "react";
 import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import { MobileLayout } from "@/components/layout/MobileLayout";
+import { CheckoutOrderSummary } from "@/components/checkout/CheckoutOrderSummary";
+import { CheckoutProgressBar } from "@/components/checkout/CheckoutProgressBar";
 import { EnhancedPixCheckoutPanel } from "@/components/checkout/EnhancedPixCheckoutPanel";
 import { CouponApply } from "@/components/checkout/CouponApply";
 import { CpfCheckoutModal } from "@/components/kyc/CpfCheckoutModal";
+import { InlineLoading } from "@/components/ui/async-state";
 import { needsCpfCompletion, useAccountStatus } from "@/hooks/useAccountStatus";
+import { useShopCart } from "@/hooks/useShopCart";
 import { formatShopPrice } from "@/lib/marketplace-shop";
 import { trackEvent } from "@/lib/analytics";
 import { CheckoutReservationBanner } from "@/components/checkout/CheckoutReservationBanner";
@@ -39,7 +43,7 @@ type PixData = {
   store_name: string;
 };
 
-function StripeCheckoutForm({ totalCents }: { totalCents: number }) {
+function StripeCheckoutForm() {
   const stripe = useStripe();
   const elements = useElements();
   const [loading, setLoading] = useState(false);
@@ -62,7 +66,6 @@ function StripeCheckoutForm({ totalCents }: { totalCents: number }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <p className="text-sm text-luxury-mist">Total: {formatShopPrice(totalCents)}</p>
       <PaymentElement />
       {error && <p className="text-sm text-red-400">{error}</p>}
       <button type="submit" disabled={!stripe || loading} className="w-full rounded-lg bg-luxury-gold py-3 font-semibold text-luxury-onyx disabled:opacity-50">
@@ -74,6 +77,7 @@ function StripeCheckoutForm({ totalCents }: { totalCents: number }) {
 
 export default function CheckoutPage() {
   const { data: accountStatus, isLoading: accountLoading } = useAccountStatus();
+  const { data: cart, isLoading: cartLoading } = useShopCart();
   const [cpfModal, setCpfModal] = useState(false);
   const [methods, setMethods] = useState<Methods | null>(null);
   const [method, setMethod] = useState<"pix" | "stripe">("pix");
@@ -232,137 +236,163 @@ export default function CheckoutPage() {
     if (pixData) setPixData(null);
   }
 
-  const productSubtotal = Math.max(0, (methods?.total_cents ?? 0) - discountCents);
-  const escrowFee = useEscrow ? Math.round(productSubtotal * 0.03) : 0;
-  const previewTotal = productSubtotal + escrowFee;
+  const productSubtotal = methods?.total_cents ?? cart?.total_cents ?? 0;
+  const netSubtotal = Math.max(0, productSubtotal - discountCents);
+  const escrowFee = useEscrow ? Math.round(netSubtotal * 0.03) : 0;
+  const previewTotal = netSubtotal + escrowFee;
+  const summarySubtotal = productSubtotal;
+  const summaryTotal = pixData?.amount_cents ?? previewTotal;
+  const cartItems = cart?.items ?? [];
 
   return (
     <MobileLayout>
-      <div className="container mx-auto max-w-lg px-4 py-8">
-        <Link href="/marketplace/cart" className="text-sm text-luxury-mist">← Carrinho</Link>
+      <div className="container mx-auto max-w-6xl px-4 py-8">
+        <Link href="/carrinho" className="text-sm text-luxury-mist hover:text-luxury-frost">
+          ← Carrinho
+        </Link>
         <h1 className="mt-4 text-2xl font-bold">Checkout</h1>
+        <CheckoutProgressBar currentStep="payment" />
 
-        {checkoutSession?.expires_at && !reservationError && (
-          <div className="mt-4">
-            <CheckoutReservationBanner
-              expiresAt={checkoutSession.expires_at}
-              onExpired={() => void handleReservationExpired()}
-            />
-          </div>
-        )}
-
-        {reservationError && (
-          <p className="mt-4 text-red-400">{reservationError}</p>
-        )}
-
-        {!checkoutSession && !reservationError && (
-          <p className="mt-4 text-luxury-mist">Reservando estoque…</p>
-        )}
-
-        {methods && (
-          <p className="mt-2 text-sm text-luxury-mist">
-            Total: {formatShopPrice(previewTotal)}
-            {discountCents > 0 && (
-              <span className="ml-2 text-emerald-400" data-testid="discount-amount">
-                (−{formatShopPrice(discountCents)})
-              </span>
+        <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
+          <div className="order-2 min-w-0 space-y-4 lg:order-1">
+            {checkoutSession?.expires_at && !reservationError && (
+              <CheckoutReservationBanner
+                expiresAt={checkoutSession.expires_at}
+                onExpired={() => void handleReservationExpired()}
+              />
             )}
-          </p>
-        )}
 
-        {methods?.stores?.length === 1 && (
-          <div className="mt-4">
-            <EscrowToggle
-              enabled={useEscrow}
-              onChange={(value) => {
-                setUseEscrow(value);
-                setPixData(null);
-                setClientSecret(null);
-              }}
-              amountCents={productSubtotal}
-              available={Boolean(methods.methods.escrow)}
-            />
-          </div>
-        )}
+            {reservationError && <p className="text-red-400">{reservationError}</p>}
 
-        {methods?.stores?.length === 1 && (
-          <div className="mt-4">
-            <CouponApply
-              storeId={methods.stores[0].store_id}
-              orderTotalCents={methods.total_cents}
-              onApplied={handleCouponApplied}
-              onClear={handleCouponClear}
-            />
-          </div>
-        )}
-
-        {methods && (methods.methods.pix || methods.methods.stripe) && !pixData && !clientSecret && checkoutSession && !reservationError && (
-          <div className="mt-6 flex gap-3">
-            {methods.methods.pix && (
-              <button
-                type="button"
-                onClick={() => { setPixData(null); setClientSecret(null); setMethod("pix"); }}
-                className={`flex-1 rounded-lg border p-4 text-left ${method === "pix" ? "border-emerald-500 bg-emerald-500/10" : "border-white/10"}`}
-              >
-                <div className="font-semibold">PIX</div>
-                <div className="text-xs text-emerald-400">Zero comissão</div>
-              </button>
+            {!checkoutSession && !reservationError && (
+              <InlineLoading message="Reservando estoque…" className="py-8" />
             )}
-            {methods.methods.stripe && (
-              <button
-                type="button"
-                onClick={() => { setPixData(null); setClientSecret(null); setMethod("stripe"); void startStripe(); }}
-                className={`flex-1 rounded-lg border p-4 text-left ${method === "stripe" ? "border-blue-500 bg-blue-500/10" : "border-white/10"}`}
-              >
-                <div className="font-semibold">Cartão</div>
-                <div className="text-xs text-luxury-mist">Stripe (opcional)</div>
-              </button>
+
+            {methods?.stores?.length === 1 && checkoutSession && !reservationError && (
+              <>
+                <EscrowToggle
+                  enabled={useEscrow}
+                  onChange={(value) => {
+                    setUseEscrow(value);
+                    setPixData(null);
+                    setClientSecret(null);
+                  }}
+                  amountCents={Math.max(0, productSubtotal - discountCents)}
+                  available={Boolean(methods.methods.escrow)}
+                />
+                <CouponApply
+                  storeId={methods.stores[0].store_id}
+                  orderTotalCents={methods.total_cents}
+                  onApplied={handleCouponApplied}
+                  onClear={handleCouponClear}
+                />
+              </>
+            )}
+
+            {methods &&
+              (methods.methods.pix || methods.methods.stripe) &&
+              !pixData &&
+              !clientSecret &&
+              checkoutSession &&
+              !reservationError && (
+                <div className="flex gap-3">
+                  {methods.methods.pix && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPixData(null);
+                        setClientSecret(null);
+                        setMethod("pix");
+                      }}
+                      className={`flex-1 rounded-lg border p-4 text-left ${method === "pix" ? "border-emerald-500 bg-emerald-500/10" : "border-white/10"}`}
+                    >
+                      <div className="font-semibold">PIX</div>
+                      <div className="text-xs text-emerald-400">Zero comissão</div>
+                    </button>
+                  )}
+                  {methods.methods.stripe && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPixData(null);
+                        setClientSecret(null);
+                        setMethod("stripe");
+                        void startStripe();
+                      }}
+                      className={`flex-1 rounded-lg border p-4 text-left ${method === "stripe" ? "border-blue-500 bg-blue-500/10" : "border-white/10"}`}
+                    >
+                      <div className="font-semibold">Cartão</div>
+                      <div className="text-xs text-luxury-mist">Stripe (opcional)</div>
+                    </button>
+                  )}
+                </div>
+              )}
+
+            {method === "pix" &&
+              methods?.methods.pix &&
+              !pixData &&
+              !clientSecret &&
+              checkoutSession &&
+              !reservationError && (
+                <button
+                  type="button"
+                  data-testid="generate-pix"
+                  disabled={pixLoading}
+                  onClick={() => void startPix()}
+                  className="w-full rounded-lg bg-emerald-600 py-3 font-semibold text-white disabled:opacity-50"
+                >
+                  {pixLoading ? "Gerando PIX…" : "Gerar PIX"}
+                </button>
+              )}
+
+            {initError && <p className="text-red-400">{initError}</p>}
+            {loading && !pixData && !clientSecret && !initError && method === "stripe" && (
+              <InlineLoading message="Preparando pagamento…" className="py-8" />
+            )}
+
+            {pixData && (
+              <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+                <EnhancedPixCheckoutPanel
+                  pix={pixData}
+                  onRegenerate={() => {
+                    setPixData(null);
+                    void startPix();
+                  }}
+                />
+                <p className="mt-2 text-center text-lg font-bold" data-testid="final-amount">
+                  {formatShopPrice(pixData.amount_cents)}
+                </p>
+                <Link
+                  href="/marketplace/orders"
+                  className="mt-4 block text-center text-sm text-luxury-gold underline"
+                >
+                  Meus pedidos
+                </Link>
+              </div>
+            )}
+
+            {clientSecret && stripePromise && (
+              <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+                <Elements stripe={stripePromise} options={{ clientSecret, appearance: { theme: "night" } }}>
+                  <StripeCheckoutForm />
+                </Elements>
+              </div>
             )}
           </div>
-        )}
 
-        {method === "pix" && methods?.methods.pix && !pixData && !clientSecret && checkoutSession && !reservationError && (
-          <button
-            type="button"
-            data-testid="generate-pix"
-            disabled={pixLoading}
-            onClick={() => void startPix()}
-            className="mt-6 w-full rounded-lg bg-emerald-600 py-3 font-semibold text-white disabled:opacity-50"
-          >
-            {pixLoading ? "Gerando PIX…" : "Gerar PIX"}
-          </button>
-        )}
-
-        {initError && <p className="mt-4 text-red-400">{initError}</p>}
-        {loading && !pixData && !clientSecret && !initError && method === "stripe" && (
-          <p className="mt-4 text-luxury-mist">Preparando pagamento…</p>
-        )}
-
-        {pixData && (
-          <div className="mt-6 rounded-xl border border-white/10 bg-white/5 p-4">
-            <EnhancedPixCheckoutPanel
-              pix={pixData}
-              onRegenerate={() => {
-                setPixData(null);
-                void startPix();
-              }}
-            />
-            <p className="mt-2 text-center text-lg font-bold" data-testid="final-amount">
-              {formatShopPrice(pixData.amount_cents)}
-            </p>
-            <Link href="/marketplace/orders" className="mt-4 block text-center text-sm text-luxury-gold underline">
-              Meus pedidos
-            </Link>
-          </div>
-        )}
-
-        {clientSecret && stripePromise && (
-          <div className="mt-6 rounded-xl border border-white/10 bg-white/5 p-4">
-            <Elements stripe={stripePromise} options={{ clientSecret, appearance: { theme: "night" } }}>
-              <StripeCheckoutForm totalCents={totalCents} />
-            </Elements>
-          </div>
-        )}
+          <CheckoutOrderSummary
+            className="order-1 lg:order-2"
+            items={cartItems}
+            subtotalCents={summarySubtotal}
+            discountCents={discountCents}
+            escrowFeeCents={escrowFee}
+            totalCents={summaryTotal}
+            storeName={methods?.stores?.[0]?.store_name}
+            couponCode={appliedCoupon?.code ?? pixData?.coupon_code}
+            isLoading={loading || cartLoading || accountLoading}
+            sticky
+          />
+        </div>
 
         <CpfCheckoutModal open={cpfModal} onClose={() => setCpfModal(false)} />
       </div>
