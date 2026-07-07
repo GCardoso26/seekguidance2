@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { ConsentBanner } from "@/components/ConsentBanner";
+import { JudgeRulesAccessGuard } from "@/components/judge/JudgeRulesAccessGuard";
 import { JudgePageClient } from "./JudgePageClient";
 
 export default function JudgePage() {
@@ -11,7 +12,9 @@ export default function JudgePage() {
         </div>
       }
     >
-      <JudgePageClient />
+      <JudgeRulesAccessGuard>
+        <JudgePageClient />
+      </JudgeRulesAccessGuard>
       <ConsentBanner />
     </Suspense>
   );

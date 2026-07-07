@@ -34,6 +34,11 @@ const config: Config = {
           velvet: "#16213e",
           frost: "#e2e8f0",
           mist: "#b8c5d6",
+          panel: {
+            bg: "#12121a",
+            surface: "#1a1a26",
+            elevated: "#222230",
+          },
         },
       },
       fontFamily: {

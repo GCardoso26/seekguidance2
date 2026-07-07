@@ -1,5 +1,6 @@
 "use client";
 
+import "@/styles/seller-panel.css";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { Sidebar } from "@/components/seller-dashboard/Sidebar";
@@ -46,7 +47,7 @@ function VendedorPainelLayoutInner({ children }: { children: React.ReactNode }) 
   }
 
   return (
-    <div className="flex min-h-screen bg-luxury-onyx text-white">
+    <div className="seller-panel flex min-h-screen bg-luxury-panel-bg text-white">
       {!isPdvRoute && (
         <div className="hidden lg:block lg:w-64 lg:flex-shrink-0">
           <Sidebar sellerId={ownerId} storeSlug={storeSlug} plan={plan} className="fixed left-0 top-0 z-30 h-screen w-64" />

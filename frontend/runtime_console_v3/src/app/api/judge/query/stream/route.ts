@@ -4,6 +4,7 @@ import {
   applyDailyCookie,
   checkAndReserveQuestion,
 } from "@/lib/api/plan-enforcement";
+import { resolveRulesAccess, rulesAccessDeniedResponse } from "@/lib/api/rules-access-server";
 import { getAuthenticatedUserId } from "@/lib/api/supabase-user";
 
 function parseTcg(body: string): string | null {
@@ -23,6 +24,11 @@ export async function POST(req: NextRequest) {
   }
 
   const userId = await getAuthenticatedUserId();
+  const rules = await resolveRulesAccess(userId);
+  if (!rules.allowed) {
+    return rulesAccessDeniedResponse(rules.reason ?? "upgrade_required");
+  }
+
   const check = await checkAndReserveQuestion(req, tcg, userId);
   if (!check.ok) return check.response;
 

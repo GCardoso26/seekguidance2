@@ -13,7 +13,7 @@ export function QuickActionsBar() {
       </h2>
       <div className="flex flex-wrap gap-2">
         <Link
-          href="/vendedor/painel/catalogo/cartas?action=new"
+          href="/vendedor/painel/listagens/nova"
           className="rounded-lg bg-luxury-gold px-4 py-2 text-sm font-semibold text-luxury-onyx"
         >
           + Novo anúncio

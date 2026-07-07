@@ -1,0 +1,38 @@
+/* Painéis operacionais — contraste elevado, menos fadiga visual que luxury-onyx puro */
+
+.seller-panel,
+.admin-panel {
+  --panel-bg: #12121a;
+  --panel-surface: #1a1a26;
+  --panel-elevated: #222230;
+  --panel-border: rgba(255, 255, 255, 0.12);
+}
+
+.seller-panel {
+  background-color: var(--panel-bg);
+}
+
+.seller-panel .luxury-card,
+.seller-panel [class*="border-white/10"][class*="bg-white/5"],
+.admin-panel [class*="border-white/10"][class*="bg-white/5"] {
+  background-color: color-mix(in srgb, var(--panel-elevated) 85%, transparent);
+}
+
+.seller-panel aside,
+.admin-panel aside {
+  background-color: color-mix(in srgb, var(--panel-surface) 96%, transparent);
+}
+
+.seller-panel input,
+.seller-panel select,
+.seller-panel textarea,
+.admin-panel input,
+.admin-panel select,
+.admin-panel textarea {
+  background-color: var(--panel-elevated);
+}
+
+.seller-panel table thead,
+.admin-panel table thead {
+  background-color: color-mix(in srgb, var(--panel-elevated) 70%, transparent);
+}

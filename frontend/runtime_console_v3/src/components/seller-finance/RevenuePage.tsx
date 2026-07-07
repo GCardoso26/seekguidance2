@@ -23,7 +23,7 @@ const PERIODS = [
 ] as const;
 
 function exportCsv(rows: { date: string; orders: number; gross_cents: number; fees_cents: number; net_cents: number }[]) {
-  const header = "Data,Pedidos,Bruto,Taxas,Liquido\n";
+  const header = "Data,Pedidos,Bruto,Taxas,Líquido\n";
   const body = rows
     .map((r) =>
       [

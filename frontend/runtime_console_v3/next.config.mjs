@@ -49,8 +49,8 @@ const marketplaceRedirects = [
   { source: "/store/listings", destination: "/vendedor/painel/listagens", permanent: true },
   { source: "/store/listings/new", destination: "/vendedor/painel/listagens/nova", permanent: true },
   { source: "/store/listings/:id", destination: "/vendedor/painel/listagens/:id", permanent: true },
-  { source: "/store/orders", destination: "/vendedor/painel/vendas", permanent: true },
-  { source: "/store/orders/:id", destination: "/vendedor/painel/vendas/:id", permanent: true },
+  { source: "/store/orders", destination: "/vendedor/painel/pedidos", permanent: true },
+  { source: "/store/orders/:id", destination: "/vendedor/painel/pedidos?drawer=:id", permanent: false },
   { source: "/store/analytics", destination: "/vendedor/painel/estatisticas", permanent: true },
   { source: "/store/settings", destination: "/vendedor/painel/configuracoes", permanent: true },
   { source: "/store/payments", destination: "/vendedor/painel/configuracoes/pagamentos", permanent: true },
@@ -60,16 +60,10 @@ const marketplaceRedirects = [
   { source: "/store/onboarding", destination: "/vendedor/painel/onboarding", permanent: true },
   { source: "/store/:path*", destination: "/vendedor/painel/:path*", permanent: true },
 
-  // === Redesign painel lojista (flow-based) ===
-  { source: "/vendedor/painel/listagens", destination: "/vendedor/painel/catalogo/cartas", permanent: true },
-  { source: "/vendedor/painel/listagens/nova", destination: "/vendedor/painel/catalogo/cartas?action=new", permanent: true },
-  { source: "/vendedor/painel/listagens/:listingId", destination: "/vendedor/painel/catalogo/cartas/:listingId", permanent: true },
+  // === Unificar rotas legadas do painel ===
   { source: "/vendedor/painel/vendas", destination: "/vendedor/painel/pedidos", permanent: true },
-  { source: "/vendedor/painel/vendas/:orderId", destination: "/vendedor/painel/pedidos?drawer=:orderId", permanent: true },
-  { source: "/vendedor/painel/estoque", destination: "/vendedor/painel/estoque/estoque", permanent: true },
+  { source: "/vendedor/painel/vendas/:orderId", destination: "/vendedor/painel/pedidos?drawer=:orderId", permanent: false },
   { source: "/vendedor/painel/clientes", destination: "/vendedor/painel/clientes/lista", permanent: true },
-  { source: "/vendedor/painel/cupons", destination: "/vendedor/painel/marketing/cupons", permanent: true },
-  { source: "/vendedor/painel/buylist", destination: "/vendedor/painel/marketing/buylist", permanent: true },
 ];
 
 const nextConfig = {

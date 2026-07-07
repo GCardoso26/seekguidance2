@@ -6,6 +6,7 @@ import { SellerHeader } from "@/components/seller-dashboard/SellerHeader";
 import { PermissionGuard } from "@/components/PermissionGuard";
 import { InviteUserDrawer } from "./InviteUserDrawer";
 import { TeamAuditLogs } from "./TeamAuditLogs";
+import { RolePermissionsOverview } from "./RolePermissionsOverview";
 import { TeamUsersTable } from "./TeamUsersTable";
 
 type TeamView = "users" | "permissions" | "logs";
@@ -45,11 +46,7 @@ export function TeamPage({ view = "users" }: { view?: TeamView }) {
         />
         {view === "users" && <TeamUsersTable />}
         {view === "logs" && <TeamAuditLogs />}
-        {view === "permissions" && (
-          <p className="text-sm text-luxury-mist">
-            Selecione um membro na lista de usuários para editar permissões granulares.
-          </p>
-        )}
+        {view === "permissions" && <RolePermissionsOverview />}
       </main>
       <InviteUserDrawer open={inviteOpen} onOpenChange={setInviteOpen} />
     </PageShell>

@@ -1,5 +1,6 @@
 "use client";
 
+import "@/styles/seller-panel.css";
 import Link from "next/link";
 import { Suspense, useState } from "react";
 import { AdminPanelTopBar } from "@/components/admin/AdminPanelTopBar";
@@ -31,7 +32,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="flex min-h-screen bg-luxury-onyx text-white">
+    <div className="admin-panel flex min-h-screen bg-luxury-panel-bg text-white">
       <div className="hidden lg:block lg:w-64 lg:flex-shrink-0">
         <AdminSidebar className="fixed left-0 top-0 z-30 h-screen w-64" />
       </div>

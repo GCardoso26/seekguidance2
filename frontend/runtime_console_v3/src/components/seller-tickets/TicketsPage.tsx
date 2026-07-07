@@ -1,7 +1,8 @@
 "use client";
 
 import * as Dialog from "@radix-ui/react-dialog";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { X } from "lucide-react";
 import { PageHeader, PageShell } from "@/components/seller-dashboard/PageShell";
@@ -13,6 +14,11 @@ import {
   type SupportTicket,
 } from "@/hooks/useSupportTickets";
 import { cn } from "@/lib/utils";
+import {
+  ticketStatusLabel,
+  TICKET_CATEGORY_LABELS,
+  TICKET_PRIORITY_LABELS,
+} from "@/lib/ticket-labels";
 
 const TICKET_TABS = [
   { id: "", label: "Todos" },
@@ -77,10 +83,15 @@ function TicketDrawer({
 }
 
 export function TicketsPage() {
+  const searchParams = useSearchParams();
   const [status, setStatus] = useState("");
   const [selected, setSelected] = useState<SupportTicket | null>(null);
-  const [showCreate, setShowCreate] = useState(false);
+  const [showCreate, setShowCreate] = useState(searchParams.get("action") === "new");
   const [subject, setSubject] = useState("");
+
+  useEffect(() => {
+    if (searchParams.get("action") === "new") setShowCreate(true);
+  }, [searchParams]);
 
   const { data, isLoading } = useSupportTickets(status || undefined);
   const createTicket = useCreateTicket();
@@ -174,9 +185,9 @@ export function TicketsPage() {
                   >
                     <td className="p-3">{t.subject}</td>
                     <td className="p-3">{t.customer_name ?? "—"}</td>
-                    <td className="p-3">{t.category}</td>
-                    <td className="p-3">{t.priority}</td>
-                    <td className="p-3">{t.status}</td>
+                    <td className="p-3">{TICKET_CATEGORY_LABELS[t.category] ?? t.category}</td>
+                    <td className="p-3">{TICKET_PRIORITY_LABELS[t.priority] ?? t.priority}</td>
+                    <td className="p-3">{ticketStatusLabel(t.status)}</td>
                   </tr>
                 ))}
               </tbody>

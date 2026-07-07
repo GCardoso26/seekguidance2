@@ -15,6 +15,7 @@ import { CpfRequiredBanner } from "@/components/kyc/CpfRequiredBanner";
 import { UserLevelBadge } from "@/components/gamification/UserLevelBadge";
 import { UserMenu } from "@/features/auth/UserMenu";
 import { useJudgeAuth } from "@/features/auth/AuthProvider";
+import { useRulesAccess } from "@/hooks/useRulesAccess";
 import { cn } from "@/lib/utils";
 
 type NavItem = { href: string; label: string; icon: typeof ShoppingBag };
@@ -25,6 +26,20 @@ const NAV: NavItem[] = [
   { href: "/regras", label: "Regras", icon: Scale },
   { href: "/comunidade", label: "Comunidade", icon: Users },
 ];
+
+function DesktopNav() {
+  const pathname = usePathname();
+  const { allowed: rulesAllowed, loading: rulesLoading } = useRulesAccess();
+  const items = rulesLoading ? NAV.filter((n) => n.href !== "/regras") : NAV.filter((n) => n.href !== "/regras" || rulesAllowed);
+
+  return (
+    <>
+      {items.map((item) => (
+        <DesktopNavLink key={item.href} {...item} />
+      ))}
+    </>
+  );
+}
 
 function DesktopNavLink({ href, label, icon: Icon }: NavItem) {
   const pathname = usePathname();
@@ -81,9 +96,7 @@ export function GlobalHeader({ showGameTabs = true }: GlobalHeaderProps) {
               <HeaderGamePicker />
 
               <nav className="hidden items-center gap-0.5 xl:flex" aria-label="Principal">
-                {NAV.map((item) => (
-                  <DesktopNavLink key={item.href} {...item} />
-                ))}
+                <DesktopNav />
               </nav>
 
               <HeaderNavActions />
