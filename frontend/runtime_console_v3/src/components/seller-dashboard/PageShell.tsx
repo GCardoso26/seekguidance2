@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { PageError, PageSkeleton } from "@/components/ui/async-state";
+import { PageEmpty, PageError, PageSkeleton } from "@/components/ui/async-state";
 
 type PageHeaderProps = {
   title: string;
@@ -23,7 +23,32 @@ export function PageHeader({ title, description, action, meta }: PageHeaderProps
   );
 }
 
-export { PageSkeleton, PageError };
+export { PageEmpty, PageSkeleton, PageError };
+
+type AsyncPageBodyProps = {
+  isLoading?: boolean;
+  isError?: boolean;
+  onRetry?: () => void;
+  errorMessage?: string;
+  skeletonRows?: number;
+  children: ReactNode;
+};
+
+/** Estados async padronizados dentro de PageShell. */
+export function AsyncPageBody({
+  isLoading,
+  isError,
+  onRetry,
+  errorMessage = "Não foi possível carregar os dados.",
+  skeletonRows = 5,
+  children,
+}: AsyncPageBodyProps) {
+  if (isLoading) return <PageSkeleton rows={skeletonRows} />;
+  if (isError) {
+    return <PageError message={errorMessage} onRetry={onRetry} />;
+  }
+  return <>{children}</>;
+}
 
 type PageShellProps = {
   children: ReactNode;
