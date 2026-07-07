@@ -1,0 +1,32 @@
+# Mantém o Render acordado (cold start) — antes via cron Vercel */14, incompatível com plano Hobby.
+#
+# Secrets (opcional):
+#   SMOKE_API_URL — default https://seekguidance.onrender.com
+
+name: Catalog Health Ping
+
+on:
+  schedule:
+    - cron: "*/14 * * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Ping catalog health (Render)
+        env:
+          API_URL: ${{ secrets.SMOKE_API_URL || 'https://seekguidance.onrender.com' }}
+        run: |
+          set -euo pipefail
+          code=$(curl -sS -o /tmp/health.json -w "%{http_code}" \
+            "${API_URL}/runtime/judge/catalog/health?lite=1" \
+            --max-time 55)
+          head -c 500 /tmp/health.json || true
+          echo ""
+          echo "HTTP ${code}"
+          if [ "${code}" != "200" ]; then
+            echo "::warning::Health ping retornou ${code}"
+            exit 0
+          fi

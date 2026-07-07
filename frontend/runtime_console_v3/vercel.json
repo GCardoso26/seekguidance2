@@ -47,7 +47,6 @@
     }
   ],
   "crons": [
-    { "path": "/api/catalog/health", "schedule": "*/14 * * * *" },
     { "path": "/api/cron/escrow-auto-actions", "schedule": "0 6 * * *" },
     { "path": "/api/cron/check-price-alerts", "schedule": "0 7 * * *" },
     { "path": "/api/cron/update-health-scores", "schedule": "0 3 * * 1" },
