@@ -6,6 +6,7 @@ import Image from "next/image";
 import { FacetedSearch } from "@/components/search/FacetedSearch";
 import { CatalogSearchSkeleton } from "@/components/search/CatalogSearchSkeleton";
 import { MobileLayout } from "@/components/layout/MobileLayout";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import {
   gameCardDetailPath,
   gameCardsPath,
@@ -42,6 +43,15 @@ function GameCardsContent({ slug }: { slug: string }) {
         style={{ backgroundColor: `${token.primary}10` }}
       >
         <div className="container mx-auto px-4">
+          <Breadcrumbs
+            className="mb-3"
+            items={[
+              { label: "Início", href: "/" },
+              { label: "Loja", href: "/loja" },
+              { label: token.name, href: gameLandingPath(slug) },
+              { label: "Cartas" },
+            ]}
+          />
           <Link href={gameLandingPath(slug)} className="text-sm text-muted-foreground hover:text-foreground">
             ← {token.name}
           </Link>

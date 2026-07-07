@@ -9,6 +9,7 @@ import { useMerchantKycGuard } from "@/hooks/useMerchantKycGuard";
 import { useMerchantOnboardingSync } from "@/hooks/useMerchantOnboardingSync";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { useSellerStore } from "@/hooks/useSellerStore";
+import { InlineLoading } from "@/components/ui/async-state";
 import { isMerchantOnboardingReturn } from "@/lib/merchant-onboarding-return";
 
 function VendedorPainelLayoutInner({ children }: { children: React.ReactNode }) {
@@ -29,17 +30,17 @@ function VendedorPainelLayoutInner({ children }: { children: React.ReactNode }) 
   const isPdvRoute = pathname?.includes("/vendedor/painel/pdv");
 
   if (guardsPending) {
+    const guardMessage = onboardingSyncing
+      ? "Atualizando status do cadastro Stripe…"
+      : authLoading || kycLoading
+        ? "Carregando painel…"
+        : kycGateActive
+          ? "Redirecionando…"
+          : "Redirecionando para login…";
+
     return (
-      <div className="flex min-h-screen items-center justify-center bg-luxury-onyx text-luxury-mist">
-        <p className="text-sm">
-          {onboardingSyncing
-            ? "Atualizando status do cadastro Stripe…"
-            : authLoading || kycLoading
-              ? "Carregando painel…"
-              : kycGateActive
-                ? "Redirecionando…"
-                : "Redirecionando para login…"}
-        </p>
+      <div className="flex min-h-screen items-center justify-center bg-luxury-onyx">
+        <InlineLoading message={guardMessage} />
       </div>
     );
   }
@@ -88,8 +89,8 @@ export default function VendedorPainelLayout({ children }: { children: React.Rea
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen items-center justify-center bg-luxury-onyx text-luxury-mist">
-          <p className="text-sm">Carregando painel…</p>
+        <div className="flex min-h-screen items-center justify-center bg-luxury-onyx">
+          <InlineLoading message="Carregando painel…" />
         </div>
       }
     >

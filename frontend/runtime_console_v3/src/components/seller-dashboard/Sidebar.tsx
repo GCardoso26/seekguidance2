@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useDashboardOverview } from "@/hooks/useDashboardOverview";
 import {
   SIDEBAR_ITEMS,
+  filterAvailableSidebarItems,
   isSidebarItemLocked,
   sidebarItemActive,
   type SidebarItem,
@@ -132,7 +133,7 @@ export function Sidebar({ sellerId, storeSlug, plan = "free", className, onNavig
         <p className="font-semibold text-luxury-gold">Painel do Vendedor</p>
       </div>
       <nav className="flex-1 space-y-0.5 overflow-y-auto p-3">
-        {SIDEBAR_ITEMS.map((item) => (
+        {filterAvailableSidebarItems(SIDEBAR_ITEMS).map((item) => (
           <NavItem
             key={item.id}
             item={item}

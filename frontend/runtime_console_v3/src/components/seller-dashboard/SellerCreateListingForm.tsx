@@ -9,6 +9,8 @@ import { ConditionBadge, type CardCondition } from "@/components/cards/Condition
 import { CardImage } from "@/components/ui/CardImage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { FieldError } from "@/components/ui/field-error";
+import { Label } from "@/components/ui/label";
 import { cardImageUrl } from "@/lib/format-currency";
 import {
   listingConditionToApi,
@@ -23,11 +25,6 @@ const CONDITIONS: SellerListingFormValues["condition"][] = ["nm", "lp", "mp", "h
 type Props = {
   card: UnifiedCard;
 };
-
-function FieldError({ message }: { message?: string }) {
-  if (!message) return null;
-  return <p className="mt-1 text-xs text-red-400">{message}</p>;
-}
 
 export function SellerCreateListingForm({ card }: Props) {
   const router = useRouter();
@@ -106,9 +103,7 @@ export function SellerCreateListingForm({ card }: Props) {
 
       <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4" data-testid="create-listing-form">
         <div>
-          <label htmlFor="listing-name" className="text-sm font-medium text-luxury-mist">
-            Nome
-          </label>
+          <Label htmlFor="listing-name">Nome</Label>
           <Input
             id="listing-name"
             className="mt-1 border-white/10 bg-luxury-onyx"
@@ -139,9 +134,7 @@ export function SellerCreateListingForm({ card }: Props) {
 
         <div className="flex gap-4">
           <div className="flex-1">
-            <label htmlFor="listing-price" className="text-sm font-medium text-luxury-mist">
-              Preço (R$)
-            </label>
+            <Label htmlFor="listing-price">Preço (R$)</Label>
             <Input
               id="listing-price"
               type="number"
@@ -153,9 +146,7 @@ export function SellerCreateListingForm({ card }: Props) {
             <FieldError message={errors.price?.message} />
           </div>
           <div className="w-24">
-            <label htmlFor="listing-qty" className="text-sm font-medium text-luxury-mist">
-              Qtd
-            </label>
+            <Label htmlFor="listing-qty">Qtd</Label>
             <Input
               id="listing-qty"
               type="number"
@@ -168,9 +159,7 @@ export function SellerCreateListingForm({ card }: Props) {
         </div>
 
         <div>
-          <label htmlFor="listing-desc" className="text-sm font-medium text-luxury-mist">
-            Descrição (opcional)
-          </label>
+          <Label htmlFor="listing-desc">Descrição (opcional)</Label>
           <textarea
             id="listing-desc"
             rows={3}

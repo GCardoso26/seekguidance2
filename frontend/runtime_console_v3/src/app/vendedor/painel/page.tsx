@@ -18,6 +18,7 @@ import { useAccountStatus } from "@/hooks/useAccountStatus";
 import { useDashboardOverview } from "@/hooks/useDashboardOverview";
 import { useJudgeAuth } from "@/features/auth/AuthProvider";
 import { useSellerStore } from "@/hooks/useSellerStore";
+import { InlineLoading } from "@/components/ui/async-state";
 import { needsOnboardingContinue } from "@/lib/kyc-onboarding";
 
 function greetingForHour(hour: number): string {
@@ -49,7 +50,7 @@ export default function VendedorPainelDashboardPage() {
   if (isLoading || overviewLoading) {
     return (
       <main className="flex flex-1 items-center justify-center p-8">
-        <p className="text-luxury-mist">Carregando painel…</p>
+        <InlineLoading message="Carregando painel…" />
       </main>
     );
   }

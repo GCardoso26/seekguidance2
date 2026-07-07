@@ -1,6 +1,7 @@
 "use client";
 
 import { Component, type ErrorInfo, type ReactNode } from "react";
+import { PageError } from "@/components/ui/async-state";
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -29,16 +30,12 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     if (this.state.hasError) {
       return (
         this.props.fallback ?? (
-          <div className="p-8 text-center">
-            <h2 className="text-xl font-bold text-red-600">Algo deu errado</h2>
-            <p className="mt-2 text-gray-600">Tente recarregar a página.</p>
-            <button
-              type="button"
-              onClick={() => window.location.reload()}
-              className="mt-4 rounded bg-blue-600 px-4 py-2 text-white"
-            >
-              Recarregar
-            </button>
+          <div className="flex min-h-[40vh] items-center justify-center bg-luxury-onyx p-6">
+            <PageError
+              title="Algo deu errado"
+              message="Ocorreu um erro inesperado. Recarregue a página ou tente novamente em instantes."
+              onRetry={() => window.location.reload()}
+            />
           </div>
         )
       );

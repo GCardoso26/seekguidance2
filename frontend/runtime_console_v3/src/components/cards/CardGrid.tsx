@@ -12,6 +12,8 @@ export interface CardGridProps {
   cards: UnifiedCard[];
   viewMode?: "grid" | "list";
   isLoading?: boolean;
+  /** Quando true, não exibe empty state (erro de API tratado pelo pai). */
+  isError?: boolean;
   hasMore?: boolean;
   onLoadMore?: () => void;
   emptyMessage?: string;
@@ -76,6 +78,7 @@ export function CardGrid({
   cards,
   viewMode = "grid",
   isLoading,
+  isError,
   hasMore,
   onLoadMore,
   emptyMessage = "Nenhuma carta encontrada",
@@ -88,7 +91,7 @@ export function CardGrid({
     return <CardGridSkeleton count={12} />;
   }
 
-  if (!isLoading && cards.length === 0) {
+  if (!isLoading && !isError && cards.length === 0) {
     return (
       <EmptyState
         icon={<Search className="h-10 w-10 text-muted-foreground" aria-hidden />}

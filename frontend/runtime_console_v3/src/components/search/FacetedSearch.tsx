@@ -6,6 +6,7 @@ import { LayoutGrid, List } from "lucide-react";
 import { CardGrid } from "@/components/cards/CardGrid";
 import { QuickViewModal } from "@/components/cards/QuickViewModal";
 import { ProductFiltersSidebar } from "@/components/marketplace/ProductFiltersSidebar";
+import { InlineAlert } from "@/components/ui/async-state";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -64,8 +65,16 @@ export function FacetedSearch({
     };
   }, [filters, debouncedQ, availableSets]);
 
-  const { data, isLoading, isError, isFetching, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useCardSearch(queryFilters);
+  const {
+    data,
+    isLoading,
+    isError,
+    isFetching,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    refetch,
+  } = useCardSearch(queryFilters);
 
   const cards = useMemo(() => data?.pages.flatMap((p) => p.cards) ?? [], [data]);
   const total = data?.pages[0]?.total ?? 0;
@@ -211,17 +220,22 @@ export function FacetedSearch({
           </div>
 
           {isError && (
-            <p className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-400">
-              {isFetching
-                ? "Servidor iniciando — tentando reconectar ao catálogo…"
-                : "Erro ao carregar cartas. O backend pode estar acordando (Render). Aguarde alguns segundos e recarregue a página."}
-            </p>
+            <InlineAlert
+              className="mb-4"
+              message={
+                isFetching
+                  ? "Servidor iniciando — tentando reconectar ao catálogo…"
+                  : "Erro ao carregar cartas. O backend pode estar acordando (Render). Aguarde alguns segundos e tente novamente."
+              }
+              onRetry={!isFetching ? () => void refetch() : undefined}
+            />
           )}
 
           <CardGrid
             cards={cards}
             viewMode={viewMode}
             isLoading={isLoading || isFetchingNextPage}
+            isError={isError}
             hasMore={Boolean(hasNextPage)}
             onLoadMore={() => fetchNextPage()}
             onViewDetail={(id) => {

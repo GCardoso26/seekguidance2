@@ -18,6 +18,7 @@ import { CardRulesTab } from "@/components/cards/CardRulesTab";
 import { CardVersionsTab } from "@/components/cards/CardVersionsTab";
 import { CardInfoTab } from "@/components/cards/CardInfoTab";
 import { gameCardDetailPath, gameCardsPath, gameLandingPath } from "@/lib/game-routes";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -82,34 +83,20 @@ export function CardDetailPage({ cardId }: CardDetailPageProps) {
   return (
     <MobileLayout>
       <main className="min-h-screen bg-background pb-24 lg:pb-8">
-        <nav aria-label="Breadcrumb" className="container mx-auto px-4 py-4">
-          <ol className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-            <li>
-              <Link href="/" className="hover:text-foreground">
-                Home
-              </Link>
-            </li>
-            <li aria-hidden="true">/</li>
-            <li>
-              <Link href={gameLandingPath(gameSlug)} className="hover:text-foreground">
-                {gameToken?.name || card.game}
-              </Link>
-            </li>
-            <li aria-hidden="true">/</li>
-            <li>
-              <Link
-                href={`${gameCardsPath(gameSlug)}?set=${encodeURIComponent(card.set?.code || "")}`}
-                className="hover:text-foreground"
-              >
-                {card.set?.name}
-              </Link>
-            </li>
-            <li aria-hidden="true">/</li>
-            <li aria-current="page" className="font-medium text-foreground">
-              {card.name}
-            </li>
-          </ol>
-        </nav>
+        <div className="container mx-auto px-4 py-4">
+          <Breadcrumbs
+            items={[
+              { label: "Início", href: "/" },
+              { label: "Loja", href: "/loja" },
+              { label: gameToken?.name || card.game, href: gameLandingPath(gameSlug) },
+              {
+                label: card.set?.name ?? "Expansão",
+                href: `${gameCardsPath(gameSlug)}?set=${encodeURIComponent(card.set?.code || "")}`,
+              },
+              { label: card.name },
+            ]}
+          />
+        </div>
 
         <div className="container mx-auto px-4 py-8">
           <div className="grid gap-8 lg:grid-cols-2">

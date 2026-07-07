@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import { GameGrid } from "@/components/games/GameGrid";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { Button } from "@/components/ui/button";
 
 export default function LojaPage() {
@@ -10,6 +11,10 @@ export default function LojaPage() {
     <MobileLayout>
       <div className="border-b border-white/10 bg-gradient-to-b from-luxury-gold/5 to-transparent">
         <div className="container mx-auto max-w-6xl px-4 py-10">
+          <Breadcrumbs
+            className="mb-4 text-luxury-mist"
+            items={[{ label: "Início", href: "/" }, { label: "Loja" }]}
+          />
           <h1 className="text-3xl font-bold text-luxury-frost">Marketplace TCG</h1>
           <p className="mt-2 max-w-2xl text-luxury-mist">
             Singles, boosters, decks e acessórios — navegue por jogo e categoria como no CardTrader,

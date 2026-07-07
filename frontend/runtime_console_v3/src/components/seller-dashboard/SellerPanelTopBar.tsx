@@ -1,12 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { HelpCircle } from "lucide-react";
 import {
   GlobalSearchDialog,
   GlobalSearchTrigger,
   useGlobalSearchShortcut,
 } from "@/components/GlobalSearch";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
+import { sellerPanelBreadcrumbs } from "@/lib/seller-breadcrumbs";
 import { HeaderNotificationsDropdown } from "./HeaderNotificationsDropdown";
 import { KeyboardShortcutsModal } from "./KeyboardShortcutsModal";
 
@@ -21,6 +24,8 @@ export function SellerPanelTopBar({
   showMenuButton,
   onMenuClick,
 }: Props) {
+  const pathname = usePathname() ?? "";
+  const breadcrumbs = sellerPanelBreadcrumbs(pathname);
   const [searchOpen, setSearchOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
 
@@ -54,7 +59,8 @@ export function SellerPanelTopBar({
           </button>
         )}
         <span className="shrink-0 text-sm font-semibold lg:hidden">{title}</span>
-        <div className="hidden flex-1 lg:flex lg:items-center lg:gap-3">
+        <div className="hidden flex-1 flex-col gap-1 lg:flex">
+          <Breadcrumbs items={breadcrumbs} className="text-luxury-mist" />
           <GlobalSearchTrigger onOpen={openSearch} />
         </div>
         <div className="ml-auto flex items-center gap-2">
