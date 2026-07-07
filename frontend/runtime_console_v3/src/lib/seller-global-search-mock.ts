@@ -113,7 +113,7 @@ export function sellerGlobalSearchMock(q: string): GlobalSearchResponse {
   };
 
   const total = Object.values(filtered).reduce((s, arr) => s + arr.length, 0);
-  return { query, categories: filtered, total: total || categories.orders.length };
+  return { query, categories: filtered, total };
 }
 
 export type HeaderNotificationCategory = {

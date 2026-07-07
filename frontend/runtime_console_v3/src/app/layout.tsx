@@ -1,4 +1,4 @@
-import { CommandPalette } from "@/components/search/CommandPalette";
+import { SearchPlatformProvider } from "@/features/search/SearchPlatformContext";
 import { SentryInit } from "@/components/SentryInit";
 import { ConsoleFilterInit } from "@/components/ConsoleFilterInit";
 import { ServiceWorkerRegister } from "@/components/pwa/ServiceWorkerRegister";
@@ -140,8 +140,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <UpgradeModalProvider>
                 <CartProvider>
                   <ErrorBoundary>
-                    <LuxurySiteShell>{children}</LuxurySiteShell>
-                    <CommandPalette />
+                    <SearchPlatformProvider>
+                      <LuxurySiteShell>{children}</LuxurySiteShell>
+                    </SearchPlatformProvider>
                   </ErrorBoundary>
                   <PWAInstallPrompt />
                 </CartProvider>

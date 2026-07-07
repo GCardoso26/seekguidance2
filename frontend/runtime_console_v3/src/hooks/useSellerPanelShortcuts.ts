@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 type Options = {
-  onOpenSearch: () => void;
   onOpenShortcuts: () => void;
   enabled?: boolean;
 };
@@ -19,7 +18,6 @@ function isEditableTarget(target: EventTarget | null): boolean {
 
 /** Atalhos operacionais do painel vendedor (Sprint 10 Epic 4). */
 export function useSellerPanelShortcuts({
-  onOpenSearch,
   onOpenShortcuts,
   enabled = true,
 }: Options) {
@@ -32,12 +30,6 @@ export function useSellerPanelShortcuts({
       if (isEditableTarget(e.target)) return;
 
       const mod = e.metaKey || e.ctrlKey;
-
-      if (mod && e.key.toLowerCase() === "k") {
-        e.preventDefault();
-        onOpenSearch();
-        return;
-      }
 
       if (mod && e.key.toLowerCase() === "/") {
         e.preventDefault();
@@ -77,5 +69,5 @@ export function useSellerPanelShortcuts({
 
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [enabled, onOpenSearch, onOpenShortcuts, router]);
+  }, [enabled, onOpenShortcuts, router]);
 }

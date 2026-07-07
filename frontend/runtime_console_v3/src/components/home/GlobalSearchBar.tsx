@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { Search, X } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
+import { useSearchPlatform } from "@/features/search/SearchPlatformContext";
 import { CardImage } from "@/components/ui/CardImage";
 import { Input } from "@/components/ui/input";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -27,12 +28,20 @@ export function GlobalSearchBar({
   variant = "hero",
 }: GlobalSearchBarProps) {
   const router = useRouter();
+  const { openPalette } = useSearchPlatform();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<CatalogSearchResponse | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const debouncedQuery = useDebounce(query, 200);
+
+  const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+      event.preventDefault();
+      openPalette();
+    }
+  };
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
@@ -110,6 +119,7 @@ export function GlobalSearchBar({
               setIsOpen(true);
             }}
             onFocus={() => setIsOpen(true)}
+            onKeyDown={handleKeyDown}
             placeholder={placeholder}
             className={cn(
               "w-full pr-10",
@@ -123,19 +133,31 @@ export function GlobalSearchBar({
             aria-autocomplete="list"
             aria-haspopup="listbox"
           />
-          {query && (
-            <button
-              type="button"
-              onClick={() => {
-                setQuery("");
-                setResults(null);
-              }}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-luxury-mist hover:text-luxury-frost"
-              aria-label="Limpar busca"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          )}
+          <div className="absolute right-2 top-1/2 flex -translate-y-1/2 items-center gap-1">
+            {!query && isHeader && (
+              <button
+                type="button"
+                onClick={() => openPalette()}
+                className="hidden rounded border border-white/15 px-1.5 py-0.5 text-[10px] text-luxury-mist hover:bg-white/10 sm:inline"
+                aria-label="Abrir busca universal (Ctrl+K)"
+              >
+                ⌘K
+              </button>
+            )}
+            {query && (
+              <button
+                type="button"
+                onClick={() => {
+                  setQuery("");
+                  setResults(null);
+                }}
+                className="text-luxury-mist hover:text-luxury-frost"
+                aria-label="Limpar busca"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
         </div>
       </form>
 
