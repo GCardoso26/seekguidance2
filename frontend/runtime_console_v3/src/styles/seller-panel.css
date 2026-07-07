@@ -6,6 +6,32 @@
   --panel-surface: #1a1a26;
   --panel-elevated: #222230;
   --panel-border: rgba(255, 255, 255, 0.12);
+  --panel-text: #e2e8f0;
+  --panel-muted: #b8c5d6;
+}
+
+.seller-panel[data-theme="light"],
+.admin-panel[data-theme="light"] {
+  --panel-bg: #f4f5f8;
+  --panel-surface: #ffffff;
+  --panel-elevated: #f0f1f5;
+  --panel-border: rgba(15, 15, 26, 0.1);
+  --panel-text: #0f0f1a;
+  --panel-muted: #5c6478;
+  color: var(--panel-text);
+}
+
+.seller-panel[data-theme="light"] .text-luxury-frost,
+.seller-panel[data-theme="light"] .text-white {
+  color: var(--panel-text) !important;
+}
+
+.seller-panel[data-theme="light"] .text-luxury-mist {
+  color: var(--panel-muted) !important;
+}
+
+.seller-panel[data-theme="light"] aside {
+  border-color: var(--panel-border);
 }
 
 .seller-panel {

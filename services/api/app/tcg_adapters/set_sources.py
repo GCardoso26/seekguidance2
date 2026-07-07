@@ -320,6 +320,21 @@ async def fetch_dbfw_sets(client: httpx.AsyncClient) -> list[dict[str, Any]]:
 
 
 async def fetch_vanguard_sets(client: httpx.AsyncClient) -> list[dict[str, Any]]:
+    from app.infrastructure.external.providers.catalog_resolver import get_catalog_provider_for_game
+
+    for provider in get_catalog_provider_for_game("VANGUARD"):
+        sets = await provider.list_sets("VANGUARD")
+        if sets:
+            return [
+                {
+                    "code": s.code,
+                    "name": s.name,
+                    "release_date": s.release_date,
+                    "external_id": s.external_id,
+                }
+                for s in sets
+            ]
+
     res = await client.get(
         "https://tcgcsv.com/tcgplayer/16/groups",
         headers={"User-Agent": "JudgeTCG/1.0 (catalog sync; contact@judgetcg.com.br)"},

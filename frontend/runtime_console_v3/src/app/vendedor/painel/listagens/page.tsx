@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ListingManager } from "@/components/seller-dashboard/ListingManager";
 import {
@@ -41,13 +42,22 @@ function NovaListagemHeaderAction({ plan, total }: { plan: string; total: number
 }
 
 export default function VendedorListagensPage() {
+  const searchParams = useSearchParams();
   const [page, setPage] = useState(1);
+  const [statusFilter, setStatusFilter] = useState("");
+
+  useEffect(() => {
+    const s = searchParams.get("status");
+    if (s) setStatusFilter(s);
+  }, [searchParams]);
   const { plan } = useSellerPanel();
 
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ["seller-listings", page],
+    queryKey: ["seller-listings", page, statusFilter],
     queryFn: async () => {
-      const res = await fetch(`/api/seller/listings?${buildSellerListingsQuery(page, PAGE_SIZE)}`);
+      const res = await fetch(
+        `/api/seller/listings?${buildSellerListingsQuery(page, PAGE_SIZE, { status: statusFilter || undefined })}`,
+      );
       if (res.status === 401) throw new Error("login_required");
       if (res.status === 403) throw new Error("plan_forbidden");
       if (!res.ok) throw new Error("fetch_failed");
@@ -103,6 +113,7 @@ export default function VendedorListagensPage() {
             total={total}
             limit={PAGE_SIZE}
             onPageChange={setPage}
+            apiStatusFilter={statusFilter}
           />
         )}
       </PageShell>

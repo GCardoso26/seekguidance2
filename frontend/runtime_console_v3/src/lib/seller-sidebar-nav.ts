@@ -16,6 +16,10 @@ import {
 
   LayoutDashboard,
 
+  Inbox,
+
+  Zap,
+
   Megaphone,
 
   Package,
@@ -89,6 +93,10 @@ export function filterAvailableSidebarItems(items: SidebarItem[]): SidebarItem[]
 export const SIDEBAR_ITEMS: SidebarItem[] = [
 
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, href: "/vendedor/painel" },
+
+  { id: "operacao", label: "Operação", icon: Zap, href: "/vendedor/painel/operacao" },
+
+  { id: "inbox", label: "Inbox", icon: Inbox, href: "/vendedor/painel/inbox" },
 
   { id: "listings", label: "Anúncios", icon: Store, href: "/vendedor/painel/listagens" },
 

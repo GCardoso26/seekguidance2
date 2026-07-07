@@ -1,10 +1,10 @@
 "use client";
 
 import "@/styles/seller-panel.css";
-import { usePathname, useSearchParams } from "next/navigation";
+import { SellerPanelThemeProvider, useSellerPanelTheme } from "@/contexts/SellerPanelThemeContext";
 import { Suspense, useState } from "react";
-import { Sidebar } from "@/components/seller-dashboard/Sidebar";
-import { SellerPanelTopBar } from "@/components/seller-dashboard/SellerPanelTopBar";
+import { usePathname, useSearchParams } from "next/navigation";
+import { Sidebar } from "@/components/seller-dashboard/Sidebar";import { SellerPanelTopBar } from "@/components/seller-dashboard/SellerPanelTopBar";
 import { SellerPanelProvider } from "@/contexts/SellerPanelContext";
 import { useMerchantKycGuard } from "@/hooks/useMerchantKycGuard";
 import { useMerchantOnboardingSync } from "@/hooks/useMerchantOnboardingSync";
@@ -14,6 +14,7 @@ import { InlineLoading } from "@/components/ui/async-state";
 import { isMerchantOnboardingReturn } from "@/lib/merchant-onboarding-return";
 
 function VendedorPainelLayoutInner({ children }: { children: React.ReactNode }) {
+  const { theme } = useSellerPanelTheme();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const onboardingMode = searchParams.get("onboarding");
@@ -47,7 +48,7 @@ function VendedorPainelLayoutInner({ children }: { children: React.ReactNode }) 
   }
 
   return (
-    <div className="seller-panel flex min-h-screen bg-luxury-panel-bg text-white">
+    <div className="seller-panel flex min-h-screen bg-luxury-panel-bg text-white" data-theme={theme}>
       {!isPdvRoute && (
         <div className="hidden lg:block lg:w-64 lg:flex-shrink-0">
           <Sidebar sellerId={ownerId} storeSlug={storeSlug} plan={plan} className="fixed left-0 top-0 z-30 h-screen w-64" />
@@ -88,7 +89,8 @@ function VendedorPainelLayoutInner({ children }: { children: React.ReactNode }) 
 
 export default function VendedorPainelLayout({ children }: { children: React.ReactNode }) {
   return (
-    <Suspense
+    <SellerPanelThemeProvider>
+      <Suspense
       fallback={
         <div className="flex min-h-screen items-center justify-center bg-luxury-onyx">
           <InlineLoading message="Carregando painel…" />
@@ -97,5 +99,6 @@ export default function VendedorPainelLayout({ children }: { children: React.Rea
     >
       <VendedorPainelLayoutInner>{children}</VendedorPainelLayoutInner>
     </Suspense>
+    </SellerPanelThemeProvider>
   );
 }

@@ -54,7 +54,7 @@ SYNC_SOURCES: dict[str, tuple[str, SyncFn]] = {
     "SORCERY": ("sorcerytcg", sync_sorcery),
     "UARENA": ("apitcg-github", sync_union_arena),
     "DBFW": ("apitcg-github", sync_dbfw),
-    "VANGUARD": ("tcgcsv", sync_vanguard),
+    "VANGUARD": ("tcgapi", sync_vanguard),  # fallback TcgCsvProvider se TCG_API_KEY ausente
 }
 
 

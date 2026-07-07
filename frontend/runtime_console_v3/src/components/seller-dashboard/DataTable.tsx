@@ -22,6 +22,8 @@ type Props<T> = {
   rowSelection?: RowSelectionState;
   onRowSelectionChange?: OnChangeFn<RowSelectionState>;
   getRowId?: (row: T) => string;
+  stickyHeader?: boolean;
+  density?: "comfortable" | "compact";
 };
 
 export function DataTable<T>({
@@ -33,6 +35,8 @@ export function DataTable<T>({
   rowSelection,
   onRowSelectionChange,
   getRowId,
+  stickyHeader,
+  density = "comfortable",
 }: Props<T>) {
   const [sorting, setSorting] = useState<SortingState>([]);
 
@@ -54,8 +58,10 @@ export function DataTable<T>({
 
   return (
     <div className="overflow-x-auto rounded-xl border border-white/10" data-testid={testId}>
-      <table className="w-full min-w-[640px] text-left text-sm">
-        <thead className="border-b border-white/10 bg-white/5">
+      <table className={`w-full min-w-[640px] text-left text-sm ${density === "compact" ? "text-xs" : ""}`}>
+        <thead
+          className={`border-b border-white/10 bg-white/5 ${stickyHeader ? "sticky top-0 z-10 backdrop-blur-sm" : ""}`}
+        >
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id}>
               {headerGroup.headers.map((header) => {
@@ -64,7 +70,10 @@ export function DataTable<T>({
                 return (
                   <th
                     key={header.id}
-                    className="px-4 py-3 font-medium text-luxury-mist"
+                    className={cn(
+                      "px-4 font-medium text-luxury-mist",
+                      density === "compact" ? "py-2" : "py-3",
+                    )}
                     aria-sort={
                       sorted === "asc" ? "ascending" : sorted === "desc" ? "descending" : undefined
                     }
@@ -99,7 +108,7 @@ export function DataTable<T>({
               className="border-b border-white/5 transition hover:bg-white/[0.03]"
             >
               {row.getVisibleCells().map((cell) => (
-                <td key={cell.id} className="px-4 py-3 text-white">
+                <td key={cell.id} className={cn("px-4 text-white", density === "compact" ? "py-2" : "py-3")}>
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </td>
               ))}
