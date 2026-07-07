@@ -20,7 +20,7 @@ export default function MyOrdersPage() {
   return (
     <MobileLayout>
       <div className="container mx-auto px-4 py-8">
-        <Link href="/marketplace" className="text-sm text-luxury-mist">
+        <Link href="/loja" className="text-sm text-luxury-mist">
           ← Marketplace
         </Link>
         <h1 className="mt-4 text-2xl font-bold">Meus pedidos</h1>

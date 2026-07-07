@@ -1,12 +1,18 @@
 "use client";
 
 import Link from "next/link";
+import { Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import { GameGrid } from "@/components/games/GameGrid";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
+import { InlineAlert } from "@/components/ui/async-state";
 import { Button } from "@/components/ui/button";
 
-export default function LojaPage() {
+function LojaPageContent() {
+  const searchParams = useSearchParams();
+  const fromMarketplace = searchParams.get("from") === "marketplace";
+
   return (
     <MobileLayout>
       <div className="border-b border-white/10 bg-gradient-to-b from-luxury-gold/5 to-transparent">
@@ -15,6 +21,13 @@ export default function LojaPage() {
             className="mb-4 text-luxury-mist"
             items={[{ label: "Início", href: "/" }, { label: "Loja" }]}
           />
+          {fromMarketplace && (
+            <InlineAlert
+              className="mb-4"
+              tone="info"
+              message="O hub de compras de singles TCG é a Loja. Produtos selados e decklists continuam em Produtos selados."
+            />
+          )}
           <h1 className="text-3xl font-bold text-luxury-frost">Marketplace TCG</h1>
           <p className="mt-2 max-w-2xl text-luxury-mist">
             Singles, boosters, decks e acessórios — navegue por jogo e categoria como no CardTrader,
@@ -25,7 +38,7 @@ export default function LojaPage() {
               <Link href="/loja/busca">Buscar singles</Link>
             </Button>
             <Button asChild variant="outline" className="border-white/15">
-              <Link href="/marketplace">Produtos selados</Link>
+              <Link href="/marketplace/produtos">Produtos selados</Link>
             </Button>
           </div>
         </div>
@@ -35,5 +48,13 @@ export default function LojaPage() {
         <GameGrid />
       </div>
     </MobileLayout>
+  );
+}
+
+export default function LojaPage() {
+  return (
+    <Suspense fallback={null}>
+      <LojaPageContent />
+    </Suspense>
   );
 }

@@ -47,8 +47,8 @@ export default function ProductDetailPage() {
   return (
     <MobileLayout>
       <div className="container mx-auto px-4 py-8">
-        <Link href="/marketplace" className="text-sm text-luxury-mist hover:text-luxury-gold">
-          ← Marketplace
+        <Link href="/marketplace/produtos" className="text-sm text-luxury-mist hover:text-luxury-gold">
+          ← Produtos selados
         </Link>
         {isLoading && <p className="mt-6 text-luxury-mist">Carregando…</p>}
         {product && (

@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Marketplace — filtros avançados", () => {
   test("aplica filtro de preço e atualiza URL", async ({ page }) => {
-    await page.goto("/marketplace", { waitUntil: "domcontentloaded" });
+    await page.goto("/marketplace/produtos", { waitUntil: "domcontentloaded" });
 
     await expect(page.getByTestId("marketplace-search")).toBeVisible({ timeout: 15_000 });
 
@@ -35,7 +35,7 @@ test.describe("Marketplace — filtros avançados", () => {
 
   test("mobile: drawer de filtros abre e fecha", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto("/marketplace", { waitUntil: "domcontentloaded" });
+    await page.goto("/marketplace/produtos", { waitUntil: "domcontentloaded" });
 
     const openBtn = page.getByTestId("marketplace-filters-open");
     await expect(openBtn).toBeVisible({ timeout: 15_000 });

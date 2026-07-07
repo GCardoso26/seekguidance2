@@ -32,6 +32,7 @@ const securityHeaders = [
 const marketplaceRedirects = [
   { source: "/catalog/search", destination: "/loja/busca", permanent: true },
   { source: "/catalog/search/:path*", destination: "/loja/busca", permanent: true },
+  { source: "/marketplace", destination: "/loja?from=marketplace", permanent: false },
   { source: "/games/:game", destination: "/:game", permanent: true },
   { source: "/loja/:game/busca", destination: "/:game/cards", permanent: false },
   { source: "/cards/:id", destination: "/loja/cartas/:id", permanent: true },

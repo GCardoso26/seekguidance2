@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Syntax search avançado", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/marketplace", { waitUntil: "domcontentloaded" });
+    await page.goto("/marketplace/produtos", { waitUntil: "domcontentloaded" });
     await expect(page.getByTestId("marketplace-search")).toBeVisible({ timeout: 15_000 });
   });
 

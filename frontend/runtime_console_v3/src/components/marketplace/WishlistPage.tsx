@@ -43,7 +43,7 @@ export function WishlistPage() {
           Salve produtos no marketplace para acompanhar depois.
         </p>
         <Link
-          href="/marketplace"
+          href="/loja"
           className="mt-6 inline-block rounded-lg bg-luxury-gold px-6 py-3 text-sm font-semibold text-luxury-onyx"
         >
           Explorar marketplace

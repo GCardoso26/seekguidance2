@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { useState } from "react";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import { ProductSkeleton } from "@/components/marketplace/ProductSkeleton";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 
 const MarketplaceShopBrowse = dynamic(
   () => import("@/components/marketplace/MarketplaceShopBrowse").then((m) => m.MarketplaceShopBrowse),
@@ -16,32 +17,37 @@ const MarketplaceDecklistsTab = dynamic(
   { ssr: false },
 );
 
-export default function MarketplacePage() {
+export default function MarketplaceProdutosPage() {
   const [tab, setTab] = useState<"shop" | "decklists">("shop");
 
   return (
     <MobileLayout>
       <div className="container mx-auto px-4 py-8">
+        <Breadcrumbs
+          className="mb-4 text-luxury-mist"
+          items={[
+            { label: "Início", href: "/" },
+            { label: "Loja", href: "/loja" },
+            { label: "Produtos selados" },
+          ]}
+        />
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-luxury-frost">Marketplace</h1>
-            <p className="text-sm text-luxury-mist">Produtos TCG e decklists de torneio</p>
+            <h1 className="text-2xl font-bold text-luxury-frost">Produtos selados</h1>
+            <p className="text-sm text-luxury-mist">Boosters, acessórios e decklists de torneio</p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
+            <Link href="/loja" className="rounded-lg border border-white/10 px-3 py-2 text-sm">
+              Singles TCG
+            </Link>
             <Link href="/marketplace/orders" className="rounded-lg border border-white/10 px-3 py-2 text-sm">
               Meus pedidos
             </Link>
-            <Link href="/marketplace/cart" className="rounded-lg border border-white/10 px-3 py-2 text-sm">
+            <Link href="/carrinho" className="rounded-lg border border-white/10 px-3 py-2 text-sm">
               Carrinho
             </Link>
             <Link href="/wishlist" className="rounded-lg border border-white/10 px-3 py-2 text-sm">
               Wishlist
-            </Link>
-            <Link
-              href="/store/dashboard"
-              className="rounded-lg bg-luxury-gold px-3 py-2 text-sm font-semibold text-luxury-onyx"
-            >
-              Minha loja
             </Link>
           </div>
         </div>

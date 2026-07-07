@@ -11,6 +11,11 @@ test.describe("Header navigation", () => {
     await expect(page.getByTestId("nav-trade")).toBeVisible();
   });
 
+  test("Comprar navega para a Loja", async ({ page }) => {
+    await page.getByTestId("nav-buy").click();
+    await expect(page).toHaveURL(/\/loja/);
+  });
+
   test("game picker abre grid de jogos", async ({ page }) => {
     await page.getByTestId("header-game-picker").click();
     await expect(page.getByRole("link", { name: /Magic|Lorcana|Pokémon/i }).first()).toBeVisible();

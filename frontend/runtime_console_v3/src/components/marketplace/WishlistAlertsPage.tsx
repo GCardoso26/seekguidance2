@@ -29,7 +29,7 @@ export function WishlistAlertsPage() {
           Clique no sino em um produto para ser avisado quando o preço cair.
         </p>
         <Link
-          href="/marketplace"
+          href="/loja"
           className="mt-6 inline-block rounded-lg bg-luxury-gold px-6 py-3 text-sm font-semibold text-luxury-onyx"
         >
           Explorar marketplace

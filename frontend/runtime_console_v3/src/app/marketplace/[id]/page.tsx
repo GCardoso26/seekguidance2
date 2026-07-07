@@ -26,9 +26,9 @@ export default function DecklistDetailPage() {
       <MobileLayout>
         <div className="container mx-auto px-4 py-8 text-center">
           <p className="text-red-400">Decklist não encontrada</p>
-          <Link href="/marketplace">
+          <Link href="/marketplace/produtos">
             <Button variant="outline" className="mt-4 border-white/10">
-              Voltar ao marketplace
+              Voltar aos produtos selados
             </Button>
           </Link>
         </div>
@@ -39,8 +39,8 @@ export default function DecklistDetailPage() {
   return (
     <MobileLayout>
       <div className="container mx-auto max-w-4xl px-4 py-8">
-        <Link href="/marketplace" className="text-sm text-luxury-mist">
-          ← Marketplace
+        <Link href="/marketplace/produtos" className="text-sm text-luxury-mist">
+          ← Produtos selados
         </Link>
 
         <div className="mb-6 mt-2">

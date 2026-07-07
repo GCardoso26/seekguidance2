@@ -30,7 +30,7 @@ export default function StorePage() {
   return (
     <MobileLayout>
       <div className="container mx-auto px-4 py-8">
-        <Link href="/marketplace" className="text-sm text-luxury-mist">← Marketplace</Link>
+        <Link href="/marketplace/produtos" className="text-sm text-luxury-mist">← Produtos selados</Link>
         {isLoading && <p className="mt-6 text-luxury-mist">Carregando…</p>}
         {store && (
           <>
