@@ -1,3 +1,4 @@
+export { StoreHealthScoreWidget } from "./StoreHealthScoreWidget";
 export { FulfillmentSlaWidget } from "./FulfillmentSlaWidget";
 export { LowStockWidget } from "./LowStockWidget";
 export { MetricCardsRow } from "./MetricCardsRow";

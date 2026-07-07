@@ -10,6 +10,7 @@ import {
   MetricCardsRow,
   QuickActionsBar,
   RecentOrdersWidget,
+  StoreHealthScoreWidget,
   TicketsWidget,
 } from "@/components/seller-dashboard/overview";
 import { OrderDetailDrawer } from "@/components/seller-orders";
@@ -31,7 +32,7 @@ export default function VendedorPainelDashboardPage() {
   const { user } = useJudgeAuth();
   const { hasStore, isLoading } = useSellerStore();
   const { data: overview, isLoading: overviewLoading } = useDashboardOverview(hasStore);
-  const { data: accountStatus } = useAccountStatus();
+  const { data: accountStatus, isLoading: accountLoading } = useAccountStatus();
   const [drawerOrderId, setDrawerOrderId] = useState<string | null>(null);
 
   const kycStatus = accountStatus?.merchant?.kyc_status;
@@ -82,6 +83,14 @@ export default function VendedorPainelDashboardPage() {
             <MerchantKycCard />
           </div>
         )}
+
+        <StoreHealthScoreWidget
+          kycStatus={kycStatus}
+          sla={overview?.fulfillment_sla}
+          lowStockCount={overview?.low_stock?.length ?? 0}
+          openTickets={overview?.open_tickets ?? 0}
+          isLoading={overviewLoading || accountLoading}
+        />
 
         <MetricCardsRow metrics={overview?.metrics} />
 
