@@ -1,10 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { MobileLayout } from "@/components/layout/MobileLayout";
-import { useUserRole } from "@/hooks/useUserRole";
+import { PageHeader, PageShell } from "@/components/seller-dashboard/PageShell";
 
 type ReportRow = {
   id: string;
@@ -18,7 +16,6 @@ type ReportRow = {
 };
 
 export default function AdminModerationPage() {
-  const { isAdmin, loading } = useUserRole();
   const qc = useQueryClient();
   const [status, setStatus] = useState("pending");
 
@@ -29,7 +26,6 @@ export default function AdminModerationPage() {
       if (!res.ok) return [];
       return res.json() as Promise<ReportRow[]>;
     },
-    enabled: isAdmin,
   });
 
   const act = async (
@@ -45,79 +41,67 @@ export default function AdminModerationPage() {
     void qc.invalidateQueries({ queryKey: ["moderation"] });
   };
 
-  if (loading) return null;
-  if (!isAdmin) {
-    return (
-      <MobileLayout>
-        <p className="p-8 text-center text-luxury-mist">Acesso restrito a administradores.</p>
-      </MobileLayout>
-    );
-  }
-
   return (
-    <MobileLayout>
-      <div className="container mx-auto max-w-3xl px-4 py-8">
-        <Link href="/admin" className="text-sm text-luxury-mist">
-          ← Admin
-        </Link>
-        <h1 className="mt-4 text-2xl font-light">Moderação</h1>
-        <div className="mt-4 flex gap-2">
-          {(["pending", "resolved", "dismissed", "all"] as const).map((s) => (
-            <button
-              key={s}
-              type="button"
-              onClick={() => setStatus(s)}
-              className={`rounded-lg px-3 py-1 text-xs capitalize ${status === s ? "bg-luxury-gold/20 text-luxury-gold-light" : "text-luxury-mist"}`}
-            >
-              {s === "all" ? "Todos" : s}
-            </button>
-          ))}
-        </div>
-        <ul className="mt-6 space-y-3">
-          {items.map((r) => (
-            <li key={r.id} className="luxury-card rounded-xl p-4">
-              <p className="font-medium">{r.community_posts?.title ?? "Post denunciado"}</p>
-              <p className="mt-1 text-xs text-luxury-mist">
-                {r.reason} · {r.status} · {new Date(r.created_at).toLocaleString("pt-BR")}
-              </p>
-              <p className="mt-2 line-clamp-3 text-sm text-luxury-mist">{r.community_posts?.content}</p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={() => void act(r.id, "approve")}
-                  className="rounded-lg bg-emerald-500/20 px-3 py-1 text-xs text-emerald-300"
-                >
-                  Aprovar
-                </button>
-                <button
-                  type="button"
-                  onClick={() => void act(r.id, "hide")}
-                  className="rounded-lg bg-amber-500/20 px-3 py-1 text-xs text-amber-200"
-                >
-                  Ocultar
-                </button>
-                <button
-                  type="button"
-                  onClick={() => void act(r.id, "delete")}
-                  className="rounded-lg bg-red-500/20 px-3 py-1 text-xs text-red-300"
-                >
-                  Deletar
-                </button>
-                {r.community_posts?.author_id && (
-                  <button
-                    type="button"
-                    onClick={() => void act(r.id, "ban", r.community_posts!.author_id!)}
-                    className="rounded-lg bg-white/10 px-3 py-1 text-xs text-luxury-mist"
-                  >
-                    Banir autor
-                  </button>
-                )}
-              </div>
-            </li>
-          ))}
-          {items.length === 0 && <li className="text-sm text-luxury-mist">Nenhuma denúncia neste filtro.</li>}
-        </ul>
+    <PageShell>
+      <PageHeader title="Moderação" description="Denúncias da comunidade e ações de moderação." />
+
+      <div className="flex gap-2">
+        {(["pending", "resolved", "dismissed", "all"] as const).map((s) => (
+          <button
+            key={s}
+            type="button"
+            onClick={() => setStatus(s)}
+            className={`rounded-lg px-3 py-1 text-xs capitalize ${status === s ? "bg-luxury-gold/20 text-luxury-gold" : "text-luxury-mist"}`}
+          >
+            {s === "all" ? "Todos" : s}
+          </button>
+        ))}
       </div>
-    </MobileLayout>
+
+      <ul className="space-y-3">
+        {items.map((r) => (
+          <li key={r.id} className="rounded-xl border border-white/10 bg-white/5 p-4">
+            <p className="font-medium">{r.community_posts?.title ?? "Post denunciado"}</p>
+            <p className="mt-1 text-xs text-luxury-mist">
+              {r.reason} · {r.status} · {new Date(r.created_at).toLocaleString("pt-BR")}
+            </p>
+            <p className="mt-2 line-clamp-3 text-sm text-luxury-mist">{r.community_posts?.content}</p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => void act(r.id, "approve")}
+                className="rounded-lg bg-emerald-500/20 px-3 py-1 text-xs text-emerald-300"
+              >
+                Aprovar
+              </button>
+              <button
+                type="button"
+                onClick={() => void act(r.id, "hide")}
+                className="rounded-lg bg-amber-500/20 px-3 py-1 text-xs text-amber-200"
+              >
+                Ocultar
+              </button>
+              <button
+                type="button"
+                onClick={() => void act(r.id, "delete")}
+                className="rounded-lg bg-red-500/20 px-3 py-1 text-xs text-red-300"
+              >
+                Deletar
+              </button>
+              {r.community_posts?.author_id && (
+                <button
+                  type="button"
+                  onClick={() => void act(r.id, "ban", r.community_posts!.author_id!)}
+                  className="rounded-lg bg-white/10 px-3 py-1 text-xs text-luxury-mist"
+                >
+                  Banir autor
+                </button>
+              )}
+            </div>
+          </li>
+        ))}
+        {items.length === 0 && <li className="text-sm text-luxury-mist">Nenhuma denúncia neste filtro.</li>}
+      </ul>
+    </PageShell>
   );
 }

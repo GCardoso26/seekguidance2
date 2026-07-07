@@ -2,9 +2,8 @@
 
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { MobileLayout } from "@/components/layout/MobileLayout";
+import { AsyncPageBody, PageHeader, PageShell } from "@/components/seller-dashboard/PageShell";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useUserRole } from "@/hooks/useUserRole";
 import { formatCurrency } from "@/lib/format-currency";
 
 type RetentionData = {
@@ -32,50 +31,34 @@ type RetentionData = {
 };
 
 export default function RetentionDashboardPage() {
-  const { isAdmin, loading: roleLoading } = useUserRole();
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["retention", 30],
     queryFn: async () => {
       const res = await fetch("/api/admin/analytics/retention?days=30");
       if (!res.ok) throw new Error("Retenção indisponível");
       return res.json() as Promise<RetentionData>;
     },
-    enabled: isAdmin,
   });
 
-  if (roleLoading) return null;
-
-  if (!isAdmin) {
-    return (
-      <MobileLayout>
-        <div className="p-8 text-red-400">Acesso restrito a administradores.</div>
-      </MobileLayout>
-    );
-  }
-
   return (
-    <MobileLayout>
-      <div className="container mx-auto max-w-3xl px-4 py-8">
-        <Link href="/admin" className="text-sm text-luxury-mist">
-          ← Admin
-        </Link>
-        <h1 className="mt-2 text-2xl font-bold text-luxury-frost">Retenção — Judge-TCG</h1>
-        <p className="text-sm text-luxury-mist">Funil, Liga Pass e GMV — últimos 30 dias</p>
+    <PageShell>
+      <PageHeader
+        title="Retenção"
+        description="Funil, Liga Pass e GMV — últimos 30 dias"
+      />
 
-        {isLoading && <p className="mt-6 text-luxury-mist">Carregando…</p>}
-        {isError && <p className="mt-6 text-red-400">Não foi possível carregar métricas.</p>}
-
+      <AsyncPageBody isLoading={isLoading} isError={isError} onRetry={() => void refetch()}>
         {data && (
           <>
-            <div className="mt-6 grid gap-4 sm:grid-cols-3">
+            <div className="grid gap-4 sm:grid-cols-3">
               <StatCard title="WAU" value={String(data.wau)} />
               <StatCard title="MAU" value={String(data.mau)} />
               <StatCard title="Sessão média" value={`${data.avg_session_seconds}s`} />
             </div>
 
-            <Card className="mt-6 border-white/10 bg-white/5">
+            <Card className="border-white/10 bg-white/5">
               <CardHeader>
-                <CardTitle className="text-luxury-frost">Funil de conversão (30 dias)</CardTitle>
+                <CardTitle>Funil de conversão (30 dias)</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <FunnelBar label="Page views" value={data.funnel.page_views} max={data.funnel.page_views} />
@@ -106,9 +89,9 @@ export default function RetentionDashboardPage() {
               </CardContent>
             </Card>
 
-            <Card className="mt-6 border-white/10 bg-white/5">
+            <Card className="border-white/10 bg-white/5">
               <CardHeader>
-                <CardTitle className="text-luxury-frost">Distribuição Liga Pass</CardTitle>
+                <CardTitle>Distribuição Liga Pass</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
@@ -122,9 +105,9 @@ export default function RetentionDashboardPage() {
               </CardContent>
             </Card>
 
-            <Card className="mt-6 border-white/10 bg-white/5">
+            <Card className="border-white/10 bg-white/5">
               <CardHeader>
-                <CardTitle className="text-luxury-frost">GMV — {formatCurrency(data.gmv_brl)}</CardTitle>
+                <CardTitle>GMV — {formatCurrency(data.gmv_brl)}</CardTitle>
               </CardHeader>
               <CardContent>
                 <h3 className="mb-3 text-sm font-semibold text-luxury-mist">Top vendedores</h3>
@@ -147,13 +130,13 @@ export default function RetentionDashboardPage() {
               </CardContent>
             </Card>
 
-            <Link href="/admin/dashboard" className="mt-8 inline-block text-sm text-luxury-gold">
+            <Link href="/admin/dashboard" className="inline-block text-sm text-luxury-gold hover:underline">
               Dashboard marketplace →
             </Link>
           </>
         )}
-      </div>
-    </MobileLayout>
+      </AsyncPageBody>
+    </PageShell>
   );
 }
 

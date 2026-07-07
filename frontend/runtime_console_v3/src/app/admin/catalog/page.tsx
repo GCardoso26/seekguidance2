@@ -1,12 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { AppShell } from "@/components/layout/app-shell";
+import { PageHeader, PageShell } from "@/components/seller-dashboard/PageShell";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useUserRole } from "@/hooks/useUserRole";
 import { DEFAULT_GAME_ORDER, type CatalogGameApi } from "@/lib/games";
 import { RefreshCw } from "lucide-react";
 
@@ -29,7 +27,6 @@ function formatSyncDate(value: string | null | undefined): string | null {
 }
 
 export default function AdminCatalogPage() {
-  const { isAdmin, loading } = useUserRole();
   const queryClient = useQueryClient();
   const [message, setMessage] = useState<string | null>(null);
 
@@ -49,52 +46,20 @@ export default function AdminCatalogPage() {
         method: "POST",
         credentials: "include",
       });
-      const text = await res.text();
-      let payload: { detail?: string; error?: string } = {};
-      try {
-        payload = text ? (JSON.parse(text) as typeof payload) : {};
-      } catch {
-        payload = { detail: text };
-      }
       if (!res.ok) {
-        if (res.status === 401) {
-          throw new Error("Sessão expirada. Faça login novamente.");
-        }
-        if (res.status === 504) {
-          throw new Error(
-            "Sync demorou demais (timeout). Use «Sync rápido» ou aguarde a API no Render terminar.",
-          );
-        }
-        throw new Error(payload.detail || payload.error || `Sync falhou (${res.status})`);
+        const body = await res.text();
+        throw new Error(body || `Sync falhou (${res.status})`);
       }
-      return JSON.parse(text || "{}");
+      return res.json();
     },
-    onSuccess: (data, vars) => {
-      setMessage(`Sync ${vars.slug}: ${data.synced ?? 0} cartas`);
-      queryClient.invalidateQueries({ queryKey: ["catalog-games"] });
-      queryClient.invalidateQueries({ queryKey: ["catalog-health"] });
+    onSuccess: (_data, vars) => {
+      setMessage(`Sync ${vars.full ? "completo" : "rápido"} iniciado para ${vars.slug}.`);
+      void queryClient.invalidateQueries({ queryKey: ["catalog-games"] });
     },
-    onError: (err: Error) => setMessage(err.message),
+    onError: (e) => {
+      setMessage(e instanceof Error ? e.message : "Erro no sync");
+    },
   });
-
-  if (loading) {
-    return (
-      <AppShell>
-        <p className="text-muted-foreground">A verificar permissões…</p>
-      </AppShell>
-    );
-  }
-
-  if (!isAdmin) {
-    return (
-      <AppShell>
-        <p className="text-destructive">Acesso restrito.</p>
-        <Link href="/admin/console" className="mt-4 inline-block text-sm text-primary underline">
-          Voltar
-        </Link>
-      </AppShell>
-    );
-  }
 
   const sorted = [...games]
     .filter((game) => game.slug && DEFAULT_GAME_ORDER.includes(game.slug as (typeof DEFAULT_GAME_ORDER)[number]))
@@ -105,28 +70,20 @@ export default function AdminCatalogPage() {
     });
 
   return (
-    <AppShell>
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold">Catálogo de TCGs</h1>
-          <p className="text-sm text-muted-foreground">
-            Sincronização manual por jogo. «Sync rápido» importa um lote pequeno; «Sync completo» pode levar vários
-            minutos e falhar por timeout no plano free.
-          </p>
-        </div>
-        <Link href="/admin/console" className="text-sm text-primary hover:underline">
-          ← Console
-        </Link>
-      </div>
+    <PageShell>
+      <PageHeader
+        title="Catálogo de TCGs"
+        description="Sincronização manual por jogo. «Sync rápido» importa um lote pequeno; «Sync completo» pode levar vários minutos."
+      />
 
       {isError && (
-        <p className="mb-4 rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-2 text-sm text-destructive">
+        <p className="rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-2 text-sm text-red-300">
           {(error as Error).message}
         </p>
       )}
 
       {message && (
-        <p className="mb-4 rounded-lg border bg-muted/50 px-4 py-2 text-sm" role="status">
+        <p className="rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm" role="status">
           {message}
         </p>
       )}
@@ -135,22 +92,21 @@ export default function AdminCatalogPage() {
         {sorted.map((game) => {
           const lastSync = formatSyncDate(game.last_sync_at);
           return (
-            <Card key={game.slug}>
+            <Card key={game.slug} className="border-white/10 bg-white/5">
               <CardHeader className="pb-2">
                 <CardTitle className="text-base">{game.display_name ?? game.name ?? game.slug}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3 text-sm">
-                <p className="text-muted-foreground">
+                <p className="text-luxury-mist">
                   {formatCardCount(game.card_count)} cartas
                   {game.api_source && ` · ${game.api_source}`}
                 </p>
-                {lastSync && (
-                  <p className="text-xs text-muted-foreground">Último sync: {lastSync}</p>
-                )}
+                {lastSync && <p className="text-xs text-luxury-mist">Último sync: {lastSync}</p>}
                 <div className="flex gap-2">
                   <Button
                     size="sm"
                     variant="outline"
+                    className="border-white/10"
                     disabled={syncMutation.isPending}
                     onClick={() => syncMutation.mutate({ slug: game.slug, full: false })}
                   >
@@ -159,6 +115,7 @@ export default function AdminCatalogPage() {
                   </Button>
                   <Button
                     size="sm"
+                    className="bg-luxury-gold text-luxury-onyx"
                     disabled={syncMutation.isPending}
                     onClick={() => syncMutation.mutate({ slug: game.slug, full: true })}
                   >
@@ -170,6 +127,6 @@ export default function AdminCatalogPage() {
           );
         })}
       </div>
-    </AppShell>
+    </PageShell>
   );
 }

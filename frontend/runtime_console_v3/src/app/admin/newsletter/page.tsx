@@ -1,16 +1,13 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { MobileLayout } from "@/components/layout/MobileLayout";
+import { PageHeader, PageShell } from "@/components/seller-dashboard/PageShell";
 import { Button } from "@/components/ui/button";
-import { useUserRole } from "@/hooks/useUserRole";
 import { renderSimpleMarkdown } from "@/lib/markdown";
 import { showToast } from "@/lib/toast";
 
 export default function AdminNewsletterPage() {
-  const { isAdmin, loading } = useUserRole();
   const qc = useQueryClient();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -23,7 +20,6 @@ export default function AdminNewsletterPage() {
       if (!res.ok) return [];
       return res.json();
     },
-    enabled: isAdmin,
   });
 
   const create = async () => {
@@ -46,66 +42,57 @@ export default function AdminNewsletterPage() {
     }
   };
 
-  if (loading) return null;
-  if (!isAdmin) {
-    return (
-      <MobileLayout>
-        <p className="p-8 text-center text-luxury-mist">Acesso restrito a administradores.</p>
-      </MobileLayout>
-    );
-  }
-
   return (
-    <MobileLayout>
-      <div className="container mx-auto max-w-2xl px-4 py-8">
-        <Link href="/admin" className="text-sm text-luxury-mist">
-          ← Admin
-        </Link>
-        <h1 className="mt-4 text-2xl font-light">Newsletter</h1>
-        <div className="luxury-card mt-6 space-y-3 rounded-xl p-6">
-          <input
-            placeholder="Título"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="luxury-input w-full"
-          />
-          <textarea
-            placeholder="Conteúdo (markdown)"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            rows={8}
-            className="luxury-input w-full"
-          />
-          <div className="flex gap-2 text-xs">
-            <button type="button" onClick={() => setPreview(false)} className={preview ? "text-luxury-mist" : "text-luxury-gold"}>
-              Editar
-            </button>
-            <button type="button" onClick={() => setPreview(true)} className={preview ? "text-luxury-gold" : "text-luxury-mist"}>
-              Preview
-            </button>
-          </div>
-          {preview && (
-            <div className="rounded-lg border border-white/10 p-3 text-sm" dangerouslySetInnerHTML={{ __html: renderSimpleMarkdown(content) }} />
-          )}
-          <Button className="bg-luxury-gold text-luxury-onyx" onClick={() => void create()}>
-            Salvar rascunho
-          </Button>
+    <PageShell className="max-w-2xl">
+      <PageHeader title="Newsletter" description="Rascunhos e envio de edições da newsletter." />
+
+      <div className="space-y-3 rounded-xl border border-white/10 bg-white/5 p-6">
+        <input
+          placeholder="Título"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          className="luxury-input w-full"
+        />
+        <textarea
+          placeholder="Conteúdo (markdown)"
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          rows={8}
+          className="luxury-input w-full"
+        />
+        <div className="flex gap-2 text-xs">
+          <button type="button" onClick={() => setPreview(false)} className={preview ? "text-luxury-mist" : "text-luxury-gold"}>
+            Editar
+          </button>
+          <button type="button" onClick={() => setPreview(true)} className={preview ? "text-luxury-gold" : "text-luxury-mist"}>
+            Preview
+          </button>
         </div>
-        <section className="mt-8 space-y-3">
-          <h2 className="font-medium">Edições</h2>
-          {drafts.map((d: { id: string; title: string; sentAt?: string | null }) => (
-            <div key={d.id} className="flex items-center justify-between rounded-lg border border-white/10 p-3">
-              <span>{d.title}</span>
-              {!d.sentAt && (
-                <Button size="sm" variant="outline" className="border-white/10" onClick={() => void send(d.id)}>
-                  Enviar
-                </Button>
-              )}
-              {d.sentAt && <span className="text-xs text-luxury-mist">Enviada</span>}
-            </div>
-          ))}
-        </section>
+        {preview && (
+          <div
+            className="rounded-lg border border-white/10 p-3 text-sm"
+            dangerouslySetInnerHTML={{ __html: renderSimpleMarkdown(content) }}
+          />
+        )}
+        <Button className="bg-luxury-gold text-luxury-onyx" onClick={() => void create()}>
+          Salvar rascunho
+        </Button>
       </div>
-    </MobileLayout>
+
+      <section className="space-y-3">
+        <h2 className="font-medium">Edições</h2>
+        {drafts.map((d: { id: string; title: string; sentAt?: string | null }) => (
+          <div key={d.id} className="flex items-center justify-between rounded-lg border border-white/10 p-3">
+            <span>{d.title}</span>
+            {!d.sentAt && (
+              <Button size="sm" variant="outline" className="border-white/10" onClick={() => void send(d.id)}>
+                Enviar
+              </Button>
+            )}
+            {d.sentAt && <span className="text-xs text-luxury-mist">Enviada</span>}
+          </div>
+        ))}
+      </section>
+    </PageShell>
   );
 }
