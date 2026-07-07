@@ -9,6 +9,7 @@ import type { SearchProvider } from "@/features/search/providers/types";
 export const ALL_SEARCH_PROVIDERS: SearchProvider[] = [
   cardSearchProvider,
   sellerSearchProvider,
+  sellerAiSearchProvider,
   ticketSearchProvider,
   navigationSearchProvider,
   rulesSearchProvider,
