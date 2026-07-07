@@ -38,6 +38,7 @@ const SECTION_LABELS: Record<string, string> = {
   listagens: "Anúncios",
   operacao: "Operação",
   inbox: "Inbox",
+  insights: "Insights",
   nova: "Novo anúncio",
   onboarding: "Onboarding",
   pro: "Pro",

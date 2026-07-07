@@ -1,5 +1,6 @@
 export type DashboardWidgetId =
   | "command_center"
+  | "seller_ai"
   | "kpi_strip"
   | "health"
   | "reputation"
@@ -21,6 +22,7 @@ export type WorkspacePreferences = {
 
 export const DASHBOARD_WIDGET_LABELS: Record<DashboardWidgetId, string> = {
   command_center: "Centro de comando",
+  seller_ai: "Assistente da Loja",
   kpi_strip: "Indicadores (KPIs)",
   health: "Saúde da loja",
   reputation: "Reputação",
@@ -31,6 +33,7 @@ export const DASHBOARD_WIDGET_LABELS: Record<DashboardWidgetId, string> = {
 
 export const DEFAULT_WIDGET_ORDER: DashboardWidgetId[] = [
   "command_center",
+  "seller_ai",
   "kpi_strip",
   "health",
   "reputation",

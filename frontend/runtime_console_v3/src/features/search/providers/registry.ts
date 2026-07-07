@@ -1,3 +1,4 @@
+import { sellerAiSearchProvider } from "@/features/search/providers/sellerAiSearchProvider";
 import { cardSearchProvider } from "@/features/search/providers/cardSearchProvider";
 import { judgeSearchProvider, rulesSearchProvider } from "@/features/search/providers/rulesSearchProvider";
 import { navigationSearchProvider } from "@/features/search/providers/navigationSearchProvider";

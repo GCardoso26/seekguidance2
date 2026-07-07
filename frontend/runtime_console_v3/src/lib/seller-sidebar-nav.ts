@@ -26,6 +26,7 @@ import {
 
   Settings,
 
+  Sparkles,
   ShoppingCart,
 
   Store,
@@ -97,6 +98,8 @@ export const SIDEBAR_ITEMS: SidebarItem[] = [
   { id: "operacao", label: "Operação", icon: Zap, href: "/vendedor/painel/operacao" },
 
   { id: "inbox", label: "Inbox", icon: Inbox, href: "/vendedor/painel/inbox" },
+
+  { id: "insights", label: "Insights", icon: Sparkles, href: "/vendedor/painel/insights", feature: "analytics" },
 
   { id: "listings", label: "Anúncios", icon: Store, href: "/vendedor/painel/listagens" },
 

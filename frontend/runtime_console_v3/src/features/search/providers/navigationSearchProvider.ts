@@ -17,6 +17,7 @@ const NAV_ITEMS: NavItem[] = [
   { title: "Nova listagem", href: "/vendedor/painel/listagens/nova", keywords: ["cadastrar", "nova", "carta"], surfaces: ["seller"], requiresSeller: true },
   { title: "Tickets", href: "/vendedor/painel/atendimento/tickets", keywords: ["ticket", "suporte", "atendimento"], surfaces: ["seller"], requiresSeller: true },
   { title: "Inbox", href: "/vendedor/painel/inbox", keywords: ["inbox", "notificacoes"], surfaces: ["seller"], requiresSeller: true },
+  { title: "Insights — Assistente", href: "/vendedor/painel/insights", keywords: ["insights", "assistente", "ia", "ai", "copiloto"], surfaces: ["seller"], requiresSeller: true },
   { title: "Estoque", href: "/vendedor/painel/estoque", keywords: ["estoque", "inventory", "csv"], surfaces: ["seller"], requiresSeller: true },
   { title: "Financeiro", href: "/vendedor/painel/financeiro/receitas", keywords: ["financeiro", "receita", "stripe"], surfaces: ["seller"], requiresSeller: true },
   { title: "Configurações", href: "/vendedor/painel/configuracoes", keywords: ["config", "settings"], surfaces: ["seller"], requiresSeller: true },
