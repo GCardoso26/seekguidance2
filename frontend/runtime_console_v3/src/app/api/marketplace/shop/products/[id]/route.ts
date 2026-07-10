@@ -6,10 +6,16 @@ export async function GET(_req: NextRequest, ctx: { params: Promise<{ id: string
   try {
     const res = await fetch(
       `${TOURNAMENT_API_BASE}/runtime/judge/marketplace/shop/products/${encodeURIComponent(id)}`,
-      { cache: "no-store" },
+      { next: { revalidate: 120 } },
     );
     const text = await res.text();
-    return new NextResponse(text, { status: res.status, headers: { "Content-Type": "application/json" } });
+    return new NextResponse(text, {
+      status: res.status,
+      headers: {
+        "Content-Type": "application/json",
+        "Cache-Control": "public, s-maxage=120, stale-while-revalidate=600",
+      },
+    });
   } catch {
     return NextResponse.json({ detail: "API indisponível" }, { status: 503 });
   }

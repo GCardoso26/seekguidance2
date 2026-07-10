@@ -8,6 +8,7 @@ const baseOverview: DashboardOverviewResponse = {
     to_separate: 0,
     shipped_today: 0,
     revenue_today_cents: 0,
+    revenue_delta_cents: 0,
   },
   fulfillment_sla: {
     picking_overdue: 0,
@@ -18,7 +19,13 @@ const baseOverview: DashboardOverviewResponse = {
   low_stock: [],
   open_tickets: 0,
   recent_orders: [],
-  reputation: { trust_score: 85 },
+  reputation: {
+    trust_score: 85,
+    seller_level: "gold",
+    badges: [],
+    alerts_count: 0,
+  },
+  generated_at: new Date().toISOString(),
 };
 
 describe("buildOperationalActions", () => {
@@ -66,7 +73,12 @@ describe("buildOperationalActions", () => {
     const actions = buildOperationalActions(
       {
         ...baseOverview,
-        reputation: { trust_score: 55 },
+        reputation: {
+          trust_score: 55,
+          seller_level: "bronze",
+          badges: [],
+          alerts_count: 2,
+        },
       },
       { inactiveListings: 4, pendingPayoutCents: 5000 },
     );

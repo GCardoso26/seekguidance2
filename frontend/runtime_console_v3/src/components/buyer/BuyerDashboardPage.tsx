@@ -16,6 +16,7 @@ import { useBuyerDashboard, useBuyerInsights } from "@/hooks/useBuyerExperience"
 import { useJudgeAuth } from "@/features/auth/AuthProvider";
 import { Button } from "@/components/ui/button";
 import { trackEvent } from "@/lib/analytics";
+import { SkipToMain } from "@/components/a11y/SkipToMain";
 
 function StatCard({
   label,
@@ -76,7 +77,8 @@ export function BuyerDashboardPage() {
   const topInsights = (insights?.insights ?? []).slice(0, 3);
 
   return (
-    <div className="space-y-8" data-testid="buyer-dashboard">
+    <div className="space-y-8" id="main-content" data-testid="buyer-dashboard">
+      <SkipToMain />
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-luxury-frost">Meu painel</h1>

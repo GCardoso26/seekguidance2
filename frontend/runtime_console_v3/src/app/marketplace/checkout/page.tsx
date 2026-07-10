@@ -18,6 +18,7 @@ import { formatShopPrice } from "@/lib/marketplace-shop";
 import { trackEvent } from "@/lib/analytics";
 import { CheckoutReservationBanner } from "@/components/checkout/CheckoutReservationBanner";
 import { EscrowToggle } from "@/components/escrow/EscrowToggle";
+import { SkipToMain } from "@/components/a11y/SkipToMain";
 import type { CheckoutSessionInfo } from "@/types/seller";
 
 const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? "";
@@ -248,7 +249,8 @@ export default function CheckoutPage() {
 
   return (
     <MobileLayout>
-      <div className="container mx-auto max-w-6xl px-4 py-8">
+      <SkipToMain />
+      <div className="container mx-auto max-w-6xl px-4 py-8" id="main-content">
         <Link href="/carrinho" className="text-sm text-luxury-mist hover:text-luxury-frost">
           ← Carrinho
         </Link>

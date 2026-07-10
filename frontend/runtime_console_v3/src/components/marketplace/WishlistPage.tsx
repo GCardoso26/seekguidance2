@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { ProductCard } from "@/components/marketplace/ProductCard";
 import { useRemoveFromWishlist, useWishlist } from "@/hooks/useWishlist";
@@ -11,6 +11,7 @@ import {
   useShareWishlistList,
   useWishlistListDetail,
   useWishlistLists,
+  useReorderWishlistList,
 } from "@/hooks/useWishlistLists";
 import { addProductToCart } from "@/lib/marketplace-shop";
 import { showToast } from "@/lib/toast";
@@ -25,6 +26,47 @@ import { trackEvent } from "@/lib/analytics";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import { Input } from "@/components/ui/input";
 import type { ShopProduct } from "@/lib/marketplace-shop";
+import { SkipToMain } from "@/components/a11y/SkipToMain";
+import {
+  DndContext,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import { SortableContext, rectSortingStrategy, useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { GripVertical } from "lucide-react";
+
+function SortableWishlistRow({
+  id,
+  children,
+}: {
+  id: string;
+  children: ReactNode;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  return (
+    <div
+      ref={setNodeRef}
+      style={{ transform: CSS.Transform.toString(transform), transition }}
+      className={`flex flex-col gap-2 ${isDragging ? "opacity-60" : ""}`}
+    >
+      <button
+        type="button"
+        className="flex w-fit items-center gap-1 text-xs text-luxury-mist"
+        aria-label="Arrastar para reordenar"
+        {...attributes}
+        {...listeners}
+      >
+        <GripVertical className="h-4 w-4" aria-hidden />
+        Reordenar
+      </button>
+      {children}
+    </div>
+  );
+}
 
 export function WishlistPage() {
   const wishlistV2 = isFeatureEnabled("WISHLIST_V2");
@@ -34,7 +76,9 @@ export function WishlistPage() {
   const createList = useCreateWishlistList();
   const shareList = useShareWishlistList();
   const duplicateList = useDuplicateWishlistList();
+  const reorderList = useReorderWishlistList();
   const queryClient = useQueryClient();
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
   const flatItems = data?.items ?? [];
   const [localLists, setLocalLists] = useState(() => loadWishlistLists());
   const backendLists = listsData?.lists ?? [];
@@ -62,11 +106,26 @@ export function WishlistPage() {
     }
     const detailItems = listDetail?.items ?? [];
     return detailItems.map((i) => ({
+      id: String(i.id ?? i.product_id),
       product_id: i.product_id,
       product: i.product as ShopProduct,
       added_at: i.added_at,
     }));
   }, [wishlistV2, flatItems, activeList, listDetail]);
+
+  async function handleDragEnd(event: DragEndEvent) {
+    if (!wishlistV2 || !listDetail?.items?.length) return;
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const ids = items.map((i) => String((i as { id?: string }).id ?? i.product_id));
+    const oldIndex = ids.indexOf(String(active.id));
+    const newIndex = ids.indexOf(String(over.id));
+    if (oldIndex < 0 || newIndex < 0) return;
+    const next = [...ids];
+    const [moved] = next.splice(oldIndex, 1);
+    next.splice(newIndex, 0, moved);
+    await reorderList.mutateAsync({ listId: activeList, itemIds: next });
+  }
 
   const loading = isLoading || (wishlistV2 && listsLoading);
 
@@ -126,7 +185,9 @@ export function WishlistPage() {
   }
 
   return (
-    <div className="space-y-6" data-testid="wishlist-page-content">
+    <>
+      <SkipToMain />
+      <div className="space-y-6" id="main-content" data-testid="wishlist-page-content">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-luxury-mist">
           {totalCount} produto{totalCount === 1 ? "" : "s"} salvos · listas inteligentes
@@ -208,21 +269,66 @@ export function WishlistPage() {
         </form>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4">
-        {items.map((item) => (
-          <div key={item.product_id} className="flex flex-col gap-2" data-testid={`wishlist-item-${item.product_id}`}>
-            <ProductCard product={item.product} />
-            <div className="flex flex-wrap gap-2">
-              <Button
-                type="button"
-                size="sm"
-                className="flex-1 bg-luxury-gold text-luxury-onyx hover:bg-luxury-gold/90"
-                onClick={() => void handleAddToCart(item.product_id)}
-                data-testid={`wishlist-add-cart-${item.product_id}`}
-              >
-                Adicionar ao carrinho
-              </Button>
-              {!wishlistV2 && (
+      {wishlistV2 ? (
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={(e) => void handleDragEnd(e)}>
+          <SortableContext
+            items={items.map((i) => String((i as { id?: string }).id ?? i.product_id))}
+            strategy={rectSortingStrategy}
+          >
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4">
+              {items.map((item) => {
+                const sortId = String((item as { id?: string }).id ?? item.product_id);
+                return (
+                  <SortableWishlistRow key={sortId} id={sortId}>
+                    <div className="flex flex-col gap-2" data-testid={`wishlist-item-${item.product_id}`}>
+                      <ProductCard product={item.product} />
+                      <div className="flex flex-wrap gap-2">
+                        <Button
+                          type="button"
+                          size="sm"
+                          className="flex-1 bg-luxury-gold text-luxury-onyx hover:bg-luxury-gold/90"
+                          onClick={() => void handleAddToCart(item.product_id)}
+                          data-testid={`wishlist-add-cart-${item.product_id}`}
+                        >
+                          Adicionar ao carrinho
+                        </Button>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          className="border-white/20"
+                          disabled={remove.isPending}
+                          onClick={() => {
+                            void trackEvent("wishlist_remove", { product_id: item.product_id });
+                            void remove.mutateAsync(item.product_id);
+                          }}
+                          data-testid={`wishlist-remove-${item.product_id}`}
+                        >
+                          Remover
+                        </Button>
+                      </div>
+                    </div>
+                  </SortableWishlistRow>
+                );
+              })}
+            </div>
+          </SortableContext>
+        </DndContext>
+      ) : (
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4">
+          {items.map((item) => (
+            <div key={item.product_id} className="flex flex-col gap-2" data-testid={`wishlist-item-${item.product_id}`}>
+              <ProductCard product={item.product} />
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  className="flex-1 bg-luxury-gold text-luxury-onyx hover:bg-luxury-gold/90"
+                  onClick={() => void handleAddToCart(item.product_id)}
+                  data-testid={`wishlist-add-cart-${item.product_id}`}
+                >
+                  Adicionar ao carrinho
+                </Button>
                 <Button
                   type="button"
                   size="sm"
@@ -235,28 +341,29 @@ export function WishlistPage() {
                 >
                   + Lista
                 </Button>
-              )}
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                className="border-white/20"
-                disabled={remove.isPending}
-                onClick={() => {
-                  void trackEvent("wishlist_remove", { product_id: item.product_id });
-                  void remove.mutateAsync(item.product_id);
-                }}
-                data-testid={`wishlist-remove-${item.product_id}`}
-              >
-                Remover
-              </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="border-white/20"
+                  disabled={remove.isPending}
+                  onClick={() => {
+                    void trackEvent("wishlist_remove", { product_id: item.product_id });
+                    void remove.mutateAsync(item.product_id);
+                  }}
+                  data-testid={`wishlist-remove-${item.product_id}`}
+                >
+                  Remover
+                </Button>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
       {items.length === 0 && (
         <p className="text-sm text-luxury-mist">Nenhum item nesta lista. Use “+ Lista” nos favoritos.</p>
       )}
-    </div>
+      </div>
+    </>
   );
 }

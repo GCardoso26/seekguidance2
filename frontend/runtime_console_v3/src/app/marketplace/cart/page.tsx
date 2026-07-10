@@ -13,6 +13,7 @@ import { CpfCheckoutModal } from "@/components/kyc/CpfCheckoutModal";
 import { needsCpfCompletion, useAccountStatus } from "@/hooks/useAccountStatus";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
+import { SkipToMain } from "@/components/a11y/SkipToMain";
 
 const GOALS: { id: SmartCartGoal; label: string }[] = [
   { id: "best_value", label: "Custo-benefício" },
@@ -62,7 +63,8 @@ export default function SmartCartPage() {
 
   return (
     <MobileLayout>
-      <div className="container mx-auto max-w-3xl px-4 py-8 pb-28 md:pb-8">
+      <SkipToMain />
+      <div className="container mx-auto max-w-3xl px-4 py-8 pb-28 md:pb-8" id="main-content">
         <Link href="/loja" className="text-sm text-luxury-mist">
           ← Loja
         </Link>

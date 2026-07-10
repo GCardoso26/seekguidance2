@@ -44,6 +44,8 @@ describe("useSubscription", () => {
       loading: false,
       configured: true,
       signInWithGoogle: vi.fn(),
+      signUpWithEmail: vi.fn(),
+      signInWithEmail: vi.fn(),
       signOut: vi.fn(),
     });
 
@@ -59,6 +61,8 @@ describe("useSubscription", () => {
       loading: false,
       configured: true,
       signInWithGoogle: vi.fn(),
+      signUpWithEmail: vi.fn(),
+      signInWithEmail: vi.fn(),
       signOut: vi.fn(),
     });
     vi.mocked(fetch).mockResolvedValueOnce({
@@ -86,6 +90,8 @@ describe("useSubscription", () => {
       loading: false,
       configured: true,
       signInWithGoogle: vi.fn(),
+      signUpWithEmail: vi.fn(),
+      signInWithEmail: vi.fn(),
       signOut: vi.fn(),
     });
     vi.mocked(fetch).mockResolvedValueOnce({

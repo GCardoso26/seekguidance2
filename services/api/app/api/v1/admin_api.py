@@ -170,3 +170,13 @@ async def admin_logs(
     admin_id: str = Depends(require_admin),
 ) -> list[dict[str, Any]]:
     return await list_audit_logs(session)
+
+
+@router.get("/catalog/image-health")
+async def admin_catalog_image_health(
+    session: DbSession,
+    admin_id: str = Depends(require_admin),
+) -> dict[str, Any]:
+    from app.catalog.image_health_service import get_image_health_dashboard
+
+    return await get_image_health_dashboard(session)

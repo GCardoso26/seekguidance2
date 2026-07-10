@@ -2,6 +2,7 @@ import type { LucideIcon } from "lucide-react";
 import {
   BarChart3,
   FileUp,
+  ImageIcon,
   Layers,
   LayoutDashboard,
   LineChart,
@@ -25,6 +26,7 @@ export const ADMIN_SIDEBAR_ITEMS: AdminSidebarItem[] = [
   { id: "retention", label: "Retenção", icon: TrendingUp, href: "/admin/retention" },
   { id: "analytics", label: "Analytics", icon: LineChart, href: "/admin/analytics" },
   { id: "catalog", label: "Catálogo TCGs", icon: Layers, href: "/admin/catalog" },
+  { id: "image-health", label: "Saúde de imagens", icon: ImageIcon, href: "/admin/catalog/image-health" },
   { id: "moderation", label: "Moderação", icon: Shield, href: "/admin/moderation" },
   { id: "feedback", label: "Feedback", icon: MessageSquare, href: "/admin/feedback" },
   { id: "newsletter", label: "Newsletter", icon: Mail, href: "/admin/newsletter" },

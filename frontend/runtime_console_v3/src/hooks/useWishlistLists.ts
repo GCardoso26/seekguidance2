@@ -115,3 +115,22 @@ export function useDuplicateWishlistList() {
     },
   });
 }
+
+export function useReorderWishlistList() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ listId, itemIds }: { listId: string; itemIds: string[] }) => {
+      const res = await fetch(`/api/buyer/wishlists/${encodeURIComponent(listId)}/reorder`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ item_ids: itemIds }),
+      });
+      if (!res.ok) throw new Error("wishlist_reorder_failed");
+      return res.json();
+    },
+    onSuccess: (_data, vars) => {
+      void qc.invalidateQueries({ queryKey: LISTS_KEY });
+      void qc.invalidateQueries({ queryKey: [...LISTS_KEY, vars.listId] });
+    },
+  });
+}

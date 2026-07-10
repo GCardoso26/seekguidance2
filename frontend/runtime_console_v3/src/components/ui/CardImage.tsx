@@ -3,6 +3,7 @@
 import Image, { type ImageProps } from "next/image";
 import { useCallback, useMemo, useState } from "react";
 import { shouldBypassImageOptimizer } from "@/lib/format-currency";
+import { trackEvent } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
 
 type CardImageProps = Omit<ImageProps, "onError" | "onLoad" | "placeholder" | "blurDataURL" | "src"> & {
@@ -37,7 +38,23 @@ export function CardImage({
   const blurDataURL = useMemo(() => buildPlaceholderSvg(alt || fallbackLabel || "Card"), [alt, fallbackLabel]);
   const unoptimized = unoptimizedProp ?? shouldBypassImageOptimizer(src ?? "");
 
-  const handleError = useCallback(() => setError(true), []);
+  const handleError = useCallback(() => {
+    setError(true);
+    if (src) {
+      try {
+        const host = new URL(
+          src,
+          typeof window !== "undefined" ? window.location.origin : "https://judgetcg.com",
+        ).host;
+        void trackEvent("image_failure", { url_host: host });
+      } catch {
+        void trackEvent("image_failure", { url_host: "unknown" });
+      }
+    }
+    if (!alt?.trim()) {
+      void trackEvent("image_failure", { reason: "missing_alt" });
+    }
+  }, [src, alt]);
   const handleLoad = useCallback(() => setLoaded(true), []);
 
   if (error || !src) {
