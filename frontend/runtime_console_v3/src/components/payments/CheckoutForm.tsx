@@ -27,7 +27,7 @@ export function CheckoutForm({ tournamentId, tournamentName, feeCents, currency 
   if (feeCents <= 0) {
     return (
       <div className="rounded-xl border border-slate-700 p-6 text-center">
-        <p className="text-emerald-400">Inscrição gratuita</p>
+        <p className="text-success">Inscrição gratuita</p>
       </div>
     );
   }
@@ -69,9 +69,9 @@ export function CheckoutForm({ tournamentId, tournamentName, feeCents, currency 
       >
         {payment.isPending ? "Processando…" : "Confirmar pagamento"}
       </button>
-      {payment.isError && <p className="mt-2 text-sm text-red-400">{payment.error?.message}</p>}
+      {payment.isError && <p className="mt-2 text-sm text-danger">{payment.error?.message}</p>}
       {payment.isSuccess && (
-        <p className="mt-2 text-sm text-emerald-400">
+        <p className="mt-2 text-sm text-success">
           {payment.data?.status === "free" ? "Inscrição confirmada" : "Intenção de pagamento criada"}
         </p>
       )}

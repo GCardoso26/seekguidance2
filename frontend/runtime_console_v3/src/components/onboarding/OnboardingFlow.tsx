@@ -43,7 +43,7 @@ export function OnboardingFlow() {
 
   return (
     <div className="mx-auto mb-6 max-w-lg rounded-xl border border-amber-500/30 bg-slate-800/80 p-6">
-      <p className="text-xs text-amber-400">
+      <p className="text-xs text-warning">
         Passo {step + 1}/{STEPS.length}
       </p>
       <h2 className="mt-1 text-xl font-bold">{current.title}</h2>

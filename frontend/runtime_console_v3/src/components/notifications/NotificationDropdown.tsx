@@ -89,7 +89,7 @@ export function NotificationDropdown({ limit = 5, className }: NotificationDropd
                   {n.content && (
                     <p className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">{n.content}</p>
                   )}
-                  <p className="mt-1 text-[10px] text-muted-foreground">
+                  <p className="mt-1 text-caption text-muted-foreground">
                     {n.createdAt ? formatRelativeTime(n.createdAt) : ""}
                   </p>
                 </button>
@@ -97,7 +97,7 @@ export function NotificationDropdown({ limit = 5, className }: NotificationDropd
                   type="button"
                   aria-label="Remover"
                   onClick={() => void remove.mutate(n)}
-                  className="text-xs text-muted-foreground hover:text-red-400"
+                  className="text-xs text-muted-foreground hover:text-danger"
                 >
                   ×
                 </button>

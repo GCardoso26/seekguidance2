@@ -81,7 +81,7 @@ export function BuylistPixPayment({ storeId, submissionId, title, amountCents }:
   if (pix) {
     return (
       <div className="mt-3 space-y-2 rounded-lg border border-amber-500/30 bg-amber-500/5 p-3">
-        <p className="text-sm font-medium text-amber-200">Pague via PIX para liberar o escrow</p>
+        <p className="text-sm font-medium text-warning">Pague via PIX para liberar o escrow</p>
         <EnhancedPixCheckoutPanel
           pix={{
             ...pix,
@@ -98,7 +98,7 @@ export function BuylistPixPayment({ storeId, submissionId, title, amountCents }:
     return (
       <div className="mt-3 rounded-lg border border-blue-500/30 bg-blue-950/20 p-3 text-sm text-blue-100">
         <p className="font-medium">Pagamento PIX no Go-Live</p>
-        <p className="mt-1 text-blue-200/90">
+        <p className="mt-1 text-info/90">
           A proposta foi aceita. O pagamento via escrow será habilitado quando a plataforma entrar em
           produção com PIX configurado.
         </p>
@@ -111,7 +111,7 @@ export function BuylistPixPayment({ storeId, submissionId, title, amountCents }:
       <Button size="sm" disabled={loading} onClick={() => void generatePix()}>
         {loading ? "Gerando PIX…" : "Pagar via PIX (escrow)"}
       </Button>
-      {error && !deferred && <p className="mt-2 text-sm text-red-300">{error}</p>}
+      {error && !deferred && <p className="mt-2 text-sm text-danger">{error}</p>}
     </div>
   );
 }

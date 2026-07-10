@@ -232,8 +232,8 @@ export function WishlistPage() {
             onClick={() => setActiveList(list.id)}
             className={`rounded-full border px-3 py-1 text-xs transition ${
               activeList === list.id
-                ? "border-luxury-gold bg-primary/20 text-primary"
-                : "border-white/15 text-muted-foreground"
+                ? "border-primary bg-primary/10 text-primary"
+                : "border-border text-muted-foreground"
             }`}
           >
             {list.name}

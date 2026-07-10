@@ -16,7 +16,7 @@ function ShowcaseInner() {
 
   return (
     <section className="container mx-auto px-4 py-16" id="torneios">
-      <h2 className="mb-4 text-center text-3xl font-bold text-white">Torneios Multi-TCG</h2>
+      <h2 className="mb-4 text-center text-3xl font-bold text-foreground">Torneios Multi-TCG</h2>
       <p className="mx-auto mb-8 max-w-xl text-center text-slate-400">
         Pokémon, Lorcana, MTG e Star Wars Unlimited — mesma plataforma, regras específicas por jogo.
       </p>
@@ -69,12 +69,12 @@ function ShowcaseInner() {
                 className="flex items-center justify-between rounded-xl border border-slate-700 bg-slate-800/60 px-5 py-4"
               >
                 <div>
-                  <p className="font-semibold text-white">{t.name}</p>
+                  <p className="font-semibold text-foreground">{t.name}</p>
                   <p className="text-sm text-slate-400">
                     {t.tcg.toUpperCase()} · {t.format_code ?? t.tcg} · {t.status}
                   </p>
                 </div>
-                <Link href="/dashboard" className="text-sm text-amber-400 hover:underline">
+                <Link href="/dashboard" className="text-sm text-warning hover:underline">
                   Ver →
                 </Link>
               </li>

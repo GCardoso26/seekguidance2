@@ -16,7 +16,7 @@ export function SellerReviewList({ reviews, total }: Props) {
       {reviews.map((review) => (
         <div key={review.id} className="surface-card p-4">
           <div className="flex items-center gap-2 text-sm">
-            <span className="text-amber-400">{"★".repeat(review.rating)}{"☆".repeat(5 - review.rating)}</span>
+            <span className="text-warning">{"★".repeat(review.rating)}{"☆".repeat(5 - review.rating)}</span>
             <span className="text-muted-foreground">
               {review.reviewer_name ?? "Comprador"} ·{" "}
               {new Date(review.created_at).toLocaleDateString("pt-BR")}

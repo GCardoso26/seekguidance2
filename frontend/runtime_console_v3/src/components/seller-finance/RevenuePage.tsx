@@ -124,7 +124,7 @@ export function RevenuePage() {
             </thead>
             <tbody>
               {(data?.rows ?? []).map((row) => (
-                <tr key={row.date} className="border-b border-white/5">
+                <tr key={row.date} className="border-b border-border/60">
                   <td className="p-3">{row.date.split("-").reverse().join("/")}</td>
                   <td className="p-3">{row.orders}</td>
                   <td className="p-3">{formatShopPrice(row.gross_cents)}</td>

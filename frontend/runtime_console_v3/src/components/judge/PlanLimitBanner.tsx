@@ -58,7 +58,7 @@ export function PlanLimitBanner({ variant = "questions", tcgName }: Props) {
 
       <div className="rounded-xl border border-primary/30 bg-primary/10 p-4 text-center">
 
-        <p className="text-sm text-primary-light">
+        <p className="text-sm text-primary">
 
           Você usou {dailyUsed}/{dailyLimit} consultas hoje.
 
@@ -118,7 +118,7 @@ export function PlanLimitBanner({ variant = "questions", tcgName }: Props) {
 
     return (
 
-      <div className="luxury-card rounded-xl p-4 text-center">
+      <div className="surface-card rounded-xl p-4 text-center">
 
         <p className="text-sm text-foreground">
 
@@ -160,7 +160,7 @@ export function PlanLimitBanner({ variant = "questions", tcgName }: Props) {
 
     return (
 
-      <div className="luxury-card rounded-xl p-4 text-center">
+      <div className="surface-card rounded-xl p-4 text-center">
 
         <p className="text-sm text-foreground">Limite de 1 torneio/mês no plano Free.</p>
 
@@ -194,7 +194,7 @@ export function PlanLimitBanner({ variant = "questions", tcgName }: Props) {
 
   return (
 
-    <div className="luxury-card rounded-xl p-4 text-center">
+    <div className="surface-card rounded-xl p-4 text-center">
 
       <p className="text-sm text-foreground">Exportar histórico é um recurso Pro.</p>
 
@@ -204,7 +204,7 @@ export function PlanLimitBanner({ variant = "questions", tcgName }: Props) {
 
         onClick={openUpgrade}
 
-        className="mt-2 inline-block text-sm text-primary hover:text-primary-light"
+        className="mt-2 inline-block text-sm text-primary hover:text-primary"
 
       >
 

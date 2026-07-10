@@ -46,7 +46,7 @@ export function QuickActions({ tcg, question, response, historyItem, onFavoriteC
       <button
         type="button"
         onClick={() => void copyAnswer()}
-        className="inline-flex items-center gap-1 rounded-full border border-[hsl(var(--border))] px-2.5 py-1 text-[10px] font-semibold"
+        className="inline-flex items-center gap-1 rounded-full border border-[hsl(var(--border))] px-2.5 py-1 text-caption font-semibold"
       >
         {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
         Copiar
@@ -57,7 +57,7 @@ export function QuickActions({ tcg, question, response, historyItem, onFavoriteC
           href={firstSource}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 rounded-full border border-[hsl(var(--border))] px-2.5 py-1 text-[10px] font-semibold"
+          className="inline-flex items-center gap-1 rounded-full border border-[hsl(var(--border))] px-2.5 py-1 text-caption font-semibold"
         >
           <ExternalLink className="h-3 w-3" />
           Regras
@@ -67,9 +67,9 @@ export function QuickActions({ tcg, question, response, historyItem, onFavoriteC
         <button
           type="button"
           onClick={toggleFav}
-          className="inline-flex items-center gap-1 rounded-full border border-[hsl(var(--border))] px-2.5 py-1 text-[10px] font-semibold"
+          className="inline-flex items-center gap-1 rounded-full border border-[hsl(var(--border))] px-2.5 py-1 text-caption font-semibold"
         >
-          <Heart className={fav ? "h-3 w-3 fill-current text-red-500" : "h-3 w-3"} />
+          <Heart className={fav ? "h-3 w-3 fill-current text-danger" : "h-3 w-3"} />
           Favorito
         </button>
       )}

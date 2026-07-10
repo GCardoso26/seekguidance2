@@ -25,7 +25,7 @@ function LeagueDetail() {
         {isLoading && <p className="mt-4 text-muted-foreground">Carregando…</p>}
         {league && (
           <>
-            <div className="mt-4 rounded-xl border border-luxury-gold/20 bg-gradient-to-r from-luxury-midnight to-luxury-velvet p-6">
+            <div className="mt-4 rounded-xl border border-primary/20 bg-gradient-to-r from-luxury-midnight to-luxury-velvet p-6">
               <h1 className="text-2xl font-bold">{String(league.name)}</h1>
               <p className="text-muted-foreground">
                 {String(league.game_code)} — {String(league.format)}

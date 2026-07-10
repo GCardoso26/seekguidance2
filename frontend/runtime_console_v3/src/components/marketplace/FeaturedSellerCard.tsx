@@ -38,7 +38,7 @@ export function FeaturedSellerCard({ seller }: FeaturedSellerCardProps) {
           </div>
           <div className="min-w-0 flex-1">
             <p className="truncate font-semibold">{seller.shopName}</p>
-            <div className="flex items-center gap-1 text-sm text-amber-500">
+            <div className="flex items-center gap-1 text-sm text-warning">
               <Star className="h-3.5 w-3.5 fill-current" />
               <span>{seller.rating.toFixed(1)}</span>
               {seller.reviewCount !== undefined && (
@@ -53,7 +53,7 @@ export function FeaturedSellerCard({ seller }: FeaturedSellerCardProps) {
             {seller.specialties.slice(0, 3).map((tag) => (
               <span
                 key={tag}
-                className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground"
+                className="rounded-full bg-muted px-2 py-0.5 text-caption font-medium text-muted-foreground"
               >
                 {tag}
               </span>

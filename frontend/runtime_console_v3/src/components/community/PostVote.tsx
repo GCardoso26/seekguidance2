@@ -40,7 +40,7 @@ export function PostVote({ post }: Props) {
         whileTap={{ scale: 1.15 }}
         disabled={vote.isPending}
         onClick={() => void cast(1)}
-        className="rounded p-1 hover:bg-primary/10 hover:text-primary-light"
+        className="rounded p-1 hover:bg-primary/10 hover:text-primary"
         aria-label="Upvote"
       >
         <ChevronUp className="h-5 w-5" strokeWidth={1.5} />
@@ -48,7 +48,7 @@ export function PostVote({ post }: Props) {
       <span
         className={cn(
           "text-sm font-semibold tabular-nums",
-          post.voteCount > 0 && "text-primary-light",
+          post.voteCount > 0 && "text-primary",
           post.voteCount < 0 && "text-rose-400",
         )}
       >

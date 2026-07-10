@@ -55,7 +55,7 @@ export function OrderActions({ orderId, status, paymentMethod, pixTxid, onUpdate
           type="button"
           disabled={loading}
           onClick={() => void confirmPix()}
-          className="rounded-lg border border-emerald-500/40 px-3 py-1 text-xs text-emerald-300"
+          className="rounded-lg border border-emerald-500/40 px-3 py-1 text-xs text-success"
         >
           Confirmar PIX
         </button>

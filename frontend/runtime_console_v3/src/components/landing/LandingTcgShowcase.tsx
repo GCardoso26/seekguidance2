@@ -38,17 +38,17 @@ export function LandingTcgShowcase() {
             <div className="mb-3 w-16">
               <TcgLogoImage tcgId={id} variant="compact" selected={available} />
             </div>
-            <p className="text-sm font-semibold text-white">{option?.label ?? id}</p>
+            <p className="text-sm font-semibold text-foreground">{option?.label ?? id}</p>
             <p
               className={cn(
                 "mt-1 text-xs font-medium",
-                available ? "text-emerald-400" : "text-slate-500",
+                available ? "text-success" : "text-slate-500",
               )}
             >
               {available ? "Disponível" : "Em breve"}
             </p>
             {available && (
-              <span className="mt-2 text-xs font-semibold text-amber-400 opacity-0 transition group-hover:opacity-100">
+              <span className="mt-2 text-xs font-semibold text-warning opacity-0 transition group-hover:opacity-100">
                 Jogar →
               </span>
             )}

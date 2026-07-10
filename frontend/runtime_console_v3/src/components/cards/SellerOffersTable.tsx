@@ -123,7 +123,7 @@ export function SellerOffersTable({ listings, onBuy, buyingId }: SellerOffersTab
                 <div className="flex items-center gap-1.5">
                   <ConditionBadge condition={listing.condition as CardCondition} />
                   {listing.foil && (
-                    <Badge variant="warning" className="text-[10px]">
+                    <Badge variant="warning" className="text-caption">
                       Foil
                     </Badge>
                   )}

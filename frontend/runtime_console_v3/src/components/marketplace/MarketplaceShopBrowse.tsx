@@ -107,7 +107,7 @@ function MarketplaceShopBrowseInner() {
             <select
               value={filters.sortBy ?? "relevance"}
               onChange={(e) => updateFilters({ sortBy: e.target.value as MarketplaceSort })}
-              className="min-h-11 rounded-md border border-border bg-black/20 px-3 py-2 text-sm"
+              className="min-h-11 rounded-md border border-border bg-muted/50 px-3 py-2 text-sm"
               aria-label="Ordenar produtos"
               data-testid="marketplace-sort"
             >

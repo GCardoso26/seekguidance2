@@ -79,16 +79,16 @@ export function PdvBarcodeInput({ onScan, disabled }: Props) {
         onKeyDown={handleKeyDown}
         onBlur={() => setTimeout(refocus, 10)}
         placeholder="Escaneie ou digite o código e pressione Enter…"
-        className={`w-full rounded-lg border-2 bg-black/40 px-4 py-3 font-mono text-lg text-white outline-none transition ${borderClass}`}
+        className={`w-full rounded-lg border-2 bg-foreground/40 px-4 py-3 font-mono text-lg text-foreground outline-none transition ${borderClass}`}
         data-testid="pdv-barcode-field"
       />
       {feedback === "found" && (
-        <p className="text-sm text-emerald-400" data-testid="pdv-barcode-feedback-found">
+        <p className="text-sm text-success" data-testid="pdv-barcode-feedback-found">
           Produto adicionado ao carrinho.
         </p>
       )}
       {feedback === "not_found" && (
-        <p className="text-sm text-red-400" data-testid="pdv-barcode-feedback-error">
+        <p className="text-sm text-danger" data-testid="pdv-barcode-feedback-error">
           Produto não encontrado. Tente a busca textual abaixo.
         </p>
       )}

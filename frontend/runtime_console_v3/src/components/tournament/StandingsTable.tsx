@@ -81,7 +81,7 @@ export function StandingsTable({ standings }: { standings: Standing[] }) {
         <button
           type="button"
           onClick={exportCsv}
-          className="inline-flex min-h-[44px] items-center gap-2 rounded-lg border border-border px-3 text-sm focus-visible:ring-2 focus-visible:ring-luxury-gold"
+          className="inline-flex min-h-[44px] items-center gap-2 rounded-lg border border-border px-3 text-sm focus-visible:ring-2 focus-visible:ring-primary"
         >
           <Download className="h-4 w-4" strokeWidth={1.5} />
           Exportar CSV
@@ -100,7 +100,7 @@ export function StandingsTable({ standings }: { standings: Standing[] }) {
                 ] as const
               ).map(([key, label]) => (
                 <th key={key} className="px-4 py-3">
-                  <button type="button" onClick={() => toggleSort(key)} className="hover:text-white">
+                  <button type="button" onClick={() => toggleSort(key)} className="hover:text-foreground">
                     {label}
                   </button>
                 </th>
@@ -118,7 +118,7 @@ export function StandingsTable({ standings }: { standings: Standing[] }) {
                 <td className="px-4 py-2">{s.matchPoints}</td>
                 <td className="px-4 py-2">{s.omwPercent.toFixed(1)}</td>
                 <td className="px-4 py-2">{s.gwPercent.toFixed(1)}</td>
-                <td className="px-4 py-2 font-medium text-white">{s.displayName}</td>
+                <td className="px-4 py-2 font-medium text-foreground">{s.displayName}</td>
                 <td className="px-4 py-2">
                   {s.matchWins ?? 0}-{s.matchLosses ?? 0}-{s.matchDraws ?? 0}
                 </td>

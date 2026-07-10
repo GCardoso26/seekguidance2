@@ -74,7 +74,7 @@ export function StripeConnectPanel({ storeId, store, loading, variant = "panel" 
       >
         {connecting ? "Redirecionando…" : hasAccount ? "Continuar onboarding Stripe" : "Conectar Stripe"}
       </button>
-      {error && <p className="mt-3 text-sm text-red-300">{error}</p>}
+      {error && <p className="mt-3 text-sm text-danger">{error}</p>}
     </div>
   );
 }

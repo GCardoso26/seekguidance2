@@ -78,14 +78,14 @@ export function PricingCard({ plan, isAnnual, onCtaClick }: Props) {
       className={cn(
         "relative rounded-2xl border-2 p-8 transition-all duration-300",
         plan.popular
-          ? "border-luxury-gold bg-muted/50 shadow-lg"
+          ? "border-primary bg-muted/50 shadow-lg"
           : "border-border bg-muted/50 hover:border-primary/40",
       )}
       style={{ boxShadow: plan.popular ? `0 0 40px ${plan.glowColor}` : undefined }}
     >
       {plan.popular && (
         <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-          <span className="rounded-full bg-gradient-to-r from-luxury-gold to-luxury-gold-dark px-4 py-1 text-sm font-bold text-white">
+          <span className="rounded-full bg-gradient-to-r from-primary to-primary/80 px-4 py-1 text-sm font-bold text-primary-foreground">
             MAIS POPULAR
           </span>
         </div>
@@ -96,16 +96,16 @@ export function PricingCard({ plan, isAnnual, onCtaClick }: Props) {
           <Icon size={24} aria-hidden />
         </div>
         <div>
-          <h3 className="text-xl font-bold text-white">{plan.name}</h3>
+          <h3 className="text-xl font-bold text-foreground">{plan.name}</h3>
           <p className="text-sm text-muted-foreground">{plan.subtitle}</p>
         </div>
       </div>
 
       <div className="mb-6">
-        <span className="font-mono text-4xl font-bold text-white">R$ {price.toFixed(2)}</span>
+        <span className="font-mono text-4xl font-bold text-foreground">R$ {price.toFixed(2)}</span>
         <span className="text-muted-foreground">{billingPeriod}</span>
         {isAnnual && plan.priceAnnual > 0 && (
-          <p className="mt-1 text-sm text-primary-light">
+          <p className="mt-1 text-sm text-primary">
             Economia de R$ {(plan.priceMonthly * 12 - plan.priceAnnual).toFixed(2)}/ano
           </p>
         )}
@@ -115,7 +115,7 @@ export function PricingCard({ plan, isAnnual, onCtaClick }: Props) {
         {plan.features.map((feature) => (
           <li key={feature.text} className="flex items-start gap-3">
             {feature.included ? (
-              <Check size={18} className="mt-0.5 shrink-0 text-primary-light" aria-hidden />
+              <Check size={18} className="mt-0.5 shrink-0 text-primary" aria-hidden />
             ) : (
               <X size={18} className="mt-0.5 shrink-0 text-muted-foreground/50" aria-hidden />
             )}
@@ -124,7 +124,7 @@ export function PricingCard({ plan, isAnnual, onCtaClick }: Props) {
                 "text-sm",
                 feature.included
                   ? feature.highlight
-                    ? "font-medium text-white"
+                    ? "font-medium text-foreground"
                     : "text-foreground/90"
                   : "text-muted-foreground/70",
               )}
@@ -136,7 +136,7 @@ export function PricingCard({ plan, isAnnual, onCtaClick }: Props) {
       </ul>
 
       {isCurrent && (
-        <span className="mb-3 inline-block rounded-full bg-primary/20 px-3 py-1 text-xs font-medium text-primary-light">
+        <span className="mb-3 inline-block rounded-full bg-primary/20 px-3 py-1 text-xs font-medium text-primary">
           Plano atual
         </span>
       )}
@@ -148,8 +148,8 @@ export function PricingCard({ plan, isAnnual, onCtaClick }: Props) {
         className={cn(
           "w-full rounded-xl py-3 font-bold transition-all disabled:opacity-60",
           plan.popular
-            ? "bg-gradient-to-r from-luxury-gold to-luxury-gold-dark text-white hover:from-luxury-gold-light hover:to-luxury-gold"
-            : "bg-muted text-foreground hover:bg-white/15",
+            ? "bg-gradient-to-r from-primary to-primary/80 text-primary-foreground hover:from-primary/90 hover:to-primary"
+            : "bg-muted text-foreground hover:bg-muted/60",
         )}
       >
         {checkout.isPending

@@ -29,10 +29,10 @@ export function CartDrawer() {
   }
 
   return (
-    <Dialog.Root open={isOpen} onOpenChange={(open) => !open && closeCart()}>
+    <Dialog.Root open={isOpen} onOpenChange={(open: boolean) => !open && closeCart()}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/60" />
-        <Dialog.Content className="fixed inset-y-0 right-0 z-50 flex w-full max-w-lg flex-col border-l bg-background shadow-xl outline-none">
+        <Dialog.Overlay className="fixed inset-0 z-50 bg-foreground/50 backdrop-blur-sm" />
+        <Dialog.Content className="fixed inset-y-0 right-0 z-50 flex w-full max-w-lg flex-col border-l border-border bg-background shadow-xl outline-none">
           <div className="flex items-center justify-between border-b px-4 py-4">
             <Dialog.Title className="flex items-center gap-2 text-lg font-semibold">
               <ShoppingCart className="h-5 w-5" />
@@ -65,7 +65,7 @@ export function CartDrawer() {
                         {item.image ? (
                           <Image src={item.image} alt="" fill className="object-cover" sizes="56px" />
                         ) : (
-                          <div className="flex h-full items-center justify-center text-[10px] text-muted-foreground">
+                          <div className="flex h-full items-center justify-center text-caption text-muted-foreground">
                             TCG
                           </div>
                         )}
@@ -79,7 +79,7 @@ export function CartDrawer() {
                           <Button
                             variant="outline"
                             size="icon"
-                            className="h-7 w-7"
+                            className="h-9 w-9"
                             onClick={() => updateQty(item.product_id, item.quantity - 1)}
                           >
                             <Minus className="h-3 w-3" />
@@ -88,7 +88,7 @@ export function CartDrawer() {
                           <Button
                             variant="outline"
                             size="icon"
-                            className="h-7 w-7"
+                            className="h-9 w-9"
                             onClick={() => updateQty(item.product_id, item.quantity + 1)}
                           >
                             <Plus className="h-3 w-3" />
@@ -97,7 +97,7 @@ export function CartDrawer() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-7 w-7 text-red-500"
+                          className="h-9 w-9 text-danger"
                           onClick={() => updateQty(item.product_id, 0)}
                           aria-label="Remover item"
                         >
@@ -120,7 +120,7 @@ export function CartDrawer() {
                     <span>Calculado no checkout</span>
                   </div>
                   {uniqueSellers > 1 && (
-                    <p className="text-xs text-amber-500">
+                    <p className="text-xs text-warning">
                       {uniqueSellers} vendedores — envios separados
                     </p>
                   )}

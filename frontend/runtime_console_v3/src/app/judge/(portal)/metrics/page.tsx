@@ -6,7 +6,7 @@ import { KPICard } from "@/components/judge-panel/KPICard";
 export default function JudgeMetricsPage() {
   const { data: stats, isLoading } = useJudgeStats();
 
-  if (isLoading) return <p className="text-white/50">Carregando métricas...</p>;
+  if (isLoading) return <p className="text-muted-foreground">Carregando métricas...</p>;
 
   return (
     <div className="space-y-6">
@@ -17,7 +17,7 @@ export default function JudgeMetricsPage() {
         <KPICard title="SLA vencido" value={stats?.overdue ?? 0} color="yellow" />
         <KPICard title="Resolvidos hoje" value={stats?.resolvedToday ?? 0} color="green" />
       </div>
-      <p className="text-sm text-white/50">
+      <p className="text-sm text-muted-foreground">
         Métricas avançadas (appeal rate, tempo médio por severidade) serão expandidas com dados
         persistidos no Supabase.
       </p>

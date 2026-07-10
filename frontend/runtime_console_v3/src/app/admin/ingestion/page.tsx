@@ -30,7 +30,7 @@ export default function AdminIngestionUploadPage() {
     return (
       <PageShell>
         <PageHeader title="Ingestão SWU" />
-        <p className="text-red-400">Permissão de ingestão necessária.</p>
+        <p className="text-danger">Permissão de ingestão necessária.</p>
       </PageShell>
     );
   }

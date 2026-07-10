@@ -42,7 +42,7 @@ export default function AdminImageHealthPage() {
 
       {isLoading && <p className="text-sm text-muted-foreground">Carregando métricas…</p>}
       {error && (
-        <p className="rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-2 text-sm text-red-300">
+        <p className="rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-2 text-sm text-danger">
           Não foi possível carregar o dashboard de imagens.
         </p>
       )}
@@ -86,9 +86,9 @@ export default function AdminImageHealthPage() {
               ) : (
                 <ul className="space-y-2 text-sm">
                   {data.broken_hosts.map((h) => (
-                    <li key={h.host} className="flex justify-between border-b border-white/5 py-2">
+                    <li key={h.host} className="flex justify-between border-b border-border/60 py-2">
                       <span>{h.host}</span>
-                      <span className="font-mono text-red-300">{h.failures}</span>
+                      <span className="font-mono text-danger">{h.failures}</span>
                     </li>
                   ))}
                 </ul>
@@ -113,7 +113,7 @@ export default function AdminImageHealthPage() {
                   </thead>
                   <tbody>
                     {data.recent_events.map((e, idx) => (
-                      <tr key={`${e.created_at}-${idx}`} className="border-t border-white/5">
+                      <tr key={`${e.created_at}-${idx}`} className="border-t border-border/60">
                         <td className="p-2">{e.host ?? "—"}</td>
                         <td className="p-2">{e.event_type}</td>
                         <td className="p-2">{e.latency_ms != null ? `${e.latency_ms}ms` : "—"}</td>

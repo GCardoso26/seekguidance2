@@ -28,11 +28,11 @@ export function GameQualityCard({ metrics }: Props) {
         <div className="flex items-center justify-between gap-2">
           <CardTitle className="text-base">{slug}</CardTitle>
           {alert ? (
-            <span className="rounded-full bg-red-600 px-2 py-0.5 text-[10px] font-bold text-white">
+            <span className="rounded-full bg-red-600 px-2 py-0.5 text-caption font-bold text-foreground">
               ALERTA
             </span>
           ) : (
-            <span className="rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-semibold text-green-800">
+            <span className="rounded-full bg-green-100 px-2 py-0.5 text-caption font-semibold text-green-800">
               OK
             </span>
           )}

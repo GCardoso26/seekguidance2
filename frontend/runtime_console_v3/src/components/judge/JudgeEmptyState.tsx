@@ -26,7 +26,7 @@ export function JudgeEmptyState({ tcg, onExampleClick }: Props) {
       }
     >
       <span
-        className="mx-auto mb-3 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-[hsl(var(--tcg-accent)/0.12)] text-[10px] font-black tracking-tight text-[hsl(var(--tcg-accent))]"
+        className="mx-auto mb-3 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-[hsl(var(--tcg-accent)/0.12)] text-caption font-black tracking-tight text-[hsl(var(--tcg-accent))]"
         aria-hidden
       >
         {brand.icon}

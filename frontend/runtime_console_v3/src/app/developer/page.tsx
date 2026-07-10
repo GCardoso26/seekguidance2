@@ -40,7 +40,7 @@ export default function DeveloperPortalPage() {
           <button
             type="button"
             onClick={() => createKey.mutate()}
-            className="mt-3 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white"
+            className="mt-3 rounded-lg bg-blue-600 px-4 py-2 text-sm text-foreground"
           >
             Gerar nova key
           </button>
@@ -48,13 +48,13 @@ export default function DeveloperPortalPage() {
         {u && (
           <section className="mt-6 rounded-xl border border-slate-700 p-4">
             <h2 className="font-semibold">Uso (30 dias)</h2>
-            <p className="mt-2 text-amber-400">
+            <p className="mt-2 text-warning">
               {String(u.usage_count)} / {String(u.rate_limit_monthly)} requests
             </p>
           </section>
         )}
         <p className="mt-6 text-sm text-slate-400">
-          Documentação: <a href="/docs/API_PUBLIC.md" className="text-blue-400">API pública v1</a>
+          Documentação: <a href="/docs/API_PUBLIC.md" className="text-info">API pública v1</a>
         </p>
       </div>
     </MobileLayout>

@@ -82,7 +82,7 @@ export function SellerProductGrid({ username, filters }: Props) {
       {hasNextPage && (
         <Button
           variant="outline"
-          className="mt-6 w-full border-white/15"
+          className="mt-6 w-full border-border"
           disabled={isFetchingNextPage}
           onClick={() => fetchNextPage()}
         >

@@ -114,7 +114,7 @@ export function JudgeHistory({ items, onSelect, onClear }: Props) {
 
           <div key={group.label}>
 
-            <p className="mb-1.5 text-[10px] font-bold uppercase tracking-wide text-[hsl(222_15%_45%)]">
+            <p className="mb-1.5 text-caption font-bold uppercase tracking-wide text-[hsl(222_15%_45%)]">
 
               {group.label}
 
@@ -166,7 +166,7 @@ export function JudgeHistory({ items, onSelect, onClear }: Props) {
 
                         <span
 
-                          className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-[hsl(var(--tcg-accent))] text-[8px] font-black tracking-tight text-[hsl(var(--tcg-accent-fg))]"
+                          className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-[hsl(var(--tcg-accent))] text-overline font-black tracking-tight text-[hsl(var(--tcg-accent-fg))]"
 
                           title={brand.publisher}
 
@@ -186,7 +186,7 @@ export function JudgeHistory({ items, onSelect, onClear }: Props) {
 
                           </p>
 
-                          <p className="mt-0.5 text-[10px] text-[hsl(222_15%_50%)]">
+                          <p className="mt-0.5 text-caption text-[hsl(222_15%_50%)]">
 
                             {new Date(item.createdAt).toLocaleString("pt-BR")}
 

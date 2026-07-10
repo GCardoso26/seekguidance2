@@ -214,7 +214,7 @@ export default function SmartCartPage() {
         )}
 
         {items.length > 0 && (
-          <div className="fixed bottom-16 left-0 right-0 z-40 border-t border-border bg-background/95 p-4 backdrop-blur md:static md:mt-8 md:rounded-xl md:border md:bg-card md:p-4 md:backdrop-blur-none">
+          <div className="sticky-mobile-bar fixed left-0 right-0 z-40 border-t border-border bg-background/95 p-4 backdrop-blur md:static md:mt-8 md:rounded-xl md:border md:bg-card md:p-4 md:backdrop-blur-none">
             <div className="mx-auto flex max-w-6xl items-center justify-between gap-4">
               <div>
                 <p className="text-xs text-muted-foreground">Total estimado</p>
@@ -238,7 +238,7 @@ export default function SmartCartPage() {
               </Button>
             </div>
             {smart?.hint && (
-              <p className="mx-auto mt-2 max-w-6xl text-[11px] text-muted-foreground">{smart.hint}</p>
+              <p className="mx-auto mt-2 max-w-6xl text-caption text-muted-foreground">{smart.hint}</p>
             )}
           </div>
         )}

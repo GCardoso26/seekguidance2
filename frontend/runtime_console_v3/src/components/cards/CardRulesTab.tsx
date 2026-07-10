@@ -13,7 +13,7 @@ export function CardRulesTab({ card, cardId }: CardRulesTabProps) {
   return (
     <div className="space-y-6">
       <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-4">
-        <h3 className="font-semibold text-amber-800 dark:text-amber-200">Diferencial Judge-TCG</h3>
+        <h3 className="font-semibold text-amber-800 dark:text-warning">Diferencial Judge-TCG</h3>
         <p className="mt-1 text-sm text-amber-700 dark:text-amber-300">
           Rulings oficiais e interpretações para esta carta — integrado ao fluxo de compra.
         </p>

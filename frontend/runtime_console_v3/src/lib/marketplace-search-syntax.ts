@@ -71,15 +71,15 @@ export const KNOWN_VALUES: Record<string, string[]> = {
 };
 
 export const FIELD_COLORS: Record<string, string> = {
-  name: "bg-blue-500/15 text-blue-400",
+  name: "bg-blue-500/15 text-info",
   set: "bg-purple-500/15 text-purple-400",
-  color: "bg-red-500/15 text-red-400",
+  color: "bg-red-500/15 text-danger",
   rarity: "bg-yellow-500/15 text-yellow-400",
   cmc: "bg-green-500/15 text-green-400",
   type: "bg-indigo-500/15 text-indigo-400",
   artist: "bg-pink-500/15 text-pink-400",
-  foil: "bg-amber-500/15 text-amber-400",
-  graded: "bg-emerald-500/15 text-emerald-400",
+  foil: "bg-amber-500/15 text-warning",
+  graded: "bg-emerald-500/15 text-success",
 };
 
 const VALUE_AUTOCOMPLETE_FIELDS = new Set(["set", "color", "colors", "artist", "rarity", "type", "types"]);

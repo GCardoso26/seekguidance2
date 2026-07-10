@@ -32,7 +32,7 @@ export function QuestionInput({ value, onChange, onSubmit, disabled, placeholder
       placeholder={placeholder ?? "Ex.: O que acontece na fase de manutenção no Magic?"}
       className={cn(
         "w-full resize-none rounded-2xl border border-[var(--tcg-border)] bg-[var(--tcg-surface-elevated)] px-4 py-3.5 text-sm text-[var(--tcg-text-primary)] shadow-sm",
-        "placeholder:text-[var(--tcg-text-secondary)] focus:outline-none focus:ring-2 focus:ring-luxury-gold/25",
+        "placeholder:text-[var(--tcg-text-secondary)] focus:outline-none focus:ring-2 focus:ring-primary/25",
         "min-h-[128px] max-h-[280px]",
       )}
     />

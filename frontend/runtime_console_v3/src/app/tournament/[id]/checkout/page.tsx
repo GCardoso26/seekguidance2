@@ -75,7 +75,7 @@ function StripeTournamentForm({
     <form onSubmit={handleSubmit} className="space-y-4" data-testid="tournament-checkout-form">
       <p className="text-sm text-muted-foreground">Total: {formatMoney(totalCents)}</p>
       <PaymentElement />
-      {error && <p className="text-sm text-red-400">{error}</p>}
+      {error && <p className="text-sm text-danger">{error}</p>}
       <Button type="submit" disabled={!stripe || loading} className="w-full bg-primary text-primary-foreground">
         {loading ? "Processando…" : "Pagar e inscrever-se"}
       </Button>
@@ -143,7 +143,7 @@ function CheckoutView() {
       <p className="text-sm text-muted-foreground">Taxa de inscrição + taxa de serviço (5%)</p>
 
       {paymentIntent.isError && (
-        <p className="text-sm text-red-400">{paymentIntent.error.message}</p>
+        <p className="text-sm text-danger">{paymentIntent.error.message}</p>
       )}
 
       {clientSecret && stripePromise && paymentIntentId && (

@@ -31,19 +31,19 @@ function SocialPage() {
           ← Início
         </Link>
         <div className="mt-4 flex flex-wrap gap-3 text-sm">
-          <Link href="/social/friends" className="text-muted-foreground hover:text-white">
+          <Link href="/social/friends" className="text-muted-foreground hover:text-foreground">
             Amigos
           </Link>
-          <Link href="/social/communities" className="text-muted-foreground hover:text-white">
+          <Link href="/social/communities" className="text-muted-foreground hover:text-foreground">
             Comunidades
           </Link>
-          <Link href="/social/messages" className="text-muted-foreground hover:text-white">
+          <Link href="/social/messages" className="text-muted-foreground hover:text-foreground">
             Mensagens
           </Link>
-          <Link href="/social/newsletter" className="text-muted-foreground hover:text-white">
+          <Link href="/social/newsletter" className="text-muted-foreground hover:text-foreground">
             Newsletter
           </Link>
-          <Link href="/social/feedback" className="text-muted-foreground hover:text-white">
+          <Link href="/social/feedback" className="text-muted-foreground hover:text-foreground">
             Feedback
           </Link>
         </div>

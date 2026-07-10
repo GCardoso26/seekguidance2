@@ -71,7 +71,7 @@ export function BuyerDashboardPage() {
   }
 
   if (error || !data) {
-    return <p className="text-sm text-red-400">Não foi possível carregar o painel.</p>;
+    return <p className="text-small text-danger">Não foi possível carregar o painel.</p>;
   }
 
   const topInsights = (insights?.insights ?? []).slice(0, 3);
@@ -139,7 +139,7 @@ export function BuyerDashboardPage() {
                 <li key={o.id}>
                   <Link
                     href={`/marketplace/orders/${o.id}`}
-                    className="flex items-center justify-between rounded-lg border border-white/5 px-3 py-2 hover:bg-muted"
+                    className="flex items-center justify-between rounded-lg border border-border px-3 py-2 transition-colors hover:bg-muted/60"
                   >
                     <span className="font-mono text-xs">#{o.id.slice(0, 8)}</span>
                     <span className="text-xs uppercase text-muted-foreground">{o.status}</span>
@@ -179,7 +179,7 @@ export function BuyerDashboardPage() {
               </li>
             ))}
           </ul>
-          <p className="mt-3 text-[11px] text-muted-foreground/80">
+          <p className="mt-3 text-caption text-muted-foreground/80">
             Nunca compramos automaticamente. Sempre sugerimos.
           </p>
         </div>

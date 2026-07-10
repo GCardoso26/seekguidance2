@@ -43,7 +43,7 @@ export function NotificationPreferences() {
       >
         Salvar preferências
       </Button>
-      {saved && <p className="text-sm text-emerald-400">Preferências salvas localmente.</p>}
+      {saved && <p className="text-sm text-success">Preferências salvas localmente.</p>}
     </div>
   );
 }

@@ -38,8 +38,8 @@ export function EscrowTimeline({ status, className }: EscrowTimelineProps) {
             <span
               className={cn(
                 "flex h-8 w-8 items-center justify-center rounded-full border",
-                done && "border-emerald-500/50 bg-emerald-500/10 text-emerald-400",
-                active && !done && "border-luxury-gold/50 bg-primary/10 text-primary",
+                done && "border-emerald-500/50 bg-emerald-500/10 text-success",
+                active && !done && "border-primary/50 bg-primary/10 text-primary",
                 !done && !active && "border-border text-muted-foreground",
               )}
             >

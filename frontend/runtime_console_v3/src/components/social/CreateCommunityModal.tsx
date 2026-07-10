@@ -55,7 +55,7 @@ export function CreateCommunityModal({ onCreated }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/50 p-4">
       <div className="w-full max-w-md rounded-2xl border border-border bg-muted p-6 shadow-xl">
         <h2 className="text-xl font-bold">Nova comunidade</h2>
         <div className="mt-4 space-y-3">

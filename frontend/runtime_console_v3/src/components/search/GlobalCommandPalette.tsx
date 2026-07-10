@@ -82,7 +82,7 @@ export function GlobalCommandPalette({ open, onOpenChange }: Props) {
 
   return (
     <div
-      className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm"
+      className="fixed inset-0 z-[100] bg-foreground/50 backdrop-blur-sm"
       onClick={() => onOpenChange(false)}
       data-testid="global-command-palette"
     >
@@ -200,7 +200,7 @@ export function GlobalCommandPalette({ open, onOpenChange }: Props) {
             })}
           </Command.List>
 
-          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border px-3 py-2 text-[10px] text-muted-foreground">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border px-3 py-2 text-caption text-muted-foreground">
             <span>
               <kbd className="rounded border border-border px-1">↑↓</kbd> navegar
             </span>

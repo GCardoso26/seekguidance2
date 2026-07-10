@@ -36,7 +36,7 @@ export function StoreReputationPanel({ slug }: { slug: string }) {
       </div>
 
       <dl className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-lg border border-white/5 p-3">
+        <div className="rounded-lg border border-border/60 p-3">
           <dt className="flex items-center gap-1 text-xs text-muted-foreground">
             <Truck className="h-3 w-3" aria-hidden /> Tempo médio envio
           </dt>
@@ -44,7 +44,7 @@ export function StoreReputationPanel({ slug }: { slug: string }) {
             {data.avg_shipping_hours != null ? `${Math.round(data.avg_shipping_hours)}h` : "—"}
           </dd>
         </div>
-        <div className="rounded-lg border border-white/5 p-3">
+        <div className="rounded-lg border border-border/60 p-3">
           <dt className="flex items-center gap-1 text-xs text-muted-foreground">
             <Clock className="h-3 w-3" aria-hidden /> Tempo resposta
           </dt>
@@ -52,13 +52,13 @@ export function StoreReputationPanel({ slug }: { slug: string }) {
             {data.response_time_hours != null ? `${Math.round(data.response_time_hours)}h` : "—"}
           </dd>
         </div>
-        <div className="rounded-lg border border-white/5 p-3">
+        <div className="rounded-lg border border-border/60 p-3">
           <dt className="flex items-center gap-1 text-xs text-muted-foreground">
             <AlertTriangle className="h-3 w-3" aria-hidden /> Chargebacks
           </dt>
           <dd className="mt-1 text-sm font-medium">{data.chargebacks_open}</dd>
         </div>
-        <div className="rounded-lg border border-white/5 p-3">
+        <div className="rounded-lg border border-border/60 p-3">
           <dt className="flex items-center gap-1 text-xs text-muted-foreground">
             <BadgeCheck className="h-3 w-3" aria-hidden /> Avaliações
           </dt>
@@ -73,7 +73,7 @@ export function StoreReputationPanel({ slug }: { slug: string }) {
           {badges.map((b) => (
             <span
               key={b}
-              className="rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] uppercase tracking-wide text-primary"
+              className="rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-caption uppercase tracking-wide text-primary"
             >
               {b.replace(/_/g, " ")}
             </span>
@@ -81,7 +81,7 @@ export function StoreReputationPanel({ slug }: { slug: string }) {
         </div>
       )}
 
-      <p className="mt-3 text-[11px] text-muted-foreground/80">
+      <p className="mt-3 text-caption text-muted-foreground/80">
         {data.history_hint ?? "Dados do Reputation Engine."}{" "}
         <Link href={`/marketplace/loja/${slug}`} className="text-primary hover:underline">
           Atualizar

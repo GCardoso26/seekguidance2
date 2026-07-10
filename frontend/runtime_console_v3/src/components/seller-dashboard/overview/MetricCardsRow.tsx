@@ -31,7 +31,7 @@ function buildMetrics(metrics: DashboardOverviewMetrics): DashboardMetric[] {
       label: "Pedidos aguardando pagamento",
       value: metrics.pending_payment,
       icon: Clock,
-      color: "text-amber-400",
+      color: "text-warning",
       href: "/vendedor/painel/pedidos?tab=pending_payment",
     },
     {
@@ -39,7 +39,7 @@ function buildMetrics(metrics: DashboardOverviewMetrics): DashboardMetric[] {
       label: "Pedidos para separar",
       value: metrics.to_separate,
       icon: Package,
-      color: "text-blue-400",
+      color: "text-info",
       href: "/vendedor/painel/pedidos?tab=to_separate",
     },
     {
@@ -57,7 +57,7 @@ function buildMetrics(metrics: DashboardOverviewMetrics): DashboardMetric[] {
       sublabel: deltaLabel,
       trend,
       icon: DollarSign,
-      color: "text-emerald-400",
+      color: "text-success",
       href: "/vendedor/painel/financeiro/receitas",
     },
   ];
@@ -88,7 +88,7 @@ export function MetricCardsRow({ metrics }: Props) {
           <Link
             key={card.id}
             href={card.href}
-            className="surface-card p-4 transition hover:border-primary/40 hover:bg-white/[0.07]"
+            className="surface-card p-4 transition-colors hover:border-primary/40 hover:bg-muted/40"
           >
             <div className="flex items-start justify-between gap-2">
               <Icon className={`h-5 w-5 ${card.color}`} aria-hidden />
@@ -99,9 +99,9 @@ export function MetricCardsRow({ metrics }: Props) {
               <p
                 className={`mt-1 text-xs ${
                   card.trend === "up"
-                    ? "text-emerald-300"
+                    ? "text-success"
                     : card.trend === "down"
-                      ? "text-red-300"
+                      ? "text-danger"
                       : "text-muted-foreground/70"
                 }`}
               >

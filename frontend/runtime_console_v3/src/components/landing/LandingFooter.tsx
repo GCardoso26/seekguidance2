@@ -43,13 +43,13 @@ export function LandingFooter() {
         <div className="mb-10 flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
           <Link href="/" className="flex items-center gap-3">
             <JudgeLogo size={32} />
-            <span className="font-bold text-white">Judge TCG</span>
+            <span className="font-bold text-foreground">Judge TCG</span>
           </Link>
           <div className="flex gap-4 text-sm text-slate-400">
-            <a href="https://discord.gg/judgetcg" className="hover:text-white" rel="noopener noreferrer">
+            <a href="https://discord.gg/judgetcg" className="hover:text-foreground" rel="noopener noreferrer">
               Discord
             </a>
-            <a href="https://x.com/judgetcg" className="hover:text-white" rel="noopener noreferrer">
+            <a href="https://x.com/judgetcg" className="hover:text-foreground" rel="noopener noreferrer">
               X / Twitter
             </a>
           </div>

@@ -33,7 +33,7 @@ export function RolePermissionsOverview() {
       {roles.map((role) => {
         const matrix = ROLE_DEFAULTS[role];
         return (
-          <section key={role} className="rounded-xl border border-border bg-white/[0.04] p-4">
+          <section key={role} className="rounded-xl border border-border bg-muted/40 p-4">
             <h3 className="font-semibold text-primary">{ROLE_LABELS[role] ?? role}</h3>
             <div className="mt-3 overflow-x-auto">
               <table className="w-full min-w-[640px] text-xs">
@@ -54,7 +54,7 @@ export function RolePermissionsOverview() {
                       {Object.keys(ACTION_LABELS).map((action) => (
                         <td key={action} className="p-2 text-center">
                           {actions[action] ? (
-                            <span className="text-emerald-400" aria-label="Permitido">
+                            <span className="text-success" aria-label="Permitido">
                               ✓
                             </span>
                           ) : (

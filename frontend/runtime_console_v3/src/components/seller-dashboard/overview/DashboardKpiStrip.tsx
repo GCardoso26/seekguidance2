@@ -25,8 +25,8 @@ export function DashboardKpiStrip() {
               key={p.id}
               type="button"
               onClick={() => setPeriod(p.id)}
-              className={`rounded-full px-3 py-1 text-xs transition ${
-                period === p.id ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-white/15"
+              className={`rounded-md px-3 py-1 text-caption transition-colors ${
+                period === p.id ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/80"
               }`}
             >
               {p.label}
@@ -41,11 +41,11 @@ export function DashboardKpiStrip() {
           {kpis.map((kpi) => (
             <div
               key={kpi.id}
-              className="rounded-xl border border-border bg-white/[0.04] p-3"
+              className="surface-card p-3"
             >
-              <p className="text-lg font-bold tabular-nums text-primary">{kpi.value}</p>
-              <p className="text-xs text-muted-foreground">{kpi.label}</p>
-              {kpi.sub && <p className="mt-0.5 text-[10px] text-muted-foreground/70">{kpi.sub}</p>}
+              <p className="text-h3 font-semibold tabular-nums text-primary">{kpi.value}</p>
+              <p className="text-caption text-muted-foreground">{kpi.label}</p>
+              {kpi.sub && <p className="mt-0.5 text-hint">{kpi.sub}</p>}
             </div>
           ))}
         </div>

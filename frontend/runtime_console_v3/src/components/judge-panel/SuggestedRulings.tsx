@@ -9,14 +9,14 @@ type Props = {
 
 export function SuggestedRulings({ rulings, onApply }: Props) {
   if (rulings.length === 0) {
-    return <p className="text-sm text-white/50">Nenhuma ruling sugerida para este contexto.</p>;
+    return <p className="text-sm text-muted-foreground">Nenhuma ruling sugerida para este contexto.</p>;
   }
   return (
     <ul className="space-y-2">
       {rulings.map((r) => (
         <li key={r.id} className="surface-card rounded-lg p-3">
-          <p className="font-medium text-white">{r.title}</p>
-          <p className="mt-1 text-xs text-white/60">{r.question}</p>
+          <p className="font-medium text-foreground">{r.title}</p>
+          <p className="mt-1 text-xs text-muted-foreground">{r.question}</p>
           <p className="mt-2 text-sm text-emerald-200/90">{r.answer}</p>
           {onApply && (
             <button

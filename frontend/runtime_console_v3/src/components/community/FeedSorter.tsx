@@ -67,7 +67,7 @@ export function FeedSorter({ sort, period, feed, onSortChange, onPeriodChange, o
               onClick={() => onPeriodChange(p.id)}
               className={cn(
                 "rounded-full px-2 py-0.5 text-xs",
-                period === p.id ? "bg-white/15 text-foreground" : "text-muted-foreground",
+                period === p.id ? "bg-muted/60 text-foreground" : "text-muted-foreground",
               )}
             >
               {p.label}

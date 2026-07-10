@@ -57,7 +57,7 @@ function AnalyticsDashboard() {
                   <AlertTriangle className="h-4 w-4" aria-hidden />
                   Alertas
                 </p>
-                <ul className="mt-2 list-inside list-disc text-sm text-amber-200/90">
+                <ul className="mt-2 list-inside list-disc text-sm text-warning/90">
                   {data.alerts.map((a) => (
                     <li key={a}>{a}</li>
                   ))}

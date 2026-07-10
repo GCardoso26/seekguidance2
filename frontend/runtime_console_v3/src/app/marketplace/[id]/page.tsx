@@ -25,7 +25,7 @@ export default function DecklistDetailPage() {
     return (
       <MobileLayout>
         <div className="container mx-auto px-4 py-8 text-center">
-          <p className="text-red-400">Decklist não encontrada</p>
+          <p className="text-danger">Decklist não encontrada</p>
           <Link href="/marketplace/produtos">
             <Button variant="outline" className="mt-4 border-border">
               Voltar aos produtos selados
@@ -65,7 +65,7 @@ export default function DecklistDetailPage() {
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           <div className="space-y-6 lg:col-span-2">
-            <Card className="luxury-card border-border bg-muted/50">
+            <Card className="surface-card border-border bg-muted/50">
               <CardHeader>
                 <CardTitle>Decklist</CardTitle>
               </CardHeader>
@@ -76,7 +76,7 @@ export default function DecklistDetailPage() {
               </CardContent>
             </Card>
 
-            <Card className="luxury-card border-border bg-muted/50">
+            <Card className="surface-card border-border bg-muted/50">
               <CardHeader>
                 <CardTitle>Avaliações</CardTitle>
               </CardHeader>
@@ -105,7 +105,7 @@ export default function DecklistDetailPage() {
           </div>
 
           <div>
-            <Card className="luxury-card border-border bg-muted/50">
+            <Card className="surface-card border-border bg-muted/50">
               <CardContent className="p-6">
                 <p className="text-3xl font-bold text-primary">
                   {new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(
@@ -121,7 +121,7 @@ export default function DecklistDetailPage() {
             </Card>
 
             {decklist.seller_handle && (
-              <Card className="luxury-card mt-4 border-border bg-muted/50">
+              <Card className="surface-card mt-4 border-border bg-muted/50">
                 <CardContent className="p-6">
                   <h3 className="font-semibold">Sobre o vendedor</h3>
                   <p className="mt-2 text-sm text-muted-foreground">

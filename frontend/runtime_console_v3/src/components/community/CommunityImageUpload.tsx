@@ -59,7 +59,7 @@ export function CommunityImageUpload({ label = "Imagem", onUpload, className }: 
       <p className="text-sm text-muted-foreground">{label}</p>
       <label
         className={cn(
-          "flex min-h-[44px] cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-white/15 bg-muted/50 px-4 py-6 transition hover:border-primary/40",
+          "flex min-h-[44px] cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-border bg-muted/50 px-4 py-6 transition hover:border-primary/40",
           uploading && "pointer-events-none opacity-60",
         )}
         onDragOver={(e) => e.preventDefault()}
@@ -91,7 +91,7 @@ export function CommunityImageUpload({ label = "Imagem", onUpload, className }: 
           }}
         />
       </label>
-      {error && <p className="text-xs text-red-400">{error}</p>}
+      {error && <p className="text-xs text-danger">{error}</p>}
     </div>
   );
 }

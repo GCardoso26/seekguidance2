@@ -19,7 +19,7 @@ function AdminDashboard() {
       />
 
       {isLoading && <p className="text-muted-foreground">Carregando…</p>}
-      {isError && <p className="text-red-400">Não foi possível carregar estatísticas.</p>}
+      {isError && <p className="text-danger">Não foi possível carregar estatísticas.</p>}
 
       {d && (
         <>

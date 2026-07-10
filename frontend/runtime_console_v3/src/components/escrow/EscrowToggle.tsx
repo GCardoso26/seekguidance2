@@ -32,7 +32,7 @@ export function EscrowToggle({
         />
         <span className="flex-1">
           <span className="flex items-center gap-2 font-medium text-foreground">
-            <Shield className="h-4 w-4 text-emerald-400" />
+            <Shield className="h-4 w-4 text-success" />
             Compra Protegida
           </span>
           <span className="mt-1 block text-sm text-muted-foreground">

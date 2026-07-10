@@ -31,10 +31,10 @@ export default function StorePage() {
         {isLoading && <p className="mt-4 text-muted-foreground">Carregando…</p>}
         {store && (
           <>
-            <div className="luxury-card mt-4">
+            <div className="surface-card mt-4">
               <h1 className="text-2xl font-bold">{String(store.name)}</h1>
               {Boolean(store.verified) && (
-                <p className="text-sm text-primary-light">✓ Conta verificada</p>
+                <p className="text-sm text-primary">✓ Conta verificada</p>
               )}
               <p className="text-muted-foreground">
                 📍 {String(store.city ?? "")} · ⭐ {String(store.average_rating)} (

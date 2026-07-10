@@ -196,7 +196,7 @@ export function DeckBuilder({ deckId }: DeckBuilderProps) {
             format={currentFormat}
             onImport={() => setShowImportModal(true)}
           />
-          {error && <p className="text-sm text-red-400">{error}</p>}
+          {error && <p className="text-sm text-danger">{error}</p>}
           <DeckValidationBar
             currentCards={validator?.zoneTotal(deck, "main") ?? 0}
             minCards={Number((currentFormat?.rules?.min_cards as number | undefined) ?? 60)}

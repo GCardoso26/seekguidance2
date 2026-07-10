@@ -5,12 +5,12 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "focus-ring inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-200 disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98]",
+  "focus-ring inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-small font-medium transition-all duration-base disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98]",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90",
-        primary: "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90",
+        default: "bg-primary text-primary-foreground shadow-xs hover:bg-primary/90",
+        primary: "bg-primary text-primary-foreground shadow-xs hover:bg-primary/90",
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         outline: "border border-border bg-card hover:bg-muted",
         ghost: "hover:bg-muted hover:text-foreground",
@@ -20,7 +20,7 @@ const buttonVariants = cva(
       },
       size: {
         default: "h-9 px-4 py-2",
-        sm: "h-8 rounded-md px-3 text-xs",
+        sm: "h-8 rounded-md px-3 text-caption",
         lg: "h-10 px-6 text-body",
         icon: "h-9 w-9",
       },
@@ -48,14 +48,14 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     return (
       <button
-        className={cn(buttonVariants({ variant, size, className }), loading && "relative")}
+        className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
         disabled={disabled || loading}
+        aria-busy={loading || undefined}
         {...props}
       >
-        {loading && <Loader2 className="absolute left-3 h-4 w-4 animate-spin" aria-hidden />}
-        <span className={loading ? "opacity-0" : "opacity-100"}>{children}</span>
-        {loading && <span className="absolute">Processando...</span>}
+        {loading && <Loader2 className="h-4 w-4 shrink-0 animate-spin" aria-hidden />}
+        <span>{loading ? "Processando…" : children}</span>
       </button>
     );
   },

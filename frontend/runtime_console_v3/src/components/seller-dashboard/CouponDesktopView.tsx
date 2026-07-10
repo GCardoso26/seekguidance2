@@ -109,7 +109,7 @@ function buildCouponColumns(
               disabled={isBusy}
               aria-label={`Excluir ${coupon.code}`}
             >
-              <Trash2 className="h-4 w-4 text-red-300" />
+              <Trash2 className="h-4 w-4 text-danger" />
             </Button>
           </div>
         );

@@ -28,7 +28,7 @@ export function CardActions({ card }: CardActionsProps) {
           </Button>
         </Dialog.Trigger>
         <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 z-50 bg-black/60" />
+          <Dialog.Overlay className="fixed inset-0 z-50 bg-foreground/50" />
           <Dialog.Content className="fixed left-1/2 top-1/2 z-50 w-[min(100vw-2rem,28rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl border bg-background p-6 shadow-xl">
             <div className="mb-4 flex items-center justify-between">
               <Dialog.Title className="text-lg font-semibold">Criar alerta de preço</Dialog.Title>
@@ -109,7 +109,7 @@ function PriceAlertForm({ card, onDone }: { card: UnifiedCard; onDone: () => voi
           Alerta criado! Você será notificado quando o preço {priceCondition === "below" ? "baixar" : "subir"}.
         </p>
       )}
-      {error && <p className="text-sm text-red-500">{error}</p>}
+      {error && <p className="text-sm text-danger">{error}</p>}
 
       <div>
         <label htmlFor="price-condition" className="text-sm font-medium">

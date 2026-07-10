@@ -26,7 +26,7 @@ export function DashboardWorkspace({ widgets }: Props) {
         return (
           <div
             key={id}
-            className={pinned ? "rounded-xl ring-1 ring-luxury-gold/30" : undefined}
+            className={pinned ? "rounded-xl ring-1 ring-primary/30" : undefined}
             data-widget={id}
           >
             {node}

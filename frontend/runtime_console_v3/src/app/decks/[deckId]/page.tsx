@@ -70,7 +70,7 @@ export default function DeckShowcasePage({
           {deck.main_deck.map((entry) => (
             <Link key={entry.id} href={`/loja/cartas/${entry.card_id}`} className="relative">
               <CardCard card={entry.card} variant="compact" showPrice={false} />
-              <span className="absolute right-2 top-2 rounded bg-black/70 px-2 py-1 text-xs text-white">
+              <span className="absolute right-2 top-2 rounded bg-foreground/60 px-2 py-1 text-xs text-foreground">
                 {entry.quantity}x
               </span>
             </Link>
@@ -84,7 +84,7 @@ export default function DeckShowcasePage({
               {deck.sideboard.map((entry) => (
                 <Link key={entry.id} href={`/loja/cartas/${entry.card_id}`} className="relative">
                   <CardCard card={entry.card} variant="compact" showPrice={false} />
-                  <span className="absolute right-2 top-2 rounded bg-black/70 px-2 py-1 text-xs text-white">
+                  <span className="absolute right-2 top-2 rounded bg-foreground/60 px-2 py-1 text-xs text-foreground">
                     {entry.quantity}x
                   </span>
                 </Link>

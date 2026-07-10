@@ -43,8 +43,8 @@ function MoverList({
                 <span
                   className={
                     positive
-                      ? "shrink-0 text-emerald-400"
-                      : "shrink-0 text-red-400"
+                      ? "shrink-0 text-success"
+                      : "shrink-0 text-danger"
                   }
                 >
                   {item.changePct > 0 ? "+" : ""}

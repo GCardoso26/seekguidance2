@@ -101,7 +101,7 @@ export default function PublicBuylistPage() {
             ) : (
               <div className="space-y-3">
                 <textarea
-                  className="w-full rounded-lg border border-border bg-black/30 p-3 text-sm"
+                  className="w-full rounded-lg border border-border bg-foreground/30 p-3 text-sm"
                   placeholder="Mensagem opcional (condição das cartas, etc.)"
                   rows={3}
                   value={message}
@@ -110,7 +110,7 @@ export default function PublicBuylistPage() {
                 <Button className="w-full" disabled={loading} onClick={() => void handleSubmit()}>
                   {loading ? "Enviando…" : "Aceitar oferta e vender minha coleção"}
                 </Button>
-                {error && <p className="text-sm text-red-300">{error}</p>}
+                {error && <p className="text-sm text-danger">{error}</p>}
                 <p className="text-xs text-muted-foreground">
                   Precisa estar logado. Após aceite, a loja confirma e o pagamento pode usar escrow.
                 </p>

@@ -29,7 +29,7 @@ export function InviteUserDrawer({
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/60" />
+        <Dialog.Overlay className="fixed inset-0 z-50 bg-foreground/50" />
         <Dialog.Content className="fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col border-l border-border bg-background shadow-xl">
           <div className="flex items-center justify-between border-b border-border px-4 py-3">
             <Dialog.Title className="text-lg font-semibold">Convidar membro</Dialog.Title>

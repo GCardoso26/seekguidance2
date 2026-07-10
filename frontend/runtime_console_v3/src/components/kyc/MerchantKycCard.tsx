@@ -171,12 +171,12 @@ export function MerchantKycCard() {
           Ative o perfil lojista e complete a verificação de identidade (KYC) para publicar produtos.
         </p>
         {accountStatusError && (
-          <p className="mt-2 text-sm text-amber-200">
+          <p className="mt-2 text-sm text-warning">
             Não foi possível carregar o status da conta. Tente novamente em instantes.
           </p>
         )}
         {cpfPending && (
-          <p className="mt-2 text-sm text-amber-200">
+          <p className="mt-2 text-sm text-warning">
             Recomendamos{" "}
             <Link href="/completar-perfil" className="underline">
               completar seu CPF
@@ -192,7 +192,7 @@ export function MerchantKycCard() {
           {onboardingMutation.isPending ? "Abrindo…" : "Tornar-se lojista"}
         </Button>
         {(onboardingMutation.isError || onboardingError) && (
-          <p className="mt-2 text-sm text-red-300">
+          <p className="mt-2 text-sm text-danger">
             {onboardingError ?? onboardingMutation.error?.message}
           </p>
         )}
@@ -237,7 +237,7 @@ export function MerchantKycCard() {
         <p className="mt-2 text-sm">Você pode publicar produtos e receber pagamentos.</p>
       )}
       {(onboardingMutation.isError || onboardingError) && (
-        <p className="mt-2 text-sm text-red-300">
+        <p className="mt-2 text-sm text-danger">
           {onboardingError ?? onboardingMutation.error?.message}
         </p>
       )}

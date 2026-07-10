@@ -26,12 +26,12 @@ const ICONS: Record<string, LucideIcon> = {
 
 const COLOR_MAP: Record<string, string> = {
   yellow: "text-yellow-400 border-yellow-400/40 bg-yellow-400/10",
-  blue: "text-blue-400 border-blue-400/40 bg-blue-400/10",
+  blue: "text-info border-blue-400/40 bg-blue-400/10",
   purple: "text-purple-400 border-purple-400/40 bg-purple-400/10",
   orange: "text-orange-400 border-orange-400/40 bg-orange-400/10",
   gold: "text-primary border-primary/40 bg-primary/10",
   silver: "text-slate-300 border-slate-400/40 bg-slate-400/10",
-  green: "text-emerald-400 border-emerald-400/40 bg-emerald-400/10",
+  green: "text-success border-emerald-400/40 bg-emerald-400/10",
   pink: "text-pink-400 border-pink-400/40 bg-pink-400/10",
 };
 
@@ -63,13 +63,13 @@ export function BadgeCard({ badge, animate }: Props) {
       className={cn(
         "relative flex flex-col items-center rounded-2xl border p-4 text-center transition",
         badge.earned ? colorClass : "border-border bg-muted/50 grayscale opacity-70",
-        animate && badge.earned && "animate-pulse ring-2 ring-luxury-gold/50",
+        animate && badge.earned && "animate-pulse ring-2 ring-primary/50",
       )}
     >
       <div
         className={cn(
           "mb-3 flex h-14 w-14 items-center justify-center rounded-full border",
-          badge.earned ? colorClass : "border-border bg-black/20",
+          badge.earned ? colorClass : "border-border bg-muted/50",
         )}
       >
         <Icon className="h-7 w-7" aria-hidden />
@@ -77,12 +77,12 @@ export function BadgeCard({ badge, animate }: Props) {
       <h3 className="text-sm font-semibold text-foreground">{badge.name}</h3>
       <p className="mt-1 text-xs text-muted-foreground">{badge.description}</p>
       {!badge.earned && badge.condition_type !== "tournament_rank" && (
-        <p className="mt-2 text-[11px] font-medium text-primary-light">
+        <p className="mt-2 text-caption font-medium text-primary">
           {badge.progress}/{badge.condition_value}
         </p>
       )}
       {badge.earned && badge.earnedAt && (
-        <p className="mt-2 text-[10px] text-muted-foreground/70">
+        <p className="mt-2 text-caption text-muted-foreground/70">
           {new Date(badge.earnedAt).toLocaleDateString("pt-BR")}
         </p>
       )}

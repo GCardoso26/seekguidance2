@@ -160,7 +160,7 @@ export function TournamentCreateForm() {
 
       <div className="space-y-6">
 
-        <h2 className="text-xl font-semibold text-white">Selecione o Jogo</h2>
+        <h2 className="text-xl font-semibold text-foreground">Selecione o Jogo</h2>
 
         <GameSelector
 
@@ -204,13 +204,13 @@ export function TournamentCreateForm() {
 
     <div className="space-y-6">
 
-      <button type="button" onClick={() => setStep(1)} className="text-sm text-slate-400 hover:text-white">
+      <button type="button" onClick={() => setStep(1)} className="text-sm text-slate-400 hover:text-foreground">
 
         ← Voltar
 
       </button>
 
-      <h2 className="text-xl font-semibold text-white">
+      <h2 className="text-xl font-semibold text-foreground">
 
         Configurar Torneio — {adapter?.name}
 
@@ -228,7 +228,7 @@ export function TournamentCreateForm() {
 
           onChange={(e) => setName(e.target.value)}
 
-          className="w-full rounded-lg border border-slate-700 bg-slate-800 px-4 py-2 text-white"
+          className="w-full rounded-lg border border-slate-700 bg-slate-800 px-4 py-2 text-foreground"
 
           placeholder="Ex: Liga Pokémon Lisboa — Junho"
 
@@ -248,7 +248,7 @@ export function TournamentCreateForm() {
 
           onChange={(e) => setFormatCode(e.target.value)}
 
-          className="w-full rounded-lg border border-slate-700 bg-slate-800 px-4 py-2 text-white"
+          className="w-full rounded-lg border border-slate-700 bg-slate-800 px-4 py-2 text-foreground"
 
         >
 
@@ -300,7 +300,7 @@ export function TournamentCreateForm() {
 
             onChange={(e) => setTimerMinutes(Number(e.target.value))}
 
-            className="w-full rounded-lg border border-slate-700 bg-slate-800 px-4 py-2 text-white"
+            className="w-full rounded-lg border border-slate-700 bg-slate-800 px-4 py-2 text-foreground"
 
           />
 
@@ -316,7 +316,7 @@ export function TournamentCreateForm() {
 
             onChange={(e) => setMatchType(e.target.value)}
 
-            className="w-full rounded-lg border border-slate-700 bg-slate-800 px-4 py-2 text-white"
+            className="w-full rounded-lg border border-slate-700 bg-slate-800 px-4 py-2 text-foreground"
 
           >
 

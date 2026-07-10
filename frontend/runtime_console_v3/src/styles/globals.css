@@ -71,7 +71,7 @@
   }
 
   .section-title {
-    @apply text-sm font-medium uppercase tracking-wide text-muted-foreground;
+    @apply text-caption font-medium uppercase tracking-wide text-muted-foreground;
   }
 
   .focus-ring {
@@ -83,6 +83,42 @@
     font-weight: 700;
     line-height: var(--leading-tight);
     letter-spacing: -0.03em;
+  }
+
+  .text-display-xl {
+    font-size: var(--text-display-xl);
+    font-weight: 700;
+    line-height: var(--leading-tight);
+    letter-spacing: -0.03em;
+  }
+
+  .text-display-l {
+    font-size: var(--text-display-l);
+    font-weight: 700;
+    line-height: var(--leading-tight);
+    letter-spacing: -0.03em;
+  }
+
+  .text-h4 {
+    font-size: var(--text-h4);
+    font-weight: 600;
+    line-height: var(--leading-tight);
+  }
+
+  .text-h5 {
+    font-size: var(--text-h5);
+    font-weight: 600;
+    line-height: var(--leading-tight);
+  }
+
+  .text-body-xl {
+    font-size: var(--text-body-xl);
+    line-height: var(--leading-normal);
+  }
+
+  .text-body-lg {
+    font-size: var(--text-body-lg);
+    line-height: var(--leading-normal);
   }
 
   .text-body {
@@ -98,7 +134,48 @@
   .text-caption {
     font-size: var(--text-caption);
     line-height: var(--leading-normal);
+  }
+
+  .text-label {
+    font-size: var(--text-label);
+    font-weight: 500;
+    line-height: var(--leading-normal);
+    letter-spacing: 0.01em;
+  }
+
+  .text-hint {
+    font-size: var(--text-hint);
+    line-height: var(--leading-normal);
     @apply text-muted-foreground;
+  }
+
+  .text-overline {
+    font-size: var(--text-overline);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    line-height: var(--leading-normal);
+    @apply text-muted-foreground;
+  }
+
+  .sticky-mobile-bar {
+    bottom: max(var(--mobile-nav-offset), env(safe-area-inset-bottom, 0px));
+  }
+
+  .pb-safe-nav {
+    padding-bottom: max(var(--mobile-nav-offset), env(safe-area-inset-bottom, 0px));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in,
+  .animate-fade-in-up,
+  .skeleton-shimmer {
+    animation: none !important;
+  }
+
+  .surface-card-interactive {
+    transition: none !important;
   }
 }
 

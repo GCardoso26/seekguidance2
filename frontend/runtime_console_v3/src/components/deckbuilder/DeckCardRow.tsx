@@ -69,7 +69,7 @@ export function DeckCardRow({
         type="button"
         disabled={disabled}
         onClick={onRemove}
-        className="rounded p-1 text-red-400 hover:bg-red-500/10 disabled:opacity-40"
+        className="rounded p-1 text-danger hover:bg-red-500/10 disabled:opacity-40"
         aria-label="Remover carta"
       >
         <Trash2 className="h-3 w-3" />

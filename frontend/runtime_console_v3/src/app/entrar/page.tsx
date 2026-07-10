@@ -77,7 +77,7 @@ function EntrarForm() {
             required
             autoComplete="email"
             placeholder="E-mail"
-            className="w-full rounded-lg border border-border bg-black/30 px-3 py-2 text-sm"
+            className="w-full rounded-lg border border-border bg-foreground/30 px-3 py-2 text-sm"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
@@ -87,11 +87,11 @@ function EntrarForm() {
             minLength={8}
             autoComplete={mode === "register" ? "new-password" : "current-password"}
             placeholder="Senha (mín. 8 caracteres)"
-            className="w-full rounded-lg border border-border bg-black/30 px-3 py-2 text-sm"
+            className="w-full rounded-lg border border-border bg-foreground/30 px-3 py-2 text-sm"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          {error && <p className="text-sm text-red-300">{error}</p>}
+          {error && <p className="text-sm text-danger">{error}</p>}
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? "Aguarde…" : mode === "login" ? "Entrar com e-mail" : "Registrar"}
           </Button>

@@ -110,14 +110,14 @@ export function PdvPixPayment({ storeId, storeName, items, onComplete, isPending
     <div className="space-y-3" data-testid="pdv-pix-payment">
       {pixLoading && !pixIntent && (
         <p className="flex items-center gap-2 text-sm text-muted-foreground">
-          <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-luxury-gold border-t-transparent" />
+          <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-primary border-t-transparent" />
           Gerando QR code PIX…
         </p>
       )}
-      {pixError && <p className="text-sm text-red-300">{pixError}</p>}
+      {pixError && <p className="text-sm text-danger">{pixError}</p>}
       {pixExpired && (
         <div className="space-y-2 rounded-lg border border-amber-500/30 bg-amber-950/20 p-3 text-sm">
-          <p className="text-amber-200">PIX expirado ou tempo esgotado (5 min).</p>
+          <p className="text-warning">PIX expirado ou tempo esgotado (5 min).</p>
           <Button type="button" size="sm" variant="outline" onClick={() => void generatePix()}>
             Gerar novo PIX
           </Button>

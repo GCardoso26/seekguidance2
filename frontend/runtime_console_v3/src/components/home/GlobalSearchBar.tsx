@@ -124,7 +124,7 @@ export function GlobalSearchBar({
             className={cn(
               "w-full pr-10",
               isHeader
-                ? "h-9 rounded-lg border-border bg-background pl-9 text-sm text-foreground placeholder:text-muted-foreground focus:ring-luxury-gold/30"
+                ? "h-9 rounded-lg border-border bg-background pl-9 text-sm text-foreground placeholder:text-muted-foreground focus:ring-primary/30"
                 : "h-12 rounded-full border-border bg-card/80 pl-12 text-base shadow-sm backdrop-blur-sm",
             )}
             aria-label="Termo de busca"
@@ -138,7 +138,7 @@ export function GlobalSearchBar({
               <button
                 type="button"
                 onClick={() => openPalette()}
-                className="hidden rounded border border-white/15 px-1.5 py-0.5 text-[10px] text-muted-foreground hover:bg-muted sm:inline"
+                className="hidden rounded border border-border px-1.5 py-0.5 text-caption text-muted-foreground hover:bg-muted sm:inline"
                 aria-label="Abrir busca universal (Ctrl+K)"
               >
                 ⌘K
@@ -207,7 +207,7 @@ export function GlobalSearchBar({
                       </p>
                     </div>
                     {price !== undefined && (
-                      <span className="shrink-0 text-sm font-medium text-emerald-400">
+                      <span className="shrink-0 text-sm font-medium text-success">
                         {formatCurrency(price, card.latestPrice?.currency ?? "USD")}
                       </span>
                     )}

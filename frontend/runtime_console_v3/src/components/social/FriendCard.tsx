@@ -46,7 +46,7 @@ export function FriendCard({ friend, type = "friend" }: Props) {
         </Button>
       ) : (
         friend.unread ? (
-          <span className="rounded-full bg-primary/20 px-2 py-1 text-xs text-primary-light">
+          <span className="rounded-full bg-primary/20 px-2 py-1 text-xs text-primary">
             {friend.unread} não lidas
           </span>
         ) : null

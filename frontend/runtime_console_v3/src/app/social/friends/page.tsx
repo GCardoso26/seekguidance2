@@ -23,7 +23,7 @@ export default function FriendsPage() {
             type="button"
             onClick={() => setTab("friends")}
             className={`px-4 py-2 text-sm font-medium ${
-              tab === "friends" ? "border-b-2 border-luxury-gold text-primary" : "text-muted-foreground"
+              tab === "friends" ? "border-b-2 border-primary text-primary" : "text-muted-foreground"
             }`}
           >
             Amigos ({friends.length})
@@ -32,7 +32,7 @@ export default function FriendsPage() {
             type="button"
             onClick={() => setTab("pending")}
             className={`px-4 py-2 text-sm font-medium ${
-              tab === "pending" ? "border-b-2 border-luxury-gold text-primary" : "text-muted-foreground"
+              tab === "pending" ? "border-b-2 border-primary text-primary" : "text-muted-foreground"
             }`}
           >
             Pendentes ({pendingRequests.length})

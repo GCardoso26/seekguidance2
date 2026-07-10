@@ -84,7 +84,7 @@ export function ResponseCard({
       >
         <VerdictIcon key={parsed.kind} kind={parsed.kind} />
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-widest text-[var(--tcg-text-secondary)]">
+          <p className="text-caption font-semibold uppercase tracking-widest text-[var(--tcg-text-secondary)]">
             Veredito
           </p>
           <p
@@ -110,7 +110,7 @@ export function ResponseCard({
         )}
 
         {response.cache_hit && !isStreaming && (
-          <span className="inline-flex items-center gap-1 rounded-full border border-[var(--tcg-primary-light)]/40 bg-[var(--tcg-primary)]/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-[var(--tcg-primary-light)]">
+          <span className="inline-flex items-center gap-1 rounded-full border border-[var(--tcg-primary-light)]/40 bg-[var(--tcg-primary)]/15 px-2.5 py-1 text-caption font-semibold uppercase tracking-wide text-[var(--tcg-primary-light)]">
             <Zap className="h-3 w-3" aria-hidden />
             Resposta instantânea
           </span>
@@ -139,7 +139,7 @@ export function ResponseCard({
 
         {parsed.ruleApplied && !isStreaming && (
           <section className="rounded-xl border border-[hsl(var(--tcg-accent)/0.2)] bg-[hsl(var(--tcg-accent)/0.06)] px-3 py-2.5">
-            <p className="text-[10px] font-semibold uppercase tracking-wide text-[hsl(var(--tcg-accent))]">
+            <p className="text-caption font-semibold uppercase tracking-wide text-[hsl(var(--tcg-accent))]">
               Regra aplicada
             </p>
             <p className="mt-1 text-sm font-medium leading-snug text-[hsl(var(--foreground))]">
@@ -155,7 +155,7 @@ export function ResponseCard({
         )}
 
         <section>
-          <p className="text-[10px] font-semibold uppercase tracking-wide text-[hsl(222_15%_45%)]">
+          <p className="text-caption font-semibold uppercase tracking-wide text-[hsl(222_15%_45%)]">
             Explicação
           </p>
           <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-[hsl(var(--foreground))]">
@@ -168,7 +168,7 @@ export function ResponseCard({
 
         {parsed.exceptions && !isStreaming && (
           <section className="rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--muted))]/30 px-3 py-2.5">
-            <p className="text-[10px] font-semibold uppercase tracking-wide text-[hsl(222_15%_45%)]">
+            <p className="text-caption font-semibold uppercase tracking-wide text-[hsl(222_15%_45%)]">
               Excepções / notas
             </p>
             <p className="mt-1 text-sm leading-relaxed text-[hsl(222_20%_35%)]">{parsed.exceptions}</p>

@@ -8,11 +8,11 @@ export function RetentionMetrics({ returningRate, noShowRate, disputeRate = 0 }:
   return (
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
       <div className="rounded-lg border border-slate-700 p-4">
-        <div className="text-2xl font-bold text-emerald-400">{(returningRate * 100).toFixed(0)}%</div>
+        <div className="text-2xl font-bold text-success">{(returningRate * 100).toFixed(0)}%</div>
         <div className="text-xs text-slate-400">Jogadores recorrentes</div>
       </div>
       <div className="rounded-lg border border-slate-700 p-4">
-        <div className="text-2xl font-bold text-amber-400">{(noShowRate * 100).toFixed(0)}%</div>
+        <div className="text-2xl font-bold text-warning">{(noShowRate * 100).toFixed(0)}%</div>
         <div className="text-xs text-slate-400">Taxa de no-show</div>
       </div>
       <div className="rounded-lg border border-slate-700 p-4">

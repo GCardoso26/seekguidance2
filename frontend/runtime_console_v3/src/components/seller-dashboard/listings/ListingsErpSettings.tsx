@@ -127,7 +127,7 @@ export function ListingsErpSettings({ filters, listings, onPreferencesChange, pr
         </select>
       )}
       {showColumns && (
-        <div className="flex w-full flex-wrap gap-2 rounded-lg border border-border bg-white/[0.03] p-2">
+        <div className="flex w-full flex-wrap gap-2 rounded-lg border border-border bg-muted/40 p-2">
           {LISTINGS_COLUMN_IDS.filter((id) => id !== "select" && id !== "actions").map((id) => (
             <label key={id} className="flex items-center gap-1.5 text-xs">
               <input

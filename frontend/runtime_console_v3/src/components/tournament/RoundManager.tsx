@@ -22,7 +22,7 @@ export function RoundManager({ tournamentId, currentRound, roundId, totalRounds 
       />
       <div className="rounded-xl border border-slate-700 bg-slate-800/60 p-6">
         <p className="text-sm text-slate-400">Rodada</p>
-        <p className="text-2xl font-bold text-white">
+        <p className="text-2xl font-bold text-foreground">
           {currentRound} de {totalRounds}
         </p>
       </div>
@@ -37,14 +37,14 @@ export function RoundManager({ tournamentId, currentRound, roundId, totalRounds 
         <button
           type="button"
           onClick={() => flow.startRound.mutate(currentRound)}
-          className="rounded-lg border border-slate-600 px-4 py-2 text-white"
+          className="rounded-lg border border-slate-600 px-4 py-2 text-foreground"
         >
           Iniciar timer
         </button>
         <button
           type="button"
           onClick={() => flow.endRound.mutate(currentRound)}
-          className="rounded-lg border border-slate-600 px-4 py-2 text-white"
+          className="rounded-lg border border-slate-600 px-4 py-2 text-foreground"
         >
           Finalizar rodada
         </button>

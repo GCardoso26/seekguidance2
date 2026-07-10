@@ -362,7 +362,7 @@ export function CardDetailPage({ cardId }: CardDetailPageProps) {
         </div>
 
         {/* CTA mobile fixo */}
-        <div className="fixed bottom-[4.5rem] left-0 right-0 z-40 border-t border-border bg-card/95 p-3 shadow-lg backdrop-blur-md md:bottom-0 lg:hidden">
+        <div className="sticky-mobile-bar fixed left-0 right-0 z-40 border-t border-border bg-card/95 p-3 shadow-card backdrop-blur-md md:bottom-0 lg:hidden">
           <Button
             type="button"
             size="lg"

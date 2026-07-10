@@ -39,13 +39,13 @@ export function RulesAccessDenied({ reason, title = "Acesso às regras" }: Props
             </Link>
             <Link
               href="/vendedor/painel/planos"
-              className="rounded-full border border-white/15 px-6 py-3 text-sm font-medium text-foreground hover:bg-muted/80"
+              className="rounded-full border border-border px-6 py-3 text-sm font-medium text-foreground hover:bg-muted/80"
             >
               Plano LGS para lojas
             </Link>
             <Link
               href="/judge/dashboard"
-              className="rounded-full border border-white/15 px-6 py-3 text-sm font-medium text-foreground hover:bg-muted/80"
+              className="rounded-full border border-border px-6 py-3 text-sm font-medium text-foreground hover:bg-muted/80"
             >
               Solicitar certificação de juiz
             </Link>

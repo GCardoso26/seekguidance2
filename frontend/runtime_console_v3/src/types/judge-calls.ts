@@ -101,7 +101,7 @@ export const CALL_TYPE_LABELS: Record<JudgeCallType, string> = {
 
 export const PRIORITY_COLORS: Record<JudgeCallPriority, string> = {
   low: "bg-slate-500/20 text-slate-300",
-  medium: "bg-amber-500/20 text-amber-200",
+  medium: "bg-amber-500/20 text-warning",
   high: "bg-orange-500/20 text-orange-200",
-  urgent: "bg-red-500/20 text-red-300",
+  urgent: "bg-red-500/20 text-danger",
 };

@@ -80,7 +80,7 @@ export function ProUpgradePanel({ storeId, plan, onSubscribed }: Props) {
       <div className="mt-6 border-t border-border pt-6">
         <ProCheckout storeId={storeId} onSuccess={onSubscribed} />
       </div>
-      {error && <p className="mt-3 text-sm text-red-300">{error}</p>}
+      {error && <p className="mt-3 text-sm text-danger">{error}</p>}
     </div>
   );
 }

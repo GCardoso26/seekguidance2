@@ -32,7 +32,7 @@ export function JudgeCallCard({ call, type }: JudgeCallCardProps) {
             <div className="flex-1 space-y-2">
               <div className="flex flex-wrap items-center gap-2">
                 <Badge className={PRIORITY_COLORS[call.priority]}>{call.priority.toUpperCase()}</Badge>
-                <Badge className="border border-border bg-transparent text-white/80">
+                <Badge className="border border-border bg-transparent text-foreground/80">
                   {CALL_TYPE_LABELS[call.type]}
                 </Badge>
                 {call.status === "escalated" && (
@@ -40,14 +40,14 @@ export function JudgeCallCard({ call, type }: JudgeCallCardProps) {
                 )}
               </div>
 
-              <h3 className="font-semibold text-white">
+              <h3 className="font-semibold text-foreground">
                 Mesa {call.tableNumber}
                 {call.tournamentName ? ` — ${call.tournamentName}` : ""}
               </h3>
 
-              <p className="text-sm text-white/60">{call.description}</p>
+              <p className="text-sm text-muted-foreground">{call.description}</p>
 
-              <div className="flex flex-wrap gap-4 text-xs text-white/50">
+              <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
                 {call.callerHandle && (
                   <span className="inline-flex items-center gap-1">
                     <User className="h-3.5 w-3.5" />@{call.callerHandle}
@@ -80,7 +80,7 @@ export function JudgeCallCard({ call, type }: JudgeCallCardProps) {
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="text-red-400 hover:text-red-300"
+                    className="text-danger hover:text-danger"
                     disabled={escalating}
                     onClick={() => {
                       const reason = window.prompt("Motivo da escalação:");
@@ -92,7 +92,7 @@ export function JudgeCallCard({ call, type }: JudgeCallCardProps) {
                 </>
               )}
               {type === "resolved" && (
-                <Badge className="bg-primary/20 text-primary-light">Resolvido</Badge>
+                <Badge className="bg-primary/20 text-primary">Resolvido</Badge>
               )}
             </div>
           </div>

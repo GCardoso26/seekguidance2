@@ -9,7 +9,7 @@ type FieldErrorProps = {
 export function FieldError({ message, className, id }: FieldErrorProps) {
   if (!message) return null;
   return (
-    <p id={id} role="alert" className={cn("mt-1 text-xs text-red-400", className)}>
+    <p id={id} role="alert" className={cn("mt-1 text-xs text-danger", className)}>
       {message}
     </p>
   );

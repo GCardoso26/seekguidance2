@@ -28,7 +28,7 @@ function LeaguesList() {
             <Link
               key={String(l.id)}
               href={`/leagues/${l.id}`}
-              className="block rounded-xl border border-border p-4 hover:border-luxury-gold/50"
+              className="block rounded-xl border border-border p-4 hover:border-primary/50"
             >
               <h2 className="font-semibold">{String(l.name)}</h2>
               <p className="text-sm text-muted-foreground">

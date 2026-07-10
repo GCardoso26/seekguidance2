@@ -78,7 +78,7 @@ export function AddListingDrawer({ card, open, onOpenChange, onSaved }: Props) {
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/60" />
+        <Dialog.Overlay className="fixed inset-0 z-50 bg-foreground/50" />
         <Dialog.Content className="fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col border-l border-border bg-background shadow-xl outline-none">
           <div className="flex items-center justify-between border-b border-border px-4 py-3">
             <Dialog.Title className="text-lg font-semibold">
@@ -116,7 +116,7 @@ export function AddListingDrawer({ card, open, onOpenChange, onSaved }: Props) {
                   className="mt-1 w-full surface-card rounded-lg px-3 py-2"
                   {...register("price", { valueAsNumber: true })}
                 />
-                {errors.price && <span className="text-xs text-red-400">{errors.price.message}</span>}
+                {errors.price && <span className="text-xs text-danger">{errors.price.message}</span>}
               </label>
 
               <label className="mb-3 block text-sm">
@@ -128,7 +128,7 @@ export function AddListingDrawer({ card, open, onOpenChange, onSaved }: Props) {
                   {...register("quantity", { valueAsNumber: true })}
                 />
                 {errors.quantity && (
-                  <span className="text-xs text-red-400">{errors.quantity.message}</span>
+                  <span className="text-xs text-danger">{errors.quantity.message}</span>
                 )}
               </label>
 

@@ -90,7 +90,7 @@ export function NotificationsPage() {
           >
             <div className="flex justify-between gap-2">
               <div>
-                <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                <span className="text-caption uppercase tracking-wide text-muted-foreground">
                   {NOTIFICATION_TYPE_LABELS[n.type] ?? n.type}
                 </span>
                 <h3 className="font-medium text-foreground">{n.title}</h3>
@@ -118,7 +118,7 @@ export function NotificationsPage() {
               <button
                 type="button"
                 onClick={() => void remove.mutate(n)}
-                className="text-xs text-muted-foreground hover:text-red-400"
+                className="text-xs text-muted-foreground hover:text-danger"
               >
                 Remover
               </button>

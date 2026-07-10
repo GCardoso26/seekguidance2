@@ -73,7 +73,7 @@ export function PlanCheckout({ storeId, plan, onSuccess }: Props) {
           <p className="font-mono break-all">{String(pixData.copy_payload ?? "")}</p>
         </div>
       )}
-      {error && <p className="text-xs text-red-300">{error}</p>}
+      {error && <p className="text-xs text-danger">{error}</p>}
     </div>
   );
 }

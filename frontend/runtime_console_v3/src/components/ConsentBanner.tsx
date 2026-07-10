@@ -28,7 +28,7 @@ export function ConsentBanner() {
         <p className="text-xs leading-relaxed text-foreground/90">
           Utilizamos cookies e armazenamento local para histórico de consultas. Com login Google,
           nome e email são guardados no Supabase.{" "}
-          <Link href="/privacidade" className="font-semibold text-primary underline hover:text-primary-light">
+          <Link href="/privacidade" className="font-semibold text-primary underline hover:text-primary">
             Política de privacidade
           </Link>
           .

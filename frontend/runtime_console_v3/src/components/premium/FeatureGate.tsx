@@ -34,7 +34,7 @@ export function FeatureGate({ feature, children, fallback }: Props) {
           <p className="mb-4 text-slate-400">Esta funcionalidade requer o plano Pro.</p>
           <button
             type="button"
-            className="text-emerald-400 hover:underline"
+            className="text-success hover:underline"
             onClick={() => {
               void trackEvent("paywall_hit", { feature });
               showUpgrade(gateFeature);

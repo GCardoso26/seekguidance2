@@ -60,7 +60,7 @@ export function UpgradeModal({ open, feature, onClose, billingCycle = "monthly" 
   return (
     <Dialog.Root open={open} onOpenChange={(next) => !next && onClose()}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm" />
+        <Dialog.Overlay className="fixed inset-0 z-[100] bg-foreground/60 backdrop-blur-sm" />
         <Dialog.Content
           className={cn(
             "fixed left-1/2 top-1/2 z-[101] w-[min(92vw,420px)] -translate-x-1/2 -translate-y-1/2",
@@ -92,13 +92,13 @@ export function UpgradeModal({ open, feature, onClose, billingCycle = "monthly" 
           <ul className="mb-6 space-y-2">
             {PRO_BENEFITS.map((text) => (
               <li key={text} className="flex items-start gap-2 text-sm text-foreground/90">
-                <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary-light" aria-hidden />
+                <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
                 {text}
               </li>
             ))}
           </ul>
 
-          <div className="mb-4 rounded-xl border border-luxury-gold/20 bg-primary/5 p-4 text-center">
+          <div className="mb-4 rounded-xl border border-primary/20 bg-primary/5 p-4 text-center">
             <p className="text-2xl font-bold text-foreground">
               R$ {billingCycle === "annual" ? "290" : "29"}
               <span className="text-sm font-normal text-muted-foreground">
@@ -106,7 +106,7 @@ export function UpgradeModal({ open, feature, onClose, billingCycle = "monthly" 
               </span>
             </p>
             {billingCycle === "annual" && (
-              <p className="mt-1 text-xs text-primary-light">2 meses grátis no plano anual</p>
+              <p className="mt-1 text-xs text-primary">2 meses grátis no plano anual</p>
             )}
             {billingCycle === "monthly" && (
               <p className="mt-1 text-xs text-muted-foreground">ou R$ 290/ano (economize 2 meses)</p>
@@ -118,7 +118,7 @@ export function UpgradeModal({ open, feature, onClose, billingCycle = "monthly" 
               type="button"
               disabled={checkout.isPending}
               onClick={() => void handleSubscribe()}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-luxury-gold to-luxury-gold-dark py-3 font-bold text-primary-foreground disabled:opacity-60"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary to-primary/80 py-3 font-bold text-primary-foreground disabled:opacity-60"
             >
               <Crown className="h-4 w-4" aria-hidden />
               {checkout.isPending ? "Redirecionando…" : "Assinar Pro"}
@@ -132,7 +132,7 @@ export function UpgradeModal({ open, feature, onClose, billingCycle = "monthly" 
             </button>
           </div>
 
-          <p className="mt-4 text-center text-[11px] text-muted-foreground/70">
+          <p className="mt-4 text-center text-caption text-muted-foreground/70">
             7 dias de garantia. Cancele quando quiser.
           </p>
         </Dialog.Content>

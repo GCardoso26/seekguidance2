@@ -85,7 +85,7 @@ export function ServiceStatusDot({ className }: { className?: string }) {
 
       {modalOpen && !dismissed && status !== "online" && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/50 p-4 backdrop-blur-sm"
           role="dialog"
           aria-modal="true"
           aria-labelledby="service-status-title"
@@ -97,17 +97,17 @@ export function ServiceStatusDot({ className }: { className?: string }) {
                 setDismissed(true);
                 setModalOpen(false);
               }}
-              className="absolute right-3 top-3 rounded-lg p-1.5 text-slate-400 hover:bg-muted hover:text-white"
+              className="absolute right-3 top-3 rounded-lg p-1.5 text-slate-400 hover:bg-muted hover:text-foreground"
               aria-label="Fechar"
             >
               <X className="h-5 w-5" />
             </button>
             <div className="mb-4 flex items-start gap-3">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-500/15">
-                <AlertTriangle className="h-5 w-5 text-amber-400" aria-hidden />
+                <AlertTriangle className="h-5 w-5 text-warning" aria-hidden />
               </div>
               <div>
-                <h2 id="service-status-title" className="text-lg font-bold text-white">
+                <h2 id="service-status-title" className="text-lg font-bold text-foreground">
                   Instabilidade detectada
                 </h2>
                 <p className="mt-1 text-sm text-slate-300">
@@ -115,7 +115,7 @@ export function ServiceStatusDot({ className }: { className?: string }) {
                 </p>
               </div>
             </div>
-            <ul className="mb-6 space-y-2 rounded-xl border border-border bg-black/30 p-3">
+            <ul className="mb-6 space-y-2 rounded-xl border border-border bg-foreground/30 p-3">
               {services.map((service) => (
                 <li
                   key={service.name}

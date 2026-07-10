@@ -17,6 +17,8 @@
     "lighthouse:listagens": "node scripts/lighthouse-listagens-baseline.mjs",
     "lighthouse:listagens:auth": "node scripts/lighthouse-listagens-auth.mjs",
     "lighthouse:prod": "lhci autorun --config=lighthouserc.prod.js",
+    "ds:audit": "node scripts/ds-audit.js",
+    "ds:purge": "node scripts/ds-purge.js",
     "load-test": "k6 run k6/search-smoke-test.js",
     "load-test:full": "k6 run k6/search-load-test.js",
     "deploy:vercel": "vercel --prod"

@@ -67,8 +67,8 @@ export function CreatePostModal({ defaultCommunityId, onCreated }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-      <div className="luxury-card max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl p-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/50 p-4">
+      <div className="surface-card max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl p-6">
         <h2 className="text-xl font-light text-foreground">Novo post</h2>
         <div className="mt-4 space-y-3">
           {!defaultCommunityId && (
@@ -123,7 +123,7 @@ export function CreatePostModal({ defaultCommunityId, onCreated }: Props) {
               <img src={url} alt="" className="max-h-32 rounded-lg" />
               <button
                 type="button"
-                className="absolute right-2 top-2 rounded bg-black/60 px-2 text-xs"
+                className="absolute right-2 top-2 rounded bg-foreground/50 px-2 text-xs"
                 onClick={() => setImages((prev) => prev.filter((_, j) => j !== i))}
               >
                 Remover

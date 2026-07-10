@@ -34,7 +34,7 @@ export function JudgeTrendsTable({ games, trends }: Props) {
             onClick={() => setPeriod(p.id)}
             className={
               period === p.id
-                ? "rounded-md bg-[hsl(var(--tcg-accent))] px-3 py-1 text-xs font-semibold text-white"
+                ? "rounded-md bg-[hsl(var(--tcg-accent))] px-3 py-1 text-xs font-semibold text-foreground"
                 : "rounded-md border px-3 py-1 text-xs text-muted-foreground hover:bg-muted"
             }
           >

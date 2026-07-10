@@ -10,7 +10,7 @@ type Props = {
 function CellValue({ value }: { value: string | boolean }) {
   if (typeof value === "boolean") {
     return value ? (
-      <Check size={18} className="mx-auto text-primary-light" aria-label="Incluído" />
+      <Check size={18} className="mx-auto text-primary" aria-label="Incluído" />
     ) : (
       <X size={18} className="mx-auto text-muted-foreground/50" aria-label="Não incluído" />
     );
@@ -23,7 +23,7 @@ export function FeatureComparisonTable({ isAnnual }: Props) {
     <section className="luxury-page py-16">
       <h2 className="mb-8 text-center text-3xl font-light text-foreground">Comparativo de recursos</h2>
       {isAnnual && (
-        <p className="mb-6 text-center text-sm text-primary-light">
+        <p className="mb-6 text-center text-sm text-primary">
           Preços anuais com 20% de desconto aplicado nos planos pagos.
         </p>
       )}
@@ -32,7 +32,7 @@ export function FeatureComparisonTable({ isAnnual }: Props) {
           <thead>
             <tr className="border-b border-border text-sm uppercase tracking-wide text-muted-foreground">
               <th className="p-4 font-semibold">Recurso</th>
-              <th className="p-4 text-center font-semibold text-primary-light">Casual</th>
+              <th className="p-4 text-center font-semibold text-primary">Casual</th>
               <th className="p-4 text-center font-semibold text-primary">Spike</th>
               <th className="p-4 text-center font-semibold text-violet-400">Equipe</th>
             </tr>

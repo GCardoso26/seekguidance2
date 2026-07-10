@@ -31,7 +31,7 @@ export function OrderCards({ orders, onUpdated }: Props) {
               >
                 #{order.id.slice(0, 8)}
               </Link>
-              <p className="mt-1 text-sm text-white">{orderCustomerLabel(order)}</p>
+              <p className="mt-1 text-sm text-foreground">{orderCustomerLabel(order)}</p>
               <p className="text-xs text-muted-foreground">{formatOrderDate(order.created_at)}</p>
             </div>
             <div className="text-right">
@@ -66,7 +66,7 @@ export function OrderCards({ orders, onUpdated }: Props) {
 export function OrdersEmptyState() {
   return (
     <div
-      className="rounded-xl border border-dashed border-white/15 bg-muted/50 p-10 text-center"
+      className="rounded-xl border border-dashed border-border bg-muted/50 p-10 text-center"
       data-testid="orders-empty"
     >
       <Package className="mx-auto h-10 w-10 text-muted-foreground/60" aria-hidden />

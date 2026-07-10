@@ -27,7 +27,7 @@ export function AddToCollectionModal({ open, cardId, cardName, onClose }: AddToC
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/60 p-4">
       <div className="w-full max-w-md rounded-xl border border-border bg-background p-6">
         <h2 className="text-lg font-semibold text-foreground">Adicionar à coleção</h2>
         {cardName && <p className="mt-1 text-sm text-muted-foreground">{cardName}</p>}

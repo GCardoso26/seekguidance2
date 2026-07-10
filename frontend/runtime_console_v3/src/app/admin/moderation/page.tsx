@@ -70,21 +70,21 @@ export default function AdminModerationPage() {
               <button
                 type="button"
                 onClick={() => void act(r.id, "approve")}
-                className="rounded-lg bg-emerald-500/20 px-3 py-1 text-xs text-emerald-300"
+                className="rounded-lg bg-emerald-500/20 px-3 py-1 text-xs text-success"
               >
                 Aprovar
               </button>
               <button
                 type="button"
                 onClick={() => void act(r.id, "hide")}
-                className="rounded-lg bg-amber-500/20 px-3 py-1 text-xs text-amber-200"
+                className="rounded-lg bg-amber-500/20 px-3 py-1 text-xs text-warning"
               >
                 Ocultar
               </button>
               <button
                 type="button"
                 onClick={() => void act(r.id, "delete")}
-                className="rounded-lg bg-red-500/20 px-3 py-1 text-xs text-red-300"
+                className="rounded-lg bg-red-500/20 px-3 py-1 text-xs text-danger"
               >
                 Deletar
               </button>

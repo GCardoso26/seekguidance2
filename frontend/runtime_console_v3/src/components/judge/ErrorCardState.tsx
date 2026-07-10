@@ -17,7 +17,7 @@ export function ErrorCardState({
   return (
     <div className="judge-error-card flex flex-col items-center justify-center p-8 text-center">
       <div
-        className={`mb-6 flex h-44 w-32 items-center justify-center rounded-xl border-2 border-border bg-gradient-to-br from-luxury-midnight to-luxury-onyx ${
+        className={`mb-6 flex h-44 w-32 items-center justify-center rounded-xl border-2 border-border bg-gradient-to-br from-luxury-midnight to-background ${
           !reduceMotion ? "animate-[flip-in_0.6s_ease-out]" : ""
         }`}
         aria-hidden
@@ -34,7 +34,7 @@ export function ErrorCardState({
         <button
           type="button"
           onClick={onRetry}
-          className="verdict-card inline-flex min-h-12 items-center gap-2 rounded-lg bg-[var(--tcg-primary)] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--tcg-primary-light)]"
+          className="verdict-card inline-flex min-h-12 items-center gap-2 rounded-lg bg-[var(--tcg-primary)] px-5 py-2.5 text-sm font-semibold text-foreground transition hover:bg-[var(--tcg-primary-light)]"
         >
           <RefreshCw size={16} aria-hidden />
           Tentar novamente

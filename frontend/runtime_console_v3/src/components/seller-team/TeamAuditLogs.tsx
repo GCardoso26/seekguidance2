@@ -22,7 +22,7 @@ export function TeamAuditLogs() {
         </thead>
         <tbody>
           {logs.map((log) => (
-            <tr key={log.id} className="border-b border-white/5">
+            <tr key={log.id} className="border-b border-border/60">
               <td className="py-2 pr-4 whitespace-nowrap">
                 {new Date(log.created_at).toLocaleString("pt-BR")}
               </td>

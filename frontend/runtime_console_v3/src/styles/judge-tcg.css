@@ -173,7 +173,7 @@
   color: var(--tcg-text-secondary, #94a3b8);
 }
 
-.judge-app .luxury-card {
+.judge-app .surface-card {
   border-radius: 1rem;
   border: 1px solid rgb(255 255 255 / 0.1);
   background: rgb(255 255 255 / 0.05);

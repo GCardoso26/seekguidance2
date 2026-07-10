@@ -58,17 +58,17 @@ export function SourceCard({ source, index, highlightTerms = [], accent }: Props
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <p className="text-sm font-semibold leading-snug">{f.title}</p>
-            <span className={cn("rounded-full border px-2 py-0.5 text-[10px] font-semibold", badge.className)}>
+            <span className={cn("rounded-full border px-2 py-0.5 text-caption font-semibold", badge.className)}>
               {badge.label}
             </span>
           </div>
-          <div className="mt-1 flex flex-wrap items-center gap-2 text-[10px] text-[hsl(222_15%_45%)]">
+          <div className="mt-1 flex flex-wrap items-center gap-2 text-caption text-[hsl(222_15%_45%)]">
             {f.ruleAtom ? (
               <button
                 type="button"
                 onClick={copyRuleAtom}
                 title={[source.rule_title, f.excerpt?.slice(0, 160)].filter(Boolean).join(" · ")}
-                className="inline-flex items-center gap-1 rounded-md border border-[hsl(var(--tcg-accent)/0.35)] bg-[hsl(var(--tcg-accent)/0.08)] px-1.5 py-0.5 font-mono text-[10px] font-semibold text-[hsl(var(--tcg-accent))] hover:underline"
+                className="inline-flex items-center gap-1 rounded-md border border-[hsl(var(--tcg-accent)/0.35)] bg-[hsl(var(--tcg-accent)/0.08)] px-1.5 py-0.5 font-mono text-caption font-semibold text-[hsl(var(--tcg-accent))] hover:underline"
               >
                 <code>{f.ruleAtom}</code>
                 <Copy className="h-3 w-3" aria-hidden />
@@ -122,7 +122,7 @@ export function SourceCard({ source, index, highlightTerms = [], accent }: Props
               />
               <button
                 type="button"
-                className="mt-2 text-[11px] font-semibold text-[hsl(var(--tcg-accent))] hover:underline"
+                className="mt-2 text-caption font-semibold text-[hsl(var(--tcg-accent))] hover:underline"
                 onClick={() => setExpanded((v) => !v)}
               >
                 {expanded ? "Recolher trecho" : "Ver trecho completo"}

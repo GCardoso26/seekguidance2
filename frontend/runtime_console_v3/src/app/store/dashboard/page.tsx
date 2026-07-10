@@ -176,7 +176,7 @@ function DashboardContent() {
       {tab === "overview" && paymentsPending && (
         <div className="rounded-xl border border-emerald-500/40 bg-emerald-950/20 p-4 text-sm">
           <p>Configure sua chave PIX para vender no marketplace (zero comissão).</p>
-          <button type="button" onClick={() => selectTab("settings")} className="mt-2 text-emerald-300 underline">
+          <button type="button" onClick={() => selectTab("settings")} className="mt-2 text-success underline">
             Ir para Pagamentos
           </button>
         </div>

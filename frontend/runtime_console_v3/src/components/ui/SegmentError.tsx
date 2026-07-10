@@ -18,7 +18,7 @@ export function SegmentError({ error, reset, title = "Algo deu errado", homeHref
 
   return (
     <main className="flex min-h-[50vh] flex-col items-center justify-center p-8 text-center">
-      <h2 className="text-xl font-bold text-red-300">{title}</h2>
+      <h2 className="text-xl font-bold text-danger">{title}</h2>
       <p className="mt-2 max-w-md text-sm text-muted-foreground">
         Ocorreu um erro inesperado. Tente novamente ou volte mais tarde.
       </p>

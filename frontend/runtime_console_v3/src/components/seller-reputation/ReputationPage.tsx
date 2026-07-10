@@ -32,7 +32,7 @@ export function ReputationPage() {
             <div className="grid gap-4 lg:grid-cols-3">
               <div className="surface-card p-5 lg:col-span-1">
                 <p className="text-sm text-muted-foreground">Trust Score</p>
-                <p className="mt-1 text-4xl font-bold tabular-nums text-emerald-400">
+                <p className="mt-1 text-4xl font-bold tabular-nums text-success">
                   {data.trust_score.toFixed(1)}
                 </p>
                 <div className="mt-3">
@@ -68,7 +68,7 @@ export function ReputationPage() {
                         a.severity === "high"
                           ? "border-red-500/30 bg-red-500/10 text-red-200"
                           : a.severity === "medium"
-                            ? "border-amber-500/30 bg-amber-500/10 text-amber-200"
+                            ? "border-amber-500/30 bg-amber-500/10 text-warning"
                             : "border-border bg-muted/50 text-muted-foreground"
                       }`}
                     >

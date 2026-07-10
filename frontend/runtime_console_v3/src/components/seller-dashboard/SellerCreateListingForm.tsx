@@ -84,7 +84,7 @@ export function SellerCreateListingForm({ card }: Props) {
 
   return (
     <div className="surface-card p-6">
-      <h2 className="text-lg font-bold text-white">Nova listagem</h2>
+      <h2 className="text-lg font-bold text-foreground">Nova listagem</h2>
       <div className="mt-4 flex items-center gap-3">
         <div className="relative h-16 w-11 shrink-0 overflow-hidden rounded">
           <CardImage
@@ -96,7 +96,7 @@ export function SellerCreateListingForm({ card }: Props) {
           />
         </div>
         <div>
-          <p className="font-medium text-white">{card.name}</p>
+          <p className="font-medium text-foreground">{card.name}</p>
           <p className="text-xs text-muted-foreground">{card.set?.name}</p>
         </div>
       </div>
@@ -122,7 +122,7 @@ export function SellerCreateListingForm({ card }: Props) {
                 onClick={() => setValue("condition", c, { shouldValidate: true })}
                 className={cn(
                   "rounded-lg border p-2 transition-colors",
-                  condition === c ? "border-luxury-gold bg-primary/10" : "border-border hover:border-border",
+                  condition === c ? "border-primary bg-primary/10" : "border-border hover:border-border",
                 )}
               >
                 <ConditionBadge condition={c.toUpperCase() as CardCondition} size="sm" />
@@ -163,7 +163,7 @@ export function SellerCreateListingForm({ card }: Props) {
           <textarea
             id="listing-desc"
             rows={3}
-            className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-white"
+            className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground"
             {...register("description")}
           />
           <FieldError message={errors.description?.message} />

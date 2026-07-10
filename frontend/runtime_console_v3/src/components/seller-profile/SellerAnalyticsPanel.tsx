@@ -43,7 +43,7 @@ export function SellerAnalyticsPanel({ username, onFilterGame, selectedGame }: P
         <div>
           <p className="text-sm text-muted-foreground">Confiança do vendedor</p>
           <div className="flex items-center gap-2">
-            <Star className="h-5 w-5 fill-amber-400 text-amber-400" />
+            <Star className="h-5 w-5 fill-amber-400 text-warning" />
             <span className="text-2xl font-bold">{rating_summary.average_rating.toFixed(1)}</span>
             <span className="text-sm text-muted-foreground">
               ({rating_summary.total_reviews} avaliações)

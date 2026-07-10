@@ -42,7 +42,7 @@ export default function MyOrdersPage() {
               </div>
               <p className="mt-1 text-sm text-muted-foreground">{String(o.store_name ?? "")}</p>
               {Boolean(o.use_escrow) && (
-                <span className="mt-2 inline-block text-xs text-emerald-400">Compra Protegida</span>
+                <span className="mt-2 inline-block text-xs text-success">Compra Protegida</span>
               )}
             </Link>
           ))}

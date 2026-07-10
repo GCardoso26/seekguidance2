@@ -51,7 +51,7 @@ function VendasContent() {
         meta={
           pendingCount > 0 ? (
             <span
-              className="mt-2 inline-flex items-center rounded-full bg-amber-500/20 px-2.5 py-0.5 text-xs font-medium text-amber-200"
+              className="mt-2 inline-flex items-center rounded-full bg-amber-500/20 px-2.5 py-0.5 text-xs font-medium text-warning"
               data-testid="pending-orders-badge"
             >
               {pendingCount} pendente{pendingCount === 1 ? "" : "s"}

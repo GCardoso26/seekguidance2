@@ -30,7 +30,7 @@ export function PostCard({ post }: Props) {
   );
 
   return (
-    <article className="luxury-card flex gap-3 rounded-xl p-4">
+    <article className="surface-card flex gap-3 rounded-xl p-4">
       <PostVote post={post} />
       <div className="min-w-0 flex-1">
         <div className="mb-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">

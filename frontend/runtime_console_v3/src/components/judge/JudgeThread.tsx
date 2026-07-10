@@ -47,7 +47,7 @@ export function JudgeThread({ tcg, turns, onRelatedSelect, historyByTurnId, hide
                 } as CSSProperties
               }
             >
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-[hsl(222_15%_45%)]">
+              <p className="text-caption font-semibold uppercase tracking-wide text-[hsl(222_15%_45%)]">
                 A sua pergunta
               </p>
               <p className="mt-1 text-sm leading-relaxed text-[hsl(var(--foreground))]">{turn.question}</p>

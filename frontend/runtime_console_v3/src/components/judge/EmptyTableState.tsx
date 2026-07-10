@@ -78,7 +78,7 @@ export function EmptyTableState({ tcg, tcgSelected = true, onExampleClick }: Pro
 
       {option && !option.enabled && (
         <div className="mb-4 rounded-lg border border-primary/30 bg-primary/10 px-4 py-2">
-          <p className="text-xs text-primary-light">Este jogo estará disponível em breve.</p>
+          <p className="text-xs text-primary">Este jogo estará disponível em breve.</p>
         </div>
       )}
 
@@ -91,7 +91,7 @@ export function EmptyTableState({ tcg, tcgSelected = true, onExampleClick }: Pro
                 onClick={() => onExampleClick(q)}
                 className={cn(
                   "judge-card flex w-full items-start gap-3 rounded-xl border border-border/50 bg-card/80 p-3 text-left transition",
-                  "hover:border-[var(--tcg-border)] hover:bg-muted/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-luxury-gold/40",
+                  "hover:border-[var(--tcg-border)] hover:bg-muted/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
                 )}
               >
                 <MessageCircle

@@ -19,21 +19,21 @@ const STATUS_STYLES = {
   healthy: {
     ring: "border-emerald-500/30",
     bg: "bg-emerald-500/5",
-    score: "text-emerald-400",
+    score: "text-success",
     bar: "bg-emerald-400",
     pill: "text-emerald-200 bg-emerald-500/15",
   },
   attention: {
     ring: "border-amber-500/30",
     bg: "bg-amber-500/5",
-    score: "text-amber-400",
+    score: "text-warning",
     bar: "bg-amber-400",
-    pill: "text-amber-200 bg-amber-500/15",
+    pill: "text-warning bg-amber-500/15",
   },
   critical: {
     ring: "border-red-500/30",
     bg: "bg-red-500/5",
-    score: "text-red-400",
+    score: "text-danger",
     bar: "bg-red-400",
     pill: "text-red-200 bg-red-500/15",
   },
@@ -111,10 +111,10 @@ export function StoreHealthScoreWidget({
 
       <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {health.factors.map((factor) => (
-          <div key={factor.id} className="rounded-lg border border-border bg-black/20 px-3 py-2">
+          <div key={factor.id} className="rounded-lg border border-border bg-muted/50 px-3 py-2">
             <div className="flex items-center justify-between gap-2 text-xs">
               <span className="font-medium text-muted-foreground">{factor.label}</span>
-              <span className="tabular-nums text-white">{factor.score}</span>
+              <span className="tabular-nums text-foreground">{factor.score}</span>
             </div>
             <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-muted">
               <div
@@ -123,7 +123,7 @@ export function StoreHealthScoreWidget({
               />
             </div>
             {factor.hint && (
-              <p className="mt-1.5 line-clamp-2 text-[11px] text-muted-foreground/80">{factor.hint}</p>
+              <p className="mt-1.5 line-clamp-2 text-caption text-muted-foreground/80">{factor.hint}</p>
             )}
           </div>
         ))}

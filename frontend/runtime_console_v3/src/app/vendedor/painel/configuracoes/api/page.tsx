@@ -88,7 +88,7 @@ export default function SellerApiPage() {
 
         {newKey && (
           <div className="rounded-lg border border-amber-500/40 bg-amber-950/20 p-4 text-sm">
-            <p className="font-semibold text-amber-200">Copie agora — não será exibida de novo:</p>
+            <p className="font-semibold text-warning">Copie agora — não será exibida de novo:</p>
             <code className="mt-2 block break-all font-mono text-xs">{newKey}</code>
           </div>
         )}

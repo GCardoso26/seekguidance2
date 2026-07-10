@@ -44,7 +44,7 @@ export default function CommunityPostPage() {
         {isLoading && <p className="mt-4 text-muted-foreground">Carregando post…</p>}
 
         {post && (
-          <article className="luxury-card mt-4 flex gap-4 rounded-xl p-6">
+          <article className="surface-card mt-4 flex gap-4 rounded-xl p-6">
             <PostVote post={post} />
             <div className="min-w-0 flex-1">
               <h1 className="text-2xl font-light text-foreground">{post.title}</h1>

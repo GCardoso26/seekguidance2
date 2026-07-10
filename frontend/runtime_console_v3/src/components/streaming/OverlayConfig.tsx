@@ -24,7 +24,7 @@ export function OverlayConfig({ tournamentId }: Props) {
           <button
             type="button"
             onClick={() => navigator.clipboard.writeText(o.url)}
-            className="min-h-[44px] text-sm text-blue-400"
+            className="min-h-[44px] text-sm text-info"
           >
             Copiar
           </button>

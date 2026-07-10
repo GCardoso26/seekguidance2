@@ -38,7 +38,7 @@ export function HeaderGamePicker() {
             onClick={() => setOpen(false)}
           />
           <div className="absolute left-0 top-full z-50 mt-2 w-72 rounded-xl border border-border bg-card p-4 shadow-2xl">
-            <p className="mb-3 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+            <p className="mb-3 text-caption font-bold uppercase tracking-wider text-muted-foreground">
               Escolha seu jogo
             </p>
             <div className="grid max-h-64 grid-cols-2 gap-1 overflow-y-auto">

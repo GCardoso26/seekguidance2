@@ -49,7 +49,7 @@ function CustomerDetailDrawer({
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/60" />
+        <Dialog.Overlay className="fixed inset-0 z-50 bg-foreground/50" />
         <Dialog.Content className="fixed inset-y-0 right-0 z-50 flex w-full max-w-lg flex-col border-l border-border bg-background shadow-xl">
           <div className="flex items-center justify-between border-b border-border px-4 py-3">
             <Dialog.Title className="text-lg font-semibold">
@@ -65,7 +65,7 @@ function CustomerDetailDrawer({
               <div className="border-b border-border px-4 py-3 text-sm text-muted-foreground">
                 {customer.email && <p>{customer.email}</p>}
                 {customer.city && <p>{customer.city}</p>}
-                <p className="mt-1 text-white">
+                <p className="mt-1 text-foreground">
                   Total: {formatShopPrice(customer.total_spent_cents)} · {customer.order_count} pedidos
                 </p>
               </div>
@@ -165,7 +165,7 @@ export function CustomersPage() {
                 {(data?.customers ?? []).map((c) => (
                   <tr
                     key={c.customer_id}
-                    className="cursor-pointer border-t border-border hover:bg-white/[0.03]"
+                    className="cursor-pointer border-t border-border hover:bg-muted/40"
                     onClick={() => setSelected(c)}
                   >
                     <td className="p-3">{c.display_name ?? c.customer_id.slice(0, 8)}</td>

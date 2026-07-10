@@ -10,7 +10,7 @@ export default function SuportePage() {
   return (
     <MobileLayout>
       <main className="container mx-auto max-w-lg px-4 py-10 text-foreground">
-        <Link href="/loja" className="text-sm text-muted-foreground hover:text-white">
+        <Link href="/loja" className="text-sm text-muted-foreground hover:text-foreground">
           ← Voltar
         </Link>
         <h1 className="mt-4 text-2xl font-bold">Suporte</h1>
@@ -30,7 +30,7 @@ export default function SuportePage() {
         </section>
 
         <section className="mt-6 space-y-3 text-sm text-muted-foreground">
-          <h2 className="font-semibold text-white">KYC / cadastro de loja</h2>
+          <h2 className="font-semibold text-foreground">KYC / cadastro de loja</h2>
           <p>
             Após concluir o formulário no Stripe, o status pode levar alguns minutos para atualizar. Se você
             voltou do Stripe e ainda vê &quot;loja suspensa&quot;, aguarde na página ou atualize — o sistema

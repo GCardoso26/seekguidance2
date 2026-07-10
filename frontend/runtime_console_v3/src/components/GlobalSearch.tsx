@@ -64,7 +64,7 @@ export function GlobalSearchTrigger({ onOpen, className }: GlobalSearchTriggerPr
 
       <span className="flex-1 text-left">Pesquisar…</span>
 
-      <kbd className="hidden rounded border border-border px-1.5 text-[10px] sm:inline">⌘K</kbd>
+      <kbd className="hidden rounded border border-border px-1.5 text-caption sm:inline">⌘K</kbd>
 
     </button>
 

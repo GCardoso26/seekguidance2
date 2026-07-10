@@ -40,7 +40,7 @@ export default function ReportDetailPage({ params }: { params: Promise<{ id: str
   }
 
   if (!report) {
-    return <p className="text-white/50">Carregando report...</p>;
+    return <p className="text-muted-foreground">Carregando report...</p>;
   }
 
   return (
@@ -56,13 +56,13 @@ export default function ReportDetailPage({ params }: { params: Promise<{ id: str
       <div className="lg:w-1/2 space-y-4 rounded-xl border border-border p-4">
         <div>
           <h2 className="font-semibold">{report.type}</h2>
-          <p className="text-sm text-white/60">{report.description}</p>
+          <p className="text-sm text-muted-foreground">{report.description}</p>
           <p className="mt-1 text-xs text-amber-300">
             SLA: {new Date(report.sla_deadline).toLocaleString("pt-BR")}
           </p>
         </div>
         <div>
-          <h3 className="mb-2 text-sm font-medium text-white/80">Rulings sugeridas</h3>
+          <h3 className="mb-2 text-sm font-medium text-foreground/80">Rulings sugeridas</h3>
           <SuggestedRulings rulings={suggested} onApply={setAppliedRuling} />
         </div>
         <ResolutionForm onSubmit={resolveReport} />

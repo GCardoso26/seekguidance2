@@ -38,7 +38,7 @@ export default function CommunityDetailPage() {
         {isLoading && <p className="mt-4 text-muted-foreground">Carregando…</p>}
 
         {community && (
-          <header className="luxury-card mt-4 rounded-xl p-6">
+          <header className="surface-card mt-4 rounded-xl p-6">
             <h1 className="text-2xl font-light text-foreground">{String(community.name)}</h1>
             {typeof community.description === "string" && community.description.length > 0 && (
               <p className="mt-2 text-sm text-muted-foreground">{community.description}</p>

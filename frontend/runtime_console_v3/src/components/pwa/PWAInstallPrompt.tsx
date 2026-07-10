@@ -42,7 +42,7 @@ export function PWAInstallPrompt() {
   return (
     <div className="fixed bottom-4 left-4 right-4 z-[90] mx-auto max-w-md rounded-xl border border-primary/30 bg-card/95 p-4 shadow-xl backdrop-blur md:left-auto md:right-6">
       <div className="flex items-start gap-3">
-        <Download className="mt-0.5 h-5 w-5 shrink-0 text-primary-light" aria-hidden />
+        <Download className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden />
         <div className="flex-1">
           <p className="text-sm font-semibold text-foreground">Instalar Judge TCG</p>
           <p className="mt-1 text-xs text-muted-foreground">

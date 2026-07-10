@@ -55,13 +55,19 @@ export function MobileLayout({ children }: { children: ReactNode }) {
       <GlobalHeader />
       <main
         id="main-content"
-        className={cn("relative z-0 flex-1 animate-fade-in", hideNav ? "" : "pb-[4.5rem] md:pb-0")}
+        className={cn(
+          "relative z-0 flex-1 animate-fade-in",
+          hideNav
+            ? ""
+            : "pb-[max(var(--mobile-nav-offset),env(safe-area-inset-bottom))] md:pb-0",
+        )}
       >
         {children}
       </main>
       {!hideNav && (
         <nav
-          className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card/95 px-2 py-1.5 backdrop-blur-md supports-[backdrop-filter]:bg-card/80 md:hidden"
+          className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card/95 px-2 pt-1.5 backdrop-blur-md supports-[backdrop-filter]:bg-card/80 md:hidden"
+          style={{ paddingBottom: "max(0.375rem, env(safe-area-inset-bottom))" }}
           aria-label="Navegação mobile"
           data-testid="bottom-nav"
         >

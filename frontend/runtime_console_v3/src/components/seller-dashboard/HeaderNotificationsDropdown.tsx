@@ -82,7 +82,7 @@ export function HeaderNotificationsDropdown() {
 
             <span
 
-              className="absolute -right-1 -top-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white"
+              className="absolute -right-1 -top-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1 text-caption font-bold text-foreground"
 
               data-testid="header-notifications-badge"
 
@@ -146,7 +146,7 @@ export function HeaderNotificationsDropdown() {
 
               >
 
-                <p className={`text-sm font-medium ${cat.urgent ? "text-red-300" : ""}`}>
+                <p className={`text-sm font-medium ${cat.urgent ? "text-danger" : ""}`}>
 
                   {cat.urgent ? "!" : "•"} {cat.label}
 

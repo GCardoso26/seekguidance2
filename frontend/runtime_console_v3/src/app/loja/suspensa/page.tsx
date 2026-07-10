@@ -105,7 +105,7 @@ function LojaSuspensaContent() {
         </Button>
       </div>
       {reonboardMutation.isError && (
-        <p className="mt-3 text-sm text-red-300">{reonboardMutation.error.message}</p>
+        <p className="mt-3 text-sm text-danger">{reonboardMutation.error.message}</p>
       )}
       <p className="mt-8 text-xs text-muted-foreground">
         Dúvidas?{" "}

@@ -39,15 +39,15 @@ export function PageError({
   return (
     <div
       className={cn(
-        "rounded-xl border border-red-500/30 bg-red-950/20 p-8 text-center",
+        "rounded-xl border border-danger/25 bg-danger/5 p-8 text-center",
         className,
       )}
       role="alert"
       data-testid="page-error"
     >
-      <AlertCircle className="mx-auto h-8 w-8 text-red-400" aria-hidden />
-      <h3 className="mt-3 text-lg font-semibold text-red-300">{title}</h3>
-      <p className="mt-2 text-sm text-muted-foreground">{message}</p>
+      <AlertCircle className="mx-auto h-8 w-8 text-danger" aria-hidden />
+      <h3 className="mt-3 text-h3 font-semibold text-danger">{title}</h3>
+      <p className="mt-2 text-small text-muted-foreground">{message}</p>
       {onRetry && (
         <Button type="button" className="mt-4" onClick={onRetry}>
           Tentar novamente
@@ -64,6 +64,8 @@ type PageEmptyProps = {
   onAction?: () => void;
   actionLabel?: string;
   icon?: ReactNode;
+  /** Slot livre (ex.: botão custom do painel seller) */
+  footer?: ReactNode;
   variant?: "default" | "panel";
   className?: string;
 };
@@ -75,6 +77,7 @@ export function PageEmpty({
   onAction,
   actionLabel,
   icon,
+  footer,
   variant = "default",
   className,
 }: PageEmptyProps) {
@@ -84,22 +87,22 @@ export function PageEmpty({
     return (
       <div
         className={cn(
-          "rounded-xl border border-dashed border-white/15 bg-muted/50 p-10 text-center",
+          "rounded-xl border border-dashed border-border bg-muted/40 p-10 text-center",
           className,
         )}
         data-testid="page-empty"
       >
-        <p className="font-medium text-white">{title}</p>
-        {description && <p className="mt-2 text-sm text-muted-foreground">{description}</p>}
+        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+          {defaultIcon}
+        </div>
+        <p className="text-body font-medium text-foreground">{title}</p>
+        {description && <p className="mt-2 text-small text-muted-foreground">{description}</p>}
         {(action || onAction) && (
           <div className="mt-4">
             {action ? (
-              <Link
-                href={action.href}
-                className="inline-flex rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
-              >
-                {action.label}
-              </Link>
+              <Button asChild>
+                <Link href={action.href}>{action.label}</Link>
+              </Button>
             ) : (
               <Button type="button" onClick={onAction}>
                 {actionLabel ?? "Tentar novamente"}
@@ -107,6 +110,7 @@ export function PageEmpty({
             )}
           </div>
         )}
+        {footer && <div className="mt-4">{footer}</div>}
       </div>
     );
   }
@@ -119,15 +123,12 @@ export function PageEmpty({
       <div className="mb-4 flex h-24 w-24 items-center justify-center rounded-full bg-muted">
         {defaultIcon}
       </div>
-      <h3 className="text-lg font-semibold text-foreground">{title}</h3>
-      {description && <p className="mt-1 max-w-sm text-sm text-muted-foreground">{description}</p>}
+      <h3 className="text-h3 font-semibold text-foreground">{title}</h3>
+      {description && <p className="mt-1 max-w-sm text-small text-muted-foreground">{description}</p>}
       {action && (
-        <Link
-          href={action.href}
-          className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-        >
-          {action.label}
-        </Link>
+        <Button asChild className="mt-4">
+          <Link href={action.href}>{action.label}</Link>
+        </Button>
       )}
       {onAction && !action && (
         <Button type="button" className="mt-4" onClick={onAction}>
@@ -154,14 +155,14 @@ export function InlineAlert({
   className,
 }: InlineAlertProps) {
   const tones = {
-    error: "border-red-500/30 bg-red-500/10 text-red-400",
-    warning: "border-amber-500/30 bg-amber-500/10 text-amber-200",
-    info: "border-blue-500/30 bg-blue-500/10 text-blue-200",
+    error: "border-danger/25 bg-danger/5 text-danger",
+    warning: "border-warning/30 bg-warning/10 text-foreground",
+    info: "border-primary/25 bg-primary/5 text-primary",
   };
 
   return (
     <div
-      className={cn("rounded-lg border p-3 text-sm", tones[tone], className)}
+      className={cn("rounded-lg border p-3 text-small", tones[tone], className)}
       role="alert"
       data-testid="inline-alert"
     >
@@ -185,7 +186,7 @@ export function InlineAlert({
 export function InlineLoading({ message = "Carregando…", className }: { message?: string; className?: string }) {
   return (
     <div
-      className={cn("flex items-center justify-center gap-2 py-12 text-sm text-muted-foreground", className)}
+      className={cn("flex items-center justify-center gap-2 py-12 text-small text-muted-foreground", className)}
       aria-busy="true"
       aria-live="polite"
     >

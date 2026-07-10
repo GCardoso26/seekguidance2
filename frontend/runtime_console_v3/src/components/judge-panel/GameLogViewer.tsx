@@ -16,16 +16,16 @@ export function GameLogViewer({ entries, highlightedSequences, onCardHover }: Pr
         <div
           key={entry.id}
           className={cn(
-            "rounded border border-white/5 px-2 py-1.5",
+            "rounded border border-border/60 px-2 py-1.5",
             highlightedSequences?.includes(entry.sequence) && "border-amber-500/60 bg-amber-500/10",
           )}
         >
-          <div className="flex gap-2 text-white/50">
+          <div className="flex gap-2 text-muted-foreground">
             <span>#{entry.sequence}</span>
             <span>{new Date(entry.timestamp).toLocaleTimeString("pt-BR")}</span>
-            <span className="text-emerald-400/90">{entry.action.type}</span>
+            <span className="text-success/90">{entry.action.type}</span>
           </div>
-          <p className="text-white/80">
+          <p className="text-foreground/80">
             {entry.actor.player_name} (assento {entry.actor.seat})
           </p>
           {entry.game_state_snapshot.zones.flatMap((z) =>
@@ -43,7 +43,7 @@ export function GameLogViewer({ entries, highlightedSequences, onCardHover }: Pr
         </div>
       ))}
       {entries.length === 0 && (
-        <p className="text-white/50">Nenhuma entrada de log para esta partida.</p>
+        <p className="text-muted-foreground">Nenhuma entrada de log para esta partida.</p>
       )}
     </div>
   );

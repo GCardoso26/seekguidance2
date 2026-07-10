@@ -8,7 +8,7 @@ import { PageSkeleton } from "@/components/seller-dashboard/PageShell";
 const SEVERITY_STYLES = {
   critical: "border-red-500/40 bg-red-500/10",
   warning: "border-amber-500/40 bg-amber-500/10",
-  info: "border-border bg-white/[0.04]",
+  info: "border-border bg-muted/40",
 };
 
 type Props = {
@@ -63,7 +63,7 @@ export function OperationalCommandCenter({ actions, isLoading, compact }: Props)
             <div>
               <div className="flex items-start justify-between gap-2">
                 <h3 className="font-semibold text-foreground">{item.title}</h3>
-                <span className="shrink-0 rounded-full bg-black/20 px-2 py-0.5 text-sm font-bold tabular-nums">
+                <span className="shrink-0 rounded-full bg-muted/50 px-2 py-0.5 text-sm font-bold tabular-nums">
                   {item.count}
                 </span>
               </div>

@@ -18,7 +18,7 @@ export function JudgeRulesAccessGuard({ children }: { children: ReactNode }) {
 
   if (!allowed && reason) {
     return (
-      <div className="min-h-screen bg-background text-white">
+      <div className="min-h-screen bg-background text-foreground">
         <RulesAccessDenied reason={reason} title="Mesa de Regras" />
       </div>
     );

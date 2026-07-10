@@ -24,7 +24,7 @@ function InscritosView() {
             <Link href="/vendedor/painel/torneios" className="text-sm text-muted-foreground hover:text-primary">
               ← Torneios
             </Link>
-            <h1 className="mt-2 text-2xl font-bold text-white">
+            <h1 className="mt-2 text-2xl font-bold text-foreground">
               {tournament?.name ?? "Torneio"}
             </h1>
           </div>

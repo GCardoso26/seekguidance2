@@ -77,7 +77,7 @@ export function SellerTabs({ sellerId }: { sellerId: string }) {
             key={tab.href}
             href={href}
             className={`rounded-full px-4 py-1.5 text-sm ${
-              active ? "bg-primary text-primary-foreground" : "bg-muted hover:bg-white/15"
+              active ? "bg-primary text-primary-foreground" : "bg-muted hover:bg-muted/60"
             }`}
           >
             {tab.label}

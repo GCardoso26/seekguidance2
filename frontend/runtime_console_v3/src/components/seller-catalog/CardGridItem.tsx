@@ -30,7 +30,7 @@ export function CardGridItem({ card, onAdd }: Props) {
 
     <article className="flex flex-col surface-card p-3">
 
-      <div className="relative mb-2 aspect-[5/7] overflow-hidden rounded-lg bg-black/30">
+      <div className="relative mb-2 aspect-[5/7] overflow-hidden rounded-lg bg-foreground/30">
 
         <CardImage
 

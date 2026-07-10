@@ -37,7 +37,7 @@ export function ReconciliationPage() {
               </div>
               <div className="surface-card px-4 py-3">
                 <p className="text-xs text-muted-foreground">Divergências</p>
-                <p className={`text-xl font-semibold ${data?.healthy ? "text-emerald-400" : "text-amber-400"}`}>
+                <p className={`text-xl font-semibold ${data?.healthy ? "text-success" : "text-warning"}`}>
                   {data?.issues_count ?? 0}
                 </p>
               </div>
@@ -54,7 +54,7 @@ export function ReconciliationPage() {
                 </thead>
                 <tbody>
                   {(data?.items ?? []).map((row) => (
-                    <tr key={row.payment_id} className="border-b border-white/5">
+                    <tr key={row.payment_id} className="border-b border-border/60">
                       <td className="p-3 font-mono text-xs">{row.shop_order_id?.slice(0, 8) ?? "—"}</td>
                       <td className="p-3">{row.payment_status}</td>
                       <td className="p-3">{formatShopPrice(row.payment_amount)}</td>
@@ -62,8 +62,8 @@ export function ReconciliationPage() {
                         <span
                           className={
                             row.reconciliation_status === "ok"
-                              ? "text-emerald-400"
-                              : "text-amber-400"
+                              ? "text-success"
+                              : "text-warning"
                           }
                         >
                           {STATUS_LABELS[row.reconciliation_status] ?? row.reconciliation_status}

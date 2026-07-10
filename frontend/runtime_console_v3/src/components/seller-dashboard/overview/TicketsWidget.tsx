@@ -14,7 +14,7 @@ export function TicketsWidget({ count }: Props) {
       </h2>
       {count > 0 ? (
         <p className="text-sm">
-          <span className="font-semibold text-amber-200">{count}</span>{" "}
+          <span className="font-semibold text-warning">{count}</span>{" "}
           aguardando resposta
         </p>
       ) : (

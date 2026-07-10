@@ -61,22 +61,22 @@ function TournamentPublicSection({ id }: { id: string }) {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <div className="luxury-card rounded-xl p-4">
+        <div className="surface-card rounded-xl p-4">
           <p className="text-xs text-muted-foreground">Data</p>
           <p className="font-medium">{formatDate(t?.starts_at as string)}</p>
         </div>
-        <div className="luxury-card rounded-xl p-4">
+        <div className="surface-card rounded-xl p-4">
           <p className="text-xs text-muted-foreground">Local</p>
           <p className="font-medium">{String(t?.city ?? t?.location ?? "Online")}</p>
         </div>
-        <div className="luxury-card rounded-xl p-4">
+        <div className="surface-card rounded-xl p-4">
           <p className="text-xs text-muted-foreground">Taxa</p>
           <p className="font-medium">{formatFee(entryFee)}</p>
         </div>
       </div>
 
       {(Boolean(t?.description) || Boolean(t?.prize_pool)) && (
-        <div className="luxury-card space-y-3 rounded-xl p-6">
+        <div className="surface-card space-y-3 rounded-xl p-6">
           {Boolean(t?.description) && (
             <div>
               <h2 className="text-sm font-semibold text-foreground">Descrição</h2>
@@ -170,7 +170,7 @@ function OrganizerSection({ id }: { id: string }) {
       />
 
       {phase === "swiss_complete" && (
-        <section className="luxury-card rounded-xl p-4">
+        <section className="surface-card rounded-xl p-4">
           <h3 className="mb-2 text-lg font-semibold">Top Cut</h3>
           <button
             type="button"
@@ -189,7 +189,7 @@ function OrganizerSection({ id }: { id: string }) {
       </section>
 
       {prizePool > 0 && (
-        <section className="luxury-card rounded-xl p-4">
+        <section className="surface-card rounded-xl p-4">
           <h3 className="mb-2 text-lg font-semibold">Premiação</h3>
           <p className="text-sm text-muted-foreground">Pool: R$ {prizePool.toFixed(2)}</p>
         </section>

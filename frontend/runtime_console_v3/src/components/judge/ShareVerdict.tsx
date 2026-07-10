@@ -55,12 +55,12 @@ export function ShareVerdict({ tcg, question, response, className }: Props) {
         <button
           type="button"
           className={cn(
-            "inline-flex items-center gap-1 rounded-full border border-border px-2.5 py-1 text-[10px] font-semibold text-foreground hover:bg-muted/80",
+            "inline-flex items-center gap-1 rounded-full border border-border px-2.5 py-1 text-caption font-semibold text-foreground hover:bg-muted/80",
             className,
           )}
           aria-label="Partilhar veredito"
         >
-          {copied ? <Check className="h-3 w-3 text-primary-light" /> : <Share2 className="h-3 w-3" />}
+          {copied ? <Check className="h-3 w-3 text-primary" /> : <Share2 className="h-3 w-3" />}
           Partilhar
         </button>
       </DropdownMenu.Trigger>

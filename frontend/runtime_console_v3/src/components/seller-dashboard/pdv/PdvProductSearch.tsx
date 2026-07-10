@@ -29,7 +29,7 @@ export function PdvProductSearch({ products, isLoading, onAdd, onSearch }: Props
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Buscar por nome ou SKU…"
-          className="max-w-md border-border bg-black/30"
+          className="max-w-md border-border bg-foreground/30"
           data-testid="pdv-text-search-input"
         />
         <Button type="submit" variant="outline" disabled={query.trim().length < 2}>

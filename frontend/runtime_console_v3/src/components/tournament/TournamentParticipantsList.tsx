@@ -11,7 +11,7 @@ export function TournamentParticipantsList({ tournamentId }: Props) {
   const players = data?.players ?? [];
 
   return (
-    <section className="luxury-card rounded-xl border border-border p-6" data-testid="tournament-participants-list">
+    <section className="surface-card rounded-xl border border-border p-6" data-testid="tournament-participants-list">
       <h2 className="text-lg font-semibold">Inscritos confirmados</h2>
       <p className="mt-1 text-sm text-muted-foreground">
         {data?.registered_count ?? 0}
@@ -28,7 +28,7 @@ export function TournamentParticipantsList({ tournamentId }: Props) {
         {players.map((p) => (
           <li
             key={p.label}
-            className="flex items-center justify-between rounded-lg border border-white/5 bg-muted/50 px-3 py-2 text-sm"
+            className="flex items-center justify-between rounded-lg border border-border/60 bg-muted/50 px-3 py-2 text-sm"
           >
             <span>{p.label}</span>
             <span className="text-muted-foreground">✓</span>

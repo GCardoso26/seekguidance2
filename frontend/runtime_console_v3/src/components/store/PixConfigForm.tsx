@@ -106,13 +106,13 @@ export function PixConfigForm({ storeId, store, onSaved }: Props) {
         type="button"
         onClick={() => void handleSave()}
         disabled={saving || !key.trim()}
-        className="mt-4 rounded-lg bg-emerald-600 px-4 py-2 font-semibold text-white disabled:opacity-50"
+        className="mt-4 rounded-lg bg-emerald-600 px-4 py-2 font-semibold text-foreground disabled:opacity-50"
       >
         {saving ? "Salvando…" : store?.pix_key ? "Atualizar PIX" : "Salvar PIX"}
       </button>
 
-      {success && <p className="mt-3 text-sm text-emerald-300">PIX configurado! Sua loja já pode vender no marketplace.</p>}
-      {error && <p className="mt-3 text-sm text-red-300">{error}</p>}
+      {success && <p className="mt-3 text-sm text-success">PIX configurado! Sua loja já pode vender no marketplace.</p>}
+      {error && <p className="mt-3 text-sm text-danger">{error}</p>}
     </div>
   );
 }

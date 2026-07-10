@@ -55,7 +55,7 @@ export function LeaderboardTable() {
         <select
           value={city}
           onChange={(e) => setCity(e.target.value)}
-          className="mt-3 rounded-lg border border-border bg-black/30 px-3 py-2 text-sm text-foreground"
+          className="mt-3 rounded-lg border border-border bg-foreground/30 px-3 py-2 text-sm text-foreground"
         >
           {CITIES.map((c) => (
             <option key={c} value={c}>
@@ -69,7 +69,7 @@ export function LeaderboardTable() {
         <select
           value={game}
           onChange={(e) => setGame(e.target.value)}
-          className="mt-3 rounded-lg border border-border bg-black/30 px-3 py-2 text-sm text-foreground"
+          className="mt-3 rounded-lg border border-border bg-foreground/30 px-3 py-2 text-sm text-foreground"
         >
           {GAMES.map((g) => (
             <option key={g} value={g}>
@@ -101,7 +101,7 @@ export function LeaderboardTable() {
                     key={`${row.user_id}-${row.rank}`}
                     data-testid={row.rank <= 10 ? `leaderboard-row-${row.rank}` : undefined}
                     className={cn(
-                      "border-b border-white/5",
+                      "border-b border-border/60",
                       isMe && "bg-primary/10",
                     )}
                   >

@@ -58,7 +58,7 @@ export function ImportDeckModal({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 p-4 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 bg-foreground/60 p-4 backdrop-blur-sm">
       <div className="mx-auto flex h-full max-h-[90vh] w-full max-w-2xl flex-col rounded-xl border border-border bg-background">
         <div className="flex items-center justify-between border-b border-border px-4 py-3">
           <h2 className="text-lg font-semibold text-foreground">Importar deck</h2>

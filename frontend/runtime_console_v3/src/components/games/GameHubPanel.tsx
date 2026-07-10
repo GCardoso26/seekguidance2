@@ -180,13 +180,13 @@ export function GameHubPanel({ gameId, slug, cardCount = 0, healthLoading }: Pro
 
         {/* Atalhos rápidos */}
         <div className="mt-6 flex flex-wrap gap-3">
-          <Button asChild size="sm" variant="outline" className="border-white/15">
+          <Button asChild size="sm" variant="outline" className="border-border">
             <Link href={singlesSearchHref(slug)}>Buscar singles</Link>
           </Button>
-          <Button asChild size="sm" variant="outline" className="border-white/15">
+          <Button asChild size="sm" variant="outline" className="border-border">
             <Link href="/decks/novo">Montar deck</Link>
           </Button>
-          <Button asChild size="sm" variant="outline" className="border-white/15">
+          <Button asChild size="sm" variant="outline" className="border-border">
             <Link href="/judge">Consultar regras</Link>
           </Button>
         </div>

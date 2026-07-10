@@ -60,7 +60,7 @@ export function WishlistButton({ productId, product, className, size = "md" }: P
         aria-pressed={isSaved}
         data-testid={`wishlist-button-${productId}`}
         className={cn(
-          "rounded-full border border-border bg-black/50 text-white backdrop-blur transition hover:border-luxury-gold/50 hover:text-primary",
+          "rounded-full border border-border bg-card/90 text-foreground shadow-xs backdrop-blur transition hover:border-primary/40 hover:text-primary",
           pad,
           isSaved && "border-rose-500/50 bg-rose-500/20 text-rose-400",
           toggle.isPending && "opacity-60",

@@ -30,7 +30,7 @@ export function ReputationOverviewWidget({ reputation }: Props) {
         {reputation.alerts_count > 0 && (
           <Link
             href="/vendedor/painel/reputacao"
-            className="inline-flex items-center gap-1.5 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-200 hover:bg-amber-500/15"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-warning hover:bg-amber-500/15"
           >
             <AlertTriangle className="h-4 w-4" />
             {reputation.alerts_count} alerta(s)

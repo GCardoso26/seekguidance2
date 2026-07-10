@@ -26,11 +26,11 @@ export function PixPage() {
             </div>
             <div className="surface-card p-4">
               <p className="text-sm text-muted-foreground">Pendentes</p>
-              <p className="mt-1 text-2xl font-semibold text-amber-400">{data?.pending_count ?? 0}</p>
+              <p className="mt-1 text-2xl font-semibold text-warning">{data?.pending_count ?? 0}</p>
             </div>
             <div className="surface-card p-4">
               <p className="text-sm text-muted-foreground">Confirmados</p>
-              <p className="mt-1 text-2xl font-semibold text-emerald-400">{data?.confirmed_count ?? 0}</p>
+              <p className="mt-1 text-2xl font-semibold text-success">{data?.confirmed_count ?? 0}</p>
               <p className="text-sm text-muted-foreground">
                 {formatShopPrice(data?.revenue_cents ?? 0)} recebidos
               </p>

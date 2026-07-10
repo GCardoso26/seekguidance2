@@ -48,7 +48,7 @@ export function GameMegaMenu({ className }: Props) {
   return (
     <div
       ref={wrapRef}
-      className={cn("relative w-full border-t border-white/5", className)}
+      className={cn("relative w-full border-t border-border/60", className)}
       onMouseLeave={close}
     >
       <div className="mx-auto max-w-7xl px-4">

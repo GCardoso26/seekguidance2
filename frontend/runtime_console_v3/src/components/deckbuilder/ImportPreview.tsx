@@ -18,7 +18,7 @@ export function ImportPreview({ items }: ImportPreviewProps) {
         const key = `${item.name}-${idx}`;
         if (item.error) {
           return (
-            <li key={key} className="flex items-center gap-2 text-red-400">
+            <li key={key} className="flex items-center gap-2 text-danger">
               {item.error === "Não encontrado" ? <X className="h-4 w-4" /> : <AlertTriangle className="h-4 w-4" />}
               <span>
                 {item.quantity > 0 ? `${item.quantity}x ` : ""}
@@ -28,7 +28,7 @@ export function ImportPreview({ items }: ImportPreviewProps) {
           );
         }
         return (
-          <li key={key} className="flex items-center gap-2 text-emerald-300">
+          <li key={key} className="flex items-center gap-2 text-success">
             <Check className="h-4 w-4" />
             <span>
               {item.quantity}x {item.found?.name ?? item.name}

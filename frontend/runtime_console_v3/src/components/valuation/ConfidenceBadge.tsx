@@ -7,7 +7,7 @@ const LABELS = {
 } as const;
 
 const STYLES = {
-  high: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30",
+  high: "bg-emerald-500/15 text-success border-emerald-500/30",
   medium: "bg-amber-500/15 text-amber-300 border-amber-500/30",
   low: "bg-zinc-500/15 text-zinc-300 border-zinc-500/30",
 } as const;

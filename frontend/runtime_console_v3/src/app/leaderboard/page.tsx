@@ -165,7 +165,7 @@ export default function LeaderboardPage() {
                 onClick={() => setGame(g.code)}
                 className={cn(
                   "rounded-full px-3 py-1 text-xs font-medium",
-                  game === g.code ? "bg-primary/20 text-primary-light" : "bg-muted/50 text-muted-foreground",
+                  game === g.code ? "bg-primary/20 text-primary" : "bg-muted/50 text-muted-foreground",
                 )}
               >
                 {g.name}
@@ -184,7 +184,7 @@ export default function LeaderboardPage() {
                 onClick={() => setMetric(m.id)}
                 className={cn(
                   "inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs",
-                  metric === m.id ? "bg-primary/20 text-primary-light" : "bg-muted/50 text-muted-foreground",
+                  metric === m.id ? "bg-primary/20 text-primary" : "bg-muted/50 text-muted-foreground",
                 )}
               >
                 <Icon className="h-3.5 w-3.5" />
@@ -213,7 +213,7 @@ export default function LeaderboardPage() {
         )}
 
         {myRank != null && (
-          <p className="mt-4 rounded-xl border border-primary/30 bg-primary/5 px-4 py-3 text-sm text-primary-light">
+          <p className="mt-4 rounded-xl border border-primary/30 bg-primary/5 px-4 py-3 text-sm text-primary">
             Você está #{myRank} de {total} em {gameLabel}
           </p>
         )}

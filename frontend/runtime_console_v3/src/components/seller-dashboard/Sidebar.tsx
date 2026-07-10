@@ -74,7 +74,7 @@ function NavItem({
           <Icon className="h-4 w-4 shrink-0" aria-hidden />
           <span className="truncate">{item.label}</span>
           {badge != null && badge > 0 && (
-            <span className="ml-auto rounded-full bg-amber-500/30 px-1.5 text-[10px] font-semibold text-amber-100">
+            <span className="ml-auto rounded-full bg-amber-500/30 px-1.5 text-caption font-semibold text-amber-100">
               {badge}
             </span>
           )}

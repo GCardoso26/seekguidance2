@@ -7,7 +7,7 @@ type Props = {
 export function StoreRatingBadge({ className = "" }: Props) {
   return (
     <span
-      className={`inline-flex items-center rounded-full bg-emerald-500/20 px-2 py-0.5 text-xs font-semibold text-emerald-300 ${className}`}
+      className={`inline-flex items-center rounded-full bg-emerald-500/20 px-2 py-0.5 text-xs font-semibold text-success ${className}`}
     >
       Loja Top Rated
     </span>

@@ -77,7 +77,7 @@ export default function AdminCatalogPage() {
       />
 
       {isError && (
-        <p className="rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-2 text-sm text-red-300">
+        <p className="rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-2 text-sm text-danger">
           {(error as Error).message}
         </p>
       )}

@@ -153,7 +153,7 @@ function GameMat({
 
         const ghost = document.createElement("div");
         ghost.className =
-          "pointer-events-none fixed z-[100] flex h-16 w-16 items-center justify-center rounded-xl border border-luxury-gold/60 bg-card/90 shadow-lg";
+          "pointer-events-none fixed z-[100] flex h-16 w-16 items-center justify-center rounded-xl border border-primary/60 bg-card/90 shadow-lg";
         ghost.style.left = `${touch.clientX - 32}px`;
         ghost.style.top = `${touch.clientY - 32}px`;
         ghost.textContent = theme.icon;
@@ -205,27 +205,27 @@ function GameMat({
         "group judge-game-mat relative flex flex-col items-center justify-between overflow-hidden rounded-xl text-left transition",
         compact ? "min-h-[88px] min-w-[72px] p-2 md:min-w-[80px]" : "min-h-[112px] min-w-[140px] p-3 lg:min-w-[148px]",
         !game.enabled && "cursor-not-allowed opacity-50",
-        selected && "judge-game-mat--selected z-10 ring-2 ring-luxury-gold/80",
+        selected && "judge-game-mat--selected z-10 ring-2 ring-primary/80",
         canSelect && !selected && "hover:brightness-110",
         isDragging && "opacity-40 scale-[0.98]",
       )}
     >
       {!game.enabled && (
-        <span className="absolute inset-0 z-10 flex items-center justify-center bg-black/55 text-[10px] font-bold uppercase tracking-wide text-white">
+        <span className="absolute inset-0 z-10 flex items-center justify-center bg-foreground/55 text-caption font-bold uppercase tracking-wide text-primary-foreground">
           Em breve
         </span>
       )}
       {locked && game.enabled && (
         <span
-          className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-1 bg-black/60 text-white"
+          className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-1 bg-foreground/50 text-foreground"
           title="Disponível no plano Pro — R$ 29/mês. Ver /pricing"
         >
           <Lock className="h-4 w-4 text-primary" aria-hidden />
-          <span className="text-[9px] font-bold uppercase">Pro</span>
+          <span className="text-overline font-bold uppercase">Pro</span>
         </span>
       )}
       {game.beta && game.enabled && (
-        <span className="absolute right-2 top-2 z-10 animate-pulse rounded bg-primary/90 px-1.5 py-0.5 text-[9px] font-bold uppercase text-black">
+        <span className="absolute right-2 top-2 z-10 animate-pulse rounded bg-primary/90 px-1.5 py-0.5 text-overline font-bold uppercase text-black">
           Beta
         </span>
       )}
@@ -240,12 +240,12 @@ function GameMat({
 
       <div className="w-full text-center">
         {!compact && (
-          <span className="text-[10px] font-black tracking-tight text-white/80">{theme.icon}</span>
+          <span className="text-caption font-black tracking-tight text-foreground/80">{theme.icon}</span>
         )}
         <p
           className={cn(
             "line-clamp-2 font-semibold leading-snug text-[var(--tcg-text-primary)]",
-            compact ? "text-[10px]" : "mt-0.5 text-xs",
+            compact ? "text-caption" : "mt-0.5 text-xs",
           )}
         >
           {compact ? theme.icon : game.label}
@@ -319,13 +319,13 @@ export function TCGSelector({
           <p
             className={cn(
               "font-semibold uppercase tracking-wide text-[var(--tcg-text-secondary)]",
-              compact ? "text-[10px]" : "text-xs",
+              compact ? "text-caption" : "text-xs",
             )}
           >
             {compact ? "Jogos suportados" : "Escolha o tapete de jogo"}
           </p>
           {selectedTheme && !compact && (
-            <p className="hidden text-[10px] text-[var(--tcg-text-secondary)] sm:block">
+            <p className="hidden text-caption text-[var(--tcg-text-secondary)] sm:block">
               {selectedTheme.publisher}
             </p>
           )}
@@ -333,7 +333,7 @@ export function TCGSelector({
       )}
 
       {!compact && (
-        <p className="text-[10px] text-[var(--tcg-text-secondary)] md:hidden">
+        <p className="text-caption text-[var(--tcg-text-secondary)] md:hidden">
           Toque e arraste um TCG até a mesa central
         </p>
       )}
@@ -405,7 +405,7 @@ export function TCGDropZone({ children, className }: DropZoneProps) {
       className={cn(
         "rounded-2xl border-2 border-dashed transition-all duration-300",
         dropHover
-          ? "border-luxury-gold-light bg-primary/10"
+          ? "border-primary-light bg-primary/10"
           : "border-transparent bg-transparent",
         className,
       )}
@@ -423,7 +423,7 @@ export function TCGDropZone({ children, className }: DropZoneProps) {
       }}
     >
       {dropHover && (
-        <p className="mb-2 text-center text-sm font-semibold text-primary-light">Solte aqui!</p>
+        <p className="mb-2 text-center text-sm font-semibold text-primary">Solte aqui!</p>
       )}
       {!dropHover && (
         <p className="mb-2 text-center text-xs text-[var(--tcg-text-secondary)] md:hidden">

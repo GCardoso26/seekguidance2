@@ -60,14 +60,14 @@ export function RelatedQuestions({
           >
             <MessageCircle className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
             <span className="text-xs leading-snug text-foreground">{s}</span>
-            <span className="ml-auto shrink-0 rounded bg-muted/80 px-1.5 py-0.5 text-[9px] font-bold uppercase text-muted-foreground">
+            <span className="ml-auto shrink-0 rounded bg-muted/80 px-1.5 py-0.5 text-overline font-bold uppercase text-muted-foreground">
               Relacionado
             </span>
           </button>
         ))}
       </div>
       {autoSubmit && (
-        <p className="text-[10px] text-muted-foreground/70">Toque para enviar automaticamente</p>
+        <p className="text-caption text-muted-foreground/70">Toque para enviar automaticamente</p>
       )}
     </motion.div>
   );

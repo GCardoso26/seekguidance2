@@ -44,7 +44,7 @@ export function UserMenu({ onHistoryClick }: Props = {}) {
         <button
           type="button"
           data-testid="user-menu"
-          className="flex items-center gap-2 rounded-full border border-border bg-card shadow-card p-0.5 pr-2 transition hover:border-primary/30 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-luxury-gold/40"
+          className="flex items-center gap-2 rounded-full border border-border bg-card shadow-card p-0.5 pr-2 transition hover:border-primary/30 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
           aria-label={`Menu da conta de ${name}`}
         >
           {photo ? (
@@ -132,7 +132,7 @@ export function UserMenu({ onHistoryClick }: Props = {}) {
           </DropdownMenu.Item>
           <DropdownMenu.Separator className="my-1 h-px bg-muted" />
           <DropdownMenu.Item
-            className={cn(itemClass, "hover:text-red-300 focus:text-red-300")}
+            className={cn(itemClass, "hover:text-danger focus:text-danger")}
             onSelect={() => void signOut()}
           >
             <LogOut className="h-4 w-4" aria-hidden />

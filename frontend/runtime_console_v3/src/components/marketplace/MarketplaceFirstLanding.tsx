@@ -45,15 +45,15 @@ function MarketplaceHero() {
   const gameCount = getMegaMenuGames(health).length;
 
   return (
-    <section className="relative overflow-hidden border-b border-border bg-gradient-to-b from-luxury-gold/10 to-luxury-onyx pb-12 pt-8">
+    <section className="relative overflow-hidden border-b border-border bg-gradient-to-b from-primary/5 to-background pb-12 pt-8">
       <div className="container mx-auto px-4 text-center">
-        <p className="mb-2 text-sm font-medium uppercase tracking-widest text-primary">
+        <p className="text-overline text-primary mb-2">
           Marketplace · 0% comissão · PIX direto
         </p>
-        <h1 className="text-3xl font-bold tracking-tight text-foreground md:text-5xl" data-testid="hero-title">
+        <h1 className="text-display-l font-bold tracking-tight text-foreground" data-testid="hero-title">
           O maior marketplace de TCGs do Brasil
         </h1>
-        <p className="mx-auto mt-4 max-w-2xl text-base text-muted-foreground md:text-lg">
+        <p className="mx-auto mt-4 max-w-2xl text-body-lg text-muted-foreground">
           Magic, Pokémon, Yu-Gi-Oh!, Lorcana, Riftbound, Vanguard e mais. Compre, venda e monte decks com segurança.
         </p>
 
@@ -99,7 +99,7 @@ function PopularGamesSection() {
             key={game.id}
             href={`/loja/${gameSlugFromId(game.id as GameId)}`}
             data-testid={`game-card-${gameSlugFromId(game.id as GameId)}`}
-            className="flex flex-col items-center gap-2 rounded-xl border border-border bg-card/50 p-4 transition hover:border-primary/30 hover:shadow-lg"
+            className="flex flex-col items-center gap-2 rounded-xl border border-border bg-card p-4 transition-all duration-base hover:border-primary/30 hover:shadow-card-hover"
           >
             <Image
               src={game.logoUrl}
@@ -122,7 +122,7 @@ function PriceTrendsSection() {
     <section className="border-t border-border py-8">
       <div className="container mx-auto px-4">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-xl font-bold text-foreground">📈 Tendências de preço</h2>
+          <h2 className="text-h2 font-semibold text-foreground">Tendências de preço</h2>
           <Link href="/loja/tendencias" className="text-sm text-primary hover:underline">
             Ver todas →
           </Link>
@@ -137,7 +137,7 @@ function FeaturedSellersSection() {
   return (
     <section className="border-t border-border bg-card/30 py-8">
       <div className="container mx-auto px-4">
-        <h2 className="mb-4 text-xl font-bold text-foreground">🏪 Lojas em destaque</h2>
+        <h2 className="mb-4 text-h2 font-semibold text-foreground">Lojas em destaque</h2>
         <FeaturedShopsGrid />
       </div>
     </section>
@@ -146,26 +146,21 @@ function FeaturedSellersSection() {
 
 function WhyJudgeSection() {
   const items = [
-    { icon: "🛡️", title: "Checkout seguro", text: "Proteção ao comprador com checkout atômico e estoque reservado." },
-    { icon: "⭐", title: "Avaliações verificadas", text: "Reviews após entrega para confiança real entre compradores e vendedores." },
-    { icon: "🎴", title: "Deckbuilder integrado", text: "Monte decks e encontre cards faltantes no marketplace." },
-    { icon: "🎮", title: "13 TCGs suportados", text: "Do Magic ao Vanguard, tudo em um só lugar." },
+    { title: "Checkout seguro", text: "Proteção ao comprador com checkout atômico e estoque reservado." },
+    { title: "Avaliações verificadas", text: "Reviews após entrega para confiança real entre compradores e vendedores." },
+    { title: "Deckbuilder integrado", text: "Monte decks e encontre cards faltantes no marketplace." },
+    { title: "Multi-TCG", text: "Do Magic ao Vanguard, tudo em um só lugar." },
   ];
 
   return (
     <section className="border-t border-border py-12">
       <div className="container mx-auto max-w-4xl px-4">
-        <h2 className="text-center text-2xl font-bold text-foreground">Por que o Judge TCG?</h2>
+        <h2 className="text-center text-h2 font-semibold text-foreground">Por que comprar aqui</h2>
         <div className="mt-8 grid gap-6 md:grid-cols-2">
           {items.map((item) => (
-            <div key={item.title} className="flex gap-4 surface-card p-4">
-              <span className="text-3xl" aria-hidden>
-                {item.icon}
-              </span>
-              <div>
-                <h3 className="font-semibold text-foreground">{item.title}</h3>
-                <p className="mt-1 text-sm text-muted-foreground">{item.text}</p>
-              </div>
+            <div key={item.title} className="surface-card p-5">
+              <h3 className="text-h4 font-semibold text-foreground">{item.title}</h3>
+              <p className="mt-2 text-small text-muted-foreground">{item.text}</p>
             </div>
           ))}
         </div>
@@ -196,9 +191,9 @@ function FinalCtaSection() {
 function LigaPassTeaser() {
   return (
     <section className="container mx-auto px-4 py-12">
-      <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-8 text-center">
-        <h2 className="text-xl font-bold text-foreground">Liga Pass</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
+      <div className="rounded-xl border border-warning/20 bg-warning/5 p-8 text-center">
+        <h2 className="text-h2 font-semibold text-foreground">Liga Pass</h2>
+        <p className="mt-2 text-small text-muted-foreground">
           Compre, venda e jogue para subir de nível. Frete grátis, cashback e benefícios.
         </p>
         <Link href="/perfil/liga-pass" className="mt-4 inline-block text-sm text-primary hover:underline">
@@ -247,7 +242,7 @@ export function MarketplaceFirstLanding() {
     <MobileLayout>
       <MarketplaceHero />
       <PopularGamesSection />
-      <CatalogMarketplaceSection />
+      <CatalogMarketplaceSection showHero={false} showGames={false} />
       <PriceTrendsSection />
       <FeaturedSellersSection />
       <WhyJudgeSection />

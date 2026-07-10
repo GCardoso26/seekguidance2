@@ -44,7 +44,7 @@ const emptyValues: SellerTournamentFormValues = {
 
 function FieldError({ message }: { message?: string }) {
   if (!message) return null;
-  return <p className="mt-1 text-xs text-red-400">{message}</p>;
+  return <p className="mt-1 text-xs text-danger">{message}</p>;
 }
 
 export function TournamentCreateModal({ open, onOpenChange, onCreated }: Props) {
@@ -98,12 +98,12 @@ export function TournamentCreateModal({ open, onOpenChange, onCreated }: Props) 
       }}
     >
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/60" />
+        <Dialog.Overlay className="fixed inset-0 z-50 bg-foreground/50" />
         <Dialog.Content
           className="fixed left-1/2 top-1/2 z-50 max-h-[90vh] w-[min(100vw-2rem,36rem)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-xl border border-border bg-background p-6 shadow-xl"
           data-testid="tournament-create-modal"
         >
-          <Dialog.Title className="text-lg font-semibold text-white">Novo torneio</Dialog.Title>
+          <Dialog.Title className="text-lg font-semibold text-foreground">Novo torneio</Dialog.Title>
           <form onSubmit={(e) => void handleSubmit(onSubmit)(e)} className="mt-4 space-y-4">
             <div>
               <label htmlFor="tournament-name" className="text-sm text-muted-foreground">
@@ -111,7 +111,7 @@ export function TournamentCreateModal({ open, onOpenChange, onCreated }: Props) 
               </label>
               <Input
                 id="tournament-name"
-                className="mt-1 border-border bg-black/30"
+                className="mt-1 border-border bg-foreground/30"
                 data-testid="tournament-name-input"
                 {...register("name")}
               />
@@ -124,7 +124,7 @@ export function TournamentCreateModal({ open, onOpenChange, onCreated }: Props) 
               </label>
               <select
                 id="tournament-game"
-                className="mt-1 w-full rounded-md border border-border bg-black/30 px-3 py-2 text-sm"
+                className="mt-1 w-full rounded-md border border-border bg-foreground/30 px-3 py-2 text-sm"
                 data-testid="tournament-game-select"
                 {...register("game_id")}
               >
@@ -142,7 +142,7 @@ export function TournamentCreateModal({ open, onOpenChange, onCreated }: Props) 
               </label>
               <select
                 id="tournament-format-code"
-                className="mt-1 w-full rounded-md border border-border bg-black/30 px-3 py-2 text-sm"
+                className="mt-1 w-full rounded-md border border-border bg-foreground/30 px-3 py-2 text-sm"
                 data-testid="tournament-format-code-select"
                 {...register("format_code")}
               >
@@ -160,7 +160,7 @@ export function TournamentCreateModal({ open, onOpenChange, onCreated }: Props) 
               </label>
               <select
                 id="tournament-pairing"
-                className="mt-1 w-full rounded-md border border-border bg-black/30 px-3 py-2 text-sm"
+                className="mt-1 w-full rounded-md border border-border bg-foreground/30 px-3 py-2 text-sm"
                 data-testid="tournament-pairing-select"
                 {...register("pairing_format")}
               >
@@ -179,7 +179,7 @@ export function TournamentCreateModal({ open, onOpenChange, onCreated }: Props) 
               <Input
                 id="tournament-date"
                 type="datetime-local"
-                className="mt-1 border-border bg-black/30"
+                className="mt-1 border-border bg-foreground/30"
                 data-testid="tournament-date-input"
                 {...register("date")}
               />
@@ -196,7 +196,7 @@ export function TournamentCreateModal({ open, onOpenChange, onCreated }: Props) 
                   type="number"
                   min={0}
                   step={0.01}
-                  className="mt-1 border-border bg-black/30"
+                  className="mt-1 border-border bg-foreground/30"
                   data-testid="tournament-fee-input"
                   {...register("entry_fee")}
                 />
@@ -210,7 +210,7 @@ export function TournamentCreateModal({ open, onOpenChange, onCreated }: Props) 
                   id="tournament-max"
                   type="number"
                   min={2}
-                  className="mt-1 border-border bg-black/30"
+                  className="mt-1 border-border bg-foreground/30"
                   data-testid="tournament-max-players-input"
                   {...register("max_players")}
                 />
@@ -224,7 +224,7 @@ export function TournamentCreateModal({ open, onOpenChange, onCreated }: Props) 
               <Input
                 id="tournament-location"
                 placeholder="Endereço ou Online"
-                className="mt-1 border-border bg-black/30"
+                className="mt-1 border-border bg-foreground/30"
                 data-testid="tournament-location-input"
                 {...register("location")}
               />
@@ -237,7 +237,7 @@ export function TournamentCreateModal({ open, onOpenChange, onCreated }: Props) 
               <textarea
                 id="tournament-description"
                 rows={3}
-                className="mt-1 w-full rounded-md border border-border bg-black/30 px-3 py-2 text-sm"
+                className="mt-1 w-full rounded-md border border-border bg-foreground/30 px-3 py-2 text-sm"
                 data-testid="tournament-description-input"
                 {...register("description")}
               />

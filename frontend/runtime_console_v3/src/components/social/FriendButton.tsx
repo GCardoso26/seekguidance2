@@ -24,7 +24,7 @@ export function FriendButton({ playerId }: { playerId: string }) {
         <button
           type="button"
           onClick={() => acceptRequest.mutate()}
-          className="min-h-[44px] rounded-lg bg-primary px-3 py-1 text-sm text-white"
+          className="min-h-[44px] rounded-lg bg-primary px-3 py-1 text-sm text-primary-foreground"
         >
           Aceitar
         </button>
@@ -37,7 +37,7 @@ export function FriendButton({ playerId }: { playerId: string }) {
       type="button"
       onClick={() => sendRequest.mutate()}
       disabled={sendRequest.isPending}
-      className="min-h-[44px] rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white"
+      className="min-h-[44px] rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-foreground"
     >
       Adicionar amigo
     </button>

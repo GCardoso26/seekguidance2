@@ -111,8 +111,8 @@ export function FeedbackButtons({ question, gameSlug, verdict }: FeedbackButtons
           className={cn(
             "verdict-card min-h-12 min-w-12 rounded-lg border p-2.5 transition-colors",
             state === "negative"
-              ? "border-red-500/50 bg-red-500/15 text-red-400"
-              : "border-[var(--tcg-border)] text-[var(--tcg-text-secondary)] hover:border-red-500/40 hover:text-red-400",
+              ? "border-red-500/50 bg-red-500/15 text-danger"
+              : "border-[var(--tcg-border)] text-[var(--tcg-text-secondary)] hover:border-red-500/40 hover:text-danger",
           )}
         >
           <ThumbsDown size={18} aria-hidden />

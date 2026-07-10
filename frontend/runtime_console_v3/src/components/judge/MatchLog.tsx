@@ -129,7 +129,7 @@ export function MatchLog({ tcg, items, onSelect, onClear }: Props) {
       </div>
 
       {activeRound && (
-        <p className="text-[10px] text-[var(--tcg-text-secondary)]">
+        <p className="text-caption text-[var(--tcg-text-secondary)]">
           Rodada ativa: {activeRound.questions.length} pergunta(s)
         </p>
       )}

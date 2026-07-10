@@ -22,7 +22,7 @@ export function ReviewStars({ value, onChange, size = "md", readonly = false }: 
             onClick={() => onChange?.(star)}
             onMouseEnter={() => {}}
             className={`${starSize} ${readonly ? "cursor-default" : "cursor-pointer hover:scale-110"} transition ${
-              star <= value ? "text-primary" : "text-white/20"
+              star <= value ? "text-primary" : "text-muted-foreground/30"
             }`}
             aria-label={`${star} estrelas`}
           >

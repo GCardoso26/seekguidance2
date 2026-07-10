@@ -34,17 +34,17 @@ export function PixStatusRealtime({ txid }: Props) {
   if (status === "paid") {
     return (
       <div className="rounded-lg border border-emerald-500/40 bg-emerald-950/30 p-4 text-center">
-        <p className="text-lg font-semibold text-emerald-300">Pagamento confirmado!</p>
+        <p className="text-lg font-semibold text-success">Pagamento confirmado!</p>
         <p className="mt-1 text-sm text-muted-foreground">Redirecionando…</p>
       </div>
     );
   }
   if (status === "expired") {
-    return <p className="text-sm text-red-300">PIX expirado. Gere um novo código.</p>;
+    return <p className="text-sm text-danger">PIX expirado. Gere um novo código.</p>;
   }
   return (
     <p className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-      <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-luxury-gold border-t-transparent" />
+      <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       Aguardando pagamento…
     </p>
   );

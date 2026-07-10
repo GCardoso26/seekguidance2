@@ -27,7 +27,7 @@ export function EscrowFeeCalculator({ amountCents, shippingCents = 0 }: EscrowFe
       </div>
       <div className="flex justify-between border-t border-border pt-2 font-semibold">
         <dt>Total</dt>
-        <dd className="text-emerald-400">{formatCurrency(fees.totalCents / 100, "BRL")}</dd>
+        <dd className="text-success">{formatCurrency(fees.totalCents / 100, "BRL")}</dd>
       </div>
     </dl>
   );

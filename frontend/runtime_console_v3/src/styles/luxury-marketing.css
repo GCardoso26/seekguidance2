@@ -78,27 +78,27 @@
 }
 
 .luxury-marketing .luxury-input {
-  @apply w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-luxury-frost placeholder:text-luxury-mist/70 transition focus:border-luxury-gold/40 focus:outline-none focus:ring-2 focus:ring-luxury-gold/20;
+  @apply w-full rounded-xl border border-border bg-muted/40 px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/70 transition focus:border-primary/40 focus:outline-none focus:ring-2 focus:ring-primary/20;
 }
 
 .luxury-marketing .luxury-link {
-  @apply text-luxury-gold transition-colors hover:text-luxury-gold-light;
+  @apply text-primary transition-colors hover:text-primary-light;
 }
 
 .luxury-marketing .luxury-muted {
-  @apply text-luxury-mist;
+  @apply text-muted-foreground;
 }
 
-.luxury-marketing .luxury-card {
-  @apply rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm;
+.luxury-marketing .surface-card {
+  @apply rounded-2xl border border-border bg-muted/40 p-6 backdrop-blur-sm;
 }
 
 .luxury-marketing .luxury-btn-primary {
-  @apply inline-flex items-center justify-center rounded-full bg-luxury-gold px-6 py-3 text-sm font-medium text-luxury-onyx transition hover:bg-luxury-gold-light;
+  @apply inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-medium text-luxury-onyx transition hover:bg-primary-light;
 }
 
 .luxury-marketing .luxury-btn-secondary {
-  @apply inline-flex items-center justify-center rounded-full border border-white/15 bg-white/5 px-6 py-3 text-sm font-medium text-luxury-frost transition hover:border-luxury-gold/40 hover:bg-white/10;
+  @apply inline-flex items-center justify-center rounded-full border border-border bg-muted/40 px-6 py-3 text-sm font-medium text-foreground transition hover:border-primary/40 hover:bg-muted/50;
 }
 
 @keyframes luxury-gradient-shift {

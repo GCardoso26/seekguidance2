@@ -159,7 +159,7 @@ export function CreateListingForm({ card }: CreateListingFormProps) {
             Versão Foil
           </label>
 
-          {error && <p className="text-sm text-red-500">{error}</p>}
+          {error && <p className="text-sm text-danger">{error}</p>}
           {success && <p className="text-sm text-green-600">Listagem publicada com sucesso!</p>}
 
           <Button type="submit" className="w-full" disabled={isLoading}>

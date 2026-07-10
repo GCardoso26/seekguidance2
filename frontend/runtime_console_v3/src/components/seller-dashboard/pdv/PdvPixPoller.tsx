@@ -66,7 +66,7 @@ export function PdvPixPoller({
 
   if (status === "paid") {
     return (
-      <p className="text-sm text-emerald-400" data-testid="pdv-pix-paid">
+      <p className="text-sm text-success" data-testid="pdv-pix-paid">
         Pagamento PIX confirmado automaticamente.
       </p>
     );
@@ -79,7 +79,7 @@ export function PdvPixPoller({
   }
   return (
     <p className="flex items-center gap-2 text-sm text-muted-foreground" data-testid="pdv-pix-polling">
-      <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-luxury-gold border-t-transparent" />
+      <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       Aguardando confirmação automática…
     </p>
   );

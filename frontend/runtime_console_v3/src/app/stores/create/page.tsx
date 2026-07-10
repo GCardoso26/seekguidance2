@@ -48,7 +48,7 @@ export default function CreateStorePage() {
   return (
     <MobileLayout>
       <div className="container mx-auto max-w-2xl px-4 py-8">
-        <Link href="/stores" className="text-sm text-muted-foreground hover:text-white">
+        <Link href="/stores" className="text-sm text-muted-foreground hover:text-foreground">
           ← Voltar para lojas
         </Link>
         <h1 className="mt-4 text-3xl font-bold">Cadastrar nova loja</h1>
@@ -65,7 +65,7 @@ export default function CreateStorePage() {
         )}
 
         {error && (
-          <p className="mt-4 rounded-lg border border-red-500/30 bg-red-950/40 p-4 text-sm text-red-300">
+          <p className="mt-4 rounded-lg border border-red-500/30 bg-red-950/40 p-4 text-sm text-danger">
             {error.message}
           </p>
         )}

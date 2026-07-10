@@ -65,29 +65,29 @@ export function ResolveCallModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-      <Card className="w-full max-w-lg border-border bg-[#12121a] text-white">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/60 p-4">
+      <Card className="w-full max-w-lg border-border bg-[#12121a] text-foreground">
         <CardHeader>
           <CardTitle>Resolver Chamada</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <label className="text-sm text-white/70">Ruling / Decisão</label>
+            <label className="text-sm text-muted-foreground">Ruling / Decisão</label>
             <textarea
               value={ruling}
               onChange={(e) => setRuling(e.target.value)}
               placeholder="Descreva sua decisão..."
               rows={3}
-              className="w-full surface-card rounded-lg px-3 py-2 text-sm text-white"
+              className="w-full surface-card rounded-lg px-3 py-2 text-sm text-foreground"
             />
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm text-white/70">Categoria</label>
+            <label className="text-sm text-muted-foreground">Categoria</label>
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value as RulingCategory)}
-              className="w-full surface-card rounded-lg px-3 py-2 text-sm text-white"
+              className="w-full surface-card rounded-lg px-3 py-2 text-sm text-foreground"
             >
               <option value="">Selecione...</option>
               {CATEGORIES.map((c) => (
@@ -101,7 +101,7 @@ export function ResolveCallModal({
           {needsInfraction && (
             <>
               <div className="space-y-2">
-                <label className="text-sm text-white/70">Jogador infrator (ID)</label>
+                <label className="text-sm text-muted-foreground">Jogador infrator (ID)</label>
                 <input
                   type="text"
                   value={infractingPlayerId}
@@ -109,12 +109,12 @@ export function ResolveCallModal({
                   placeholder={
                     callerHandle ? `@${callerHandle} (${callerId ?? "sem ID"})` : "ID do jogador (judge_profiles)"
                   }
-                  className="w-full surface-card rounded-lg px-3 py-2 text-sm text-white"
+                  className="w-full surface-card rounded-lg px-3 py-2 text-sm text-foreground"
                 />
                 {callerId && infractingPlayerId !== callerId && (
                   <button
                     type="button"
-                    className="text-xs text-primary-light/90 hover:text-primary-light"
+                    className="text-xs text-primary/90 hover:text-primary"
                     onClick={() => setInfractingPlayerId(callerId)}
                   >
                     Usar quem abriu a chamada ({callerHandle ? `@${callerHandle}` : callerId})
@@ -122,11 +122,11 @@ export function ResolveCallModal({
                 )}
               </div>
               <div className="space-y-2">
-                <label className="text-sm text-white/70">Tipo de Infração</label>
+                <label className="text-sm text-muted-foreground">Tipo de Infração</label>
                 <select
                   value={infractionType}
                   onChange={(e) => setInfractionType(e.target.value)}
-                  className="w-full surface-card rounded-lg px-3 py-2 text-sm text-white"
+                  className="w-full surface-card rounded-lg px-3 py-2 text-sm text-foreground"
                 >
                   <option value="">Selecione...</option>
                   {INFRACTION_TYPES.map((t) => (
@@ -137,11 +137,11 @@ export function ResolveCallModal({
                 </select>
               </div>
               <div className="space-y-2">
-                <label className="text-sm text-white/70">Severidade</label>
+                <label className="text-sm text-muted-foreground">Severidade</label>
                 <select
                   value={severity}
                   onChange={(e) => setSeverity(e.target.value)}
-                  className="w-full surface-card rounded-lg px-3 py-2 text-sm text-white"
+                  className="w-full surface-card rounded-lg px-3 py-2 text-sm text-foreground"
                 >
                   <option value="minor">Menor</option>
                   <option value="major">Maior</option>

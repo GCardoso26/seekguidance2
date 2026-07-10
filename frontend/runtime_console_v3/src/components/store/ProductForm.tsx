@@ -78,7 +78,7 @@ export function ProductForm({ onSubmit, initial, submitLabel = "Salvar produto" 
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="mt-1 w-full rounded-lg border border-border bg-black/20 px-3 py-2 text-foreground"
+          className="mt-1 w-full rounded-lg border border-border bg-muted/50 px-3 py-2 text-foreground"
           required
         />
       </div>
@@ -88,7 +88,7 @@ export function ProductForm({ onSubmit, initial, submitLabel = "Salvar produto" 
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           rows={3}
-          className="mt-1 w-full rounded-lg border border-border bg-black/20 px-3 py-2 text-foreground"
+          className="mt-1 w-full rounded-lg border border-border bg-muted/50 px-3 py-2 text-foreground"
         />
       </div>
 
@@ -101,7 +101,7 @@ export function ProductForm({ onSubmit, initial, submitLabel = "Salvar produto" 
             const next = getCategoriesForGame(e.target.value as GameId);
             if (next[0]) setCategory(next[0].id);
           }}
-          className="mt-1 w-full rounded-lg border border-border bg-black/20 px-3 py-2 text-foreground"
+          className="mt-1 w-full rounded-lg border border-border bg-muted/50 px-3 py-2 text-foreground"
         >
           {MARKETPLACE_GAME_OPTIONS.map((g) => (
             <option key={g.id} value={g.id}>
@@ -122,7 +122,7 @@ export function ProductForm({ onSubmit, initial, submitLabel = "Salvar produto" 
               className={cn(
                 "flex flex-col items-center gap-1 rounded-lg border p-3 text-center text-xs transition",
                 category === cat.id
-                  ? "border-luxury-gold bg-primary/10 text-primary"
+                  ? "border-primary bg-primary/10 text-primary"
                   : "border-border text-muted-foreground hover:border-border hover:bg-muted/80",
               )}
             >
@@ -140,7 +140,7 @@ export function ProductForm({ onSubmit, initial, submitLabel = "Salvar produto" 
             value={price}
             onChange={(e) => setPrice(e.target.value)}
             inputMode="decimal"
-            className="mt-1 w-full rounded-lg border border-border bg-black/20 px-3 py-2 text-foreground"
+            className="mt-1 w-full rounded-lg border border-border bg-muted/50 px-3 py-2 text-foreground"
             required
           />
         </div>
@@ -151,7 +151,7 @@ export function ProductForm({ onSubmit, initial, submitLabel = "Salvar produto" 
             onChange={(e) => setStock(e.target.value)}
             type="number"
             min={0}
-            className="mt-1 w-full rounded-lg border border-border bg-black/20 px-3 py-2 text-foreground"
+            className="mt-1 w-full rounded-lg border border-border bg-muted/50 px-3 py-2 text-foreground"
           />
         </div>
       </div>
@@ -175,12 +175,12 @@ export function ProductForm({ onSubmit, initial, submitLabel = "Salvar produto" 
             value={imageUrl}
             onChange={(e) => setImageUrl(e.target.value)}
             placeholder="https://… ou deixe em branco"
-            className="min-w-0 flex-1 rounded-lg border border-border bg-black/20 px-3 py-2 text-foreground"
+            className="min-w-0 flex-1 rounded-lg border border-border bg-muted/50 px-3 py-2 text-foreground"
           />
         </div>
       </div>
 
-      {error && <p className="text-sm text-red-400">{error}</p>}
+      {error && <p className="text-sm text-danger">{error}</p>}
       <button
         type="submit"
         disabled={loading}

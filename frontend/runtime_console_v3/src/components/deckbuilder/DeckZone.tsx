@@ -33,13 +33,13 @@ export function DeckZone({
       ref={setNodeRef}
       className={cn(
         "rounded-lg border-2 border-dashed p-4 min-h-[180px] transition-colors",
-        isOver ? "border-luxury-gold bg-primary/5" : "border-white/15",
+        isOver ? "border-primary bg-primary/5" : "border-border",
         exceeded && "border-red-500/70 bg-red-500/5",
       )}
     >
       <div className="mb-2 flex items-center justify-between text-sm text-muted-foreground">
         <span className="font-medium text-foreground">{label}</span>
-        <span className={cn(exceeded && "text-red-400")}>
+        <span className={cn(exceeded && "text-danger")}>
           {totalCards} / {maxCards}
         </span>
       </div>

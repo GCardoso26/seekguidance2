@@ -15,7 +15,7 @@ function LojaPageContent() {
 
   return (
     <MobileLayout>
-      <div className="border-b border-border bg-gradient-to-b from-luxury-gold/5 to-transparent">
+      <div className="border-b border-border bg-gradient-to-b from-primary/5 to-transparent">
         <div className="container mx-auto max-w-6xl px-4 py-10">
           <Breadcrumbs
             className="mb-4 text-muted-foreground"
@@ -37,7 +37,7 @@ function LojaPageContent() {
             <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90">
               <Link href="/loja/busca">Buscar singles</Link>
             </Button>
-            <Button asChild variant="outline" className="border-white/15">
+            <Button asChild variant="outline" className="border-border">
               <Link href="/marketplace/produtos">Produtos selados</Link>
             </Button>
           </div>

@@ -98,7 +98,7 @@ export function TournamentRegistrationPanel({
 
   return (
     <section
-      className="luxury-card rounded-xl border border-border p-6"
+      className="surface-card rounded-xl border border-border p-6"
       data-testid="tournament-registration-panel"
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -162,7 +162,7 @@ export function TournamentRegistrationPanel({
 
       <Dialog.Root open={confirmOpen} onOpenChange={setConfirmOpen}>
         <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 z-50 bg-black/60" />
+          <Dialog.Overlay className="fixed inset-0 z-50 bg-foreground/50" />
           <Dialog.Content
             className="fixed left-1/2 top-1/2 z-50 w-[min(100vw-2rem,24rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl border border-border bg-background p-6"
             data-testid="tournament-register-confirm-modal"

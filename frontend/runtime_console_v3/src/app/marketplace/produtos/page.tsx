@@ -56,14 +56,14 @@ export default function MarketplaceProdutosPage() {
           <button
             type="button"
             onClick={() => setTab("shop")}
-            className={`px-4 py-2 text-sm ${tab === "shop" ? "border-b-2 border-luxury-gold text-primary" : "text-muted-foreground"}`}
+            className={`px-4 py-2 text-sm ${tab === "shop" ? "border-b-2 border-primary text-primary" : "text-muted-foreground"}`}
           >
             Produtos
           </button>
           <button
             type="button"
             onClick={() => setTab("decklists")}
-            className={`px-4 py-2 text-sm ${tab === "decklists" ? "border-b-2 border-luxury-gold text-primary" : "text-muted-foreground"}`}
+            className={`px-4 py-2 text-sm ${tab === "decklists" ? "border-b-2 border-primary text-primary" : "text-muted-foreground"}`}
           >
             Decklists
           </button>

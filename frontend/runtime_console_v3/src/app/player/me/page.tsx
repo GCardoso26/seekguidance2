@@ -153,7 +153,7 @@ function MyProfilePageContent() {
     return (
       <MobileLayout>
         <div className="container mx-auto px-4 py-8">
-          <p className="text-red-400">Erro ao carregar perfil. Faça login e crie seu perfil primeiro.</p>
+          <p className="text-danger">Erro ao carregar perfil. Faça login e crie seu perfil primeiro.</p>
           <Link href="/" className="mt-4 inline-block text-sm text-muted-foreground">
             ← Início
           </Link>
@@ -191,7 +191,7 @@ function MyProfilePageContent() {
           </div>
           <Link
             href="/pricing?from=menu"
-            className="inline-flex items-center gap-1.5 rounded-lg border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary-light"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary"
           >
             <CreditCard className="h-3.5 w-3.5" />
             Plano {tier === "free" ? "Grátis" : tier === "pro" ? "Spike" : "Equipe"}
@@ -202,17 +202,17 @@ function MyProfilePageContent() {
           <div className="judge-card surface-card p-3 text-center">
             <MessageCircle className="mx-auto h-5 w-5 text-primary" />
             <p className="mt-1 text-lg font-bold">{stats.totalConsultations}</p>
-            <p className="text-[10px] text-muted-foreground/70">Consultas</p>
+            <p className="text-caption text-muted-foreground/70">Consultas</p>
           </div>
           <div className="judge-card surface-card p-3 text-center">
-            <BarChart3 className="mx-auto h-5 w-5 text-primary-light" />
+            <BarChart3 className="mx-auto h-5 w-5 text-primary" />
             <p className="mt-1 truncate text-sm font-bold">{stats.topTcgLabel ?? "—"}</p>
-            <p className="text-[10px] text-muted-foreground/70">TCG favorito</p>
+            <p className="text-caption text-muted-foreground/70">TCG favorito</p>
           </div>
           <div className="judge-card surface-card p-3 text-center">
             <Flame className="mx-auto h-5 w-5 text-orange-400" />
             <p className="mt-1 text-lg font-bold">{stats.streakDays}</p>
-            <p className="text-[10px] text-muted-foreground/70">Dias seguidos</p>
+            <p className="text-caption text-muted-foreground/70">Dias seguidos</p>
           </div>
         </div>
 
@@ -267,7 +267,7 @@ function MyProfilePageContent() {
               onClick={() => setTab(id)}
               className={cn(
                 "rounded-lg px-3 py-1.5 text-sm",
-                tab === id ? "bg-primary/20 text-primary-light" : "text-muted-foreground",
+                tab === id ? "bg-primary/20 text-primary" : "text-muted-foreground",
               )}
             >
               {label}
@@ -431,9 +431,9 @@ function MyProfilePageContent() {
                     ))}
                   </select>
                 </div>
-                {isSuccess && <p className="text-sm text-primary-light">Perfil atualizado.</p>}
+                {isSuccess && <p className="text-sm text-primary">Perfil atualizado.</p>}
                 {updateError && (
-                  <p className="text-sm text-red-400">
+                  <p className="text-sm text-danger">
                     {updateErrorDetail instanceof Error ? updateErrorDetail.message : "Erro ao salvar."}
                   </p>
                 )}

@@ -35,7 +35,7 @@ export function DataTable<T>({
   rowSelection,
   onRowSelectionChange,
   getRowId,
-  stickyHeader,
+  stickyHeader = true,
   density = "comfortable",
 }: Props<T>) {
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -53,69 +53,89 @@ export function DataTable<T>({
   });
 
   if (data.length === 0) {
-    return <p className="text-sm text-muted-foreground">{emptyMessage}</p>;
+    return (
+      <div className="rounded-xl border border-dashed border-border bg-muted/40 px-4 py-10 text-center">
+        <p className="text-small text-muted-foreground">{emptyMessage}</p>
+      </div>
+    );
   }
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-border" data-testid={testId}>
-      <table className={`w-full min-w-[640px] text-left text-sm ${density === "compact" ? "text-xs" : ""}`}>
-        <thead
-          className={`border-b border-border bg-muted/50 ${stickyHeader ? "sticky top-0 z-10 backdrop-blur-sm" : ""}`}
+    <div className="surface-card overflow-hidden" data-testid={testId}>
+      <div className="overflow-x-auto">
+        <table
+          className={cn(
+            "w-full min-w-[640px] text-left",
+            density === "compact" ? "text-caption" : "text-small",
+          )}
         >
-          {table.getHeaderGroups().map((headerGroup) => (
-            <tr key={headerGroup.id}>
-              {headerGroup.headers.map((header) => {
-                const canSort = header.column.getCanSort();
-                const sorted = header.column.getIsSorted();
-                return (
-                  <th
-                    key={header.id}
+          <thead
+            className={cn(
+              "border-b border-border bg-muted/50",
+              stickyHeader && "sticky top-0 z-10 backdrop-blur-sm",
+            )}
+          >
+            {table.getHeaderGroups().map((headerGroup) => (
+              <tr key={headerGroup.id}>
+                {headerGroup.headers.map((header) => {
+                  const canSort = header.column.getCanSort();
+                  const sorted = header.column.getIsSorted();
+                  return (
+                    <th
+                      key={header.id}
+                      className={cn(
+                        "px-4 font-medium text-muted-foreground",
+                        density === "compact" ? "py-2" : "py-3",
+                      )}
+                      aria-sort={
+                        sorted === "asc" ? "ascending" : sorted === "desc" ? "descending" : undefined
+                      }
+                    >
+                      {header.isPlaceholder ? null : canSort ? (
+                        <button
+                          type="button"
+                          className={cn(
+                            "inline-flex items-center gap-1 transition-colors hover:text-foreground",
+                            sorted && "text-primary",
+                          )}
+                          onClick={header.column.getToggleSortingHandler()}
+                        >
+                          {flexRender(header.column.columnDef.header, header.getContext())}
+                          <span aria-hidden className="text-caption opacity-70">
+                            {sorted === "asc" ? "↑" : sorted === "desc" ? "↓" : "↕"}
+                          </span>
+                        </button>
+                      ) : (
+                        flexRender(header.column.columnDef.header, header.getContext())
+                      )}
+                    </th>
+                  );
+                })}
+              </tr>
+            ))}
+          </thead>
+          <tbody>
+            {table.getRowModel().rows.map((row) => (
+              <tr
+                key={row.id}
+                className="border-b border-border/60 transition-colors last:border-0 hover:bg-muted/40"
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <td
+                    key={cell.id}
                     className={cn(
-                      "px-4 font-medium text-muted-foreground",
+                      "px-4 text-foreground",
                       density === "compact" ? "py-2" : "py-3",
                     )}
-                    aria-sort={
-                      sorted === "asc" ? "ascending" : sorted === "desc" ? "descending" : undefined
-                    }
                   >
-                    {header.isPlaceholder ? null : canSort ? (
-                      <button
-                        type="button"
-                        className={cn(
-                          "inline-flex items-center gap-1 hover:text-white",
-                          sorted && "text-primary",
-                        )}
-                        onClick={header.column.getToggleSortingHandler()}
-                      >
-                        {flexRender(header.column.columnDef.header, header.getContext())}
-                        <span aria-hidden className="text-xs opacity-70">
-                          {sorted === "asc" ? "↑" : sorted === "desc" ? "↓" : "↕"}
-                        </span>
-                      </button>
-                    ) : (
-                      flexRender(header.column.columnDef.header, header.getContext())
-                    )}
-                  </th>
-                );
-              })}
-            </tr>
-          ))}
-        </thead>
-        <tbody>
-          {table.getRowModel().rows.map((row) => (
-            <tr
-              key={row.id}
-              className="border-b border-white/5 transition hover:bg-white/[0.03]"
-            >
-              {row.getVisibleCells().map((cell) => (
-                <td key={cell.id} className={cn("px-4 text-white", density === "compact" ? "py-2" : "py-3")}>
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

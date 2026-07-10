@@ -1,104 +1,40 @@
-# JudgeTCG Design System v2
+# JudgeTCG Design System v3 (Premium)
 
-**Versão:** 2.0  
+**Versão:** 3.0  
 **Escopo:** Frontend (`runtime_console_v3`)  
-**Tema padrão:** Light  
-**Dark mode:** Opcional (toggle no header)
+**Tema padrão:** Light · Dark · High Contrast (`data-contrast="high"`)
 
 ## Princípios
 
-1. **Consistência sobre criatividade** — um produto, uma linguagem visual.
-2. **Light-first** — superfícies claras, contraste WCAG AA, leitura confortável.
-3. **Premium sem peso** — sombras suaves, espaçamento generoso, sem preto absoluto.
-4. **Semântica sobre hex** — tokens HSL via CSS variables, nunca cores soltas em componentes novos.
+1. **Consistência sobre criatividade**
+2. **Light-first**, contraste WCAG AA
+3. **Semântica sobre hex** — nunca cores soltas em código novo
+4. **Tokens únicos** — `design-tokens.css` é a fonte de verdade
+5. **Rebrand-ready** — `src/lib/brand.ts`
 
-## Arquitetura de tokens
+## Tipografia (clamp)
 
-```
-src/styles/design-tokens.css   ← fonte de verdade (HSL)
-src/styles/globals.css         ← utilitários + @layer components
-tailwind.config.ts             ← mapeamento Tailwind
-```
+`text-display-xl` · `display-l` · `display-m` · `h1`–`h5` · `body-xl` · `body-lg` · `body` · `small` · `caption` · `label` · `hint` · `overline` · `button` · `table`
 
-### Aliases `luxury-*`
+## Cores
 
-Mantidos para migração gradual. Mapeiam para os mesmos tokens semânticos e respondem a `:root` / `.dark`.
+Scales: Neutral, Primary, Success, Warning, Danger, Info (50–900 onde aplicável).  
+Aliases `luxury-*` **deprecated** — mapeiam para semânticos.
 
-## Tipografia
+## Motion
 
-| Token | Tamanho | Uso |
-|-------|---------|-----|
-| `text-display` | 2.25rem | Hero, landing |
-| `text-h1` | 1.875rem | Título de página |
-| `text-h2` | 1.5rem | Seções |
-| `text-h3` | 1.25rem | Cards, painéis |
-| `text-body` | 0.9375rem | Corpo padrão |
-| `text-small` | 0.8125rem | Labels, metadados |
-| `text-caption` | 0.75rem | Badges, hints |
+`src/lib/motion.ts` — Framer variants 150–250ms · `prefers-reduced-motion` zera transitions.
 
-**Fonte:** Inter Variable (`--font-inter`)
+## Enforcement
 
-## Espaçamento
-
-Escala base: `4 · 8 · 12 · 16 · 24 · 32 · 48 · 64` (px: 4, 8, 12, 16, 24, 32, 48, 64)
-
-Classes Tailwind: `p-4`, `gap-6`, `space-y-8`, etc.
-
-## Radius
-
-| Token | Valor |
-|-------|-------|
-| `rounded-sm` | 6px |
-| `rounded-md` | 8px |
-| `rounded-lg` | 12px |
-| `rounded-xl` | 16px |
-| `rounded-2xl` | 20px |
-
-## Elevação
-
-| Classe | Uso |
-|--------|-----|
-| `shadow-xs` | Inputs |
-| `shadow-card` | Cards padrão |
-| `shadow-card-hover` | Hover interativo |
-| `shadow-md` | Dropdowns, popovers |
-| `shadow-lg` | Modais |
-
-## Componentes base
-
-Local: `src/components/ui/`
-
-| Componente | Arquivo |
-|------------|---------|
-| Button | `button.tsx` |
-| Card | `card.tsx` |
-| Surface | `surface.tsx` |
-| Input / Textarea / FormField | `input.tsx` |
-| Label | `label.tsx` |
-| Badge | `badge.tsx` |
-| Skeleton | `skeleton.tsx` |
-| DataTable | `data-table.tsx` |
-| ThemeToggle | `ThemeToggle.tsx` |
-| Async states | `async-state.tsx` |
-
-## Padrões de superfície
-
-Preferir:
-
-```tsx
-<Surface variant="interactive" padding="md">...</Surface>
-// ou
-<div className="surface-card-interactive">...</div>
+```bash
+npm run ds:audit
 ```
 
-Evitar:
+## Brand
 
-```tsx
-className="border-white/10 bg-white/5"  // legado
+```ts
+import { brand, brandTitle } from "@/lib/brand";
 ```
 
-## Tema
-
-`ThemeProvider` em `src/providers/theme-provider.tsx`  
-Persistência: `localStorage` key `judgetcg-theme`  
-Valores: `light` | `dark` | `system`
+Env: `NEXT_PUBLIC_BRAND_NAME`, `NEXT_PUBLIC_BRAND_LOGO`, `NEXT_PUBLIC_BRAND_THEME`, etc.

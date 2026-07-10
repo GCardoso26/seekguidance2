@@ -39,7 +39,7 @@ export function UserLevelBadge({ className, compact = false }: UserLevelBadgePro
         href="/profile/gamification"
         data-testid="user-level-badge"
         className={cn(
-          "flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold text-white ring-1 ring-white/20 transition hover:ring-luxury-gold/50",
+          "flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold text-foreground ring-1 ring-white/20 transition hover:ring-primary/50",
           className,
         )}
         style={{ backgroundColor: color }}
@@ -63,7 +63,7 @@ export function UserLevelBadge({ className, compact = false }: UserLevelBadgePro
     >
       <div className="flex items-center gap-3">
         <div
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold text-foreground"
           style={{ backgroundColor: color }}
         >
           {data.current_level}

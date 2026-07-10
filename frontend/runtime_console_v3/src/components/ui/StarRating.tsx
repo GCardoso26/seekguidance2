@@ -24,7 +24,7 @@ export function StarRating({ rating, size = "md", max = 5 }: Props) {
         return (
           <Star
             key={i}
-            className={`${cls} ${filled || half ? "fill-amber-400 text-amber-400" : "text-muted-foreground/40"}`}
+            className={`${cls} ${filled || half ? "fill-amber-400 text-warning" : "text-muted-foreground/40"}`}
           />
         );
       })}

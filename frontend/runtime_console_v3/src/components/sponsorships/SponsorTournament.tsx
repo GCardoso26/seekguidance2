@@ -27,7 +27,7 @@ export function SponsorTournament({ tournamentId, participantCount = 0 }: Props)
   };
 
   return (
-    <div className="rounded-xl bg-gradient-to-r from-purple-700 to-pink-700 p-6 text-white">
+    <div className="rounded-xl bg-gradient-to-r from-purple-700 to-pink-700 p-6 text-foreground">
       <h3 className="text-xl font-bold">Patrocine este torneio</h3>
       <p className="mb-4 opacity-90">Sua marca em destaque para {participantCount} jogadores.</p>
       <div className="mb-4 grid grid-cols-3 gap-3">
@@ -37,7 +37,7 @@ export function SponsorTournament({ tournamentId, participantCount = 0 }: Props)
             type="button"
             disabled={loading}
             onClick={() => sponsor(t.id)}
-            className="rounded-lg bg-white/15 p-3 text-center hover:bg-white/25"
+            className="rounded-lg bg-muted/60 p-3 text-center hover:bg-white/25"
           >
             <div className="text-lg font-bold">{t.label}</div>
             <div className="text-xs opacity-75">{t.desc}</div>

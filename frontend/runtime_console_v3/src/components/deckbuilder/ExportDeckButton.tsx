@@ -67,7 +67,7 @@ export function ExportDeckButton({ deck }: ExportDeckButtonProps) {
         </div>
       )}
 
-      {message && <span className="ml-2 text-xs text-emerald-400">{message}</span>}
+      {message && <span className="ml-2 text-xs text-success">{message}</span>}
     </div>
   );
 }

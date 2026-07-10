@@ -19,7 +19,7 @@ export function BulkPriceModal({ open, onOpenChange, selectedCount, onApply }: P
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-[70] bg-black/70" />
+        <Dialog.Overlay className="fixed inset-0 z-[70] bg-foreground/60" />
         <Dialog.Content className="fixed left-1/2 top-1/2 z-[71] w-[min(360px,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 rounded-xl border border-border bg-background p-5">
           <div className="mb-4 flex items-center justify-between">
             <Dialog.Title className="font-semibold">Ajuste de preço em massa</Dialog.Title>
@@ -88,7 +88,7 @@ export function BulkInventoryModal({
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-[70] bg-black/70" />
+        <Dialog.Overlay className="fixed inset-0 z-[70] bg-foreground/60" />
         <Dialog.Content className="fixed left-1/2 top-1/2 z-[71] w-[min(360px,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 rounded-xl border border-border bg-background p-5">
           <div className="mb-4 flex items-center justify-between">
             <Dialog.Title className="font-semibold">Estoque em massa</Dialog.Title>
@@ -144,12 +144,12 @@ export function BulkConfirmModal({
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-[70] bg-black/70" />
+        <Dialog.Overlay className="fixed inset-0 z-[70] bg-foreground/60" />
         <Dialog.Content className="fixed left-1/2 top-1/2 z-[71] w-[min(360px,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 rounded-xl border border-border bg-background p-5">
           <Dialog.Title className="font-semibold">{title}</Dialog.Title>
           <p className="mt-2 text-sm text-muted-foreground">{description}</p>
           <div className="mt-4 flex gap-2">
-            <Dialog.Close className="flex-1 rounded-lg border border-white/15 py-2 text-sm">
+            <Dialog.Close className="flex-1 rounded-lg border border-border py-2 text-sm">
               Cancelar
             </Dialog.Close>
             <button

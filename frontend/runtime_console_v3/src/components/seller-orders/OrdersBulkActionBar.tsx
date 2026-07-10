@@ -52,7 +52,7 @@ export function OrdersBulkActionBar({ selectedIds, onClear, onDone }: Props) {
 
   return (
     <div className="sticky bottom-4 z-20 flex flex-wrap items-center gap-3 rounded-xl border border-primary/40 bg-background/95 p-3 shadow-lg backdrop-blur">
-      <span className="text-sm font-medium text-white">
+      <span className="text-sm font-medium text-foreground">
         {selectedIds.length}{" "}
         {selectedIds.length > 1 ? "pedidos selecionados" : "pedido selecionado"}
       </span>
@@ -81,7 +81,7 @@ export function OrdersBulkActionBar({ selectedIds, onClear, onDone }: Props) {
       >
         Limpar seleção
       </button>
-      {error ? <p className="w-full text-xs text-red-300">{error}</p> : null}
+      {error ? <p className="w-full text-xs text-danger">{error}</p> : null}
     </div>
   );
 }

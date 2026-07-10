@@ -29,7 +29,7 @@ export function PricingToggle({ isAnnual, onChange }: Props) {
         )}
       >
         Anual
-        <span className="ml-1.5 text-xs font-bold text-primary-light">-20%</span>
+        <span className="ml-1.5 text-xs font-bold text-primary">-20%</span>
       </button>
     </div>
   );

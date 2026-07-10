@@ -64,7 +64,7 @@ export function IntelligencePage() {
                   </thead>
                   <tbody>
                     {data.top_listings.map((row) => (
-                      <tr key={row.listing_id ?? row.card_name} className="border-t border-white/5">
+                      <tr key={row.listing_id ?? row.card_name} className="border-t border-border/60">
                         <td className="p-2">{row.card_name ?? "—"}</td>
                         <td className="p-2">{row.sales_count ?? 0}</td>
                         <td className="p-2">{formatShopPrice(row.revenue_cents ?? 0)}</td>

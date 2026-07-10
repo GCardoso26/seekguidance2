@@ -15,7 +15,7 @@ export function MobilePairingCard({ tableNumber, player1, player2, timerRemainin
     <div className="mb-3 rounded-lg border border-slate-700 bg-slate-800/60 p-4">
       <div className="mb-3 flex items-center justify-between text-sm text-slate-400">
         <span>Mesa {tableNumber}</span>
-        {timerRemaining && <span className="text-amber-400">{timerRemaining}</span>}
+        {timerRemaining && <span className="text-warning">{timerRemaining}</span>}
       </div>
       <div className="flex items-center justify-between">
         <div className="text-center">
@@ -38,7 +38,7 @@ export function MobilePairingCard({ tableNumber, player1, player2, timerRemainin
         <button
           type="button"
           onClick={onReport}
-          className="mt-3 min-h-[44px] w-full rounded-lg bg-blue-600 py-2 text-sm font-medium text-white"
+          className="mt-3 min-h-[44px] w-full rounded-lg bg-blue-600 py-2 text-sm font-medium text-foreground"
         >
           Reportar resultado
         </button>

@@ -49,7 +49,7 @@ function LoginForm() {
 
   return (
     <div className="luxury-marketing flex min-h-screen items-center justify-center bg-background p-4 text-foreground">
-      <div className="luxury-card w-full max-w-md">
+      <div className="surface-card w-full max-w-md">
         <div className="mb-6 flex items-center gap-3">
           <span className="flex h-10 w-10 items-center justify-center rounded-full border border-primary/30 bg-primary/10">
             <Scale className="h-5 w-5 text-primary" strokeWidth={1.5} />
@@ -82,7 +82,7 @@ function LoginForm() {
             autoComplete="off"
             className="border-border bg-muted/50 text-foreground"
           />
-          {err && <p className="text-sm text-red-400">{err}</p>}
+          {err && <p className="text-sm text-danger">{err}</p>}
           <button type="submit" className="luxury-btn-primary w-full" disabled={loading}>
             {loading ? "…" : "Entrar"}
           </button>

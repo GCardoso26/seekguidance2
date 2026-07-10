@@ -82,7 +82,7 @@ export function CouponCards({ coupons, onEdit, onToggleActive, onDelete, busyId 
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-red-300 hover:text-red-200"
+                className="text-danger hover:text-red-200"
                 onClick={() => onDelete(coupon)}
                 disabled={isBusy}
                 data-testid={`coupon-delete-${coupon.id}`}
@@ -101,7 +101,7 @@ export function CouponCards({ coupons, onEdit, onToggleActive, onDelete, busyId 
 export function CouponEmptyState() {
   return (
     <div
-      className="rounded-xl border border-dashed border-white/15 bg-muted/50 p-10 text-center"
+      className="rounded-xl border border-dashed border-border bg-muted/50 p-10 text-center"
       data-testid="coupons-empty"
     >
       <Tag className="mx-auto h-10 w-10 text-muted-foreground/50" aria-hidden />

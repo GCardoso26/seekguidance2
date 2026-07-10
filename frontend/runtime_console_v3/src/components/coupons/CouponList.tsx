@@ -29,7 +29,7 @@ export function CouponList({ coupons, onDeactivate }: Props) {
         <div key={c.id} className="surface-card p-4">
           <div className="flex flex-wrap justify-between gap-2">
             <span className="font-mono font-semibold text-primary">{c.code}</span>
-            <span className={`text-xs ${c.is_active ? "text-emerald-400" : "text-muted-foreground"}`}>
+            <span className={`text-xs ${c.is_active ? "text-success" : "text-muted-foreground"}`}>
               {c.is_active ? "Ativo" : "Inativo"}
             </span>
           </div>
@@ -39,7 +39,7 @@ export function CouponList({ coupons, onDeactivate }: Props) {
             {c.max_uses ? `/${c.max_uses}` : ""}
           </p>
           {c.is_active && (
-            <button type="button" onClick={() => onDeactivate(c.id)} className="mt-2 text-xs text-red-300 underline">
+            <button type="button" onClick={() => onDeactivate(c.id)} className="mt-2 text-xs text-danger underline">
               Desativar
             </button>
           )}

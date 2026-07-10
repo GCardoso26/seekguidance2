@@ -26,9 +26,9 @@ export function DeckValidationBar({
       <div className="mb-2 flex items-center justify-between gap-2 text-sm">
         <div className="flex items-center gap-2">
           {isValid ? (
-            <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+            <CheckCircle2 className="h-4 w-4 text-success" />
           ) : (
-            <AlertTriangle className="h-4 w-4 text-amber-400" />
+            <AlertTriangle className="h-4 w-4 text-warning" />
           )}
           <span className="font-medium">{isValid ? "Deck legal" : "Validação pendente"}</span>
         </div>
@@ -38,7 +38,7 @@ export function DeckValidationBar({
       </div>
       <Progress value={progress} />
       {validation?.errors?.length ? (
-        <p className="mt-2 text-xs text-red-300">{validation.errors[0]}</p>
+        <p className="mt-2 text-xs text-danger">{validation.errors[0]}</p>
       ) : null}
     </div>
   );

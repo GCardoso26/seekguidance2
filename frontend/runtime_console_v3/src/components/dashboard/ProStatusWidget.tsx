@@ -9,7 +9,7 @@ type Props = {
 export function ProStatusWidget({ plan = "free", expiresAt }: Props) {
   if (plan === "pro" || plan === "enterprise") {
     return (
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-luxury-gold/20 bg-primary/5 p-4 text-sm">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary/20 bg-primary/5 p-4 text-sm">
         <div className="flex items-center gap-2">
           <ProBadge plan={plan} />
           <span className="text-muted-foreground">

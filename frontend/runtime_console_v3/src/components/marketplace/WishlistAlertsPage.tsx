@@ -46,7 +46,7 @@ export function WishlistAlertsPage() {
         return (
           <article
             key={alert.id}
-            className="luxury-card flex flex-col gap-3 rounded-xl border border-border p-4 md:flex-row md:items-center md:justify-between"
+            className="surface-card flex flex-col gap-3 p-4 md:flex-row md:items-center md:justify-between"
             data-testid={`price-alert-row-${alert.product_id}`}
           >
             <div>
@@ -64,7 +64,7 @@ export function WishlistAlertsPage() {
                 )}
               </p>
               {alert.last_triggered_at && (
-                <p className="mt-1 text-xs text-sky-300" data-testid={`price-alert-triggered-${alert.product_id}`}>
+                <p className="mt-1 text-xs text-info" data-testid={`price-alert-triggered-${alert.product_id}`}>
                   Preço caiu! Último disparo recente.
                 </p>
               )}

@@ -56,7 +56,7 @@ export function QuickViewModal({ cardId, isOpen, onClose }: QuickViewModalProps)
     >
       <button
         type="button"
-        className="absolute inset-0 bg-black/60"
+        className="absolute inset-0 bg-foreground/50"
         onClick={onClose}
         aria-label="Fechar"
       />

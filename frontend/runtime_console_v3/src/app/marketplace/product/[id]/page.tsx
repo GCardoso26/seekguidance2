@@ -53,7 +53,7 @@ export default function ProductDetailPage() {
         {isLoading && <p className="mt-6 text-muted-foreground">Carregando…</p>}
         {product && (
           <div className="mt-6 grid gap-8 lg:grid-cols-2">
-            <div className="relative aspect-square overflow-hidden rounded-xl border border-border bg-black/30">
+            <div className="relative aspect-square overflow-hidden rounded-xl border border-border bg-foreground/30">
               {image ? (
                 <Image src={image} alt={product.name} fill className="object-cover" unoptimized />
               ) : (

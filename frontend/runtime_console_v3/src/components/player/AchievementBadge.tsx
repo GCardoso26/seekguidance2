@@ -8,7 +8,7 @@ const RARITY_COLORS: Record<string, string> = {
   common: "border-slate-500",
   rare: "border-blue-500",
   epic: "border-purple-500",
-  legendary: "border-luxury-gold",
+  legendary: "border-primary",
 };
 
 export function AchievementBadge({ name, icon, rarity = "common" }: Props) {

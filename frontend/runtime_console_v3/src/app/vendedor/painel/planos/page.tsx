@@ -53,7 +53,7 @@ export default function PlanosPage() {
             return (
               <div
                 key={p.id}
-                className={`rounded-xl border p-4 ${active ? "border-luxury-gold bg-primary/10" : "border-border bg-muted/50"}`}
+                className={`rounded-xl border p-4 ${active ? "border-primary bg-primary/10" : "border-border bg-muted/50"}`}
               >
                 <h3 className="text-lg font-semibold">{p.name}</h3>
                 <p className="mt-1 text-2xl font-bold text-primary">{formatPlanPrice(p.priceCents)}</p>

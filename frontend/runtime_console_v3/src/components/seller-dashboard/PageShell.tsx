@@ -2,26 +2,14 @@
 
 import type { ReactNode } from "react";
 import { PageEmpty, PageError, PageSkeleton } from "@/components/ui/async-state";
+import { PageHeader as UiPageHeader, type PageHeaderProps as UiPageHeaderProps } from "@/components/ui/page-header";
 import { cn } from "@/lib/utils";
 
-type PageHeaderProps = {
-  title: string;
-  description?: string;
-  action?: ReactNode;
-  meta?: ReactNode;
-};
+export type PageHeaderProps = Omit<UiPageHeaderProps, "level"> & { level?: UiPageHeaderProps["level"] };
 
-export function PageHeader({ title, description, action, meta }: PageHeaderProps) {
-  return (
-    <div className="flex flex-wrap items-start justify-between gap-4">
-      <div className="space-y-1">
-        <h1 className="text-h2 font-semibold tracking-tight text-foreground">{title}</h1>
-        {description && <p className="text-small text-muted-foreground">{description}</p>}
-        {meta}
-      </div>
-      {action && <div className="flex shrink-0 items-center gap-2">{action}</div>}
-    </div>
-  );
+/** Painel seller/admin — default level h2 (densidade Stripe). */
+export function PageHeader({ level = "h2", ...props }: PageHeaderProps) {
+  return <UiPageHeader level={level} {...props} />;
 }
 
 export { PageEmpty, PageSkeleton, PageError };
@@ -51,7 +39,6 @@ export function AsyncPageBody({
 type PageShellProps = {
   children: ReactNode;
   className?: string;
-  /** Largura máxima do workspace (default: full dentro do painel) */
   constrained?: boolean;
 };
 
@@ -60,8 +47,8 @@ export function PageShell({ children, className, constrained }: PageShellProps) 
   return (
     <main
       className={cn(
-        "flex-1 space-y-6 overflow-y-auto px-4 py-6 sm:px-6 lg:px-8 lg:py-8",
-        constrained && "mx-auto w-full max-w-7xl",
+        "flex-1 space-y-5 overflow-y-auto px-4 py-5 sm:px-6 lg:px-8 lg:py-6",
+        constrained && "mx-auto w-full max-w-page",
         className,
       )}
     >

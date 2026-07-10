@@ -58,7 +58,7 @@ export default function FeedbackPage() {
         <h1 className="mt-4 text-2xl font-light text-foreground">Feedback</h1>
         <p className="mt-2 text-sm text-muted-foreground">Ajude a melhorar o Judge TCG.</p>
 
-        <form onSubmit={(e) => void submit(e)} className="luxury-card mt-6 space-y-4 rounded-xl p-6">
+        <form onSubmit={(e) => void submit(e)} className="surface-card mt-6 space-y-4 rounded-xl p-6">
           <div>
             <label className="text-sm text-muted-foreground">Tipo</label>
             <select value={type} onChange={(e) => setType(e.target.value as typeof type)} className="luxury-input mt-1 w-full">

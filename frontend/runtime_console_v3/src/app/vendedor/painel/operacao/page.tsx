@@ -20,7 +20,7 @@ function QueueSection({
   href?: string;
 }) {
   return (
-    <section className="rounded-xl border border-border bg-white/[0.03] p-4">
+    <section className="rounded-xl border border-border bg-muted/40 p-4">
       <div className="mb-3 flex items-center justify-between">
         <h2 className="font-semibold">{title}</h2>
         {href && (
@@ -63,7 +63,7 @@ export default function OperacaoPage() {
           <QueueSection title="Pedidos recentes" href="/vendedor/painel/pedidos">
             <ul className="space-y-2 text-sm">
               {(overview?.recent_orders ?? []).slice(0, 5).map((o) => (
-                <li key={o.id} className="flex justify-between rounded-lg border border-white/5 px-3 py-2">
+                <li key={o.id} className="flex justify-between rounded-lg border border-border/60 px-3 py-2">
                   <span className="truncate">{o.customer_name ?? `Pedido ${o.id.slice(0, 8)}`}</span>
                   <span className="text-primary">{formatShopPrice(o.total_cents)}</span>
                 </li>
@@ -77,7 +77,7 @@ export default function OperacaoPage() {
           <QueueSection title="Tickets abertos" href="/vendedor/painel/atendimento/tickets">
             <ul className="space-y-2 text-sm">
               {(tickets.data?.tickets ?? []).slice(0, 5).map((t) => (
-                <li key={t.id} className="flex justify-between gap-2 rounded-lg border border-white/5 px-3 py-2">
+                <li key={t.id} className="flex justify-between gap-2 rounded-lg border border-border/60 px-3 py-2">
                   <span className="truncate">{t.subject}</span>
                   <span className="shrink-0 text-xs text-muted-foreground">{ticketStatusLabel(t.status)}</span>
                 </li>
@@ -91,7 +91,7 @@ export default function OperacaoPage() {
           <QueueSection title="Chargebacks" href="/vendedor/painel/financeiro/chargebacks">
             <ul className="space-y-2 text-sm">
               {(chargebacks.data?.items ?? []).slice(0, 5).map((c) => (
-                <li key={c.id} className="flex justify-between rounded-lg border border-white/5 px-3 py-2">
+                <li key={c.id} className="flex justify-between rounded-lg border border-border/60 px-3 py-2">
                   <span>{c.reason ?? "Disputa"}</span>
                   <span className="text-amber-300">{formatShopPrice(c.amount_cents)}</span>
                 </li>
@@ -105,9 +105,9 @@ export default function OperacaoPage() {
           <QueueSection title="Estoque crítico" href="/vendedor/painel/estoque">
             <ul className="space-y-2 text-sm">
               {(overview?.low_stock ?? []).slice(0, 5).map((item) => (
-                <li key={item.id} className="flex justify-between rounded-lg border border-white/5 px-3 py-2">
+                <li key={item.id} className="flex justify-between rounded-lg border border-border/60 px-3 py-2">
                   <span className="truncate">{item.title}</span>
-                  <span className="text-red-300">×{item.stock}</span>
+                  <span className="text-danger">×{item.stock}</span>
                 </li>
               ))}
               {(overview?.low_stock?.length ?? 0) === 0 && (

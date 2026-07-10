@@ -25,7 +25,7 @@ export function ProductFiltersDrawer({ activeCount, ...fields }: ProductFiltersD
         </button>
       </Dialog.Trigger>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/60" />
+        <Dialog.Overlay className="fixed inset-0 z-50 bg-foreground/50" />
         <Dialog.Content
           className="fixed inset-y-0 left-0 z-50 w-[min(20rem,90vw)] overflow-y-auto border-r border-border bg-background p-4 shadow-xl"
           data-testid="marketplace-filters-drawer"

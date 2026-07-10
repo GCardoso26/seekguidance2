@@ -23,7 +23,7 @@ export function StripePage() {
               <p className="font-mono text-sm">{data?.account_id ?? "—"}</p>
               <p className="mt-2">
                 Onboarding:{" "}
-                <span className={data?.onboarding_complete ? "text-emerald-400" : "text-amber-400"}>
+                <span className={data?.onboarding_complete ? "text-success" : "text-warning"}>
                   {data?.onboarding_complete ? "Completo" : "Pendente"}
                 </span>
               </p>
@@ -38,7 +38,7 @@ export function StripePage() {
               </div>
               <div className="surface-card p-4">
                 <p className="text-sm text-muted-foreground">Disputas abertas</p>
-                <p className="text-2xl font-semibold text-red-400">{data?.open_disputes ?? 0}</p>
+                <p className="text-2xl font-semibold text-danger">{data?.open_disputes ?? 0}</p>
               </div>
             </div>
             <Link

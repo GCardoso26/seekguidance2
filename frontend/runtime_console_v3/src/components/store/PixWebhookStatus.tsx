@@ -29,7 +29,7 @@ export function PixWebhookStatus({ storeId }: Props) {
     <div className="surface-card p-4 text-sm">
       <h3 className="font-semibold">Confirmação PIX automática</h3>
       <p className="mt-2 text-muted-foreground">
-        Gateway: <span className="text-white">{data.gateway_provider}</span>
+        Gateway: <span className="text-foreground">{data.gateway_provider}</span>
       </p>
       <p className="mt-1 text-muted-foreground">
         {data.automatic_confirmation

@@ -19,7 +19,7 @@ function MessagesList() {
 
   return (
     <div className="grid gap-4 md:grid-cols-3">
-      <ul className="luxury-card rounded-xl p-3 md:col-span-1">
+      <ul className="surface-card rounded-xl p-3 md:col-span-1">
         {friends.length === 0 && <li className="p-3 text-sm text-muted-foreground">Nenhum amigo ainda.</li>}
         {friends.map((f: { id: string; handle?: string; display_name?: string; unread?: number }) => (
           <li key={f.id}>
@@ -27,7 +27,7 @@ function MessagesList() {
               type="button"
               onClick={() => setActiveFriend(f.id)}
               className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm ${
-                activeFriend === f.id ? "bg-primary/15 text-primary-light" : "hover:bg-muted/80"
+                activeFriend === f.id ? "bg-primary/15 text-primary" : "hover:bg-muted/80"
               }`}
             >
               <span>@{f.handle ?? f.display_name ?? f.id.slice(0, 8)}</span>
@@ -39,7 +39,7 @@ function MessagesList() {
         ))}
       </ul>
 
-      <div className="luxury-card flex min-h-[400px] flex-col rounded-xl p-4 md:col-span-2">
+      <div className="surface-card flex min-h-[400px] flex-col rounded-xl p-4 md:col-span-2">
         {!activeFriend && <p className="text-sm text-muted-foreground">Selecione uma conversa.</p>}
         {activeFriend && (
           <>
@@ -79,7 +79,7 @@ function ChatWithUser({ userId }: { userId: string }) {
   const [text, setText] = useState("");
 
   return (
-    <div className="luxury-card min-h-[400px] rounded-xl p-4">
+    <div className="surface-card min-h-[400px] rounded-xl p-4">
       <p className="text-sm text-muted-foreground">Conversa com {userId.slice(0, 8)}…</p>
       <div className="mt-4 space-y-2">
         {messages.map((m: { id: string; content: string }) => (

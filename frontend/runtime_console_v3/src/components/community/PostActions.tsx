@@ -66,7 +66,7 @@ export function PostActions({ post }: Props) {
   return (
     <>
       <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-        <button type="button" onClick={() => void share()} className="inline-flex min-h-[44px] items-center gap-1 hover:text-primary focus-visible:ring-2 focus-visible:ring-luxury-gold" aria-label="Compartilhar post">
+        <button type="button" onClick={() => void share()} className="inline-flex min-h-[44px] items-center gap-1 hover:text-primary focus-visible:ring-2 focus-visible:ring-primary" aria-label="Compartilhar post">
           <Share2 className="h-3.5 w-3.5" strokeWidth={1.5} />
           Compartilhar
         </button>
@@ -99,8 +99,8 @@ export function PostActions({ post }: Props) {
       </div>
 
       {reportOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-          <div className="luxury-card w-full max-w-sm rounded-xl p-5">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/50 p-4">
+          <div className="surface-card w-full max-w-sm rounded-xl p-5">
             <h3 className="font-medium text-foreground">Denunciar post</h3>
             <div className="mt-3 space-y-2">
               {REPORT_REASONS.map((r) => (
@@ -115,7 +115,7 @@ export function PostActions({ post }: Props) {
                 Cancelar
               </Button>
               <Button
-                className="flex-1 bg-rose-600 text-white hover:bg-rose-500"
+                className="flex-1 bg-rose-600 text-foreground hover:bg-rose-500"
                 disabled={report.isPending}
                 onClick={() => report.mutate()}
               >

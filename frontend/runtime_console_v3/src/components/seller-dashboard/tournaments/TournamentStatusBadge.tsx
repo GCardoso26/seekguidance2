@@ -5,13 +5,13 @@ import type { SellerTournamentStatus } from "@/types/seller-tournament";
 
 const STYLES: Record<string, string> = {
   draft: "bg-muted text-muted-foreground",
-  open: "bg-emerald-500/20 text-emerald-300",
-  registration_open: "bg-emerald-500/20 text-emerald-300",
+  open: "bg-emerald-500/20 text-success",
+  registration_open: "bg-emerald-500/20 text-success",
   check_in: "bg-amber-500/20 text-amber-300",
-  in_progress: "bg-sky-500/20 text-sky-300",
+  in_progress: "bg-sky-500/20 text-info",
   finalized: "bg-primary/20 text-primary",
   completed: "bg-primary/20 text-primary",
-  cancelled: "bg-red-500/20 text-red-300",
+  cancelled: "bg-red-500/20 text-danger",
 };
 
 type Props = {

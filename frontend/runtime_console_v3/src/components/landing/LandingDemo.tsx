@@ -11,7 +11,7 @@ export function LandingDemo() {
   return (
     <section id="veja-como-funciona" className="container mx-auto scroll-mt-24 px-4 py-16">
       <div className="mb-10 text-center">
-        <h2 className="mb-3 text-3xl font-bold text-white">Veja como funciona</h2>
+        <h2 className="mb-3 text-3xl font-bold text-foreground">Veja como funciona</h2>
         <p className="mx-auto max-w-xl text-slate-400">
           Pergunte em português, receba veredito com fonte oficial — como na mesa de torneio.
         </p>
@@ -34,7 +34,7 @@ export function LandingDemo() {
             viewport={{ once: true }}
             className="ml-auto max-w-[85%] rounded-2xl rounded-br-md border border-slate-700 bg-slate-800/80 px-4 py-3"
           >
-            <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">Pergunta</p>
+            <p className="text-caption font-semibold uppercase tracking-wide text-slate-500">Pergunta</p>
             <p className="mt-1 text-sm text-slate-200">
               Land cai no campo virada ou desvirada?
             </p>
@@ -49,13 +49,13 @@ export function LandingDemo() {
           >
             <div className="mb-3 flex items-center gap-3">
               <span className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/20">
-                <Check className="h-5 w-5 text-emerald-400" />
+                <Check className="h-5 w-5 text-success" />
               </span>
               <div>
-                <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-500">Veredito</p>
-                <p className="text-lg font-bold text-white">Permitido</p>
+                <p className="text-caption font-semibold uppercase tracking-widest text-slate-500">Veredito</p>
+                <p className="text-lg font-bold text-foreground">Permitido</p>
               </div>
-              <span className="ml-auto inline-flex items-center gap-1 rounded-full border border-blue-500/30 bg-blue-500/10 px-2 py-0.5 text-[10px] text-blue-300">
+              <span className="ml-auto inline-flex items-center gap-1 rounded-full border border-blue-500/30 bg-blue-500/10 px-2 py-0.5 text-caption text-blue-300">
                 <Zap className="h-3 w-3" />
                 Instantâneo
               </span>

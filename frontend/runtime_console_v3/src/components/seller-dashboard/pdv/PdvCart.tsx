@@ -42,7 +42,7 @@ export function PdvCart({
           {items.map((item) => (
             <li
               key={item.product_id}
-              className="rounded-lg border border-border bg-black/20 p-3"
+              className="rounded-lg border border-border bg-muted/50 p-3"
               data-testid={`pdv-cart-item-${item.product_id}`}
             >
               <div className="flex items-start justify-between gap-2">
@@ -81,7 +81,7 @@ export function PdvCart({
                   type="button"
                   size="sm"
                   variant="ghost"
-                  className="h-7 px-2 text-red-300"
+                  className="h-7 px-2 text-danger"
                   onClick={() => onRemove(item.product_id)}
                 >
                   Remover

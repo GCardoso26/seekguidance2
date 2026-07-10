@@ -26,7 +26,7 @@ export function LandingExploreNav({ className }: Props) {
         <button
           type="button"
           className={cn(
-            "inline-flex items-center gap-1 text-sm font-medium text-slate-400 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/50",
+            "inline-flex items-center gap-1 text-sm font-medium text-slate-400 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/50",
             className,
           )}
           aria-label="Menu Explorar"

@@ -19,14 +19,14 @@ export function PayoutsPage() {
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <div className="surface-card p-4">
               <p className="text-sm text-muted-foreground">Pendente</p>
-              <p className="mt-1 text-2xl font-semibold text-amber-400">
+              <p className="mt-1 text-2xl font-semibold text-warning">
                 {formatShopPrice(data?.pending_cents ?? 0)}
               </p>
               <p className="mt-1 text-xs text-muted-foreground">Aguardando transferência</p>
             </div>
             <div className="surface-card p-4">
               <p className="text-sm text-muted-foreground">Concluído</p>
-              <p className="mt-1 text-2xl font-semibold text-emerald-400">
+              <p className="mt-1 text-2xl font-semibold text-success">
                 {formatShopPrice(data?.completed_cents ?? 0)}
               </p>
               <p className="mt-1 text-xs text-muted-foreground">{data?.completed_count ?? 0} repasses</p>

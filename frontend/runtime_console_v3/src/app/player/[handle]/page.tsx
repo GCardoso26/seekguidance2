@@ -32,7 +32,7 @@ function ProfilePage() {
           </Link>
         </div>
         {isLoading && <p className="text-muted-foreground">Carregando perfil…</p>}
-        {isError && <p className="text-red-400">Jogador não encontrado.</p>}
+        {isError && <p className="text-danger">Jogador não encontrado.</p>}
         {data && <PlayerProfile profile={data} showFriendButton />}
         {data && posts.length > 0 && (
           <section className="mt-10 space-y-4">

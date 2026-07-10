@@ -46,11 +46,11 @@ export function NotificationSettingsPage() {
       <SellerHeader action={null} />
       <main className="flex-1 space-y-6 overflow-y-auto p-6">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Link href="/vendedor/painel/configuracoes" className="hover:text-white">
+          <Link href="/vendedor/painel/configuracoes" className="hover:text-foreground">
             Configurações
           </Link>
           <span>/</span>
-          <span className="text-white">Notificações</span>
+          <span className="text-foreground">Notificações</span>
         </div>
         <h2 className="text-xl font-bold">Notificações da loja</h2>
         {isLoading ? (

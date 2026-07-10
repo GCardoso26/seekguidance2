@@ -9,7 +9,13 @@ import { gameSlugFromId } from "@/lib/tcg-tokens";
 import { useCatalogHealth } from "@/hooks/useCatalogHealth";
 import type { GameId } from "@/types/card";
 
-export function CatalogMarketplaceSection() {
+export function CatalogMarketplaceSection({
+  showHero = true,
+  showGames = true,
+}: {
+  showHero?: boolean;
+  showGames?: boolean;
+}) {
   const router = useRouter();
   const { data: health, isLoading, isError } = useCatalogHealth();
 
@@ -22,19 +28,20 @@ export function CatalogMarketplaceSection() {
 
   return (
     <>
+      {showHero && (
       <section
         className="relative overflow-hidden border-b border-border/40 bg-gradient-to-b from-muted/40 to-background pb-16 pt-12 md:pt-16"
         aria-labelledby="catalog-hero-title"
       >
-        <div className="container mx-auto px-4">
+        <div className="page-container">
           <div className="mx-auto max-w-3xl text-center">
-            <p className="mb-2 text-sm font-medium uppercase tracking-widest text-primary">
+            <p className="text-overline text-primary mb-2">
               Marketplace Neutro · 0% comissão
             </p>
-            <h2 id="catalog-hero-title" className="text-3xl font-bold tracking-tight md:text-5xl">
+            <h2 id="catalog-hero-title" className="text-display font-bold tracking-tight">
               Descubra, monte decks e compre cartas
             </h2>
-            <p className="mx-auto mt-4 max-w-2xl text-base text-muted-foreground md:text-lg">
+            <p className="mx-auto mt-4 max-w-2xl text-body-lg text-muted-foreground">
               Catálogo unificado de TCGs com busca facetada, preços de mercado e checkout PIX direto ao
               lojista.
             </p>
@@ -43,46 +50,49 @@ export function CatalogMarketplaceSection() {
           <GlobalSearchBar className="mt-8" />
 
           <div
-            className="mt-8 flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground"
+            className="mt-8 flex flex-wrap items-center justify-center gap-6 text-small text-muted-foreground"
             aria-live="polite"
           >
             {isLoading && <span>Carregando catálogo…</span>}
             {!isLoading && health && (
               <>
                 <span aria-label={`${health.total_cards} cartas no catálogo`}>
-                  🎴 {health.total_cards.toLocaleString("pt-BR")} cartas
+                  {health.total_cards.toLocaleString("pt-BR")} cartas
                 </span>
                 <span aria-label={`${availableCount} jogos disponíveis`}>
-                  🎮 {availableCount} jogos
+                  {availableCount} jogos
                 </span>
                 {health.ready_for_marketplace && (
-                  <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-emerald-600 dark:text-emerald-400">
+                  <span className="rounded-full bg-success/10 px-2 py-0.5 text-caption text-success">
                     Catálogo pronto
                   </span>
                 )}
               </>
             )}
             {isError && !health && (
-              <span className="text-amber-600 dark:text-amber-400">
+              <span className="text-warning">
                 Catálogo offline — exibindo preview de desenvolvimento
               </span>
             )}
           </div>
         </div>
       </section>
+      )}
 
-      <section className="container mx-auto px-4 py-12" aria-labelledby="game-selector-title">
-        <h2 id="game-selector-title" className="mb-2 text-2xl font-semibold">
+      {showGames && (
+      <section className="page-container py-12" aria-labelledby="game-selector-title">
+        <h2 id="game-selector-title" className="mb-2 text-h2 font-semibold">
           Escolha seu jogo
         </h2>
-        <p className="mb-6 text-sm text-muted-foreground">
+        <p className="mb-6 text-small text-muted-foreground">
           Navegue pelo catálogo completo de cada TCG suportado.
         </p>
         <GameSelector games={games} onSelect={handleGameSelect} />
       </section>
+      )}
 
-      <section className="container mx-auto px-4 py-12" aria-labelledby="trends-title">
-        <h2 id="trends-title" className="mb-6 text-2xl font-semibold">
+      <section className="page-container py-12" aria-labelledby="trends-title">
+        <h2 id="trends-title" className="mb-6 text-h2 font-semibold">
           Tendências do dia
         </h2>
         <TopMoversPlaceholder />

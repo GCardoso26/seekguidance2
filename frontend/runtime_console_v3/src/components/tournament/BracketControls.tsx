@@ -86,7 +86,7 @@ export function BracketControls({
         <Button
           type="button"
           size="sm"
-          className="bg-emerald-600 text-white hover:bg-emerald-500"
+          className="bg-emerald-600 text-foreground hover:bg-emerald-500"
           disabled={pending?.finalize}
           onClick={onFinalize}
           data-testid="bracket-finalize"

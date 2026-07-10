@@ -44,7 +44,7 @@ export function PdvReceiptPrint({ open, sale, items, paymentMethod, storeName, o
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 print:relative print:inset-auto print:bg-transparent print:p-0"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/60 p-4 print:relative print:inset-auto print:bg-transparent print:p-0"
       role="dialog"
       aria-modal
       data-testid="pdv-receipt-modal"
@@ -85,17 +85,17 @@ export function PdvReceiptPrint({ open, sale, items, paymentMethod, storeName, o
           `}</style>
 
           <p className="text-center text-sm font-bold">{storeName}</p>
-          <p className="text-center text-[10px]">Comprovante não fiscal</p>
-          <p className="mt-2 text-center text-[10px]">
+          <p className="text-center text-caption">Comprovante não fiscal</p>
+          <p className="mt-2 text-center text-caption">
             {createdAt.toLocaleString("pt-BR")}
           </p>
-          <p className="text-center text-[10px]">Pedido: {saleId.slice(0, 12)}</p>
+          <p className="text-center text-caption">Pedido: {saleId.slice(0, 12)}</p>
           <hr className="my-2 border-dashed border-black/30" />
 
           {items.map((item) => (
             <div key={item.product_id} className="mb-1">
               <p className="truncate font-semibold">{item.name}</p>
-              <p className="flex justify-between text-[10px]">
+              <p className="flex justify-between text-caption">
                 <span>
                   {item.quantity} × {formatShopPrice(item.price_cents)}
                 </span>
@@ -109,8 +109,8 @@ export function PdvReceiptPrint({ open, sale, items, paymentMethod, storeName, o
             <span>TOTAL</span>
             <span>{formatShopPrice(total)}</span>
           </p>
-          <p className="mt-1 text-[10px]">Pagamento: {paymentLabel(paymentMethod)}</p>
-          <p className="mt-4 text-center text-[9px]">Obrigado pela preferência!</p>
+          <p className="mt-1 text-caption">Pagamento: {paymentLabel(paymentMethod)}</p>
+          <p className="mt-4 text-center text-overline">Obrigado pela preferência!</p>
         </div>
 
         <div className="mt-4 flex gap-2 print:hidden">

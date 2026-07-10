@@ -49,7 +49,7 @@ type UpsellProps = {
 
 export function NovaListagemAction({ href = "/vendedor/painel/planos", label = "Upgrade para mais listagens" }: UpsellProps) {
   return (
-    <Button asChild variant="outline" className="border-luxury-gold text-primary hover:bg-primary/10">
+    <Button asChild variant="outline" className="border-primary text-primary hover:bg-primary/10">
       <Link href={href}>{label}</Link>
     </Button>
   );

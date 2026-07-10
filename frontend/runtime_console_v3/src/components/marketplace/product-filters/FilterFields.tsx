@@ -30,7 +30,7 @@ export function FilterFields({ filters, onChange, onClear, stores }: FilterField
             onChange={(e) =>
               onChange({ minPrice: e.target.value ? Number(e.target.value) : undefined, page: 1 })
             }
-            className="w-full rounded-md border border-border bg-black/20 px-2 py-2 text-sm"
+            className="h-9 w-full rounded-lg border border-input bg-card px-3 text-small focus-ring"
             aria-label="Preço mínimo"
           />
           <span className="text-muted-foreground">—</span>
@@ -43,7 +43,7 @@ export function FilterFields({ filters, onChange, onClear, stores }: FilterField
             onChange={(e) =>
               onChange({ maxPrice: e.target.value ? Number(e.target.value) : undefined, page: 1 })
             }
-            className="w-full rounded-md border border-border bg-black/20 px-2 py-2 text-sm"
+            className="h-9 w-full rounded-lg border border-input bg-card px-3 text-small focus-ring"
             aria-label="Preço máximo"
           />
         </div>
@@ -77,7 +77,7 @@ export function FilterFields({ filters, onChange, onClear, stores }: FilterField
         <select
           value={filters.gameId ?? ""}
           onChange={(e) => onChange({ gameId: e.target.value || undefined, page: 1 })}
-          className="w-full rounded-md border border-border bg-black/20 px-2 py-2 text-sm"
+          className="h-9 w-full rounded-lg border border-input bg-card px-3 text-small focus-ring"
           aria-label="Filtrar por jogo"
         >
           <option value="">Todos</option>
@@ -94,7 +94,7 @@ export function FilterFields({ filters, onChange, onClear, stores }: FilterField
         <select
           value={filters.category ?? ""}
           onChange={(e) => onChange({ category: e.target.value || undefined, page: 1 })}
-          className="w-full rounded-md border border-border bg-black/20 px-2 py-2 text-sm"
+          className="h-9 w-full rounded-lg border border-input bg-card px-3 text-small focus-ring"
           aria-label="Filtrar por categoria de produto"
         >
           <option value="">Todas</option>
@@ -118,7 +118,7 @@ export function FilterFields({ filters, onChange, onClear, stores }: FilterField
           <select
             value={filters.storeId ?? ""}
             onChange={(e) => onChange({ storeId: e.target.value || undefined, page: 1 })}
-            className="w-full rounded-md border border-border bg-black/20 px-2 py-2 text-sm"
+            className="h-9 w-full rounded-lg border border-input bg-card px-3 text-small focus-ring"
             aria-label="Filtrar por loja"
           >
             <option value="">Todas</option>

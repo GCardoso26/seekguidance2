@@ -46,7 +46,7 @@ export default function NewsletterArchivePage() {
         <h1 className="mt-4 text-2xl font-light text-foreground">Newsletter Judge TCG</h1>
         <p className="mt-2 text-sm text-muted-foreground">Receba novidades dos TCGs que você joga.</p>
 
-        <section className="luxury-card mt-8 rounded-xl p-6">
+        <section className="surface-card mt-8 rounded-xl p-6">
           <h2 className="font-medium">Inscrever-se</h2>
           <Input
             type="email"
@@ -72,7 +72,7 @@ export default function NewsletterArchivePage() {
           <h2 className="text-lg font-medium">Arquivo</h2>
           {editions.length === 0 && <p className="text-sm text-muted-foreground">Nenhuma edição publicada ainda.</p>}
           {editions.map((ed) => (
-            <article key={ed.id} className="luxury-card rounded-xl p-5">
+            <article key={ed.id} className="surface-card rounded-xl p-5">
               <h3 className="text-lg font-medium text-foreground">{ed.title}</h3>
               {ed.sentAt && (
                 <p className="mt-1 text-xs text-muted-foreground">{new Date(ed.sentAt).toLocaleDateString("pt-BR")}</p>

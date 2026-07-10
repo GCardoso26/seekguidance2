@@ -30,7 +30,7 @@ export function ChargebacksPage() {
           <>
             <div className="surface-card px-4 py-3">
               <p className="text-xs text-muted-foreground">Abertos</p>
-              <p className="text-2xl font-semibold text-amber-400">{data?.open_count ?? 0}</p>
+              <p className="text-2xl font-semibold text-warning">{data?.open_count ?? 0}</p>
             </div>
             <div className="space-y-2">
               {(data?.items ?? []).length === 0 ? (
@@ -43,7 +43,7 @@ export function ChargebacksPage() {
                   >
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <span className="font-medium">{CB_STATUS[cb.status] ?? cb.status}</span>
-                      <span className="text-lg font-semibold text-amber-400">
+                      <span className="text-lg font-semibold text-warning">
                         {formatShopPrice(cb.amount_cents)}
                       </span>
                     </div>
@@ -51,7 +51,7 @@ export function ChargebacksPage() {
                       {cb.reason ?? "Sem motivo"} · {cb.payment_method}
                     </p>
                     {cb.evidence_due_by && (
-                      <p className="mt-1 text-xs text-red-400">
+                      <p className="mt-1 text-xs text-danger">
                         Prazo evidências: {new Date(cb.evidence_due_by).toLocaleDateString("pt-BR")}
                       </p>
                     )}

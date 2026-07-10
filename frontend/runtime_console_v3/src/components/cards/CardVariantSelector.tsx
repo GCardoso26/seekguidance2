@@ -88,12 +88,12 @@ export function CardVariantSelector({
           Foil
         </button>
         {finishes.map((f) => (
-          <span key={f} className="rounded-full bg-muted px-2 py-0.5 text-[10px] capitalize">
+          <span key={f} className="rounded-full bg-muted px-2 py-0.5 text-caption capitalize">
             {f.replace(/_/g, " ")}
           </span>
         ))}
         {(card.language || variants[0]?.language) && (
-          <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] uppercase">
+          <span className="rounded-full bg-muted px-2 py-0.5 text-caption uppercase">
             {card.language}
           </span>
         )}

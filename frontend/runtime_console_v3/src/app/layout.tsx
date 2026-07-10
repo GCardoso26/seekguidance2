@@ -24,6 +24,7 @@ import { Toaster } from "sonner";
 
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
+import { brand, brandTitle } from "@/lib/brand";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -32,33 +33,30 @@ const inter = Inter({
   display: "swap",
 });
 
-const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://judgetcg.com.br";
-
 export const metadata: Metadata = {
-  metadataBase: new URL(appUrl),
+  metadataBase: new URL(brand.url),
   title: {
-    template: "%s | Judge TCG",
-    default: "Judge TCG — Loja e Deckbuilder de Magic: The Gathering",
+    template: `%s | ${brand.name}`,
+    default: brandTitle(),
   },
-  description:
-    "Compre cards de MTG com preços em tempo real. Monte decks, gerencie sua coleção e acompanhe o mercado. Zero comissão, PIX direto.",
+  description: brand.description,
   keywords: [
     "Magic The Gathering",
     "MTG",
     "cards",
     "loja",
     "deckbuilder",
-    "Judge TCG",
+    brand.shortName,
     "tcg",
     "pokemon",
     "yugioh",
     "lorcana",
   ],
-  authors: [{ name: "Judge TCG" }],
-  creator: "Judge TCG",
-  publisher: "Judge TCG",
+  authors: [{ name: brand.name }],
+  creator: brand.name,
+  publisher: brand.name,
   manifest: "/manifest.json",
-  appleWebApp: { capable: true, title: "Judge TCG" },
+  appleWebApp: { capable: true, title: brand.shortName },
   robots: {
     index: true,
     follow: true,
@@ -73,32 +71,39 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "pt_BR",
-    url: appUrl,
-    siteName: "Judge TCG",
-    title: "Judge TCG — Loja e Deckbuilder de Magic: The Gathering",
-    description: "Compre cards de MTG com preços em tempo real.",
+    url: brand.url,
+    siteName: brand.name,
+    title: brandTitle(),
+    description: brand.description,
     images: [
       {
-        url: `${appUrl}/og-image.jpg`,
+        url: `${brand.url}${brand.ogImagePath}`,
         width: 1200,
         height: 630,
-        alt: "Judge TCG — Loja de Magic: The Gathering",
+        alt: brand.name,
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Judge TCG",
-    description: "Compre cards de MTG com preços em tempo real.",
-    images: [`${appUrl}/og-image.jpg`],
+    title: brand.name,
+    description: brand.description,
+    images: [`${brand.url}${brand.ogImagePath}`],
   },
   alternates: {
-    canonical: appUrl,
+    canonical: brand.url,
+  },
+  icons: {
+    icon: brand.faviconPath,
+    apple: brand.appleIconPath,
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#7c3aed",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: brand.themeColor },
+    { media: "(prefers-color-scheme: dark)", color: brand.themeColorDark },
+  ],
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
@@ -108,9 +113,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="pt-BR" className={inter.variable} suppressHydrationWarning>
       <head>
-        <meta name="theme-color" content="#7c3aed" />
+        <meta name="theme-color" content={brand.themeColor} />
 
-        <link rel="apple-touch-icon" href="/apple-icon" />
+        <link rel="apple-touch-icon" href={brand.appleIconPath} />
 
         <link rel="preconnect" href="https://cards.scryfall.io" />
         <link rel="preconnect" href="https://images.pokemontcg.io" />
@@ -146,7 +151,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               position="top-right"
               toastOptions={{
                 classNames: {
-                  toast: "bg-card border border-border text-foreground shadow-lg",
+                  toast: "bg-card border border-border text-foreground shadow-md",
                 },
               }}
             />

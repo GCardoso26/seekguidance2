@@ -62,7 +62,7 @@ export function PipelineOrb({ phase, className, overlay = false }: Props) {
           <span className="mb-0.5 text-2xl" aria-hidden>
             {config.icon}
           </span>
-          <span className="max-w-[5.5rem] px-1 text-center text-[10px] font-medium leading-tight text-[var(--tcg-text-primary)]">
+          <span className="max-w-[5.5rem] px-1 text-center text-caption font-medium leading-tight text-[var(--tcg-text-primary)]">
             {config.label}
           </span>
         </div>
@@ -107,7 +107,7 @@ export function PipelineOrb({ phase, className, overlay = false }: Props) {
     return (
       <div
         className={cn(
-          "pointer-events-none fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-[2px]",
+          "pointer-events-none fixed inset-0 z-50 flex items-center justify-center bg-muted/50 backdrop-blur-[2px]",
           className,
         )}
       >

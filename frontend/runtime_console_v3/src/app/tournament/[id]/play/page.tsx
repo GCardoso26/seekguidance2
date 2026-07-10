@@ -78,7 +78,7 @@ function PlayView() {
       <TimerDisplay roundId={round?.id ?? null} />
 
       {!user && (
-        <p className="rounded-lg border border-primary/30 bg-primary/10 p-4 text-sm text-primary-light">
+        <p className="rounded-lg border border-primary/30 bg-primary/10 p-4 text-sm text-primary">
           Faça login para ver sua mesa.
         </p>
       )}
@@ -99,7 +99,7 @@ function PlayView() {
       )}
 
       {user && isRegistered && !myPairing && (
-        <p className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm text-emerald-300">
+        <p className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm text-success">
           Inscrito ✓ — aguardando pairings da rodada.
         </p>
       )}

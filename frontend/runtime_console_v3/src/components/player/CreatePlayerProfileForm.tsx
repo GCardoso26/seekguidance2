@@ -70,7 +70,7 @@ export function CreatePlayerProfileForm({ email, defaultDisplayName }: Props) {
             />
           </div>
           {isError && (
-            <p className="text-sm text-red-400">{error instanceof Error ? error.message : "Erro ao criar perfil"}</p>
+            <p className="text-sm text-danger">{error instanceof Error ? error.message : "Erro ao criar perfil"}</p>
           )}
           <Button type="submit" disabled={isPending} className="w-full bg-primary text-primary-foreground">
             {isPending ? "Criando…" : "Criar perfil"}

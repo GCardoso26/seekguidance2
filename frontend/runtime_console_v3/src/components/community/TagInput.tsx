@@ -42,7 +42,7 @@ export function TagInput({ tags, onChange, max = 5 }: Props) {
         {tags.map((tag) => (
           <span
             key={tag}
-            className="inline-flex items-center gap-1 rounded-full bg-primary/15 px-2 py-0.5 text-xs text-primary-light"
+            className="inline-flex items-center gap-1 rounded-full bg-primary/15 px-2 py-0.5 text-xs text-primary"
           >
             #{tag}
             <button type="button" aria-label={`Remover ${tag}`} onClick={() => onChange(tags.filter((t) => t !== tag))}>

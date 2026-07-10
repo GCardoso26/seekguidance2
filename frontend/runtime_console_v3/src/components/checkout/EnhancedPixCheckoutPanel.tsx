@@ -37,7 +37,7 @@ export function EnhancedPixCheckoutPanel({ pix, onRegenerate, onManualConfirm }:
           <span>{formatShopPrice(subtotal)}</span>
         </div>
         {discount > 0 && (
-          <div className="flex justify-between text-emerald-400">
+          <div className="flex justify-between text-success">
             <span>Desconto{pix.coupon_code ? ` (${pix.coupon_code})` : ""}</span>
             <span>−{formatShopPrice(discount)}</span>
           </div>

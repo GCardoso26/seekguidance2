@@ -44,7 +44,7 @@ const RARITY_RING: Record<string, string> = {
   common: "ring-white/20",
   rare: "ring-blue-400/40",
   epic: "ring-purple-400/40",
-  legendary: "ring-luxury-gold/50",
+  legendary: "ring-primary/50",
 };
 
 const CATEGORIES: Array<GamificationBadgeCategory | "all"> = [
@@ -111,7 +111,7 @@ export function BadgesGrid() {
                 RARITY_RING[badge.rarity],
               )}
             >
-              <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-full border border-border bg-black/20">
+              <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-full border border-border bg-muted/50">
                 <Icon className="h-6 w-6 text-foreground" aria-hidden />
               </div>
               <span className="text-sm font-semibold text-foreground">{badge.name}</span>
@@ -127,11 +127,11 @@ export function BadgesGrid() {
         >
           <h3 className="text-lg font-semibold text-foreground">{selected.name}</h3>
           <p className="mt-1 text-sm text-muted-foreground">{selected.description}</p>
-          <p className="mt-2 text-xs text-primary-light">
+          <p className="mt-2 text-xs text-primary">
             Como desbloquear: {selected.unlock_hint}
           </p>
           {selected.unlocked && selected.unlocked_at && (
-            <p className="mt-2 text-xs text-emerald-400">
+            <p className="mt-2 text-xs text-success">
               Desbloqueado em {new Date(selected.unlocked_at).toLocaleDateString("pt-BR")}
             </p>
           )}

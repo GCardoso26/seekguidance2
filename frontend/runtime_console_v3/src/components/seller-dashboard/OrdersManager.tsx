@@ -58,7 +58,7 @@ export function OrdersManager({
           <button
             type="button"
             onClick={onExport}
-            className="text-sm text-primary underline hover:text-primary-light"
+            className="text-sm text-primary underline hover:text-primary"
           >
             Exportar CSV
           </button>

@@ -190,14 +190,14 @@ function BuylistPageContent() {
           <div className="space-y-3 surface-card p-4">
             <h3 className="font-semibold">Nova oferta</h3>
             <input
-              className="w-full rounded-lg border border-border bg-black/30 px-3 py-2 text-sm"
+              className="w-full rounded-lg border border-border bg-foreground/30 px-3 py-2 text-sm"
               placeholder="Título da oferta"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
             />
             <div className="flex gap-2">
               <input
-                className="flex-1 rounded-lg border border-border bg-black/30 px-3 py-2 text-sm"
+                className="flex-1 rounded-lg border border-border bg-foreground/30 px-3 py-2 text-sm"
                 placeholder="Nome da carta"
                 value={cardName}
                 onChange={(e) => setCardName(e.target.value)}
@@ -335,7 +335,7 @@ function BuylistPageContent() {
                         />
                       )}
                       {!needsPay && (
-                        <p className="mt-2 text-xs text-emerald-400">PIX gerado — aguardando confirmação</p>
+                        <p className="mt-2 text-xs text-success">PIX gerado — aguardando confirmação</p>
                       )}
                     </li>
                   );

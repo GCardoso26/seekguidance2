@@ -78,7 +78,7 @@ export function RuleSourceCard({ source, index, highlightTerms = [], accent }: P
                 <span className="text-xs font-semibold text-[var(--tcg-text-primary)]">{f.title}</span>
               )}
               <div className="flex items-center gap-1.5">
-                <span className={cn("rounded px-1.5 py-0.5 text-[10px] font-bold uppercase", badge.className)}>
+                <span className={cn("rounded px-1.5 py-0.5 text-caption font-bold uppercase", badge.className)}>
                   {badge.label}
                 </span>
                 <Expand className="h-3.5 w-3.5 text-muted-foreground" aria-hidden />
@@ -92,7 +92,7 @@ export function RuleSourceCard({ source, index, highlightTerms = [], accent }: P
                 }}
               />
             )}
-            <span className="mt-auto text-[10px] text-[var(--tcg-text-secondary)] opacity-70">
+            <span className="mt-auto text-caption text-[var(--tcg-text-secondary)] opacity-70">
               Toque para virar a carta
             </span>
           </div>

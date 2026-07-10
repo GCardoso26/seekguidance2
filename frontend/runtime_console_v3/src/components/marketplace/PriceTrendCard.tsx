@@ -39,13 +39,13 @@ export function PriceTrendCard({ trend }: PriceTrendCardProps) {
         <p className="truncate font-medium">{trend.name}</p>
         <p className="truncate text-xs text-muted-foreground">{trend.setName}</p>
         {trend.price !== undefined && (
-          <p className="mt-1 text-sm font-semibold text-emerald-400">
+          <p className="mt-1 text-sm font-semibold text-success">
             {formatCurrency(trend.price, trend.currency ?? "BRL")}
           </p>
         )}
         <div
           className={`mt-2 flex items-center gap-1 text-sm font-medium ${
-            up ? "text-emerald-500" : "text-red-500"
+            up ? "text-emerald-500" : "text-danger"
           }`}
         >
           {up ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}

@@ -25,7 +25,7 @@ export function PairingsView({ pairings, highlightTable }: { pairings: Pairing[]
             <span className="font-mono text-slate-500">Mesa {p.table_number}</span>
             <span className="text-xs text-slate-500">{p.status}</span>
           </div>
-          <p className="mt-1 text-white">
+          <p className="mt-1 text-foreground">
             {p.player1_name} ({p.player1_points ?? 0} pts)
             {p.is_bye ? " — BYE" : ` vs ${p.player2_name} (${p.player2_points ?? 0} pts)`}
           </p>

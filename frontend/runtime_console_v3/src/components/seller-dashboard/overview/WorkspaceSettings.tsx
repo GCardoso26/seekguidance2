@@ -22,7 +22,7 @@ export function WorkspaceSettingsDialog({ open, onOpenChange }: Props) {
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-[70] bg-black/70" />
+        <Dialog.Overlay className="fixed inset-0 z-[70] bg-foreground/60" />
         <Dialog.Content className="fixed left-1/2 top-1/2 z-[71] max-h-[85vh] w-[min(480px,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-xl border border-border bg-background p-5">
           <div className="mb-4 flex items-center justify-between">
             <Dialog.Title className="font-semibold">Personalizar workspace</Dialog.Title>
@@ -70,7 +70,7 @@ export function WorkspaceSettingsDialog({ open, onOpenChange }: Props) {
                 return (
                   <li
                     key={id}
-                    className="flex flex-wrap items-center gap-2 rounded-lg border border-border bg-white/[0.03] px-3 py-2"
+                    className="flex flex-wrap items-center gap-2 rounded-lg border border-border bg-muted/30 px-3 py-2"
                   >
                     <span className="flex-1 text-sm">{DASHBOARD_WIDGET_LABELS[id]}</span>
                     <button
@@ -112,7 +112,7 @@ export function WorkspaceSettingsDialog({ open, onOpenChange }: Props) {
           <button
             type="button"
             onClick={reset}
-            className="mt-4 w-full rounded-lg border border-white/15 py-2 text-xs text-muted-foreground"
+            className="mt-4 w-full rounded-lg border border-border py-2 text-xs text-muted-foreground"
           >
             Restaurar padrão
           </button>

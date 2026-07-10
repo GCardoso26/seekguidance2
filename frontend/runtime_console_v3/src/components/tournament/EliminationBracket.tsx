@@ -38,7 +38,7 @@ export function EliminationBracket({
       <div className="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory">
         {rounds.map((r) => (
           <div key={r} className="min-w-[220px] shrink-0 snap-start space-y-3">
-            <p className="sticky top-0 text-center text-sm font-semibold text-primary-light">
+            <p className="sticky top-0 text-center text-sm font-semibold text-primary">
               {eliminationRoundLabel(r, maxRound)}
             </p>
             {matches

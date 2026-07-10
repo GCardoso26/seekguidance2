@@ -33,10 +33,10 @@ export default function JudgeRulingsPage() {
           <li key={r.id} className="rounded-xl border border-border p-4">
             <div className="flex justify-between gap-2">
               <span className="font-medium">{r.title}</span>
-              <span className="text-xs text-white/50">{r.hierarchy}</span>
+              <span className="text-xs text-muted-foreground">{r.hierarchy}</span>
             </div>
-            <p className="mt-2 text-sm text-white/70">{r.answer}</p>
-            <p className="mt-2 text-xs text-white/40">
+            <p className="mt-2 text-sm text-muted-foreground">{r.answer}</p>
+            <p className="mt-2 text-xs text-muted-foreground/70">
               Status: {r.status} · {r.language}
             </p>
           </li>

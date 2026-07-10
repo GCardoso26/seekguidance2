@@ -114,7 +114,7 @@ export function TournamentRegistrationsManager({ tournamentId, tournamentName }:
           </thead>
           <tbody>
             {rows.map((row) => (
-              <tr key={row.id} className="border-b border-white/5" data-testid={`inscrito-row-${row.id}`}>
+              <tr key={row.id} className="border-b border-border/60" data-testid={`inscrito-row-${row.id}`}>
                 <td className="px-4 py-3">{row.display_name ?? "—"}</td>
                 <td className="px-4 py-3">{participantStatusLabel(row.status)}</td>
                 <td className="px-4 py-3">{paymentStatusLabel(row.payment_status)}</td>

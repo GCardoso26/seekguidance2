@@ -37,7 +37,7 @@ function InsightCard({
     >
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+          <p className="text-caption font-semibold uppercase tracking-wide text-muted-foreground">
             {PRIORITY_LABELS[insight.priority]}
           </p>
           <h4 className="mt-1 font-semibold text-foreground">{insight.title}</h4>
@@ -68,7 +68,7 @@ function InsightCard({
           <button
             type="button"
             onClick={() => onPrepare(insight)}
-            className="rounded-lg border border-white/15 px-3 py-1.5 text-xs text-foreground hover:bg-muted/80"
+            className="rounded-lg border border-border px-3 py-1.5 text-caption text-foreground transition-colors hover:bg-muted/80"
           >
             Preparar ação
           </button>
@@ -110,7 +110,7 @@ export function SellerInsightsPage() {
         />
 
         {brief && (
-          <section className="rounded-xl border border-luxury-gold/20 bg-primary/5 p-4" data-testid="seller-ai-daily-brief">
+          <section className="rounded-xl border border-primary/20 bg-primary/5 p-4" data-testid="seller-ai-daily-brief">
             <p className="text-sm font-medium text-foreground">{brief.greeting}</p>
             <p className="mt-2 whitespace-pre-line text-sm text-muted-foreground">{brief.summary}</p>
           </section>
@@ -133,7 +133,7 @@ export function SellerInsightsPage() {
         </div>
 
         {planPreview && (
-          <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-200">
+          <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-warning">
             {planPreview}
             <button type="button" className="ml-2 underline" onClick={() => setPlanPreview(null)}>
               Fechar

@@ -28,7 +28,7 @@ export function DeckToolbar({ deck, format, onImport, onSaved, showBuy = false }
         <p className="text-sm capitalize text-muted-foreground">
           {deck.game} · {deck.format}
           {deck.is_public && (
-            <span className="ml-2 rounded-full bg-emerald-500/20 px-2 py-0.5 text-xs text-emerald-300">
+            <span className="ml-2 rounded-full bg-emerald-500/20 px-2 py-0.5 text-xs text-success">
               Público
             </span>
           )}

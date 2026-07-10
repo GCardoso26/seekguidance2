@@ -24,7 +24,7 @@ export function ValuationCard({ valuation }: ValuationCardProps) {
         <ConfidenceBadge confidence={valuation.confidence} />
       </div>
 
-      <p className="mt-4 text-3xl font-bold text-emerald-400">
+      <p className="mt-4 text-3xl font-bold text-success">
         {formatCurrency(valuation.ourPriceCents / 100, "BRL")}
       </p>
       <p className="mt-1 text-sm text-muted-foreground">Preço justo estimado</p>

@@ -88,7 +88,7 @@ export default function SellerInboxPage() {
                   item.urgent
                     ? "border-red-500/40 bg-red-500/10"
                     : unread
-                      ? "border-primary/30 bg-white/[0.04]"
+                      ? "border-primary/30 bg-muted/40"
                       : "border-border bg-white/[0.02] opacity-80"
                 }`}
               >
@@ -101,7 +101,7 @@ export default function SellerInboxPage() {
                     <p className="mt-1 text-sm text-muted-foreground">{item.description}</p>
                   </div>
                   {item.count != null && item.count > 1 && (
-                    <span className="rounded-full bg-black/20 px-2 py-0.5 text-sm font-bold tabular-nums">
+                    <span className="rounded-full bg-muted/50 px-2 py-0.5 text-sm font-bold tabular-nums">
                       {item.count}
                     </span>
                   )}
@@ -118,7 +118,7 @@ export default function SellerInboxPage() {
                     <button
                       type="button"
                       onClick={() => setReadIds(markInboxItemRead(item.id, readIds))}
-                      className="rounded-lg border border-white/15 px-3 py-1.5 text-xs"
+                      className="rounded-lg border border-border px-3 py-1.5 text-xs"
                     >
                       Marcar lida
                     </button>

@@ -79,17 +79,17 @@ export function DeckShoppingPanel({ deckId, deckName }: Props) {
       {data && (
         <>
           <div className="mt-4 grid gap-2 sm:grid-cols-3">
-            <div className="rounded-lg border border-white/5 p-3">
+            <div className="rounded-lg border border-border/60 p-3">
               <p className="text-xs text-muted-foreground">Possuídas</p>
               <p className="text-lg font-semibold">
                 {(data.owned ?? []).filter((o) => Number(o.owned) >= Number(o.needed)).length}
               </p>
             </div>
-            <div className="rounded-lg border border-white/5 p-3">
+            <div className="rounded-lg border border-border/60 p-3">
               <p className="text-xs text-muted-foreground">A comprar</p>
               <p className="text-lg font-semibold">{missingCount}</p>
             </div>
-            <div className="rounded-lg border border-white/5 p-3">
+            <div className="rounded-lg border border-border/60 p-3">
               <p className="text-xs text-muted-foreground">Valor estimado</p>
               <p className="text-lg font-semibold text-primary">
                 {formatShopPrice(data.estimated_value_cents)}
@@ -104,7 +104,7 @@ export function DeckShoppingPanel({ deckId, deckName }: Props) {
                 {data.best_store_combination.map((s) => (
                   <li
                     key={s.store_id}
-                    className="flex items-center justify-between rounded-lg border border-white/5 px-3 py-2 text-sm"
+                    className="flex items-center justify-between rounded-lg border border-border/60 px-3 py-2 text-sm"
                   >
                     <span>
                       {s.store_slug ? (
@@ -131,7 +131,7 @@ export function DeckShoppingPanel({ deckId, deckName }: Props) {
               <Link href="/carrinho">Ver carrinho</Link>
             </Button>
           </div>
-          <p className="mt-2 text-[11px] text-muted-foreground">{data.policy}</p>
+          <p className="mt-2 text-caption text-muted-foreground">{data.policy}</p>
         </>
       )}
     </section>

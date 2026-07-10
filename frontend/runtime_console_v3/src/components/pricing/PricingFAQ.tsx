@@ -10,7 +10,7 @@ export function PricingFAQ() {
 
   return (
     <section className="container mx-auto px-4 py-16">
-      <h2 className="mb-10 text-center text-3xl font-bold text-white">Perguntas frequentes</h2>
+      <h2 className="mb-10 text-center text-3xl font-bold text-foreground">Perguntas frequentes</h2>
       <div className="mx-auto max-w-3xl space-y-3">
         {PRICING_FAQS.map((faq, index) => {
           const open = openIndex === index;

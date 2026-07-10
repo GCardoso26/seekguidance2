@@ -24,7 +24,7 @@ export function ResultReporter({ onReport, disabled }: Props) {
             type="button"
             disabled={disabled}
             onClick={() => onReport(p.p1, p.p2)}
-            className="rounded-lg border border-slate-600 bg-slate-800 px-4 py-3 text-white hover:border-amber-500 disabled:opacity-40"
+            className="rounded-lg border border-slate-600 bg-slate-800 px-4 py-3 text-foreground hover:border-amber-500 disabled:opacity-40"
           >
             {p.label}
           </button>

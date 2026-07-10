@@ -81,7 +81,7 @@ export default function OrderDetailPage() {
         </Link>
         <h1 className="mt-4 text-2xl font-bold">Pedido #{order.id.slice(0, 8)}</h1>
         <p className="text-muted-foreground">{order.store_name}</p>
-        <p className="mt-2 text-xl font-semibold text-emerald-400">
+        <p className="mt-2 text-xl font-semibold text-success">
           {formatShopPrice(order.total_cents)}
         </p>
 
@@ -98,7 +98,7 @@ export default function OrderDetailPage() {
               <button
                 type="button"
                 onClick={() => void confirmDelivery()}
-                className="w-full rounded-lg bg-emerald-600 py-3 font-semibold text-white"
+                className="w-full rounded-lg bg-emerald-600 py-3 font-semibold text-foreground"
               >
                 Confirmar recebimento
               </button>
@@ -116,7 +116,7 @@ export default function OrderDetailPage() {
 
         <ul className="mt-8 space-y-2">
           {(order.items ?? []).map((item, i) => (
-            <li key={i} className="flex justify-between text-sm border-b border-white/5 py-2">
+            <li key={i} className="flex justify-between text-sm border-b border-border/60 py-2">
               <span>
                 {item.product_name} × {item.quantity}
               </span>

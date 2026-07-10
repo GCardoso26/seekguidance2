@@ -39,7 +39,7 @@ export function CardJudgeInsights({ card, cardId, className }: Props) {
           Judge Insights
         </h2>
         {!isJudge && (
-          <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">
+          <span className="rounded-full bg-muted px-2 py-0.5 text-caption text-muted-foreground">
             Público
           </span>
         )}

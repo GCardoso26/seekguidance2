@@ -297,17 +297,17 @@ export function SearchFiltersPanel(props: SearchFiltersPanelProps) {
               <Filter className="h-4 w-4" />
               Filtros
               {hasActiveFilters(props.filters) && (
-                <span className="rounded-full bg-primary px-1.5 text-xs text-white">{activeCount}</span>
+                <span className="rounded-full bg-primary px-1.5 text-xs text-primary-foreground">{activeCount}</span>
               )}
             </button>
           </Dialog.Trigger>
           <Dialog.Portal>
-            <Dialog.Overlay className="fixed inset-0 z-50 bg-black/60" />
+            <Dialog.Overlay className="fixed inset-0 z-50 bg-foreground/50" />
             <Dialog.Content className="fixed inset-y-0 left-0 z-50 w-[min(20rem,90vw)] overflow-y-auto border-r border-border bg-background p-4 shadow-xl">
               <Dialog.Title className="mb-4 text-lg font-semibold">Filtros</Dialog.Title>
               <FilterContent {...props} />
               <Dialog.Close asChild>
-                <button type="button" className="mt-4 w-full rounded-md bg-primary py-2 text-sm text-white">
+                <button type="button" className="mt-4 w-full rounded-md bg-primary py-2 text-sm text-primary-foreground">
                   Aplicar
                 </button>
               </Dialog.Close>

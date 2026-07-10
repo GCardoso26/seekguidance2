@@ -16,9 +16,9 @@ type Tab = "active" | "open" | "resolved" | "reports";
 
 function slaColor(deadline: string): string {
   const ms = new Date(deadline).getTime() - Date.now();
-  if (ms < 0) return "text-red-400";
-  if (ms < 120_000) return "text-primary-light";
-  return "text-primary-light";
+  if (ms < 0) return "text-danger";
+  if (ms < 120_000) return "text-primary";
+  return "text-primary";
 }
 
 export default function JudgeDashboardPage() {
@@ -41,12 +41,12 @@ export default function JudgeDashboardPage() {
   if (!certLoading && !certification) {
     return (
       <div className="py-12 text-center">
-        <Gavel className="mx-auto mb-4 h-16 w-16 text-white/20" />
+        <Gavel className="mx-auto mb-4 h-16 w-16 text-muted-foreground/30" />
         <h1 className="mb-2 text-2xl font-bold">Certificação Necessária</h1>
-        <p className="text-white/60">
+        <p className="text-muted-foreground">
           Você precisa ser certificado como juiz para atender chamadas de torneio.
         </p>
-        <p className="mt-4 text-sm text-white/40">
+        <p className="mt-4 text-sm text-muted-foreground/70">
           Reports do Judge Assistant (Fase A) continuam disponíveis abaixo.
         </p>
         <LegacyReportsSection
@@ -72,9 +72,9 @@ export default function JudgeDashboardPage() {
         <div>
           <h1 className="text-2xl font-bold">Painel do Juiz</h1>
           {certification && (
-            <p className="mt-1 text-sm text-white/60">
+            <p className="mt-1 text-sm text-muted-foreground">
               Certificado:{" "}
-              <Badge className="border border-primary/30 bg-transparent text-primary-light">
+              <Badge className="border border-primary/30 bg-transparent text-primary">
                 {certification.gameCode} — {certification.level}
               </Badge>
             </p>
@@ -92,7 +92,7 @@ export default function JudgeDashboardPage() {
             type="button"
             onClick={() => setTab(t.id)}
             className={`rounded-lg px-4 py-2 text-sm transition ${
-              tab === t.id ? "bg-primary/20 text-primary-light" : "text-white/60 hover:text-white"
+              tab === t.id ? "bg-primary/20 text-primary" : "text-muted-foreground hover:text-foreground"
             }`}
           >
             {t.label} ({t.count})
@@ -144,9 +144,9 @@ function CallList({
         ? "Nenhuma chamada aberta"
         : "Nenhuma chamada resolvida hoje";
 
-  if (loading) return <p className="text-white/50">Carregando chamadas...</p>;
+  if (loading) return <p className="text-muted-foreground">Carregando chamadas...</p>;
   if (items.length === 0) {
-    return <p className="rounded-xl border border-border py-12 text-center text-white/50">{empty}</p>;
+    return <p className="rounded-xl border border-border py-12 text-center text-muted-foreground">{empty}</p>;
   }
 
   return (
@@ -184,10 +184,10 @@ function LegacyReportsSection({
       </div>
       <div>
         <h2 className="mb-3 text-lg font-semibold">Reports abertos (Judge Assistant)</h2>
-        {reportsLoading && <p className="text-white/50">Carregando...</p>}
+        {reportsLoading && <p className="text-muted-foreground">Carregando...</p>}
         <div className="overflow-x-auto rounded-xl border border-border">
           <table className="w-full text-left text-sm">
-            <thead className="bg-muted/50 text-white/60">
+            <thead className="bg-muted/50 text-muted-foreground">
               <tr>
                 <th className="px-3 py-2">SLA</th>
                 <th className="px-3 py-2">TCG</th>
@@ -198,7 +198,7 @@ function LegacyReportsSection({
             </thead>
             <tbody>
               {reports.map((r) => (
-                <tr key={r.id} className="border-t border-white/5">
+                <tr key={r.id} className="border-t border-border/60">
                   <td className={`px-3 py-2 ${slaColor(r.sla_deadline)}`}>
                     {new Date(r.sla_deadline).toLocaleTimeString("pt-BR")}
                   </td>
@@ -215,7 +215,7 @@ function LegacyReportsSection({
             </tbody>
           </table>
           {!reportsLoading && reports.length === 0 && (
-            <p className="px-3 py-6 text-center text-white/50">Nenhum report aberto.</p>
+            <p className="px-3 py-6 text-center text-muted-foreground">Nenhum report aberto.</p>
           )}
         </div>
       </div>

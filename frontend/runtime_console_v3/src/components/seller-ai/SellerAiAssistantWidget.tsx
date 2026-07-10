@@ -11,7 +11,7 @@ export function SellerAiAssistantWidget() {
   if (isLoading) {
     return (
       <div
-        className="rounded-xl border border-luxury-gold/20 bg-gradient-to-br from-luxury-gold/5 to-transparent p-4"
+        className="rounded-xl border border-primary/20 bg-gradient-to-br from-primary/5 to-transparent p-4"
         data-testid="seller-ai-widget-skeleton"
       >
         <div className="h-4 w-32 animate-pulse rounded bg-muted" />
@@ -25,7 +25,7 @@ export function SellerAiAssistantWidget() {
 
   return (
     <section
-      className="rounded-xl border border-luxury-gold/25 bg-gradient-to-br from-luxury-gold/8 to-card p-4"
+      className="rounded-xl border border-primary/25 bg-gradient-to-br from-primary/8 to-card p-4"
       data-testid="seller-ai-assistant-widget"
     >
       <div className="flex items-start justify-between gap-2">
@@ -33,7 +33,7 @@ export function SellerAiAssistantWidget() {
           <Sparkles className="h-4 w-4 text-primary" aria-hidden />
           <h3 className="text-sm font-semibold text-foreground">Assistente da Loja</h3>
         </div>
-        <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-medium text-primary">
+        <span className="rounded-full bg-primary/15 px-2 py-0.5 text-caption font-medium text-primary">
           {data.opportunity_count} oportunidades
         </span>
       </div>
@@ -42,7 +42,7 @@ export function SellerAiAssistantWidget() {
 
       {data.metrics.revenue_today_cents != null && data.metrics.revenue_today_cents > 0 && (
         <p className="mt-2 text-xs text-foreground">
-          Receita hoje: <span className="font-medium text-emerald-400">{formatShopPrice(data.metrics.revenue_today_cents)}</span>
+          Receita hoje: <span className="font-medium text-success">{formatShopPrice(data.metrics.revenue_today_cents)}</span>
         </p>
       )}
 

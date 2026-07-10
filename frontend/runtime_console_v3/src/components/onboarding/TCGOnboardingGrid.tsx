@@ -84,9 +84,9 @@ export function TCGOnboardingGrid({ selected, onChange, onComplete }: Props) {
               className={cn(
                 "relative flex flex-col items-center gap-2 rounded-xl border p-3 transition-all duration-300",
                 active
-                  ? "border-luxury-gold/60 bg-primary/10 shadow-lg shadow-luxury-gold/10"
+                  ? "border-primary/60 bg-primary/10 shadow-lg shadow-primary/10"
                   : lockedOut
-                    ? "border-white/5 opacity-50 grayscale"
+                    ? "border-border/60 opacity-50 grayscale"
                     : "border-border hover:border-border",
               )}
               style={
@@ -104,9 +104,9 @@ export function TCGOnboardingGrid({ selected, onChange, onComplete }: Props) {
                 </span>
               )}
               {lockedOut && (
-                <span className="absolute inset-0 flex flex-col items-center justify-center gap-1 rounded-xl bg-black/40">
+                <span className="absolute inset-0 flex flex-col items-center justify-center gap-1 rounded-xl bg-foreground/40">
                   <Lock className="h-4 w-4 text-muted-foreground" aria-hidden />
-                  <span className="rounded-full bg-primary/90 px-2 py-0.5 text-[10px] font-bold text-primary-foreground">
+                  <span className="rounded-full bg-primary/90 px-2 py-0.5 text-caption font-bold text-primary-foreground">
                     Pro
                   </span>
                 </span>
@@ -145,7 +145,7 @@ export function TCGOnboardingGrid({ selected, onChange, onComplete }: Props) {
           </Link>
           .
         </p>
-        {error && <p className="text-sm text-red-400">{error}</p>}
+        {error && <p className="text-sm text-danger">{error}</p>}
       </div>
     </div>
   );

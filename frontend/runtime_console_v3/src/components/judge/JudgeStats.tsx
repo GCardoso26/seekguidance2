@@ -22,8 +22,8 @@ function StatCard({ label, value }: { label: string; value: string }) {
   return (
     <Card className="border-border bg-muted/50">
       <CardContent className="px-4 py-3 text-center">
-        <p className="text-xs uppercase tracking-wide text-white/50">{label}</p>
-        <p className="text-xl font-semibold text-primary-light">{value}</p>
+        <p className="text-xs uppercase tracking-wide text-muted-foreground">{label}</p>
+        <p className="text-xl font-semibold text-primary">{value}</p>
       </CardContent>
     </Card>
   );

@@ -32,11 +32,11 @@ export function ShopReviewCard({ review, verified = true }: Props) {
         <div className="text-right text-xs text-muted-foreground">
           {review.created_at && formatRelativeTime(review.created_at)}
           {review.edited_at && (
-            <p className="mt-1 text-amber-400">
+            <p className="mt-1 text-warning">
               Editado em {new Date(review.edited_at).toLocaleDateString("pt-BR")}
             </p>
           )}
-          {verified && <p className="mt-1 text-emerald-400">Compra verificada</p>}
+          {verified && <p className="mt-1 text-success">Compra verificada</p>}
         </div>
       </div>
       {review.comment && <p className="mt-3 text-sm text-muted-foreground">{review.comment}</p>}
@@ -49,7 +49,7 @@ export function ShopReviewCard({ review, verified = true }: Props) {
         </div>
       )}
       {review.store_response && (
-        <div className="mt-3 rounded-lg border border-luxury-gold/20 bg-primary/5 p-3 text-sm">
+        <div className="mt-3 rounded-lg border border-primary/20 bg-primary/5 p-3 text-sm">
           <p className="text-xs font-semibold text-primary">Resposta da loja</p>
           <p className="mt-1 text-muted-foreground">{review.store_response}</p>
         </div>

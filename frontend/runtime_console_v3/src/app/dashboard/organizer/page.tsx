@@ -25,7 +25,7 @@ function OrganizerDashboard() {
       </header>
       <main className="container mx-auto space-y-8 px-4 py-8">
         {isLoading && <p className="text-slate-400">Carregando métricas…</p>}
-        {isError && <p className="text-red-400">Faça login como organizador.</p>}
+        {isError && <p className="text-danger">Faça login como organizador.</p>}
         {d && (
           <>
             <div className="grid gap-4 sm:grid-cols-3">

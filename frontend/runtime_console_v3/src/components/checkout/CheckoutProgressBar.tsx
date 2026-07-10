@@ -51,28 +51,32 @@ export function CheckoutProgressBar({ currentStep, className }: Props) {
                 >
                   {isComplete ? <Check className="h-4 w-4" aria-hidden /> : <Icon className="h-4 w-4" aria-hidden />}
                 </span>
-                <div className="hidden min-w-0 sm:block">
+                <div className="min-w-0">
                   {step.href && (isComplete || isCurrent) ? (
                     <Link
                       href={step.href}
                       className={cn(
-                        "block truncate text-small font-medium hover:text-primary",
+                        "block truncate text-caption font-medium hover:text-primary sm:text-small",
                         isCurrent ? "text-foreground" : "text-muted-foreground",
                       )}
                     >
-                      {step.label}
+                      <span className="sm:hidden">{step.shortLabel}</span>
+                      <span className="hidden sm:inline">{step.label}</span>
                     </Link>
                   ) : (
                     <span
                       className={cn(
-                        "block truncate text-small font-medium",
+                        "block truncate text-caption font-medium sm:text-small",
                         isCurrent ? "text-foreground" : "text-muted-foreground",
                       )}
                     >
-                      {step.label}
+                      <span className="sm:hidden">{step.shortLabel}</span>
+                      <span className="hidden sm:inline">{step.label}</span>
                     </span>
                   )}
-                  {isCurrent && <span className="text-caption text-primary">Etapa atual</span>}
+                  {isCurrent && (
+                    <span className="hidden text-hint text-primary sm:block">Etapa atual</span>
+                  )}
                 </div>
               </div>
               {index < STEPS.length - 1 && (

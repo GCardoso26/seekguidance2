@@ -13,7 +13,7 @@ const STATUS_LABEL = {
 
 export function HealthScoreCard({ data }: HealthScoreCardProps) {
   const color =
-    data.score > 70 ? "text-emerald-400" : data.score > 40 ? "text-amber-400" : "text-red-400";
+    data.score > 70 ? "text-success" : data.score > 40 ? "text-warning" : "text-danger";
 
   return (
     <article className="rounded-xl border border-border bg-card p-6">

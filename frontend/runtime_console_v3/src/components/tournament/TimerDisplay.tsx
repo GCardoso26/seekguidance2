@@ -19,13 +19,13 @@ export function TimerDisplay({ roundId, onExtend, showExtend }: Props) {
       }`}
     >
       <p className="text-sm text-slate-400">Tempo restante</p>
-      <p className="text-4xl font-mono font-bold text-white">{formatted}</p>
+      <p className="text-4xl font-mono font-bold text-foreground">{formatted}</p>
       <p className="mt-1 text-xs text-slate-500">Estado: {status}</p>
       {showExtend && onExtend && (
         <button
           type="button"
           onClick={onExtend}
-          className="mt-4 rounded-lg bg-slate-700 px-4 py-2 text-sm text-white hover:bg-slate-600"
+          className="mt-4 rounded-lg bg-slate-700 px-4 py-2 text-sm text-foreground hover:bg-slate-600"
         >
           +5 min
         </button>

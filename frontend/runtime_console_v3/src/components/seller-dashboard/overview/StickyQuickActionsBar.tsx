@@ -30,7 +30,7 @@ type Props = {
 export function StickyQuickActionsBar({ sticky }: Props) {
   return (
     <section
-      className={`rounded-xl border border-border bg-white/[0.04] p-3 ${
+      className={`rounded-xl border border-border bg-muted/40 p-3 ${
         sticky ? "sticky bottom-4 z-20 shadow-lg shadow-black/20 backdrop-blur-md" : ""
       }`}
       data-testid="sticky-quick-actions"

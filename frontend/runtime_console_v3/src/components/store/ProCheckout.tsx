@@ -70,7 +70,7 @@ export function ProCheckout({ storeId, onSuccess }: Props) {
           <p className="mt-2 text-muted-foreground">Identificador: {String(pixData.txid ?? "")}</p>
         </div>
       )}
-      {error && <p className="text-sm text-red-300">{error}</p>}
+      {error && <p className="text-sm text-danger">{error}</p>}
     </div>
   );
 }

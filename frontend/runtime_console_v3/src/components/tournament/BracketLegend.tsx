@@ -1,7 +1,7 @@
 import { MATCH_STATUS_STYLES } from "@/lib/tournament-bracket";
 
 const ITEMS = [
-  { key: "open", label: "Aberto", className: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30" },
+  { key: "open", label: "Aberto", className: "bg-emerald-500/20 text-success border-emerald-500/30" },
   { key: "active", label: "Em andamento", className: MATCH_STATUS_STYLES.active },
   { key: "completed", label: "Finalizado", className: "border-border bg-muted/50 text-muted-foreground" },
   { key: "bye", label: "BYE", className: MATCH_STATUS_STYLES.bye },

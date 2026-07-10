@@ -187,7 +187,7 @@ export function ListingPublishWizard() {
                   type="button"
                   onClick={() => setSelected(card)}
                   className={`flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-sm transition hover:bg-muted/80 ${
-                    selected?.id === card.id ? "bg-primary/15 ring-1 ring-luxury-gold/40" : ""
+                    selected?.id === card.id ? "bg-primary/15 ring-1 ring-primary/40" : ""
                   }`}
                 >
                   {card.image_url && (
@@ -239,7 +239,7 @@ export function ListingPublishWizard() {
                 className="mt-1 w-full surface-card rounded-lg px-3 py-2"
                 {...register("price", { valueAsNumber: true })}
               />
-              {errors.price && <span className="text-xs text-red-400">{errors.price.message}</span>}
+              {errors.price && <span className="text-xs text-danger">{errors.price.message}</span>}
             </label>
 
             <label className="block text-sm">

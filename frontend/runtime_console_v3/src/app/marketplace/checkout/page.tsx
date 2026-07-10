@@ -425,7 +425,7 @@ export default function CheckoutPage() {
                     stripe={stripePromise}
                     options={{
                       clientSecret,
-                      appearance: { theme: "stripe", variables: { colorPrimary: "#7c3aed" } },
+                      appearance: { theme: "stripe", variables: { colorPrimary: "hsl(262 70% 50%)" } },
                     }}
                   >
                     <StripeCheckoutForm />

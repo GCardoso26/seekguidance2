@@ -16,12 +16,12 @@ const CONFIG: Record<
 > = {
   permitido: {
     Icon: Check,
-    color: "text-primary-light",
+    color: "text-primary",
     animate: { scale: [0, 1.15, 1], opacity: [0, 1, 1] },
   },
   nao_permitido: {
     Icon: X,
-    color: "text-red-400",
+    color: "text-danger",
     animate: { scale: [0, 1.1, 1], x: [0, -4, 4, -2, 0] },
   },
   depende: {

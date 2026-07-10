@@ -59,7 +59,7 @@ export function ListingsToolbar({
   );
 
   return (
-    <div className="space-y-3 rounded-xl border border-border bg-white/[0.03] p-3" data-testid="listings-toolbar">
+    <div className="space-y-3 rounded-xl border border-border bg-muted/40 p-3" data-testid="listings-toolbar">
       <div className="flex flex-wrap gap-2">
         <input
           type="search"
@@ -106,7 +106,7 @@ export function ListingsToolbar({
             type="button"
             disabled={busy}
             onClick={onBulkPause}
-            className="rounded-lg border border-white/15 px-3 py-1.5 text-xs disabled:opacity-50"
+            className="rounded-lg border border-border px-3 py-1.5 text-xs disabled:opacity-50"
           >
             Pausar
           </button>
@@ -115,7 +115,7 @@ export function ListingsToolbar({
               type="button"
               disabled={busy}
               onClick={onBulkArchive}
-              className="rounded-lg border border-white/15 px-3 py-1.5 text-xs disabled:opacity-50"
+              className="rounded-lg border border-border px-3 py-1.5 text-xs disabled:opacity-50"
             >
               Arquivar
             </button>
@@ -125,7 +125,7 @@ export function ListingsToolbar({
               type="button"
               disabled={busy}
               onClick={onBulkDuplicate}
-              className="rounded-lg border border-white/15 px-3 py-1.5 text-xs disabled:opacity-50"
+              className="rounded-lg border border-border px-3 py-1.5 text-xs disabled:opacity-50"
             >
               Duplicar
             </button>
@@ -134,7 +134,7 @@ export function ListingsToolbar({
             type="button"
             disabled={busy}
             onClick={() => onBulkPriceAdjust(5)}
-            className="rounded-lg border border-white/15 px-3 py-1.5 text-xs disabled:opacity-50"
+            className="rounded-lg border border-border px-3 py-1.5 text-xs disabled:opacity-50"
           >
             +5%
           </button>
@@ -142,7 +142,7 @@ export function ListingsToolbar({
             type="button"
             disabled={busy}
             onClick={() => onBulkPriceAdjust(-5)}
-            className="rounded-lg border border-white/15 px-3 py-1.5 text-xs disabled:opacity-50"
+            className="rounded-lg border border-border px-3 py-1.5 text-xs disabled:opacity-50"
           >
             −5%
           </button>
@@ -151,7 +151,7 @@ export function ListingsToolbar({
               type="button"
               disabled={busy}
               onClick={onOpenPriceModal}
-              className="rounded-lg border border-white/15 px-3 py-1.5 text-xs disabled:opacity-50"
+              className="rounded-lg border border-border px-3 py-1.5 text-xs disabled:opacity-50"
             >
               Preço…
             </button>
@@ -161,7 +161,7 @@ export function ListingsToolbar({
               type="button"
               disabled={busy}
               onClick={onOpenInventoryModal}
-              className="rounded-lg border border-white/15 px-3 py-1.5 text-xs disabled:opacity-50"
+              className="rounded-lg border border-border px-3 py-1.5 text-xs disabled:opacity-50"
             >
               Estoque…
             </button>

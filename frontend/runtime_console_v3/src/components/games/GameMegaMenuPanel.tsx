@@ -53,7 +53,7 @@ export function GameMegaMenuPanel({ gameId, slug, onNavigate }: Props) {
   return (
     <div className="grid divide-y divide-border lg:grid-cols-[1fr_1fr_1.05fr] lg:divide-x lg:divide-y-0">
       <div className="p-5">
-        <h2 className="text-[10px] font-bold uppercase tracking-wider text-primary">Últimas expansões</h2>
+        <h2 className="text-caption font-bold uppercase tracking-wider text-primary">Últimas expansões</h2>
         <ul className="mt-3 space-y-1.5">
           {setsLoading && <li className="text-sm text-muted-foreground">Carregando sets…</li>}
           {!setsLoading && sets.length === 0 && (
@@ -82,7 +82,7 @@ export function GameMegaMenuPanel({ gameId, slug, onNavigate }: Props) {
       </div>
 
       <div className="p-5">
-        <h2 className="text-[10px] font-bold uppercase tracking-wider text-primary">Categorias</h2>
+        <h2 className="text-caption font-bold uppercase tracking-wider text-primary">Categorias</h2>
         <ul className="mt-3 grid grid-cols-1 gap-0.5 sm:grid-cols-2 lg:grid-cols-1">
           {categories.map((cat) => (
             <li key={cat.id}>

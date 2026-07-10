@@ -61,7 +61,7 @@ export function SaveDeckButton({ deck, format, onSaved }: SaveDeckButtonProps) {
       {toast && (
         <div
           className={`fixed bottom-20 left-1/2 z-50 -translate-x-1/2 rounded-lg px-4 py-2 text-sm shadow-lg ${
-            toast.includes("Erro") ? "bg-red-600 text-white" : "bg-emerald-600 text-white"
+            toast.includes("Erro") ? "bg-red-600 text-foreground" : "bg-emerald-600 text-foreground"
           }`}
         >
           {toast}

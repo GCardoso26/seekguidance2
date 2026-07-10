@@ -28,7 +28,7 @@ export function SwissBracket({ rounds, activeRound }: Props) {
         >
           <p
             className={`sticky top-0 text-center text-sm font-semibold ${
-              activeRound === round.roundNumber ? "text-sky-300" : "text-primary-light"
+              activeRound === round.roundNumber ? "text-info" : "text-primary"
             }`}
           >
             Rodada {round.roundNumber}

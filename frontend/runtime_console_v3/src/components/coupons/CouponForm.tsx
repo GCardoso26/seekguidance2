@@ -89,7 +89,7 @@ export function CouponForm({ storeId, onCreated }: Props) {
       <p className="rounded-lg bg-primary/10 p-3 text-xs text-muted-foreground">
         Preview: compra de R$ 100,00 → R$ {(previewFinal / 100).toFixed(2)} com este cupom
       </p>
-      {error && <p className="text-sm text-red-300">{error}</p>}
+      {error && <p className="text-sm text-danger">{error}</p>}
       <button type="submit" disabled={loading} className="w-full rounded-lg bg-primary py-2 font-semibold text-primary-foreground disabled:opacity-50">
         Criar cupom
       </button>

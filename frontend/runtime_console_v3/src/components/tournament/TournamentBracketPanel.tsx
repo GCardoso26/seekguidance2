@@ -152,7 +152,7 @@ export function TournamentBracketPanel({
               {backLabel}
             </Link>
           )}
-          <h1 className="mt-2 text-2xl font-bold text-white">
+          <h1 className="mt-2 text-2xl font-bold text-foreground">
             Bracket — {String(t?.name ?? "Torneio")}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -162,11 +162,11 @@ export function TournamentBracketPanel({
         <span
           className={`rounded-full border px-3 py-1 text-xs font-medium ${
             publicStatus === "in_progress"
-              ? "border-sky-500/40 bg-sky-500/20 text-sky-300"
+              ? "border-sky-500/40 bg-sky-500/20 text-info"
               : publicStatus === "finished"
                 ? "border-border bg-muted text-muted-foreground"
                 : publicStatus === "open"
-                  ? "border-emerald-500/40 bg-emerald-500/20 text-emerald-300"
+                  ? "border-emerald-500/40 bg-emerald-500/20 text-success"
                   : "border-border bg-muted/50 text-muted-foreground"
           }`}
           data-testid="bracket-public-status"
@@ -179,7 +179,7 @@ export function TournamentBracketPanel({
 
       {publicStatus === "not_started" && (
         <div
-          className="luxury-card rounded-xl border border-dashed border-border p-8 text-center"
+          className="surface-card rounded-xl border border-dashed border-border p-8 text-center"
           data-testid="bracket-placeholder"
         >
           <p className="text-lg font-medium text-foreground">Torneio ainda não iniciado</p>
@@ -217,7 +217,7 @@ export function TournamentBracketPanel({
       )}
 
       {format === "double_elimination" && publicStatus !== "not_started" && !hasElimBracket && (
-        <section className="luxury-card rounded-xl p-4 text-sm text-amber-300">
+        <section className="surface-card rounded-xl p-4 text-sm text-amber-300">
           Double elimination: estrutura visual disponível; fluxo operacional usa eliminatória
           simples até integração backend completa.
         </section>

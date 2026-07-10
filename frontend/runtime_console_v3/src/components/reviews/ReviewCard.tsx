@@ -11,7 +11,7 @@ export function ReviewCard({ reviewerName, rating, title, comment, helpful = 0 }
     <div className="mb-3 rounded-lg border border-slate-700 p-4">
       <div className="mb-2 flex items-center justify-between">
         <span className="font-medium">{reviewerName}</span>
-        <span className="text-amber-400">{"★".repeat(rating)}{"☆".repeat(5 - rating)}</span>
+        <span className="text-warning">{"★".repeat(rating)}{"☆".repeat(5 - rating)}</span>
       </div>
       {title && <h4 className="mb-1 font-semibold">{title}</h4>}
       <p className="text-sm text-slate-300">{comment}</p>

@@ -72,7 +72,7 @@ export function CardBuyPanel({
   return (
     <section
       className={cn(
-        "overflow-hidden rounded-2xl border border-border bg-card shadow-lg",
+        "overflow-hidden rounded-xl border border-border bg-card shadow-card",
         className,
       )}
       aria-labelledby="buy-panel-title"
@@ -139,7 +139,7 @@ export function CardBuyPanel({
                 <div className="flex flex-wrap items-center gap-2 mt-0.5">
                   <ConditionBadge condition={best.condition as CardCondition} size="sm" />
                   {best.foil && (
-                    <Badge variant="warning" className="text-[10px]">
+                    <Badge variant="warning" className="text-caption">
                       Foil
                     </Badge>
                   )}

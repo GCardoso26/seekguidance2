@@ -61,7 +61,7 @@ export function TournamentCards({ tournaments, onDetails }: Props) {
 export function TournamentEmptyState() {
   return (
     <div
-      className="rounded-xl border border-dashed border-white/15 bg-muted/50 p-10 text-center"
+      className="rounded-xl border border-dashed border-border bg-muted/50 p-10 text-center"
       data-testid="tournaments-empty"
     >
       <Trophy className="mx-auto h-10 w-10 text-muted-foreground/50" aria-hidden />

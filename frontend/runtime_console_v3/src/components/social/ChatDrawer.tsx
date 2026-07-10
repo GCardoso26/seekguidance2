@@ -13,14 +13,14 @@ export function ChatDrawer() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="fixed bottom-20 right-4 z-40 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-blue-600 p-3 text-white shadow-lg md:bottom-4"
+        className="fixed bottom-20 right-4 z-40 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-blue-600 p-3 text-foreground shadow-lg md:bottom-4"
         aria-label="Mensagens"
       >
         💬
       </button>
 
       {open && (
-        <div className="fixed inset-0 z-50 flex justify-end bg-black/50">
+        <div className="fixed inset-0 z-50 flex justify-end bg-foreground/50">
           <div className="flex h-full w-full max-w-sm flex-col bg-muted text-foreground shadow-xl">
             <div className="flex items-center justify-between border-b border-border p-4">
               <h2 className="font-semibold">Mensagens</h2>
@@ -77,7 +77,7 @@ export function ChatDrawer() {
                       className="min-h-[44px] flex-1 surface-card rounded-lg px-3 text-sm"
                       placeholder="Mensagem…"
                     />
-                    <button type="submit" className="min-h-[44px] rounded-lg bg-blue-600 px-3 text-sm text-white">
+                    <button type="submit" className="min-h-[44px] rounded-lg bg-blue-600 px-3 text-sm text-foreground">
                       Enviar
                     </button>
                   </form>

@@ -31,7 +31,7 @@ export function LigaPassWidget({ className, compact = false }: LigaPassWidgetPro
       <Link
         href="/perfil"
         className={cn(
-          "flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold text-white ring-1 ring-white/20",
+          "flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold text-foreground ring-1 ring-white/20",
           className,
         )}
         style={{ backgroundColor: color }}
@@ -47,7 +47,7 @@ export function LigaPassWidget({ className, compact = false }: LigaPassWidgetPro
     <div className={cn("rounded-lg border border-border bg-card/80 p-4", className)}>
       <div className="flex items-center gap-3">
         <div
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold text-foreground"
           style={{ backgroundColor: color }}
         >
           {data.current_level[0]?.toUpperCase()}
@@ -67,7 +67,7 @@ export function LigaPassWidget({ className, compact = false }: LigaPassWidgetPro
       </div>
 
       {data.benefits.cashback_percent > 0 && (
-        <p className="mt-2 text-xs text-emerald-400">
+        <p className="mt-2 text-xs text-success">
           {data.benefits.cashback_percent}% cashback em compras
         </p>
       )}

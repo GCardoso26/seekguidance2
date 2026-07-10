@@ -181,10 +181,10 @@ export default function EstoquePage() {
               />
             )}
             {importResult && (
-              <p className="text-sm text-emerald-300">
+              <p className="text-sm text-success">
                 {importResult.imported} importado(s), {importResult.skipped} ignorado(s).
                 {importResult.errors.length > 0 && (
-                  <span className="mt-1 block text-amber-200">
+                  <span className="mt-1 block text-warning">
                     {importResult.errors.slice(0, 3).join(" · ")}
                   </span>
                 )}

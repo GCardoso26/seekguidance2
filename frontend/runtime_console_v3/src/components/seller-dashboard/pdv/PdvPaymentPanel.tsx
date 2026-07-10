@@ -47,7 +47,7 @@ export function PdvPaymentPanel({
 
   return (
     <div className="surface-card p-4" data-testid="pdv-payment-panel">
-      <div className="mb-3 flex gap-1 rounded-lg bg-black/30 p-1" data-testid="pdv-payment-tabs">
+      <div className="mb-3 flex gap-1 rounded-lg bg-foreground/30 p-1" data-testid="pdv-payment-tabs">
         {tabs.map((t) => (
           <button
             key={t.id}
@@ -64,7 +64,7 @@ export function PdvPaymentPanel({
       </div>
 
       <p className="mb-3 text-sm text-muted-foreground">
-        Total a receber: <strong className="text-white">{formatShopPrice(total)}</strong>
+        Total a receber: <strong className="text-foreground">{formatShopPrice(total)}</strong>
       </p>
 
       {tab === "cash" && (
@@ -111,7 +111,7 @@ export function PdvPaymentPanel({
               min="0"
               value={cardAmount}
               onChange={(e) => setCardAmount(e.target.value)}
-              className="mt-1 border-border bg-black/30"
+              className="mt-1 border-border bg-foreground/30"
               placeholder={String((total / 100).toFixed(2))}
               data-testid="pdv-card-amount"
             />
@@ -120,7 +120,7 @@ export function PdvPaymentPanel({
             value={cardNotes}
             onChange={(e) => setCardNotes(e.target.value)}
             placeholder="NSU / bandeira (opcional)"
-            className="border-border bg-black/30"
+            className="border-border bg-foreground/30"
             data-testid="pdv-card-notes"
           />
           <Button

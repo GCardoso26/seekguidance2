@@ -20,7 +20,7 @@ export default function TournamentCreatePage() {
             </div>
           </header>
           <main className="container mx-auto max-w-2xl px-4 py-10">
-            <h1 className="mb-2 text-3xl font-bold text-white">Criar Novo Torneio</h1>
+            <h1 className="mb-2 text-3xl font-bold text-foreground">Criar Novo Torneio</h1>
             <p className="mb-8 text-muted-foreground">
               Escolhe o jogo e configura o formato. O sistema adapta regras de decklist e timer automaticamente.
             </p>

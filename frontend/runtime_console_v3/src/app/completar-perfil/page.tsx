@@ -93,18 +93,18 @@ function CompletarPerfilForm() {
             id="cpf"
             inputMode="numeric"
             autoComplete="off"
-            className="mt-1 w-full rounded-lg border border-border bg-black/30 px-3 py-2 text-lg tracking-widest"
+            className="mt-1 w-full rounded-lg border border-border bg-foreground/30 px-3 py-2 text-lg tracking-widest"
             placeholder="000.000.000-00"
             value={cpf}
             onChange={(e) => setCpf(formatCpfMask(e.target.value))}
           />
           {cpf.length >= 14 && !isValidCpf(cpf) && (
-            <p className="mt-1 text-xs text-red-300">CPF inválido</p>
+            <p className="mt-1 text-xs text-danger">CPF inválido</p>
           )}
         </div>
-        {error && <p className="text-sm text-red-300">{error}</p>}
+        {error && <p className="text-sm text-danger">{error}</p>}
         {cpfDuplicate && (
-          <p className="text-sm text-amber-200">
+          <p className="text-sm text-warning">
             Já tem conta com este CPF?{" "}
             <Link href="/entrar?next=/completar-perfil" className="font-medium text-primary underline">
               Faça login

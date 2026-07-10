@@ -54,7 +54,7 @@ export function ImageUpload({
     <div className={cn("space-y-2", className)}>
       <p className="text-sm text-muted-foreground">{label}</p>
       <label
-        className="flex cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-white/15 bg-muted/50 px-4 py-6 transition hover:border-primary/40"
+        className="flex cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-border bg-muted/50 px-4 py-6 transition hover:border-primary/40"
         onDragOver={(e) => e.preventDefault()}
         onDrop={(e) => {
           e.preventDefault();
@@ -81,7 +81,7 @@ export function ImageUpload({
           }}
         />
       </label>
-      {error && <p className="text-xs text-red-400">{error}</p>}
+      {error && <p className="text-xs text-danger">{error}</p>}
     </div>
   );
 }

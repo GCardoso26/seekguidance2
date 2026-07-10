@@ -27,7 +27,7 @@ type Props = {
 
 function FieldError({ message }: { message?: string }) {
   if (!message) return null;
-  return <p className="mt-1 text-xs text-red-400">{message}</p>;
+  return <p className="mt-1 text-xs text-danger">{message}</p>;
 }
 
 export function StoreSettingsForm({ storeId }: Props) {
@@ -74,13 +74,13 @@ export function StoreSettingsForm({ storeId }: Props) {
         className="space-y-4 surface-card p-6"
         data-testid="store-settings-form"
       >
-        <h3 className="font-semibold text-white">Dados da loja</h3>
+        <h3 className="font-semibold text-foreground">Dados da loja</h3>
 
         <div>
           <label htmlFor="store-name" className="text-sm text-muted-foreground">
             Nome
           </label>
-          <Input id="store-name" className="mt-1 border-border bg-black/30" {...register("name")} />
+          <Input id="store-name" className="mt-1 border-border bg-foreground/30" {...register("name")} />
           <FieldError message={errors.name?.message} />
         </div>
 
@@ -88,7 +88,7 @@ export function StoreSettingsForm({ storeId }: Props) {
           <label htmlFor="store-slug" className="text-sm text-muted-foreground">
             Slug (URL pública)
           </label>
-          <Input id="store-slug" className="mt-1 border-border bg-black/30 font-mono" {...register("slug")} />
+          <Input id="store-slug" className="mt-1 border-border bg-foreground/30 font-mono" {...register("slug")} />
           <FieldError message={errors.slug?.message} />
           <p className="mt-1 text-xs text-muted-foreground/70">Validação de unicidade no backend ao salvar.</p>
         </div>
@@ -100,7 +100,7 @@ export function StoreSettingsForm({ storeId }: Props) {
           <textarea
             id="store-desc"
             rows={4}
-            className="mt-1 w-full rounded-lg border border-border bg-black/30 px-3 py-2 text-sm"
+            className="mt-1 w-full rounded-lg border border-border bg-foreground/30 px-3 py-2 text-sm"
             {...register("description")}
           />
           <FieldError message={errors.description?.message} />

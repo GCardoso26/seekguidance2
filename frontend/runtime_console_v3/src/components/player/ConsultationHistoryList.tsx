@@ -84,7 +84,7 @@ export function ConsultationHistoryList({ onSelect, compact }: Props) {
           <Download className="h-4 w-4" />
           Exportar CSV
           {!exportGate.allowed && (
-            <span className="rounded-full bg-primary/20 px-2 py-0.5 text-[10px] text-primary-light">Pro</span>
+            <span className="rounded-full bg-primary/20 px-2 py-0.5 text-caption text-primary">Pro</span>
           )}
         </button>
       )}
@@ -103,7 +103,7 @@ export function ConsultationHistoryList({ onSelect, compact }: Props) {
             onClick={() => setTcgFilter("all")}
             className={cn(
               "rounded-full px-2.5 py-1 text-xs",
-              tcgFilter === "all" ? "bg-primary/20 text-primary-light" : "bg-muted/50 text-muted-foreground",
+              tcgFilter === "all" ? "bg-primary/20 text-primary" : "bg-muted/50 text-muted-foreground",
             )}
           >
             Todos
@@ -115,7 +115,7 @@ export function ConsultationHistoryList({ onSelect, compact }: Props) {
               onClick={() => setTcgFilter(id)}
               className={cn(
                 "rounded-full px-2.5 py-1 text-xs",
-                tcgFilter === id ? "bg-primary/20 text-primary-light" : "bg-muted/50 text-muted-foreground",
+                tcgFilter === id ? "bg-primary/20 text-primary" : "bg-muted/50 text-muted-foreground",
               )}
             >
               {getTcgBrand(id).icon}
@@ -126,7 +126,7 @@ export function ConsultationHistoryList({ onSelect, compact }: Props) {
             onClick={() => setFavoritesOnly(!favoritesOnly)}
             className={cn(
               "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs",
-              favoritesOnly ? "bg-primary/20 text-primary-light" : "text-muted-foreground",
+              favoritesOnly ? "bg-primary/20 text-primary" : "text-muted-foreground",
             )}
           >
             <Star className={cn("h-3 w-3", favoritesOnly && "fill-current")} />
@@ -179,7 +179,7 @@ export function ConsultationHistoryList({ onSelect, compact }: Props) {
                   aria-label="Favoritar"
                 >
                   <Star
-                    className={cn("h-4 w-4", isFavorite(item.id) && "fill-luxury-gold text-primary")}
+                    className={cn("h-4 w-4", isFavorite(item.id) && "fill-primary text-primary")}
                   />
                 </button>
               </li>

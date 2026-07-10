@@ -48,7 +48,7 @@ export default function OrderReviewPage() {
         </Link>
         <h1 className="mt-4 text-2xl font-bold">Avaliar pedido</h1>
         {isLoading && <p className="mt-4 text-muted-foreground">Carregando…</p>}
-        {error && <p className="mt-4 text-red-300">Pedido não encontrado.</p>}
+        {error && <p className="mt-4 text-danger">Pedido não encontrado.</p>}
         {order && !["delivered", "paid", "shipped"].includes(order.status) && (
           <p className="mt-4 text-amber-300">Aguarde a entrega do pedido para avaliar.</p>
         )}

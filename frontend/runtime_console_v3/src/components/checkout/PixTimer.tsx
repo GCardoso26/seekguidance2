@@ -30,7 +30,7 @@ export function PixTimer({ expiresAt, onExpired }: Props) {
   }, [expiresAt, onExpired]);
 
   const mins = remaining / 60000;
-  const color = mins <= 1 ? "text-red-400" : mins <= 5 ? "text-orange-400" : "text-emerald-400";
+  const color = mins <= 1 ? "text-danger" : mins <= 5 ? "text-orange-400" : "text-success";
 
   return (
     <p className={`text-sm font-mono ${color}`}>

@@ -83,7 +83,7 @@ export function StoreReviewsManager({ storeId }: Props) {
               <button
                 type="button"
                 onClick={() => void flagReview(r.id)}
-                className="rounded-lg border border-red-500/30 px-3 py-1 text-xs text-red-300"
+                className="rounded-lg border border-red-500/30 px-3 py-1 text-xs text-danger"
               >
                 Denunciar
               </button>

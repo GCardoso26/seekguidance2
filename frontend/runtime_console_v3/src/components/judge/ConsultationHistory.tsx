@@ -66,7 +66,7 @@ export function ConsultationHistory({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
+            className="fixed inset-0 z-40 bg-foreground/50 backdrop-blur-sm"
             aria-label="Fechar histórico"
             onClick={onClose}
           />
@@ -81,12 +81,12 @@ export function ConsultationHistory({
             <header className="flex items-center justify-between border-b border-border px-4 py-4">
               <div className="flex items-center gap-2">
                 <Clock className="h-5 w-5 text-primary" aria-hidden />
-                <h2 className="text-lg font-bold text-white">Minhas consultas</h2>
+                <h2 className="text-lg font-bold text-foreground">Minhas consultas</h2>
               </div>
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-lg p-2 text-muted-foreground hover:bg-muted/80 hover:text-white"
+                className="rounded-lg p-2 text-muted-foreground hover:bg-muted/80 hover:text-foreground"
                 aria-label="Fechar"
               >
                 <X className="h-5 w-5" />
@@ -101,7 +101,7 @@ export function ConsultationHistory({
                   value={query}
                   onChange={(e) => onQueryChange(e.target.value)}
                   placeholder="Buscar consultas…"
-                  className="w-full surface-card py-2.5 pl-10 pr-3 text-sm text-foreground placeholder:text-muted-foreground/70 focus:outline-none focus:ring-2 focus:ring-luxury-gold/30"
+                  className="w-full surface-card py-2.5 pl-10 pr-3 text-sm text-foreground placeholder:text-muted-foreground/70 focus:outline-none focus:ring-2 focus:ring-primary/30"
                   aria-label="Buscar consultas"
                 />
               </div>
@@ -112,7 +112,7 @@ export function ConsultationHistory({
                   className={cn(
                     "rounded-full px-2.5 py-1 text-xs font-medium",
                     tcgFilter === "all"
-                      ? "bg-primary/20 text-primary-light"
+                      ? "bg-primary/20 text-primary"
                       : "bg-muted/50 text-muted-foreground",
                   )}
                 >
@@ -126,7 +126,7 @@ export function ConsultationHistory({
                     className={cn(
                       "rounded-full px-2.5 py-1 text-xs font-medium",
                       tcgFilter === g.id
-                        ? "bg-primary/20 text-primary-light"
+                        ? "bg-primary/20 text-primary"
                         : "bg-muted/50 text-muted-foreground",
                     )}
                   >
@@ -139,10 +139,10 @@ export function ConsultationHistory({
                 onClick={() => onFavoritesOnlyChange(!favoritesOnly)}
                 className={cn(
                   "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium",
-                  favoritesOnly ? "bg-primary/20 text-primary-light" : "text-muted-foreground",
+                  favoritesOnly ? "bg-primary/20 text-primary" : "text-muted-foreground",
                 )}
               >
-                <Star className={cn("h-3.5 w-3.5", favoritesOnly && "fill-luxury-gold")} />
+                <Star className={cn("h-3.5 w-3.5", favoritesOnly && "fill-primary")} />
                 Favoritos
               </button>
             </div>
@@ -179,7 +179,7 @@ export function ConsultationHistory({
                           className="min-w-0 flex-1 text-left"
                         >
                           <p className="truncate text-sm font-medium text-foreground">{item.question}</p>
-                          <div className="mt-1 flex flex-wrap items-center gap-2 text-[10px] text-muted-foreground/70">
+                          <div className="mt-1 flex flex-wrap items-center gap-2 text-caption text-muted-foreground/70">
                             <span
                               className="rounded px-1.5 py-0.5 font-semibold"
                               style={{
@@ -203,7 +203,7 @@ export function ConsultationHistory({
                             <Star
                               className={cn(
                                 "h-4 w-4",
-                                isFavorite(item.id) && "fill-luxury-gold text-primary",
+                                isFavorite(item.id) && "fill-primary text-primary",
                               )}
                             />
                           </button>
@@ -211,7 +211,7 @@ export function ConsultationHistory({
                             <button
                               type="button"
                               onClick={() => onDelete(item.id)}
-                              className="rounded-lg p-1.5 text-muted-foreground/70 opacity-0 transition group-hover:opacity-100 hover:bg-muted hover:text-red-400"
+                              className="rounded-lg p-1.5 text-muted-foreground/70 opacity-0 transition group-hover:opacity-100 hover:bg-muted hover:text-danger"
                               aria-label="Remover consulta"
                             >
                               <Trash2 className="h-4 w-4" />

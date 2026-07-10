@@ -33,7 +33,7 @@ export function TrustBadge({ level = "new", badges = [], trustScore, compact = f
 
   return (
     <div className={`flex flex-wrap items-center gap-2 ${compact ? "" : "gap-3"}`}>
-      <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-xs font-medium text-emerald-300">
+      <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-xs font-medium text-success">
         <Icon className="h-3.5 w-3.5" />
         {levelLabel}
         {trustScore != null && <span className="text-muted-foreground">· {trustScore.toFixed(0)}</span>}

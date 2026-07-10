@@ -62,7 +62,7 @@ export function MultiSelectTCG({ selected, onChange, maxSelection = 5, className
               className={cn(
                 "rounded-lg border px-2 py-1 text-xs transition",
                 active
-                  ? "border-luxury-gold bg-primary/15 text-primary-light"
+                  ? "border-primary bg-primary/15 text-primary"
                   : "border-border text-muted-foreground hover:border-border",
               )}
             >

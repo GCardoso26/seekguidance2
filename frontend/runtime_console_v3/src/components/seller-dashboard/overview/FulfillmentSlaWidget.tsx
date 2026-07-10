@@ -80,7 +80,7 @@ export function FulfillmentSlaWidget({ sla }: Props) {
             >
               <Icon className="mt-0.5 h-5 w-5 shrink-0 text-amber-300" />
               <div>
-                <p className="text-2xl font-bold tabular-nums text-white">{count}</p>
+                <p className="text-2xl font-bold tabular-nums text-foreground">{count}</p>
                 <p className="text-xs text-amber-100/90">{item.label}</p>
               </div>
             </Link>
