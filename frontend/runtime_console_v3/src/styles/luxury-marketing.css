@@ -82,7 +82,7 @@
 }
 
 .luxury-marketing .luxury-link {
-  @apply text-primary transition-colors hover:text-primary-light;
+  @apply text-primary transition-colors hover:text-primary/80;
 }
 
 .luxury-marketing .luxury-muted {
@@ -94,7 +94,7 @@
 }
 
 .luxury-marketing .luxury-btn-primary {
-  @apply inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-medium text-luxury-onyx transition hover:bg-primary-light;
+  @apply inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-medium text-luxury-onyx transition hover:bg-primary/90;
 }
 
 .luxury-marketing .luxury-btn-secondary {

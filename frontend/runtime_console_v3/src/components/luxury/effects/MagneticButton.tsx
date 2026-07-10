@@ -16,7 +16,7 @@ type Props = {
 
 const variantStyles = {
   primary:
-    "bg-primary text-primary-foreground hover:bg-primary/90-light shadow-lg shadow-luxury-gold/10",
+    "bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-luxury-gold/10",
   secondary:
     "border border-luxury-silver/30 bg-muted/50 text-foreground hover:border-luxury-gold/50 hover:bg-muted",
   ghost: "text-muted-foreground hover:text-foreground",

@@ -405,7 +405,7 @@ export function TCGDropZone({ children, className }: DropZoneProps) {
       className={cn(
         "rounded-2xl border-2 border-dashed transition-all duration-300",
         dropHover
-          ? "border-primary-light bg-primary/10"
+          ? "border-primary bg-primary/10"
           : "border-transparent bg-transparent",
         className,
       )}

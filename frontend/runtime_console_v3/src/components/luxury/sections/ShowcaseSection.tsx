@@ -30,7 +30,7 @@ export function ShowcaseSection({ segment = "home" }: Props) {
           <p className="mb-8 text-lg font-light leading-relaxed text-muted-foreground">{copy.description}</p>
           <Link
             href="/judge"
-            className="inline-flex items-center gap-2 text-sm font-medium text-primary transition-colors hover:text-primary-light"
+            className="inline-flex items-center gap-2 text-sm font-medium text-primary transition-colors hover:text-primary/80"
           >
             {copy.cta}
             <ArrowRight className="h-4 w-4" strokeWidth={1.5} />

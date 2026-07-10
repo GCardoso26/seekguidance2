@@ -33,7 +33,7 @@ const HEALTH_LABEL: Record<BackendHealthState, string> = {
 };
 
 const HEALTH_DOT: Record<BackendHealthState, string> = {
-  online: "bg-primary-light",
+  online: "bg-primary",
   degraded: "bg-primary",
   offline: "bg-red-300",
 };
@@ -161,7 +161,7 @@ export function JudgeLayout({
                     <span
                       className={cn(
                         "h-2 w-2 rounded-full",
-                        warmupReady ? "bg-primary-light" : "animate-pulse bg-primary",
+                        warmupReady ? "bg-primary" : "animate-pulse bg-primary/70",
                       )}
                       aria-hidden
                     />
