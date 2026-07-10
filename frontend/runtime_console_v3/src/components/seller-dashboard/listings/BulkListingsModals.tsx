@@ -20,26 +20,26 @@ export function BulkPriceModal({ open, onOpenChange, selectedCount, onApply }: P
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-[70] bg-black/70" />
-        <Dialog.Content className="fixed left-1/2 top-1/2 z-[71] w-[min(360px,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 rounded-xl border border-white/10 bg-luxury-onyx p-5">
+        <Dialog.Content className="fixed left-1/2 top-1/2 z-[71] w-[min(360px,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 rounded-xl border border-border bg-background p-5">
           <div className="mb-4 flex items-center justify-between">
             <Dialog.Title className="font-semibold">Ajuste de preço em massa</Dialog.Title>
-            <Dialog.Close aria-label="Fechar" className="rounded p-1 hover:bg-white/10">
+            <Dialog.Close aria-label="Fechar" className="rounded p-1 hover:bg-muted">
               <X className="h-4 w-4" />
             </Dialog.Close>
           </div>
-          <p className="mb-3 text-sm text-luxury-mist">{selectedCount} anúncio(s) selecionado(s)</p>
+          <p className="mb-3 text-sm text-muted-foreground">{selectedCount} anúncio(s) selecionado(s)</p>
           <div className="mb-3 flex gap-2">
             <button
               type="button"
               onClick={() => setMode("percent")}
-              className={`rounded-lg px-3 py-1.5 text-xs ${mode === "percent" ? "bg-luxury-gold text-luxury-onyx" : "bg-white/10"}`}
+              className={`rounded-lg px-3 py-1.5 text-xs ${mode === "percent" ? "bg-primary text-primary-foreground" : "bg-muted"}`}
             >
               Percentual
             </button>
             <button
               type="button"
               onClick={() => setMode("fixed")}
-              className={`rounded-lg px-3 py-1.5 text-xs ${mode === "fixed" ? "bg-luxury-gold text-luxury-onyx" : "bg-white/10"}`}
+              className={`rounded-lg px-3 py-1.5 text-xs ${mode === "fixed" ? "bg-primary text-primary-foreground" : "bg-muted"}`}
             >
               Valor fixo
             </button>
@@ -49,7 +49,7 @@ export function BulkPriceModal({ open, onOpenChange, selectedCount, onApply }: P
             step={mode === "percent" ? "1" : "0.01"}
             value={value}
             onChange={(e) => setValue(e.target.value)}
-            className="mb-4 w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm"
+            className="mb-4 w-full surface-card rounded-lg px-3 py-2 text-sm"
             aria-label={mode === "percent" ? "Percentual" : "Valor fixo"}
           />
           <button
@@ -60,7 +60,7 @@ export function BulkPriceModal({ open, onOpenChange, selectedCount, onApply }: P
               onApply(mode, n);
               onOpenChange(false);
             }}
-            className="w-full rounded-lg bg-luxury-gold py-2 text-sm font-semibold text-luxury-onyx"
+            className="w-full rounded-lg bg-primary py-2 text-sm font-semibold text-primary-foreground"
           >
             Aplicar
           </button>
@@ -89,22 +89,22 @@ export function BulkInventoryModal({
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-[70] bg-black/70" />
-        <Dialog.Content className="fixed left-1/2 top-1/2 z-[71] w-[min(360px,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 rounded-xl border border-white/10 bg-luxury-onyx p-5">
+        <Dialog.Content className="fixed left-1/2 top-1/2 z-[71] w-[min(360px,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 rounded-xl border border-border bg-background p-5">
           <div className="mb-4 flex items-center justify-between">
             <Dialog.Title className="font-semibold">Estoque em massa</Dialog.Title>
-            <Dialog.Close aria-label="Fechar" className="rounded p-1 hover:bg-white/10">
+            <Dialog.Close aria-label="Fechar" className="rounded p-1 hover:bg-muted">
               <X className="h-4 w-4" />
             </Dialog.Close>
           </div>
-          <p className="mb-3 text-sm text-luxury-mist">{selectedCount} anúncio(s)</p>
-          <label className="mb-1 block text-xs text-luxury-mist">Nova quantidade</label>
+          <p className="mb-3 text-sm text-muted-foreground">{selectedCount} anúncio(s)</p>
+          <label className="mb-1 block text-xs text-muted-foreground">Nova quantidade</label>
           <input
             type="number"
             min="0"
             step="1"
             value={quantity}
             onChange={(e) => setQuantity(e.target.value)}
-            className="mb-4 w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm"
+            className="mb-4 w-full surface-card rounded-lg px-3 py-2 text-sm"
           />
           <button
             type="button"
@@ -114,7 +114,7 @@ export function BulkInventoryModal({
               onApply(Math.floor(n));
               onOpenChange(false);
             }}
-            className="w-full rounded-lg bg-luxury-gold py-2 text-sm font-semibold text-luxury-onyx"
+            className="w-full rounded-lg bg-primary py-2 text-sm font-semibold text-primary-foreground"
           >
             Atualizar estoque
           </button>
@@ -145,9 +145,9 @@ export function BulkConfirmModal({
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-[70] bg-black/70" />
-        <Dialog.Content className="fixed left-1/2 top-1/2 z-[71] w-[min(360px,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 rounded-xl border border-white/10 bg-luxury-onyx p-5">
+        <Dialog.Content className="fixed left-1/2 top-1/2 z-[71] w-[min(360px,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 rounded-xl border border-border bg-background p-5">
           <Dialog.Title className="font-semibold">{title}</Dialog.Title>
-          <p className="mt-2 text-sm text-luxury-mist">{description}</p>
+          <p className="mt-2 text-sm text-muted-foreground">{description}</p>
           <div className="mt-4 flex gap-2">
             <Dialog.Close className="flex-1 rounded-lg border border-white/15 py-2 text-sm">
               Cancelar
@@ -158,7 +158,7 @@ export function BulkConfirmModal({
                 onConfirm();
                 onOpenChange(false);
               }}
-              className="flex-1 rounded-lg bg-luxury-gold py-2 text-sm font-semibold text-luxury-onyx"
+              className="flex-1 rounded-lg bg-primary py-2 text-sm font-semibold text-primary-foreground"
             >
               {confirmLabel}
             </button>

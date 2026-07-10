@@ -4,12 +4,13 @@ import { useEffect, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import Image from "next/image";
 import Link from "next/link";
-import { AlertCircle, Image as ImageIcon, X, ZoomIn } from "lucide-react";
+import { AlertCircle, X } from "lucide-react";
 import { CardValuationPanel } from "@/components/valuation/CardValuationPanel";
 import { CardActions } from "@/components/cards/CardActions";
 import { AddToCollectionButton } from "@/components/cards/AddToCollectionButton";
 import { AnnounceCardCta } from "@/components/cards/AnnounceCardCta";
 import { CardBuyPanel } from "@/components/cards/CardBuyPanel";
+import { CardDetailHero } from "@/components/cards/CardDetailHero";
 import { CardIntelligenceSection } from "@/components/cards/CardIntelligenceSection";
 import { CardJudgeInsights } from "@/components/cards/CardJudgeInsights";
 import { CardVariantSelector } from "@/components/cards/CardVariantSelector";
@@ -20,6 +21,8 @@ import { CardVersionsTab } from "@/components/cards/CardVersionsTab";
 import { CardInfoTab } from "@/components/cards/CardInfoTab";
 import { gameCardsPath, gameLandingPath } from "@/lib/game-routes";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -38,7 +41,7 @@ const PRICE_RANGES: { value: PriceHistoryRange; label: string }[] = [
   { value: "30d", label: "30D" },
   { value: "90d", label: "90D" },
   { value: "1y", label: "1A" },
-  { value: "all", label: "TUDO" },
+  { value: "all", label: "Tudo" },
 ];
 
 interface CardDetailPageProps {
@@ -97,17 +100,12 @@ export function CardDetailPage({ cardId }: CardDetailPageProps) {
   const currency = card.latestPrice?.currency || marketSummary?.currency || "USD";
   const typeLine =
     card.typeLine ||
-    [
-      ...(card.types ?? []),
-      ...(card.subtypes?.length ? ["—", ...card.subtypes] : []),
-    ]
-      .filter(Boolean)
-      .join(" ");
+    [...(card.types ?? []), ...(card.subtypes?.length ? ["—", ...card.subtypes] : [])].filter(Boolean).join(" ");
 
   return (
     <MobileLayout>
-      <main className="min-h-screen bg-background pb-24 lg:pb-8">
-        <div className="container mx-auto px-4 py-4">
+      <main className="min-h-screen bg-background pb-28 lg:pb-12">
+        <div className="page-container pt-4">
           <Breadcrumbs
             items={[
               { label: "Início", href: "/" },
@@ -122,101 +120,85 @@ export function CardDetailPage({ cardId }: CardDetailPageProps) {
           />
         </div>
 
-        <div className="container mx-auto px-4 py-6 lg:py-8">
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
-            <div className="space-y-5">
-              <button
-                type="button"
-                className="group relative mx-auto block w-full max-w-md cursor-zoom-in"
-                onClick={() => setLightboxOpen(true)}
-                aria-label={`Ampliar imagem de ${card.name}`}
-              >
-                <div className="relative aspect-[63/88] overflow-hidden rounded-2xl shadow-2xl ring-1 ring-border/60 transition-transform duration-300 group-hover:scale-[1.01]">
-                  {!imageError ? (
-                    <Image
-                      src={imageSrc}
-                      alt={`${card.name} — ${card.set?.name ?? ""}`}
-                      fill
-                      priority
-                      className="object-cover"
-                      sizes="(max-width: 1024px) 100vw, 40vw"
-                      onError={() => setImageError(true)}
-                      unoptimized={shouldBypassImageOptimizer(imageSrc)}
-                    />
-                  ) : (
-                    <div className="flex h-full items-center justify-center bg-muted">
-                      <ImageIcon className="h-16 w-16 text-muted-foreground" />
-                    </div>
-                  )}
-                  <span className="absolute bottom-3 right-3 rounded-full bg-black/50 p-2 text-white opacity-0 transition-opacity group-hover:opacity-100">
-                    <ZoomIn className="h-4 w-4" />
-                  </span>
-                </div>
-              </button>
-
+        <div className="page-container py-6 lg:py-8">
+          <div className="grid gap-8 lg:grid-cols-12 lg:gap-10">
+            {/* Coluna hero — imagem sticky */}
+            <aside className="space-y-5 lg:col-span-5 lg:sticky lg:top-20 lg:self-start">
+              <CardDetailHero
+                card={card}
+                imageError={imageError}
+                onImageError={() => setImageError(true)}
+                onZoom={() => setLightboxOpen(true)}
+              />
               <CardVariantSelector
                 card={card}
                 cardId={cardId}
                 selectedCondition={selectedCondition}
                 onConditionChange={setSelectedCondition}
               />
+              <CardJudgeInsights card={card} cardId={cardId} className="hidden lg:block" />
+            </aside>
 
-              <CardJudgeInsights card={card} cardId={cardId} />
-            </div>
+            {/* Coluna compra + conteúdo */}
+            <div className="space-y-6 lg:col-span-7">
+              {/* Painel de compra sticky (desktop) */}
+              <div className="space-y-5 lg:sticky lg:top-20 lg:z-10 lg:rounded-2xl lg:bg-background/90 lg:pb-2 lg:backdrop-blur-sm">
+                <header className="space-y-3">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge
+                      style={{
+                        backgroundColor: `${gameToken?.primary ?? "#666"}15`,
+                        color: gameToken?.primary ?? undefined,
+                      }}
+                    >
+                      {gameToken?.name || card.game}
+                    </Badge>
+                    {(card.finishes ?? []).slice(0, 2).map((f) => (
+                      <Badge key={f} variant="outline" className="capitalize">
+                        {f.replace(/_/g, " ")}
+                      </Badge>
+                    ))}
+                  </div>
+                  <h1 className="text-display text-foreground sm:text-3xl lg:text-4xl">{card.name}</h1>
+                  <p className="text-small text-muted-foreground">
+                    {card.set?.name}
+                    {card.number ? ` · #${card.number}` : ""}
+                    {card.rarity ? ` · ${card.rarity}` : ""}
+                    {card.language ? ` · ${card.language.toUpperCase()}` : ""}
+                    {card.artist ? ` · ${card.artist}` : ""}
+                  </p>
+                  {typeLine && <p className="text-body text-muted-foreground">{typeLine}</p>}
+                </header>
 
-            <div className="space-y-5">
-              <header>
-                <div className="flex flex-wrap items-center gap-2">
-                  <span
-                    className="rounded-full px-3 py-1 text-xs font-medium"
-                    style={{
-                      backgroundColor: `${gameToken?.primary ?? "#666"}20`,
-                      color: gameToken?.primary ?? "#666",
-                    }}
-                  >
-                    {gameToken?.name || card.game}
-                  </span>
-                  <span className="rounded-full bg-muted px-2 py-0.5 text-xs">{card.set?.name}</span>
-                  {(card.finishes ?? []).slice(0, 3).map((f) => (
-                    <span key={f} className="rounded-full border px-2 py-0.5 text-[10px] capitalize">
-                      {f.replace(/_/g, " ")}
-                    </span>
-                  ))}
+                <CardBuyPanel
+                  card={card}
+                  listings={listings}
+                  marketSummary={marketSummary}
+                  onBuy={handleBuy}
+                  onAddToCart={handleBuy}
+                  buying={addToCart.isPending}
+                />
+
+                <div className="flex flex-wrap gap-2">
+                  <AddToCollectionButton cardId={card.id} cardName={card.name} />
+                  <CardActions card={card} />
+                  <AnnounceCardCta card={card} />
                 </div>
-                <h1 className="mt-2 text-3xl font-bold tracking-tight lg:text-4xl">{card.name}</h1>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  #{card.number} · {card.rarity} · {(card.language || "?").toUpperCase()}
-                  {card.artist ? ` · Arte: ${card.artist}` : ""}
-                </p>
-                {typeLine && <p className="mt-1 text-sm text-muted-foreground">{typeLine}</p>}
-              </header>
-
-              <CardBuyPanel
-                card={card}
-                listings={listings}
-                marketSummary={marketSummary}
-                onBuy={handleBuy}
-                onAddToCart={handleBuy}
-                buying={addToCart.isPending}
-              />
-
-              <div className="flex flex-wrap gap-2">
-                <AddToCollectionButton cardId={card.id} cardName={card.name} />
-                <CardActions card={card} />
-                <AnnounceCardCta card={card} />
               </div>
 
+              <CardJudgeInsights card={card} cardId={cardId} className="lg:hidden" />
+
               {(card.oracleText || card.flavorText) && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-base">Texto oficial</CardTitle>
+                <Card variant="muted" padding="md">
+                  <CardHeader className="p-0 pb-3">
+                    <CardTitle className="text-h3">Texto oficial</CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-3">
+                  <CardContent className="space-y-3 p-0">
                     {card.oracleText && (
-                      <div className="whitespace-pre-wrap text-sm leading-relaxed">{card.oracleText}</div>
+                      <div className="whitespace-pre-wrap text-body leading-relaxed">{card.oracleText}</div>
                     )}
                     {card.flavorText && (
-                      <p className="text-sm italic text-muted-foreground">&ldquo;{card.flavorText}&rdquo;</p>
+                      <p className="text-body italic text-muted-foreground">&ldquo;{card.flavorText}&rdquo;</p>
                     )}
                   </CardContent>
                 </Card>
@@ -228,9 +210,9 @@ export function CardDetailPage({ cardId }: CardDetailPageProps) {
                     <div
                       key={format}
                       className={cn(
-                        "rounded-md px-3 py-2 text-xs font-medium capitalize",
-                        status === "legal" && "bg-green-500/10 text-green-600",
-                        status === "banned" && "bg-red-500/10 text-red-600",
+                        "rounded-lg px-3 py-2 text-caption font-medium capitalize",
+                        status === "legal" && "bg-success/10 text-success",
+                        status === "banned" && "bg-danger/10 text-danger",
                         status !== "legal" && status !== "banned" && "bg-muted text-muted-foreground",
                       )}
                     >
@@ -241,53 +223,61 @@ export function CardDetailPage({ cardId }: CardDetailPageProps) {
               )}
 
               <Tabs defaultValue="marketplace" className="space-y-4">
-                <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4">
-                  <TabsTrigger value="marketplace">Marketplace</TabsTrigger>
-                  <TabsTrigger value="versions">Versões</TabsTrigger>
-                  <TabsTrigger value="market">Histórico</TabsTrigger>
-                  <TabsTrigger value="info">Info</TabsTrigger>
+                <TabsList className="grid h-auto w-full grid-cols-2 gap-1 p-1 sm:grid-cols-4">
+                  <TabsTrigger value="marketplace" className="text-xs sm:text-sm">
+                    Ofertas
+                  </TabsTrigger>
+                  <TabsTrigger value="versions" className="text-xs sm:text-sm">
+                    Versões
+                  </TabsTrigger>
+                  <TabsTrigger value="market" className="text-xs sm:text-sm">
+                    Histórico
+                  </TabsTrigger>
+                  <TabsTrigger value="info" className="text-xs sm:text-sm">
+                    Info
+                  </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="marketplace" className="space-y-4" id="offers">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-lg">
+                  <Card padding="md">
+                    <CardHeader className="p-0 pb-4">
+                      <CardTitle className="text-h3">
                         Ofertas ({listings.length})
                         {marketSummary?.storeCount != null && (
-                          <span className="ml-2 text-sm font-normal text-muted-foreground">
+                          <span className="ml-2 text-small font-normal text-muted-foreground">
                             · {marketSummary.storeCount} lojas · {marketSummary.listedQuantity} un.
                           </span>
                         )}
                       </CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="p-0">
                       <SellerOffersTable
                         listings={listings}
                         onBuy={handleBuy}
                         buyingId={addToCart.isPending ? (addToCart.variables?.listing.id ?? null) : null}
                       />
-                      {buyError && <p className="mt-3 text-sm text-red-500">{buyError}</p>}
+                      {buyError && <p className="mt-3 text-small text-danger">{buyError}</p>}
                     </CardContent>
                   </Card>
                 </TabsContent>
 
                 <TabsContent value="versions">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-lg">Versões e reprints</CardTitle>
+                  <Card padding="md">
+                    <CardHeader className="p-0 pb-4">
+                      <CardTitle className="text-h3">Versões e reprints</CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="p-0">
                       <CardVersionsTab cardId={cardId} card={card} relatedCards={relatedCards} />
                     </CardContent>
                   </Card>
                 </TabsContent>
 
                 <TabsContent value="market" className="space-y-4">
-                  <Card>
-                    <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                      <CardTitle className="text-lg">Histórico de mercado</CardTitle>
+                  <Card padding="md">
+                    <CardHeader className="flex flex-col gap-3 p-0 pb-4 sm:flex-row sm:items-center sm:justify-between">
+                      <CardTitle className="text-h3">Histórico de mercado</CardTitle>
                       <div
-                        className="flex flex-wrap gap-1 rounded-lg border bg-muted/40 p-1"
+                        className="flex flex-wrap gap-1 rounded-lg border border-border bg-muted/40 p-1"
                         role="tablist"
                         aria-label="Período do gráfico"
                       >
@@ -299,7 +289,7 @@ export function CardDetailPage({ cardId }: CardDetailPageProps) {
                             aria-selected={priceRange === value}
                             onClick={() => setPriceRange(value)}
                             className={cn(
-                              "rounded-md px-2 py-1 text-xs font-medium transition-colors",
+                              "focus-ring rounded-md px-2.5 py-1 text-caption font-medium transition-colors",
                               priceRange === value
                                 ? "bg-background text-foreground shadow-sm"
                                 : "text-muted-foreground hover:text-foreground",
@@ -310,82 +300,54 @@ export function CardDetailPage({ cardId }: CardDetailPageProps) {
                         ))}
                       </div>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="space-y-4 p-0">
                       {(marketSummary?.minPrice != null || marketSummary?.avgPrice != null) && (
-                        <dl className="mb-4 grid grid-cols-2 gap-2 text-center text-xs sm:grid-cols-3 lg:grid-cols-6">
-                          <div className="rounded-lg bg-muted/40 p-2">
-                            <dt className="text-muted-foreground">Mín</dt>
-                            <dd className="font-semibold">
-                              {marketSummary.minPrice != null
-                                ? formatCurrency(marketSummary.minPrice, currency)
-                                : "—"}
-                            </dd>
-                          </div>
-                          <div className="rounded-lg bg-muted/40 p-2">
-                            <dt className="text-muted-foreground">Médio</dt>
-                            <dd className="font-semibold">
-                              {marketSummary.avgPrice != null
-                                ? formatCurrency(marketSummary.avgPrice, currency)
-                                : "—"}
-                            </dd>
-                          </div>
-                          <div className="rounded-lg bg-muted/40 p-2">
-                            <dt className="text-muted-foreground">Máx</dt>
-                            <dd className="font-semibold">
-                              {marketSummary.maxPrice != null
-                                ? formatCurrency(marketSummary.maxPrice, currency)
-                                : "—"}
-                            </dd>
-                          </div>
-                          <div className="rounded-lg bg-muted/40 p-2">
-                            <dt className="text-muted-foreground">Sugerido</dt>
-                            <dd className="font-semibold">
-                              {marketSummary.suggestedPrice != null
-                                ? formatCurrency(marketSummary.suggestedPrice, currency)
-                                : marketSummary.avgPrice != null
-                                  ? formatCurrency(marketSummary.avgPrice, currency)
-                                  : "—"}
-                            </dd>
-                          </div>
-                          <div className="rounded-lg bg-muted/40 p-2">
-                            <dt className="text-muted-foreground">Anunciadas</dt>
-                            <dd className="font-semibold">{marketSummary.listedQuantity ?? "—"}</dd>
-                          </div>
-                          <div className="rounded-lg bg-muted/40 p-2">
-                            <dt className="text-muted-foreground">Trust médio</dt>
-                            <dd className="font-semibold">
-                              {marketSummary.avgSellerTrust != null
-                                ? Math.round(marketSummary.avgSellerTrust)
-                                : "—"}
-                            </dd>
-                          </div>
+                        <dl className="grid grid-cols-2 gap-2 text-center sm:grid-cols-3 lg:grid-cols-6">
+                          {[
+                            { label: "Mín", value: marketSummary.minPrice },
+                            { label: "Médio", value: marketSummary.avgPrice },
+                            { label: "Máx", value: marketSummary.maxPrice },
+                            { label: "Sugerido", value: marketSummary.suggestedPrice ?? marketSummary.avgPrice },
+                            { label: "Anunciadas", value: marketSummary.listedQuantity, raw: true },
+                            {
+                              label: "Trust médio",
+                              value: marketSummary.avgSellerTrust,
+                              raw: true,
+                              format: (v: number) => Math.round(v).toString(),
+                            },
+                          ].map(({ label, value, raw, format }) => (
+                            <div key={label} className="rounded-lg bg-muted/40 p-2.5">
+                              <dt className="text-caption text-muted-foreground">{label}</dt>
+                              <dd className="text-small font-semibold">
+                                {value == null
+                                  ? "—"
+                                  : raw
+                                    ? format
+                                      ? format(value as number)
+                                      : String(value)
+                                    : formatCurrency(value as number, currency)}
+                              </dd>
+                            </div>
+                          ))}
                         </dl>
                       )}
-                      <div className="mb-4 grid grid-cols-2 gap-2 text-xs text-muted-foreground sm:grid-cols-4">
-                        <p>Volume: {marketSummary?.soldVolume ?? "—"}</p>
-                        <p>Velocidade: {marketSummary?.sellVelocity ?? "—"}</p>
-                        <p>Popularidade: {marketSummary?.popularity ?? "—"}</p>
-                        <p>Competitividade: {marketSummary?.competitiveness ?? "—"}</p>
-                      </div>
                       <PriceChart cardId={cardId} range={priceRange} condition={selectedCondition} />
-                      <div className="mt-6">
-                        <CardValuationPanel
-                          cardId={cardId}
-                          cardName={card.name}
-                          game={gameSlug}
-                          condition={selectedCondition ?? "NM"}
-                        />
-                      </div>
+                      <CardValuationPanel
+                        cardId={cardId}
+                        cardName={card.name}
+                        game={gameSlug}
+                        condition={selectedCondition ?? "NM"}
+                      />
                     </CardContent>
                   </Card>
                 </TabsContent>
 
                 <TabsContent value="info">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-lg">Informações</CardTitle>
+                  <Card padding="md">
+                    <CardHeader className="p-0 pb-4">
+                      <CardTitle className="text-h3">Informações</CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="p-0">
                       <CardInfoTab card={card} />
                     </CardContent>
                   </Card>
@@ -394,19 +356,17 @@ export function CardDetailPage({ cardId }: CardDetailPageProps) {
             </div>
           </div>
 
-          <div className="mt-10 border-t pt-8">
-            <CardIntelligenceSection
-              cardId={cardId}
-              card={card}
-              fallbackRelated={relatedCards}
-            />
+          <div className="mt-12 border-t border-border pt-10">
+            <CardIntelligenceSection cardId={cardId} card={card} fallbackRelated={relatedCards} />
           </div>
         </div>
 
-        <div className="fixed bottom-0 left-0 right-0 z-40 border-t bg-background/95 p-4 backdrop-blur lg:hidden">
-          <button
+        {/* CTA mobile fixo */}
+        <div className="fixed bottom-[4.5rem] left-0 right-0 z-40 border-t border-border bg-card/95 p-3 shadow-lg backdrop-blur-md md:bottom-0 lg:hidden">
+          <Button
             type="button"
-            className="w-full rounded-lg bg-primary py-3 font-semibold text-primary-foreground disabled:opacity-50"
+            size="lg"
+            className="w-full"
             disabled={!cheapestPurchasable || addToCart.isPending}
             onClick={() => cheapestPurchasable && handleBuy(cheapestPurchasable)}
           >
@@ -416,12 +376,12 @@ export function CardDetailPage({ cardId }: CardDetailPageProps) {
               : card.lowestPrice != null
                 ? formatCurrency(card.lowestPrice, currency)
                 : "Indisponível"}
-          </button>
+          </Button>
         </div>
 
         <Dialog.Root open={lightboxOpen} onOpenChange={setLightboxOpen}>
           <Dialog.Portal>
-            <Dialog.Overlay className="fixed inset-0 z-50 bg-black/90" />
+            <Dialog.Overlay className="fixed inset-0 z-50 bg-foreground/80 backdrop-blur-sm" />
             <Dialog.Content className="fixed inset-4 z-50 flex items-center justify-center outline-none">
               <Dialog.Title className="sr-only">{card.name}</Dialog.Title>
               <Image
@@ -429,13 +389,13 @@ export function CardDetailPage({ cardId }: CardDetailPageProps) {
                 alt={card.name}
                 width={744}
                 height={1040}
-                className="max-h-full max-w-full object-contain"
+                className="max-h-full max-w-full rounded-lg object-contain shadow-2xl"
                 unoptimized={shouldBypassImageOptimizer(imageSrc)}
               />
               <Dialog.Close asChild>
                 <button
                   type="button"
-                  className="absolute right-4 top-4 rounded-full bg-white/10 p-2 text-white hover:bg-white/20"
+                  className="focus-ring absolute right-4 top-4 rounded-full border border-border bg-card p-2 text-foreground hover:bg-muted"
                   aria-label="Fechar"
                 >
                   <X className="h-5 w-5" />
@@ -452,16 +412,16 @@ export function CardDetailPage({ cardId }: CardDetailPageProps) {
 function CardDetailSkeleton() {
   return (
     <MobileLayout>
-      <main className="container mx-auto px-4 py-8" aria-busy="true" aria-label="Carregando carta">
+      <main className="page-container py-8" aria-busy="true" aria-label="Carregando carta">
         <Skeleton className="mb-6 h-4 w-64" />
-        <div className="grid gap-8 lg:grid-cols-2">
-          <div className="space-y-6">
-            <Skeleton className="mx-auto aspect-[63/88] max-w-md rounded-xl" />
-            <Skeleton className="h-32 rounded-xl" />
+        <div className="grid gap-8 lg:grid-cols-12">
+          <div className="space-y-5 lg:col-span-5">
+            <Skeleton className="mx-auto aspect-[63/88] max-w-md rounded-2xl" />
+            <Skeleton className="h-36 rounded-xl" />
           </div>
-          <div className="space-y-6">
-            <Skeleton className="h-8 w-3/4" />
-            <Skeleton className="h-40 rounded-xl" />
+          <div className="space-y-5 lg:col-span-7">
+            <Skeleton className="h-10 w-3/4" />
+            <Skeleton className="h-56 rounded-2xl" />
             <Skeleton className="h-64 rounded-xl" />
           </div>
         </div>
@@ -473,20 +433,15 @@ function CardDetailSkeleton() {
 function CardDetailError({ notFound }: { notFound?: boolean }) {
   return (
     <MobileLayout>
-      <main className="container mx-auto px-4 py-16 text-center">
-        <AlertCircle className="mx-auto mb-4 h-12 w-12 text-red-500" />
-        <h1 className="mb-2 text-xl font-bold">
-          {notFound ? "Carta não encontrada" : "Erro ao carregar carta"}
-        </h1>
-        <p className="text-muted-foreground">
+      <main className="page-container py-16 text-center">
+        <AlertCircle className="mx-auto mb-4 h-12 w-12 text-danger" aria-hidden />
+        <h1 className="text-h2">{notFound ? "Carta não encontrada" : "Erro ao carregar carta"}</h1>
+        <p className="mt-2 text-muted-foreground">
           {notFound ? "Verifique o link ou volte à busca." : "Tente novamente mais tarde."}
         </p>
-        <Link
-          href="/loja/busca"
-          className="mt-6 inline-block text-sm text-primary underline-offset-4 hover:underline"
-        >
-          Voltar à busca
-        </Link>
+        <Button asChild variant="outline" className="mt-6">
+          <Link href="/loja/busca">Voltar à busca</Link>
+        </Button>
       </main>
     </MobileLayout>
   );

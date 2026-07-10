@@ -71,17 +71,17 @@ export function PixConfigForm({ storeId, store, onSaved }: Props) {
   return (
     <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-6">
       <h2 className="font-semibold text-emerald-100">PIX direto (recomendado)</h2>
-      <p className="mt-2 text-sm text-luxury-mist">
+      <p className="mt-2 text-sm text-muted-foreground">
         Receba pagamentos direto na sua conta. Zero comissão da Judge TCG sobre vendas.
       </p>
 
       <div className="mt-4 space-y-3">
         <label className="block text-sm">
-          <span className="text-luxury-mist">Tipo de chave</span>
+          <span className="text-muted-foreground">Tipo de chave</span>
           <select
             value={keyType}
             onChange={(e) => setKeyType(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2"
+            className="mt-1 w-full surface-card rounded-lg px-3 py-2"
           >
             {PIX_KEY_TYPES.map((t) => (
               <option key={t.value} value={t.value}>
@@ -92,12 +92,12 @@ export function PixConfigForm({ storeId, store, onSaved }: Props) {
         </label>
 
         <label className="block text-sm">
-          <span className="text-luxury-mist">Chave PIX</span>
+          <span className="text-muted-foreground">Chave PIX</span>
           <input
             value={key}
             onChange={(e) => setKey(e.target.value)}
             placeholder={placeholder(keyType)}
-            className="mt-1 w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2"
+            className="mt-1 w-full surface-card rounded-lg px-3 py-2"
           />
         </label>
       </div>

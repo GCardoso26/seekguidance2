@@ -169,11 +169,11 @@ export default function VendedorPainelDashboardPage() {
 
         <SellerHeader />
 
-        <div className="mt-6 rounded-xl border border-white/10 bg-white/5 p-8 text-center">
+        <div className="mt-6 surface-card p-8 text-center">
 
-          <p className="text-luxury-mist">Você ainda não tem uma loja cadastrada.</p>
+          <p className="text-muted-foreground">Você ainda não tem uma loja cadastrada.</p>
 
-          <Link href="/stores/create" className="mt-4 inline-block text-luxury-gold underline">
+          <Link href="/stores/create" className="mt-4 inline-block text-primary underline">
 
             Cadastrar loja
 

@@ -35,7 +35,7 @@ export function DecksSkeleton() {
       </div>
       <div className="space-y-3">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="space-y-3 rounded-xl border border-white/10 p-4">
+          <div key={i} className="space-y-3 rounded-xl border border-border p-4">
             <Skeleton className="h-6 w-full skeleton-shimmer" />
             <Skeleton className="h-4 w-2/3 skeleton-shimmer" />
             <div className="flex gap-2">

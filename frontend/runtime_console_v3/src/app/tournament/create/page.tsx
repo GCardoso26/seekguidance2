@@ -10,8 +10,8 @@ const queryClient = new QueryClient();
 export default function TournamentCreatePage() {
   return (
     <QueryClientProvider client={queryClient}>
-        <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 text-luxury-frost">
-          <header className="border-b border-white/10 px-4 py-4">
+        <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 text-foreground">
+          <header className="border-b border-border px-4 py-4">
             <div className="container mx-auto flex items-center gap-3">
               <Link href="/dashboard" className="flex items-center gap-3">
                 <JudgeLogo size={32} />
@@ -21,7 +21,7 @@ export default function TournamentCreatePage() {
           </header>
           <main className="container mx-auto max-w-2xl px-4 py-10">
             <h1 className="mb-2 text-3xl font-bold text-white">Criar Novo Torneio</h1>
-            <p className="mb-8 text-luxury-mist">
+            <p className="mb-8 text-muted-foreground">
               Escolhe o jogo e configura o formato. O sistema adapta regras de decklist e timer automaticamente.
             </p>
             <TournamentCreateForm />

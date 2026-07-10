@@ -31,8 +31,8 @@ export default function StorePage() {
   return (
     <MobileLayout>
       <div className="container mx-auto px-4 py-8">
-        <Link href="/marketplace/produtos" className="text-sm text-luxury-mist">← Produtos selados</Link>
-        {isLoading && <p className="mt-6 text-luxury-mist">Carregando…</p>}
+        <Link href="/marketplace/produtos" className="text-sm text-muted-foreground">← Produtos selados</Link>
+        {isLoading && <p className="mt-6 text-muted-foreground">Carregando…</p>}
         {store && (
           <>
             <div className="mt-4 flex flex-wrap items-center gap-2">
@@ -43,7 +43,7 @@ export default function StorePage() {
             {Number(store.average_rating) >= 4.8 && Number(store.review_count) >= 50 && (
               <StoreRatingBadge className="mt-2" />
             )}
-            {store.description && <p className="mt-2 text-luxury-mist">{String(store.description)}</p>}
+            {store.description && <p className="mt-2 text-muted-foreground">{String(store.description)}</p>}
             <StoreReputationPanel slug={slug} />
             <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {products.map((p) => (
@@ -51,7 +51,7 @@ export default function StorePage() {
               ))}
             </div>
             {products.length === 0 && (
-              <p className="mt-8 text-center text-luxury-mist">Esta loja ainda não publicou produtos.</p>
+              <p className="mt-8 text-center text-muted-foreground">Esta loja ainda não publicou produtos.</p>
             )}
             <StoreReviews storeId={String(store.id)} />
           </>

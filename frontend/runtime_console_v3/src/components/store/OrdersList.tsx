@@ -28,17 +28,17 @@ const OrderRow = memo(function OrderRow({
   onUpdated: () => void;
 }) {
   return (
-    <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+    <div className="surface-card p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <span className="font-mono text-sm text-luxury-mist">#{order.id.slice(0, 8)}</span>
-        <span className="rounded-full bg-white/10 px-2 py-0.5 text-xs uppercase">{order.status}</span>
+        <span className="font-mono text-sm text-muted-foreground">#{order.id.slice(0, 8)}</span>
+        <span className="rounded-full bg-muted px-2 py-0.5 text-xs uppercase">{order.status}</span>
         <span className="font-semibold">{formatShopPrice(order.total_cents)}</span>
       </div>
       {order.tracking_code && (
-        <p className="mt-1 text-xs text-luxury-mist">Rastreio: {order.tracking_code}</p>
+        <p className="mt-1 text-xs text-muted-foreground">Rastreio: {order.tracking_code}</p>
       )}
       {order.items && order.items.length > 0 && (
-        <ul className="mt-2 text-sm text-luxury-mist">
+        <ul className="mt-2 text-sm text-muted-foreground">
           {order.items.map((item, i) => (
             <li key={`${order.id}-${i}`}>
               {item.quantity}x {item.product_name}
@@ -59,7 +59,7 @@ const OrderRow = memo(function OrderRow({
 
 export function OrdersList({ orders, onUpdated }: Props) {
   if (orders.length === 0) {
-    return <p className="text-luxury-mist">Nenhum pedido encontrado.</p>;
+    return <p className="text-muted-foreground">Nenhum pedido encontrado.</p>;
   }
 
   return (

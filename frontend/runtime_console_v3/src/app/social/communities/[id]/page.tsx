@@ -31,23 +31,23 @@ export default function CommunityDetailPage() {
   return (
     <MobileLayout>
       <div className="container mx-auto max-w-3xl px-4 py-8">
-        <Link href="/social/communities" className="text-sm text-luxury-mist">
+        <Link href="/social/communities" className="text-sm text-muted-foreground">
           ← Comunidades
         </Link>
 
-        {isLoading && <p className="mt-4 text-luxury-mist">Carregando…</p>}
+        {isLoading && <p className="mt-4 text-muted-foreground">Carregando…</p>}
 
         {community && (
           <header className="luxury-card mt-4 rounded-xl p-6">
-            <h1 className="text-2xl font-light text-luxury-frost">{String(community.name)}</h1>
+            <h1 className="text-2xl font-light text-foreground">{String(community.name)}</h1>
             {typeof community.description === "string" && community.description.length > 0 && (
-              <p className="mt-2 text-sm text-luxury-mist">{community.description}</p>
+              <p className="mt-2 text-sm text-muted-foreground">{community.description}</p>
             )}
-            <p className="mt-2 text-xs text-luxury-mist/70">{String(community.member_count ?? 0)} membros</p>
+            <p className="mt-2 text-xs text-muted-foreground/70">{String(community.member_count ?? 0)} membros</p>
             <div className="mt-4 flex gap-2">
               <Button
                 type="button"
-                className="bg-luxury-gold text-luxury-onyx"
+                className="bg-primary text-primary-foreground"
                 onClick={() => void join()}
               >
                 Entrar
@@ -58,8 +58,8 @@ export default function CommunityDetailPage() {
         )}
 
         <section className="mt-8 space-y-4">
-          <h2 className="text-lg font-medium text-luxury-frost">Posts</h2>
-          {postsLoading && <p className="text-luxury-mist">Carregando posts…</p>}
+          <h2 className="text-lg font-medium text-foreground">Posts</h2>
+          {postsLoading && <p className="text-muted-foreground">Carregando posts…</p>}
           {posts.map((post) => (
             <PostCard key={post.id} post={post} />
           ))}

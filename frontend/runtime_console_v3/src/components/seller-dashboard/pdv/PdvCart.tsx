@@ -28,13 +28,13 @@ export function PdvCart({
 
   return (
     <div
-      className="flex flex-col rounded-xl border border-white/10 bg-white/5 p-4"
+      className="flex flex-col surface-card p-4"
       data-testid="pdv-cart"
     >
-      <h3 className="text-sm font-semibold uppercase text-luxury-mist">Carrinho</h3>
+      <h3 className="text-sm font-semibold uppercase text-muted-foreground">Carrinho</h3>
 
       {items.length === 0 ? (
-        <p className="mt-4 text-sm text-luxury-mist" data-testid="pdv-cart-empty">
+        <p className="mt-4 text-sm text-muted-foreground" data-testid="pdv-cart-empty">
           Escaneie ou busque produtos para começar.
         </p>
       ) : (
@@ -42,17 +42,17 @@ export function PdvCart({
           {items.map((item) => (
             <li
               key={item.product_id}
-              className="rounded-lg border border-white/10 bg-black/20 p-3"
+              className="rounded-lg border border-border bg-black/20 p-3"
               data-testid={`pdv-cart-item-${item.product_id}`}
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-medium">{item.name}</p>
-                  <p className="text-xs text-luxury-mist">
+                  <p className="text-xs text-muted-foreground">
                     {formatShopPrice(item.price_cents)} × {item.quantity}
                   </p>
                 </div>
-                <p className="shrink-0 font-semibold text-luxury-gold">
+                <p className="shrink-0 font-semibold text-primary">
                   {formatShopPrice(item.price_cents * item.quantity)}
                 </p>
               </div>
@@ -92,7 +92,7 @@ export function PdvCart({
         </ul>
       )}
 
-      <div className="mt-4 border-t border-white/10 pt-3">
+      <div className="mt-4 border-t border-border pt-3">
         <div className="flex justify-between text-base font-bold">
           <span>Total</span>
           <span data-testid="pdv-cart-total">{formatShopPrice(total)}</span>

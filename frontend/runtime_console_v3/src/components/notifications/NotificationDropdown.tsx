@@ -53,17 +53,17 @@ export function NotificationDropdown({ limit = 5, className }: NotificationDropd
     <div
       data-testid="notification-dropdown"
       className={cn(
-        "invisible absolute right-0 z-50 mt-2 w-80 rounded-xl border border-white/10 bg-luxury-obsidian opacity-0 shadow-xl transition group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100",
+        "invisible absolute right-0 z-50 mt-2 w-80 rounded-xl border border-border bg-card opacity-0 shadow-xl transition group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100",
         className,
       )}
     >
-      <div className="flex items-center justify-between border-b border-white/10 px-4 py-2">
+      <div className="flex items-center justify-between border-b border-border px-4 py-2">
         <span className="text-sm font-medium">Notificações</span>
         {unread.count > 0 && (
           <button
             type="button"
             onClick={() => void markAll.mutate()}
-            className="text-xs text-luxury-gold"
+            className="text-xs text-primary"
           >
             Marcar lidas
           </button>
@@ -71,7 +71,7 @@ export function NotificationDropdown({ limit = 5, className }: NotificationDropd
       </div>
       <ul className="max-h-80 overflow-y-auto">
         {items.length === 0 && (
-          <li className="px-4 py-6 text-center text-sm text-luxury-mist">Nenhuma notificação</li>
+          <li className="px-4 py-6 text-center text-sm text-muted-foreground">Nenhuma notificação</li>
         )}
         {items.slice(0, limit).map((n) => {
           const Icon = TYPE_ICONS[n.type] ?? Bell;
@@ -79,17 +79,17 @@ export function NotificationDropdown({ limit = 5, className }: NotificationDropd
             <li key={n.id} data-testid={`notification-item-${n.id}`}>
               <div
                 className={cn(
-                  "flex gap-3 px-4 py-3 text-left text-sm hover:bg-white/5",
-                  !n.readAt && "bg-luxury-gold/5",
+                  "flex gap-3 px-4 py-3 text-left text-sm hover:bg-muted/80",
+                  !n.readAt && "bg-primary/5",
                 )}
               >
-                <Icon className="mt-0.5 h-4 w-4 shrink-0 text-luxury-gold" aria-hidden />
+                <Icon className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
                 <button type="button" className="min-w-0 flex-1 text-left" onClick={() => void handleOpen(n)}>
-                  <p className="font-medium text-luxury-frost">{n.title}</p>
+                  <p className="font-medium text-foreground">{n.title}</p>
                   {n.content && (
-                    <p className="mt-0.5 line-clamp-2 text-xs text-luxury-mist">{n.content}</p>
+                    <p className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">{n.content}</p>
                   )}
-                  <p className="mt-1 text-[10px] text-luxury-mist">
+                  <p className="mt-1 text-[10px] text-muted-foreground">
                     {n.createdAt ? formatRelativeTime(n.createdAt) : ""}
                   </p>
                 </button>
@@ -97,7 +97,7 @@ export function NotificationDropdown({ limit = 5, className }: NotificationDropd
                   type="button"
                   aria-label="Remover"
                   onClick={() => void remove.mutate(n)}
-                  className="text-xs text-luxury-mist hover:text-red-400"
+                  className="text-xs text-muted-foreground hover:text-red-400"
                 >
                   ×
                 </button>
@@ -106,8 +106,8 @@ export function NotificationDropdown({ limit = 5, className }: NotificationDropd
           );
         })}
       </ul>
-      <div className="border-t border-white/10 p-2 text-center">
-        <Link href="/notifications" className="text-xs text-luxury-gold underline">
+      <div className="border-t border-border p-2 text-center">
+        <Link href="/notifications" className="text-xs text-primary underline">
           Ver todas
         </Link>
       </div>

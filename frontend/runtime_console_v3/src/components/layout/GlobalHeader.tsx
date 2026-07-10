@@ -16,6 +16,8 @@ import { UserLevelBadge } from "@/components/gamification/UserLevelBadge";
 import { UserMenu } from "@/features/auth/UserMenu";
 import { useJudgeAuth } from "@/features/auth/AuthProvider";
 import { useRulesAccess } from "@/hooks/useRulesAccess";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 type NavItem = { href: string; label: string; icon: typeof ShoppingBag };
@@ -27,8 +29,27 @@ const NAV: NavItem[] = [
   { href: "/comunidade", label: "Comunidade", icon: Users },
 ];
 
-function DesktopNav() {
+function DesktopNavLink({ href, label, icon: Icon }: NavItem) {
   const pathname = usePathname();
+  const active = pathname === href || (href !== "/" && pathname.startsWith(href));
+  return (
+    <Link
+      href={href}
+      data-testid={`nav-${href.replace(/\//g, "") || "home"}`}
+      className={cn(
+        "hidden items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors md:flex",
+        active
+          ? "bg-primary/10 text-primary"
+          : "text-muted-foreground hover:bg-muted hover:text-foreground",
+      )}
+    >
+      <Icon className="h-4 w-4" />
+      {label}
+    </Link>
+  );
+}
+
+function DesktopNav() {
   const { allowed: rulesAllowed, loading: rulesLoading } = useRulesAccess();
   const items = rulesLoading ? NAV.filter((n) => n.href !== "/regras") : NAV.filter((n) => n.href !== "/regras" || rulesAllowed);
 
@@ -38,26 +59,6 @@ function DesktopNav() {
         <DesktopNavLink key={item.href} {...item} />
       ))}
     </>
-  );
-}
-
-function DesktopNavLink({ href, label, icon: Icon }: NavItem) {
-  const pathname = usePathname();
-  const active = pathname === href || (href !== "/" && pathname.startsWith(href));
-  return (
-    <Link
-      href={href}
-      data-testid={`nav-${href.replace(/\//g, "") || "home"}`}
-      className={cn(
-        "hidden items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors md:flex",
-        active
-          ? "bg-luxury-gold/10 text-luxury-gold"
-          : "text-luxury-mist hover:bg-white/5 hover:text-luxury-frost",
-      )}
-    >
-      <Icon className="h-4 w-4" />
-      {label}
-    </Link>
   );
 }
 
@@ -78,64 +79,61 @@ export function GlobalHeader({ showGameTabs = true }: GlobalHeaderProps) {
   }
 
   return (
-    <>
-      <div className="sticky top-0 z-50">
-        <CpfRequiredBanner />
-        <header className="relative overflow-visible border-b border-white/10 bg-luxury-obsidian/95 backdrop-blur">
-          <div className="mx-auto max-w-7xl px-4">
-            <div className="flex h-14 items-center gap-3">
-              <Link
-                href="/"
-                className="flex shrink-0 items-center gap-2 text-sm font-semibold text-luxury-gold"
-                data-testid="header-logo"
-              >
-                <span className="text-lg">⚖️</span>
-                <span className="hidden sm:inline">Judge TCG</span>
-              </Link>
+    <div className="sticky top-0 z-50">
+      <CpfRequiredBanner />
+      <header className="border-b border-border bg-card/80 backdrop-blur-md supports-[backdrop-filter]:bg-card/70">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <div className="flex h-12 items-center gap-3 lg:h-14">
+            <Link
+              href="/"
+              className="flex shrink-0 items-center gap-2 text-sm font-semibold text-foreground"
+              data-testid="header-logo"
+            >
+              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-base">⚖️</span>
+              <span className="hidden sm:inline">Judge TCG</span>
+            </Link>
 
-              <HeaderGamePicker />
+            <HeaderGamePicker />
 
-              <nav className="hidden items-center gap-0.5 xl:flex" aria-label="Principal">
-                <DesktopNav />
-              </nav>
+            <nav className="hidden items-center gap-0.5 xl:flex" aria-label="Principal">
+              <DesktopNav />
+            </nav>
 
-              <HeaderNavActions />
+            <HeaderNavActions />
 
-              <div className="min-w-0 flex-1">
-                <GlobalSearchBar
-                  variant="header"
-                  placeholder="Buscar cards, sellers, decks…"
-                  className="max-w-none"
-                />
-              </div>
+            <div className="min-w-0 flex-1">
+              <GlobalSearchBar
+                variant="header"
+                placeholder="Buscar cards, sellers, decks…"
+                className="max-w-none"
+              />
+            </div>
 
-              <div className="flex shrink-0 items-center gap-1">
-                <UserLevelBadge compact />
-                <WishlistBadge />
-                <CartHeaderButton />
-                {loading ? (
-                  <div className="h-8 w-8 animate-pulse rounded-full bg-white/10" aria-hidden />
-                ) : user ? (
-                  <>
-                    <GlobalNotificationBell />
-                    <UserMenu />
-                  </>
-                ) : (
-                  <Link
-                    href="/entrar"
-                    data-testid="login-submit"
-                    className="rounded-lg bg-luxury-gold px-4 py-2 text-sm font-medium text-luxury-onyx transition hover:bg-luxury-gold/90"
-                  >
+            <div className="flex shrink-0 items-center gap-1">
+              <ThemeToggle compact className="hidden sm:inline-flex" />
+              <UserLevelBadge compact />
+              <WishlistBadge />
+              <CartHeaderButton />
+              {loading ? (
+                <div className="h-8 w-8 animate-pulse rounded-full bg-muted" aria-hidden />
+              ) : user ? (
+                <>
+                  <GlobalNotificationBell />
+                  <UserMenu />
+                </>
+              ) : (
+                <Button asChild size="sm">
+                  <Link href="/entrar" data-testid="login-submit">
                     Entrar
                   </Link>
-                )}
-              </div>
+                </Button>
+              )}
             </div>
           </div>
+        </div>
 
-          {showTabs && <GameMegaMenu />}
-        </header>
-      </div>
-    </>
+        {showTabs && <GameMegaMenu />}
+      </header>
+    </div>
   );
 }

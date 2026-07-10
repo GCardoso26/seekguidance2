@@ -24,7 +24,7 @@ export function PeriodSelector({ value, onChange }: Props) {
           type="button"
           onClick={() => onChange(opt.value)}
           className={`rounded-full px-3 py-1 text-xs ${
-            value === opt.value ? "bg-luxury-gold text-luxury-onyx" : "bg-white/10"
+            value === opt.value ? "bg-primary text-primary-foreground" : "bg-muted"
           }`}
         >
           {opt.label}

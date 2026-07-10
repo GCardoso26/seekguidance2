@@ -27,19 +27,19 @@ export default function VendaDetalhePage() {
     <>
       <SellerHeader action={null} />
       <main className="flex-1 space-y-4 overflow-y-auto p-6">
-        <Link href="/vendedor/painel/vendas" className="text-sm text-luxury-mist hover:underline">
+        <Link href="/vendedor/painel/vendas" className="text-sm text-muted-foreground hover:underline">
           ← Voltar às vendas
         </Link>
-        {isLoading && <p className="text-luxury-mist">Carregando…</p>}
+        {isLoading && <p className="text-muted-foreground">Carregando…</p>}
         {order && (
-          <div className="rounded-xl border border-white/10 bg-white/5 p-6">
+          <div className="surface-card p-6">
             <div className="flex flex-wrap items-center gap-3">
               <h2 className="font-mono text-lg">#{String(order.id).slice(0, 8)}</h2>
               <SaleStatusBadge status={String(order.status)} />
               <span className="font-semibold">{formatShopPrice(Number(order.total_cents ?? 0))}</span>
             </div>
             {Boolean(order.tracking_code) && (
-              <p className="mt-2 text-sm text-luxury-mist">Rastreio: {String(order.tracking_code)}</p>
+              <p className="mt-2 text-sm text-muted-foreground">Rastreio: {String(order.tracking_code)}</p>
             )}
             <OrderActions
               orderId={String(order.id)}

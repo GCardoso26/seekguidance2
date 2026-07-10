@@ -54,24 +54,24 @@ export default function AdminDashboardPage() {
             <h2 className="text-lg font-semibold">Top cartas vendidas</h2>
             <ul className="space-y-2">
               {data.top_cards.length === 0 && (
-                <li className="text-sm text-luxury-mist">Sem dados de compra ainda.</li>
+                <li className="text-sm text-muted-foreground">Sem dados de compra ainda.</li>
               )}
               {data.top_cards.map((row) => (
                 <li
                   key={row.card_name}
-                  className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 px-4 py-3"
+                  className="flex items-center justify-between surface-card rounded-lg px-4 py-3"
                 >
                   <span className="text-sm">{row.card_name}</span>
-                  <span className="text-sm font-semibold text-luxury-gold">{row.purchases}</span>
+                  <span className="text-sm font-semibold text-primary">{row.purchases}</span>
                 </li>
               ))}
             </ul>
 
             <div className="flex flex-wrap gap-4 text-sm">
-              <Link href="/admin/retention" className="text-luxury-gold hover:underline">
+              <Link href="/admin/retention" className="text-primary hover:underline">
                 Dashboard de retenção →
               </Link>
-              <Link href="/admin/analytics" className="text-luxury-gold hover:underline">
+              <Link href="/admin/analytics" className="text-primary hover:underline">
                 Analytics completo →
               </Link>
             </div>
@@ -84,9 +84,9 @@ export default function AdminDashboardPage() {
 
 function MetricCard({ title, value }: { title: string; value: string }) {
   return (
-    <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-      <p className="text-2xl font-bold text-luxury-gold">{value}</p>
-      <p className="text-sm text-luxury-mist">{title}</p>
+    <div className="surface-card p-4">
+      <p className="text-2xl font-bold text-primary">{value}</p>
+      <p className="text-sm text-muted-foreground">{title}</p>
     </div>
   );
 }

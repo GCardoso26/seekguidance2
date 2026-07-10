@@ -1,3 +1,9 @@
+"use client";
+
+import Image from "next/image";
+import { Package, ShieldCheck, Store, Truck } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { formatShopPrice, type ShopCartItem } from "@/lib/marketplace-shop";
 import { cn } from "@/lib/utils";
 
@@ -21,7 +27,7 @@ type Props = {
 function SummaryRow({
   label,
   value,
-  tone,
+  tone = "default",
   testId,
 }: {
   label: string;
@@ -30,15 +36,15 @@ function SummaryRow({
   testId?: string;
 }) {
   return (
-    <div className="flex items-center justify-between gap-3 text-sm">
-      <span className="text-luxury-mist">{label}</span>
+    <div className="flex items-center justify-between gap-3 text-small">
+      <span className="text-muted-foreground">{label}</span>
       <span
         data-testid={testId}
         className={cn(
           "font-medium tabular-nums",
-          tone === "discount" && "text-emerald-400",
-          tone === "total" && "text-lg font-bold text-luxury-frost",
-          tone === "default" && "text-white",
+          tone === "discount" && "text-success",
+          tone === "total" && "font-mono text-lg font-bold text-foreground",
+          tone === "default" && "text-foreground",
         )}
       >
         {value}
@@ -76,87 +82,133 @@ export function CheckoutOrderSummary({
     <aside
       data-testid="checkout-order-summary"
       className={cn(
-        "rounded-xl border border-white/10 bg-white/5 p-4",
-        sticky && "lg:sticky lg:top-4",
+        "overflow-hidden rounded-2xl border border-border bg-card shadow-lg",
+        sticky && "lg:sticky lg:top-20",
         className,
       )}
       aria-label="Resumo do pedido"
     >
-      <h2 className="text-sm font-semibold uppercase tracking-wide text-luxury-mist">
-        Resumo do pedido
-      </h2>
+      <div className="border-b border-border bg-muted/20 px-5 py-4">
+        <h2 className="text-h3 font-semibold text-foreground">Resumo</h2>
+        <p className="mt-0.5 text-caption text-muted-foreground">
+          {itemCount} {itemCount === 1 ? "item" : "itens"}
+        </p>
+      </div>
 
-      {storeName && <p className="mt-1 text-xs text-luxury-mist/80">Loja: {storeName}</p>}
-      {storesCount != null && storesCount > 1 && (
-        <p className="mt-1 text-xs text-amber-400">{storesCount} lojas — envios separados</p>
-      )}
-      {deliveryDays != null && (
-        <p className="mt-1 text-xs text-luxury-mist">Prazo estimado ~{deliveryDays} dia(s)</p>
-      )}
-
-      {isLoading ? (
-        <div className="mt-4 space-y-2">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="h-10 animate-pulse rounded-lg bg-white/5" />
-          ))}
-        </div>
-      ) : (
-        <>
-          <ul className="mt-4 max-h-56 space-y-3 overflow-y-auto text-sm">
-            {items.length === 0 ? (
-              <li className="text-luxury-mist">Itens reservados no checkout</li>
-            ) : (
-              Array.from(byStore.entries()).map(([storeId, storeItems]) => (
-                <li key={storeId} className="space-y-1 border-b border-white/5 pb-2 last:border-0">
-                  <p className="text-[10px] uppercase tracking-wide text-luxury-mist">
-                    Loja {storeId.slice(0, 8)}
-                  </p>
-                  {storeItems.map((item) => (
-                    <div key={item.product_id} className="flex justify-between gap-2">
-                      <span className="line-clamp-2 text-luxury-frost">
-                        {item.quantity}× {item.name}
-                      </span>
-                      <span className="shrink-0 tabular-nums text-luxury-mist">
-                        {formatShopPrice(item.price_cents * item.quantity)}
-                      </span>
-                    </div>
-                  ))}
-                </li>
-              ))
+      <div className="space-y-4 p-5">
+        {(storeName || storesCount != null || deliveryDays != null) && (
+          <div className="flex flex-wrap gap-2">
+            {storeName && (
+              <Badge variant="secondary" className="gap-1">
+                <Store className="h-3 w-3" aria-hidden />
+                {storeName}
+              </Badge>
             )}
-          </ul>
-
-          <div className="mt-4 space-y-2 border-t border-white/10 pt-4">
-            <SummaryRow
-              label={`Subtotal (${itemCount} ${itemCount === 1 ? "item" : "itens"})`}
-              value={formatShopPrice(subtotalCents)}
-            />
-            {shippingCents != null && (
-              <SummaryRow label="Frete" value={formatShopPrice(shippingCents)} />
+            {storesCount != null && storesCount > 1 && (
+              <Badge variant="warning">{storesCount} lojas</Badge>
             )}
-            {discountCents > 0 && (
-              <SummaryRow
-                label={couponCode ? `Desconto (${couponCode})` : "Desconto"}
-                value={`−${formatShopPrice(discountCents)}`}
-                tone="discount"
-                testId="discount-amount"
-              />
+            {deliveryDays != null && (
+              <Badge variant="outline" className="gap-1">
+                <Truck className="h-3 w-3" aria-hidden />
+                ~{deliveryDays} dia(s)
+              </Badge>
             )}
-            {savingsCents > 0 && (
-              <SummaryRow
-                label="Economia estimada"
-                value={`−${formatShopPrice(savingsCents)}`}
-                tone="discount"
-                testId="checkout-savings"
-              />
-            )}
-            {escrowFeeCents > 0 && (
-              <SummaryRow label="Taxa escrow (3%)" value={formatShopPrice(escrowFeeCents)} />
-            )}
-            <SummaryRow label="Total" value={formatShopPrice(totalCents)} tone="total" />
           </div>
-        </>
-      )}
+        )}
+
+        {isLoading ? (
+          <div className="space-y-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <Skeleton key={i} className="h-12 rounded-lg" />
+            ))}
+          </div>
+        ) : (
+          <>
+            <ul className="max-h-52 space-y-3 overflow-y-auto">
+              {items.length === 0 ? (
+                <li className="flex items-center gap-2 text-small text-muted-foreground">
+                  <Package className="h-4 w-4 shrink-0" aria-hidden />
+                  Itens reservados no checkout
+                </li>
+              ) : (
+                Array.from(byStore.entries()).map(([storeId, storeItems]) => (
+                  <li key={storeId} className="space-y-2 border-b border-border pb-3 last:border-0 last:pb-0">
+                    {byStore.size > 1 && (
+                      <p className="text-caption font-medium uppercase tracking-wide text-muted-foreground">
+                        Loja {storeId.slice(0, 8)}
+                      </p>
+                    )}
+                    {storeItems.map((item) => (
+                      <div key={item.product_id} className="flex gap-3">
+                        <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-border bg-muted">
+                          {item.image ? (
+                            <Image
+                              src={item.image}
+                              alt=""
+                              fill
+                              className="object-cover"
+                              sizes="48px"
+                            />
+                          ) : (
+                            <div className="flex h-full items-center justify-center text-caption text-muted-foreground">
+                              TCG
+                            </div>
+                          )}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="line-clamp-2 text-small font-medium leading-snug">{item.name}</p>
+                          <p className="text-caption text-muted-foreground">Qtd: {item.quantity}</p>
+                        </div>
+                        <span className="shrink-0 text-small font-medium tabular-nums">
+                          {formatShopPrice(item.price_cents * item.quantity)}
+                        </span>
+                      </div>
+                    ))}
+                  </li>
+                ))
+              )}
+            </ul>
+
+            <div className="space-y-2.5 border-t border-border pt-4">
+              <SummaryRow
+                label={`Subtotal (${itemCount} ${itemCount === 1 ? "item" : "itens"})`}
+                value={formatShopPrice(subtotalCents)}
+              />
+              {shippingCents != null && (
+                <SummaryRow label="Frete estimado" value={formatShopPrice(shippingCents)} />
+              )}
+              {discountCents > 0 && (
+                <SummaryRow
+                  label={couponCode ? `Cupom ${couponCode}` : "Desconto"}
+                  value={`−${formatShopPrice(discountCents)}`}
+                  tone="discount"
+                  testId="discount-amount"
+                />
+              )}
+              {savingsCents > 0 && (
+                <SummaryRow
+                  label="Economia (smart cart)"
+                  value={`−${formatShopPrice(savingsCents)}`}
+                  tone="discount"
+                  testId="checkout-savings"
+                />
+              )}
+              {escrowFeeCents > 0 && (
+                <SummaryRow label="Taxa escrow (3%)" value={formatShopPrice(escrowFeeCents)} />
+              )}
+            </div>
+
+            <div className="rounded-xl bg-muted/40 px-4 py-3">
+              <SummaryRow label="Total a pagar" value={formatShopPrice(totalCents)} tone="total" />
+            </div>
+
+            <div className="flex items-center gap-2 text-caption text-muted-foreground">
+              <ShieldCheck className="h-4 w-4 shrink-0 text-success" aria-hidden />
+              <span>Pagamento seguro · estoque reservado durante o checkout</span>
+            </div>
+          </>
+        )}
+      </div>
     </aside>
   );
 }

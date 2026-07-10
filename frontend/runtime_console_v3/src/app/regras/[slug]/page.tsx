@@ -53,14 +53,14 @@ export default async function RegrasGamePage({ params }: { params: Promise<{ slu
   return (
     <MobileLayout>
       <div className="container mx-auto max-w-2xl px-4 py-12">
-        <Link href="/regras" className="text-sm text-luxury-mist">
+        <Link href="/regras" className="text-sm text-muted-foreground">
           ← Regras
         </Link>
         <div className="mt-4 flex items-center gap-3">
-          <Scale className="h-8 w-8 text-luxury-gold" />
-          <h1 className="text-2xl font-bold text-luxury-frost">{game.title}</h1>
+          <Scale className="h-8 w-8 text-primary" />
+          <h1 className="text-2xl font-bold text-foreground">{game.title}</h1>
         </div>
-        <p className="mt-4 text-luxury-mist">{game.description}</p>
+        <p className="mt-4 text-muted-foreground">{game.description}</p>
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
           <Button asChild>
             <Link href={`/judge?game=${slug}`}>Consultar assistente de juiz</Link>

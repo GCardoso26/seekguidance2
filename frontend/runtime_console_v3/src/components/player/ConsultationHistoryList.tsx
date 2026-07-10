@@ -41,7 +41,7 @@ export function ConsultationHistoryList({ onSelect, compact }: Props) {
   );
 
   if (loading) {
-    return <p className="text-sm text-luxury-mist/70">Carregando histórico…</p>;
+    return <p className="text-sm text-muted-foreground/70">Carregando histórico…</p>;
   }
 
   const exportCsv = () => {
@@ -79,12 +79,12 @@ export function ConsultationHistoryList({ onSelect, compact }: Props) {
         <button
           type="button"
           onClick={exportCsv}
-          className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-sm text-luxury-frost hover:bg-white/5"
+          className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm text-foreground hover:bg-muted/80"
         >
           <Download className="h-4 w-4" />
           Exportar CSV
           {!exportGate.allowed && (
-            <span className="rounded-full bg-luxury-gold/20 px-2 py-0.5 text-[10px] text-luxury-gold-light">Pro</span>
+            <span className="rounded-full bg-primary/20 px-2 py-0.5 text-[10px] text-primary-light">Pro</span>
           )}
         </button>
       )}
@@ -93,7 +93,7 @@ export function ConsultationHistoryList({ onSelect, compact }: Props) {
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Buscar consultas…"
-        className="w-full rounded-lg border border-white/10 bg-luxury-midnight px-3 py-2 text-sm"
+        className="w-full rounded-lg border border-border bg-muted px-3 py-2 text-sm"
         aria-label="Buscar consultas"
       />
       {!compact && (
@@ -103,7 +103,7 @@ export function ConsultationHistoryList({ onSelect, compact }: Props) {
             onClick={() => setTcgFilter("all")}
             className={cn(
               "rounded-full px-2.5 py-1 text-xs",
-              tcgFilter === "all" ? "bg-luxury-gold/20 text-luxury-gold-light" : "bg-white/5 text-luxury-mist",
+              tcgFilter === "all" ? "bg-primary/20 text-primary-light" : "bg-muted/50 text-muted-foreground",
             )}
           >
             Todos
@@ -115,7 +115,7 @@ export function ConsultationHistoryList({ onSelect, compact }: Props) {
               onClick={() => setTcgFilter(id)}
               className={cn(
                 "rounded-full px-2.5 py-1 text-xs",
-                tcgFilter === id ? "bg-luxury-gold/20 text-luxury-gold-light" : "bg-white/5 text-luxury-mist",
+                tcgFilter === id ? "bg-primary/20 text-primary-light" : "bg-muted/50 text-muted-foreground",
               )}
             >
               {getTcgBrand(id).icon}
@@ -126,7 +126,7 @@ export function ConsultationHistoryList({ onSelect, compact }: Props) {
             onClick={() => setFavoritesOnly(!favoritesOnly)}
             className={cn(
               "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs",
-              favoritesOnly ? "bg-luxury-gold/20 text-luxury-gold-light" : "text-luxury-mist",
+              favoritesOnly ? "bg-primary/20 text-primary-light" : "text-muted-foreground",
             )}
           >
             <Star className={cn("h-3 w-3", favoritesOnly && "fill-current")} />
@@ -136,9 +136,9 @@ export function ConsultationHistoryList({ onSelect, compact }: Props) {
       )}
 
       {items.length === 0 ? (
-        <p className="text-center text-sm text-luxury-mist/70">
+        <p className="text-center text-sm text-muted-foreground/70">
           Nenhuma consulta encontrada.{" "}
-          <Link href="/judge" className="text-luxury-gold hover:underline">
+          <Link href="/judge" className="text-primary hover:underline">
             Ir para a mesa
           </Link>
         </p>
@@ -156,15 +156,15 @@ export function ConsultationHistoryList({ onSelect, compact }: Props) {
             }).label;
             const inner = (
               <>
-                <p className="truncate text-sm font-medium text-luxury-frost">{item.question}</p>
-                <p className="mt-1 text-xs text-luxury-mist/70">
+                <p className="truncate text-sm font-medium text-foreground">{item.question}</p>
+                <p className="mt-1 text-xs text-muted-foreground/70">
                   {brand.icon} · {verdict} ·{" "}
                   {formatRelativeTimePt(item.createdAt)}
                 </p>
               </>
             );
             return (
-              <li key={item.id} className="flex gap-2 rounded-xl border border-white/10 bg-white/5 p-3">
+              <li key={item.id} className="flex gap-2 surface-card p-3">
                 {onSelect ? (
                   <button type="button" onClick={() => onSelect(item)} className="min-w-0 flex-1 text-left">
                     {inner}
@@ -175,11 +175,11 @@ export function ConsultationHistoryList({ onSelect, compact }: Props) {
                 <button
                   type="button"
                   onClick={() => toggleFavorite(item)}
-                  className="shrink-0 text-luxury-mist hover:text-luxury-gold"
+                  className="shrink-0 text-muted-foreground hover:text-primary"
                   aria-label="Favoritar"
                 >
                   <Star
-                    className={cn("h-4 w-4", isFavorite(item.id) && "fill-luxury-gold text-luxury-gold")}
+                    className={cn("h-4 w-4", isFavorite(item.id) && "fill-luxury-gold text-primary")}
                   />
                 </button>
               </li>

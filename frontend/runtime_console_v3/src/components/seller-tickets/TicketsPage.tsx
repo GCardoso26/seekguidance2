@@ -50,12 +50,12 @@ function TicketDrawer({
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/60" />
-        <Dialog.Content className="fixed inset-y-0 right-0 z-50 flex w-full max-w-lg flex-col border-l border-white/10 bg-luxury-onyx">
-          <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+        <Dialog.Content className="fixed inset-y-0 right-0 z-50 flex w-full max-w-lg flex-col border-l border-border bg-background">
+          <div className="flex items-center justify-between border-b border-border px-4 py-3">
             <Dialog.Title className="text-lg font-semibold">
               Ticket #{ticketId?.slice(0, 8)}
             </Dialog.Title>
-            <Dialog.Close aria-label="Fechar" className="rounded p-1 hover:bg-white/10">
+            <Dialog.Close aria-label="Fechar" className="rounded p-1 hover:bg-muted">
               <X className="h-5 w-5" />
             </Dialog.Close>
           </div>
@@ -68,10 +68,10 @@ function TicketDrawer({
                 key={i}
                 className={cn(
                   "rounded-lg p-2",
-                  m.is_internal ? "bg-amber-500/10" : "bg-white/5",
+                  m.is_internal ? "bg-amber-500/10" : "bg-muted/50",
                 )}
               >
-                <span className="text-xs text-luxury-mist">[{m.author_type}] </span>
+                <span className="text-xs text-muted-foreground">[{m.author_type}] </span>
                 {m.content}
               </div>
             ))}
@@ -115,7 +115,7 @@ export function TicketsPage() {
           <button
             type="button"
             onClick={() => setShowCreate(true)}
-            className="rounded-full bg-luxury-gold px-4 py-2 text-sm font-semibold text-luxury-onyx"
+            className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
           >
             + Novo Ticket
           </button>
@@ -131,7 +131,7 @@ export function TicketsPage() {
               onClick={() => setStatus(t.id)}
               className={cn(
                 "rounded-lg px-3 py-1.5 text-sm",
-                status === t.id ? "bg-luxury-gold/20 text-luxury-gold" : "text-luxury-mist hover:bg-white/5",
+                status === t.id ? "bg-primary/20 text-primary" : "text-muted-foreground hover:bg-muted/80",
               )}
             >
               {t.label}
@@ -140,7 +140,7 @@ export function TicketsPage() {
         </div>
 
         {showCreate && (
-          <form onSubmit={handleCreate} className="rounded-xl border border-white/10 bg-white/5 p-4">
+          <form onSubmit={handleCreate} className="surface-card p-4">
             <label className="block text-sm">
               Assunto
               <input
@@ -148,14 +148,14 @@ export function TicketsPage() {
                 aria-label="Assunto"
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2"
+                className="mt-1 w-full surface-card rounded-lg px-3 py-2"
               />
             </label>
             <div className="mt-3 flex gap-2">
-              <button type="submit" className="rounded-lg bg-luxury-gold px-4 py-2 text-sm font-semibold text-luxury-onyx">
+              <button type="submit" className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">
                 Criar
               </button>
-              <button type="button" onClick={() => setShowCreate(false)} className="text-sm text-luxury-mist">
+              <button type="button" onClick={() => setShowCreate(false)} className="text-sm text-muted-foreground">
                 Cancelar
               </button>
             </div>
@@ -163,11 +163,11 @@ export function TicketsPage() {
         )}
 
         {isLoading ? (
-          <p className="text-sm text-luxury-mist">Carregando…</p>
+          <p className="text-sm text-muted-foreground">Carregando…</p>
         ) : (
-          <div className="overflow-x-auto rounded-xl border border-white/10">
+          <div className="overflow-x-auto rounded-xl border border-border">
             <table className="w-full text-sm">
-              <thead className="bg-white/5 text-left text-luxury-mist">
+              <thead className="bg-muted/50 text-left text-muted-foreground">
                 <tr>
                   <th className="p-3">Ticket</th>
                   <th className="p-3">Cliente</th>
@@ -180,7 +180,7 @@ export function TicketsPage() {
                 {(data?.tickets ?? []).map((t) => (
                   <tr
                     key={t.id}
-                    className="cursor-pointer border-t border-white/10 hover:bg-white/[0.03]"
+                    className="cursor-pointer border-t border-border hover:bg-white/[0.03]"
                     onClick={() => setSelected(t)}
                   >
                     <td className="p-3">{t.subject}</td>

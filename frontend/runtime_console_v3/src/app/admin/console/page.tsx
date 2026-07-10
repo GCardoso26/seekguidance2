@@ -18,7 +18,7 @@ export default function AdminConsolePage() {
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {isAdmin && (
-          <Card className="border-white/10 bg-white/5">
+          <Card className="border-border bg-muted/50">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
                 <BarChart3 className="h-4 w-4" aria-hidden />
@@ -26,15 +26,15 @@ export default function AdminConsolePage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="mb-4 text-sm text-luxury-mist">
+              <p className="mb-4 text-sm text-muted-foreground">
                 Qualidade do judge, latência e crescimento por jogo.
               </p>
-              <Link href="/admin/analytics" className="text-sm font-medium text-luxury-gold hover:underline">
+              <Link href="/admin/analytics" className="text-sm font-medium text-primary hover:underline">
                 Analytics de negócio →
               </Link>
               <Link
                 href="/observability?tab=judge"
-                className="mt-2 block text-sm font-medium text-luxury-gold hover:underline"
+                className="mt-2 block text-sm font-medium text-primary hover:underline"
               >
                 Observability (latência) →
               </Link>
@@ -42,36 +42,36 @@ export default function AdminConsolePage() {
           </Card>
         )}
 
-        <Card className="border-white/10 bg-white/5">
+        <Card className="border-border bg-muted/50">
           <CardHeader>
             <CardTitle className="text-base">Catálogo de cartas (TCGs)</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="mb-4 text-sm text-luxury-mist">
+            <p className="mb-4 text-sm text-muted-foreground">
               Sync Scryfall, Pokémon, Yu-Gi-Oh! e demais APIs para o catálogo unificado.
             </p>
-            <Link href="/admin/catalog" className="text-sm font-medium text-luxury-gold hover:underline">
+            <Link href="/admin/catalog" className="text-sm font-medium text-primary hover:underline">
               Gerir catálogo →
             </Link>
           </CardContent>
         </Card>
 
-        <Card className="border-white/10 bg-white/5">
+        <Card className="border-border bg-muted/50">
           <CardHeader>
             <CardTitle className="text-base">Ingestão (todos os jogos)</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="mb-4 text-sm text-luxury-mist">
+            <p className="mb-4 text-sm text-muted-foreground">
               Estado do corpus, reindex e erros de documentos.
             </p>
-            <Link href="/ingestion" className="text-sm font-medium text-luxury-gold hover:underline">
+            <Link href="/ingestion" className="text-sm font-medium text-primary hover:underline">
               Abrir ingestão →
             </Link>
           </CardContent>
         </Card>
 
         {canIngest && (
-          <Card className="border-white/10 bg-white/5">
+          <Card className="border-border bg-muted/50">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
                 <FileUp className="h-4 w-4" aria-hidden />
@@ -79,10 +79,10 @@ export default function AdminConsolePage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="mb-4 text-sm text-luxury-mist">
+              <p className="mb-4 text-sm text-muted-foreground">
                 Enviar PDF das regras de Star Wars Unlimited.
               </p>
-              <Link href="/admin/ingestion" className="text-sm font-medium text-luxury-gold hover:underline">
+              <Link href="/admin/ingestion" className="text-sm font-medium text-primary hover:underline">
                 Console de upload →
               </Link>
             </CardContent>

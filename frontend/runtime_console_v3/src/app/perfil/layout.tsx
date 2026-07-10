@@ -20,14 +20,14 @@ export default function PerfilLayout({ children }: { children: React.ReactNode }
     <>
       <nav
         aria-label="Navegação do perfil"
-        className="border-b border-white/10 bg-luxury-onyx/80"
+        className="border-b border-border bg-background/80"
       >
         <div className="container mx-auto flex gap-1 overflow-x-auto px-4 py-2 scrollbar-hide">
           {NAV.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="shrink-0 rounded-full px-3 py-1.5 text-sm text-luxury-mist transition-colors hover:bg-white/5 hover:text-luxury-frost"
+              className="shrink-0 rounded-full px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted/80 hover:text-foreground"
             >
               {item.label}
             </Link>

@@ -16,26 +16,26 @@ export function DeckStats({ deck }: DeckStatsProps) {
   const sideLimit = validator.zoneLimit("sideboard");
 
   return (
-    <div className="grid grid-cols-2 gap-3 rounded-lg border border-white/10 bg-white/5 p-4 text-sm md:grid-cols-4">
+    <div className="grid grid-cols-2 gap-3 surface-card rounded-lg p-4 text-sm md:grid-cols-4">
       <div>
-        <p className="text-luxury-mist">Main</p>
-        <p className="font-semibold text-luxury-frost">
+        <p className="text-muted-foreground">Main</p>
+        <p className="font-semibold text-foreground">
           {mainTotal} / {mainLimit}
         </p>
       </div>
       <div>
-        <p className="text-luxury-mist">Sideboard</p>
-        <p className="font-semibold text-luxury-frost">
+        <p className="text-muted-foreground">Sideboard</p>
+        <p className="font-semibold text-foreground">
           {sideTotal} / {sideLimit}
         </p>
       </div>
       <div>
-        <p className="text-luxury-mist">Cartas únicas</p>
-        <p className="font-semibold text-luxury-frost">{deck.main_deck.length + deck.sideboard.length}</p>
+        <p className="text-muted-foreground">Cartas únicas</p>
+        <p className="font-semibold text-foreground">{deck.main_deck.length + deck.sideboard.length}</p>
       </div>
       <div>
-        <p className="text-luxury-mist">Valor estimado</p>
-        <p className="font-semibold text-luxury-gold">{formatCurrency(deck.total_price / 100)}</p>
+        <p className="text-muted-foreground">Valor estimado</p>
+        <p className="font-semibold text-primary">{formatCurrency(deck.total_price / 100)}</p>
       </div>
     </div>
   );

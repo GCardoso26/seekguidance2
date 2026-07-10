@@ -28,63 +28,63 @@ export default function ConfiguracoesPage() {
       <main className="flex-1 space-y-6 overflow-y-auto p-6">
         <h2 className="text-xl font-bold">Configurações da loja</h2>
 
-        <section className="rounded-xl border border-white/10 bg-white/5 p-6">
+        <section className="surface-card p-6">
           <h3 className="font-semibold">Dados da loja</h3>
-          <p className="mt-2 text-sm text-luxury-mist">
+          <p className="mt-2 text-sm text-muted-foreground">
             Nome: <strong>{String(storeData?.name ?? "—")}</strong>
           </p>
-          <p className="text-sm text-luxury-mist">
+          <p className="text-sm text-muted-foreground">
             Slug: <strong>{String(storeData?.slug ?? "—")}</strong>
           </p>
         </section>
 
-        <section className="rounded-xl border border-white/10 bg-white/5 p-6">
+        <section className="surface-card p-6">
           <h3 className="font-semibold">Notificações</h3>
-          <p className="mt-2 text-sm text-luxury-mist">E-mail e push para eventos da loja.</p>
+          <p className="mt-2 text-sm text-muted-foreground">E-mail e push para eventos da loja.</p>
           <Link
             href="/vendedor/painel/configuracoes/notificacoes"
-            className="mt-3 inline-block text-sm text-luxury-gold underline"
+            className="mt-3 inline-block text-sm text-primary underline"
           >
             Configurar notificações →
           </Link>
         </section>
 
-        <section className="rounded-xl border border-white/10 bg-white/5 p-6">
+        <section className="surface-card p-6">
           <h3 className="font-semibold">Pagamento</h3>
-          <p className="mt-2 text-sm text-luxury-mist">
+          <p className="mt-2 text-sm text-muted-foreground">
             PIX: {storeData?.pix_key ? "Configurado" : "Pendente"}
           </p>
           <Link
             href="/vendedor/painel/configuracoes/pagamentos"
-            className="mt-3 inline-block text-sm text-luxury-gold underline"
+            className="mt-3 inline-block text-sm text-primary underline"
           >
             Configurar pagamentos →
           </Link>
         </section>
 
-        <section className="rounded-xl border border-white/10 bg-white/5 p-6">
+        <section className="surface-card p-6">
           <h3 className="font-semibold">Frete</h3>
           <Link
             href="/vendedor/painel/configuracoes/frete"
-            className="mt-3 inline-block text-sm text-luxury-gold underline"
+            className="mt-3 inline-block text-sm text-primary underline"
           >
             Configurar frete →
           </Link>
         </section>
 
-        <section className="rounded-xl border border-white/10 bg-white/5 p-6">
+        <section className="surface-card p-6">
           <h3 className="font-semibold">API (Pro)</h3>
-          <p className="mt-2 text-sm text-luxury-mist">Integração REST para estoque e pedidos.</p>
+          <p className="mt-2 text-sm text-muted-foreground">Integração REST para estoque e pedidos.</p>
           <Link
             href="/vendedor/painel/configuracoes/api"
-            className="mt-3 inline-block text-sm text-luxury-gold underline"
+            className="mt-3 inline-block text-sm text-primary underline"
           >
             Gerenciar API keys →
           </Link>
         </section>
 
         {storeId && (
-          <section className="rounded-xl border border-white/10 bg-white/5 p-6">
+          <section className="surface-card p-6">
             <h3 className="mb-3 font-semibold">Avaliações</h3>
             <StoreReviewsManager storeId={storeId} />
           </section>

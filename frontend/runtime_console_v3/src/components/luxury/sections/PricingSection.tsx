@@ -29,11 +29,11 @@ export function PricingSection({ segment = "home" }: Props) {
     <section id="pricing" className="relative py-28 lg:py-36">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <RevealOnScroll className="mb-16 text-center">
-          <p className="mb-4 text-xs tracking-[0.3em] text-luxury-gold uppercase">
+          <p className="mb-4 text-xs tracking-[0.3em] text-primary uppercase">
             {sectionCopy.eyebrow}
           </p>
-          <h2 className="mb-4 text-luxury-frost">{sectionCopy.title}</h2>
-          <p className="mx-auto max-w-xl text-luxury-mist">{sectionCopy.subtitle}</p>
+          <h2 className="mb-4 text-foreground">{sectionCopy.title}</h2>
+          <p className="mx-auto max-w-xl text-muted-foreground">{sectionCopy.subtitle}</p>
         </RevealOnScroll>
 
         <div
@@ -52,7 +52,7 @@ export function PricingSection({ segment = "home" }: Props) {
                   id={plan.id === "lgs" ? "lgs" : undefined}
                   className={cn(
                     "relative flex h-full flex-col bg-gradient-to-b from-luxury-midnight to-luxury-velvet",
-                    plan.highlighted && "border-luxury-gold/40 shadow-xl shadow-luxury-gold/10",
+                    plan.highlighted && "border-primary/40 shadow-xl shadow-luxury-gold/10",
                   )}
                 >
                   {"badge" in plan && plan.badge && (
@@ -60,18 +60,18 @@ export function PricingSection({ segment = "home" }: Props) {
                       {plan.badge}
                     </Badge>
                   )}
-                  <h3 className="text-xl text-luxury-frost">{plan.name}</h3>
-                  <p className="mt-2 text-sm text-luxury-mist">{plan.description}</p>
+                  <h3 className="text-xl text-foreground">{plan.name}</h3>
+                  <p className="mt-2 text-sm text-muted-foreground">{plan.description}</p>
                   <p className="mt-8">
-                    <span className="text-4xl font-light text-luxury-frost">{plan.price}</span>
+                    <span className="text-4xl font-light text-foreground">{plan.price}</span>
                     {plan.period && (
-                      <span className="text-sm text-luxury-mist">{plan.period}</span>
+                      <span className="text-sm text-muted-foreground">{plan.period}</span>
                     )}
                   </p>
                   <ul className="mt-8 flex-1 space-y-3">
                     {plan.features.map((f) => (
-                      <li key={f} className="flex items-start gap-3 text-sm text-luxury-mist">
-                        <Check className="mt-0.5 h-4 w-4 shrink-0 text-luxury-gold" strokeWidth={1.5} />
+                      <li key={f} className="flex items-start gap-3 text-sm text-muted-foreground">
+                        <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" strokeWidth={1.5} />
                         {f}
                       </li>
                     ))}

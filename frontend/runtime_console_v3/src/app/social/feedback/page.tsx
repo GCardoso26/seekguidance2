@@ -52,15 +52,15 @@ export default function FeedbackPage() {
   return (
     <MobileLayout>
       <div className="container mx-auto max-w-lg px-4 py-8">
-        <Link href="/social" className="text-sm text-luxury-mist">
+        <Link href="/social" className="text-sm text-muted-foreground">
           ← Social
         </Link>
-        <h1 className="mt-4 text-2xl font-light text-luxury-frost">Feedback</h1>
-        <p className="mt-2 text-sm text-luxury-mist">Ajude a melhorar o Judge TCG.</p>
+        <h1 className="mt-4 text-2xl font-light text-foreground">Feedback</h1>
+        <p className="mt-2 text-sm text-muted-foreground">Ajude a melhorar o Judge TCG.</p>
 
         <form onSubmit={(e) => void submit(e)} className="luxury-card mt-6 space-y-4 rounded-xl p-6">
           <div>
-            <label className="text-sm text-luxury-mist">Tipo</label>
+            <label className="text-sm text-muted-foreground">Tipo</label>
             <select value={type} onChange={(e) => setType(e.target.value as typeof type)} className="luxury-input mt-1 w-full">
               {TYPES.map((t) => (
                 <option key={t.id} value={t.id}>
@@ -70,7 +70,7 @@ export default function FeedbackPage() {
             </select>
           </div>
           <div>
-            <label className="text-sm text-luxury-mist">Prioridade</label>
+            <label className="text-sm text-muted-foreground">Prioridade</label>
             <select
               value={priority}
               onChange={(e) => setPriority(e.target.value as typeof priority)}
@@ -87,7 +87,7 @@ export default function FeedbackPage() {
             placeholder="Assunto"
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
-            className="border-white/10 bg-white/5"
+            className="border-border bg-muted/50"
             required
           />
           <textarea
@@ -99,7 +99,7 @@ export default function FeedbackPage() {
             required
             minLength={10}
           />
-          <Button type="submit" disabled={pending} className="w-full bg-luxury-gold text-luxury-onyx">
+          <Button type="submit" disabled={pending} className="w-full bg-primary text-primary-foreground">
             {pending ? "Enviando…" : "Enviar feedback"}
           </Button>
         </form>

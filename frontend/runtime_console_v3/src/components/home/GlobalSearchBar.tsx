@@ -104,7 +104,7 @@ export function GlobalSearchBar({
         <div className="relative">
           <Search
             className={cn(
-              "pointer-events-none absolute top-1/2 -translate-y-1/2 text-luxury-mist",
+              "pointer-events-none absolute top-1/2 -translate-y-1/2 text-muted-foreground",
               isHeader ? "left-3 h-4 w-4" : "left-4 h-5 w-5",
             )}
             aria-hidden
@@ -124,7 +124,7 @@ export function GlobalSearchBar({
             className={cn(
               "w-full pr-10",
               isHeader
-                ? "h-9 rounded-lg border-white/10 bg-luxury-onyx pl-9 text-sm text-luxury-frost placeholder:text-luxury-mist focus:ring-luxury-gold/30"
+                ? "h-9 rounded-lg border-border bg-background pl-9 text-sm text-foreground placeholder:text-muted-foreground focus:ring-luxury-gold/30"
                 : "h-12 rounded-full border-border bg-card/80 pl-12 text-base shadow-sm backdrop-blur-sm",
             )}
             aria-label="Termo de busca"
@@ -138,7 +138,7 @@ export function GlobalSearchBar({
               <button
                 type="button"
                 onClick={() => openPalette()}
-                className="hidden rounded border border-white/15 px-1.5 py-0.5 text-[10px] text-luxury-mist hover:bg-white/10 sm:inline"
+                className="hidden rounded border border-white/15 px-1.5 py-0.5 text-[10px] text-muted-foreground hover:bg-muted sm:inline"
                 aria-label="Abrir busca universal (Ctrl+K)"
               >
                 ⌘K
@@ -151,7 +151,7 @@ export function GlobalSearchBar({
                   setQuery("");
                   setResults(null);
                 }}
-                className="text-luxury-mist hover:text-luxury-frost"
+                className="text-muted-foreground hover:text-foreground"
                 aria-label="Limpar busca"
               >
                 <X className="h-4 w-4" />
@@ -168,17 +168,17 @@ export function GlobalSearchBar({
           className={cn(
             "absolute top-full z-30 mt-1 max-h-96 w-full overflow-y-auto rounded-lg border shadow-xl",
             isHeader
-              ? "border-white/10 bg-luxury-obsidian"
+              ? "border-border bg-card"
               : "border-border bg-background",
           )}
         >
           {isLoading && (
-            <p className="p-4 text-center text-sm text-luxury-mist">Buscando…</p>
+            <p className="p-4 text-center text-sm text-muted-foreground">Buscando…</p>
           )}
 
           {!isLoading && cards.length > 0 && (
             <div className="p-2">
-              <p className="px-2 py-1 text-xs font-medium text-luxury-mist">Cards</p>
+              <p className="px-2 py-1 text-xs font-medium text-muted-foreground">Cards</p>
               {cards.map((card) => {
                 const token = GAME_TOKENS[card.game as GameId];
                 const price = card.lowestPrice ?? card.latestPrice?.price;
@@ -202,7 +202,7 @@ export function GlobalSearchBar({
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-medium">{card.name}</p>
-                      <p className="truncate text-xs text-luxury-mist">
+                      <p className="truncate text-xs text-muted-foreground">
                         {card.set.name} · {token?.name ?? card.game}
                       </p>
                     </div>
@@ -218,7 +218,7 @@ export function GlobalSearchBar({
           )}
 
           {!isLoading && cards.length === 0 && (
-            <p className="p-4 text-center text-sm text-luxury-mist">Nenhum resultado</p>
+            <p className="p-4 text-center text-sm text-muted-foreground">Nenhum resultado</p>
           )}
 
           <div className="border-t p-2">

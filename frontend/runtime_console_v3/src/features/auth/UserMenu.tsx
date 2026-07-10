@@ -20,8 +20,8 @@ function displayName(user: { email?: string | null; user_metadata?: Record<strin
 }
 
 const itemClass = cn(
-  "flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm text-luxury-frost/90 outline-none",
-  "hover:bg-white/10 hover:text-luxury-frost focus:bg-white/10 focus:text-luxury-frost",
+  "flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm text-foreground/90 outline-none",
+  "hover:bg-muted hover:text-foreground focus:bg-muted focus:text-foreground",
 );
 
 type Props = {
@@ -44,7 +44,7 @@ export function UserMenu({ onHistoryClick }: Props = {}) {
         <button
           type="button"
           data-testid="user-menu"
-          className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 p-0.5 pr-2 transition hover:border-luxury-gold/30 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-luxury-gold/40"
+          className="flex items-center gap-2 rounded-full border border-border bg-card shadow-card p-0.5 pr-2 transition hover:border-primary/30 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-luxury-gold/40"
           aria-label={`Menu da conta de ${name}`}
         >
           {photo ? (
@@ -56,12 +56,12 @@ export function UserMenu({ onHistoryClick }: Props = {}) {
               referrerPolicy="no-referrer"
             />
           ) : (
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-luxury-midnight text-xs font-bold text-luxury-frost">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-xs font-bold text-foreground">
               {name.slice(0, 1).toUpperCase()}
             </span>
           )}
           <span
-            className="hidden max-w-[100px] truncate text-xs font-medium text-luxury-frost sm:inline"
+            className="hidden max-w-[100px] truncate text-xs font-medium text-foreground sm:inline"
             data-testid="profile-name"
           >
             {name}
@@ -73,12 +73,12 @@ export function UserMenu({ onHistoryClick }: Props = {}) {
         <DropdownMenu.Content
           sideOffset={8}
           align="end"
-          className="z-50 min-w-[220px] overflow-hidden rounded-xl border border-white/10 bg-luxury-obsidian p-1 shadow-xl animate-in fade-in-0 zoom-in-95"
+          className="z-50 min-w-[220px] overflow-hidden rounded-xl border border-border bg-card p-1 shadow-xl animate-in fade-in-0 zoom-in-95"
         >
-          <p className="truncate px-3 py-2 text-xs text-luxury-mist" title={user.email ?? ""}>
+          <p className="truncate px-3 py-2 text-xs text-muted-foreground" title={user.email ?? ""}>
             {user.email}
           </p>
-          <DropdownMenu.Separator className="my-1 h-px bg-white/10" />
+          <DropdownMenu.Separator className="my-1 h-px bg-muted" />
           <DropdownMenu.Item asChild>
             <Link href="/perfil" className={itemClass}>
               <User className="h-4 w-4" aria-hidden />
@@ -130,7 +130,7 @@ export function UserMenu({ onHistoryClick }: Props = {}) {
               Configurações
             </Link>
           </DropdownMenu.Item>
-          <DropdownMenu.Separator className="my-1 h-px bg-white/10" />
+          <DropdownMenu.Separator className="my-1 h-px bg-muted" />
           <DropdownMenu.Item
             className={cn(itemClass, "hover:text-red-300 focus:text-red-300")}
             onSelect={() => void signOut()}

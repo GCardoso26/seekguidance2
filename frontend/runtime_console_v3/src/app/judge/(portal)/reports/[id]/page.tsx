@@ -45,7 +45,7 @@ export default function ReportDetailPage({ params }: { params: Promise<{ id: str
 
   return (
     <div className="flex min-h-[70vh] flex-col gap-4 lg:flex-row">
-      <div className="lg:w-1/2 overflow-auto rounded-xl border border-white/10 p-4">
+      <div className="lg:w-1/2 overflow-auto rounded-xl border border-border p-4">
         <h2 className="mb-3 font-semibold">Game log — {report.match_id}</h2>
         <GameLogViewer
           entries={entries}
@@ -53,7 +53,7 @@ export default function ReportDetailPage({ params }: { params: Promise<{ id: str
           onCardHover={setHovered}
         />
       </div>
-      <div className="lg:w-1/2 space-y-4 rounded-xl border border-white/10 p-4">
+      <div className="lg:w-1/2 space-y-4 rounded-xl border border-border p-4">
         <div>
           <h2 className="font-semibold">{report.type}</h2>
           <p className="text-sm text-white/60">{report.description}</p>

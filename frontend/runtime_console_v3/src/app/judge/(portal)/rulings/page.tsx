@@ -15,13 +15,13 @@ export default function JudgeRulingsPage() {
       <h2 className="text-lg font-semibold">Base de Rulings</h2>
       <div className="flex flex-wrap gap-2">
         <input
-          className="flex-1 min-w-[200px] rounded-lg border border-white/10 bg-white/5 px-3 py-2"
+          className="flex-1 min-w-[200px] surface-card rounded-lg px-3 py-2"
           placeholder="Buscar por texto, carta ou keyword..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
         <select
-          className="rounded-lg border border-white/10 bg-white/5 px-3 py-2"
+          className="surface-card rounded-lg px-3 py-2"
           value={tcg}
           onChange={(e) => setTcg(e.target.value)}
         >
@@ -30,7 +30,7 @@ export default function JudgeRulingsPage() {
       </div>
       <ul className="space-y-3">
         {results.map((r) => (
-          <li key={r.id} className="rounded-xl border border-white/10 p-4">
+          <li key={r.id} className="rounded-xl border border-border p-4">
             <div className="flex justify-between gap-2">
               <span className="font-medium">{r.title}</span>
               <span className="text-xs text-white/50">{r.hierarchy}</span>

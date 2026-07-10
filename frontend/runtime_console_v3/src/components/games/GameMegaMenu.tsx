@@ -61,8 +61,8 @@ export function GameMegaMenu({ className }: Props) {
             className={cn(
               "shrink-0 rounded-full px-3 py-1.5 text-sm font-medium whitespace-nowrap transition-colors",
               !activeSlug || activeSlug === "busca"
-                ? "bg-luxury-gold text-luxury-onyx"
-                : "text-luxury-mist hover:bg-white/5 hover:text-luxury-frost",
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:bg-muted/80 hover:text-foreground",
             )}
             onMouseEnter={close}
           >
@@ -87,8 +87,8 @@ export function GameMegaMenu({ className }: Props) {
                 className={cn(
                   "flex shrink-0 items-center gap-1 rounded-full px-3 py-1.5 text-sm font-medium whitespace-nowrap transition-colors",
                   active || isOpen
-                    ? "bg-luxury-gold/15 text-luxury-gold"
-                    : "text-luxury-mist hover:bg-white/5 hover:text-luxury-frost",
+                    ? "bg-primary/15 text-primary"
+                    : "text-muted-foreground hover:bg-muted/80 hover:text-foreground",
                 )}
               >
                 <Image
@@ -106,7 +106,7 @@ export function GameMegaMenu({ className }: Props) {
 
           <Link
             href="/loja"
-            className="shrink-0 rounded-full px-3 py-1.5 text-sm text-luxury-mist hover:text-luxury-gold"
+            className="shrink-0 rounded-full px-3 py-1.5 text-sm text-muted-foreground hover:text-primary"
             onMouseEnter={close}
           >
             Todos os jogos
@@ -116,12 +116,12 @@ export function GameMegaMenu({ className }: Props) {
 
       {openSlug && openGameId && (
         <div
-          className="absolute inset-x-0 top-full z-[60] border-t border-white/10 bg-luxury-obsidian/98 shadow-2xl backdrop-blur-sm"
+          className="absolute inset-x-0 top-full z-[60] border-t border-border bg-card/98 shadow-2xl backdrop-blur-sm"
           role="region"
           aria-label={`Menu ${GAME_TOKENS[openGameId].name}`}
         >
           <div className="mx-auto max-w-7xl px-4 py-1">
-            <div className="overflow-hidden rounded-b-xl border border-t-0 border-white/10 bg-luxury-obsidian">
+            <div className="overflow-hidden rounded-b-xl border border-t-0 border-border bg-card">
               <GameMegaMenuPanel gameId={openGameId} slug={openSlug} onNavigate={close} />
             </div>
           </div>

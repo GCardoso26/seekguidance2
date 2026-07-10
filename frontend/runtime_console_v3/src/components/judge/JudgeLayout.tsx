@@ -33,8 +33,8 @@ const HEALTH_LABEL: Record<BackendHealthState, string> = {
 };
 
 const HEALTH_DOT: Record<BackendHealthState, string> = {
-  online: "bg-luxury-gold-light",
-  degraded: "bg-luxury-gold",
+  online: "bg-primary-light",
+  degraded: "bg-primary",
   offline: "bg-red-300",
 };
 
@@ -63,7 +63,7 @@ function HeaderNavButton({
     </>
   );
   const classes = cn(
-    "inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-xs font-medium text-luxury-frost transition hover:border-luxury-gold/30 hover:bg-white/10 hover:text-luxury-frost focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-luxury-gold/40",
+    "inline-flex items-center gap-1.5 surface-card rounded-lg px-2.5 py-1.5 text-xs font-medium text-foreground transition hover:border-primary/30 hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-luxury-gold/40",
     className,
   );
 
@@ -100,7 +100,7 @@ export function JudgeLayout({
     <TcgThemeProvider tcg={tcg}>
       <GameLayout tcg={tcg}>
         <div
-          className="judge-app relative min-h-screen text-luxury-frost"
+          className="judge-app relative min-h-screen text-foreground"
           data-tcg={tcg}
           data-pattern={brand.pattern}
           style={tcgThemeStyle(tcg)}
@@ -125,14 +125,14 @@ export function JudgeLayout({
                   className="flex shrink-0 items-center gap-2.5 transition hover:opacity-90"
                   aria-label="Judge TCG — início"
                 >
-                  <span className="flex h-9 w-9 items-center justify-center rounded-full border border-luxury-gold/30 bg-luxury-gold/10">
-                    <Scale className="h-4 w-4 text-luxury-gold" strokeWidth={1.5} />
+                  <span className="flex h-9 w-9 items-center justify-center rounded-full border border-primary/30 bg-primary/10">
+                    <Scale className="h-4 w-4 text-primary" strokeWidth={1.5} />
                   </span>
                   <div className="min-w-0">
-                    <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-luxury-mist">
-                      Judge <span className="text-luxury-gold">TCG</span>
+                    <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground">
+                      Judge <span className="text-primary">TCG</span>
                     </p>
-                    <h1 className="truncate text-sm font-medium leading-tight text-luxury-frost sm:text-base">
+                    <h1 className="truncate text-sm font-medium leading-tight text-foreground sm:text-base">
                       Mesa de Regras
                     </h1>
                   </div>
@@ -141,7 +141,7 @@ export function JudgeLayout({
 
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <span
-                  className="hidden items-center gap-2 rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs font-medium text-luxury-frost sm:inline-flex"
+                  className="hidden items-center gap-2 rounded-full border border-border bg-card shadow-card px-2.5 py-1 text-xs font-medium text-foreground sm:inline-flex"
                   title={tcgLabel}
                 >
                   <span className="h-5 w-8 overflow-hidden rounded">
@@ -155,13 +155,13 @@ export function JudgeLayout({
 
                 {SHOW_WARMUP_BADGE && (
                   <span
-                    className="hidden items-center gap-1 rounded-full bg-white/10 px-2 py-1 text-[10px] text-luxury-frost/85 sm:inline-flex"
+                    className="hidden items-center gap-1 rounded-full bg-muted px-2 py-1 text-[10px] text-foreground/85 sm:inline-flex"
                     title={warmupReady ? "Warmup concluído" : "Aquecendo serviço"}
                   >
                     <span
                       className={cn(
                         "h-2 w-2 rounded-full",
-                        warmupReady ? "bg-luxury-gold-light" : "animate-pulse bg-luxury-gold",
+                        warmupReady ? "bg-primary-light" : "animate-pulse bg-primary",
                       )}
                       aria-hidden
                     />
@@ -172,7 +172,7 @@ export function JudgeLayout({
                 <UserMenu onHistoryClick={onHistoryClick} />
                 {SHOW_HEALTH_BADGE && (
                   <span
-                    className="hidden items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-medium text-luxury-frost/90 sm:inline-flex"
+                    className="hidden items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-[10px] font-medium text-foreground/90 sm:inline-flex"
                     title={HEALTH_LABEL[health]}
                   >
                     <span className={cn("h-2 w-2 rounded-full", HEALTH_DOT[health])} aria-hidden />
@@ -183,14 +183,14 @@ export function JudgeLayout({
                   <div className="admin-actions hidden items-center gap-1 sm:flex">
                     <Link
                       href={`/observability?game=${slug}&tab=judge`}
-                      className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-white/5 px-2.5 py-1 text-[10px] font-medium text-luxury-frost/90 hover:border-luxury-gold/30 hover:bg-white/10"
+                      className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-muted/50 px-2.5 py-1 text-[10px] font-medium text-foreground/90 hover:border-primary/30 hover:bg-muted"
                     >
                       <BarChart3 size={14} aria-hidden />
                       Métricas
                     </Link>
                     <Link
                       href="/admin/console"
-                      className="inline-flex items-center gap-1 rounded-full border border-luxury-gold/25 bg-luxury-gold/10 px-3 py-1.5 text-xs font-medium text-luxury-gold transition hover:bg-luxury-gold/20"
+                      className="inline-flex items-center gap-1 rounded-full border border-luxury-gold/25 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary transition hover:bg-primary/20"
                     >
                       <Terminal size={14} aria-hidden />
                       Console
@@ -205,11 +205,11 @@ export function JudgeLayout({
             {children}
           </main>
 
-          <footer className="flex flex-wrap items-center justify-center gap-3 border-t border-white/10 py-4 text-xs text-luxury-mist">
+          <footer className="flex flex-wrap items-center justify-center gap-3 border-t border-border py-4 text-xs text-muted-foreground">
             <ServiceStatusDot />
             <span aria-hidden>·</span>
             Fontes oficiais indexadas ·{" "}
-            <Link href={`/observability?game=${slug}`} className="text-luxury-gold hover:text-luxury-gold-light">
+            <Link href={`/observability?game=${slug}`} className="text-primary hover:text-primary-light">
               Qualidade deste jogo
             </Link>
           </footer>

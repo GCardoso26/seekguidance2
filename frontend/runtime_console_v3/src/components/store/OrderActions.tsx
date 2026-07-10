@@ -65,7 +65,7 @@ export function OrderActions({ orderId, status, paymentMethod, pixTxid, onUpdate
           type="button"
           disabled={loading}
           onClick={() => void updateStatus("processing")}
-          className="rounded-lg border border-white/20 px-3 py-1 text-xs"
+          className="rounded-lg border border-border px-3 py-1 text-xs"
         >
           Em preparação
         </button>
@@ -76,13 +76,13 @@ export function OrderActions({ orderId, status, paymentMethod, pixTxid, onUpdate
             value={tracking}
             onChange={(e) => setTracking(e.target.value)}
             placeholder="Código de rastreio"
-            className="rounded border border-white/10 bg-white/5 px-2 py-1 text-xs"
+            className="rounded border border-border bg-card shadow-card px-2 py-1 text-xs"
           />
           <button
             type="button"
             disabled={loading}
             onClick={() => void updateStatus("shipped", tracking)}
-            className="rounded-lg bg-luxury-gold px-3 py-1 text-xs font-semibold text-luxury-onyx"
+            className="rounded-lg bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground"
           >
             Marcar enviado
           </button>
@@ -93,7 +93,7 @@ export function OrderActions({ orderId, status, paymentMethod, pixTxid, onUpdate
           type="button"
           disabled={loading}
           onClick={() => void updateStatus("delivered")}
-          className="rounded-lg border border-white/20 px-3 py-1 text-xs"
+          className="rounded-lg border border-border px-3 py-1 text-xs"
         >
           Marcar entregue
         </button>

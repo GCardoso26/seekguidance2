@@ -68,7 +68,7 @@ export function RuleSourceCard({ source, index, highlightTerms = [], accent }: P
           style={{ transformStyle: "preserve-3d" }}
         >
           {/* Frente */}
-          <div className="backface-hidden absolute inset-0 flex flex-col rounded-2xl border border-white/10/50 bg-luxury-obsidian/80 p-4">
+          <div className="backface-hidden absolute inset-0 flex flex-col rounded-2xl border border-border/50 bg-card/80 p-4">
             <div className="mb-2 flex items-center justify-between gap-2">
               {f.ruleAtom ? (
                 <code className="judge-rule-atom-badge rounded-full px-2 py-0.5 text-xs font-semibold">
@@ -81,7 +81,7 @@ export function RuleSourceCard({ source, index, highlightTerms = [], accent }: P
                 <span className={cn("rounded px-1.5 py-0.5 text-[10px] font-bold uppercase", badge.className)}>
                   {badge.label}
                 </span>
-                <Expand className="h-3.5 w-3.5 text-luxury-mist" aria-hidden />
+                <Expand className="h-3.5 w-3.5 text-muted-foreground" aria-hidden />
               </div>
             </div>
             {f.excerpt && (
@@ -99,7 +99,7 @@ export function RuleSourceCard({ source, index, highlightTerms = [], accent }: P
 
           {/* Verso */}
           <div
-            className="backface-hidden absolute inset-0 flex flex-col overflow-hidden rounded-2xl border border-white/10/50 bg-luxury-obsidian/90 p-4"
+            className="backface-hidden absolute inset-0 flex flex-col overflow-hidden rounded-2xl border border-border/50 bg-card/90 p-4"
             style={{ transform: "rotateY(180deg)" }}
           >
             <p className="mb-2 text-xs font-semibold text-[var(--tcg-text-primary)]">{f.title}</p>

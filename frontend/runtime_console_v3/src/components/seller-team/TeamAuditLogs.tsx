@@ -5,7 +5,7 @@ import { useTeamLogs } from "@/hooks/useSellerTeam";
 export function TeamAuditLogs() {
   const { data, isLoading } = useTeamLogs();
 
-  if (isLoading) return <p className="text-sm text-luxury-mist">Carregando logs…</p>;
+  if (isLoading) return <p className="text-sm text-muted-foreground">Carregando logs…</p>;
 
   const logs = data?.logs ?? [];
 
@@ -13,7 +13,7 @@ export function TeamAuditLogs() {
     <div data-testid="team-audit-logs">
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-white/10 text-left text-luxury-mist">
+          <tr className="border-b border-border text-left text-muted-foreground">
             <th className="py-2 pr-4">Data</th>
             <th className="py-2 pr-4">Usuário</th>
             <th className="py-2 pr-4">Ação</th>
@@ -28,14 +28,14 @@ export function TeamAuditLogs() {
               </td>
               <td className="py-2 pr-4">{log.actor_name ?? log.user_id}</td>
               <td className="py-2 pr-4">{log.action}</td>
-              <td className="py-2 text-luxury-mist">
+              <td className="py-2 text-muted-foreground">
                 {log.details ? JSON.stringify(log.details) : "—"}
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-      {logs.length === 0 && <p className="mt-4 text-sm text-luxury-mist">Nenhum log registrado.</p>}
+      {logs.length === 0 && <p className="mt-4 text-sm text-muted-foreground">Nenhum log registrado.</p>}
     </div>
   );
 }

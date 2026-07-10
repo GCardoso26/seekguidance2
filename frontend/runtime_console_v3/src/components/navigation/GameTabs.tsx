@@ -32,8 +32,8 @@ export function GameTabs({ games, className }: GameTabsProps) {
         className={cn(
           "shrink-0 rounded-full px-3 py-1.5 text-sm font-medium whitespace-nowrap transition-colors",
           isAll
-            ? "bg-luxury-gold text-luxury-onyx"
-            : "text-luxury-mist hover:bg-white/5 hover:text-luxury-frost",
+            ? "bg-primary text-primary-foreground"
+            : "text-muted-foreground hover:bg-muted/80 hover:text-foreground",
         )}
       >
         Todos
@@ -51,8 +51,8 @@ export function GameTabs({ games, className }: GameTabsProps) {
             className={cn(
               "flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium whitespace-nowrap transition-colors",
               active
-                ? "bg-luxury-gold text-luxury-onyx"
-                : "text-luxury-mist hover:bg-white/5 hover:text-luxury-frost",
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:bg-muted/80 hover:text-foreground",
               !game.isAvailable && "opacity-50",
             )}
           >

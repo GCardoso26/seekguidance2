@@ -11,10 +11,11 @@
     ],
     "resourceCounts": [{ "resourceType": "third-party", "budget": 10 }],
     "timings": [
-      { "metric": "first-contentful-paint", "budget": 3000 },
-      { "metric": "largest-contentful-paint", "budget": 4000 },
-      { "metric": "cumulative-layout-shift", "budget": 0.1 },
-      { "metric": "total-blocking-time", "budget": 500 }
+      { "metric": "first-contentful-paint", "budget": 1800 },
+      { "metric": "largest-contentful-paint", "budget": 2000 },
+      { "metric": "cumulative-layout-shift", "budget": 0.05 },
+      { "metric": "total-blocking-time", "budget": 200 },
+      { "metric": "interactive", "budget": 3500 }
     ]
   }
 ]

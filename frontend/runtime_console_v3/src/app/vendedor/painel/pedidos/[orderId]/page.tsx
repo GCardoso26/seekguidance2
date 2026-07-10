@@ -14,5 +14,5 @@ export default function PedidoRedirectPage() {
     }
   }, [params.orderId, router]);
 
-  return <p className="p-6 text-luxury-mist">Redirecionando…</p>;
+  return <p className="p-6 text-muted-foreground">Redirecionando…</p>;
 }

@@ -26,13 +26,13 @@ export function JudgeCallCard({ call, type }: JudgeCallCardProps) {
 
   return (
     <>
-      <Card className={call.priority === "urgent" ? "border-red-500/40 bg-red-950/10" : "border-white/10 bg-white/5"}>
+      <Card className={call.priority === "urgent" ? "border-red-500/40 bg-red-950/10" : "border-border bg-muted/50"}>
         <CardContent className="p-5">
           <div className="flex flex-col gap-4 sm:flex-row sm:justify-between">
             <div className="flex-1 space-y-2">
               <div className="flex flex-wrap items-center gap-2">
                 <Badge className={PRIORITY_COLORS[call.priority]}>{call.priority.toUpperCase()}</Badge>
-                <Badge className="border border-white/20 bg-transparent text-white/80">
+                <Badge className="border border-border bg-transparent text-white/80">
                   {CALL_TYPE_LABELS[call.type]}
                 </Badge>
                 {call.status === "escalated" && (
@@ -92,7 +92,7 @@ export function JudgeCallCard({ call, type }: JudgeCallCardProps) {
                 </>
               )}
               {type === "resolved" && (
-                <Badge className="bg-luxury-gold/20 text-luxury-gold-light">Resolvido</Badge>
+                <Badge className="bg-primary/20 text-primary-light">Resolvido</Badge>
               )}
             </div>
           </div>

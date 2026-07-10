@@ -50,9 +50,9 @@ export function StoreReviews({ storeId }: Props) {
         <div>
           <h2 className="text-lg font-semibold">Avaliações</h2>
           <div className="mt-2 flex items-center gap-3">
-            <span className="text-3xl font-bold text-luxury-gold">{stats.average_rating.toFixed(1)}</span>
+            <span className="text-3xl font-bold text-primary">{stats.average_rating.toFixed(1)}</span>
             <ReviewStarsDisplay rating={stats.average_rating} size="md" />
-            <span className="text-sm text-luxury-mist">({stats.total_reviews} avaliações)</span>
+            <span className="text-sm text-muted-foreground">({stats.total_reviews} avaliações)</span>
           </div>
           {stats.top_rated && <StoreRatingBadge className="mt-2" />}
         </div>
@@ -70,14 +70,14 @@ export function StoreReviews({ storeId }: Props) {
             key={f.id}
             type="button"
             onClick={() => { setFilter(f.id); setPage(1); }}
-            className={`rounded-full px-3 py-1 text-xs ${filter === f.id ? "bg-luxury-gold text-luxury-onyx" : "bg-white/10"}`}
+            className={`rounded-full px-3 py-1 text-xs ${filter === f.id ? "bg-primary text-primary-foreground" : "bg-muted"}`}
           >
             {f.label}
           </button>
         ))}
       </div>
       {isLoading ? (
-        <p className="text-luxury-mist">Carregando…</p>
+        <p className="text-muted-foreground">Carregando…</p>
       ) : (
         <ReviewList
           reviews={listData?.reviews ?? []}

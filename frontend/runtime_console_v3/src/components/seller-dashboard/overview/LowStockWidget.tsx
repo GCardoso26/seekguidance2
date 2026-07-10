@@ -9,12 +9,12 @@ type Props = {
 
 export function LowStockWidget({ items }: Props) {
   return (
-    <section className="rounded-xl border border-white/10 bg-white/5 p-4" data-testid="low-stock-widget">
-      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-luxury-mist">
+    <section className="surface-card p-4" data-testid="low-stock-widget">
+      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
         Estoque baixo
       </h2>
       {items.length === 0 ? (
-        <p className="text-sm text-luxury-mist">Nenhum item crítico.</p>
+        <p className="text-sm text-muted-foreground">Nenhum item crítico.</p>
       ) : (
         <ul className="space-y-2 text-sm">
           {items.map((item) => (
@@ -29,7 +29,7 @@ export function LowStockWidget({ items }: Props) {
       )}
       <Link
         href="/vendedor/painel/estoque/estoque"
-        className="mt-3 inline-block text-sm text-luxury-gold hover:underline"
+        className="mt-3 inline-block text-sm text-primary hover:underline"
       >
         Ver estoque →
       </Link>

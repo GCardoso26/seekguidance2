@@ -39,17 +39,17 @@ export function EscrowTimeline({ status, className }: EscrowTimelineProps) {
               className={cn(
                 "flex h-8 w-8 items-center justify-center rounded-full border",
                 done && "border-emerald-500/50 bg-emerald-500/10 text-emerald-400",
-                active && !done && "border-luxury-gold/50 bg-luxury-gold/10 text-luxury-gold",
-                !done && !active && "border-white/10 text-luxury-mist",
+                active && !done && "border-luxury-gold/50 bg-primary/10 text-primary",
+                !done && !active && "border-border text-muted-foreground",
               )}
             >
               {done ? <CheckCircle2 className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
             </span>
-            <span className={cn(active ? "font-medium text-luxury-frost" : "text-luxury-mist")}>
+            <span className={cn(active ? "font-medium text-foreground" : "text-muted-foreground")}>
               {step.label}
             </span>
             {index < STEPS.length - 1 && (
-              <Circle className="hidden h-1 w-1 fill-luxury-mist text-luxury-mist sm:mx-2 sm:block" aria-hidden />
+              <Circle className="hidden h-1 w-1 fill-luxury-mist text-muted-foreground sm:mx-2 sm:block" aria-hidden />
             )}
           </li>
         );

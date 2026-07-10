@@ -22,7 +22,7 @@ export function DeckValidationBar({
   const isValid = validation?.isValid ?? currentCards >= minCards;
 
   return (
-    <div className="rounded-lg border border-white/10 bg-white/5 p-3">
+    <div className="surface-card rounded-lg p-3">
       <div className="mb-2 flex items-center justify-between gap-2 text-sm">
         <div className="flex items-center gap-2">
           {isValid ? (
@@ -32,7 +32,7 @@ export function DeckValidationBar({
           )}
           <span className="font-medium">{isValid ? "Deck legal" : "Validação pendente"}</span>
         </div>
-        <span className="text-luxury-mist">
+        <span className="text-muted-foreground">
           {currentCards}/{target} cartas
         </span>
       </div>

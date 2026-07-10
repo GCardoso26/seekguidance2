@@ -55,18 +55,18 @@ export function GameHubPanel({ gameId, slug, cardCount = 0, healthLoading }: Pro
     <div className="space-y-0">
       {/* Hero compacto */}
       <section
-        className="border-b border-white/10 py-8"
+        className="border-b border-border py-8"
         style={{ background: `linear-gradient(135deg, ${token.primary}18 0%, transparent 60%)` }}
       >
         <div className="container mx-auto max-w-6xl px-4">
-          <Link href="/loja" className="text-sm text-luxury-mist hover:text-luxury-gold">
+          <Link href="/loja" className="text-sm text-muted-foreground hover:text-primary">
             ← Biblioteca de TCGs
           </Link>
           <div className="mt-4 flex flex-wrap items-center gap-4">
             <Image src={token.logo} alt="" width={64} height={64} className="h-16 w-16 object-contain" />
             <div>
-              <h1 className="text-2xl font-bold text-luxury-frost md:text-3xl">{token.name}</h1>
-              <p className="mt-1 text-sm text-luxury-mist">
+              <h1 className="text-2xl font-bold text-foreground md:text-3xl">{token.name}</h1>
+              <p className="mt-1 text-sm text-muted-foreground">
                 {healthLoading
                   ? "Carregando catálogo…"
                   : cardCount > 0
@@ -77,7 +77,7 @@ export function GameHubPanel({ gameId, slug, cardCount = 0, healthLoading }: Pro
           </div>
           <Link
             href={gameLandingPath(slug)}
-            className="mt-4 inline-flex items-center gap-1.5 text-sm text-luxury-gold hover:underline"
+            className="mt-4 inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
           >
             <Compass className="h-4 w-4" />
             Visitar homepage do jogo
@@ -87,26 +87,26 @@ export function GameHubPanel({ gameId, slug, cardCount = 0, healthLoading }: Pro
 
       {/* Painel estilo CardTrader — 3 colunas */}
       <section className="container mx-auto max-w-6xl px-4 py-8">
-        <div className="overflow-hidden rounded-2xl border border-white/10 bg-luxury-obsidian/80 shadow-xl">
-          <div className="grid divide-y divide-white/10 lg:grid-cols-[1fr_1fr_1.1fr] lg:divide-x lg:divide-y-0">
+        <div className="overflow-hidden rounded-2xl border border-border bg-card/80 shadow-xl">
+          <div className="grid divide-y divide-border lg:grid-cols-[1fr_1fr_1.1fr] lg:divide-x lg:divide-y-0">
             {/* Expansões recentes */}
             <div className="p-5">
-              <h2 className="text-xs font-bold uppercase tracking-wider text-luxury-gold">Últimas expansões</h2>
+              <h2 className="text-xs font-bold uppercase tracking-wider text-primary">Últimas expansões</h2>
               <ul className="mt-4 space-y-2">
                 {setsLoading && (
-                  <li className="text-sm text-luxury-mist">Carregando sets…</li>
+                  <li className="text-sm text-muted-foreground">Carregando sets…</li>
                 )}
                 {!setsLoading && sets.length === 0 && (
-                  <li className="text-sm text-luxury-mist">Sets em sincronização</li>
+                  <li className="text-sm text-muted-foreground">Sets em sincronização</li>
                 )}
                 {sets.map((set) => (
                   <li key={set.code ?? set.name}>
                     <Link
                       href={`${singlesSearchHref(slug)}?set=${encodeURIComponent(set.code ?? set.name)}`}
-                      className="block truncate text-sm text-luxury-frost hover:text-luxury-gold"
+                      className="block truncate text-sm text-foreground hover:text-primary"
                     >
                       {set.code && (
-                        <span className="mr-2 font-mono text-xs text-luxury-mist">{set.code}</span>
+                        <span className="mr-2 font-mono text-xs text-muted-foreground">{set.code}</span>
                       )}
                       {set.name}
                     </Link>
@@ -115,7 +115,7 @@ export function GameHubPanel({ gameId, slug, cardCount = 0, healthLoading }: Pro
               </ul>
               <Link
                 href={singlesSearchHref(slug)}
-                className="mt-4 inline-block text-xs text-luxury-gold hover:underline"
+                className="mt-4 inline-block text-xs text-primary hover:underline"
               >
                 Ver todas as expansões…
               </Link>
@@ -123,15 +123,15 @@ export function GameHubPanel({ gameId, slug, cardCount = 0, healthLoading }: Pro
 
             {/* Categorias */}
             <div className="p-5">
-              <h2 className="text-xs font-bold uppercase tracking-wider text-luxury-gold">Categorias</h2>
+              <h2 className="text-xs font-bold uppercase tracking-wider text-primary">Categorias</h2>
               <ul className="mt-4 grid grid-cols-1 gap-1 sm:grid-cols-2 lg:grid-cols-1">
                 {categories.map((cat) => (
                   <li key={cat.id}>
                     <Link
                       href={categoryHref(cat.id)}
                       className={cn(
-                        "flex items-center gap-2 rounded-lg px-2 py-2 text-sm text-luxury-frost",
-                        "transition hover:bg-white/5 hover:text-luxury-gold",
+                        "flex items-center gap-2 rounded-lg px-2 py-2 text-sm text-foreground",
+                        "transition hover:bg-muted/80 hover:text-primary",
                       )}
                       data-testid={`category-${cat.id}`}
                     >
@@ -143,23 +143,23 @@ export function GameHubPanel({ gameId, slug, cardCount = 0, healthLoading }: Pro
               </ul>
               <Link
                 href={`/marketplace?game_id=${gameId}`}
-                className="mt-4 inline-block text-xs text-luxury-gold hover:underline"
+                className="mt-4 inline-block text-xs text-primary hover:underline"
               >
                 Ver todas as categorias…
               </Link>
             </div>
 
             {/* Destaque */}
-            <div className="flex flex-col items-center justify-between border-t border-white/10 p-6 text-center lg:border-t-0">
+            <div className="flex flex-col items-center justify-between border-t border-border p-6 text-center lg:border-t-0">
               {featuredMeta && (
                 <>
                   <Link
                     href={categoryHref(featuredMeta.id)}
-                    className="text-base font-medium text-luxury-gold hover:underline"
+                    className="text-base font-medium text-primary hover:underline"
                   >
                     {featuredMeta.label}
                   </Link>
-                  <div className="my-4 flex h-48 w-full max-w-xs items-center justify-center rounded-xl bg-white/5 p-4">
+                  <div className="my-4 flex h-48 w-full max-w-xs items-center justify-center rounded-xl bg-muted/50 p-4">
                     <Image
                       src={featuredMeta.imageUrl}
                       alt={featuredMeta.label}
@@ -168,8 +168,8 @@ export function GameHubPanel({ gameId, slug, cardCount = 0, healthLoading }: Pro
                       className="max-h-40 w-auto object-contain"
                     />
                   </div>
-                  <p className="text-xs text-luxury-mist">Produtos selados de {token.name}</p>
-                  <Button asChild className="mt-4 w-full max-w-xs bg-luxury-gold text-luxury-onyx hover:bg-luxury-gold/90">
+                  <p className="text-xs text-muted-foreground">Produtos selados de {token.name}</p>
+                  <Button asChild className="mt-4 w-full max-w-xs bg-primary text-primary-foreground hover:bg-primary/90">
                     <Link href={categoryHref(featuredMeta.id)}>Ver ofertas</Link>
                   </Button>
                 </>

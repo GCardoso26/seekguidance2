@@ -24,7 +24,7 @@ export default function MarketplaceProdutosPage() {
     <MobileLayout>
       <div className="container mx-auto px-4 py-8">
         <Breadcrumbs
-          className="mb-4 text-luxury-mist"
+          className="mb-4 text-muted-foreground"
           items={[
             { label: "Início", href: "/" },
             { label: "Loja", href: "/loja" },
@@ -33,37 +33,37 @@ export default function MarketplaceProdutosPage() {
         />
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-luxury-frost">Produtos selados</h1>
-            <p className="text-sm text-luxury-mist">Boosters, acessórios e decklists de torneio</p>
+            <h1 className="text-2xl font-bold text-foreground">Produtos selados</h1>
+            <p className="text-sm text-muted-foreground">Boosters, acessórios e decklists de torneio</p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Link href="/loja" className="rounded-lg border border-white/10 px-3 py-2 text-sm">
+            <Link href="/loja" className="rounded-lg border border-border px-3 py-2 text-sm">
               Singles TCG
             </Link>
-            <Link href="/marketplace/orders" className="rounded-lg border border-white/10 px-3 py-2 text-sm">
+            <Link href="/marketplace/orders" className="rounded-lg border border-border px-3 py-2 text-sm">
               Meus pedidos
             </Link>
-            <Link href="/carrinho" className="rounded-lg border border-white/10 px-3 py-2 text-sm">
+            <Link href="/carrinho" className="rounded-lg border border-border px-3 py-2 text-sm">
               Carrinho
             </Link>
-            <Link href="/wishlist" className="rounded-lg border border-white/10 px-3 py-2 text-sm">
+            <Link href="/wishlist" className="rounded-lg border border-border px-3 py-2 text-sm">
               Wishlist
             </Link>
           </div>
         </div>
 
-        <div className="mt-6 flex gap-2 border-b border-white/10">
+        <div className="mt-6 flex gap-2 border-b border-border">
           <button
             type="button"
             onClick={() => setTab("shop")}
-            className={`px-4 py-2 text-sm ${tab === "shop" ? "border-b-2 border-luxury-gold text-luxury-gold" : "text-luxury-mist"}`}
+            className={`px-4 py-2 text-sm ${tab === "shop" ? "border-b-2 border-luxury-gold text-primary" : "text-muted-foreground"}`}
           >
             Produtos
           </button>
           <button
             type="button"
             onClick={() => setTab("decklists")}
-            className={`px-4 py-2 text-sm ${tab === "decklists" ? "border-b-2 border-luxury-gold text-luxury-gold" : "text-luxury-mist"}`}
+            className={`px-4 py-2 text-sm ${tab === "decklists" ? "border-b-2 border-luxury-gold text-primary" : "text-muted-foreground"}`}
           >
             Decklists
           </button>

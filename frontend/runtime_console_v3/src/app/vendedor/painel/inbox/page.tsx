@@ -50,7 +50,7 @@ export default function SellerInboxPage() {
               <button
                 type="button"
                 onClick={() => setReadIds(markAllInboxRead(items, readIds))}
-                className="rounded-lg border border-white/10 px-3 py-1.5 text-xs hover:bg-white/5"
+                className="rounded-lg border border-border px-3 py-1.5 text-xs hover:bg-muted/80"
               >
                 Marcar todas como lidas
               </button>
@@ -65,7 +65,7 @@ export default function SellerInboxPage() {
               type="button"
               onClick={() => setFilter(tab.id)}
               className={`rounded-full px-3 py-1 text-xs ${
-                filter === tab.id ? "bg-luxury-gold text-luxury-onyx" : "bg-white/10"
+                filter === tab.id ? "bg-primary text-primary-foreground" : "bg-muted"
               }`}
             >
               {tab.label}
@@ -75,7 +75,7 @@ export default function SellerInboxPage() {
 
         <ul className="space-y-2" data-testid="seller-inbox-list">
           {filtered.length === 0 && (
-            <li className="rounded-xl border border-white/10 p-6 text-center text-sm text-luxury-mist">
+            <li className="rounded-xl border border-border p-6 text-center text-sm text-muted-foreground">
               Nenhuma notificação nesta categoria.
             </li>
           )}
@@ -88,17 +88,17 @@ export default function SellerInboxPage() {
                   item.urgent
                     ? "border-red-500/40 bg-red-500/10"
                     : unread
-                      ? "border-luxury-gold/30 bg-white/[0.04]"
-                      : "border-white/10 bg-white/[0.02] opacity-80"
+                      ? "border-primary/30 bg-white/[0.04]"
+                      : "border-border bg-white/[0.02] opacity-80"
                 }`}
               >
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div>
-                    <p className="text-xs uppercase text-luxury-mist">
+                    <p className="text-xs uppercase text-muted-foreground">
                       {INBOX_CATEGORY_LABELS[item.category]}
                     </p>
                     <h3 className="font-semibold">{item.title}</h3>
-                    <p className="mt-1 text-sm text-luxury-mist">{item.description}</p>
+                    <p className="mt-1 text-sm text-muted-foreground">{item.description}</p>
                   </div>
                   {item.count != null && item.count > 1 && (
                     <span className="rounded-full bg-black/20 px-2 py-0.5 text-sm font-bold tabular-nums">
@@ -110,7 +110,7 @@ export default function SellerInboxPage() {
                   <Link
                     href={item.href}
                     onClick={() => setReadIds(markInboxItemRead(item.id, readIds))}
-                    className="rounded-lg bg-luxury-gold px-3 py-1.5 text-xs font-semibold text-luxury-onyx"
+                    className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground"
                   >
                     Acessar
                   </Link>

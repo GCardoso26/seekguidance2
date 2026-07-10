@@ -12,7 +12,7 @@ export function renderSimpleMarkdown(source: string): string {
   let html = escapeHtml(source);
   html = html.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
   html = html.replace(/\*(.+?)\*/g, "<em>$1</em>");
-  html = html.replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" class="text-luxury-gold underline" target="_blank" rel="noopener">$1</a>');
+  html = html.replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" class="text-primary underline" target="_blank" rel="noopener">$1</a>');
   html = html.replace(/^- (.+)$/gm, "<li>$1</li>");
   html = html.replace(/(<li>.*<\/li>\n?)+/g, (block) => `<ul class="list-disc pl-5">${block}</ul>`);
   html = html.replace(/\n/g, "<br />");

@@ -13,27 +13,27 @@ export default async function SellerAboutPage({ params }: Props) {
     <div className="prose prose-invert max-w-none">
       <h2 className="text-lg font-semibold">Sobre</h2>
       {profile?.bio ? (
-        <p className="text-luxury-mist">{profile.bio}</p>
+        <p className="text-muted-foreground">{profile.bio}</p>
       ) : (
-        <p className="text-luxury-mist">Este vendedor ainda não adicionou uma descrição.</p>
+        <p className="text-muted-foreground">Este vendedor ainda não adicionou uma descrição.</p>
       )}
       {profile?.member_since && (
-        <p className="mt-4 text-sm text-luxury-mist">
+        <p className="mt-4 text-sm text-muted-foreground">
           Membro desde {new Date(profile.member_since).toLocaleDateString("pt-BR")}
         </p>
       )}
       <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3">
-        <div className="rounded-xl border border-white/10 bg-white/5 p-4 text-center">
+        <div className="surface-card p-4 text-center">
           <p className="text-2xl font-bold">{profile?.active_listings ?? 0}</p>
-          <p className="text-xs text-luxury-mist">Listagens ativas</p>
+          <p className="text-xs text-muted-foreground">Listagens ativas</p>
         </div>
-        <div className="rounded-xl border border-white/10 bg-white/5 p-4 text-center">
+        <div className="surface-card p-4 text-center">
           <p className="text-2xl font-bold">{profile?.total_sales ?? 0}</p>
-          <p className="text-xs text-luxury-mist">Vendas</p>
+          <p className="text-xs text-muted-foreground">Vendas</p>
         </div>
-        <div className="rounded-xl border border-white/10 bg-white/5 p-4 text-center">
+        <div className="surface-card p-4 text-center">
           <p className="text-2xl font-bold">{profile?.rating_average?.toFixed(1) ?? "—"}</p>
-          <p className="text-xs text-luxury-mist">Avaliação média</p>
+          <p className="text-xs text-muted-foreground">Avaliação média</p>
         </div>
       </div>
     </div>

@@ -6,18 +6,18 @@ import { MobileLayout } from "@/components/layout/MobileLayout";
 
 const WishlistAlertsPage = dynamic(
   () => import("@/components/marketplace/WishlistAlertsPage").then((m) => m.WishlistAlertsPage),
-  { loading: () => <p className="text-sm text-luxury-mist">Carregando…</p>, ssr: false },
+  { loading: () => <p className="text-sm text-muted-foreground">Carregando…</p>, ssr: false },
 );
 
 export default function WishlistAlertsRoutePage() {
   return (
     <MobileLayout>
       <div className="container mx-auto px-4 py-8" data-testid="wishlist-alerts-route">
-        <Link href="/wishlist" className="text-sm text-luxury-mist hover:text-luxury-gold">
+        <Link href="/wishlist" className="text-sm text-muted-foreground hover:text-primary">
           ← Minha wishlist
         </Link>
-        <h1 className="mt-4 text-2xl font-bold text-luxury-frost">Alertas de preço</h1>
-        <p className="mt-1 text-sm text-luxury-mist">
+        <h1 className="mt-4 text-2xl font-bold text-foreground">Alertas de preço</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           Avisos quando produtos salvos ficarem mais baratos
         </p>
         <div className="mt-6">

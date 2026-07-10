@@ -26,14 +26,14 @@ export function PricingHero({ isAnnual, onToggle, onToggleTrack }: Props) {
         transition={{ duration: 0.6 }}
         className="relative z-10"
       >
-        <p className="mb-4 text-xs tracking-[0.3em] text-luxury-gold uppercase">Planos</p>
-        <h1 className="mb-4 text-4xl font-light text-luxury-frost md:text-6xl">
+        <p className="mb-4 text-xs tracking-[0.3em] text-primary uppercase">Planos</p>
+        <h1 className="mb-4 text-4xl font-light text-foreground md:text-6xl">
           Escolha seu <span className="text-luxury">Plano</span>
         </h1>
-        <p className="mx-auto mb-8 max-w-2xl text-lg text-luxury-mist md:text-xl">
+        <p className="mx-auto mb-8 max-w-2xl text-lg text-muted-foreground md:text-xl">
           Do casual ao competitivo. Encontre o plano que combina com seu estilo de jogo.
         </p>
-        <p className="mb-6 text-sm text-luxury-gold-light/90">
+        <p className="mb-6 text-sm text-primary-light/90">
           7 dias de garantia · Cancele quando quiser
         </p>
         <PricingToggle

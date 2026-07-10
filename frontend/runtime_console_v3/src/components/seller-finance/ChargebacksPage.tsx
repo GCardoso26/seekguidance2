@@ -25,21 +25,21 @@ export function ChargebacksPage() {
           description="Disputas Stripe e bloqueios de settlement."
         />
         {isLoading ? (
-          <p className="text-sm text-luxury-mist">Carregando…</p>
+          <p className="text-sm text-muted-foreground">Carregando…</p>
         ) : (
           <>
-            <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
-              <p className="text-xs text-luxury-mist">Abertos</p>
+            <div className="surface-card px-4 py-3">
+              <p className="text-xs text-muted-foreground">Abertos</p>
               <p className="text-2xl font-semibold text-amber-400">{data?.open_count ?? 0}</p>
             </div>
             <div className="space-y-2">
               {(data?.items ?? []).length === 0 ? (
-                <p className="text-sm text-luxury-mist">Nenhum chargeback registrado.</p>
+                <p className="text-sm text-muted-foreground">Nenhum chargeback registrado.</p>
               ) : (
                 data?.items.map((cb) => (
                   <div
                     key={cb.id}
-                    className="rounded-xl border border-white/10 bg-white/5 p-4"
+                    className="surface-card p-4"
                   >
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <span className="font-medium">{CB_STATUS[cb.status] ?? cb.status}</span>
@@ -47,7 +47,7 @@ export function ChargebacksPage() {
                         {formatShopPrice(cb.amount_cents)}
                       </span>
                     </div>
-                    <p className="mt-1 text-xs text-luxury-mist">
+                    <p className="mt-1 text-xs text-muted-foreground">
                       {cb.reason ?? "Sem motivo"} · {cb.payment_method}
                     </p>
                     {cb.evidence_due_by && (

@@ -81,7 +81,7 @@ export function StandingsTable({ standings }: { standings: Standing[] }) {
         <button
           type="button"
           onClick={exportCsv}
-          className="inline-flex min-h-[44px] items-center gap-2 rounded-lg border border-white/10 px-3 text-sm focus-visible:ring-2 focus-visible:ring-luxury-gold"
+          className="inline-flex min-h-[44px] items-center gap-2 rounded-lg border border-border px-3 text-sm focus-visible:ring-2 focus-visible:ring-luxury-gold"
         >
           <Download className="h-4 w-4" strokeWidth={1.5} />
           Exportar CSV

@@ -3,11 +3,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import { CardImage } from "@/components/ui/CardImage";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { formatShopPrice, type ShopProduct } from "@/lib/marketplace-shop";
 import { WishlistButton } from "@/components/marketplace/WishlistButton";
 import { PriceAlertButton } from "@/components/marketplace/PriceAlertButton";
 import { GAME_TOKENS } from "@/lib/tcg-tokens";
 import type { GameId } from "@/types/card";
+import { cn } from "@/lib/utils";
 
 type Props = {
   product: ShopProduct;
@@ -30,11 +33,11 @@ export function ProductCard({ product, onAdd }: Props) {
 
   return (
     <article
-      className="group flex flex-col overflow-hidden rounded-xl border border-white/10 bg-white/5 transition-all duration-200 hover:border-primary/30 hover:shadow-card-hover"
+      className="group flex flex-col overflow-hidden rounded-xl border border-border bg-card shadow-card transition-all duration-200 hover:border-primary/25 hover:shadow-card-hover"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="relative aspect-square overflow-hidden bg-black/30">
+      <div className="relative aspect-square overflow-hidden bg-muted/30">
         <Link href={`/marketplace/product/${product.id}`} className="block h-full w-full">
           <CardImage
             src={image}
@@ -42,51 +45,76 @@ export function ProductCard({ product, onAdd }: Props) {
             fallbackLabel={product.name}
             fill
             listQuality
-            className={`object-cover transition-transform duration-300 ${isHovered ? "scale-110" : "scale-100"}`}
+            className={cn(
+              "object-cover transition-transform duration-300",
+              isHovered && "scale-[1.03]",
+            )}
             sizes="(max-width:768px) 50vw, 25vw"
           />
         </Link>
-        {showNew && (
-          <span className="pointer-events-none absolute left-2 top-2 rounded-full bg-luxury-gold px-2 py-0.5 text-[10px] font-bold uppercase text-luxury-onyx">
-            Novo
-          </span>
-        )}
-        {outOfStock && (
-          <span className="pointer-events-none absolute right-2 top-2 rounded-full bg-red-600/90 px-2 py-0.5 text-[10px] font-semibold text-white">
-            Esgotado
-          </span>
-        )}
-        <div className={`absolute bottom-2 right-2 z-10 flex gap-1 transition-opacity ${isHovered ? "opacity-100" : "opacity-80"}`}>
+
+        <div className="absolute left-2 top-2 flex flex-col gap-1">
+          {showNew && <Badge variant="warning">Novo</Badge>}
+          {outOfStock && <Badge variant="danger">Esgotado</Badge>}
+        </div>
+
+        <div
+          className={cn(
+            "absolute bottom-2 right-2 z-10 flex gap-1 transition-opacity",
+            isHovered ? "opacity-100" : "opacity-90",
+          )}
+        >
           <PriceAlertButton productId={product.id} product={product} size="sm" />
           <WishlistButton productId={product.id} product={product} size="sm" />
         </div>
       </div>
-      <div className="flex flex-1 flex-col gap-1.5 p-3">
-        <Link href={`/marketplace/product/${product.id}`} className="line-clamp-2 text-sm font-semibold text-white transition-colors group-hover:text-primary">
-          {product.name}
-        </Link>
-        {gameToken && <span className="text-[10px] uppercase tracking-wide text-luxury-mist">{gameToken.name}</span>}
+
+      <div className="flex flex-1 flex-col gap-2 p-4">
+        <div className="space-y-1">
+          <Link
+            href={`/marketplace/product/${product.id}`}
+            className="line-clamp-2 text-sm font-semibold leading-snug text-foreground transition-colors group-hover:text-primary"
+          >
+            {product.name}
+          </Link>
+          {gameToken && (
+            <p className="text-caption font-medium uppercase tracking-wide text-muted-foreground">
+              {gameToken.name}
+            </p>
+          )}
+        </div>
+
         {product.store_name && product.store_slug && (
-          <Link href={`/marketplace/loja/${product.store_slug}`} className="text-xs text-luxury-mist hover:underline">
+          <Link
+            href={`/marketplace/loja/${product.store_slug}`}
+            className="text-small text-muted-foreground transition-colors hover:text-primary"
+          >
             {product.store_name}
           </Link>
         )}
-        {product.condition && (
-          <span className="text-[10px] font-medium text-luxury-gold">{product.condition}</span>
-        )}
-        <p className="font-mono text-base text-luxury-gold">{formatShopPrice(product.price_cents)}</p>
-        <button
-          type="button"
-          disabled={outOfStock}
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            onAdd?.(product.id);
-          }}
-          className="mt-auto rounded-lg bg-luxury-gold px-3 py-2 text-sm font-semibold text-luxury-onyx opacity-100 transition-opacity group-hover:opacity-100 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          {outOfStock ? "Indisponível" : "Adicionar"}
-        </button>
+
+        <div className="flex flex-wrap items-center gap-2">
+          {product.condition && <Badge variant="secondary">{product.condition}</Badge>}
+        </div>
+
+        <div className="mt-auto space-y-3 pt-1">
+          <p className="font-mono text-lg font-semibold tracking-tight text-foreground">
+            {formatShopPrice(product.price_cents)}
+          </p>
+          <Button
+            type="button"
+            size="sm"
+            className="w-full"
+            disabled={outOfStock}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onAdd?.(product.id);
+            }}
+          >
+            {outOfStock ? "Indisponível" : "Adicionar ao carrinho"}
+          </Button>
+        </div>
       </div>
     </article>
   );

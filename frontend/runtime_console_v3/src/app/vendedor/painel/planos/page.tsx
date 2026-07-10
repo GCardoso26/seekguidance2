@@ -27,8 +27,8 @@ export default function PlanosPage() {
   if (!hasStore || !storeId) {
     return (
       <main className="p-8 text-center">
-        <p className="text-luxury-mist">Cadastre uma loja para assinar um plano.</p>
-        <Link href="/stores/create" className="mt-4 inline-block text-luxury-gold underline">
+        <p className="text-muted-foreground">Cadastre uma loja para assinar um plano.</p>
+        <Link href="/stores/create" className="mt-4 inline-block text-primary underline">
           Criar loja
         </Link>
       </main>
@@ -43,7 +43,7 @@ export default function PlanosPage() {
           <h2 className="text-xl font-bold">Planos da loja</h2>
           <ProBadge plan={currentPlan} />
         </div>
-        <p className="text-sm text-luxury-mist">
+        <p className="text-sm text-muted-foreground">
           Plano atual: <strong>{currentPlan}</strong> — receita via assinatura, sem comissão sobre vendas.
         </p>
 
@@ -53,16 +53,16 @@ export default function PlanosPage() {
             return (
               <div
                 key={p.id}
-                className={`rounded-xl border p-4 ${active ? "border-luxury-gold bg-luxury-gold/10" : "border-white/10 bg-white/5"}`}
+                className={`rounded-xl border p-4 ${active ? "border-luxury-gold bg-primary/10" : "border-border bg-muted/50"}`}
               >
                 <h3 className="text-lg font-semibold">{p.name}</h3>
-                <p className="mt-1 text-2xl font-bold text-luxury-gold">{formatPlanPrice(p.priceCents)}</p>
-                <ul className="mt-3 space-y-1 text-sm text-luxury-mist">
+                <p className="mt-1 text-2xl font-bold text-primary">{formatPlanPrice(p.priceCents)}</p>
+                <ul className="mt-3 space-y-1 text-sm text-muted-foreground">
                   {p.features.map((f) => (
                     <li key={f}>✓ {f}</li>
                   ))}
                 </ul>
-                {active && <p className="mt-3 text-xs text-luxury-gold">Plano ativo</p>}
+                {active && <p className="mt-3 text-xs text-primary">Plano ativo</p>}
                 {!active && p.id !== "free" && currentPlan === "free" && p.id === "lojista" && (
                   <div className="mt-4">
                     <PlanCheckout storeId={storeId} plan="lojista" onSuccess={() => void refetchDashboard()} />

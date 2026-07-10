@@ -53,10 +53,10 @@ export function MatchCard({
         <span
           className={
             isWinner
-              ? "font-semibold text-luxury-gold-light"
+              ? "font-semibold text-primary-light"
               : pending
-                ? "text-luxury-frost"
-                : "text-luxury-mist line-through"
+                ? "text-foreground"
+                : "text-muted-foreground line-through"
           }
         >
           {name}
@@ -65,7 +65,7 @@ export function MatchCard({
           <button
             type="button"
             onClick={() => onReportWinner(pid)}
-            className="shrink-0 rounded bg-luxury-gold/20 px-2 py-0.5 text-[10px] font-semibold text-luxury-gold-light hover:bg-luxury-gold/30"
+            className="shrink-0 rounded bg-primary/20 px-2 py-0.5 text-[10px] font-semibold text-primary-light hover:bg-primary/90/30"
             data-testid={`match-report-winner-${pid}`}
           >
             Venceu
@@ -80,7 +80,7 @@ export function MatchCard({
       className={`rounded-xl border p-3 text-sm shadow-sm ${style}`}
       data-testid={`match-card-${matchNumber}`}
     >
-      <p className="text-[10px] uppercase tracking-wide text-luxury-mist/70">
+      <p className="text-[10px] uppercase tracking-wide text-muted-foreground/70">
         {roundLabel ? `${roundLabel} · ` : ""}M{matchNumber}
         {tableNumber ? ` · Mesa ${tableNumber}` : ""}
         {displayStatus === "bye" && " · BYE"}

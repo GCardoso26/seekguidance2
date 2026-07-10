@@ -39,21 +39,21 @@ export function CouponCards({ coupons, onEdit, onToggleActive, onDelete, busyId 
         const status = couponDisplayStatus(coupon);
         const isBusy = busyId === coupon.id;
         return (
-          <li key={coupon.id} className="rounded-xl border border-white/10 bg-white/5 p-4">
+          <li key={coupon.id} className="surface-card p-4">
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div>
-                <p className="font-mono font-semibold text-luxury-gold">{coupon.code}</p>
-                <p className="mt-1 text-sm text-luxury-mist">
+                <p className="font-mono font-semibold text-primary">{coupon.code}</p>
+                <p className="mt-1 text-sm text-muted-foreground">
                   {formatCouponDiscount(coupon)} · {coupon.discountType === "percentage" ? "%" : "fixo"}
                 </p>
               </div>
               <CouponStatusBadge status={status} />
             </div>
-            <p className="mt-2 text-xs text-luxury-mist">
+            <p className="mt-2 text-xs text-muted-foreground">
               Válido até: {formatDate(coupon.expiresAt)} · Usos: {formatUses(coupon)}
             </p>
             {coupon.minOrderCents > 0 && (
-              <p className="text-xs text-luxury-mist/80">
+              <p className="text-xs text-muted-foreground/80">
                 Pedido mínimo: {formatShopPrice(coupon.minOrderCents)}
               </p>
             )}
@@ -61,7 +61,7 @@ export function CouponCards({ coupons, onEdit, onToggleActive, onDelete, busyId 
               <Button
                 variant="outline"
                 size="sm"
-                className="border-white/20"
+                className="border-border"
                 onClick={() => onEdit(coupon)}
                 disabled={isBusy}
                 data-testid={`coupon-edit-${coupon.id}`}
@@ -72,7 +72,7 @@ export function CouponCards({ coupons, onEdit, onToggleActive, onDelete, busyId 
               <Button
                 variant="outline"
                 size="sm"
-                className="border-white/20"
+                className="border-border"
                 onClick={() => onToggleActive(coupon)}
                 disabled={isBusy || status === "expired"}
                 data-testid={`coupon-toggle-${coupon.id}`}
@@ -101,12 +101,12 @@ export function CouponCards({ coupons, onEdit, onToggleActive, onDelete, busyId 
 export function CouponEmptyState() {
   return (
     <div
-      className="rounded-xl border border-dashed border-white/15 bg-white/5 p-10 text-center"
+      className="rounded-xl border border-dashed border-white/15 bg-muted/50 p-10 text-center"
       data-testid="coupons-empty"
     >
-      <Tag className="mx-auto h-10 w-10 text-luxury-mist/50" aria-hidden />
-      <p className="mt-3 text-luxury-mist">Nenhum cupom criado.</p>
-      <p className="mt-1 text-sm text-luxury-mist/70">Crie um cupom para oferecer descontos na sua loja.</p>
+      <Tag className="mx-auto h-10 w-10 text-muted-foreground/50" aria-hidden />
+      <p className="mt-3 text-muted-foreground">Nenhum cupom criado.</p>
+      <p className="mt-1 text-sm text-muted-foreground/70">Crie um cupom para oferecer descontos na sua loja.</p>
     </div>
   );
 }

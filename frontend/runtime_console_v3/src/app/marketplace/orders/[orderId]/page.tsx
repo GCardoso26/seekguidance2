@@ -59,7 +59,7 @@ export default function OrderDetailPage() {
     return (
       <MobileLayout>
         <div className="flex justify-center py-20">
-          <Loader2 className="h-8 w-8 animate-spin text-luxury-mist" />
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
       </MobileLayout>
     );
@@ -68,7 +68,7 @@ export default function OrderDetailPage() {
   if (error || !order) {
     return (
       <MobileLayout>
-        <p className="p-8 text-luxury-mist">Pedido não encontrado.</p>
+        <p className="p-8 text-muted-foreground">Pedido não encontrado.</p>
       </MobileLayout>
     );
   }
@@ -76,11 +76,11 @@ export default function OrderDetailPage() {
   return (
     <MobileLayout>
       <div className="container mx-auto max-w-lg px-4 py-8">
-        <Link href="/marketplace/orders" className="text-sm text-luxury-mist">
+        <Link href="/marketplace/orders" className="text-sm text-muted-foreground">
           ← Meus pedidos
         </Link>
         <h1 className="mt-4 text-2xl font-bold">Pedido #{order.id.slice(0, 8)}</h1>
-        <p className="text-luxury-mist">{order.store_name}</p>
+        <p className="text-muted-foreground">{order.store_name}</p>
         <p className="mt-2 text-xl font-semibold text-emerald-400">
           {formatShopPrice(order.total_cents)}
         </p>
@@ -90,7 +90,7 @@ export default function OrderDetailPage() {
             <EscrowBadge status={escrow.status} />
             <EscrowTimeline status={escrow.status} />
             {escrow.auto_release_at && (
-              <p className="text-xs text-luxury-mist">
+              <p className="text-xs text-muted-foreground">
                 Liberação automática: {new Date(escrow.auto_release_at).toLocaleString("pt-BR")}
               </p>
             )}
@@ -128,7 +128,7 @@ export default function OrderDetailPage() {
         {order.status === "delivered" && !escrow && (
           <Link
             href={`/pedidos/${order.id}/avaliar`}
-            className="mt-6 inline-block text-luxury-gold underline"
+            className="mt-6 inline-block text-primary underline"
           >
             Avaliar compra
           </Link>

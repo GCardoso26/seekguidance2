@@ -43,16 +43,16 @@ export default function AdminIngestionUploadPage() {
       />
 
       <div className="grid gap-8 md:grid-cols-2">
-        <section className="rounded-xl border border-white/10 p-6">
+        <section className="rounded-xl border border-border p-6">
           <h2 className="mb-4 text-lg font-semibold">Upload de regras (PDF)</h2>
           <UploadDropzone onUpload={handleUpload} disabled={uploading} />
           {message && (
-            <p className="mt-4 text-sm text-luxury-mist" role="status">
+            <p className="mt-4 text-sm text-muted-foreground" role="status">
               {message}
             </p>
           )}
         </section>
-        <section className="rounded-xl border border-white/10 p-6">
+        <section className="rounded-xl border border-border p-6">
           <h2 className="mb-4 text-lg font-semibold">Progresso</h2>
           <IngestionProgress gameSlug="swu" />
         </section>

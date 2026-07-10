@@ -20,7 +20,7 @@ export function OrderFilters({ status, onChange }: Props) {
     <select
       value={status}
       onChange={(e) => onChange(e.target.value)}
-      className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm"
+      className="surface-card rounded-lg px-3 py-2 text-sm"
     >
       {STATUSES.map((s) => (
         <option key={s.value || "all"} value={s.value}>

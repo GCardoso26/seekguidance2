@@ -50,7 +50,7 @@ export function ProCheckout({ storeId, onSuccess }: Props) {
           type="button"
           disabled={loading}
           onClick={() => void checkout("pro", "card")}
-          className="rounded-lg bg-luxury-gold px-4 py-2 font-semibold text-luxury-onyx disabled:opacity-50"
+          className="rounded-lg bg-primary px-4 py-2 font-semibold text-primary-foreground disabled:opacity-50"
         >
           Pro — Cartão (R$ 49/mês)
         </button>
@@ -58,7 +58,7 @@ export function ProCheckout({ storeId, onSuccess }: Props) {
           type="button"
           disabled={loading}
           onClick={() => void checkout("pro", "pix")}
-          className="rounded-lg border border-white/20 px-4 py-2 text-sm disabled:opacity-50"
+          className="rounded-lg border border-border px-4 py-2 text-sm disabled:opacity-50"
         >
           Pro — PIX
         </button>
@@ -67,7 +67,7 @@ export function ProCheckout({ storeId, onSuccess }: Props) {
         <div className="rounded-lg border border-emerald-500/30 bg-emerald-950/20 p-4 text-sm">
           <p className="font-medium">PIX Pro Loja</p>
           <p className="mt-2 font-mono text-xs break-all">{String(pixData.copy_payload ?? "")}</p>
-          <p className="mt-2 text-luxury-mist">Identificador: {String(pixData.txid ?? "")}</p>
+          <p className="mt-2 text-muted-foreground">Identificador: {String(pixData.txid ?? "")}</p>
         </div>
       )}
       {error && <p className="text-sm text-red-300">{error}</p>}

@@ -18,7 +18,7 @@ export function DashboardKpiStrip() {
   return (
     <section className="space-y-3" data-testid="dashboard-kpi-strip">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-luxury-mist">Indicadores</h2>
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Indicadores</h2>
         <div className="flex flex-wrap gap-1">
           {PERIODS.map((p) => (
             <button
@@ -26,7 +26,7 @@ export function DashboardKpiStrip() {
               type="button"
               onClick={() => setPeriod(p.id)}
               className={`rounded-full px-3 py-1 text-xs transition ${
-                period === p.id ? "bg-luxury-gold text-luxury-onyx" : "bg-white/10 text-luxury-mist hover:bg-white/15"
+                period === p.id ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-white/15"
               }`}
             >
               {p.label}
@@ -41,11 +41,11 @@ export function DashboardKpiStrip() {
           {kpis.map((kpi) => (
             <div
               key={kpi.id}
-              className="rounded-xl border border-white/10 bg-white/[0.04] p-3"
+              className="rounded-xl border border-border bg-white/[0.04] p-3"
             >
-              <p className="text-lg font-bold tabular-nums text-luxury-gold">{kpi.value}</p>
-              <p className="text-xs text-luxury-mist">{kpi.label}</p>
-              {kpi.sub && <p className="mt-0.5 text-[10px] text-luxury-mist/70">{kpi.sub}</p>}
+              <p className="text-lg font-bold tabular-nums text-primary">{kpi.value}</p>
+              <p className="text-xs text-muted-foreground">{kpi.label}</p>
+              {kpi.sub && <p className="mt-0.5 text-[10px] text-muted-foreground/70">{kpi.sub}</p>}
             </div>
           ))}
         </div>

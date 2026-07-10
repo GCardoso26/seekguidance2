@@ -68,8 +68,8 @@ export default function VendedorListagensPage() {
   if (error instanceof Error && error.message === "login_required") {
     return (
       <main className="p-6 text-center">
-        <p className="text-luxury-mist">Faça login para gerenciar listagens.</p>
-        <Button asChild className="mt-4 bg-luxury-gold text-luxury-onyx">
+        <p className="text-muted-foreground">Faça login para gerenciar listagens.</p>
+        <Button asChild className="mt-4 bg-primary text-primary-foreground">
           <Link href="/entrar?next=/vendedor/painel/listagens">Entrar</Link>
         </Button>
       </main>
@@ -88,7 +88,7 @@ export default function VendedorListagensPage() {
           description="Cartas do catálogo que você listou para venda."
           meta={
             total > 0 ? (
-              <p className="mt-1 text-xs text-luxury-mist/80">
+              <p className="mt-1 text-xs text-muted-foreground/80">
                 {total} {total === 1 ? "item" : "itens"}
                 {totalPages > 1 && !isLoading ? ` · página ${page} de ${totalPages}` : null}
               </p>

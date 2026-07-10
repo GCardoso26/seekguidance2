@@ -4,7 +4,9 @@ import "@/styles/seller-panel.css";
 import { SellerPanelThemeProvider, useSellerPanelTheme } from "@/contexts/SellerPanelThemeContext";
 import { Suspense, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import { Sidebar } from "@/components/seller-dashboard/Sidebar";import { SellerPanelTopBar } from "@/components/seller-dashboard/SellerPanelTopBar";
+import { PanelShell } from "@/components/layout/PanelShell";
+import { Sidebar } from "@/components/seller-dashboard/Sidebar";
+import { SellerPanelTopBar } from "@/components/seller-dashboard/SellerPanelTopBar";
 import { SellerPanelProvider } from "@/contexts/SellerPanelContext";
 import { useMerchantKycGuard } from "@/hooks/useMerchantKycGuard";
 import { useMerchantOnboardingSync } from "@/hooks/useMerchantOnboardingSync";
@@ -41,49 +43,40 @@ function VendedorPainelLayoutInner({ children }: { children: React.ReactNode }) 
           : "Redirecionando para login…";
 
     return (
-      <div className="flex min-h-screen items-center justify-center bg-luxury-onyx">
+      <div className="flex min-h-screen items-center justify-center bg-background">
         <InlineLoading message={guardMessage} />
       </div>
     );
   }
 
   return (
-    <div className="seller-panel flex min-h-screen bg-luxury-panel-bg text-white" data-theme={theme}>
-      {!isPdvRoute && (
-        <div className="hidden lg:block lg:w-64 lg:flex-shrink-0">
-          <Sidebar sellerId={ownerId} storeSlug={storeSlug} plan={plan} className="fixed left-0 top-0 z-30 h-screen w-64" />
-        </div>
-      )}
-
-      {mobileOpen && !isPdvRoute && (
-        <div className="fixed inset-0 z-40 lg:hidden">
-          <button
-            type="button"
-            aria-label="Fechar menu"
-            className="absolute inset-0 bg-black/60"
-            onClick={() => setMobileOpen(false)}
-          />
-          <Sidebar
-            sellerId={ownerId}
-            storeSlug={storeSlug}
-            plan={plan}
-            className="relative z-50 h-full w-64"
-            onNavigate={() => setMobileOpen(false)}
-          />
-        </div>
-      )}
-
-      <div className={`flex min-h-screen flex-1 flex-col ${isPdvRoute ? "" : "lg:ml-64"}`}>
-        {!isPdvRoute && (
+    <PanelShell
+      variant="seller"
+      theme={theme}
+      hideSidebar={isPdvRoute}
+      mobileOpen={mobileOpen}
+      onCloseMobile={() => setMobileOpen(false)}
+      sidebar={
+        <Sidebar
+          sellerId={ownerId}
+          storeSlug={storeSlug}
+          plan={plan}
+          className="h-full"
+          onNavigate={() => setMobileOpen(false)}
+        />
+      }
+      topBar={
+        !isPdvRoute ? (
           <SellerPanelTopBar
             title={isPdvRoute ? "PDV — Balcão" : "Painel do Vendedor"}
             showMenuButton
             onMenuClick={() => setMobileOpen(true)}
           />
-        )}
-        <SellerPanelProvider plan={plan}>{children}</SellerPanelProvider>
-      </div>
-    </div>
+        ) : undefined
+      }
+    >
+      <SellerPanelProvider plan={plan}>{children}</SellerPanelProvider>
+    </PanelShell>
   );
 }
 
@@ -91,14 +84,14 @@ export default function VendedorPainelLayout({ children }: { children: React.Rea
   return (
     <SellerPanelThemeProvider>
       <Suspense
-      fallback={
-        <div className="flex min-h-screen items-center justify-center bg-luxury-onyx">
-          <InlineLoading message="Carregando painel…" />
-        </div>
-      }
-    >
-      <VendedorPainelLayoutInner>{children}</VendedorPainelLayoutInner>
-    </Suspense>
+        fallback={
+          <div className="flex min-h-screen items-center justify-center bg-background">
+            <InlineLoading message="Carregando painel…" />
+          </div>
+        }
+      >
+        <VendedorPainelLayoutInner>{children}</VendedorPainelLayoutInner>
+      </Suspense>
     </SellerPanelThemeProvider>
   );
 }

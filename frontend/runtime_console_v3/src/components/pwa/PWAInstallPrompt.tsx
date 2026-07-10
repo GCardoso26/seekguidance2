@@ -40,19 +40,19 @@ export function PWAInstallPrompt() {
   };
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 z-[90] mx-auto max-w-md rounded-xl border border-luxury-gold/30 bg-luxury-obsidian/95 p-4 shadow-xl backdrop-blur md:left-auto md:right-6">
+    <div className="fixed bottom-4 left-4 right-4 z-[90] mx-auto max-w-md rounded-xl border border-primary/30 bg-card/95 p-4 shadow-xl backdrop-blur md:left-auto md:right-6">
       <div className="flex items-start gap-3">
-        <Download className="mt-0.5 h-5 w-5 shrink-0 text-luxury-gold-light" aria-hidden />
+        <Download className="mt-0.5 h-5 w-5 shrink-0 text-primary-light" aria-hidden />
         <div className="flex-1">
-          <p className="text-sm font-semibold text-luxury-frost">Instalar Judge TCG</p>
-          <p className="mt-1 text-xs text-luxury-mist">
+          <p className="text-sm font-semibold text-foreground">Instalar Judge TCG</p>
+          <p className="mt-1 text-xs text-muted-foreground">
             Acesse rapidamente do seu celular, mesmo offline.
           </p>
           <div className="mt-3 flex gap-2">
             <button
               type="button"
               onClick={() => void install()}
-              className="rounded-lg bg-luxury-gold px-3 py-1.5 text-xs font-semibold text-luxury-onyx"
+              className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground"
             >
               Instalar
             </button>
@@ -62,7 +62,7 @@ export function PWAInstallPrompt() {
                 localStorage.setItem("pwa-install-dismissed", "1");
                 setDismissed(true);
               }}
-              className="rounded-lg px-3 py-1.5 text-xs text-luxury-mist"
+              className="rounded-lg px-3 py-1.5 text-xs text-muted-foreground"
             >
               Agora não
             </button>
@@ -74,7 +74,7 @@ export function PWAInstallPrompt() {
             localStorage.setItem("pwa-install-dismissed", "1");
             setDismissed(true);
           }}
-          className="text-luxury-mist"
+          className="text-muted-foreground"
           aria-label="Fechar"
         >
           <X className="h-4 w-4" />

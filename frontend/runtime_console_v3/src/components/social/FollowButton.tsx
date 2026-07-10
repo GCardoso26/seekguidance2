@@ -57,7 +57,7 @@ export function FollowButton({ playerId, initialFollowerCount = 0 }: Props) {
       <Button
         type="button"
         variant="outline"
-        className="min-h-[44px] border-white/10 focus-visible:ring-2 focus-visible:ring-luxury-gold"
+        className="min-h-[44px] border-border focus-visible:ring-2 focus-visible:ring-luxury-gold"
         disabled={toggle.isPending}
         onClick={() => toggle.mutate()}
         aria-pressed={following}
@@ -71,7 +71,7 @@ export function FollowButton({ playerId, initialFollowerCount = 0 }: Props) {
         )}
         {following ? "Seguindo" : "Seguir"}
       </Button>
-      <span className="text-sm text-luxury-mist">{count} seguidores</span>
+      <span className="text-sm text-muted-foreground">{count} seguidores</span>
     </div>
   );
 }

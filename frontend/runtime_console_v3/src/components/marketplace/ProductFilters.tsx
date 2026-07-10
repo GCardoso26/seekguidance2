@@ -19,8 +19,8 @@ export function ProductFilters(props: FilterFieldsProps) {
   return (
     <>
       <aside className="hidden w-64 shrink-0 lg:block" data-testid="marketplace-filters-desktop">
-        <div className="sticky top-20 rounded-xl border border-white/10 bg-white/5 p-4">
-          <h3 className="mb-4 text-lg font-semibold text-luxury-frost">Filtros</h3>
+        <div className="sticky top-20 surface-card p-4">
+          <h3 className="mb-4 text-lg font-semibold text-foreground">Filtros</h3>
           <FilterFields {...props} />
         </div>
       </aside>

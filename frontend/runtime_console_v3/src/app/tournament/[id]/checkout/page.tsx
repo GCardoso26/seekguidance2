@@ -73,10 +73,10 @@ function StripeTournamentForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4" data-testid="tournament-checkout-form">
-      <p className="text-sm text-luxury-mist">Total: {formatMoney(totalCents)}</p>
+      <p className="text-sm text-muted-foreground">Total: {formatMoney(totalCents)}</p>
       <PaymentElement />
       {error && <p className="text-sm text-red-400">{error}</p>}
-      <Button type="submit" disabled={!stripe || loading} className="w-full bg-luxury-gold text-luxury-onyx">
+      <Button type="submit" disabled={!stripe || loading} className="w-full bg-primary text-primary-foreground">
         {loading ? "Processando…" : "Pagar e inscrever-se"}
       </Button>
     </form>
@@ -124,8 +124,8 @@ function CheckoutView() {
   if (searchParams.get("payment_intent")) {
     return (
       <div className="luxury-page mx-auto max-w-lg p-6 text-center">
-        <p className="text-luxury-mist">Processando retorno do pagamento…</p>
-        <Link href={`/tournament/${id}`} className="mt-4 inline-block text-luxury-gold">
+        <p className="text-muted-foreground">Processando retorno do pagamento…</p>
+        <Link href={`/tournament/${id}`} className="mt-4 inline-block text-primary">
           Voltar ao torneio
         </Link>
       </div>
@@ -134,13 +134,13 @@ function CheckoutView() {
 
   return (
     <div className="luxury-page mx-auto max-w-lg space-y-6 p-4 pb-8">
-      <Link href={`/tournament/${id}`} className="text-sm text-luxury-mist">
+      <Link href={`/tournament/${id}`} className="text-sm text-muted-foreground">
         ← Voltar ao torneio
       </Link>
       <h1 className="text-2xl font-bold" data-testid="tournament-checkout-title">
         Checkout — {name}
       </h1>
-      <p className="text-sm text-luxury-mist">Taxa de inscrição + taxa de serviço (5%)</p>
+      <p className="text-sm text-muted-foreground">Taxa de inscrição + taxa de serviço (5%)</p>
 
       {paymentIntent.isError && (
         <p className="text-sm text-red-400">{paymentIntent.error.message}</p>
@@ -157,7 +157,7 @@ function CheckoutView() {
       )}
 
       {!clientSecret && !paymentIntent.isError && (
-        <p className="text-sm text-luxury-mist" data-testid="tournament-checkout-loading">
+        <p className="text-sm text-muted-foreground" data-testid="tournament-checkout-loading">
           Preparando pagamento…
         </p>
       )}

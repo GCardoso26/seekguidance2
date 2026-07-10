@@ -21,7 +21,7 @@ function InscritosView() {
       <div className="space-y-6 p-4 md:p-6" data-testid="tournament-inscritos-page">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <Link href="/vendedor/painel/torneios" className="text-sm text-luxury-mist hover:text-luxury-gold">
+            <Link href="/vendedor/painel/torneios" className="text-sm text-muted-foreground hover:text-primary">
               ← Torneios
             </Link>
             <h1 className="mt-2 text-2xl font-bold text-white">
@@ -30,7 +30,7 @@ function InscritosView() {
           </div>
           <Link
             href={`/tournament/${id}`}
-            className="rounded-lg border border-white/10 px-4 py-2 text-sm text-luxury-mist hover:border-luxury-gold/40"
+            className="rounded-lg border border-border px-4 py-2 text-sm text-muted-foreground hover:border-primary/40"
           >
             Página pública
           </Link>

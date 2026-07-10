@@ -42,12 +42,12 @@ export default function EditarListagemPage() {
     <>
       <SellerHeader action={null} />
       <main className="flex-1 space-y-4 overflow-y-auto p-6">
-        <Link href="/vendedor/painel/listagens" className="text-sm text-luxury-mist hover:underline">
+        <Link href="/vendedor/painel/listagens" className="text-sm text-muted-foreground hover:underline">
           ← Listagens
         </Link>
-        {isLoading && <p className="text-luxury-mist">Carregando…</p>}
+        {isLoading && <p className="text-muted-foreground">Carregando…</p>}
         {data && (
-          <form onSubmit={(e) => void save(e)} className="max-w-md space-y-4 rounded-xl border border-white/10 bg-white/5 p-6">
+          <form onSubmit={(e) => void save(e)} className="max-w-md space-y-4 surface-card p-6">
             <h2 className="text-lg font-semibold">{data.cardName ?? "Editar listagem"}</h2>
             <label className="block text-sm">
               Preço (R$)

@@ -36,7 +36,7 @@ export function FeedSorter({ sort, period, feed, onSortChange, onPeriodChange, o
             onClick={() => onFeedChange(f)}
             className={cn(
               "rounded-full px-3 py-1 text-xs",
-              feed === f ? "bg-luxury-gold text-luxury-onyx" : "border border-white/10 text-luxury-mist",
+              feed === f ? "bg-primary text-primary-foreground" : "border border-border text-muted-foreground",
             )}
           >
             {f === "all" ? "Todos" : "Seguindo"}
@@ -51,7 +51,7 @@ export function FeedSorter({ sort, period, feed, onSortChange, onPeriodChange, o
             onClick={() => onSortChange(s.id)}
             className={cn(
               "rounded-full px-3 py-1 text-xs",
-              sort === s.id ? "bg-luxury-gold text-luxury-onyx" : "border border-white/10 text-luxury-mist",
+              sort === s.id ? "bg-primary text-primary-foreground" : "border border-border text-muted-foreground",
             )}
           >
             {s.label}
@@ -67,7 +67,7 @@ export function FeedSorter({ sort, period, feed, onSortChange, onPeriodChange, o
               onClick={() => onPeriodChange(p.id)}
               className={cn(
                 "rounded-full px-2 py-0.5 text-xs",
-                period === p.id ? "bg-white/15 text-luxury-frost" : "text-luxury-mist",
+                period === p.id ? "bg-white/15 text-foreground" : "text-muted-foreground",
               )}
             >
               {p.label}

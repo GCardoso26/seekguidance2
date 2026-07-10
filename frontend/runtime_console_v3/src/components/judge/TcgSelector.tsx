@@ -153,7 +153,7 @@ function GameMat({
 
         const ghost = document.createElement("div");
         ghost.className =
-          "pointer-events-none fixed z-[100] flex h-16 w-16 items-center justify-center rounded-xl border border-luxury-gold/60 bg-luxury-obsidian/90 shadow-lg";
+          "pointer-events-none fixed z-[100] flex h-16 w-16 items-center justify-center rounded-xl border border-luxury-gold/60 bg-card/90 shadow-lg";
         ghost.style.left = `${touch.clientX - 32}px`;
         ghost.style.top = `${touch.clientY - 32}px`;
         ghost.textContent = theme.icon;
@@ -220,12 +220,12 @@ function GameMat({
           className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-1 bg-black/60 text-white"
           title="Disponível no plano Pro — R$ 29/mês. Ver /pricing"
         >
-          <Lock className="h-4 w-4 text-luxury-gold" aria-hidden />
+          <Lock className="h-4 w-4 text-primary" aria-hidden />
           <span className="text-[9px] font-bold uppercase">Pro</span>
         </span>
       )}
       {game.beta && game.enabled && (
-        <span className="absolute right-2 top-2 z-10 animate-pulse rounded bg-luxury-gold/90 px-1.5 py-0.5 text-[9px] font-bold uppercase text-black">
+        <span className="absolute right-2 top-2 z-10 animate-pulse rounded bg-primary/90 px-1.5 py-0.5 text-[9px] font-bold uppercase text-black">
           Beta
         </span>
       )}
@@ -405,7 +405,7 @@ export function TCGDropZone({ children, className }: DropZoneProps) {
       className={cn(
         "rounded-2xl border-2 border-dashed transition-all duration-300",
         dropHover
-          ? "border-luxury-gold-light bg-luxury-gold/10"
+          ? "border-luxury-gold-light bg-primary/10"
           : "border-transparent bg-transparent",
         className,
       )}
@@ -423,7 +423,7 @@ export function TCGDropZone({ children, className }: DropZoneProps) {
       }}
     >
       {dropHover && (
-        <p className="mb-2 text-center text-sm font-semibold text-luxury-gold-light">Solte aqui!</p>
+        <p className="mb-2 text-center text-sm font-semibold text-primary-light">Solte aqui!</p>
       )}
       {!dropHover && (
         <p className="mb-2 text-center text-xs text-[var(--tcg-text-secondary)] md:hidden">

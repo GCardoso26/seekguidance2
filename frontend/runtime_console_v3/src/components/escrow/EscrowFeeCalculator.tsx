@@ -12,20 +12,20 @@ export function EscrowFeeCalculator({ amountCents, shippingCents = 0 }: EscrowFe
   const fees = calculateEscrowFees(amountCents, shippingCents);
 
   return (
-    <dl className="space-y-2 rounded-lg border border-white/10 bg-luxury-onyx/50 p-4 text-sm">
+    <dl className="space-y-2 rounded-lg border border-border bg-background/50 p-4 text-sm">
       <div className="flex justify-between">
-        <dt className="text-luxury-mist">Subtotal</dt>
+        <dt className="text-muted-foreground">Subtotal</dt>
         <dd>{formatCurrency(fees.amountCents / 100, "BRL")}</dd>
       </div>
       <div className="flex justify-between">
-        <dt className="text-luxury-mist">Frete</dt>
+        <dt className="text-muted-foreground">Frete</dt>
         <dd>{formatCurrency(fees.shippingCents / 100, "BRL")}</dd>
       </div>
       <div className="flex justify-between">
-        <dt className="text-luxury-mist">Taxa Compra Protegida (3%)</dt>
+        <dt className="text-muted-foreground">Taxa Compra Protegida (3%)</dt>
         <dd>{formatCurrency(fees.escrowFeeCents / 100, "BRL")}</dd>
       </div>
-      <div className="flex justify-between border-t border-white/10 pt-2 font-semibold">
+      <div className="flex justify-between border-t border-border pt-2 font-semibold">
         <dt>Total</dt>
         <dd className="text-emerald-400">{formatCurrency(fees.totalCents / 100, "BRL")}</dd>
       </div>

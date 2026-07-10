@@ -68,7 +68,7 @@ export function RevenuePage() {
             <button
               type="button"
               onClick={() => exportCsv(data?.rows ?? [])}
-              className="rounded border border-white/20 px-3 py-1.5 text-sm hover:bg-white/5"
+              className="rounded border border-border px-3 py-1.5 text-sm hover:bg-muted/80"
             >
               Exportar CSV
             </button>
@@ -84,19 +84,19 @@ export function RevenuePage() {
               type="button"
               onClick={() => setPeriod(p.id)}
               className={`rounded px-3 py-1 text-sm ${
-                period === p.id ? "bg-luxury-gold/20 text-luxury-gold" : "border border-white/10 hover:bg-white/5"
+                period === p.id ? "bg-primary/20 text-primary" : "border border-border hover:bg-muted/80"
               }`}
             >
               {p.label}
             </button>
           ))}
         </div>
-        <section className="rounded-xl border border-white/10 bg-white/5 p-4" data-testid="finance-revenue-chart">
+        <section className="surface-card p-4" data-testid="finance-revenue-chart">
           <div className="h-56">
             {isLoading ? (
-              <p className="text-sm text-luxury-mist">Carregando…</p>
+              <p className="text-sm text-muted-foreground">Carregando…</p>
             ) : chartData.length === 0 ? (
-              <p className="text-sm text-luxury-mist">Sem receita no período.</p>
+              <p className="text-sm text-muted-foreground">Sem receita no período.</p>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={chartData}>
@@ -110,10 +110,10 @@ export function RevenuePage() {
             )}
           </div>
         </section>
-        <div className="overflow-x-auto rounded-xl border border-white/10">
+        <div className="overflow-x-auto rounded-xl border border-border">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-white/10 text-left text-luxury-mist">
+              <tr className="border-b border-border text-left text-muted-foreground">
                 <th className="p-3">Data</th>
                 <th className="p-3">Pedidos</th>
                 <th className="p-3">Bruto</th>

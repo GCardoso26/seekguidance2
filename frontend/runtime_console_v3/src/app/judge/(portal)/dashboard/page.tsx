@@ -17,8 +17,8 @@ type Tab = "active" | "open" | "resolved" | "reports";
 function slaColor(deadline: string): string {
   const ms = new Date(deadline).getTime() - Date.now();
   if (ms < 0) return "text-red-400";
-  if (ms < 120_000) return "text-luxury-gold-light";
-  return "text-luxury-gold-light";
+  if (ms < 120_000) return "text-primary-light";
+  return "text-primary-light";
 }
 
 export default function JudgeDashboardPage() {
@@ -74,7 +74,7 @@ export default function JudgeDashboardPage() {
           {certification && (
             <p className="mt-1 text-sm text-white/60">
               Certificado:{" "}
-              <Badge className="border border-luxury-gold/30 bg-transparent text-luxury-gold-light">
+              <Badge className="border border-primary/30 bg-transparent text-primary-light">
                 {certification.gameCode} — {certification.level}
               </Badge>
             </p>
@@ -85,14 +85,14 @@ export default function JudgeDashboardPage() {
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-2 border-b border-white/10 pb-2">
+      <div className="flex flex-wrap gap-2 border-b border-border pb-2">
         {tabs.map((t) => (
           <button
             key={t.id}
             type="button"
             onClick={() => setTab(t.id)}
             className={`rounded-lg px-4 py-2 text-sm transition ${
-              tab === t.id ? "bg-luxury-gold/20 text-luxury-gold-light" : "text-white/60 hover:text-white"
+              tab === t.id ? "bg-primary/20 text-primary-light" : "text-white/60 hover:text-white"
             }`}
           >
             {t.label} ({t.count})
@@ -146,7 +146,7 @@ function CallList({
 
   if (loading) return <p className="text-white/50">Carregando chamadas...</p>;
   if (items.length === 0) {
-    return <p className="rounded-xl border border-white/10 py-12 text-center text-white/50">{empty}</p>;
+    return <p className="rounded-xl border border-border py-12 text-center text-white/50">{empty}</p>;
   }
 
   return (
@@ -185,9 +185,9 @@ function LegacyReportsSection({
       <div>
         <h2 className="mb-3 text-lg font-semibold">Reports abertos (Judge Assistant)</h2>
         {reportsLoading && <p className="text-white/50">Carregando...</p>}
-        <div className="overflow-x-auto rounded-xl border border-white/10">
+        <div className="overflow-x-auto rounded-xl border border-border">
           <table className="w-full text-left text-sm">
-            <thead className="bg-white/5 text-white/60">
+            <thead className="bg-muted/50 text-white/60">
               <tr>
                 <th className="px-3 py-2">SLA</th>
                 <th className="px-3 py-2">TCG</th>

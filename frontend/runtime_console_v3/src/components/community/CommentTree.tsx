@@ -17,7 +17,7 @@ export function CommentTree({ postId, comments, depth = 0 }: Props) {
   const roots = comments.filter((c) => !c.parentId);
 
   return (
-    <ul className={cn("space-y-3", depth > 0 && "ml-4 border-l border-white/10 pl-4")}>
+    <ul className={cn("space-y-3", depth > 0 && "ml-4 border-l border-border pl-4")}>
       {roots.map((comment) => (
         <CommentNode key={comment.id} postId={postId} comment={comment} all={comments} depth={depth} />
       ))}
@@ -50,16 +50,16 @@ function CommentNode({
 
   return (
     <li>
-      <div className="rounded-lg border border-white/10 bg-white/5 p-3">
-        <p className="text-xs text-luxury-mist">
+      <div className="surface-card rounded-lg p-3">
+        <p className="text-xs text-muted-foreground">
           @{comment.authorHandle ?? "jogador"} ·{" "}
           {comment.createdAt ? new Date(comment.createdAt).toLocaleString("pt-BR") : ""}
         </p>
-        <p className="mt-1 text-sm text-luxury-frost">{comment.content}</p>
+        <p className="mt-1 text-sm text-foreground">{comment.content}</p>
         <button
           type="button"
           onClick={() => setReplyOpen((v) => !v)}
-          className="mt-2 inline-flex items-center gap-1 text-xs text-luxury-mist hover:text-luxury-gold"
+          className="mt-2 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary"
         >
           <Reply className="h-3 w-3" strokeWidth={1.5} />
           Responder
@@ -74,13 +74,13 @@ function CommentNode({
             className="luxury-input w-full text-sm"
             placeholder="Sua resposta…"
           />
-          <Button size="sm" className="bg-luxury-gold text-luxury-onyx" onClick={() => void submitReply()}>
+          <Button size="sm" className="bg-primary text-primary-foreground" onClick={() => void submitReply()}>
             Enviar resposta
           </Button>
         </div>
       )}
       {replies.length > 0 && (
-        <ul className="mt-3 space-y-3 border-l border-white/10 pl-4">
+        <ul className="mt-3 space-y-3 border-l border-border pl-4">
           {replies.map((r) => (
             <CommentNode key={r.id} postId={postId} comment={r} all={all} depth={depth + 1} />
           ))}

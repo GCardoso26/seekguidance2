@@ -43,34 +43,34 @@ export function OrderDetailDrawer({ orderId, open, onOpenChange, onUpdated }: Pr
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/60" />
-        <Dialog.Content className="fixed inset-y-0 right-0 z-50 flex w-full max-w-lg flex-col border-l border-white/10 bg-luxury-onyx shadow-xl outline-none">
-          <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+        <Dialog.Content className="fixed inset-y-0 right-0 z-50 flex w-full max-w-lg flex-col border-l border-border bg-background shadow-xl outline-none">
+          <div className="flex items-center justify-between border-b border-border px-4 py-3">
             <Dialog.Title className="text-lg font-semibold">
               {orderId ? `Pedido #${orderId.slice(0, 8)}` : "Pedido"}
             </Dialog.Title>
-            <Dialog.Close className="rounded-lg p-1 hover:bg-white/10" aria-label="Fechar">
+            <Dialog.Close className="rounded-lg p-1 hover:bg-muted" aria-label="Fechar">
               <X className="h-5 w-5" />
             </Dialog.Close>
           </div>
 
           <div className="flex-1 overflow-y-auto p-4">
-            {isLoading && <p className="text-sm text-luxury-mist">Carregando…</p>}
+            {isLoading && <p className="text-sm text-muted-foreground">Carregando…</p>}
             {order && (
               <div className="space-y-4">
                 <div className="flex flex-wrap items-center gap-2">
                   <SaleStatusBadge status={String(order.status)} />
                   {order.payment_method ? (
-                    <span className="text-xs uppercase text-luxury-mist">
+                    <span className="text-xs uppercase text-muted-foreground">
                       {String(order.payment_method)}
                     </span>
                   ) : null}
-                  <span className="font-semibold text-luxury-gold">
+                  <span className="font-semibold text-primary">
                     {formatShopPrice(Number(order.total_cents ?? 0))}
                   </span>
                 </div>
 
                 {Boolean(order.tracking_code || fulfillment?.shipment_tracking_code) && (
-                  <p className="text-sm text-luxury-mist">
+                  <p className="text-sm text-muted-foreground">
                     Rastreio:{" "}
                     {String(fulfillment?.shipment_tracking_code ?? order.tracking_code)}
                     {fulfillment?.carrier ? ` (${fulfillment.carrier})` : null}
@@ -82,7 +82,7 @@ export function OrderDetailDrawer({ orderId, open, onOpenChange, onUpdated }: Pr
                     href={fulfillment.label_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs text-luxury-gold underline"
+                    className="text-xs text-primary underline"
                   >
                     Baixar etiqueta
                   </a>
@@ -105,7 +105,7 @@ export function OrderDetailDrawer({ orderId, open, onOpenChange, onUpdated }: Pr
                 )}
 
                 <div>
-                  <h3 className="mb-2 text-sm font-semibold text-luxury-mist">Itens</h3>
+                  <h3 className="mb-2 text-sm font-semibold text-muted-foreground">Itens</h3>
                   <ul className="space-y-1 text-sm">
                     {items.map((item, idx) => (
                       <li key={idx} className="flex justify-between gap-2">

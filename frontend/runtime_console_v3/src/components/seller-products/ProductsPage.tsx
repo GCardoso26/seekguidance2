@@ -45,7 +45,7 @@ export function ProductsPage() {
           <button
             type="button"
             onClick={() => setShowForm(true)}
-            className="rounded-full bg-luxury-gold px-4 py-2 text-sm font-semibold text-luxury-onyx"
+            className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
           >
             + Novo produto
           </button>
@@ -59,7 +59,7 @@ export function ProductsPage() {
             onClick={() => setCategory("")}
             className={cn(
               "rounded-full px-3 py-1 text-sm",
-              !category ? "bg-luxury-gold/20 text-luxury-gold" : "bg-white/5 text-luxury-mist",
+              !category ? "bg-primary/20 text-primary" : "bg-muted/50 text-muted-foreground",
             )}
           >
             Todos
@@ -71,7 +71,7 @@ export function ProductsPage() {
               onClick={() => setCategory(cat.id)}
               className={cn(
                 "rounded-full px-3 py-1 text-sm",
-                category === cat.id ? "bg-luxury-gold/20 text-luxury-gold" : "bg-white/5 text-luxury-mist",
+                category === cat.id ? "bg-primary/20 text-primary" : "bg-muted/50 text-muted-foreground",
               )}
             >
               {cat.label}
@@ -80,18 +80,18 @@ export function ProductsPage() {
         </div>
 
         {showForm && (
-          <form onSubmit={handleCreate} className="rounded-xl border border-white/10 bg-white/5 p-4 space-y-3">
+          <form onSubmit={handleCreate} className="surface-card p-4 space-y-3">
             <input
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Nome do produto"
-              className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm"
+              className="w-full surface-card rounded-lg px-3 py-2 text-sm"
             />
             <select
               value={formCategory}
               onChange={(e) => setFormCategory(e.target.value)}
-              className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm"
+              className="w-full surface-card rounded-lg px-3 py-2 text-sm"
             >
               {SELLER_PRODUCT_CATEGORIES.map((c) => (
                 <option key={c.id} value={c.id}>
@@ -107,21 +107,21 @@ export function ProductsPage() {
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
                 placeholder="Preço R$"
-                className="flex-1 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm"
+                className="flex-1 surface-card rounded-lg px-3 py-2 text-sm"
               />
               <input
                 type="number"
                 value={qty}
                 onChange={(e) => setQty(e.target.value)}
                 placeholder="Qtd"
-                className="w-24 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm"
+                className="w-24 surface-card rounded-lg px-3 py-2 text-sm"
               />
             </div>
             <div className="flex gap-2">
-              <button type="submit" className="rounded-lg bg-luxury-gold px-4 py-2 text-sm font-semibold text-luxury-onyx">
+              <button type="submit" className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">
                 Salvar
               </button>
-              <button type="button" onClick={() => setShowForm(false)} className="text-sm text-luxury-mist">
+              <button type="button" onClick={() => setShowForm(false)} className="text-sm text-muted-foreground">
                 Cancelar
               </button>
             </div>
@@ -129,11 +129,11 @@ export function ProductsPage() {
         )}
 
         {isLoading ? (
-          <p className="text-sm text-luxury-mist">Carregando…</p>
+          <p className="text-sm text-muted-foreground">Carregando…</p>
         ) : (
-          <div className="overflow-x-auto rounded-xl border border-white/10">
+          <div className="overflow-x-auto rounded-xl border border-border">
             <table className="w-full text-sm">
-              <thead className="bg-white/5 text-left text-luxury-mist">
+              <thead className="bg-muted/50 text-left text-muted-foreground">
                 <tr>
                   <th className="p-3">Nome</th>
                   <th className="p-3">Categoria</th>
@@ -144,7 +144,7 @@ export function ProductsPage() {
               </thead>
               <tbody>
                 {(data?.products ?? []).map((p) => (
-                  <tr key={p.id} className="border-t border-white/10">
+                  <tr key={p.id} className="border-t border-border">
                     <td className="p-3">{p.name}</td>
                     <td className="p-3">{p.category}</td>
                     <td className="p-3">{formatShopPrice(p.price_cents)}</td>

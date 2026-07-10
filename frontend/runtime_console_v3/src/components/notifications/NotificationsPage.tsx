@@ -48,8 +48,8 @@ export function NotificationsPage() {
             className={cn(
               "rounded-full px-3 py-1 text-xs font-medium transition",
               filter === f.id
-                ? "bg-luxury-gold text-luxury-onyx"
-                : "bg-white/5 text-luxury-mist hover:bg-white/10",
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted/50 text-muted-foreground hover:bg-muted",
             )}
           >
             {f.label}
@@ -62,17 +62,17 @@ export function NotificationsPage() {
           <button
             type="button"
             onClick={() => void markAll.mutate()}
-            className="text-sm text-luxury-gold underline"
+            className="text-sm text-primary underline"
           >
             Marcar todas como lidas ({data.unread})
           </button>
         )}
       </div>
 
-      {isLoading && <p className="mt-6 text-sm text-luxury-mist">Carregando…</p>}
+      {isLoading && <p className="mt-6 text-sm text-muted-foreground">Carregando…</p>}
 
       {!isLoading && items.length === 0 && (
-        <div className="mt-12 text-center text-luxury-mist">
+        <div className="mt-12 text-center text-muted-foreground">
           <p className="text-4xl">🔔</p>
           <p className="mt-4">Nenhuma notificação neste filtro.</p>
         </div>
@@ -84,25 +84,25 @@ export function NotificationsPage() {
             key={n.id}
             data-testid={`notification-row-${n.id}`}
             className={cn(
-              "rounded-xl border border-white/10 bg-white/5 p-4",
-              !n.readAt && "border-luxury-gold/30",
+              "surface-card p-4",
+              !n.readAt && "border-primary/30",
             )}
           >
             <div className="flex justify-between gap-2">
               <div>
-                <span className="text-[10px] uppercase tracking-wide text-luxury-mist">
+                <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
                   {NOTIFICATION_TYPE_LABELS[n.type] ?? n.type}
                 </span>
-                <h3 className="font-medium text-luxury-frost">{n.title}</h3>
+                <h3 className="font-medium text-foreground">{n.title}</h3>
               </div>
-              <span className="shrink-0 text-xs text-luxury-mist">
+              <span className="shrink-0 text-xs text-muted-foreground">
                 {n.createdAt ? formatRelativeTime(n.createdAt) : ""}
               </span>
             </div>
-            {n.content && <p className="mt-2 text-sm text-luxury-mist">{n.content}</p>}
+            {n.content && <p className="mt-2 text-sm text-muted-foreground">{n.content}</p>}
             <div className="mt-3 flex gap-3">
               {n.link && (
-                <Link href={n.link} className="text-sm text-luxury-gold underline">
+                <Link href={n.link} className="text-sm text-primary underline">
                   Ver detalhes
                 </Link>
               )}
@@ -110,7 +110,7 @@ export function NotificationsPage() {
                 <button
                   type="button"
                   onClick={() => void markRead.mutate(n)}
-                  className="text-xs text-luxury-mist hover:text-luxury-frost"
+                  className="text-xs text-muted-foreground hover:text-foreground"
                 >
                   Marcar lida
                 </button>
@@ -118,7 +118,7 @@ export function NotificationsPage() {
               <button
                 type="button"
                 onClick={() => void remove.mutate(n)}
-                className="text-xs text-luxury-mist hover:text-red-400"
+                className="text-xs text-muted-foreground hover:text-red-400"
               >
                 Remover
               </button>
@@ -128,7 +128,7 @@ export function NotificationsPage() {
       </div>
 
       {Object.keys(typeCounts).length > 0 && filter === "all" && (
-        <p className="mt-8 text-center text-xs text-luxury-mist">
+        <p className="mt-8 text-center text-xs text-muted-foreground">
           {data?.total ?? items.length} notificações no total
         </p>
       )}

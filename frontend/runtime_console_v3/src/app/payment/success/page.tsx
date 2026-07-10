@@ -21,11 +21,11 @@ function SuccessContent() {
 
   return (
     <div className="luxury-page mx-auto max-w-md py-16 text-center">
-      <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full border border-luxury-gold/30 bg-luxury-gold/10">
-        <Check className="h-10 w-10 text-luxury-gold" strokeWidth={1.5} aria-hidden />
+      <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full border border-primary/30 bg-primary/10">
+        <Check className="h-10 w-10 text-primary" strokeWidth={1.5} aria-hidden />
       </div>
-      <h1 className="mb-4 text-3xl font-light text-luxury-frost">Subscrição ativada</h1>
-      <p className="mb-8 text-luxury-mist">
+      <h1 className="mb-4 text-3xl font-light text-foreground">Subscrição ativada</h1>
+      <p className="mb-8 text-muted-foreground">
         O pagamento foi processado. Já podes usar as funcionalidades do teu plano.
       </p>
       <div className="space-y-3">
@@ -42,7 +42,7 @@ function SuccessContent() {
 
 export default function PaymentSuccessPage() {
   return (
-    <Suspense fallback={<p className="luxury-page py-24 text-center text-luxury-mist">A confirmar pagamento…</p>}>
+    <Suspense fallback={<p className="luxury-page py-24 text-center text-muted-foreground">A confirmar pagamento…</p>}>
       <SuccessContent />
     </Suspense>
   );

@@ -20,7 +20,7 @@ interface Props {
 export function SellerProfileHeader({ sellerId, profile }: Props) {
   const rating = profile.rating_average.toFixed(1);
   return (
-    <div className="overflow-hidden rounded-xl border border-white/10 bg-white/5">
+    <div className="overflow-hidden surface-card">
       {profile.banner_url && (
         <div
           className="h-32 bg-cover bg-center"
@@ -28,7 +28,7 @@ export function SellerProfileHeader({ sellerId, profile }: Props) {
         />
       )}
       <div className="flex flex-col gap-4 p-6 sm:flex-row sm:items-end">
-        <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-luxury-gold/20 text-2xl font-bold text-luxury-gold">
+        <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-primary/20 text-2xl font-bold text-primary">
           {profile.avatar_url ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={profile.avatar_url} alt="" className="h-full w-full rounded-full object-cover" />
@@ -38,19 +38,19 @@ export function SellerProfileHeader({ sellerId, profile }: Props) {
         </div>
         <div className="min-w-0 flex-1">
           <h1 className="text-2xl font-bold">{profile.shop_name}</h1>
-          <p className="mt-1 text-sm text-luxury-mist">
+          <p className="mt-1 text-sm text-muted-foreground">
             ⭐ {rating} · {profile.rating_count} avaliações · {profile.total_sales} vendas
             {profile.location ? ` · ${profile.location}` : ""}
           </p>
           {profile.handle && (
-            <p className="text-xs text-luxury-mist">@{profile.handle}</p>
+            <p className="text-xs text-muted-foreground">@{profile.handle}</p>
           )}
         </div>
         <div className="flex flex-col gap-3 sm:items-end">
           <FollowButton playerId={sellerId} />
           <Link
             href={`/social/messages/${sellerId}`}
-            className="rounded-lg border border-white/20 px-4 py-2 text-sm hover:bg-white/10"
+            className="rounded-lg border border-border px-4 py-2 text-sm hover:bg-muted"
           >
             Mensagem
           </Link>
@@ -65,7 +65,7 @@ export function SellerTabs({ sellerId }: { sellerId: string }) {
   const base = `/vendedor/${sellerId}`;
 
   return (
-    <nav className="flex flex-wrap gap-2 border-b border-white/10 pb-2">
+    <nav className="flex flex-wrap gap-2 border-b border-border pb-2">
       {TABS.map((tab) => {
         const href = `${base}${tab.href}`;
         const active =
@@ -77,7 +77,7 @@ export function SellerTabs({ sellerId }: { sellerId: string }) {
             key={tab.href}
             href={href}
             className={`rounded-full px-4 py-1.5 text-sm ${
-              active ? "bg-luxury-gold text-luxury-onyx" : "bg-white/10 hover:bg-white/15"
+              active ? "bg-primary text-primary-foreground" : "bg-muted hover:bg-white/15"
             }`}
           >
             {tab.label}

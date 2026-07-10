@@ -19,7 +19,7 @@ export function FilterFields({ filters, onChange, onClear, stores }: FilterField
   return (
     <div className="space-y-6">
       <div>
-        <h4 className="mb-2 text-sm font-semibold text-luxury-frost">Preço (R$)</h4>
+        <h4 className="mb-2 text-sm font-semibold text-foreground">Preço (R$)</h4>
         <div className="flex items-center gap-2">
           <input
             type="number"
@@ -30,10 +30,10 @@ export function FilterFields({ filters, onChange, onClear, stores }: FilterField
             onChange={(e) =>
               onChange({ minPrice: e.target.value ? Number(e.target.value) : undefined, page: 1 })
             }
-            className="w-full rounded-md border border-white/10 bg-black/20 px-2 py-2 text-sm"
+            className="w-full rounded-md border border-border bg-black/20 px-2 py-2 text-sm"
             aria-label="Preço mínimo"
           />
-          <span className="text-luxury-mist">—</span>
+          <span className="text-muted-foreground">—</span>
           <input
             type="number"
             min={0}
@@ -43,14 +43,14 @@ export function FilterFields({ filters, onChange, onClear, stores }: FilterField
             onChange={(e) =>
               onChange({ maxPrice: e.target.value ? Number(e.target.value) : undefined, page: 1 })
             }
-            className="w-full rounded-md border border-white/10 bg-black/20 px-2 py-2 text-sm"
+            className="w-full rounded-md border border-border bg-black/20 px-2 py-2 text-sm"
             aria-label="Preço máximo"
           />
         </div>
       </div>
 
       <div>
-        <h4 className="mb-2 text-sm font-semibold text-luxury-frost">Condição (singles)</h4>
+        <h4 className="mb-2 text-sm font-semibold text-foreground">Condição (singles)</h4>
         <div className="space-y-1">
           {MARKETPLACE_CONDITIONS.map((c) => (
             <label key={c.value} className="flex cursor-pointer items-center gap-2">
@@ -66,18 +66,18 @@ export function FilterFields({ filters, onChange, onClear, stores }: FilterField
                 }}
                 className="h-4 w-4"
               />
-              <span className="text-sm text-luxury-mist">{c.label}</span>
+              <span className="text-sm text-muted-foreground">{c.label}</span>
             </label>
           ))}
         </div>
       </div>
 
       <div>
-        <h4 className="mb-2 text-sm font-semibold text-luxury-frost">Jogo</h4>
+        <h4 className="mb-2 text-sm font-semibold text-foreground">Jogo</h4>
         <select
           value={filters.gameId ?? ""}
           onChange={(e) => onChange({ gameId: e.target.value || undefined, page: 1 })}
-          className="w-full rounded-md border border-white/10 bg-black/20 px-2 py-2 text-sm"
+          className="w-full rounded-md border border-border bg-black/20 px-2 py-2 text-sm"
           aria-label="Filtrar por jogo"
         >
           <option value="">Todos</option>
@@ -90,11 +90,11 @@ export function FilterFields({ filters, onChange, onClear, stores }: FilterField
       </div>
 
       <div>
-        <h4 className="mb-2 text-sm font-semibold text-luxury-frost">Categoria</h4>
+        <h4 className="mb-2 text-sm font-semibold text-foreground">Categoria</h4>
         <select
           value={filters.category ?? ""}
           onChange={(e) => onChange({ category: e.target.value || undefined, page: 1 })}
-          className="w-full rounded-md border border-white/10 bg-black/20 px-2 py-2 text-sm"
+          className="w-full rounded-md border border-border bg-black/20 px-2 py-2 text-sm"
           aria-label="Filtrar por categoria de produto"
         >
           <option value="">Todas</option>
@@ -108,17 +108,17 @@ export function FilterFields({ filters, onChange, onClear, stores }: FilterField
             ))}
         </select>
         {filters.category && (
-          <p className="mt-1 text-xs text-luxury-mist">{categoryLabel(filters.category)}</p>
+          <p className="mt-1 text-xs text-muted-foreground">{categoryLabel(filters.category)}</p>
         )}
       </div>
 
       {stores.length > 0 && (
         <div>
-          <h4 className="mb-2 text-sm font-semibold text-luxury-frost">Loja</h4>
+          <h4 className="mb-2 text-sm font-semibold text-foreground">Loja</h4>
           <select
             value={filters.storeId ?? ""}
             onChange={(e) => onChange({ storeId: e.target.value || undefined, page: 1 })}
-            className="w-full rounded-md border border-white/10 bg-black/20 px-2 py-2 text-sm"
+            className="w-full rounded-md border border-border bg-black/20 px-2 py-2 text-sm"
             aria-label="Filtrar por loja"
           >
             <option value="">Todas</option>
@@ -139,7 +139,7 @@ export function FilterFields({ filters, onChange, onClear, stores }: FilterField
           className="h-4 w-4"
           aria-label="Só produtos em estoque"
         />
-        <span className="text-sm text-luxury-mist">Só produtos em estoque</span>
+        <span className="text-sm text-muted-foreground">Só produtos em estoque</span>
       </label>
 
       <MarketplaceFiltersAdvanced filters={filters} onChange={onChange} />
@@ -147,7 +147,7 @@ export function FilterFields({ filters, onChange, onClear, stores }: FilterField
       <button
         type="button"
         onClick={onClear}
-        className="flex w-full items-center justify-center gap-2 rounded-md border border-white/10 py-2 text-sm hover:bg-white/5"
+        className="flex w-full items-center justify-center gap-2 rounded-md border border-border py-2 text-sm hover:bg-muted/80"
       >
         <X className="h-4 w-4" />
         Limpar filtros

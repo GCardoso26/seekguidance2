@@ -20,20 +20,20 @@ type Props = {
 
 export function CouponList({ coupons, onDeactivate }: Props) {
   if (coupons.length === 0) {
-    return <p className="text-luxury-mist">Nenhum cupom criado.</p>;
+    return <p className="text-muted-foreground">Nenhum cupom criado.</p>;
   }
 
   return (
     <div className="space-y-3">
       {coupons.map((c) => (
-        <div key={c.id} className="rounded-xl border border-white/10 bg-white/5 p-4">
+        <div key={c.id} className="surface-card p-4">
           <div className="flex flex-wrap justify-between gap-2">
-            <span className="font-mono font-semibold text-luxury-gold">{c.code}</span>
-            <span className={`text-xs ${c.is_active ? "text-emerald-400" : "text-luxury-mist"}`}>
+            <span className="font-mono font-semibold text-primary">{c.code}</span>
+            <span className={`text-xs ${c.is_active ? "text-emerald-400" : "text-muted-foreground"}`}>
               {c.is_active ? "Ativo" : "Inativo"}
             </span>
           </div>
-          <p className="mt-1 text-sm text-luxury-mist">
+          <p className="mt-1 text-sm text-muted-foreground">
             {c.type === "percentage" ? `${c.value_cents}% off` : formatShopPrice(c.value_cents)} · Usos:{" "}
             {c.current_uses}
             {c.max_uses ? `/${c.max_uses}` : ""}

@@ -38,16 +38,16 @@ export function BracketControls({
 
   return (
     <div
-      className="flex flex-wrap gap-2 rounded-xl border border-white/10 bg-white/5 p-4"
+      className="flex flex-wrap gap-2 surface-card p-4"
       data-testid="bracket-controls"
     >
-      <p className="w-full text-sm text-luxury-mist">Controles do organizador</p>
+      <p className="w-full text-sm text-muted-foreground">Controles do organizador</p>
 
       {(phase === "check_in" || phase === "registration_open") && onStartTournament && (
         <Button
           type="button"
           size="sm"
-          className="bg-luxury-gold text-luxury-onyx"
+          className="bg-primary text-primary-foreground"
           disabled={pending?.start}
           onClick={onStartTournament}
           data-testid="bracket-start-tournament"
@@ -73,7 +73,7 @@ export function BracketControls({
         <Button
           type="button"
           size="sm"
-          className="bg-luxury-gold text-luxury-onyx"
+          className="bg-primary text-primary-foreground"
           disabled={pending?.topCut}
           onClick={onAdvanceTopCut}
           data-testid="bracket-start-topcut"

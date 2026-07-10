@@ -36,7 +36,7 @@ export function CollectionCard({ item, onEdit, onRemove, busy }: CollectionCardP
   const card = toUnifiedCard(item);
 
   return (
-    <li className="flex items-center gap-4 rounded-xl border border-white/10 bg-white/5 p-4">
+    <li className="flex items-center gap-4 surface-card p-4">
       <div className="relative h-16 w-12 shrink-0 overflow-hidden rounded">
         <CardImage
           src={cardImageUrl(card)}
@@ -49,12 +49,12 @@ export function CollectionCard({ item, onEdit, onRemove, busy }: CollectionCardP
         />
       </div>
       <div className="min-w-0 flex-1">
-        <p className="truncate font-medium text-luxury-frost">{item.card?.name}</p>
-        <p className="text-xs text-luxury-mist">
+        <p className="truncate font-medium text-foreground">{item.card?.name}</p>
+        <p className="text-xs text-muted-foreground">
           {item.card?.game_code} · {item.card?.set_name ?? item.card?.set_code} · {item.condition}
           {item.is_foil ? " · Foil" : ""}
         </p>
-        <p className="text-xs text-luxury-gold">Quantidade: {item.quantity}</p>
+        <p className="text-xs text-primary">Quantidade: {item.quantity}</p>
       </div>
       <div className="flex gap-2">
         <Button type="button" size="sm" variant="outline" onClick={() => onEdit(item)} disabled={busy}>

@@ -26,7 +26,7 @@ export function EliminationBracket({
 
   if (matches.length === 0) {
     return (
-      <p className="text-sm text-luxury-mist" data-testid="elimination-bracket-empty">
+      <p className="text-sm text-muted-foreground" data-testid="elimination-bracket-empty">
         Bracket eliminatório ainda não gerado.
       </p>
     );
@@ -34,11 +34,11 @@ export function EliminationBracket({
 
   return (
     <div data-testid="elimination-bracket">
-      <p className="mb-3 text-sm font-medium text-luxury-frost">{title}</p>
+      <p className="mb-3 text-sm font-medium text-foreground">{title}</p>
       <div className="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory">
         {rounds.map((r) => (
           <div key={r} className="min-w-[220px] shrink-0 snap-start space-y-3">
-            <p className="sticky top-0 text-center text-sm font-semibold text-luxury-gold-light">
+            <p className="sticky top-0 text-center text-sm font-semibold text-primary-light">
               {eliminationRoundLabel(r, maxRound)}
             </p>
             {matches

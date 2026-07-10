@@ -104,16 +104,10 @@ export const viewport: Viewport = {
   maximumScale: 5,
 };
 
-
-
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-
   return (
-
-    <html lang="pt-BR" className={`dark ${inter.variable}`} suppressHydrationWarning>
-
+    <html lang="pt-BR" className={inter.variable} suppressHydrationWarning>
       <head>
-
         <meta name="theme-color" content="#7c3aed" />
 
         <link rel="apple-touch-icon" href="/apple-icon" />
@@ -152,7 +146,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               position="top-right"
               toastOptions={{
                 classNames: {
-                  toast: "bg-zinc-900 border border-zinc-800 text-white",
+                  toast: "bg-card border border-border text-foreground shadow-lg",
                 },
               }}
             />

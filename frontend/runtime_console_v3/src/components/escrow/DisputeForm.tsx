@@ -47,7 +47,7 @@ export function DisputeForm({ escrowId, onSuccess }: DisputeFormProps) {
         onChange={(e) => setReason(e.target.value)}
         rows={4}
         placeholder="Descreva o problema (produto diferente, não recebido, danificado…)"
-        className="w-full rounded-lg border border-white/10 bg-luxury-onyx p-3 text-sm text-luxury-frost"
+        className="w-full rounded-lg border border-border bg-background p-3 text-sm text-foreground"
       />
       {error && <p className="text-sm text-red-400">{error}</p>}
       <button

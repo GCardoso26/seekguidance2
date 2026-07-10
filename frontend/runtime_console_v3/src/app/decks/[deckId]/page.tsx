@@ -23,7 +23,7 @@ export default function DeckShowcasePage({
   if (isLoading) {
     return (
       <MobileLayout>
-        <div className="p-8 text-luxury-mist">Carregando deck…</div>
+        <div className="p-8 text-muted-foreground">Carregando deck…</div>
       </MobileLayout>
     );
   }
@@ -31,7 +31,7 @@ export default function DeckShowcasePage({
   if (error || !deck) {
     return (
       <MobileLayout>
-        <div className="p-8 text-luxury-mist">Deck não encontrado ou privado.</div>
+        <div className="p-8 text-muted-foreground">Deck não encontrado ou privado.</div>
       </MobileLayout>
     );
   }
@@ -46,7 +46,7 @@ export default function DeckShowcasePage({
   return (
     <MobileLayout>
       <div className="container mx-auto px-4 py-8">
-        <Link href="/decks" className="text-sm text-luxury-mist">
+        <Link href="/decks" className="text-sm text-muted-foreground">
           ← Decks
         </Link>
 
@@ -56,9 +56,9 @@ export default function DeckShowcasePage({
 
         <DeckShoppingPanel deckId={deck.id} deckName={deck.name} />
 
-        {deck.description && <p className="mt-4 text-luxury-mist">{deck.description}</p>}
+        {deck.description && <p className="mt-4 text-muted-foreground">{deck.description}</p>}
 
-        <div className="mt-6 flex flex-wrap gap-3 text-sm text-luxury-mist">
+        <div className="mt-6 flex flex-wrap gap-3 text-sm text-muted-foreground">
           <span className="inline-flex items-center gap-1">
             <Heart className="h-4 w-4" /> {deck.likes}
           </span>
@@ -79,7 +79,7 @@ export default function DeckShowcasePage({
 
         {deck.sideboard.length > 0 && (
           <>
-            <h2 className="mt-8 text-lg font-semibold text-luxury-frost">Sideboard</h2>
+            <h2 className="mt-8 text-lg font-semibold text-foreground">Sideboard</h2>
             <div className="mt-3 grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-6">
               {deck.sideboard.map((entry) => (
                 <Link key={entry.id} href={`/loja/cartas/${entry.card_id}`} className="relative">

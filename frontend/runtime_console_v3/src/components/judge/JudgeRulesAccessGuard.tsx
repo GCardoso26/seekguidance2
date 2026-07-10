@@ -10,7 +10,7 @@ export function JudgeRulesAccessGuard({ children }: { children: ReactNode }) {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-luxury-onyx">
+      <div className="flex min-h-screen items-center justify-center bg-background">
         <InlineLoading message="Verificando acesso às regras…" />
       </div>
     );
@@ -18,7 +18,7 @@ export function JudgeRulesAccessGuard({ children }: { children: ReactNode }) {
 
   if (!allowed && reason) {
     return (
-      <div className="min-h-screen bg-luxury-onyx text-white">
+      <div className="min-h-screen bg-background text-white">
         <RulesAccessDenied reason={reason} title="Mesa de Regras" />
       </div>
     );

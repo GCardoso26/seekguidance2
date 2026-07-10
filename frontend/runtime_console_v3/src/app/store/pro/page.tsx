@@ -46,9 +46,9 @@ function ProPageContent() {
 
   if (!storeId) {
     return (
-      <div className="rounded-xl border border-white/10 bg-white/5 p-8 text-center">
-        <p className="text-luxury-mist">Cadastre uma loja para assinar o Pro.</p>
-        <Link href="/stores/create" className="mt-4 inline-block text-luxury-gold underline">
+      <div className="surface-card p-8 text-center">
+        <p className="text-muted-foreground">Cadastre uma loja para assinar o Pro.</p>
+        <Link href="/stores/create" className="mt-4 inline-block text-primary underline">
           Criar loja
         </Link>
       </div>
@@ -62,14 +62,14 @@ function ProPageContent() {
           <h1 className="text-2xl font-bold">Pro Loja</h1>
           <ProBadge plan={plan} />
         </div>
-        <p className="mt-2 text-luxury-mist">
+        <p className="mt-2 text-muted-foreground">
           Receita da plataforma via assinatura — sem comissão sobre suas vendas.
         </p>
       </div>
 
       <ul className="space-y-2">
         {BENEFITS.map((b) => (
-          <li key={b} className="text-sm text-luxury-mist">
+          <li key={b} className="text-sm text-muted-foreground">
             ✓ {b}
           </li>
         ))}
@@ -78,9 +78,9 @@ function ProPageContent() {
       {plan === "free" ? (
         <ProCheckout storeId={storeId} onSuccess={() => void refetch()} />
       ) : (
-        <div className="rounded-xl border border-luxury-gold/30 bg-luxury-gold/10 p-6">
+        <div className="rounded-xl border border-primary/30 bg-primary/10 p-6">
           <p className="font-semibold">Assinatura ativa</p>
-          <Link href="/store/dashboard?tab=pagamentos" className="mt-2 inline-block text-sm text-luxury-gold underline">
+          <Link href="/store/dashboard?tab=pagamentos" className="mt-2 inline-block text-sm text-primary underline">
             Gerenciar em Pagamentos
           </Link>
         </div>
@@ -93,7 +93,7 @@ export default function StoreProPage() {
   return (
     <MobileLayout>
       <div className="container mx-auto px-4 py-8">
-        <Suspense fallback={<p className="text-luxury-mist">Carregando…</p>}>
+        <Suspense fallback={<p className="text-muted-foreground">Carregando…</p>}>
           <ProPageContent />
         </Suspense>
       </div>

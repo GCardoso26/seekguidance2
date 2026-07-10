@@ -33,17 +33,17 @@ export function CreatePlayerProfileForm({ email, defaultDisplayName }: Props) {
   };
 
   return (
-    <Card className="mx-auto max-w-md border-white/10 bg-white/5">
+    <Card className="mx-auto max-w-md border-border bg-muted/50">
       <CardHeader>
         <CardTitle>Criar seu perfil</CardTitle>
       </CardHeader>
       <CardContent>
-        <p className="mb-4 text-sm text-luxury-mist">
+        <p className="mb-4 text-sm text-muted-foreground">
           Você ainda não tem perfil de jogador. Escolha um handle público para continuar.
         </p>
         <form onSubmit={onSubmit} className="space-y-4">
           <div>
-            <label htmlFor="create-handle" className="mb-1 block text-sm text-luxury-frost/90">
+            <label htmlFor="create-handle" className="mb-1 block text-sm text-foreground/90">
               Handle
             </label>
             <Input
@@ -53,12 +53,12 @@ export function CreatePlayerProfileForm({ email, defaultDisplayName }: Props) {
               placeholder="seu_handle"
               pattern="[a-zA-Z0-9_]{3,30}"
               required
-              className="border-white/10 bg-white/5"
+              className="border-border bg-muted/50"
             />
-            <p className="mt-1 text-xs text-luxury-mist/70">3–30 caracteres: letras, números e _</p>
+            <p className="mt-1 text-xs text-muted-foreground/70">3–30 caracteres: letras, números e _</p>
           </div>
           <div>
-            <label htmlFor="create-displayName" className="mb-1 block text-sm text-luxury-frost/90">
+            <label htmlFor="create-displayName" className="mb-1 block text-sm text-foreground/90">
               Nome de exibição
             </label>
             <Input
@@ -66,13 +66,13 @@ export function CreatePlayerProfileForm({ email, defaultDisplayName }: Props) {
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
               required
-              className="border-white/10 bg-white/5"
+              className="border-border bg-muted/50"
             />
           </div>
           {isError && (
             <p className="text-sm text-red-400">{error instanceof Error ? error.message : "Erro ao criar perfil"}</p>
           )}
-          <Button type="submit" disabled={isPending} className="w-full bg-luxury-gold text-luxury-onyx">
+          <Button type="submit" disabled={isPending} className="w-full bg-primary text-primary-foreground">
             {isPending ? "Criando…" : "Criar perfil"}
           </Button>
         </form>

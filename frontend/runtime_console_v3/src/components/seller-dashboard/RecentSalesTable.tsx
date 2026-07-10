@@ -17,7 +17,7 @@ type Props = {
 
 export function RecentSalesTable({ orders, viewAllHref = "/vendedor/painel/vendas" }: Props) {
   if (orders.length === 0) {
-    return <p className="text-sm text-luxury-mist">Nenhuma venda recente.</p>;
+    return <p className="text-sm text-muted-foreground">Nenhuma venda recente.</p>;
   }
 
   return (
@@ -26,10 +26,10 @@ export function RecentSalesTable({ orders, viewAllHref = "/vendedor/painel/venda
         <Link
           key={order.id}
           href={`/vendedor/painel/vendas/${order.id}`}
-          className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/5 p-4 hover:bg-white/10"
+          className="flex flex-wrap items-center justify-between gap-2 surface-card p-4 hover:bg-muted"
         >
           <div>
-            <p className="font-mono text-xs text-luxury-mist">#{order.id.slice(0, 8)}</p>
+            <p className="font-mono text-xs text-muted-foreground">#{order.id.slice(0, 8)}</p>
             <p className="text-sm">
               {(order.items ?? [])
                 .map((i) => `${i.product_name} ×${i.quantity}`)
@@ -42,7 +42,7 @@ export function RecentSalesTable({ orders, viewAllHref = "/vendedor/painel/venda
           </div>
         </Link>
       ))}
-      <Link href={viewAllHref} className="text-sm text-luxury-gold underline">
+      <Link href={viewAllHref} className="text-sm text-primary underline">
         Ver todas →
       </Link>
     </div>

@@ -31,9 +31,9 @@ export function EnhancedPixCheckoutPanel({ pix, onRegenerate, onManualConfirm }:
 
   return (
     <div className="space-y-4">
-      <div className="space-y-2 rounded-lg border border-white/10 bg-white/5 p-4 text-sm">
+      <div className="space-y-2 surface-card rounded-lg p-4 text-sm">
         <div className="flex justify-between">
-          <span className="text-luxury-mist">Subtotal</span>
+          <span className="text-muted-foreground">Subtotal</span>
           <span>{formatShopPrice(subtotal)}</span>
         </div>
         {discount > 0 && (
@@ -42,7 +42,7 @@ export function EnhancedPixCheckoutPanel({ pix, onRegenerate, onManualConfirm }:
             <span>−{formatShopPrice(discount)}</span>
           </div>
         )}
-        <div className="flex justify-between border-t border-white/10 pt-2 text-base font-bold">
+        <div className="flex justify-between border-t border-border pt-2 text-base font-bold">
           <span>Total PIX</span>
           <span data-testid="pix-final-amount">{formatShopPrice(pix.amount_cents)}</span>
         </div>
@@ -54,7 +54,7 @@ export function EnhancedPixCheckoutPanel({ pix, onRegenerate, onManualConfirm }:
         <BasePanel pix={pix} />
       </div>
       <PixShareActions copyPayload={pix.copy_payload} qrCode={pix.qr_code} txid={pix.txid} />
-      <details className="rounded-lg border border-white/10 bg-white/5 p-3 text-xs text-luxury-mist">
+      <details className="surface-card rounded-lg p-3 text-xs text-muted-foreground">
         <summary className="cursor-pointer font-medium">Como pagar no app do banco</summary>
         <ol className="mt-2 list-decimal space-y-1 pl-4">
           <li>Abra o app do seu banco</li>
@@ -64,7 +64,7 @@ export function EnhancedPixCheckoutPanel({ pix, onRegenerate, onManualConfirm }:
         </ol>
       </details>
       {onManualConfirm && (
-        <button type="button" onClick={onManualConfirm} className="w-full text-sm text-luxury-mist underline">
+        <button type="button" onClick={onManualConfirm} className="w-full text-sm text-muted-foreground underline">
           Já paguei — aguardar confirmação
         </button>
       )}

@@ -18,7 +18,7 @@ import { Award, Flame, Search, Trophy } from "lucide-react";
 
 const LeaderboardTable = dynamic(
   () => import("@/components/gamification/LeaderboardTable").then((m) => m.LeaderboardTable),
-  { loading: () => <p className="text-sm text-luxury-mist">Carregando ranking…</p>, ssr: false },
+  { loading: () => <p className="text-sm text-muted-foreground">Carregando ranking…</p>, ssr: false },
 );
 
 type Metric = "competitive" | "consultations" | "streak" | "liga" | "xp";
@@ -132,11 +132,11 @@ export default function LeaderboardPage() {
   return (
     <MobileLayout>
       <div className="container mx-auto max-w-2xl px-4 py-8">
-        <Link href="/" className="text-sm text-luxury-mist">
+        <Link href="/" className="text-sm text-muted-foreground">
           ← Início
         </Link>
         <h1 className="mt-2 text-3xl font-bold">Leaderboard</h1>
-        <p className="mt-1 text-sm text-luxury-mist">
+        <p className="mt-1 text-sm text-muted-foreground">
           {metric === "xp"
             ? "Ranking global por nível e XP"
             : metric === "liga"
@@ -165,7 +165,7 @@ export default function LeaderboardPage() {
                 onClick={() => setGame(g.code)}
                 className={cn(
                   "rounded-full px-3 py-1 text-xs font-medium",
-                  game === g.code ? "bg-luxury-gold/20 text-luxury-gold-light" : "bg-white/5 text-luxury-mist",
+                  game === g.code ? "bg-primary/20 text-primary-light" : "bg-muted/50 text-muted-foreground",
                 )}
               >
                 {g.name}
@@ -184,7 +184,7 @@ export default function LeaderboardPage() {
                 onClick={() => setMetric(m.id)}
                 className={cn(
                   "inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs",
-                  metric === m.id ? "bg-luxury-gold/20 text-luxury-gold-light" : "bg-white/5 text-luxury-mist",
+                  metric === m.id ? "bg-primary/20 text-primary-light" : "bg-muted/50 text-muted-foreground",
                 )}
               >
                 <Icon className="h-3.5 w-3.5" />
@@ -203,7 +203,7 @@ export default function LeaderboardPage() {
                 onClick={() => setScope(s)}
                 className={cn(
                   "rounded-lg px-3 py-1 text-xs capitalize",
-                  scope === s ? "bg-white/10 text-luxury-frost" : "text-luxury-mist",
+                  scope === s ? "bg-muted text-foreground" : "text-muted-foreground",
                 )}
               >
                 {s === "global" ? "Global" : s === "friends" ? "Amigos" : "Estado"}
@@ -213,23 +213,23 @@ export default function LeaderboardPage() {
         )}
 
         {myRank != null && (
-          <p className="mt-4 rounded-xl border border-luxury-gold/30 bg-luxury-gold/5 px-4 py-3 text-sm text-luxury-gold-light">
+          <p className="mt-4 rounded-xl border border-primary/30 bg-primary/5 px-4 py-3 text-sm text-primary-light">
             Você está #{myRank} de {total} em {gameLabel}
           </p>
         )}
 
         <ul className="mt-6 space-y-2">
-          {metric !== "xp" && loading && <li className="text-sm text-luxury-mist">Carregando…</li>}
+          {metric !== "xp" && loading && <li className="text-sm text-muted-foreground">Carregando…</li>}
           {metric !== "xp" && !loading && entries.length === 0 && (
-            <li className="text-sm text-luxury-mist">Nenhum dado ainda para esta categoria.</li>
+            <li className="text-sm text-muted-foreground">Nenhum dado ainda para esta categoria.</li>
           )}
           {metric !== "xp" &&
             entries.map((e) => (
             <li
               key={`${e.player_id}-${e.rank}`}
-              className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 p-3"
+              className="flex items-center gap-3 surface-card p-3"
             >
-              <span className="w-10 text-center text-lg font-bold text-luxury-gold">
+              <span className="w-10 text-center text-lg font-bold text-primary">
                 {metric === "liga" ? rankEmoji(e.rank) : `#${e.rank}`}
               </span>
               {e.avatar_url ? (
@@ -241,13 +241,13 @@ export default function LeaderboardPage() {
                   className="h-10 w-10 rounded-full object-cover"
                 />
               ) : (
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-xs font-bold text-luxury-mist">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-xs font-bold text-muted-foreground">
                   {(e.display_name || e.handle).slice(0, 1).toUpperCase()}
                 </div>
               )}
               <div className="min-w-0 flex-1">
                 <p className="truncate font-medium">{e.display_name || `@${e.handle}`}</p>
-                <p className="text-xs capitalize text-luxury-mist">
+                <p className="text-xs capitalize text-muted-foreground">
                   {metric === "liga" && e.level ? (
                     <span style={{ color: LEVEL_COLORS[e.level as keyof typeof LEVEL_COLORS] }}>
                       {e.level}
@@ -257,7 +257,7 @@ export default function LeaderboardPage() {
                   )}
                 </p>
               </div>
-              <span className="text-sm font-semibold text-luxury-frost">
+              <span className="text-sm font-semibold text-foreground">
                 {metric === "liga" ? `${e.score.toLocaleString("pt-BR")} XP` : e.score}
               </span>
             </li>

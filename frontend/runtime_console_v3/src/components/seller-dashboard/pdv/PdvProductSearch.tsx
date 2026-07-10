@@ -29,7 +29,7 @@ export function PdvProductSearch({ products, isLoading, onAdd, onSearch }: Props
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Buscar por nome ou SKU…"
-          className="max-w-md border-white/10 bg-black/30"
+          className="max-w-md border-border bg-black/30"
           data-testid="pdv-text-search-input"
         />
         <Button type="submit" variant="outline" disabled={query.trim().length < 2}>
@@ -38,21 +38,21 @@ export function PdvProductSearch({ products, isLoading, onAdd, onSearch }: Props
       </form>
 
       <ul className="max-h-72 space-y-2 overflow-y-auto">
-        {isLoading && <li className="text-sm text-luxury-mist">Buscando…</li>}
+        {isLoading && <li className="text-sm text-muted-foreground">Buscando…</li>}
         {!isLoading && products.length === 0 && (
-          <li className="text-sm text-luxury-mist" data-testid="pdv-search-empty">
+          <li className="text-sm text-muted-foreground" data-testid="pdv-search-empty">
             Nenhum produto. Digite ao menos 2 caracteres.
           </li>
         )}
         {products.map((p) => (
           <li
             key={p.id}
-            className="flex items-center justify-between gap-3 rounded-lg border border-white/10 p-3"
+            className="flex items-center justify-between gap-3 rounded-lg border border-border p-3"
             data-testid={`pdv-search-result-${p.id}`}
           >
             <div className="min-w-0">
               <p className="truncate font-medium">{p.name}</p>
-              <p className="text-xs text-luxury-mist">
+              <p className="text-xs text-muted-foreground">
                 {formatShopPrice(p.price_cents)}
                 {p.sku ? ` · SKU ${p.sku}` : ""} · estoque {p.stock}
               </p>

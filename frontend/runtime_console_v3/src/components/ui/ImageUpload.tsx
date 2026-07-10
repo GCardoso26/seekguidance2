@@ -52,9 +52,9 @@ export function ImageUpload({
 
   return (
     <div className={cn("space-y-2", className)}>
-      <p className="text-sm text-luxury-mist">{label}</p>
+      <p className="text-sm text-muted-foreground">{label}</p>
       <label
-        className="flex cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-white/15 bg-white/5 px-4 py-6 transition hover:border-luxury-gold/40"
+        className="flex cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-white/15 bg-muted/50 px-4 py-6 transition hover:border-primary/40"
         onDragOver={(e) => e.preventDefault()}
         onDrop={(e) => {
           e.preventDefault();
@@ -67,8 +67,8 @@ export function ImageUpload({
           <img src={preview} alt="" className="max-h-40 rounded-lg object-contain" />
         ) : (
           <>
-            <Upload className="mb-2 h-6 w-6 text-luxury-mist" strokeWidth={1.5} />
-            <span className="text-xs text-luxury-mist">Arraste ou clique para enviar</span>
+            <Upload className="mb-2 h-6 w-6 text-muted-foreground" strokeWidth={1.5} />
+            <span className="text-xs text-muted-foreground">Arraste ou clique para enviar</span>
           </>
         )}
         <input

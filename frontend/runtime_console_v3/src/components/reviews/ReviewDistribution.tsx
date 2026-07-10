@@ -11,11 +11,11 @@ export function ReviewDistribution({ distribution, total }: Props) {
         const pct = total > 0 ? Math.round((count / total) * 100) : 0;
         return (
           <div key={star} className="flex items-center gap-2 text-xs">
-            <span className="w-6 text-luxury-mist">{star}★</span>
-            <div className="h-2 flex-1 overflow-hidden rounded-full bg-white/10">
-              <div className="h-full rounded-full bg-luxury-gold" style={{ width: `${pct}%` }} />
+            <span className="w-6 text-muted-foreground">{star}★</span>
+            <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
+              <div className="h-full rounded-full bg-primary" style={{ width: `${pct}%` }} />
             </div>
-            <span className="w-8 text-right text-luxury-mist">{count}</span>
+            <span className="w-8 text-right text-muted-foreground">{count}</span>
           </div>
         );
       })}

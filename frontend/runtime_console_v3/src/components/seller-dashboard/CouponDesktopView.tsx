@@ -37,14 +37,14 @@ function buildCouponColumns(
       id: "code",
       accessorKey: "code",
       header: "Código",
-      cell: ({ row }) => <span className="font-mono font-medium text-luxury-gold">{row.original.code}</span>,
+      cell: ({ row }) => <span className="font-mono font-medium text-primary">{row.original.code}</span>,
     },
     {
       id: "discountType",
       accessorKey: "discountType",
       header: "Tipo",
       cell: ({ row }) => (
-        <span className="text-sm text-luxury-mist">
+        <span className="text-sm text-muted-foreground">
           {row.original.discountType === "percentage" ? "Percentual" : "Fixo"}
         </span>
       ),
@@ -66,7 +66,7 @@ function buildCouponColumns(
       accessorFn: (row) => row.currentUses,
       header: "Usos",
       enableSorting: false,
-      cell: ({ row }) => <span className="text-sm text-luxury-mist">{formatUses(row.original)}</span>,
+      cell: ({ row }) => <span className="text-sm text-muted-foreground">{formatUses(row.original)}</span>,
     },
     {
       id: "status",
@@ -136,7 +136,7 @@ export function CouponDesktopView({ coupons, onEdit, onToggleActive, onDelete, b
         emptyMessage="Nenhum cupom nesta página."
       />
       {coupons.some((c) => c.minOrderCents > 0) && (
-        <p className="mt-2 text-xs text-luxury-mist/70">
+        <p className="mt-2 text-xs text-muted-foreground/70">
           Pedidos mínimos:{" "}
           {coupons
             .filter((c) => c.minOrderCents > 0)

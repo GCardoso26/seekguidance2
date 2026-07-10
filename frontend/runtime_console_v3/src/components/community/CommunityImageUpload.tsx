@@ -56,10 +56,10 @@ export function CommunityImageUpload({ label = "Imagem", onUpload, className }: 
 
   return (
     <div className={cn("space-y-2", className)}>
-      <p className="text-sm text-luxury-mist">{label}</p>
+      <p className="text-sm text-muted-foreground">{label}</p>
       <label
         className={cn(
-          "flex min-h-[44px] cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-white/15 bg-white/5 px-4 py-6 transition hover:border-luxury-gold/40",
+          "flex min-h-[44px] cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-white/15 bg-muted/50 px-4 py-6 transition hover:border-primary/40",
           uploading && "pointer-events-none opacity-60",
         )}
         onDragOver={(e) => e.preventDefault()}
@@ -73,11 +73,11 @@ export function CommunityImageUpload({ label = "Imagem", onUpload, className }: 
           // eslint-disable-next-line @next/next/no-img-element
           <img src={preview} alt="Preview do upload" className="max-h-40 rounded-lg object-contain" />
         ) : uploading ? (
-          <Loader2 className="h-6 w-6 animate-spin text-luxury-gold" />
+          <Loader2 className="h-6 w-6 animate-spin text-primary" />
         ) : (
           <>
-            <Upload className="mb-2 h-6 w-6 text-luxury-mist" strokeWidth={1.5} aria-hidden />
-            <span className="text-xs text-luxury-mist">Arraste ou clique (comprimido para WebP)</span>
+            <Upload className="mb-2 h-6 w-6 text-muted-foreground" strokeWidth={1.5} aria-hidden />
+            <span className="text-xs text-muted-foreground">Arraste ou clique (comprimido para WebP)</span>
           </>
         )}
         <input

@@ -46,7 +46,7 @@ export function StripeConnectPanel({ storeId, store, loading, variant = "panel" 
     return (
       <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-6">
         <h2 className="font-semibold text-emerald-200">Stripe conectado (opcional)</h2>
-        <p className="mt-2 text-sm text-luxury-mist">
+        <p className="mt-2 text-sm text-muted-foreground">
           Aceita cartão via Stripe Connect. Pagamentos vão 100% para sua conta — sem comissão da plataforma.
         </p>
       </div>
@@ -55,13 +55,13 @@ export function StripeConnectPanel({ storeId, store, loading, variant = "panel" 
 
   const wrapperClass =
     variant === "banner"
-      ? "rounded-xl border border-luxury-gold/40 bg-luxury-gold/10 p-4"
-      : "rounded-xl border border-white/10 bg-white/5 p-6";
+      ? "rounded-xl border border-primary/40 bg-primary/10 p-4"
+      : "surface-card p-6";
 
   return (
     <div className={wrapperClass}>
       <h2 className="font-semibold">{variant === "banner" ? "Configure pagamentos" : "Cartão (Stripe Connect — opcional)"}</h2>
-      <p className="mt-2 text-sm text-luxury-mist">
+      <p className="mt-2 text-sm text-muted-foreground">
         {hasAccount
           ? "Continue o onboarding Stripe para aceitar cartão no checkout."
           : "Opcional: aceite cartão além do PIX. Requer Stripe Connect ativo na plataforma."}
@@ -70,7 +70,7 @@ export function StripeConnectPanel({ storeId, store, loading, variant = "panel" 
         type="button"
         onClick={() => void handleConnect()}
         disabled={connecting || loading || !storeId}
-        className="mt-4 rounded-lg bg-luxury-gold px-4 py-2 font-semibold text-luxury-onyx disabled:opacity-50"
+        className="mt-4 rounded-lg bg-primary px-4 py-2 font-semibold text-primary-foreground disabled:opacity-50"
       >
         {connecting ? "Redirecionando…" : hasAccount ? "Continuar onboarding Stripe" : "Conectar Stripe"}
       </button>

@@ -57,7 +57,7 @@ function CreateLeagueWizard() {
   return (
     <MobileLayout>
       <div className="container mx-auto max-w-2xl px-4 py-8">
-        <Link href="/leagues" className="text-sm text-luxury-mist">
+        <Link href="/leagues" className="text-sm text-muted-foreground">
           ← Ligas
         </Link>
         <h1 className="mt-2 text-2xl font-bold">Criar nova liga</h1>
@@ -68,9 +68,9 @@ function CreateLeagueWizard() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Nome da liga"
-              className="w-full min-h-[44px] rounded-lg border border-white/10 bg-white/5 px-4"
+              className="w-full min-h-[44px] surface-card rounded-lg px-4"
             />
-            <select value={game} onChange={(e) => setGame(e.target.value)} className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3">
+            <select value={game} onChange={(e) => setGame(e.target.value)} className="w-full surface-card rounded-lg px-4 py-3">
               {["MTG", "POKEMON", "LORCANA", "SWU"].map((g) => (
                 <option key={g} value={g}>
                   {g}
@@ -81,9 +81,9 @@ function CreateLeagueWizard() {
               value={format}
               onChange={(e) => setFormat(e.target.value)}
               placeholder="Formato"
-              className="w-full min-h-[44px] rounded-lg border border-white/10 bg-white/5 px-4"
+              className="w-full min-h-[44px] surface-card rounded-lg px-4"
             />
-            <button type="button" onClick={() => setStep(2)} className="rounded-lg bg-luxury-gold px-6 py-2 font-semibold text-luxury-onyx">
+            <button type="button" onClick={() => setStep(2)} className="rounded-lg bg-primary px-6 py-2 font-semibold text-primary-foreground">
               Continuar
             </button>
           </div>
@@ -92,17 +92,17 @@ function CreateLeagueWizard() {
         {step === 2 && (
           <div className="mt-6">
             <h2 className="text-lg font-semibold">Calendário</h2>
-            <button type="button" onClick={generate12Weeks} className="mt-3 rounded-lg border border-white/10 px-4 py-2 text-sm">
+            <button type="button" onClick={generate12Weeks} className="mt-3 rounded-lg border border-border px-4 py-2 text-sm">
               Gerar 12 semanas automáticas
             </button>
             <ul className="mt-4 space-y-2">
               {events.map((ev, i) => (
-                <li key={i} className="rounded-lg bg-white/5 px-3 py-2 text-sm">
+                <li key={i} className="rounded-lg bg-muted/50 px-3 py-2 text-sm">
                   {String(ev.name)} · ×{String(ev.points_multiplier)}
                 </li>
               ))}
             </ul>
-            <button type="button" onClick={() => setStep(3)} className="mt-4 rounded-lg bg-luxury-gold px-6 py-2 font-semibold text-luxury-onyx">
+            <button type="button" onClick={() => setStep(3)} className="mt-4 rounded-lg bg-primary px-6 py-2 font-semibold text-primary-foreground">
               Continuar
             </button>
           </div>
@@ -111,14 +111,14 @@ function CreateLeagueWizard() {
         {step === 3 && (
           <div className="mt-6">
             <h2 className="text-lg font-semibold">Confirmar</h2>
-            <p className="mt-2 text-luxury-frost/90">
+            <p className="mt-2 text-foreground/90">
               {name} — {game} {format} · {events.length} eventos
             </p>
             <button
               type="button"
               onClick={handleCreate}
               disabled={create.isPending || !name || events.length === 0}
-              className="mt-4 rounded-lg bg-luxury-gold px-6 py-2 font-semibold text-luxury-onyx disabled:opacity-50"
+              className="mt-4 rounded-lg bg-primary px-6 py-2 font-semibold text-primary-foreground disabled:opacity-50"
             >
               {create.isPending ? "Criando…" : "Criar liga"}
             </button>

@@ -10,7 +10,7 @@ type Props = {
 
 export function CardGrid({ cards, onAddListing }: Props) {
   if (cards.length === 0) {
-    return <p className="text-sm text-luxury-mist">Nenhuma carta encontrada. Tente outro termo ou jogo.</p>;
+    return <p className="text-sm text-muted-foreground">Nenhuma carta encontrada. Tente outro termo ou jogo.</p>;
   }
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

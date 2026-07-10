@@ -29,9 +29,9 @@ export function MarketplaceDecklistsTab() {
         value={deckQ}
         onChange={(e) => setDeckQ(e.target.value)}
         placeholder="Buscar decklist…"
-        className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2"
+        className="w-full surface-card rounded-lg px-4 py-2"
       />
-      {isLoading && <p className="mt-4 text-luxury-mist">Carregando…</p>}
+      {isLoading && <p className="mt-4 text-muted-foreground">Carregando…</p>}
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
         {(deckItems as Array<Record<string, unknown>>).map((item) => (
           <DecklistCard

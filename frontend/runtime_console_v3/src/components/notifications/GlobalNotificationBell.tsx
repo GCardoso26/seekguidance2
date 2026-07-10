@@ -26,8 +26,8 @@ export function GlobalNotificationBell() {
         className={cn(
           "relative rounded-lg p-2 transition",
           unread.count > 0
-            ? "text-luxury-frost hover:bg-white/5"
-            : "text-luxury-mist hover:bg-white/5 hover:text-luxury-frost",
+            ? "text-foreground hover:bg-muted/80"
+            : "text-muted-foreground hover:bg-muted/80 hover:text-foreground",
         )}
       >
         <Bell className="h-5 w-5" strokeWidth={1.5} />

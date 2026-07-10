@@ -36,7 +36,7 @@ export function TrustBadge({ level = "new", badges = [], trustScore, compact = f
       <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-xs font-medium text-emerald-300">
         <Icon className="h-3.5 w-3.5" />
         {levelLabel}
-        {trustScore != null && <span className="text-luxury-mist">· {trustScore.toFixed(0)}</span>}
+        {trustScore != null && <span className="text-muted-foreground">· {trustScore.toFixed(0)}</span>}
       </span>
       {badges.slice(0, compact ? 2 : 4).map((b) => (
         <span
@@ -44,7 +44,7 @@ export function TrustBadge({ level = "new", badges = [], trustScore, compact = f
           className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs ${
             b === "under_review"
               ? "border border-amber-500/40 bg-amber-500/10 text-amber-300"
-              : "border border-white/10 bg-white/5 text-luxury-mist"
+              : "border border-border bg-card shadow-card text-muted-foreground"
           }`}
         >
           {b === "under_review" ? <AlertTriangle className="h-3 w-3" /> : <Sparkles className="h-3 w-3" />}

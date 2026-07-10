@@ -50,13 +50,13 @@ export function KeyboardShortcutsModal({ open, onOpenChange }: Props) {
 
         <Dialog.Overlay className="fixed inset-0 z-[60] bg-black/70" />
 
-        <Dialog.Content className="fixed left-1/2 top-1/2 z-[61] w-[min(440px,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 rounded-xl border border-white/10 bg-luxury-onyx p-6 shadow-2xl">
+        <Dialog.Content className="fixed left-1/2 top-1/2 z-[61] w-[min(440px,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 rounded-xl border border-border bg-background p-6 shadow-2xl">
 
           <div className="mb-4 flex items-center justify-between">
 
             <Dialog.Title className="text-lg font-semibold">Atalhos de teclado</Dialog.Title>
 
-            <Dialog.Close aria-label="Fechar" className="rounded p-1 hover:bg-white/10">
+            <Dialog.Close aria-label="Fechar" className="rounded p-1 hover:bg-muted">
 
               <X className="h-5 w-5" />
 
@@ -70,9 +70,9 @@ export function KeyboardShortcutsModal({ open, onOpenChange }: Props) {
 
               <li key={s.keys} className="flex items-center justify-between gap-4">
 
-                <span className="text-luxury-mist">{s.action}</span>
+                <span className="text-muted-foreground">{s.action}</span>
 
-                <kbd className="rounded border border-white/20 px-2 py-0.5 font-mono text-xs">
+                <kbd className="rounded border border-border px-2 py-0.5 font-mono text-xs">
 
                   {s.keys}
 

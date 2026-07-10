@@ -21,7 +21,7 @@ function buildOrderColumns(onView: (id: string) => string): ColumnDef<SellerOrde
       accessorKey: "id",
       header: "ID",
       cell: ({ row }) => (
-        <Link href={onView(row.original.id)} className="font-mono text-sm text-luxury-gold hover:underline">
+        <Link href={onView(row.original.id)} className="font-mono text-sm text-primary hover:underline">
           #{row.original.id.slice(0, 8)}
         </Link>
       ),
@@ -37,7 +37,7 @@ function buildOrderColumns(onView: (id: string) => string): ColumnDef<SellerOrde
       accessorKey: "created_at",
       header: "Data",
       cell: ({ row }) => (
-        <span className="text-luxury-mist">{formatOrderDate(row.original.created_at)}</span>
+        <span className="text-muted-foreground">{formatOrderDate(row.original.created_at)}</span>
       ),
     },
     {
@@ -45,7 +45,7 @@ function buildOrderColumns(onView: (id: string) => string): ColumnDef<SellerOrde
       accessorKey: "total_cents",
       header: "Valor",
       cell: ({ row }) => (
-        <span className="font-semibold text-luxury-gold">{formatShopPrice(row.original.total_cents)}</span>
+        <span className="font-semibold text-primary">{formatShopPrice(row.original.total_cents)}</span>
       ),
     },
     {
@@ -60,7 +60,7 @@ function buildOrderColumns(onView: (id: string) => string): ColumnDef<SellerOrde
       enableSorting: false,
       cell: ({ row }) => (
         <div className="flex justify-end">
-          <Button variant="outline" size="sm" asChild className="border-white/20">
+          <Button variant="outline" size="sm" asChild className="border-border">
             <Link href={onView(row.original.id)}>Ver</Link>
           </Button>
         </div>

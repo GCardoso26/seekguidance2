@@ -33,7 +33,7 @@ export default function CommunitiesPageClient() {
     <MobileLayout>
       <div className="container mx-auto max-w-6xl px-4 py-8">
         <div className="flex items-center justify-between">
-          <Link href="/social" className="text-sm text-luxury-mist">
+          <Link href="/social" className="text-sm text-muted-foreground">
             ← Social
           </Link>
           <NotificationBell />
@@ -41,11 +41,11 @@ export default function CommunitiesPageClient() {
 
         <div className="mt-4 grid gap-8 lg:grid-cols-12">
           <aside className="hidden lg:col-span-3 lg:block">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-luxury-mist">Suas comunidades</h2>
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Suas comunidades</h2>
             <ul className="mt-3 space-y-2 text-sm">
               {communities.slice(0, 8).map((c) => (
                 <li key={c.id}>
-                  <Link href={`/social/communities/${c.id}`} className="text-luxury-frost hover:text-luxury-gold">
+                  <Link href={`/social/communities/${c.id}`} className="text-foreground hover:text-primary">
                     {c.name}
                   </Link>
                 </li>
@@ -59,8 +59,8 @@ export default function CommunitiesPageClient() {
           <main className="lg:col-span-6">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
-                <h1 className="text-3xl font-light text-luxury-frost">Comunidades</h1>
-                <p className="mt-1 text-luxury-mist">{tag ? `Posts com #${tag}` : "Discussões sobre TCG"}</p>
+                <h1 className="text-3xl font-light text-foreground">Comunidades</h1>
+                <p className="mt-1 text-muted-foreground">{tag ? `Posts com #${tag}` : "Discussões sobre TCG"}</p>
               </div>
               <CreatePostModal />
             </div>
@@ -87,14 +87,14 @@ export default function CommunitiesPageClient() {
           </main>
 
           <aside className="lg:col-span-3">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-luxury-mist">Populares</h2>
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Populares</h2>
             <Input
               placeholder="Buscar comunidades…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="mt-3 border-white/10 bg-white/5 text-base"
+              className="mt-3 border-border bg-muted/50 text-base"
             />
-            {isLoading && <p className="mt-4 text-sm text-luxury-mist">Carregando…</p>}
+            {isLoading && <p className="mt-4 text-sm text-muted-foreground">Carregando…</p>}
             <div className="mt-4 space-y-3">
               {filtered.slice(0, 6).map((community) => (
                 <CommunityCard

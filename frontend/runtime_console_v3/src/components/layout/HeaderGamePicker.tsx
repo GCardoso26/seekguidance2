@@ -19,7 +19,7 @@ export function HeaderGamePicker() {
         onClick={() => setOpen((v) => !v)}
         className={cn(
           "flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-          open ? "bg-luxury-gold/15 text-luxury-gold" : "text-luxury-mist hover:bg-white/5 hover:text-luxury-frost",
+          open ? "bg-primary/15 text-primary" : "text-muted-foreground hover:bg-muted/80 hover:text-foreground",
         )}
         aria-expanded={open}
         aria-haspopup="true"
@@ -37,8 +37,8 @@ export function HeaderGamePicker() {
             aria-label="Fechar menu de jogos"
             onClick={() => setOpen(false)}
           />
-          <div className="absolute left-0 top-full z-50 mt-2 w-72 rounded-xl border border-white/10 bg-luxury-obsidian p-4 shadow-2xl">
-            <p className="mb-3 text-[10px] font-bold uppercase tracking-wider text-luxury-mist">
+          <div className="absolute left-0 top-full z-50 mt-2 w-72 rounded-xl border border-border bg-card p-4 shadow-2xl">
+            <p className="mb-3 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
               Escolha seu jogo
             </p>
             <div className="grid max-h-64 grid-cols-2 gap-1 overflow-y-auto">
@@ -47,7 +47,7 @@ export function HeaderGamePicker() {
                   key={game.id}
                   href={gameCardsPath(game.slug)}
                   onClick={() => setOpen(false)}
-                  className="flex items-center gap-2 rounded-md p-2 text-sm hover:bg-white/5"
+                  className="flex items-center gap-2 rounded-md p-2 text-sm hover:bg-muted/80"
                 >
                   <Image src={game.logo_url} alt="" width={28} height={28} className="h-7 w-7 object-contain" />
                   <span className="truncate">{game.short_name}</span>
@@ -57,7 +57,7 @@ export function HeaderGamePicker() {
             <Link
               href="/loja"
               onClick={() => setOpen(false)}
-              className="mt-3 block border-t border-white/10 pt-3 text-xs text-luxury-gold hover:underline"
+              className="mt-3 block border-t border-border pt-3 text-xs text-primary hover:underline"
             >
               Ver todos os jogos →
             </Link>

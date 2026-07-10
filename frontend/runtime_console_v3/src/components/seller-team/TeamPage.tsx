@@ -23,7 +23,7 @@ export function TeamPage({ view = "users" }: { view?: TeamView }) {
               <button
                 type="button"
                 onClick={() => setInviteOpen(true)}
-                className="rounded bg-luxury-gold px-3 py-1.5 text-sm font-medium text-black"
+                className="rounded bg-primary px-3 py-1.5 text-sm font-medium text-black"
               >
                 + Convidar
               </button>

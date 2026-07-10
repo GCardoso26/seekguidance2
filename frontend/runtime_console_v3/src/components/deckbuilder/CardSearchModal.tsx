@@ -56,15 +56,15 @@ export function CardSearchModal({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/70 p-4 backdrop-blur-sm">
-      <div className="mx-auto flex h-full w-full max-w-6xl flex-col rounded-xl border border-white/10 bg-luxury-onyx">
-        <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+      <div className="mx-auto flex h-full w-full max-w-6xl flex-col rounded-xl border border-border bg-background">
+        <div className="flex items-center justify-between border-b border-border px-4 py-3">
           <div>
-            <h2 className="text-lg font-semibold text-luxury-frost">Adicionar carta</h2>
-            <p className="text-xs text-luxury-mist">Arraste para a zona desejada ou clique para adicionar no {defaultZone}</p>
+            <h2 className="text-lg font-semibold text-foreground">Adicionar carta</h2>
+            <p className="text-xs text-muted-foreground">Arraste para a zona desejada ou clique para adicionar no {defaultZone}</p>
           </div>
           <button
             type="button"
-            className="rounded-md p-2 text-luxury-mist hover:bg-white/10"
+            className="rounded-md p-2 text-muted-foreground hover:bg-muted"
             onClick={onClose}
             aria-label="Fechar modal"
           >

@@ -72,7 +72,7 @@ export function MetricCardsRow({ metrics }: Props) {
     return (
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="h-28 animate-pulse rounded-xl bg-white/5" />
+          <div key={i} className="h-28 animate-pulse rounded-xl bg-muted/50" />
         ))}
       </div>
     );
@@ -88,13 +88,13 @@ export function MetricCardsRow({ metrics }: Props) {
           <Link
             key={card.id}
             href={card.href}
-            className="rounded-xl border border-white/10 bg-white/5 p-4 transition hover:border-luxury-gold/40 hover:bg-white/[0.07]"
+            className="surface-card p-4 transition hover:border-primary/40 hover:bg-white/[0.07]"
           >
             <div className="flex items-start justify-between gap-2">
               <Icon className={`h-5 w-5 ${card.color}`} aria-hidden />
               <span className="text-2xl font-bold tabular-nums">{card.value}</span>
             </div>
-            <p className="mt-2 text-sm text-luxury-mist">{card.label}</p>
+            <p className="mt-2 text-sm text-muted-foreground">{card.label}</p>
             {card.sublabel && (
               <p
                 className={`mt-1 text-xs ${
@@ -102,7 +102,7 @@ export function MetricCardsRow({ metrics }: Props) {
                     ? "text-emerald-300"
                     : card.trend === "down"
                       ? "text-red-300"
-                      : "text-luxury-mist/70"
+                      : "text-muted-foreground/70"
                 }`}
               >
                 {card.sublabel}

@@ -47,17 +47,17 @@ export default function ProductDetailPage() {
   return (
     <MobileLayout>
       <div className="container mx-auto px-4 py-8">
-        <Link href="/marketplace/produtos" className="text-sm text-luxury-mist hover:text-luxury-gold">
+        <Link href="/marketplace/produtos" className="text-sm text-muted-foreground hover:text-primary">
           ← Produtos selados
         </Link>
-        {isLoading && <p className="mt-6 text-luxury-mist">Carregando…</p>}
+        {isLoading && <p className="mt-6 text-muted-foreground">Carregando…</p>}
         {product && (
           <div className="mt-6 grid gap-8 lg:grid-cols-2">
-            <div className="relative aspect-square overflow-hidden rounded-xl border border-white/10 bg-black/30">
+            <div className="relative aspect-square overflow-hidden rounded-xl border border-border bg-black/30">
               {image ? (
                 <Image src={image} alt={product.name} fill className="object-cover" unoptimized />
               ) : (
-                <div className="flex h-full items-center justify-center text-luxury-mist">Sem imagem</div>
+                <div className="flex h-full items-center justify-center text-muted-foreground">Sem imagem</div>
               )}
               <div className="absolute right-3 top-3 flex gap-2">
                 <PriceAlertButton productId={product.id} product={product} />
@@ -67,14 +67,14 @@ export default function ProductDetailPage() {
             <div>
               <h1 className="text-3xl font-bold">{product.name}</h1>
               {product.store_slug && (
-                <Link href={`/marketplace/loja/${product.store_slug}`} className="mt-2 inline-block text-sm text-luxury-mist hover:underline">
+                <Link href={`/marketplace/loja/${product.store_slug}`} className="mt-2 inline-block text-sm text-muted-foreground hover:underline">
                   {product.store_name}
                 </Link>
               )}
-              <p className="mt-4 font-mono text-2xl text-luxury-gold">{formatShopPrice(product.price_cents)}</p>
-              {product.description && <p className="mt-4 text-luxury-mist">{product.description}</p>}
-              <p className="mt-2 text-sm text-luxury-mist">Estoque: {product.stock ?? 0}</p>
-              <button type="button" onClick={buyNow} className="mt-6 rounded-lg bg-luxury-gold px-6 py-3 font-semibold text-luxury-onyx">
+              <p className="mt-4 font-mono text-2xl text-primary">{formatShopPrice(product.price_cents)}</p>
+              {product.description && <p className="mt-4 text-muted-foreground">{product.description}</p>}
+              <p className="mt-2 text-sm text-muted-foreground">Estoque: {product.stock ?? 0}</p>
+              <button type="button" onClick={buyNow} className="mt-6 rounded-lg bg-primary px-6 py-3 font-semibold text-primary-foreground">
                 Comprar agora
               </button>
             </div>

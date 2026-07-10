@@ -18,7 +18,7 @@ const PRIORITY_LABELS: Record<InsightPriority, string> = {
 const PRIORITY_STYLES: Record<InsightPriority, string> = {
   high: "border-red-500/30 bg-red-500/5",
   medium: "border-amber-500/30 bg-amber-500/5",
-  low: "border-white/10 bg-white/5",
+  low: "border-border bg-muted/50",
 };
 
 type Tab = "all" | "pricing" | "history";
@@ -37,30 +37,30 @@ function InsightCard({
     >
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-wide text-luxury-mist">
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
             {PRIORITY_LABELS[insight.priority]}
           </p>
-          <h4 className="mt-1 font-semibold text-luxury-frost">{insight.title}</h4>
+          <h4 className="mt-1 font-semibold text-foreground">{insight.title}</h4>
         </div>
         {insight.metric_value != null && (
-          <span className="rounded-full bg-white/10 px-2 py-0.5 text-xs text-luxury-mist">{insight.metric_value}</span>
+          <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">{insight.metric_value}</span>
         )}
       </div>
-      <p className="mt-2 text-sm text-luxury-mist">{insight.description}</p>
+      <p className="mt-2 text-sm text-muted-foreground">{insight.description}</p>
       <dl className="mt-3 space-y-1 text-xs">
         <div>
-          <dt className="text-luxury-mist/70">Motivo</dt>
-          <dd className="text-luxury-frost">{insight.reason}</dd>
+          <dt className="text-muted-foreground/70">Motivo</dt>
+          <dd className="text-foreground">{insight.reason}</dd>
         </div>
         <div>
-          <dt className="text-luxury-mist/70">Impacto</dt>
-          <dd className="text-luxury-frost">{insight.impact}</dd>
+          <dt className="text-muted-foreground/70">Impacto</dt>
+          <dd className="text-foreground">{insight.impact}</dd>
         </div>
       </dl>
       <div className="mt-4 flex flex-wrap gap-2">
         <Link
           href={insight.cta_href}
-          className="rounded-lg bg-luxury-gold/20 px-3 py-1.5 text-xs font-medium text-luxury-gold hover:bg-luxury-gold/30"
+          className="rounded-lg bg-primary/20 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/90/30"
         >
           {insight.cta_label}
         </Link>
@@ -68,7 +68,7 @@ function InsightCard({
           <button
             type="button"
             onClick={() => onPrepare(insight)}
-            className="rounded-lg border border-white/15 px-3 py-1.5 text-xs text-luxury-frost hover:bg-white/5"
+            className="rounded-lg border border-white/15 px-3 py-1.5 text-xs text-foreground hover:bg-muted/80"
           >
             Preparar ação
           </button>
@@ -110,9 +110,9 @@ export function SellerInsightsPage() {
         />
 
         {brief && (
-          <section className="rounded-xl border border-luxury-gold/20 bg-luxury-gold/5 p-4" data-testid="seller-ai-daily-brief">
-            <p className="text-sm font-medium text-luxury-frost">{brief.greeting}</p>
-            <p className="mt-2 whitespace-pre-line text-sm text-luxury-mist">{brief.summary}</p>
+          <section className="rounded-xl border border-luxury-gold/20 bg-primary/5 p-4" data-testid="seller-ai-daily-brief">
+            <p className="text-sm font-medium text-foreground">{brief.greeting}</p>
+            <p className="mt-2 whitespace-pre-line text-sm text-muted-foreground">{brief.summary}</p>
           </section>
         )}
 
@@ -124,7 +124,7 @@ export function SellerInsightsPage() {
               onClick={() => setTab(t)}
               className={cn(
                 "rounded-lg px-3 py-1.5 text-xs font-medium",
-                tab === t ? "bg-luxury-gold/20 text-luxury-gold" : "bg-white/5 text-luxury-mist hover:bg-white/10",
+                tab === t ? "bg-primary/20 text-primary" : "bg-muted/50 text-muted-foreground hover:bg-muted",
               )}
             >
               {t === "all" ? "Recomendações" : t === "pricing" ? "Pricing" : "Histórico"}
@@ -142,16 +142,16 @@ export function SellerInsightsPage() {
         )}
 
         {isLoading ? (
-          <p className="text-sm text-luxury-mist">Analisando sua loja…</p>
+          <p className="text-sm text-muted-foreground">Analisando sua loja…</p>
         ) : tab === "history" ? (
-          <section className="rounded-xl border border-white/10 bg-white/5 p-4 text-sm text-luxury-mist">
+          <section className="surface-card p-4 text-sm text-muted-foreground">
             Histórico de briefings será sincronizado com o backend na Sprint 13.
             {brief?.generated_at && (
               <p className="mt-2 text-xs">Último briefing: {new Date(brief.generated_at).toLocaleString("pt-BR")}</p>
             )}
           </section>
         ) : insights.length === 0 ? (
-          <p className="text-sm text-luxury-mist">Nenhuma recomendação no momento. Sua loja está em dia.</p>
+          <p className="text-sm text-muted-foreground">Nenhuma recomendação no momento. Sua loja está em dia.</p>
         ) : (
           <div className="space-y-6">
             {(["high", "medium", "low"] as InsightPriority[]).map((priority) => {
@@ -159,7 +159,7 @@ export function SellerInsightsPage() {
               if (!group.length) return null;
               return (
                 <section key={priority}>
-                  <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-luxury-mist">
+                  <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                     {PRIORITY_LABELS[priority]}
                   </h3>
                   <div className="grid gap-4 lg:grid-cols-2">
@@ -176,7 +176,7 @@ export function SellerInsightsPage() {
         <button
           type="button"
           onClick={() => void refetch()}
-          className="text-xs text-luxury-mist hover:text-luxury-frost"
+          className="text-xs text-muted-foreground hover:text-foreground"
         >
           Atualizar análise
         </button>

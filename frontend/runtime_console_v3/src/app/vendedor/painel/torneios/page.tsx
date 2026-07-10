@@ -32,8 +32,8 @@ export default function TorneiosPage() {
 
   if (!hasStore) {
     return (
-      <main className="p-8 text-center text-luxury-mist">
-        <Link href="/stores/create" className="text-luxury-gold underline">
+      <main className="p-8 text-center text-muted-foreground">
+        <Link href="/stores/create" className="text-primary underline">
           Cadastre sua loja
         </Link>
       </main>
@@ -43,7 +43,7 @@ export default function TorneiosPage() {
   if (!canAccess) {
     return (
       <main className="p-8 text-center">
-        <p className="text-luxury-mist">Torneios disponíveis no plano Lojista.</p>
+        <p className="text-muted-foreground">Torneios disponíveis no plano Lojista.</p>
         <Button asChild className="mt-4">
           <Link href="/vendedor/painel/planos">Ver planos</Link>
         </Button>
@@ -63,7 +63,7 @@ export default function TorneiosPage() {
       <main className="flex-1 space-y-6 overflow-y-auto p-6">
         <div>
           <h1 className="text-xl font-bold">Torneios</h1>
-          <p className="text-sm text-luxury-mist">Organize eventos, inscrições e chaves na sua loja.</p>
+          <p className="text-sm text-muted-foreground">Organize eventos, inscrições e chaves na sua loja.</p>
         </div>
 
         <TournamentManager

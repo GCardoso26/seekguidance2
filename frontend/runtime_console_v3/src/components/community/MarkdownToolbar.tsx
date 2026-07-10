@@ -29,14 +29,14 @@ export function MarkdownToolbar({ value, onChange, textareaRef }: Props) {
   ];
 
   return (
-    <div className="flex gap-1 rounded-t-lg border border-b-0 border-white/10 bg-white/5 p-1">
+    <div className="flex gap-1 rounded-t-lg border border-b-0 border-border bg-muted/50 p-1">
       {buttons.map(({ icon: Icon, label, action }) => (
         <button
           key={label}
           type="button"
           aria-label={label}
           onClick={action}
-          className="rounded p-1.5 text-luxury-mist hover:bg-white/10 hover:text-luxury-frost"
+          className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
         >
           <Icon className="h-4 w-4" strokeWidth={1.5} />
         </button>

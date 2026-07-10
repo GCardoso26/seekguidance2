@@ -8,7 +8,7 @@ interface Props {
 export function SellerStatsPanel({ stats }: Props) {
   return (
     <div className="space-y-6">
-      <p className="text-sm text-luxury-mist">
+      <p className="text-sm text-muted-foreground">
         Período: {stats.period === "all" ? "Todo o histórico" : `Últimos ${stats.period}`}
       </p>
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
@@ -26,8 +26,8 @@ export function SellerStatsPanel({ stats }: Props) {
 
 function StatCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-      <p className="text-xs uppercase tracking-wide text-luxury-mist">{label}</p>
+    <div className="surface-card p-4">
+      <p className="text-xs uppercase tracking-wide text-muted-foreground">{label}</p>
       <p className="mt-2 text-xl font-bold">{value}</p>
     </div>
   );

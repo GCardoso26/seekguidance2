@@ -37,7 +37,7 @@ export function IntelligencePage() {
         </div>
 
         {isLoading ? (
-          <p className="text-sm text-luxury-mist">Carregando…</p>
+          <p className="text-sm text-muted-foreground">Carregando…</p>
         ) : data ? (
           <>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -50,11 +50,11 @@ export function IntelligencePage() {
               <Metric label="Oportunidades pricing" value={String(data.pricing_opportunities)} />
             </div>
 
-            <section className="rounded-xl border border-white/10 bg-white/5 p-4">
+            <section className="surface-card p-4">
               <h3 className="mb-3 font-semibold">Performance de listings</h3>
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
-                  <thead className="text-luxury-mist">
+                  <thead className="text-muted-foreground">
                     <tr>
                       <th className="p-2">Carta</th>
                       <th className="p-2">Vendas</th>
@@ -77,16 +77,16 @@ export function IntelligencePage() {
             </section>
 
             <section className="grid gap-4 lg:grid-cols-2">
-              <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+              <div className="surface-card p-4">
                 <h3 className="mb-3 font-semibold">Sugestões de preço</h3>
                 <div className="space-y-2">
                   {data.pricing_suggestions.length === 0 ? (
-                    <p className="text-sm text-luxury-mist">Nenhuma sugestão no momento.</p>
+                    <p className="text-sm text-muted-foreground">Nenhuma sugestão no momento.</p>
                   ) : (
                     data.pricing_suggestions.map((p) => (
-                      <div key={p.listing_id} className="rounded-lg bg-white/5 px-3 py-2 text-sm">
+                      <div key={p.listing_id} className="rounded-lg bg-muted/50 px-3 py-2 text-sm">
                         <p className="font-medium">{p.card_name ?? p.listing_id.slice(0, 8)}</p>
-                        <p className="text-luxury-mist">
+                        <p className="text-muted-foreground">
                           {formatShopPrice(p.listing_price_cents)} →{" "}
                           {formatShopPrice(p.suggested_price_cents)} ·{" "}
                           {SUGGESTION_LABELS[p.suggestion]}
@@ -97,14 +97,14 @@ export function IntelligencePage() {
                 </div>
               </div>
 
-              <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+              <div className="surface-card p-4">
                 <h3 className="mb-3 font-semibold">Compradores em risco (churn)</h3>
                 <div className="space-y-2">
                   {data.at_risk_buyers.length === 0 ? (
-                    <p className="text-sm text-luxury-mist">Nenhum comprador em risco identificado.</p>
+                    <p className="text-sm text-muted-foreground">Nenhum comprador em risco identificado.</p>
                   ) : (
                     data.at_risk_buyers.map((b) => (
-                      <div key={b.buyer_id} className="flex justify-between rounded-lg bg-white/5 px-3 py-2 text-sm">
+                      <div key={b.buyer_id} className="flex justify-between rounded-lg bg-muted/50 px-3 py-2 text-sm">
                         <span>{b.buyer_name ?? b.buyer_id.slice(0, 8)}</span>
                         <span className="text-amber-300">
                           {b.churn_score.toFixed(0)} · {b.days_since_last_order ?? "—"}d
@@ -124,8 +124,8 @@ export function IntelligencePage() {
 
 function Metric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-      <p className="text-xs text-luxury-mist">{label}</p>
+    <div className="surface-card p-4">
+      <p className="text-xs text-muted-foreground">{label}</p>
       <p className="mt-1 text-xl font-semibold">{value}</p>
     </div>
   );

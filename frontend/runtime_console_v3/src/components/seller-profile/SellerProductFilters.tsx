@@ -35,7 +35,7 @@ export function SellerProductFilters({ onChange }: Props) {
           ))}
           <button
             type="button"
-            className="text-xs text-luxury-gold hover:underline"
+            className="text-xs text-primary hover:underline"
             onClick={() => update({ condition: undefined })}
           >
             Qualquer
@@ -67,7 +67,7 @@ export function SellerProductFilters({ onChange }: Props) {
           <input
             type="number"
             placeholder="Mín"
-            className="w-full rounded border border-white/10 bg-black/20 px-2 py-1 text-sm"
+            className="w-full rounded border border-border bg-black/20 px-2 py-1 text-sm"
             onChange={(e) =>
               update({ minPrice: e.target.value ? Number(e.target.value) : undefined })
             }
@@ -75,7 +75,7 @@ export function SellerProductFilters({ onChange }: Props) {
           <input
             type="number"
             placeholder="Máx"
-            className="w-full rounded border border-white/10 bg-black/20 px-2 py-1 text-sm"
+            className="w-full rounded border border-border bg-black/20 px-2 py-1 text-sm"
             onChange={(e) =>
               update({ maxPrice: e.target.value ? Number(e.target.value) : undefined })
             }

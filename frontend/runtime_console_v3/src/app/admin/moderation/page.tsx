@@ -51,7 +51,7 @@ export default function AdminModerationPage() {
             key={s}
             type="button"
             onClick={() => setStatus(s)}
-            className={`rounded-lg px-3 py-1 text-xs capitalize ${status === s ? "bg-luxury-gold/20 text-luxury-gold" : "text-luxury-mist"}`}
+            className={`rounded-lg px-3 py-1 text-xs capitalize ${status === s ? "bg-primary/20 text-primary" : "text-muted-foreground"}`}
           >
             {s === "all" ? "Todos" : s}
           </button>
@@ -60,12 +60,12 @@ export default function AdminModerationPage() {
 
       <ul className="space-y-3">
         {items.map((r) => (
-          <li key={r.id} className="rounded-xl border border-white/10 bg-white/5 p-4">
+          <li key={r.id} className="surface-card p-4">
             <p className="font-medium">{r.community_posts?.title ?? "Post denunciado"}</p>
-            <p className="mt-1 text-xs text-luxury-mist">
+            <p className="mt-1 text-xs text-muted-foreground">
               {r.reason} · {r.status} · {new Date(r.created_at).toLocaleString("pt-BR")}
             </p>
-            <p className="mt-2 line-clamp-3 text-sm text-luxury-mist">{r.community_posts?.content}</p>
+            <p className="mt-2 line-clamp-3 text-sm text-muted-foreground">{r.community_posts?.content}</p>
             <div className="mt-3 flex flex-wrap gap-2">
               <button
                 type="button"
@@ -92,7 +92,7 @@ export default function AdminModerationPage() {
                 <button
                   type="button"
                   onClick={() => void act(r.id, "ban", r.community_posts!.author_id!)}
-                  className="rounded-lg bg-white/10 px-3 py-1 text-xs text-luxury-mist"
+                  className="rounded-lg bg-muted px-3 py-1 text-xs text-muted-foreground"
                 >
                   Banir autor
                 </button>
@@ -100,7 +100,7 @@ export default function AdminModerationPage() {
             </div>
           </li>
         ))}
-        {items.length === 0 && <li className="text-sm text-luxury-mist">Nenhuma denúncia neste filtro.</li>}
+        {items.length === 0 && <li className="text-sm text-muted-foreground">Nenhuma denúncia neste filtro.</li>}
       </ul>
     </PageShell>
   );

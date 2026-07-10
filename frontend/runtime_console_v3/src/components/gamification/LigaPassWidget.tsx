@@ -16,8 +16,8 @@ export function LigaPassWidget({ className, compact = false }: LigaPassWidgetPro
 
   if (isLoading) {
     return (
-      <div className={cn("animate-pulse rounded-lg border border-white/10 bg-white/5 p-3", className)}>
-        <div className="h-10 rounded bg-white/10" />
+      <div className={cn("animate-pulse surface-card rounded-lg p-3", className)}>
+        <div className="h-10 rounded bg-muted" />
       </div>
     );
   }
@@ -44,7 +44,7 @@ export function LigaPassWidget({ className, compact = false }: LigaPassWidgetPro
   }
 
   return (
-    <div className={cn("rounded-lg border border-white/10 bg-luxury-obsidian/80 p-4", className)}>
+    <div className={cn("rounded-lg border border-border bg-card/80 p-4", className)}>
       <div className="flex items-center gap-3">
         <div
           className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white"
@@ -53,15 +53,15 @@ export function LigaPassWidget({ className, compact = false }: LigaPassWidgetPro
           {data.current_level[0]?.toUpperCase()}
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold text-luxury-frost">{data.level_name}</p>
+          <p className="text-sm font-semibold text-foreground">{data.level_name}</p>
           <Progress value={data.progress_percent} className="mt-1" />
-          <p className="mt-1 text-xs text-luxury-mist">
+          <p className="mt-1 text-xs text-muted-foreground">
             {data.current_level === "judge"
               ? "Nível máximo alcançado"
               : `${data.xp_to_next.toLocaleString("pt-BR")} XP para ${nextLevelLabel(data.current_level)}`}
           </p>
         </div>
-        <span className="text-sm font-bold text-luxury-gold">
+        <span className="text-sm font-bold text-primary">
           {data.total_xp.toLocaleString("pt-BR")} XP
         </span>
       </div>
@@ -72,7 +72,7 @@ export function LigaPassWidget({ className, compact = false }: LigaPassWidgetPro
         </p>
       )}
 
-      <div className="mt-3 flex gap-3 text-xs text-luxury-mist">
+      <div className="mt-3 flex gap-3 text-xs text-muted-foreground">
         <span>{data.stats.purchases} compras</span>
         <span>{data.stats.sales} vendas</span>
         <span>{data.stats.decks} decks</span>

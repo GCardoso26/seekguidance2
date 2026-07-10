@@ -30,7 +30,7 @@ function buildColumns(
             if (el) el.indeterminate = table.getIsSomePageRowsSelected();
           }}
           onChange={table.getToggleAllPageRowsSelectedHandler()}
-          className="rounded border-white/20"
+          className="rounded border-border"
         />
       ),
       cell: ({ row }) => (
@@ -40,7 +40,7 @@ function buildColumns(
           checked={row.getIsSelected()}
           onClick={(e) => e.stopPropagation()}
           onChange={row.getToggleSelectedHandler()}
-          className="rounded border-white/20"
+          className="rounded border-border"
         />
       ),
       enableSorting: false,
@@ -56,7 +56,7 @@ function buildColumns(
         <button
           type="button"
           onClick={() => onRowClick(row.original.id)}
-          className="font-mono text-sm text-luxury-gold hover:underline"
+          className="font-mono text-sm text-primary hover:underline"
         >
           #{row.original.id.slice(0, 8)}
         </button>
@@ -78,7 +78,7 @@ function buildColumns(
       accessorKey: "payment_method",
       header: "Pagamento",
       cell: ({ row }) => (
-        <span className="text-xs uppercase text-luxury-mist">
+        <span className="text-xs uppercase text-muted-foreground">
           {row.original.payment_method ?? "—"}
         </span>
       ),
@@ -96,7 +96,7 @@ function buildColumns(
       accessorKey: "created_at",
       header: "Data",
       cell: ({ row }) => (
-        <span className="text-luxury-mist">{formatOrderDate(row.original.created_at)}</span>
+        <span className="text-muted-foreground">{formatOrderDate(row.original.created_at)}</span>
       ),
     },
   );

@@ -23,7 +23,7 @@ function buildListingColumns(onDeactivate: (id: string) => void): ColumnDef<Sell
       cell: ({ row }) => (
         <Link
           href={`/loja/cartas/${row.original.cardId}`}
-          className="font-medium hover:text-luxury-gold hover:underline"
+          className="font-medium hover:text-primary hover:underline"
         >
           {row.original.cardName || "Carta"}
         </Link>
@@ -34,7 +34,7 @@ function buildListingColumns(onDeactivate: (id: string) => void): ColumnDef<Sell
       accessorKey: "price",
       header: "Preço",
       cell: ({ row }) => (
-        <span className="font-semibold text-luxury-gold">
+        <span className="font-semibold text-primary">
           {formatCurrency(row.original.price, row.original.currency)}
         </span>
       ),
@@ -44,7 +44,7 @@ function buildListingColumns(onDeactivate: (id: string) => void): ColumnDef<Sell
       accessorKey: "createdAt",
       header: "Data",
       cell: ({ row }) => (
-        <span className="text-luxury-mist">{formatListingDate(row.original.createdAt)}</span>
+        <span className="text-muted-foreground">{formatListingDate(row.original.createdAt)}</span>
       ),
     },
     {
@@ -54,7 +54,7 @@ function buildListingColumns(onDeactivate: (id: string) => void): ColumnDef<Sell
       cell: ({ row }) => {
         const status = row.original.status ?? "active";
         return (
-          <span className="rounded-full border border-white/10 px-2 py-0.5 text-xs text-luxury-mist">
+          <span className="rounded-full border border-border px-2 py-0.5 text-xs text-muted-foreground">
             {LISTING_STATUS_LABEL[status] ?? status}
           </span>
         );
@@ -67,7 +67,7 @@ function buildListingColumns(onDeactivate: (id: string) => void): ColumnDef<Sell
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
           <ConditionBadge condition={row.original.condition as CardCondition} size="sm" />
-          <span className="text-xs text-luxury-mist">× {row.original.quantity}</span>
+          <span className="text-xs text-muted-foreground">× {row.original.quantity}</span>
         </div>
       ),
     },
@@ -77,7 +77,7 @@ function buildListingColumns(onDeactivate: (id: string) => void): ColumnDef<Sell
       enableSorting: false,
       cell: ({ row }) => (
         <div className="flex justify-end gap-2">
-          <Button variant="outline" size="sm" asChild className="border-white/20">
+          <Button variant="outline" size="sm" asChild className="border-border">
             <Link href={`/vendedor/painel/listagens/${row.original.id}`}>Editar</Link>
           </Button>
           <Button variant="ghost" size="sm" onClick={() => onDeactivate(row.original.id)}>

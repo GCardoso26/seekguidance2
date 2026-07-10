@@ -9,7 +9,7 @@ interface ImportPreviewProps {
 
 export function ImportPreview({ items }: ImportPreviewProps) {
   if (items.length === 0) {
-    return <p className="text-sm text-luxury-mist">Cole uma lista para ver o preview.</p>;
+    return <p className="text-sm text-muted-foreground">Cole uma lista para ver o preview.</p>;
   }
 
   return (

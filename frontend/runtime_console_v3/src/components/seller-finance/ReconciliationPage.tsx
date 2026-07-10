@@ -27,24 +27,24 @@ export function ReconciliationPage() {
           description="Comparação Payment aggregate vs pedidos e repasses Stripe."
         />
         {isLoading ? (
-          <p className="text-sm text-luxury-mist">Carregando…</p>
+          <p className="text-sm text-muted-foreground">Carregando…</p>
         ) : (
           <>
             <div className="flex gap-4">
-              <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
-                <p className="text-xs text-luxury-mist">Total analisado</p>
+              <div className="surface-card px-4 py-3">
+                <p className="text-xs text-muted-foreground">Total analisado</p>
                 <p className="text-xl font-semibold">{data?.total ?? 0}</p>
               </div>
-              <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
-                <p className="text-xs text-luxury-mist">Divergências</p>
+              <div className="surface-card px-4 py-3">
+                <p className="text-xs text-muted-foreground">Divergências</p>
                 <p className={`text-xl font-semibold ${data?.healthy ? "text-emerald-400" : "text-amber-400"}`}>
                   {data?.issues_count ?? 0}
                 </p>
               </div>
             </div>
-            <div className="overflow-x-auto rounded-xl border border-white/10">
+            <div className="overflow-x-auto rounded-xl border border-border">
               <table className="w-full text-left text-sm">
-                <thead className="border-b border-white/10 text-luxury-mist">
+                <thead className="border-b border-border text-muted-foreground">
                   <tr>
                     <th className="p-3">Pedido</th>
                     <th className="p-3">Payment</th>

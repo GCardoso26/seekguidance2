@@ -84,10 +84,10 @@ export function TCGOnboardingGrid({ selected, onChange, onComplete }: Props) {
               className={cn(
                 "relative flex flex-col items-center gap-2 rounded-xl border p-3 transition-all duration-300",
                 active
-                  ? "border-luxury-gold/60 bg-luxury-gold/10 shadow-lg shadow-luxury-gold/10"
+                  ? "border-luxury-gold/60 bg-primary/10 shadow-lg shadow-luxury-gold/10"
                   : lockedOut
                     ? "border-white/5 opacity-50 grayscale"
-                    : "border-white/10 hover:border-white/20",
+                    : "border-border hover:border-border",
               )}
               style={
                 active
@@ -99,14 +99,14 @@ export function TCGOnboardingGrid({ selected, onChange, onComplete }: Props) {
               }
             >
               {active && (
-                <span className="absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-full bg-luxury-gold text-luxury-onyx">
+                <span className="absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-primary-foreground">
                   <Check className="h-3 w-3" strokeWidth={2.5} />
                 </span>
               )}
               {lockedOut && (
                 <span className="absolute inset-0 flex flex-col items-center justify-center gap-1 rounded-xl bg-black/40">
-                  <Lock className="h-4 w-4 text-luxury-mist" aria-hidden />
-                  <span className="rounded-full bg-luxury-gold/90 px-2 py-0.5 text-[10px] font-bold text-luxury-onyx">
+                  <Lock className="h-4 w-4 text-muted-foreground" aria-hidden />
+                  <span className="rounded-full bg-primary/90 px-2 py-0.5 text-[10px] font-bold text-primary-foreground">
                     Pro
                   </span>
                 </span>
@@ -115,7 +115,7 @@ export function TCGOnboardingGrid({ selected, onChange, onComplete }: Props) {
               <span
                 className={cn(
                   "text-center text-xs font-medium leading-tight",
-                  active ? "text-luxury-frost" : "text-luxury-mist",
+                  active ? "text-foreground" : "text-muted-foreground",
                 )}
               >
                 {game.label}
@@ -125,9 +125,9 @@ export function TCGOnboardingGrid({ selected, onChange, onComplete }: Props) {
         })}
       </div>
 
-      <div className="flex flex-col items-center gap-4 border-t border-white/10 pt-6">
-        <p className="text-sm text-luxury-mist">
-          <span className="font-medium text-luxury-gold">{selected.length}</span>
+      <div className="flex flex-col items-center gap-4 border-t border-border pt-6">
+        <p className="text-sm text-muted-foreground">
+          <span className="font-medium text-primary">{selected.length}</span>
           /{FREE_TCG_SELECTION_LIMIT} selecionados
         </p>
         <MagneticButton
@@ -138,9 +138,9 @@ export function TCGOnboardingGrid({ selected, onChange, onComplete }: Props) {
         >
           {saving ? "Salvando..." : "Confirmar"}
         </MagneticButton>
-        <p className="max-w-md text-center text-xs text-luxury-mist/80">
+        <p className="max-w-md text-center text-xs text-muted-foreground/80">
           TCGs fora da sua seleção ficam disponíveis no{" "}
-          <Link href="/pricing" className="text-luxury-gold hover:underline">
+          <Link href="/pricing" className="text-primary hover:underline">
             plano Pro
           </Link>
           .

@@ -5,6 +5,7 @@ module.exports = {
       url: [
         "http://localhost:3000/",
         "http://localhost:3000/loja/mtg",
+        "http://localhost:3000/marketplace/cart",
         "http://localhost:3000/decks",
         "http://localhost:3000/entrar",
       ],
@@ -23,16 +24,16 @@ module.exports = {
     },
     assert: {
       assertions: {
-        "categories:performance": ["warn", { minScore: 0.7 }],
-        "categories:accessibility": ["error", { minScore: 0.85 }],
-        "categories:best-practices": ["warn", { minScore: 0.85 }],
-        "categories:seo": ["error", { minScore: 0.9 }],
+        "categories:performance": ["warn", { minScore: 0.9 }],
+        "categories:accessibility": ["error", { minScore: 0.9 }],
+        "categories:best-practices": ["warn", { minScore: 0.9 }],
+        "categories:seo": ["error", { minScore: 0.95 }],
 
-        "first-contentful-paint": ["warn", { maxNumericValue: 3000 }],
-        "largest-contentful-paint": ["warn", { maxNumericValue: 4000 }],
-        "total-blocking-time": ["warn", { maxNumericValue: 500 }],
-        "cumulative-layout-shift": ["error", { maxNumericValue: 0.1 }],
-        interactive: ["warn", { maxNumericValue: 5000 }],
+        "first-contentful-paint": ["warn", { maxNumericValue: 1800 }],
+        "largest-contentful-paint": ["warn", { maxNumericValue: 2000 }],
+        "total-blocking-time": ["warn", { maxNumericValue: 200 }],
+        "cumulative-layout-shift": ["error", { maxNumericValue: 0.05 }],
+        interactive: ["warn", { maxNumericValue: 3500 }],
 
         "aria-allowed-attr": ["warn", { minScore: 0 }],
         "color-contrast": ["warn", { minScore: 0 }],

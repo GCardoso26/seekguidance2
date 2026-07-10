@@ -9,13 +9,13 @@ type Props = {
 
 export function PricingToggle({ isAnnual, onChange }: Props) {
   return (
-    <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-luxury-midnight/80 p-1.5">
+    <div className="inline-flex items-center gap-3 rounded-full border border-border bg-muted/80 p-1.5">
       <button
         type="button"
         onClick={() => onChange(false)}
         className={cn(
           "rounded-full px-5 py-2 text-sm font-semibold transition",
-          !isAnnual ? "bg-white/10 text-luxury-frost shadow" : "text-luxury-mist hover:text-luxury-frost",
+          !isAnnual ? "bg-muted text-foreground shadow" : "text-muted-foreground hover:text-foreground",
         )}
       >
         Mensal
@@ -25,11 +25,11 @@ export function PricingToggle({ isAnnual, onChange }: Props) {
         onClick={() => onChange(true)}
         className={cn(
           "rounded-full px-5 py-2 text-sm font-semibold transition",
-          isAnnual ? "bg-luxury-gold text-luxury-onyx shadow" : "text-luxury-mist hover:text-luxury-frost",
+          isAnnual ? "bg-primary text-primary-foreground shadow" : "text-muted-foreground hover:text-foreground",
         )}
       >
         Anual
-        <span className="ml-1.5 text-xs font-bold text-luxury-gold-light">-20%</span>
+        <span className="ml-1.5 text-xs font-bold text-primary-light">-20%</span>
       </button>
     </div>
   );

@@ -49,15 +49,15 @@ function EntrarForm() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-luxury-onyx p-4 text-luxury-frost">
-      <div className="w-full max-w-md rounded-2xl border border-white/10 bg-luxury-obsidian p-8 shadow-xl">
+    <div className="flex min-h-screen items-center justify-center bg-background p-4 text-foreground">
+      <div className="w-full max-w-md rounded-2xl border border-border bg-card p-8 shadow-xl">
         <div className="mb-6 flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-full border border-luxury-gold/30 bg-luxury-gold/10">
-            <Scale className="h-5 w-5 text-luxury-gold" strokeWidth={1.5} />
+          <span className="flex h-10 w-10 items-center justify-center rounded-full border border-primary/30 bg-primary/10">
+            <Scale className="h-5 w-5 text-primary" strokeWidth={1.5} />
           </span>
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-luxury-mist">Judge TCG</p>
-            <h1 className="text-lg font-medium text-luxury-frost">
+            <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Judge TCG</p>
+            <h1 className="text-lg font-medium text-foreground">
               {mode === "login" ? "Entrar" : "Criar conta"}
             </h1>
           </div>
@@ -65,10 +65,10 @@ function EntrarForm() {
 
         <GoogleLoginButton redirectTo={nextPath} />
 
-        <div className="my-6 flex items-center gap-3 text-xs text-luxury-mist">
-          <div className="h-px flex-1 bg-white/10" />
+        <div className="my-6 flex items-center gap-3 text-xs text-muted-foreground">
+          <div className="h-px flex-1 bg-muted" />
           ou e-mail
-          <div className="h-px flex-1 bg-white/10" />
+          <div className="h-px flex-1 bg-muted" />
         </div>
 
         <form onSubmit={(e) => void handleEmailAuth(e)} className="space-y-3">
@@ -77,7 +77,7 @@ function EntrarForm() {
             required
             autoComplete="email"
             placeholder="E-mail"
-            className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm"
+            className="w-full rounded-lg border border-border bg-black/30 px-3 py-2 text-sm"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
@@ -87,7 +87,7 @@ function EntrarForm() {
             minLength={8}
             autoComplete={mode === "register" ? "new-password" : "current-password"}
             placeholder="Senha (mín. 8 caracteres)"
-            className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm"
+            className="w-full rounded-lg border border-border bg-black/30 px-3 py-2 text-sm"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
@@ -99,17 +99,17 @@ function EntrarForm() {
 
         <button
           type="button"
-          className="mt-4 w-full text-center text-sm text-luxury-gold underline"
+          className="mt-4 w-full text-center text-sm text-primary underline"
           onClick={() => setMode(mode === "login" ? "register" : "login")}
         >
           {mode === "login" ? "Não tem conta? Registre-se" : "Já tem conta? Entrar"}
         </button>
 
-        <p className="mt-6 text-center text-xs text-luxury-mist">
+        <p className="mt-6 text-center text-xs text-muted-foreground">
           Após o registro você precisará validar seu CPF para comprar ou vender.
         </p>
-        <p className="mt-2 text-center text-xs text-luxury-mist">
-          <Link href="/" className="text-luxury-gold hover:underline">
+        <p className="mt-2 text-center text-xs text-muted-foreground">
+          <Link href="/" className="text-primary hover:underline">
             Voltar ao início
           </Link>
         </p>
@@ -120,7 +120,7 @@ function EntrarForm() {
 
 export default function EntrarPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-luxury-onyx" />}>
+    <Suspense fallback={<div className="min-h-screen bg-background" />}>
       <EntrarForm />
     </Suspense>
   );

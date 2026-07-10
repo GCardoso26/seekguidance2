@@ -9,4 +9,7 @@ async def test_health() -> None:
     async with AsyncClient(transport=transport, base_url="http://test") as client:
         r = await client.get("/v1/health")
     assert r.status_code == 200
-    assert r.json()["status"] in ("ok", "healthy", "degraded")
+    body = r.json()
+    assert body["status"] in ("ok", "healthy", "degraded")
+    assert "features" in body
+    assert "shipping_v2" in body["features"]

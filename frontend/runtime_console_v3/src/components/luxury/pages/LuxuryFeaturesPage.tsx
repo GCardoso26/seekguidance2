@@ -34,12 +34,12 @@ const DEEP_DIVES: DeepDive[] = [
     subtitle: "Streaming de vereditos em tempo real",
     body: "Pergunte em linguagem natural. A resposta chega token a token, com fases visíveis — embedding, retrieval, geração — e fontes oficiais anexadas ao veredito final.",
     visual: (
-      <div className="space-y-2 font-mono text-xs text-luxury-mist">
-        <p className="text-luxury-gold">▸ retrieving rules...</p>
-        <p className="typing-line text-luxury-frost">
+      <div className="space-y-2 font-mono text-xs text-muted-foreground">
+        <p className="text-primary">▸ retrieving rules...</p>
+        <p className="typing-line text-foreground">
           O efeito constitui uma ativação na cadeia...
         </p>
-        <p className="text-luxury-mist/60">3 fontes · PSCT · FAQ oficiais</p>
+        <p className="text-muted-foreground/60">3 fontes · PSCT · FAQ oficiais</p>
       </div>
     ),
   },
@@ -53,7 +53,7 @@ const DEEP_DIVES: DeepDive[] = [
         {["QF", "SF", "F", "W"].map((r, i) => (
           <div
             key={r}
-            className="rounded-lg border border-white/10 bg-white/5 py-3 text-center text-xs text-luxury-frost"
+            className="surface-card rounded-lg py-3 text-center text-xs text-foreground"
             style={{ opacity: 0.4 + i * 0.2 }}
           >
             {r}
@@ -72,7 +72,7 @@ const DEEP_DIVES: DeepDive[] = [
         {[1, 2, 3].map((n) => (
           <div
             key={n}
-            className="h-24 w-20 animate-float rounded-xl border border-white/10 bg-gradient-to-b from-luxury-midnight to-luxury-velvet"
+            className="h-24 w-20 animate-float rounded-xl border border-border bg-gradient-to-b from-luxury-midnight to-luxury-velvet"
             style={{ animationDelay: `${n * 0.5}s` }}
           />
         ))}
@@ -89,7 +89,7 @@ const DEEP_DIVES: DeepDive[] = [
         {[20, 45, 70, 55, 85].map((left, i) => (
           <span
             key={i}
-            className="absolute h-2 w-2 rounded-full bg-luxury-gold shadow-lg shadow-luxury-gold/50"
+            className="absolute h-2 w-2 rounded-full bg-primary shadow-lg shadow-luxury-gold/50"
             style={{ left: `${left}%`, top: `${30 + (i % 3) * 20}%` }}
           />
         ))}
@@ -122,9 +122,9 @@ export function LuxuryFeaturesPage() {
         <MetallicGradient className="opacity-20" />
         <div className="relative z-10 mx-auto max-w-3xl px-6 text-center lg:px-8">
           <RevealOnScroll>
-            <Swords className="mx-auto mb-6 h-8 w-8 text-luxury-gold" strokeWidth={1.5} />
-            <h1 className="mb-6 text-luxury-frost">Tudo o que você precisa</h1>
-            <p className="text-lg font-light text-luxury-mist">
+            <Swords className="mx-auto mb-6 h-8 w-8 text-primary" strokeWidth={1.5} />
+            <h1 className="mb-6 text-foreground">Tudo o que você precisa</h1>
+            <p className="text-lg font-light text-muted-foreground">
               Uma narrativa completa — da IA judge ao marketplace — construída para quem vive o
               competitivo.
             </p>
@@ -141,12 +141,12 @@ export function LuxuryFeaturesPage() {
           >
             <div className="mx-auto grid max-w-7xl items-center gap-12 px-6 lg:grid-cols-2 lg:gap-20 lg:px-8">
               <RevealOnScroll variant={i % 2 === 0 ? "slideRight" : "slideLeft"}>
-                <Icon className="mb-6 h-8 w-8 text-luxury-gold" strokeWidth={1.5} />
-                <p className="mb-2 text-xs tracking-[0.3em] text-luxury-gold uppercase">
+                <Icon className="mb-6 h-8 w-8 text-primary" strokeWidth={1.5} />
+                <p className="mb-2 text-xs tracking-[0.3em] text-primary uppercase">
                   {dive.subtitle}
                 </p>
-                <h2 className="mb-6 text-luxury-frost">{dive.title}</h2>
-                <p className="text-lg font-light leading-relaxed text-luxury-mist">{dive.body}</p>
+                <h2 className="mb-6 text-foreground">{dive.title}</h2>
+                <p className="text-lg font-light leading-relaxed text-muted-foreground">{dive.body}</p>
               </RevealOnScroll>
               <Card className="min-h-[200px] p-8">{dive.visual}</Card>
             </div>

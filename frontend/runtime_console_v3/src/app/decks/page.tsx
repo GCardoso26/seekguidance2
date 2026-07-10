@@ -42,16 +42,16 @@ export default function DecksPage() {
       <div className="container mx-auto max-w-3xl px-4 py-8">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-luxury-frost">Meus decks</h1>
-            <p className="text-sm text-luxury-mist">Crie, edite e publique seus decks</p>
+            <h1 className="text-2xl font-bold text-foreground">Meus decks</h1>
+            <p className="text-sm text-muted-foreground">Crie, edite e publique seus decks</p>
           </div>
-          <Link href="/decks/explore" className="text-sm text-luxury-gold">
+          <Link href="/decks/explore" className="text-sm text-primary">
             Explorar públicos
           </Link>
         </div>
 
-        <div className="mt-6 rounded-xl border border-white/10 bg-white/5 p-4">
-          <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-luxury-frost">
+        <div className="mt-6 surface-card p-4">
+          <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-foreground">
             <Plus className="h-4 w-4" />
             Novo deck
           </h2>
@@ -60,12 +60,12 @@ export default function DecksPage() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Nome do deck"
-              className="md:col-span-2 border-white/10 bg-luxury-obsidian"
+              className="md:col-span-2 border-border bg-card"
             />
             <select
               value={game}
               onChange={(e) => setGame(e.target.value)}
-              className="rounded-md border border-white/10 bg-luxury-obsidian px-3 py-2 text-sm"
+              className="rounded-md border border-border bg-card px-3 py-2 text-sm"
             >
               {TOURNAMENT_GAMES.map((g) => (
                 <option key={g.slug} value={g.slug}>
@@ -76,7 +76,7 @@ export default function DecksPage() {
             <select
               value={format}
               onChange={(e) => setFormat(e.target.value)}
-              className="rounded-md border border-white/10 bg-luxury-obsidian px-3 py-2 text-sm"
+              className="rounded-md border border-border bg-card px-3 py-2 text-sm"
             >
               <option value="standard">Standard</option>
               <option value="modern">Modern</option>
@@ -92,25 +92,25 @@ export default function DecksPage() {
         <ul className="mt-6 space-y-3">
           {isLoading &&
             Array.from({ length: 3 }).map((_, i) => (
-              <li key={i} className="h-20 animate-pulse rounded-xl bg-white/5" />
+              <li key={i} className="h-20 animate-pulse rounded-xl bg-muted/50" />
             ))}
           {!isLoading && decks.length === 0 && (
-            <li className="text-sm text-luxury-mist">Você ainda não tem decks.</li>
+            <li className="text-sm text-muted-foreground">Você ainda não tem decks.</li>
           )}
           {decks.map((deck) => (
-            <li key={deck.id} className="rounded-xl border border-white/10 bg-white/5 p-4">
+            <li key={deck.id} className="surface-card p-4">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <Link href={`/decks/${deck.id}`} className="font-semibold text-luxury-frost hover:text-luxury-gold">
+                  <Link href={`/decks/${deck.id}`} className="font-semibold text-foreground hover:text-primary">
                     {deck.name}
                   </Link>
                   <div className="mt-1 flex flex-wrap items-center gap-2">
                     <DeckStatusBadge deck={deck} />
-                    <p className="text-xs capitalize text-luxury-mist">
+                    <p className="text-xs capitalize text-muted-foreground">
                       {deck.game} · {deck.format} · {deck.total_cards} cartas
                     </p>
                   </div>
-                  <p className="text-xs text-luxury-gold">{formatCurrency(deck.total_price / 100)}</p>
+                  <p className="text-xs text-primary">{formatCurrency(deck.total_price / 100)}</p>
                 </div>
                 <div className="flex gap-2">
                   <Link href={`/decks/${deck.id}/build`}>

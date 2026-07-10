@@ -15,19 +15,19 @@ export function TournamentPagination({ page, totalPages, onPageChange }: Props) 
         type="button"
         disabled={page <= 1}
         onClick={() => onPageChange(page - 1)}
-        className="rounded-lg border border-white/10 px-3 py-1 text-sm text-luxury-mist transition hover:bg-white/5 disabled:opacity-40"
+        className="rounded-lg border border-border px-3 py-1 text-sm text-muted-foreground transition hover:bg-muted/80 disabled:opacity-40"
         aria-label="Página anterior"
       >
         Anterior
       </button>
-      <span className="px-2 py-1 text-sm text-luxury-mist" data-testid="seller-tournaments-page-indicator">
+      <span className="px-2 py-1 text-sm text-muted-foreground" data-testid="seller-tournaments-page-indicator">
         Página {page} de {totalPages}
       </span>
       <button
         type="button"
         disabled={page >= totalPages}
         onClick={() => onPageChange(page + 1)}
-        className="rounded-lg border border-white/10 px-3 py-1 text-sm text-luxury-mist transition hover:bg-white/5 disabled:opacity-40"
+        className="rounded-lg border border-border px-3 py-1 text-sm text-muted-foreground transition hover:bg-muted/80 disabled:opacity-40"
         aria-label="Próxima página"
       >
         Próxima

@@ -100,18 +100,18 @@ export function TournamentCreateModal({ open, onOpenChange, onCreated }: Props) 
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/60" />
         <Dialog.Content
-          className="fixed left-1/2 top-1/2 z-50 max-h-[90vh] w-[min(100vw-2rem,36rem)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-xl border border-white/10 bg-luxury-onyx p-6 shadow-xl"
+          className="fixed left-1/2 top-1/2 z-50 max-h-[90vh] w-[min(100vw-2rem,36rem)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-xl border border-border bg-background p-6 shadow-xl"
           data-testid="tournament-create-modal"
         >
           <Dialog.Title className="text-lg font-semibold text-white">Novo torneio</Dialog.Title>
           <form onSubmit={(e) => void handleSubmit(onSubmit)(e)} className="mt-4 space-y-4">
             <div>
-              <label htmlFor="tournament-name" className="text-sm text-luxury-mist">
+              <label htmlFor="tournament-name" className="text-sm text-muted-foreground">
                 Nome
               </label>
               <Input
                 id="tournament-name"
-                className="mt-1 border-white/10 bg-black/30"
+                className="mt-1 border-border bg-black/30"
                 data-testid="tournament-name-input"
                 {...register("name")}
               />
@@ -119,12 +119,12 @@ export function TournamentCreateModal({ open, onOpenChange, onCreated }: Props) 
             </div>
 
             <div>
-              <label htmlFor="tournament-game" className="text-sm text-luxury-mist">
+              <label htmlFor="tournament-game" className="text-sm text-muted-foreground">
                 Jogo
               </label>
               <select
                 id="tournament-game"
-                className="mt-1 w-full rounded-md border border-white/10 bg-black/30 px-3 py-2 text-sm"
+                className="mt-1 w-full rounded-md border border-border bg-black/30 px-3 py-2 text-sm"
                 data-testid="tournament-game-select"
                 {...register("game_id")}
               >
@@ -137,12 +137,12 @@ export function TournamentCreateModal({ open, onOpenChange, onCreated }: Props) 
             </div>
 
             <div>
-              <label htmlFor="tournament-format-code" className="text-sm text-luxury-mist">
+              <label htmlFor="tournament-format-code" className="text-sm text-muted-foreground">
                 Formato de jogo
               </label>
               <select
                 id="tournament-format-code"
-                className="mt-1 w-full rounded-md border border-white/10 bg-black/30 px-3 py-2 text-sm"
+                className="mt-1 w-full rounded-md border border-border bg-black/30 px-3 py-2 text-sm"
                 data-testid="tournament-format-code-select"
                 {...register("format_code")}
               >
@@ -155,12 +155,12 @@ export function TournamentCreateModal({ open, onOpenChange, onCreated }: Props) 
             </div>
 
             <div>
-              <label htmlFor="tournament-pairing" className="text-sm text-luxury-mist">
+              <label htmlFor="tournament-pairing" className="text-sm text-muted-foreground">
                 Estrutura
               </label>
               <select
                 id="tournament-pairing"
-                className="mt-1 w-full rounded-md border border-white/10 bg-black/30 px-3 py-2 text-sm"
+                className="mt-1 w-full rounded-md border border-border bg-black/30 px-3 py-2 text-sm"
                 data-testid="tournament-pairing-select"
                 {...register("pairing_format")}
               >
@@ -173,13 +173,13 @@ export function TournamentCreateModal({ open, onOpenChange, onCreated }: Props) 
             </div>
 
             <div>
-              <label htmlFor="tournament-date" className="text-sm text-luxury-mist">
+              <label htmlFor="tournament-date" className="text-sm text-muted-foreground">
                 Data e hora
               </label>
               <Input
                 id="tournament-date"
                 type="datetime-local"
-                className="mt-1 border-white/10 bg-black/30"
+                className="mt-1 border-border bg-black/30"
                 data-testid="tournament-date-input"
                 {...register("date")}
               />
@@ -188,7 +188,7 @@ export function TournamentCreateModal({ open, onOpenChange, onCreated }: Props) 
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label htmlFor="tournament-fee" className="text-sm text-luxury-mist">
+                <label htmlFor="tournament-fee" className="text-sm text-muted-foreground">
                   Taxa (R$)
                 </label>
                 <Input
@@ -196,21 +196,21 @@ export function TournamentCreateModal({ open, onOpenChange, onCreated }: Props) 
                   type="number"
                   min={0}
                   step={0.01}
-                  className="mt-1 border-white/10 bg-black/30"
+                  className="mt-1 border-border bg-black/30"
                   data-testid="tournament-fee-input"
                   {...register("entry_fee")}
                 />
                 <FieldError message={errors.entry_fee?.message} />
               </div>
               <div>
-                <label htmlFor="tournament-max" className="text-sm text-luxury-mist">
+                <label htmlFor="tournament-max" className="text-sm text-muted-foreground">
                   Máx. jogadores
                 </label>
                 <Input
                   id="tournament-max"
                   type="number"
                   min={2}
-                  className="mt-1 border-white/10 bg-black/30"
+                  className="mt-1 border-border bg-black/30"
                   data-testid="tournament-max-players-input"
                   {...register("max_players")}
                 />
@@ -218,26 +218,26 @@ export function TournamentCreateModal({ open, onOpenChange, onCreated }: Props) 
             </div>
 
             <div>
-              <label htmlFor="tournament-location" className="text-sm text-luxury-mist">
+              <label htmlFor="tournament-location" className="text-sm text-muted-foreground">
                 Local
               </label>
               <Input
                 id="tournament-location"
                 placeholder="Endereço ou Online"
-                className="mt-1 border-white/10 bg-black/30"
+                className="mt-1 border-border bg-black/30"
                 data-testid="tournament-location-input"
                 {...register("location")}
               />
             </div>
 
             <div>
-              <label htmlFor="tournament-description" className="text-sm text-luxury-mist">
+              <label htmlFor="tournament-description" className="text-sm text-muted-foreground">
                 Descrição
               </label>
               <textarea
                 id="tournament-description"
                 rows={3}
-                className="mt-1 w-full rounded-md border border-white/10 bg-black/30 px-3 py-2 text-sm"
+                className="mt-1 w-full rounded-md border border-border bg-black/30 px-3 py-2 text-sm"
                 data-testid="tournament-description-input"
                 {...register("description")}
               />

@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import type { ServiceHealth, ServiceHealthStatus } from "@/types/service-health";
 import { isRedisRateLimitEnabled } from "@/lib/rate-limit-redis";
 import { isSearchCacheEnabled } from "@/lib/search-cache";
+import { FEATURES } from "@/lib/feature-flags";
 
 export type { ServiceHealth, ServiceHealthStatus };
 
@@ -114,6 +115,8 @@ export async function GET() {
     features: {
       redis_rate_limit: isRedisRateLimitEnabled(),
       search_cache: isSearchCacheEnabled(),
+      wishlist_v2: FEATURES.WISHLIST_V2,
+      shipping_v2: FEATURES.SHIPPING_V2,
     },
     services,
     checkedAt: new Date().toISOString(),

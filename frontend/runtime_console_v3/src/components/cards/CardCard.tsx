@@ -3,6 +3,7 @@
 import { Eye, Layers, ShoppingCart, Sparkles } from "lucide-react";
 import { CardImage } from "@/components/ui/CardImage";
 import { PriceSparkline } from "@/components/cards/PriceSparkline";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cardImageUrl, formatCurrency } from "@/lib/format-currency";
 import { GAME_TOKENS } from "@/lib/tcg-tokens";
@@ -51,86 +52,107 @@ export function CardCard({
   return (
     <article
       className={cn(
-        "group relative flex cursor-pointer flex-col overflow-hidden rounded-xl border border-border bg-card p-3 transition-all duration-300 ease-out",
-        "hover:-translate-y-1 hover:scale-[1.03] hover:shadow-2xl hover:shadow-purple-500/10",
-        variant === "detailed" && "p-4",
+        "group relative flex cursor-pointer flex-col overflow-hidden rounded-xl border border-border bg-card shadow-card transition-all duration-200",
+        "hover:-translate-y-0.5 hover:border-primary/20 hover:shadow-card-hover",
+        variant === "detailed" && "p-1",
       )}
       role="article"
       aria-label={`${card.name}, ${card.set.name}, ${card.rarity}`}
+      onClick={handleViewDetail}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          handleViewDetail();
+        }
+      }}
+      tabIndex={0}
     >
-      <div className="relative aspect-[63/88] overflow-hidden rounded-lg bg-muted/30">
+      <div className={cn("relative aspect-[63/88] overflow-hidden rounded-lg bg-muted/30", variant === "detailed" && "m-3 mb-0")}>
         <CardImage
           src={imageSrc}
           alt={card.name}
           fill
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-          className="object-cover transition-transform duration-500 group-hover:scale-110"
+          className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
           listQuality={!priority}
           priority={priority}
         />
 
         {hasFoil && (
           <div className="absolute right-2 top-2" aria-label="Versão Foil">
-            <Sparkles className="h-5 w-5 fill-yellow-400 text-yellow-400 drop-shadow-md" />
+            <Badge variant="warning" className="gap-1">
+              <Sparkles className="h-3 w-3" />
+              Foil
+            </Badge>
           </div>
         )}
 
-        <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/80 via-transparent to-transparent p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-          <span className="hidden font-medium text-white md:inline">Ver detalhes →</span>
-        </div>
-
-        <div className="absolute inset-0 hidden items-center justify-center gap-2 bg-black/60 opacity-0 transition-opacity group-hover:opacity-100 md:flex">
-          <button
+        <div className="absolute inset-0 hidden items-center justify-center gap-2 bg-foreground/5 opacity-0 backdrop-blur-[2px] transition-opacity group-hover:opacity-100 md:flex">
+          <Button
             type="button"
-            onClick={handleViewDetail}
-            className="min-h-11 min-w-11 rounded-full bg-white p-2 text-black hover:bg-gray-200"
+            size="icon"
+            variant="secondary"
+            className="h-10 w-10 rounded-full shadow-md"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleViewDetail();
+            }}
             aria-label={`Ver detalhes de ${card.name}`}
           >
             <Eye className="h-4 w-4" />
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
-            onClick={() => onAddToDeck?.(card)}
-            className="min-h-11 min-w-11 rounded-full bg-white p-2 text-black hover:bg-gray-200"
+            size="icon"
+            variant="secondary"
+            className="h-10 w-10 rounded-full shadow-md"
+            onClick={(e) => {
+              e.stopPropagation();
+              onAddToDeck?.(card);
+            }}
             aria-label={`Adicionar ${card.name} ao deck`}
           >
             <Layers className="h-4 w-4" />
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
-            onClick={() => onAddToCart?.(card)}
-            className="min-h-11 min-w-11 rounded-full bg-primary p-2 text-primary-foreground hover:bg-primary/90"
+            size="icon"
+            className="h-10 w-10 rounded-full shadow-md"
+            onClick={(e) => {
+              e.stopPropagation();
+              onAddToCart?.(card);
+            }}
             aria-label={`Adicionar ${card.name} ao carrinho`}
           >
             <ShoppingCart className="h-4 w-4" />
-          </button>
+          </Button>
         </div>
       </div>
 
-      <div className="mt-3 flex flex-1 flex-col">
-        <h3 className="line-clamp-2 text-sm font-semibold leading-tight transition-colors group-hover:text-purple-400">
+      <div className={cn("flex flex-1 flex-col p-4", variant === "detailed" && "p-5")}>
+        <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-foreground transition-colors group-hover:text-primary">
           {card.name}
         </h3>
 
-        <p className="mt-1 text-xs text-muted-foreground">
+        <p className="mt-1 text-caption text-muted-foreground">
           {card.set.name || card.set.code}
-          {card.number ? ` • #${card.number}` : ""}
+          {card.number ? ` · #${card.number}` : ""}
         </p>
 
         <div className="mt-2 flex flex-wrap items-center gap-2">
           {card.rarity && (
-            <span
-              className="rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider"
+            <Badge
+              variant="secondary"
               style={{
-                backgroundColor: `${gameToken?.primary ?? "#666"}20`,
-                color: gameToken?.primary ?? "#666",
+                backgroundColor: `${gameToken?.primary ?? "#666"}15`,
+                color: gameToken?.primary ?? undefined,
               }}
             >
               {card.rarity}
-            </span>
+            </Badge>
           )}
           {card.listingCount !== undefined && card.listingCount > 0 && (
-            <span className="text-[10px] text-muted-foreground">
+            <span className="text-caption text-muted-foreground">
               {card.listingCount} oferta{card.listingCount !== 1 ? "s" : ""}
             </span>
           )}
@@ -139,12 +161,15 @@ export function CardCard({
         {showPrice && price !== undefined && (
           <div className="mt-auto pt-3">
             <div className="flex items-center justify-between gap-2">
-              <span className="text-lg font-bold">
+              <span className="font-mono text-lg font-semibold tracking-tight">
                 {formatCurrency(price, card.latestPrice?.currency || "USD")}
               </span>
               {trend !== undefined && (
                 <span
-                  className={`flex items-center text-xs ${trend >= 0 ? "text-emerald-500" : "text-red-500"}`}
+                  className={cn(
+                    "flex items-center text-caption font-medium",
+                    trend >= 0 ? "text-success" : "text-danger",
+                  )}
                 >
                   {trend >= 0 ? "▲" : "▼"} {Math.abs(trend).toFixed(1)}%
                 </span>
@@ -154,13 +179,16 @@ export function CardCard({
           </div>
         )}
 
-        <div className="mt-2 flex gap-2 md:hidden">
+        <div className="mt-3 flex gap-2 md:hidden">
           <Button
             type="button"
             size="sm"
             variant="outline"
             className="min-h-11 flex-1"
-            onClick={handleViewDetail}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleViewDetail();
+            }}
           >
             Ver
           </Button>
@@ -168,7 +196,10 @@ export function CardCard({
             type="button"
             size="sm"
             className="min-h-11 flex-1"
-            onClick={() => onAddToCart?.(card)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onAddToCart?.(card);
+            }}
           >
             <ShoppingCart className="mr-1 h-3 w-3" />
             Comprar

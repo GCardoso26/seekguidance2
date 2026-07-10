@@ -10,28 +10,28 @@ function BillingContent() {
   const portal = useCustomerPortal();
 
   if (isLoading) {
-    return <p className="text-luxury-mist">A carregar faturação...</p>;
+    return <p className="text-muted-foreground">A carregar faturação...</p>;
   }
 
   return (
     <div className="mx-auto max-w-4xl space-y-6 p-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-white">Faturação</h1>
-        <Link href="/pricing" className="text-sm text-luxury-gold-light hover:underline">
+        <Link href="/pricing" className="text-sm text-primary-light hover:underline">
           Ver planos
         </Link>
       </div>
 
-      <div className="rounded-xl border border-[#2d2d44] bg-white/5 p-6">
+      <div className="rounded-xl border border-[#2d2d44] bg-muted/50 p-6">
         <h2 className="mb-4 text-xl font-semibold text-white">Plano atual</h2>
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <p className="text-2xl font-bold capitalize text-luxury-gold-light">{tier}</p>
-            <p className="text-luxury-mist">
+            <p className="text-2xl font-bold capitalize text-primary-light">{tier}</p>
+            <p className="text-muted-foreground">
               Estado: <span className="capitalize text-white">{status}</span>
             </p>
             {currentPeriodEnd && (
-              <p className="text-luxury-mist">
+              <p className="text-muted-foreground">
                 Próximo ciclo: {new Date(currentPeriodEnd).toLocaleDateString("pt-BR")}
               </p>
             )}
@@ -40,7 +40,7 @@ function BillingContent() {
             <Button
               type="button"
               variant="outline"
-              className="border-luxury-gold/50 text-luxury-gold-light"
+              className="border-luxury-gold/50 text-primary-light"
               onClick={() =>
                 portal.mutate(undefined, {
                   onSuccess: (data) => {
@@ -56,15 +56,15 @@ function BillingContent() {
         </div>
       </div>
 
-      <div className="rounded-xl border border-[#2d2d44] bg-white/5 p-6">
+      <div className="rounded-xl border border-[#2d2d44] bg-muted/50 p-6">
         <h2 className="mb-4 text-xl font-semibold text-white">Funcionalidades</h2>
         <div className="grid gap-3 sm:grid-cols-2">
           {Object.entries(features).map(([key, enabled]) => (
             <div key={key} className="flex items-center gap-2 text-sm">
-              <span className={enabled ? "text-luxury-gold-light" : "text-luxury-mist/50"}>
+              <span className={enabled ? "text-primary-light" : "text-muted-foreground/50"}>
                 {enabled ? "✓" : "✗"}
               </span>
-              <span className={enabled ? "text-white" : "text-luxury-mist/70"}>
+              <span className={enabled ? "text-white" : "text-muted-foreground/70"}>
                 {FEATURE_LABELS[key as keyof typeof FEATURE_LABELS]}
               </span>
             </div>

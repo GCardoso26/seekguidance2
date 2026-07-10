@@ -35,17 +35,17 @@ export function PlayerProfile({ profile, showFriendButton }: Props) {
         </div>
         <div>
           <h1 className="text-2xl font-bold">@{profile.handle}</h1>
-          <p className="text-luxury-frost/90">{profile.displayName}</p>
-          {profile.bio && <p className="mt-2 text-sm text-luxury-mist">{profile.bio}</p>}
+          <p className="text-foreground/90">{profile.displayName}</p>
+          {profile.bio && <p className="mt-2 text-sm text-muted-foreground">{profile.bio}</p>}
           {(profile.state || profile.location?.state) && (
-            <p className="mt-1 text-sm text-luxury-mist/70">
+            <p className="mt-1 text-sm text-muted-foreground/70">
               {STATE_NAMES[profile.state ?? profile.location?.state ?? ""] ??
                 profile.state ??
                 profile.location?.state}
             </p>
           )}
           {profile.location?.city && (
-            <p className="mt-1 text-sm text-luxury-mist/70">
+            <p className="mt-1 text-sm text-muted-foreground/70">
               {profile.location.city}
               {profile.location.country ? `, ${profile.location.country}` : ""}
             </p>
@@ -55,7 +55,7 @@ export function PlayerProfile({ profile, showFriendButton }: Props) {
               {profile.favoriteTcgs.map((id) => (
                 <span
                   key={id}
-                  className="rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 text-xs text-luxury-frost"
+                  className="rounded-full border border-border bg-card shadow-card px-2.5 py-0.5 text-xs text-foreground"
                 >
                   {TCG_LABELS[id] ?? id}
                 </span>

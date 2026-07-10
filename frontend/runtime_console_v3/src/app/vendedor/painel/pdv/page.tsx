@@ -19,13 +19,13 @@ export default function PdvPage() {
   const hasPdv = planHasFeature(plan, "pdv");
 
   if (storeLoading) {
-    return <main className="p-8 text-luxury-mist">Carregando…</main>;
+    return <main className="p-8 text-muted-foreground">Carregando…</main>;
   }
 
   if (!hasStore || !storeId) {
     return (
-      <main className="p-8 text-center text-luxury-mist">
-        <Link href="/stores/create" className="text-luxury-gold underline">
+      <main className="p-8 text-center text-muted-foreground">
+        <Link href="/stores/create" className="text-primary underline">
           Cadastre sua loja
         </Link>
       </main>
@@ -35,7 +35,7 @@ export default function PdvPage() {
   if (!hasPdv) {
     return (
       <main className="p-8 text-center" data-testid="pdv-upsell">
-        <p className="text-luxury-mist">PDV disponível no plano Pro.</p>
+        <p className="text-muted-foreground">PDV disponível no plano Pro.</p>
         <Button asChild className="mt-4">
           <Link href="/vendedor/painel/planos">Ver planos</Link>
         </Button>
@@ -53,7 +53,7 @@ export default function PdvPage() {
       </div>
       <div className="mb-2 lg:hidden">
         <h2 className="text-xl font-bold">PDV</h2>
-        <p className="text-sm text-luxury-mist">Vendas no balcão</p>
+        <p className="text-sm text-muted-foreground">Vendas no balcão</p>
       </div>
       <PdvManager storeId={storeId} storeName={storeName} />
     </PageShell>

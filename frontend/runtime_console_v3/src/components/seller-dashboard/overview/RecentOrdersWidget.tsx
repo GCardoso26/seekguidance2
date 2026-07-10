@@ -22,12 +22,12 @@ function formatShortDate(iso?: string): string {
 
 export function RecentOrdersWidget({ orders, onSelectOrder }: Props) {
   return (
-    <section className="rounded-xl border border-white/10 bg-white/5 p-4" data-testid="recent-orders-widget">
-      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-luxury-mist">
+    <section className="surface-card p-4" data-testid="recent-orders-widget">
+      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
         Pedidos recentes
       </h2>
       {orders.length === 0 ? (
-        <p className="text-sm text-luxury-mist">Nenhum pedido recente.</p>
+        <p className="text-sm text-muted-foreground">Nenhum pedido recente.</p>
       ) : (
         <ul className="space-y-2">
           {orders.map((order) => (
@@ -35,13 +35,13 @@ export function RecentOrdersWidget({ orders, onSelectOrder }: Props) {
               <button
                 type="button"
                 onClick={() => onSelectOrder?.(order.id)}
-                className="flex w-full items-center justify-between gap-2 rounded-lg px-2 py-2 text-left text-sm hover:bg-white/5"
+                className="flex w-full items-center justify-between gap-2 rounded-lg px-2 py-2 text-left text-sm hover:bg-muted/80"
               >
-                <span className="font-mono text-luxury-gold">#{order.id.slice(0, 8)}</span>
-                <span className="flex-1 truncate text-luxury-mist">{orderLabel(order)}</span>
+                <span className="font-mono text-primary">#{order.id.slice(0, 8)}</span>
+                <span className="flex-1 truncate text-muted-foreground">{orderLabel(order)}</span>
                 <SaleStatusBadge status={order.status} />
                 <span className="tabular-nums text-xs">{formatShopPrice(order.total_cents)}</span>
-                <span className="text-xs text-luxury-mist/70">{formatShortDate(order.created_at)}</span>
+                <span className="text-xs text-muted-foreground/70">{formatShortDate(order.created_at)}</span>
               </button>
             </li>
           ))}
@@ -49,7 +49,7 @@ export function RecentOrdersWidget({ orders, onSelectOrder }: Props) {
       )}
       <Link
         href="/vendedor/painel/pedidos"
-        className="mt-3 inline-block text-sm text-luxury-gold hover:underline"
+        className="mt-3 inline-block text-sm text-primary hover:underline"
       >
         Ver todos os pedidos →
       </Link>

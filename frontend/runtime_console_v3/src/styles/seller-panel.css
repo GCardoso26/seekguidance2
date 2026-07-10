@@ -1,52 +1,41 @@
-/* Painéis operacionais — contraste elevado, menos fadiga visual que luxury-onyx puro */
+/* Painéis operacionais — alinhados ao Design System v2 */
 
 .seller-panel,
 .admin-panel {
-  --panel-bg: #12121a;
-  --panel-surface: #1a1a26;
-  --panel-elevated: #222230;
-  --panel-border: rgba(255, 255, 255, 0.12);
-  --panel-text: #e2e8f0;
-  --panel-muted: #b8c5d6;
+  --panel-bg: hsl(var(--luxury-panel-bg));
+  --panel-surface: hsl(var(--luxury-panel-surface));
+  --panel-elevated: hsl(var(--luxury-panel-elevated));
+  --panel-border: hsl(var(--border));
+  --panel-text: hsl(var(--foreground));
+  --panel-muted: hsl(var(--muted-foreground));
 }
 
 .seller-panel[data-theme="light"],
 .admin-panel[data-theme="light"] {
-  --panel-bg: #f4f5f8;
-  --panel-surface: #ffffff;
-  --panel-elevated: #f0f1f5;
-  --panel-border: rgba(15, 15, 26, 0.1);
-  --panel-text: #0f0f1a;
-  --panel-muted: #5c6478;
+  --panel-bg: hsl(var(--background));
+  --panel-surface: hsl(var(--card));
+  --panel-elevated: hsl(var(--muted));
+  --panel-border: hsl(var(--border));
+  --panel-text: hsl(var(--foreground));
+  --panel-muted: hsl(var(--muted-foreground));
   color: var(--panel-text);
-}
-
-.seller-panel[data-theme="light"] .text-luxury-frost,
-.seller-panel[data-theme="light"] .text-white {
-  color: var(--panel-text) !important;
-}
-
-.seller-panel[data-theme="light"] .text-luxury-mist {
-  color: var(--panel-muted) !important;
-}
-
-.seller-panel[data-theme="light"] aside {
-  border-color: var(--panel-border);
 }
 
 .seller-panel {
   background-color: var(--panel-bg);
-}
-
-.seller-panel .luxury-card,
-.seller-panel [class*="border-white/10"][class*="bg-white/5"],
-.admin-panel [class*="border-white/10"][class*="bg-white/5"] {
-  background-color: color-mix(in srgb, var(--panel-elevated) 85%, transparent);
+  color: var(--panel-text);
 }
 
 .seller-panel aside,
 .admin-panel aside {
-  background-color: color-mix(in srgb, var(--panel-surface) 96%, transparent);
+  background-color: var(--panel-surface);
+  border-color: var(--panel-border);
+}
+
+.seller-panel .surface-card,
+.seller-panel [class*="border-border"][class*="bg-card"],
+.admin-panel [class*="border-border"][class*="bg-card"] {
+  background-color: var(--panel-surface);
 }
 
 .seller-panel input,
@@ -60,5 +49,5 @@
 
 .seller-panel table thead,
 .admin-panel table thead {
-  background-color: color-mix(in srgb, var(--panel-elevated) 70%, transparent);
+  background-color: color-mix(in srgb, var(--panel-elevated) 80%, transparent);
 }

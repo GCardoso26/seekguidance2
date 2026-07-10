@@ -30,17 +30,17 @@ export function TournamentCards({ tournaments, onDetails }: Props) {
   return (
     <ul className="space-y-3" data-testid="tournament-cards">
       {tournaments.map((t) => (
-        <li key={t.id} className="rounded-xl border border-white/10 bg-white/5 p-4">
+        <li key={t.id} className="surface-card p-4">
           <div className="flex flex-wrap items-start justify-between gap-2">
             <div>
-              <p className="font-semibold text-luxury-frost">{t.name}</p>
-              <p className="mt-1 text-sm text-luxury-mist">
+              <p className="font-semibold text-foreground">{t.name}</p>
+              <p className="mt-1 text-sm text-muted-foreground">
                 {t.gameName} · {pairingFormatLabel(t.pairingFormat)}
               </p>
             </div>
             <TournamentStatusBadge status={t.status} label={t.statusLabel} />
           </div>
-          <p className="mt-2 text-sm text-luxury-mist">
+          <p className="mt-2 text-sm text-muted-foreground">
             {formatDate(t.startsAt)} · {formatFee(t.entryFeeCents)}
             {t.maxPlayers != null ? ` · até ${t.maxPlayers} jogadores` : ""}
           </p>
@@ -61,12 +61,12 @@ export function TournamentCards({ tournaments, onDetails }: Props) {
 export function TournamentEmptyState() {
   return (
     <div
-      className="rounded-xl border border-dashed border-white/15 bg-white/5 p-10 text-center"
+      className="rounded-xl border border-dashed border-white/15 bg-muted/50 p-10 text-center"
       data-testid="tournaments-empty"
     >
-      <Trophy className="mx-auto h-10 w-10 text-luxury-mist/50" aria-hidden />
-      <p className="mt-3 text-luxury-mist">Nenhum torneio criado.</p>
-      <p className="mt-1 text-sm text-luxury-mist/70">Organize eventos e atraia jogadores à sua loja.</p>
+      <Trophy className="mx-auto h-10 w-10 text-muted-foreground/50" aria-hidden />
+      <p className="mt-3 text-muted-foreground">Nenhum torneio criado.</p>
+      <p className="mt-1 text-sm text-muted-foreground/70">Organize eventos e atraia jogadores à sua loja.</p>
     </div>
   );
 }

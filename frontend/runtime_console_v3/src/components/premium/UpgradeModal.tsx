@@ -64,16 +64,16 @@ export function UpgradeModal({ open, feature, onClose, billingCycle = "monthly" 
         <Dialog.Content
           className={cn(
             "fixed left-1/2 top-1/2 z-[101] w-[min(92vw,420px)] -translate-x-1/2 -translate-y-1/2",
-            "rounded-2xl border border-luxury-gold/30 bg-luxury-obsidian p-6 shadow-2xl",
+            "rounded-2xl border border-primary/30 bg-card p-6 shadow-2xl",
             "focus:outline-none",
           )}
         >
           <div className="mb-4 flex items-start justify-between gap-3">
             <div>
-              <Dialog.Title className="text-lg font-semibold text-luxury-frost">
+              <Dialog.Title className="text-lg font-semibold text-foreground">
                 Você atingiu o limite do Free
               </Dialog.Title>
-              <Dialog.Description className="mt-1 text-sm text-luxury-mist">
+              <Dialog.Description className="mt-1 text-sm text-muted-foreground">
                 {gate.upgradeCta ??
                   `Desbloqueie ${FEATURE_TITLES[feature]} e muito mais com o plano Pro.`}
               </Dialog.Description>
@@ -81,7 +81,7 @@ export function UpgradeModal({ open, feature, onClose, billingCycle = "monthly" 
             <Dialog.Close asChild>
               <button
                 type="button"
-                className="rounded-lg p-1 text-luxury-mist hover:bg-white/5"
+                className="rounded-lg p-1 text-muted-foreground hover:bg-muted/80"
                 aria-label="Fechar"
               >
                 <X className="h-5 w-5" />
@@ -91,25 +91,25 @@ export function UpgradeModal({ open, feature, onClose, billingCycle = "monthly" 
 
           <ul className="mb-6 space-y-2">
             {PRO_BENEFITS.map((text) => (
-              <li key={text} className="flex items-start gap-2 text-sm text-luxury-frost/90">
-                <Check className="mt-0.5 h-4 w-4 shrink-0 text-luxury-gold-light" aria-hidden />
+              <li key={text} className="flex items-start gap-2 text-sm text-foreground/90">
+                <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary-light" aria-hidden />
                 {text}
               </li>
             ))}
           </ul>
 
-          <div className="mb-4 rounded-xl border border-luxury-gold/20 bg-luxury-gold/5 p-4 text-center">
-            <p className="text-2xl font-bold text-luxury-frost">
+          <div className="mb-4 rounded-xl border border-luxury-gold/20 bg-primary/5 p-4 text-center">
+            <p className="text-2xl font-bold text-foreground">
               R$ {billingCycle === "annual" ? "290" : "29"}
-              <span className="text-sm font-normal text-luxury-mist">
+              <span className="text-sm font-normal text-muted-foreground">
                 /{billingCycle === "annual" ? "ano" : "mês"}
               </span>
             </p>
             {billingCycle === "annual" && (
-              <p className="mt-1 text-xs text-luxury-gold-light">2 meses grátis no plano anual</p>
+              <p className="mt-1 text-xs text-primary-light">2 meses grátis no plano anual</p>
             )}
             {billingCycle === "monthly" && (
-              <p className="mt-1 text-xs text-luxury-mist">ou R$ 290/ano (economize 2 meses)</p>
+              <p className="mt-1 text-xs text-muted-foreground">ou R$ 290/ano (economize 2 meses)</p>
             )}
           </div>
 
@@ -118,7 +118,7 @@ export function UpgradeModal({ open, feature, onClose, billingCycle = "monthly" 
               type="button"
               disabled={checkout.isPending}
               onClick={() => void handleSubscribe()}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-luxury-gold to-luxury-gold-dark py-3 font-bold text-luxury-onyx disabled:opacity-60"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-luxury-gold to-luxury-gold-dark py-3 font-bold text-primary-foreground disabled:opacity-60"
             >
               <Crown className="h-4 w-4" aria-hidden />
               {checkout.isPending ? "Redirecionando…" : "Assinar Pro"}
@@ -126,13 +126,13 @@ export function UpgradeModal({ open, feature, onClose, billingCycle = "monthly" 
             <button
               type="button"
               onClick={onClose}
-              className="rounded-xl py-2.5 text-sm text-luxury-mist hover:text-luxury-frost"
+              className="rounded-xl py-2.5 text-sm text-muted-foreground hover:text-foreground"
             >
               Continuar no Free
             </button>
           </div>
 
-          <p className="mt-4 text-center text-[11px] text-luxury-mist/70">
+          <p className="mt-4 text-center text-[11px] text-muted-foreground/70">
             7 dias de garantia. Cancele quando quiser.
           </p>
         </Dialog.Content>

@@ -56,9 +56,9 @@ export function PlanLimitBanner({ variant = "questions", tcgName }: Props) {
 
     return (
 
-      <div className="rounded-xl border border-luxury-gold/30 bg-luxury-gold/10 p-4 text-center">
+      <div className="rounded-xl border border-primary/30 bg-primary/10 p-4 text-center">
 
-        <p className="text-sm text-luxury-gold-light">
+        <p className="text-sm text-primary-light">
 
           Você usou {dailyUsed}/{dailyLimit} consultas hoje.
 
@@ -70,7 +70,7 @@ export function PlanLimitBanner({ variant = "questions", tcgName }: Props) {
 
         </p>
 
-        <p className="mt-1 text-xs text-luxury-mist">
+        <p className="mt-1 text-xs text-muted-foreground">
 
           Assine Pro para consultas ilimitadas e todos os 14 jogos.
 
@@ -84,7 +84,7 @@ export function PlanLimitBanner({ variant = "questions", tcgName }: Props) {
 
             onClick={openUpgrade}
 
-            className="inline-flex items-center gap-1.5 rounded-full bg-luxury-gold px-4 py-2 text-sm font-semibold text-luxury-onyx hover:bg-luxury-gold-light"
+            className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90-light"
 
           >
 
@@ -96,7 +96,7 @@ export function PlanLimitBanner({ variant = "questions", tcgName }: Props) {
 
           {remainingToday === 0 && (
 
-            <span className="rounded-lg border border-white/10 px-4 py-2 text-xs text-luxury-mist">
+            <span className="rounded-lg border border-border px-4 py-2 text-xs text-muted-foreground">
 
               Amanhã você terá mais {dailyLimit}
 
@@ -120,7 +120,7 @@ export function PlanLimitBanner({ variant = "questions", tcgName }: Props) {
 
       <div className="luxury-card rounded-xl p-4 text-center">
 
-        <p className="text-sm text-luxury-frost">
+        <p className="text-sm text-foreground">
 
           <span className="font-semibold">{tcgName ?? "Este jogo"}</span> não faz parte da sua
 
@@ -128,7 +128,7 @@ export function PlanLimitBanner({ variant = "questions", tcgName }: Props) {
 
         </p>
 
-        <p className="mt-1 text-xs text-luxury-mist">
+        <p className="mt-1 text-xs text-muted-foreground">
 
           Escolha até 5 jogos no onboarding ou assine Pro para os 14 TCGs.
 
@@ -140,7 +140,7 @@ export function PlanLimitBanner({ variant = "questions", tcgName }: Props) {
 
           onClick={openUpgrade}
 
-          className="mt-3 inline-block rounded-full bg-luxury-gold px-4 py-2 text-sm font-semibold text-luxury-onyx hover:bg-luxury-gold-light"
+          className="mt-3 inline-block rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90-light"
 
         >
 
@@ -162,9 +162,9 @@ export function PlanLimitBanner({ variant = "questions", tcgName }: Props) {
 
       <div className="luxury-card rounded-xl p-4 text-center">
 
-        <p className="text-sm text-luxury-frost">Limite de 1 torneio/mês no plano Free.</p>
+        <p className="text-sm text-foreground">Limite de 1 torneio/mês no plano Free.</p>
 
-        <p className="mt-1 text-xs text-luxury-mist">
+        <p className="mt-1 text-xs text-muted-foreground">
 
           Assine Pro para criar torneios ilimitados.
 
@@ -176,7 +176,7 @@ export function PlanLimitBanner({ variant = "questions", tcgName }: Props) {
 
           onClick={openUpgrade}
 
-          className="mt-3 inline-block rounded-full bg-luxury-gold px-4 py-2 text-sm font-semibold text-luxury-onyx hover:bg-luxury-gold-light"
+          className="mt-3 inline-block rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90-light"
 
         >
 
@@ -196,7 +196,7 @@ export function PlanLimitBanner({ variant = "questions", tcgName }: Props) {
 
     <div className="luxury-card rounded-xl p-4 text-center">
 
-      <p className="text-sm text-luxury-frost">Exportar histórico é um recurso Pro.</p>
+      <p className="text-sm text-foreground">Exportar histórico é um recurso Pro.</p>
 
       <button
 
@@ -204,7 +204,7 @@ export function PlanLimitBanner({ variant = "questions", tcgName }: Props) {
 
         onClick={openUpgrade}
 
-        className="mt-2 inline-block text-sm text-luxury-gold hover:text-luxury-gold-light"
+        className="mt-2 inline-block text-sm text-primary hover:text-primary-light"
 
       >
 

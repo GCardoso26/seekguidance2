@@ -22,7 +22,7 @@ export function DeckCardRow({
   const imageSrc = cardImageUrl(deckCard.card);
 
   return (
-    <div className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 p-2 hover:bg-white/10">
+    <div className="flex items-center gap-3 surface-card rounded-lg p-2 hover:bg-muted">
       <div className="relative h-12 w-8 shrink-0 overflow-hidden rounded">
         <Image
           src={imageSrc}
@@ -34,8 +34,8 @@ export function DeckCardRow({
       </div>
 
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium text-luxury-frost">{deckCard.card.name}</p>
-        <p className="truncate text-xs text-luxury-mist">
+        <p className="truncate text-sm font-medium text-foreground">{deckCard.card.name}</p>
+        <p className="truncate text-xs text-muted-foreground">
           {deckCard.card.set?.name}
           {deckCard.card.lowestPrice !== null && deckCard.card.lowestPrice !== undefined
             ? ` · ${formatCurrency(deckCard.card.lowestPrice)}`
@@ -48,7 +48,7 @@ export function DeckCardRow({
           type="button"
           disabled={disabled}
           onClick={() => onQuantityChange(deckCard.quantity - 1)}
-          className="rounded p-1 hover:bg-white/10 disabled:opacity-40"
+          className="rounded p-1 hover:bg-muted disabled:opacity-40"
           aria-label="Diminuir quantidade"
         >
           <Minus className="h-3 w-3" />
@@ -58,7 +58,7 @@ export function DeckCardRow({
           type="button"
           disabled={disabled}
           onClick={() => onQuantityChange(deckCard.quantity + 1)}
-          className="rounded p-1 hover:bg-white/10 disabled:opacity-40"
+          className="rounded p-1 hover:bg-muted disabled:opacity-40"
           aria-label="Aumentar quantidade"
         >
           <Plus className="h-3 w-3" />

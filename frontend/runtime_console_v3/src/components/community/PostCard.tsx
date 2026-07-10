@@ -33,9 +33,9 @@ export function PostCard({ post }: Props) {
     <article className="luxury-card flex gap-3 rounded-xl p-4">
       <PostVote post={post} />
       <div className="min-w-0 flex-1">
-        <div className="mb-1 flex flex-wrap items-center gap-2 text-xs text-luxury-mist">
+        <div className="mb-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
           {post.isPinned && (
-            <span className="inline-flex items-center gap-1 text-luxury-gold">
+            <span className="inline-flex items-center gap-1 text-primary">
               <Pin className="h-3 w-3" strokeWidth={1.5} />
               Fixado
             </span>
@@ -45,12 +45,12 @@ export function PostCard({ post }: Props) {
           <span>{timeAgo(post.createdAt)}</span>
         </div>
         <Link href={href} className="block">
-          <h2 className="text-base font-semibold text-luxury-frost hover:text-luxury-gold">{post.title}</h2>
+          <h2 className="text-base font-semibold text-foreground hover:text-primary">{post.title}</h2>
         </Link>
         {images.length > 0 && (
           <div className={`mt-2 grid gap-2 ${images.length > 1 ? "grid-cols-2" : ""}`}>
             {images.slice(0, 4).map((url, i) => (
-              <div key={i} className="relative aspect-video max-h-48 overflow-hidden rounded-lg border border-white/10">
+              <div key={i} className="relative aspect-video max-h-48 overflow-hidden rounded-lg border border-border">
                 <Image src={url} alt="" fill className="object-cover" unoptimized />
               </div>
             ))}
@@ -58,14 +58,14 @@ export function PostCard({ post }: Props) {
         )}
         {post.content && (
           <div
-            className="prose prose-invert mt-2 line-clamp-2 text-sm text-luxury-mist"
+            className="prose prose-invert mt-2 line-clamp-2 text-sm text-muted-foreground"
             dangerouslySetInnerHTML={{ __html: previewHtml }}
           />
         )}
         <div className="mt-2 flex items-center gap-3">
           <Link
             href={href}
-            className="inline-flex items-center gap-1.5 text-xs text-luxury-mist hover:text-luxury-gold"
+            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary"
           >
             <MessageCircle className="h-3.5 w-3.5" strokeWidth={1.5} />
             {post.commentCount} comentários

@@ -164,12 +164,12 @@ export function ListingPublishWizard() {
       <div className="space-y-4">
         <h2 className="text-lg font-semibold">1. Escolha a carta</h2>
         {prefillLoading && (
-          <p className="text-sm text-luxury-mist" data-testid="listing-prefill-loading">
+          <p className="text-sm text-muted-foreground" data-testid="listing-prefill-loading">
             Pré-preenchendo carta selecionada…
           </p>
         )}
         {selected && prefillDone && (
-          <p className="rounded-lg border border-luxury-gold/30 bg-luxury-gold/10 px-3 py-2 text-xs text-luxury-frost">
+          <p className="rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-xs text-foreground">
             Carta pré-selecionada: <strong>{selected.name}</strong>
             {selected.set_name ? ` · ${selected.set_name}` : ""}
             {selected.number ? ` · #${selected.number}` : ""}
@@ -178,16 +178,16 @@ export function ListingPublishWizard() {
         <GameSelectorTabs activeSlug={game} onChange={setGame} />
         <CardSearchInput value={search} onChange={setSearch} />
         {isLoading ? (
-          <p className="text-sm text-luxury-mist">Buscando…</p>
+          <p className="text-sm text-muted-foreground">Buscando…</p>
         ) : (
-          <ul className="max-h-80 space-y-1 overflow-y-auto rounded-xl border border-white/10 p-2">
+          <ul className="max-h-80 space-y-1 overflow-y-auto rounded-xl border border-border p-2">
             {(data?.cards ?? []).slice(0, 20).map((card) => (
               <li key={card.id}>
                 <button
                   type="button"
                   onClick={() => setSelected(card)}
-                  className={`flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-sm transition hover:bg-white/5 ${
-                    selected?.id === card.id ? "bg-luxury-gold/15 ring-1 ring-luxury-gold/40" : ""
+                  className={`flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-sm transition hover:bg-muted/80 ${
+                    selected?.id === card.id ? "bg-primary/15 ring-1 ring-luxury-gold/40" : ""
                   }`}
                 >
                   {card.image_url && (
@@ -197,7 +197,7 @@ export function ListingPublishWizard() {
                   )}
                   <span className="truncate">{card.name}</span>
                   {card.lowest_price_cents != null && (
-                    <span className="ml-auto text-xs text-luxury-gold">
+                    <span className="ml-auto text-xs text-primary">
                       {formatCurrency(card.lowest_price_cents / 100)}
                     </span>
                   )}
@@ -211,9 +211,9 @@ export function ListingPublishWizard() {
       <div className="space-y-4">
         <h2 className="text-lg font-semibold">2. Detalhes e publicar</h2>
         {!selected ? (
-          <p className="text-sm text-luxury-mist">Selecione uma carta à esquerda para continuar.</p>
+          <p className="text-sm text-muted-foreground">Selecione uma carta à esquerda para continuar.</p>
         ) : (
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 rounded-xl border border-white/10 p-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 rounded-xl border border-border p-4">
             <div className="flex gap-3">
               {selected.image_url && (
                 <div className="relative h-32 w-24 shrink-0 overflow-hidden rounded-lg">
@@ -223,7 +223,7 @@ export function ListingPublishWizard() {
               <div>
                 <p className="font-semibold">{selected.name}</p>
                 {selected.lowest_price_cents != null && (
-                  <p className="text-sm text-luxury-mist">
+                  <p className="text-sm text-muted-foreground">
                     Preço sugerido: {formatCurrency(selected.lowest_price_cents / 100)}
                   </p>
                 )}
@@ -236,7 +236,7 @@ export function ListingPublishWizard() {
                 type="number"
                 step="0.01"
                 min="0"
-                className="mt-1 w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2"
+                className="mt-1 w-full surface-card rounded-lg px-3 py-2"
                 {...register("price", { valueAsNumber: true })}
               />
               {errors.price && <span className="text-xs text-red-400">{errors.price.message}</span>}
@@ -247,7 +247,7 @@ export function ListingPublishWizard() {
               <input
                 type="number"
                 min="1"
-                className="mt-1 w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2"
+                className="mt-1 w-full surface-card rounded-lg px-3 py-2"
                 {...register("quantity", { valueAsNumber: true })}
               />
             </label>
@@ -259,7 +259,7 @@ export function ListingPublishWizard() {
                   type="button"
                   onClick={() => setValue("condition", c)}
                   className={`rounded-lg px-3 py-1 text-xs ${
-                    condition === c ? "bg-luxury-gold text-luxury-onyx" : "bg-white/10"
+                    condition === c ? "bg-primary text-primary-foreground" : "bg-muted"
                   }`}
                 >
                   {c}
@@ -274,7 +274,7 @@ export function ListingPublishWizard() {
                   type="button"
                   onClick={() => setValue("language", l.value)}
                   className={`rounded-lg px-3 py-1 text-xs ${
-                    watch("language") === l.value ? "bg-luxury-gold text-luxury-onyx" : "bg-white/10"
+                    watch("language") === l.value ? "bg-primary text-primary-foreground" : "bg-muted"
                   }`}
                 >
                   {l.label}
@@ -283,7 +283,7 @@ export function ListingPublishWizard() {
               <button
                 type="button"
                 onClick={() => setValue("foil", !foil)}
-                className={`rounded-lg px-3 py-1 text-xs ${foil ? "bg-luxury-gold text-luxury-onyx" : "bg-white/10"}`}
+                className={`rounded-lg px-3 py-1 text-xs ${foil ? "bg-primary text-primary-foreground" : "bg-muted"}`}
               >
                 Foil
               </button>
@@ -292,7 +292,7 @@ export function ListingPublishWizard() {
             <button
               type="submit"
               disabled={isSubmitting || !price}
-              className="w-full rounded-lg bg-luxury-gold py-3 text-sm font-semibold text-luxury-onyx disabled:opacity-50"
+              className="w-full rounded-lg bg-primary py-3 text-sm font-semibold text-primary-foreground disabled:opacity-50"
             >
               {isSubmitting ? "Publicando…" : "Publicar anúncio"}
             </button>

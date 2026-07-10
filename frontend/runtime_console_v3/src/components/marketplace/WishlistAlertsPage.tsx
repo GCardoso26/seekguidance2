@@ -18,19 +18,19 @@ export function WishlistAlertsPage() {
   const alerts = data?.alerts ?? [];
 
   if (isLoading) {
-    return <p className="text-sm text-luxury-mist">Carregando alertas…</p>;
+    return <p className="text-sm text-muted-foreground">Carregando alertas…</p>;
   }
 
   if (alerts.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-white/20 p-10 text-center" data-testid="wishlist-alerts-empty">
-        <p className="text-lg font-semibold text-luxury-frost">Nenhum alerta ativo</p>
-        <p className="mt-2 text-sm text-luxury-mist">
+      <div className="rounded-xl border border-dashed border-border p-10 text-center" data-testid="wishlist-alerts-empty">
+        <p className="text-lg font-semibold text-foreground">Nenhum alerta ativo</p>
+        <p className="mt-2 text-sm text-muted-foreground">
           Clique no sino em um produto para ser avisado quando o preço cair.
         </p>
         <Link
           href="/loja"
-          className="mt-6 inline-block rounded-lg bg-luxury-gold px-6 py-3 text-sm font-semibold text-luxury-onyx"
+          className="mt-6 inline-block rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground"
         >
           Explorar marketplace
         </Link>
@@ -46,18 +46,18 @@ export function WishlistAlertsPage() {
         return (
           <article
             key={alert.id}
-            className="luxury-card flex flex-col gap-3 rounded-xl border border-white/10 p-4 md:flex-row md:items-center md:justify-between"
+            className="luxury-card flex flex-col gap-3 rounded-xl border border-border p-4 md:flex-row md:items-center md:justify-between"
             data-testid={`price-alert-row-${alert.product_id}`}
           >
             <div>
               <Link
                 href={`/marketplace/product/${alert.product_id}`}
-                className="font-semibold text-luxury-frost hover:text-luxury-gold"
+                className="font-semibold text-foreground hover:text-primary"
               >
                 {name}
               </Link>
-              <p className="mt-1 text-sm text-luxury-mist">{priceAlertLabel(alert)}</p>
-              <p className="mt-1 text-xs text-luxury-mist">
+              <p className="mt-1 text-sm text-muted-foreground">{priceAlertLabel(alert)}</p>
+              <p className="mt-1 text-xs text-muted-foreground">
                 Atual: {formatShopPrice(current)}
                 {alert.target_price != null && (
                   <> · Alvo: {formatShopPrice(alert.target_price)}</>
@@ -74,7 +74,7 @@ export function WishlistAlertsPage() {
                 type="button"
                 size="sm"
                 variant="outline"
-                className="border-white/20"
+                className="border-border"
                 disabled={update.isPending}
                 onClick={() =>
                   void update.mutateAsync({
@@ -90,7 +90,7 @@ export function WishlistAlertsPage() {
                 type="button"
                 size="sm"
                 variant="outline"
-                className="border-white/20"
+                className="border-border"
                 disabled={remove.isPending}
                 onClick={() => void remove.mutateAsync(alert.id)}
                 data-testid={`price-alert-delete-${alert.product_id}`}

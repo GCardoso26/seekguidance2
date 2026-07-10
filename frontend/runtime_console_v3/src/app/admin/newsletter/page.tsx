@@ -46,7 +46,7 @@ export default function AdminNewsletterPage() {
     <PageShell className="max-w-2xl">
       <PageHeader title="Newsletter" description="Rascunhos e envio de edições da newsletter." />
 
-      <div className="space-y-3 rounded-xl border border-white/10 bg-white/5 p-6">
+      <div className="space-y-3 surface-card p-6">
         <input
           placeholder="Título"
           value={title}
@@ -61,20 +61,20 @@ export default function AdminNewsletterPage() {
           className="luxury-input w-full"
         />
         <div className="flex gap-2 text-xs">
-          <button type="button" onClick={() => setPreview(false)} className={preview ? "text-luxury-mist" : "text-luxury-gold"}>
+          <button type="button" onClick={() => setPreview(false)} className={preview ? "text-muted-foreground" : "text-primary"}>
             Editar
           </button>
-          <button type="button" onClick={() => setPreview(true)} className={preview ? "text-luxury-gold" : "text-luxury-mist"}>
+          <button type="button" onClick={() => setPreview(true)} className={preview ? "text-primary" : "text-muted-foreground"}>
             Preview
           </button>
         </div>
         {preview && (
           <div
-            className="rounded-lg border border-white/10 p-3 text-sm"
+            className="rounded-lg border border-border p-3 text-sm"
             dangerouslySetInnerHTML={{ __html: renderSimpleMarkdown(content) }}
           />
         )}
-        <Button className="bg-luxury-gold text-luxury-onyx" onClick={() => void create()}>
+        <Button className="bg-primary text-primary-foreground" onClick={() => void create()}>
           Salvar rascunho
         </Button>
       </div>
@@ -82,14 +82,14 @@ export default function AdminNewsletterPage() {
       <section className="space-y-3">
         <h2 className="font-medium">Edições</h2>
         {drafts.map((d: { id: string; title: string; sentAt?: string | null }) => (
-          <div key={d.id} className="flex items-center justify-between rounded-lg border border-white/10 p-3">
+          <div key={d.id} className="flex items-center justify-between rounded-lg border border-border p-3">
             <span>{d.title}</span>
             {!d.sentAt && (
-              <Button size="sm" variant="outline" className="border-white/10" onClick={() => void send(d.id)}>
+              <Button size="sm" variant="outline" className="border-border" onClick={() => void send(d.id)}>
                 Enviar
               </Button>
             )}
-            {d.sentAt && <span className="text-xs text-luxury-mist">Enviada</span>}
+            {d.sentAt && <span className="text-xs text-muted-foreground">Enviada</span>}
           </div>
         ))}
       </section>

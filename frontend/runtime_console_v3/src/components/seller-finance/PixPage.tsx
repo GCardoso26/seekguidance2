@@ -15,23 +15,23 @@ export function PixPage() {
       <main className="flex-1 space-y-4 overflow-y-auto p-6">
         <PageHeader title="PIX" description="Transações PIX recebidas e confirmações pendentes." />
         {isLoading ? (
-          <p className="text-sm text-luxury-mist">Carregando…</p>
+          <p className="text-sm text-muted-foreground">Carregando…</p>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-              <p className="text-sm text-luxury-mist">Chave PIX</p>
+            <div className="surface-card p-4">
+              <p className="text-sm text-muted-foreground">Chave PIX</p>
               <p className="mt-1 font-semibold">
                 {data?.pix_key_configured ? "Configurada" : "Não configurada"}
               </p>
             </div>
-            <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-              <p className="text-sm text-luxury-mist">Pendentes</p>
+            <div className="surface-card p-4">
+              <p className="text-sm text-muted-foreground">Pendentes</p>
               <p className="mt-1 text-2xl font-semibold text-amber-400">{data?.pending_count ?? 0}</p>
             </div>
-            <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-              <p className="text-sm text-luxury-mist">Confirmados</p>
+            <div className="surface-card p-4">
+              <p className="text-sm text-muted-foreground">Confirmados</p>
               <p className="mt-1 text-2xl font-semibold text-emerald-400">{data?.confirmed_count ?? 0}</p>
-              <p className="text-sm text-luxury-mist">
+              <p className="text-sm text-muted-foreground">
                 {formatShopPrice(data?.revenue_cents ?? 0)} recebidos
               </p>
             </div>
@@ -39,7 +39,7 @@ export function PixPage() {
         )}
         <Link
           href="/vendedor/painel/configuracoes/pagamentos"
-          className="inline-block text-sm text-luxury-gold underline"
+          className="inline-block text-sm text-primary underline"
         >
           Configurar PIX →
         </Link>

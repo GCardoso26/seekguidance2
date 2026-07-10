@@ -45,7 +45,7 @@ export function NotificationSettingsPage() {
     <>
       <SellerHeader action={null} />
       <main className="flex-1 space-y-6 overflow-y-auto p-6">
-        <div className="flex items-center gap-2 text-sm text-luxury-mist">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Link href="/vendedor/painel/configuracoes" className="hover:text-white">
             Configurações
           </Link>
@@ -54,11 +54,11 @@ export function NotificationSettingsPage() {
         </div>
         <h2 className="text-xl font-bold">Notificações da loja</h2>
         {isLoading ? (
-          <p className="text-sm text-luxury-mist">Carregando…</p>
+          <p className="text-sm text-muted-foreground">Carregando…</p>
         ) : (
           <div className="space-y-4" data-testid="notification-settings">
             {EVENTS.map((ev) => (
-              <section key={ev.key} className="rounded-xl border border-white/10 bg-white/5 p-4">
+              <section key={ev.key} className="surface-card p-4">
                 <h3 className="font-medium">{ev.label}</h3>
                 <div className="mt-2 flex gap-4">
                   {CHANNELS.map((ch) => (

@@ -14,7 +14,7 @@ export function SuggestedRulings({ rulings, onApply }: Props) {
   return (
     <ul className="space-y-2">
       {rulings.map((r) => (
-        <li key={r.id} className="rounded-lg border border-white/10 bg-white/5 p-3">
+        <li key={r.id} className="surface-card rounded-lg p-3">
           <p className="font-medium text-white">{r.title}</p>
           <p className="mt-1 text-xs text-white/60">{r.question}</p>
           <p className="mt-2 text-sm text-emerald-200/90">{r.answer}</p>

@@ -79,16 +79,16 @@ function LojaSuspensaContent() {
 
   if (onboardingSyncing) {
     return (
-      <main className="mx-auto flex min-h-[70vh] max-w-lg flex-col justify-center p-6 text-center text-luxury-mist">
+      <main className="mx-auto flex min-h-[70vh] max-w-lg flex-col justify-center p-6 text-center text-muted-foreground">
         <p className="text-sm">Atualizando status do cadastro Stripe…</p>
       </main>
     );
   }
 
   return (
-    <main className="mx-auto flex min-h-[70vh] max-w-lg flex-col justify-center p-6 text-luxury-frost">
+    <main className="mx-auto flex min-h-[70vh] max-w-lg flex-col justify-center p-6 text-foreground">
       <h1 className="text-2xl font-bold text-red-200">{title}</h1>
-      <p className="mt-3 text-sm text-luxury-mist">{description}</p>
+      <p className="mt-3 text-sm text-muted-foreground">{description}</p>
       {merchant?.rejection_reason && !awaitingReview && (
         <p className="mt-2 rounded-lg border border-red-500/30 bg-red-950/20 p-3 text-sm text-red-100">
           Motivo: {merchant.rejection_reason}
@@ -100,16 +100,16 @@ function LojaSuspensaContent() {
             {status === "rejected" ? "Reenviar documentação" : "Continuar cadastro"}
           </Button>
         )}
-        <Button asChild variant="outline" className="border-white/20">
+        <Button asChild variant="outline" className="border-border">
           <Link href="/loja">Voltar à loja</Link>
         </Button>
       </div>
       {reonboardMutation.isError && (
         <p className="mt-3 text-sm text-red-300">{reonboardMutation.error.message}</p>
       )}
-      <p className="mt-8 text-xs text-luxury-mist">
+      <p className="mt-8 text-xs text-muted-foreground">
         Dúvidas?{" "}
-        <Link href="/suporte" className="text-luxury-gold underline">
+        <Link href="/suporte" className="text-primary underline">
           Fale com o suporte
         </Link>
       </p>
@@ -121,7 +121,7 @@ export default function LojaSuspensaPage() {
   return (
     <Suspense
       fallback={
-        <main className="mx-auto flex min-h-[70vh] max-w-lg items-center justify-center p-6 text-luxury-mist">
+        <main className="mx-auto flex min-h-[70vh] max-w-lg items-center justify-center p-6 text-muted-foreground">
           <p className="text-sm">Carregando…</p>
         </main>
       }

@@ -20,12 +20,12 @@ import { Button } from "@/components/ui/button";
 
 const SwissBracket = dynamic(
   () => import("@/components/tournament/SwissBracket").then((m) => m.SwissBracket),
-  { loading: () => <p className="text-sm text-luxury-mist">Carregando rodadas suíças…</p> },
+  { loading: () => <p className="text-sm text-muted-foreground">Carregando rodadas suíças…</p> },
 );
 
 const EliminationBracket = dynamic(
   () => import("@/components/tournament/EliminationBracket").then((m) => m.EliminationBracket),
-  { loading: () => <p className="text-sm text-luxury-mist">Carregando chave…</p> },
+  { loading: () => <p className="text-sm text-muted-foreground">Carregando chave…</p> },
 );
 
 type Props = {
@@ -148,14 +148,14 @@ export function TournamentBracketPanel({
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           {backHref && (
-            <Link href={backHref} className="text-sm text-luxury-mist hover:text-luxury-gold">
+            <Link href={backHref} className="text-sm text-muted-foreground hover:text-primary">
               {backLabel}
             </Link>
           )}
           <h1 className="mt-2 text-2xl font-bold text-white">
             Bracket — {String(t?.name ?? "Torneio")}
           </h1>
-          <p className="mt-1 text-sm text-luxury-mist">
+          <p className="mt-1 text-sm text-muted-foreground">
             {format.replace(/_/g, " ")} · {publicStatusLabel(publicStatus)}
           </p>
         </div>
@@ -164,10 +164,10 @@ export function TournamentBracketPanel({
             publicStatus === "in_progress"
               ? "border-sky-500/40 bg-sky-500/20 text-sky-300"
               : publicStatus === "finished"
-                ? "border-white/20 bg-white/10 text-luxury-mist"
+                ? "border-border bg-muted text-muted-foreground"
                 : publicStatus === "open"
                   ? "border-emerald-500/40 bg-emerald-500/20 text-emerald-300"
-                  : "border-white/10 bg-white/5 text-luxury-mist"
+                  : "border-border bg-muted/50 text-muted-foreground"
           }`}
           data-testid="bracket-public-status"
         >
@@ -179,11 +179,11 @@ export function TournamentBracketPanel({
 
       {publicStatus === "not_started" && (
         <div
-          className="luxury-card rounded-xl border border-dashed border-white/20 p-8 text-center"
+          className="luxury-card rounded-xl border border-dashed border-border p-8 text-center"
           data-testid="bracket-placeholder"
         >
-          <p className="text-lg font-medium text-luxury-frost">Torneio ainda não iniciado</p>
-          <p className="mt-2 text-sm text-luxury-mist">
+          <p className="text-lg font-medium text-foreground">Torneio ainda não iniciado</p>
+          <p className="mt-2 text-sm text-muted-foreground">
             O bracket será exibido aqui quando o organizador iniciar o torneio.
           </p>
         </div>
@@ -255,7 +255,7 @@ export function TournamentBracketPanel({
       {showSellerLink && isOrganizer && (
         <Link
           href={`/vendedor/painel/torneios/${tournamentId}/bracket`}
-          className="text-sm text-luxury-gold hover:underline"
+          className="text-sm text-primary hover:underline"
         >
           Gerenciar no painel lojista →
         </Link>

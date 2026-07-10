@@ -60,7 +60,7 @@ export function CreatePostModal({ defaultCommunityId, onCreated }: Props) {
 
   if (!open) {
     return (
-      <Button className="bg-luxury-gold text-luxury-onyx hover:bg-luxury-gold-light" onClick={() => setOpen(true)}>
+      <Button className="bg-primary text-primary-foreground hover:bg-primary/90-light" onClick={() => setOpen(true)}>
         Criar post
       </Button>
     );
@@ -69,7 +69,7 @@ export function CreatePostModal({ defaultCommunityId, onCreated }: Props) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
       <div className="luxury-card max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl p-6">
-        <h2 className="text-xl font-light text-luxury-frost">Novo post</h2>
+        <h2 className="text-xl font-light text-foreground">Novo post</h2>
         <div className="mt-4 space-y-3">
           {!defaultCommunityId && (
             <select
@@ -89,7 +89,7 @@ export function CreatePostModal({ defaultCommunityId, onCreated }: Props) {
             placeholder="Título"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="border-white/10 bg-white/5"
+            className="border-border bg-muted/50"
           />
           <TagInput tags={tags} onChange={setTags} />
           <div>
@@ -104,16 +104,16 @@ export function CreatePostModal({ defaultCommunityId, onCreated }: Props) {
             />
           </div>
           <div className="flex gap-2 text-xs">
-            <button type="button" className={preview ? "text-luxury-mist" : "text-luxury-gold"} onClick={() => setPreview(false)}>
+            <button type="button" className={preview ? "text-muted-foreground" : "text-primary"} onClick={() => setPreview(false)}>
               Editar
             </button>
-            <button type="button" className={preview ? "text-luxury-gold" : "text-luxury-mist"} onClick={() => setPreview(true)}>
+            <button type="button" className={preview ? "text-primary" : "text-muted-foreground"} onClick={() => setPreview(true)}>
               Preview
             </button>
           </div>
           {preview && (
             <div
-              className="rounded-lg border border-white/10 bg-white/5 p-3 text-sm"
+              className="surface-card rounded-lg p-3 text-sm"
               dangerouslySetInnerHTML={{ __html: renderSimpleMarkdown(content) }}
             />
           )}
@@ -135,11 +135,11 @@ export function CreatePostModal({ defaultCommunityId, onCreated }: Props) {
           )}
         </div>
         <div className="mt-6 flex gap-2">
-          <Button variant="outline" className="flex-1 border-white/10" onClick={() => setOpen(false)}>
+          <Button variant="outline" className="flex-1 border-border" onClick={() => setOpen(false)}>
             Cancelar
           </Button>
           <Button
-            className="flex-1 bg-luxury-gold text-luxury-onyx"
+            className="flex-1 bg-primary text-primary-foreground"
             disabled={!communityId || !title.trim() || create.isPending}
             onClick={() => void submit()}
           >

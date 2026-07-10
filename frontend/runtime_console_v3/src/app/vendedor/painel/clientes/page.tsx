@@ -46,8 +46,8 @@ export default function ClientesPage() {
 
   if (!hasStore) {
     return (
-      <main className="p-8 text-center text-luxury-mist">
-        <Link href="/stores/create" className="text-luxury-gold underline">
+      <main className="p-8 text-center text-muted-foreground">
+        <Link href="/stores/create" className="text-primary underline">
           Cadastre sua loja
         </Link>
       </main>
@@ -57,7 +57,7 @@ export default function ClientesPage() {
   if (!planHasFeature(plan, "crm")) {
     return (
       <main className="p-8 text-center">
-        <p className="text-luxury-mist">CRM disponível no plano Lojista.</p>
+        <p className="text-muted-foreground">CRM disponível no plano Lojista.</p>
         <Button asChild className="mt-4">
           <Link href="/vendedor/painel/planos">Ver planos</Link>
         </Button>
@@ -83,12 +83,12 @@ export default function ClientesPage() {
       <main className="flex-1 space-y-6 overflow-y-auto p-6">
         <div>
           <h2 className="text-xl font-bold">Clientes</h2>
-          <p className="text-sm text-luxury-mist">Histórico e segmentação básica.</p>
+          <p className="text-sm text-muted-foreground">Histórico e segmentação básica.</p>
         </div>
 
-        <div className="overflow-x-auto rounded-xl border border-white/10">
+        <div className="overflow-x-auto rounded-xl border border-border">
           <table className="w-full text-sm">
-            <thead className="bg-white/5 text-left text-luxury-mist">
+            <thead className="bg-muted/50 text-left text-muted-foreground">
               <tr>
                 <th className="p-3">Cliente</th>
                 <th className="p-3">Pedidos</th>
@@ -99,22 +99,22 @@ export default function ClientesPage() {
             <tbody>
               {isLoading ? (
                 <tr>
-                  <td colSpan={4} className="p-4 text-luxury-mist">
+                  <td colSpan={4} className="p-4 text-muted-foreground">
                     Carregando…
                   </td>
                 </tr>
               ) : customers.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="p-4 text-luxury-mist">
+                  <td colSpan={4} className="p-4 text-muted-foreground">
                     Nenhum cliente. Clique em sincronizar após vendas pagas.
                   </td>
                 </tr>
               ) : (
                 customers.map((c) => (
-                  <tr key={String(c.customer_id)} className="border-t border-white/10">
+                  <tr key={String(c.customer_id)} className="border-t border-border">
                     <td className="p-3">
                       <p>{String(c.display_name || c.email || c.customer_id)}</p>
-                      {Boolean(c.email) && <p className="text-xs text-luxury-mist">{String(c.email)}</p>}
+                      {Boolean(c.email) && <p className="text-xs text-muted-foreground">{String(c.email)}</p>}
                     </td>
                     <td className="p-3">{String(c.order_count)}</td>
                     <td className="p-3">{formatBRL(Number(c.total_spent_cents ?? 0))}</td>

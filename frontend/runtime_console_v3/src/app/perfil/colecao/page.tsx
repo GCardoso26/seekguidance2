@@ -40,11 +40,11 @@ export default function ColecaoPage() {
     return (
       <MobileLayout>
         <div className="container mx-auto max-w-md px-4 py-16 text-center">
-          <h1 className="text-2xl font-bold text-luxury-frost">Minha Coleção</h1>
-          <p className="mt-2 text-sm text-luxury-mist">Entre com sua conta para ver e gerenciar sua coleção.</p>
+          <h1 className="text-2xl font-bold text-foreground">Minha Coleção</h1>
+          <p className="mt-2 text-sm text-muted-foreground">Entre com sua conta para ver e gerenciar sua coleção.</p>
           <Link
             href="/judge"
-            className="mt-6 inline-block rounded-lg bg-luxury-gold px-6 py-2.5 text-sm font-semibold text-luxury-onyx"
+            className="mt-6 inline-block rounded-lg bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground"
           >
             Entrar com Google
           </Link>
@@ -58,10 +58,10 @@ export default function ColecaoPage() {
       <div className="container mx-auto max-w-4xl px-4 py-8">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-luxury-frost">Minha Coleção</h1>
-            <p className="text-sm text-luxury-mist">Gerencie as cartas que você possui</p>
+            <h1 className="text-2xl font-bold text-foreground">Minha Coleção</h1>
+            <p className="text-sm text-muted-foreground">Gerencie as cartas que você possui</p>
           </div>
-          <Link href="/loja/busca" className="text-sm text-luxury-gold">
+          <Link href="/loja/busca" className="text-sm text-primary">
             + Adicionar cartas
           </Link>
         </div>
@@ -71,14 +71,14 @@ export default function ColecaoPage() {
         </div>
 
         <div className="mt-6 grid gap-4 lg:grid-cols-[1fr_280px]">
-          <div className="rounded-xl border border-white/10 bg-white/5 p-4 text-sm text-luxury-mist">
+          <div className="surface-card p-4 text-sm text-muted-foreground">
             <p>
               Gerencie quantidade, duplicatas e valor. Integre com a{" "}
-              <Link href="/wishlist" className="text-luxury-gold hover:underline">
+              <Link href="/wishlist" className="text-primary hover:underline">
                 wishlist
               </Link>{" "}
               e compre faltantes pelos{" "}
-              <Link href="/decks" className="text-luxury-gold hover:underline">
+              <Link href="/decks" className="text-primary hover:underline">
                 decks
               </Link>
               .
@@ -103,7 +103,7 @@ export default function ColecaoPage() {
         </div>
 
         <div className="mt-6">
-          {isLoading && <p className="text-sm text-luxury-mist">Carregando coleção…</p>}
+          {isLoading && <p className="text-sm text-muted-foreground">Carregando coleção…</p>}
           {!isLoading && (
             <CollectionGrid
               items={filtered}

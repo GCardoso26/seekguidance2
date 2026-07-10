@@ -33,12 +33,12 @@ export function DeckZone({
       ref={setNodeRef}
       className={cn(
         "rounded-lg border-2 border-dashed p-4 min-h-[180px] transition-colors",
-        isOver ? "border-luxury-gold bg-luxury-gold/5" : "border-white/15",
+        isOver ? "border-luxury-gold bg-primary/5" : "border-white/15",
         exceeded && "border-red-500/70 bg-red-500/5",
       )}
     >
-      <div className="mb-2 flex items-center justify-between text-sm text-luxury-mist">
-        <span className="font-medium text-luxury-frost">{label}</span>
+      <div className="mb-2 flex items-center justify-between text-sm text-muted-foreground">
+        <span className="font-medium text-foreground">{label}</span>
         <span className={cn(exceeded && "text-red-400")}>
           {totalCards} / {maxCards}
         </span>
@@ -59,7 +59,7 @@ export function DeckZone({
         ))}
 
         {cards.length === 0 && (
-          <p className="py-8 text-center text-sm text-luxury-mist">
+          <p className="py-8 text-center text-sm text-muted-foreground">
             Arraste cartas aqui ou clique para adicionar
           </p>
         )}

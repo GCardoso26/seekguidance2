@@ -15,11 +15,11 @@ export function StripePage() {
       <main className="flex-1 space-y-4 overflow-y-auto p-6">
         <PageHeader title="Stripe" description="Conta Connect, transações e disputas." />
         {isLoading ? (
-          <p className="text-sm text-luxury-mist">Carregando…</p>
+          <p className="text-sm text-muted-foreground">Carregando…</p>
         ) : (
           <div className="space-y-4">
-            <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-              <p className="text-sm text-luxury-mist">Conta</p>
+            <div className="surface-card p-4">
+              <p className="text-sm text-muted-foreground">Conta</p>
               <p className="font-mono text-sm">{data?.account_id ?? "—"}</p>
               <p className="mt-2">
                 Onboarding:{" "}
@@ -29,21 +29,21 @@ export function StripePage() {
               </p>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
-              <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-                <p className="text-sm text-luxury-mist">Pedidos via Stripe</p>
+              <div className="surface-card p-4">
+                <p className="text-sm text-muted-foreground">Pedidos via Stripe</p>
                 <p className="text-2xl font-semibold">{data?.stripe_orders_count ?? 0}</p>
-                <p className="text-sm text-luxury-mist">
+                <p className="text-sm text-muted-foreground">
                   {formatShopPrice(data?.stripe_revenue_cents ?? 0)} em receita
                 </p>
               </div>
-              <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-                <p className="text-sm text-luxury-mist">Disputas abertas</p>
+              <div className="surface-card p-4">
+                <p className="text-sm text-muted-foreground">Disputas abertas</p>
                 <p className="text-2xl font-semibold text-red-400">{data?.open_disputes ?? 0}</p>
               </div>
             </div>
             <Link
               href="/vendedor/painel/configuracoes/pagamentos"
-              className="inline-block text-sm text-luxury-gold underline"
+              className="inline-block text-sm text-primary underline"
             >
               Configurar pagamentos →
             </Link>

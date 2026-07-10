@@ -45,14 +45,14 @@ export function DeckShoppingPanel({ deckId, deckName }: Props) {
 
   return (
     <section
-      className="mt-6 rounded-xl border border-white/10 bg-white/5 p-4"
+      className="mt-6 surface-card p-4"
       data-testid="deck-shopping-panel"
       aria-label="Comprar deck"
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="font-semibold">Deck Shopping</h2>
-          <p className="text-xs text-luxury-mist">
+          <p className="text-xs text-muted-foreground">
             {deckName ?? "Deck"} — cartas possuídas, faltantes e melhor combinação de lojas.
           </p>
         </div>
@@ -74,24 +74,24 @@ export function DeckShoppingPanel({ deckId, deckName }: Props) {
         </div>
       </div>
 
-      {isLoading && <p className="mt-3 text-sm text-luxury-mist">Calculando…</p>}
+      {isLoading && <p className="mt-3 text-sm text-muted-foreground">Calculando…</p>}
 
       {data && (
         <>
           <div className="mt-4 grid gap-2 sm:grid-cols-3">
             <div className="rounded-lg border border-white/5 p-3">
-              <p className="text-xs text-luxury-mist">Possuídas</p>
+              <p className="text-xs text-muted-foreground">Possuídas</p>
               <p className="text-lg font-semibold">
                 {(data.owned ?? []).filter((o) => Number(o.owned) >= Number(o.needed)).length}
               </p>
             </div>
             <div className="rounded-lg border border-white/5 p-3">
-              <p className="text-xs text-luxury-mist">A comprar</p>
+              <p className="text-xs text-muted-foreground">A comprar</p>
               <p className="text-lg font-semibold">{missingCount}</p>
             </div>
             <div className="rounded-lg border border-white/5 p-3">
-              <p className="text-xs text-luxury-mist">Valor estimado</p>
-              <p className="text-lg font-semibold text-luxury-gold">
+              <p className="text-xs text-muted-foreground">Valor estimado</p>
+              <p className="text-lg font-semibold text-primary">
                 {formatShopPrice(data.estimated_value_cents)}
               </p>
             </div>
@@ -108,13 +108,13 @@ export function DeckShoppingPanel({ deckId, deckName }: Props) {
                   >
                     <span>
                       {s.store_slug ? (
-                        <Link href={`/marketplace/loja/${s.store_slug}`} className="hover:text-luxury-gold">
+                        <Link href={`/marketplace/loja/${s.store_slug}`} className="hover:text-primary">
                           {s.store_name ?? s.store_id}
                         </Link>
                       ) : (
                         s.store_name ?? s.store_id
                       )}
-                      <span className="ml-2 text-xs text-luxury-mist">Trust {Math.round(s.trust_score)}</span>
+                      <span className="ml-2 text-xs text-muted-foreground">Trust {Math.round(s.trust_score)}</span>
                     </span>
                     <span>{formatShopPrice(s.subtotal_cents)}</span>
                   </li>
@@ -131,7 +131,7 @@ export function DeckShoppingPanel({ deckId, deckName }: Props) {
               <Link href="/carrinho">Ver carrinho</Link>
             </Button>
           </div>
-          <p className="mt-2 text-[11px] text-luxury-mist">{data.policy}</p>
+          <p className="mt-2 text-[11px] text-muted-foreground">{data.policy}</p>
         </>
       )}
     </section>

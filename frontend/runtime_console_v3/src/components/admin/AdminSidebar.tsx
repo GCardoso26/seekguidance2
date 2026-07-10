@@ -16,13 +16,13 @@ export function AdminSidebar({ className, onNavigate }: Props) {
   return (
     <aside
       className={cn(
-        "flex h-full flex-col border-r border-white/10 bg-luxury-onyx/95 text-sm",
+        "flex h-full flex-col border-r border-border bg-background/95 text-sm",
         className,
       )}
     >
-      <div className="border-b border-white/10 p-4">
-        <p className="text-xs uppercase tracking-wide text-luxury-mist">Judge TCG</p>
-        <p className="font-semibold text-luxury-gold">Administração</p>
+      <div className="border-b border-border p-4">
+        <p className="text-xs uppercase tracking-wide text-muted-foreground">Judge TCG</p>
+        <p className="font-semibold text-primary">Administração</p>
       </div>
       <nav className="flex-1 space-y-0.5 overflow-y-auto p-3">
         {ADMIN_SIDEBAR_ITEMS.map((item) => {
@@ -35,7 +35,7 @@ export function AdminSidebar({ className, onNavigate }: Props) {
               onClick={onNavigate}
               className={cn(
                 "flex items-center gap-2 rounded-lg px-3 py-2 transition-colors",
-                active ? "bg-luxury-gold/20 text-luxury-gold" : "text-luxury-mist hover:bg-white/5",
+                active ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted/80",
               )}
             >
               <Icon className="h-4 w-4 shrink-0" aria-hidden />
@@ -44,18 +44,18 @@ export function AdminSidebar({ className, onNavigate }: Props) {
           );
         })}
       </nav>
-      <div className="space-y-1 border-t border-white/10 p-3">
+      <div className="space-y-1 border-t border-border p-3">
         <Link
           href="/observability"
           onClick={onNavigate}
-          className="block rounded-lg px-3 py-2 text-luxury-mist hover:bg-white/5"
+          className="block rounded-lg px-3 py-2 text-muted-foreground hover:bg-muted/80"
         >
           Observability
         </Link>
         <Link
           href="/loja"
           onClick={onNavigate}
-          className="block rounded-lg px-3 py-2 text-luxury-mist hover:bg-white/5"
+          className="block rounded-lg px-3 py-2 text-muted-foreground hover:bg-muted/80"
         >
           Voltar ao site
         </Link>

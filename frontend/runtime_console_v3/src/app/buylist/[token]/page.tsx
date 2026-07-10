@@ -60,22 +60,22 @@ export default function PublicBuylistPage() {
     <MobileLayout>
       <main className="mx-auto max-w-2xl space-y-6 p-4">
         {isLoading ? (
-          <p className="text-luxury-mist">Carregando oferta…</p>
+          <p className="text-muted-foreground">Carregando oferta…</p>
         ) : !buylist ? (
-          <p className="text-luxury-mist">Oferta não encontrada.</p>
+          <p className="text-muted-foreground">Oferta não encontrada.</p>
         ) : (
           <>
             <div>
-              <p className="text-sm text-luxury-mist">{String(buylist.store_name)}</p>
+              <p className="text-sm text-muted-foreground">{String(buylist.store_name)}</p>
               <h1 className="text-2xl font-bold">{String(buylist.title)}</h1>
-              <p className="mt-2 text-luxury-gold text-lg font-semibold">
+              <p className="mt-2 text-primary text-lg font-semibold">
                 Total estimado: {formatBRL(Number(buylist.total_offer_cents ?? 0))}
               </p>
             </div>
 
-            <div className="rounded-xl border border-white/10 overflow-hidden">
+            <div className="rounded-xl border border-border overflow-hidden">
               <table className="w-full text-sm">
-                <thead className="bg-white/5 text-left">
+                <thead className="bg-muted/50 text-left">
                   <tr>
                     <th className="p-3">Carta</th>
                     <th className="p-3">Qtd</th>
@@ -84,7 +84,7 @@ export default function PublicBuylistPage() {
                 </thead>
                 <tbody>
                   {items.map((item) => (
-                    <tr key={String(item.id)} className="border-t border-white/10">
+                    <tr key={String(item.id)} className="border-t border-border">
                       <td className="p-3">{String(item.card_name)}</td>
                       <td className="p-3">{String(item.quantity)}</td>
                       <td className="p-3">{formatBRL(Number(item.offer_cents ?? 0))}</td>
@@ -101,7 +101,7 @@ export default function PublicBuylistPage() {
             ) : (
               <div className="space-y-3">
                 <textarea
-                  className="w-full rounded-lg border border-white/10 bg-black/30 p-3 text-sm"
+                  className="w-full rounded-lg border border-border bg-black/30 p-3 text-sm"
                   placeholder="Mensagem opcional (condição das cartas, etc.)"
                   rows={3}
                   value={message}
@@ -111,14 +111,14 @@ export default function PublicBuylistPage() {
                   {loading ? "Enviando…" : "Aceitar oferta e vender minha coleção"}
                 </Button>
                 {error && <p className="text-sm text-red-300">{error}</p>}
-                <p className="text-xs text-luxury-mist">
+                <p className="text-xs text-muted-foreground">
                   Precisa estar logado. Após aceite, a loja confirma e o pagamento pode usar escrow.
                 </p>
               </div>
             )}
 
             {buylist.store_slug && (
-              <Link href={`/marketplace/loja/${String(buylist.store_slug)}`} className="text-sm text-luxury-gold underline">
+              <Link href={`/marketplace/loja/${String(buylist.store_slug)}`} className="text-sm text-primary underline">
                 Ver loja
               </Link>
             )}

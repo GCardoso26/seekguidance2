@@ -16,10 +16,10 @@ export function HealthScoreCard({ data }: HealthScoreCardProps) {
     data.score > 70 ? "text-emerald-400" : data.score > 40 ? "text-amber-400" : "text-red-400";
 
   return (
-    <article className="rounded-xl border border-white/10 bg-luxury-obsidian p-6">
-      <p className="text-sm uppercase tracking-wide text-luxury-mist">{data.game}</p>
+    <article className="rounded-xl border border-border bg-card p-6">
+      <p className="text-sm uppercase tracking-wide text-muted-foreground">{data.game}</p>
       <p className={cn("mt-2 text-5xl font-bold", color)}>{data.score}</p>
-      <p className="mt-1 text-sm text-luxury-mist">{STATUS_LABEL[data.status]}</p>
+      <p className="mt-1 text-sm text-muted-foreground">{STATUS_LABEL[data.status]}</p>
 
       <div className="mt-6 grid gap-3 sm:grid-cols-2">
         <MetricBar label="Liquidez" value={data.liquidity} />
@@ -34,13 +34,13 @@ export function HealthScoreCard({ data }: HealthScoreCardProps) {
 function MetricBar({ label, value }: { label: string; value: number }) {
   return (
     <div>
-      <div className="mb-1 flex justify-between text-xs text-luxury-mist">
+      <div className="mb-1 flex justify-between text-xs text-muted-foreground">
         <span>{label}</span>
         <span>{Math.round(value)}</span>
       </div>
-      <div className="h-2 rounded-full bg-luxury-onyx">
+      <div className="h-2 rounded-full bg-background">
         <div
-          className="h-2 rounded-full bg-luxury-gold transition-all"
+          className="h-2 rounded-full bg-primary transition-all"
           style={{ width: `${Math.min(100, Math.max(0, value))}%` }}
         />
       </div>

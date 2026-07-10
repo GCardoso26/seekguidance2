@@ -17,29 +17,29 @@ export function AuditTrailPage() {
           description="Histórico de transições do aggregate Payment."
         />
         {isLoading ? (
-          <p className="text-sm text-luxury-mist">Carregando…</p>
+          <p className="text-sm text-muted-foreground">Carregando…</p>
         ) : (
           <div className="space-y-2">
             {(data?.events ?? []).length === 0 ? (
-              <p className="text-sm text-luxury-mist">Nenhum evento registrado ainda.</p>
+              <p className="text-sm text-muted-foreground">Nenhum evento registrado ainda.</p>
             ) : (
               data?.events.map((ev) => (
                 <div
                   key={ev.id}
-                  className="flex flex-wrap items-start justify-between gap-2 rounded-xl border border-white/10 bg-white/5 p-4"
+                  className="flex flex-wrap items-start justify-between gap-2 surface-card p-4"
                 >
                   <div>
                     <p className="font-medium">{ev.event_type ?? ev.to_status}</p>
-                    <p className="text-xs text-luxury-mist">
+                    <p className="text-xs text-muted-foreground">
                       {ev.from_status ?? "—"} → {ev.to_status}
                     </p>
-                    <p className="mt-1 font-mono text-xs text-luxury-mist">
+                    <p className="mt-1 font-mono text-xs text-muted-foreground">
                       pedido {ev.shop_order_id?.slice(0, 8) ?? "—"}
                     </p>
                   </div>
                   <div className="text-right text-sm">
                     <p>{formatShopPrice(ev.amount_cents)}</p>
-                    <p className="text-xs text-luxury-mist">
+                    <p className="text-xs text-muted-foreground">
                       {new Date(ev.created_at).toLocaleString("pt-BR")}
                     </p>
                   </div>

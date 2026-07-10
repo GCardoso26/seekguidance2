@@ -109,7 +109,7 @@ export function PdvPixPayment({ storeId, storeName, items, onComplete, isPending
   return (
     <div className="space-y-3" data-testid="pdv-pix-payment">
       {pixLoading && !pixIntent && (
-        <p className="flex items-center gap-2 text-sm text-luxury-mist">
+        <p className="flex items-center gap-2 text-sm text-muted-foreground">
           <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-luxury-gold border-t-transparent" />
           Gerando QR code PIX…
         </p>

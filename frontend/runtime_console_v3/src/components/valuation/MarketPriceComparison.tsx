@@ -37,10 +37,10 @@ export function MarketPriceComparison({ valuation }: MarketPriceComparisonProps)
   return (
     <div className="grid gap-3 sm:grid-cols-3">
       {rows.map((row) => (
-        <div key={row.source} className="rounded-lg border border-white/10 bg-luxury-onyx/50 p-3">
-          <p className="text-xs text-luxury-mist">{row.source}</p>
-          <p className="mt-1 text-lg font-semibold text-luxury-frost">{row.value}</p>
-          {row.trend && <p className="text-xs text-luxury-mist">{row.trend}</p>}
+        <div key={row.source} className="rounded-lg border border-border bg-background/50 p-3">
+          <p className="text-xs text-muted-foreground">{row.source}</p>
+          <p className="mt-1 text-lg font-semibold text-foreground">{row.value}</p>
+          {row.trend && <p className="text-xs text-muted-foreground">{row.trend}</p>}
         </div>
       ))}
     </div>

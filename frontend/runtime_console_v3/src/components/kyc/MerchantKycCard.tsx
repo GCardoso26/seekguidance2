@@ -155,7 +155,7 @@ export function MerchantKycCard() {
 
   if (onboardingRedirecting || onboardingSyncing) {
     return (
-      <div className="rounded-xl border border-white/10 bg-white/5 p-4 text-center text-sm text-luxury-mist">
+      <div className="surface-card p-4 text-center text-sm text-muted-foreground">
         {onboardingSyncing
           ? "Atualizando status do seu cadastro…"
           : "Redirecionando para continuar seu cadastro no Stripe…"}
@@ -165,9 +165,9 @@ export function MerchantKycCard() {
 
   if (status === "none") {
     return (
-      <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+      <div className="surface-card p-4">
         <h3 className="font-semibold">Quero vender</h3>
-        <p className="mt-1 text-sm text-luxury-mist">
+        <p className="mt-1 text-sm text-muted-foreground">
           Ative o perfil lojista e complete a verificação de identidade (KYC) para publicar produtos.
         </p>
         {accountStatusError && (
@@ -226,7 +226,7 @@ export function MerchantKycCard() {
       {showContinueButton && (
         <Button
           variant="outline"
-          className="mt-3 border-white/20"
+          className="mt-3 border-border"
           disabled={storeLoading || onboardingMutation.isPending}
           onClick={() => void onboardingMutation.mutate()}
         >

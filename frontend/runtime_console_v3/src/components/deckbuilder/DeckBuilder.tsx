@@ -142,7 +142,7 @@ export function DeckBuilder({ deckId }: DeckBuilderProps) {
   );
 
   if (!isClient || isLoading || !deck) {
-    return <div className="p-8 text-luxury-mist">Carregando deckbuilder…</div>;
+    return <div className="p-8 text-muted-foreground">Carregando deckbuilder…</div>;
   }
 
   const busy = addCard.isPending || updateCard.isPending || removeCard.isPending;
@@ -160,7 +160,7 @@ export function DeckBuilder({ deckId }: DeckBuilderProps) {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Busca rápida..."
-              className="border-white/10 bg-white/5"
+              className="border-border bg-muted/50"
             />
             <Button type="button" variant="outline" onClick={() => setShowSearchModal(true)}>
               Buscar
@@ -168,7 +168,7 @@ export function DeckBuilder({ deckId }: DeckBuilderProps) {
           </div>
           <div className="grid flex-1 grid-cols-3 gap-2 overflow-y-auto sm:grid-cols-4">
             {searchLoading && cards.length === 0 && (
-              <p className="col-span-full text-sm text-luxury-mist">Buscando cartas…</p>
+              <p className="col-span-full text-sm text-muted-foreground">Buscando cartas…</p>
             )}
             {cards.map((card) => (
               <DraggableSearchCard
@@ -181,7 +181,7 @@ export function DeckBuilder({ deckId }: DeckBuilderProps) {
           {hasNextPage && (
             <button
               type="button"
-              className="text-sm text-luxury-gold"
+              className="text-sm text-primary"
               onClick={() => fetchNextPage()}
               disabled={isFetchingNextPage}
             >

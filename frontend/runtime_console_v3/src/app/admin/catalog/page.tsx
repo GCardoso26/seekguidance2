@@ -83,7 +83,7 @@ export default function AdminCatalogPage() {
       )}
 
       {message && (
-        <p className="rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm" role="status">
+        <p className="surface-card rounded-lg px-4 py-2 text-sm" role="status">
           {message}
         </p>
       )}
@@ -92,21 +92,21 @@ export default function AdminCatalogPage() {
         {sorted.map((game) => {
           const lastSync = formatSyncDate(game.last_sync_at);
           return (
-            <Card key={game.slug} className="border-white/10 bg-white/5">
+            <Card key={game.slug} className="border-border bg-muted/50">
               <CardHeader className="pb-2">
                 <CardTitle className="text-base">{game.display_name ?? game.name ?? game.slug}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3 text-sm">
-                <p className="text-luxury-mist">
+                <p className="text-muted-foreground">
                   {formatCardCount(game.card_count)} cartas
                   {game.api_source && ` · ${game.api_source}`}
                 </p>
-                {lastSync && <p className="text-xs text-luxury-mist">Último sync: {lastSync}</p>}
+                {lastSync && <p className="text-xs text-muted-foreground">Último sync: {lastSync}</p>}
                 <div className="flex gap-2">
                   <Button
                     size="sm"
                     variant="outline"
-                    className="border-white/10"
+                    className="border-border"
                     disabled={syncMutation.isPending}
                     onClick={() => syncMutation.mutate({ slug: game.slug, full: false })}
                   >
@@ -115,7 +115,7 @@ export default function AdminCatalogPage() {
                   </Button>
                   <Button
                     size="sm"
-                    className="bg-luxury-gold text-luxury-onyx"
+                    className="bg-primary text-primary-foreground"
                     disabled={syncMutation.isPending}
                     onClick={() => syncMutation.mutate({ slug: game.slug, full: true })}
                   >

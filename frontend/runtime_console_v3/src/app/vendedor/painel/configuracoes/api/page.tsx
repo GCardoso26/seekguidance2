@@ -37,8 +37,8 @@ export default function SellerApiPage() {
 
   if (!hasStore) {
     return (
-      <main className="p-8 text-center text-luxury-mist">
-        <Link href="/stores/create" className="text-luxury-gold underline">
+      <main className="p-8 text-center text-muted-foreground">
+        <Link href="/stores/create" className="text-primary underline">
           Cadastre sua loja
         </Link>
       </main>
@@ -48,7 +48,7 @@ export default function SellerApiPage() {
   if (!planHasFeature(plan, "api")) {
     return (
       <main className="p-8 text-center">
-        <p className="text-luxury-mist">API lojista no plano Pro.</p>
+        <p className="text-muted-foreground">API lojista no plano Pro.</p>
         <Button asChild className="mt-4">
           <Link href="/vendedor/painel/planos">Ver planos</Link>
         </Button>
@@ -62,11 +62,11 @@ export default function SellerApiPage() {
       <main className="flex-1 space-y-6 overflow-y-auto p-6">
         <div>
           <h2 className="text-xl font-bold">API da loja</h2>
-          <p className="text-sm text-luxury-mist">
+          <p className="text-sm text-muted-foreground">
             Integre estoque e pedidos. Documentação em{" "}
             <a
               href="https://github.com/GCardoso26/seekguidance2/blob/main/docs/SELLER_API.md"
-              className="text-luxury-gold underline"
+              className="text-primary underline"
               target="_blank"
               rel="noreferrer"
             >
@@ -76,7 +76,7 @@ export default function SellerApiPage() {
         </div>
 
         {data && (
-          <div className="rounded-xl border border-white/10 bg-white/5 p-4 text-sm">
+          <div className="surface-card p-4 text-sm">
             <p>Prefixo: {String(data.key_prefix ?? "—")}</p>
             <p>Uso: {String(data.usage_count ?? 0)} / {String(data.rate_limit_monthly ?? "—")}</p>
           </div>

@@ -22,10 +22,10 @@ export function SellerProfileStats({ seller }: Props) {
       {stats.map((s) => (
         <div
           key={s.label}
-          className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-center"
+          className="surface-card px-4 py-3 text-center"
         >
-          <p className="text-lg font-bold text-luxury-frost">{s.value}</p>
-          <p className="text-xs text-luxury-mist">{s.label}</p>
+          <p className="text-lg font-bold text-foreground">{s.value}</p>
+          <p className="text-xs text-muted-foreground">{s.label}</p>
         </div>
       ))}
     </div>

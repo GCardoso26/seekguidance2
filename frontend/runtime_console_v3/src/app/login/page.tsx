@@ -48,15 +48,15 @@ function LoginForm() {
   }
 
   return (
-    <div className="luxury-marketing flex min-h-screen items-center justify-center bg-luxury-onyx p-4 text-luxury-frost">
+    <div className="luxury-marketing flex min-h-screen items-center justify-center bg-background p-4 text-foreground">
       <div className="luxury-card w-full max-w-md">
         <div className="mb-6 flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-full border border-luxury-gold/30 bg-luxury-gold/10">
-            <Scale className="h-5 w-5 text-luxury-gold" strokeWidth={1.5} />
+          <span className="flex h-10 w-10 items-center justify-center rounded-full border border-primary/30 bg-primary/10">
+            <Scale className="h-5 w-5 text-primary" strokeWidth={1.5} />
           </span>
           <div>
-            <p className="text-xs tracking-[0.2em] text-luxury-mist uppercase">Console</p>
-            <h1 className="text-lg font-medium text-luxury-frost">Runtime Console</h1>
+            <p className="text-xs tracking-[0.2em] text-muted-foreground uppercase">Console</p>
+            <h1 className="text-lg font-medium text-foreground">Runtime Console</h1>
           </div>
         </div>
         <form onSubmit={onLogin} className="space-y-3">
@@ -65,7 +65,7 @@ function LoginForm() {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             autoComplete="username"
-            className="border-white/10 bg-white/5 text-luxury-frost"
+            className="border-border bg-muted/50 text-foreground"
           />
           <Input
             type="password"
@@ -73,23 +73,23 @@ function LoginForm() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             autoComplete="current-password"
-            className="border-white/10 bg-white/5 text-luxury-frost"
+            className="border-border bg-muted/50 text-foreground"
           />
           <Input
             placeholder="API Key (opcional)"
             value={apiKey}
             onChange={(e) => setKey(e.target.value)}
             autoComplete="off"
-            className="border-white/10 bg-white/5 text-luxury-frost"
+            className="border-border bg-muted/50 text-foreground"
           />
           {err && <p className="text-sm text-red-400">{err}</p>}
           <button type="submit" className="luxury-btn-primary w-full" disabled={loading}>
             {loading ? "…" : "Entrar"}
           </button>
         </form>
-        <p className="mt-4 text-center text-xs text-luxury-mist">
-          Acesso admin: <span className="font-mono text-luxury-frost">admin</span> /{" "}
-          <span className="font-mono text-luxury-frost">admin</span>
+        <p className="mt-4 text-center text-xs text-muted-foreground">
+          Acesso admin: <span className="font-mono text-foreground">admin</span> /{" "}
+          <span className="font-mono text-foreground">admin</span>
         </p>
       </div>
     </div>
@@ -100,7 +100,7 @@ export default function LoginPage() {
   return (
     <Suspense
       fallback={
-        <div className="luxury-marketing flex min-h-screen items-center justify-center bg-luxury-onyx text-luxury-mist">
+        <div className="luxury-marketing flex min-h-screen items-center justify-center bg-background text-muted-foreground">
           Carregando…
         </div>
       }

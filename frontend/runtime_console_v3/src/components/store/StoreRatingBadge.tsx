@@ -17,7 +17,7 @@ export function StoreRatingBadge({ className = "" }: Props) {
 export function StoreRatingInline({ rating, count }: Props) {
   if (!rating && !count) return null;
   return (
-    <span className="text-sm text-luxury-mist">
+    <span className="text-sm text-muted-foreground">
       ★ {Number(rating ?? 0).toFixed(1)} ({count ?? 0})
     </span>
   );

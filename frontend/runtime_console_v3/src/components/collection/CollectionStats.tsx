@@ -25,26 +25,26 @@ export function CollectionStats({ items, estimatedValueCents }: CollectionStatsP
 
   return (
     <div className="space-y-3" data-testid="collection-stats">
-      <div className="flex flex-wrap gap-4 text-sm text-luxury-mist">
+      <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
         <span>
           Valor estimado:{" "}
-          <strong className="text-luxury-gold">{formatCurrency(value / 100)}</strong>
+          <strong className="text-primary">{formatCurrency(value / 100)}</strong>
         </span>
         <span>
-          <strong className="text-luxury-frost">{stats.totalCards}</strong> cartas
+          <strong className="text-foreground">{stats.totalCards}</strong> cartas
         </span>
         <span>
-          <strong className="text-luxury-frost">{stats.uniqueCards}</strong> únicas
+          <strong className="text-foreground">{stats.uniqueCards}</strong> únicas
         </span>
         <span>
-          <strong className="text-luxury-frost">{stats.duplicates}</strong> duplicatas
+          <strong className="text-foreground">{stats.duplicates}</strong> duplicatas
         </span>
         <span>
-          <strong className="text-luxury-frost">{stats.foilCount}</strong> foil
+          <strong className="text-foreground">{stats.foilCount}</strong> foil
         </span>
       </div>
       {topGames.length > 0 && (
-        <p className="text-xs text-luxury-mist">
+        <p className="text-xs text-muted-foreground">
           Por jogo:{" "}
           {topGames.map(([game, qty]) => `${game} (${qty})`).join(" · ")}
         </p>

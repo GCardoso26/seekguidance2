@@ -39,7 +39,7 @@ function PricingContent() {
       />
 
       {fromMenu && (
-        <p className="luxury-page mb-6 text-center text-sm text-luxury-gold">
+        <p className="luxury-page mb-6 text-center text-sm text-primary">
           Seu plano atual:{" "}
           <span className="font-semibold">
             {tier === "free" ? "Jogador Casual" : tier === "pro" ? "Spike" : "Equipe"}
@@ -67,8 +67,8 @@ function PricingContent() {
       <PricingFAQ />
 
       <section className="luxury-page py-16 text-center">
-        <h2 className="mb-4 text-3xl font-light text-luxury-frost">Ainda em dúvida?</h2>
-        <p className="mb-8 text-luxury-mist">
+        <h2 className="mb-4 text-3xl font-light text-foreground">Ainda em dúvida?</h2>
+        <p className="mb-8 text-muted-foreground">
           Comece grátis. Upgrade quando sentir que precisa de mais.
         </p>
         <button
@@ -90,7 +90,7 @@ export default function PricingPage() {
   return (
     <Suspense
       fallback={
-        <div className="luxury-page py-24 text-center text-luxury-mist">Carregando…</div>
+        <div className="luxury-page py-24 text-center text-muted-foreground">Carregando…</div>
       }
     >
       <PricingContent />

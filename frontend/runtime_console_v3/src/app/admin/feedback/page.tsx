@@ -54,14 +54,14 @@ export default function AdminFeedbackPage() {
 
       <ul className="space-y-3">
         {items.map((f) => (
-          <li key={f.id} className="rounded-xl border border-white/10 bg-white/5 p-4">
+          <li key={f.id} className="surface-card p-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="font-medium">{f.subject}</span>
-              <span className="text-xs text-luxury-mist">
+              <span className="text-xs text-muted-foreground">
                 {f.type} · {f.priority} · {f.status}
               </span>
             </div>
-            <p className="mt-2 text-sm text-luxury-mist">{f.description}</p>
+            <p className="mt-2 text-sm text-muted-foreground">{f.description}</p>
             <select
               value={f.status}
               onChange={(e) => void updateStatus(f.id, e.target.value)}

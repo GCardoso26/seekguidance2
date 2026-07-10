@@ -26,12 +26,12 @@ export function ProUpgradePanel({ storeId, plan, onSubscribed }: Props) {
 
   if (current === "pro" || current === "enterprise") {
     return (
-      <div className="rounded-xl border border-luxury-gold/30 bg-luxury-gold/10 p-6">
+      <div className="rounded-xl border border-primary/30 bg-primary/10 p-6">
         <div className="flex items-center gap-2">
           <h2 className="font-semibold">Plano {current === "enterprise" ? "Enterprise" : "Pro Loja"}</h2>
           <ProBadge plan={current} />
         </div>
-        <p className="mt-2 text-sm text-luxury-mist">Assinatura ativa. Obrigado por apoiar a Judge TCG!</p>
+        <p className="mt-2 text-sm text-muted-foreground">Assinatura ativa. Obrigado por apoiar a Judge TCG!</p>
       </div>
     );
   }
@@ -56,28 +56,28 @@ export function ProUpgradePanel({ storeId, plan, onSubscribed }: Props) {
   }
 
   return (
-    <div className="rounded-xl border border-white/10 bg-white/5 p-6">
+    <div className="surface-card p-6">
       <h2 className="font-semibold">Pro Loja</h2>
-      <p className="mt-1 text-sm text-luxury-mist">R$ 49/mês — receita da plataforma via assinatura, não comissão.</p>
+      <p className="mt-1 text-sm text-muted-foreground">R$ 49/mês — receita da plataforma via assinatura, não comissão.</p>
       <ul className="mt-4 space-y-2">
         {PRO_FEATURES.map((f) => (
-          <li key={f} className="text-sm text-luxury-mist">✓ {f}</li>
+          <li key={f} className="text-sm text-muted-foreground">✓ {f}</li>
         ))}
       </ul>
       <div className="mt-4 flex flex-wrap gap-2">
-        <Link href="/vendedor/painel/pro" className="rounded-lg bg-luxury-gold px-4 py-2 font-semibold text-luxury-onyx">
+        <Link href="/vendedor/painel/pro" className="rounded-lg bg-primary px-4 py-2 font-semibold text-primary-foreground">
           Ver planos Pro
         </Link>
         <button
           type="button"
           disabled={loading}
           onClick={() => void subscribe("pro")}
-          className="rounded-lg border border-white/20 px-4 py-2 text-sm disabled:opacity-50"
+          className="rounded-lg border border-border px-4 py-2 text-sm disabled:opacity-50"
         >
           Ativar dev (sem pagamento)
         </button>
       </div>
-      <div className="mt-6 border-t border-white/10 pt-6">
+      <div className="mt-6 border-t border-border pt-6">
         <ProCheckout storeId={storeId} onSuccess={onSubscribed} />
       </div>
       {error && <p className="mt-3 text-sm text-red-300">{error}</p>}

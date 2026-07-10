@@ -12,7 +12,7 @@ export function SalesChart({ data }: { data: Point[] }) {
   }));
 
   if (chartData.length === 0) {
-    return <p className="text-sm text-luxury-mist">Sem vendas nos últimos 30 dias.</p>;
+    return <p className="text-sm text-muted-foreground">Sem vendas nos últimos 30 dias.</p>;
   }
 
   return (

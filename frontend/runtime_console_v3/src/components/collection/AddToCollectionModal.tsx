@@ -28,9 +28,9 @@ export function AddToCollectionModal({ open, cardId, cardName, onClose }: AddToC
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-      <div className="w-full max-w-md rounded-xl border border-white/10 bg-luxury-onyx p-6">
-        <h2 className="text-lg font-semibold text-luxury-frost">Adicionar à coleção</h2>
-        {cardName && <p className="mt-1 text-sm text-luxury-mist">{cardName}</p>}
+      <div className="w-full max-w-md rounded-xl border border-border bg-background p-6">
+        <h2 className="text-lg font-semibold text-foreground">Adicionar à coleção</h2>
+        {cardName && <p className="mt-1 text-sm text-muted-foreground">{cardName}</p>}
 
         <div className="mt-4 space-y-3">
           <label className="block text-sm">
@@ -40,7 +40,7 @@ export function AddToCollectionModal({ open, cardId, cardName, onClose }: AddToC
               min={1}
               value={quantity}
               onChange={(e) => setQuantity(Number(e.target.value))}
-              className="mt-1 border-white/10 bg-luxury-obsidian"
+              className="mt-1 border-border bg-card"
             />
           </label>
           <label className="block text-sm">
@@ -48,7 +48,7 @@ export function AddToCollectionModal({ open, cardId, cardName, onClose }: AddToC
             <select
               value={condition}
               onChange={(e) => setCondition(e.target.value)}
-              className="mt-1 w-full rounded-md border border-white/10 bg-luxury-obsidian px-3 py-2 text-sm"
+              className="mt-1 w-full rounded-md border border-border bg-card px-3 py-2 text-sm"
             >
               {COLLECTION_CONDITIONS.map((c) => (
                 <option key={c} value={c}>

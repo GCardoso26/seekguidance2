@@ -98,15 +98,15 @@ export function TournamentRegistrationPanel({
 
   return (
     <section
-      className="luxury-card rounded-xl border border-white/10 p-6"
+      className="luxury-card rounded-xl border border-border p-6"
       data-testid="tournament-registration-panel"
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-sm text-luxury-mist">Taxa de inscrição</p>
-          <p className="text-xl font-semibold text-luxury-gold">{formatFee(entryFeeCents)}</p>
+          <p className="text-sm text-muted-foreground">Taxa de inscrição</p>
+          <p className="text-xl font-semibold text-primary">{formatFee(entryFeeCents)}</p>
         </div>
-        <div className="text-right text-sm text-luxury-mist">
+        <div className="text-right text-sm text-muted-foreground">
           <p>
             Vagas: {registeredCount}
             {maxPlayers != null ? ` / ${maxPlayers}` : ""}
@@ -135,7 +135,7 @@ export function TournamentRegistrationPanel({
         ) : entryFeeCents > 0 && eligibility.allowed ? (
           <Link
             href={`/tournament/${tournamentId}/checkout`}
-            className="inline-flex min-h-[44px] items-center justify-center rounded-lg bg-luxury-gold px-4 py-2 text-sm font-semibold text-luxury-onyx hover:bg-luxury-gold-light"
+            className="inline-flex min-h-[44px] items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90-light"
             data-testid="tournament-register-btn"
           >
             Inscrever-se
@@ -143,7 +143,7 @@ export function TournamentRegistrationPanel({
         ) : (
           <Button
             type="button"
-            className="bg-luxury-gold text-luxury-onyx hover:bg-luxury-gold-light"
+            className="bg-primary text-primary-foreground hover:bg-primary/90-light"
             disabled={!publicOpen || !eligibility.allowed || register.isPending}
             onClick={handleRegisterClick}
             data-testid="tournament-register-btn"
@@ -154,7 +154,7 @@ export function TournamentRegistrationPanel({
       </div>
 
       {!eligibility.allowed && eligibility.reason === "registration_closed" && (
-        <p className="mt-2 text-sm text-luxury-mist">Inscrições fechadas para este torneio.</p>
+        <p className="mt-2 text-sm text-muted-foreground">Inscrições fechadas para este torneio.</p>
       )}
       {eligibility.reason === "full" && (
         <p className="mt-2 text-sm text-amber-300">Torneio lotado.</p>
@@ -164,11 +164,11 @@ export function TournamentRegistrationPanel({
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 z-50 bg-black/60" />
           <Dialog.Content
-            className="fixed left-1/2 top-1/2 z-50 w-[min(100vw-2rem,24rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl border border-white/10 bg-luxury-onyx p-6"
+            className="fixed left-1/2 top-1/2 z-50 w-[min(100vw-2rem,24rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl border border-border bg-background p-6"
             data-testid="tournament-register-confirm-modal"
           >
             <Dialog.Title className="text-lg font-semibold">Confirmar inscrição</Dialog.Title>
-            <p className="mt-2 text-sm text-luxury-mist">
+            <p className="mt-2 text-sm text-muted-foreground">
               Inscrição gratuita. Deseja confirmar sua participação?
             </p>
             <div className="mt-4 flex gap-2">
@@ -177,7 +177,7 @@ export function TournamentRegistrationPanel({
               </Button>
               <Button
                 type="button"
-                className="bg-luxury-gold text-luxury-onyx"
+                className="bg-primary text-primary-foreground"
                 disabled={register.isPending}
                 onClick={() => void confirmFree()}
                 data-testid="tournament-register-confirm-btn"

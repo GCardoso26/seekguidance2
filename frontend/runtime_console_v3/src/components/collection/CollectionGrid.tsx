@@ -12,7 +12,7 @@ interface CollectionGridProps {
 
 export function CollectionGrid({ items, onEdit, onRemove, busy }: CollectionGridProps) {
   if (items.length === 0) {
-    return <p className="text-sm text-luxury-mist">Nenhuma carta na coleção.</p>;
+    return <p className="text-sm text-muted-foreground">Nenhuma carta na coleção.</p>;
   }
 
   return (

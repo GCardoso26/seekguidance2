@@ -38,11 +38,11 @@ export function FeaturesSection({ segment = "home" }: Props) {
     <section id="features" className="relative py-28 lg:py-36">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <RevealOnScroll className="mb-16 max-w-2xl">
-          <p className="mb-4 text-xs tracking-[0.3em] text-luxury-gold uppercase">
+          <p className="mb-4 text-xs tracking-[0.3em] text-primary uppercase">
             {sectionCopy.eyebrow}
           </p>
-          <h2 className="mb-6 text-luxury-frost">{sectionCopy.title}</h2>
-          <p className="text-lg font-light text-luxury-mist">{sectionCopy.subtitle}</p>
+          <h2 className="mb-6 text-foreground">{sectionCopy.title}</h2>
+          <p className="text-lg font-light text-muted-foreground">{sectionCopy.subtitle}</p>
         </RevealOnScroll>
 
         <motion.div
@@ -57,11 +57,11 @@ export function FeaturesSection({ segment = "home" }: Props) {
             return (
               <RevealOnScroll key={feature.title} delay={i * 0.1}>
                 <Card hover className="h-full">
-                  <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl border border-luxury-gold/20 bg-luxury-gold/5">
-                    <Icon className="h-5 w-5 text-luxury-gold" strokeWidth={1.5} />
+                  <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl border border-luxury-gold/20 bg-primary/5">
+                    <Icon className="h-5 w-5 text-primary" strokeWidth={1.5} />
                   </div>
-                  <h3 className="mb-3 text-xl text-luxury-frost">{feature.title}</h3>
-                  <p className="text-sm leading-relaxed text-luxury-mist">{feature.description}</p>
+                  <h3 className="mb-3 text-xl text-foreground">{feature.title}</h3>
+                  <p className="text-sm leading-relaxed text-muted-foreground">{feature.description}</p>
                 </Card>
               </RevealOnScroll>
             );

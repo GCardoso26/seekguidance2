@@ -21,7 +21,7 @@ function SellerBracketView() {
       <div className="space-y-6 p-4 md:p-6" data-testid="seller-bracket-page">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <Link href="/vendedor/painel/torneios" className="text-sm text-luxury-mist hover:text-luxury-gold">
+            <Link href="/vendedor/painel/torneios" className="text-sm text-muted-foreground hover:text-primary">
               ← Torneios
             </Link>
             <h1 className="mt-2 text-2xl font-bold text-white">
@@ -31,13 +31,13 @@ function SellerBracketView() {
           <div className="flex flex-wrap gap-2">
             <Link
               href={`/vendedor/painel/torneios/${id}/inscritos`}
-              className="rounded-lg border border-white/10 px-4 py-2 text-sm text-luxury-mist"
+              className="rounded-lg border border-border px-4 py-2 text-sm text-muted-foreground"
             >
               Inscritos
             </Link>
             <Link
               href={`/tournament/${id}/bracket`}
-              className="rounded-lg border border-luxury-gold/40 px-4 py-2 text-sm text-luxury-gold"
+              className="rounded-lg border border-primary/40 px-4 py-2 text-sm text-primary"
             >
               Página pública
             </Link>

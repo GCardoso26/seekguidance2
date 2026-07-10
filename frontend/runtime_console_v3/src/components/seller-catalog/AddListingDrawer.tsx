@@ -79,12 +79,12 @@ export function AddListingDrawer({ card, open, onOpenChange, onSaved }: Props) {
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/60" />
-        <Dialog.Content className="fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col border-l border-white/10 bg-luxury-onyx shadow-xl outline-none">
-          <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+        <Dialog.Content className="fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col border-l border-border bg-background shadow-xl outline-none">
+          <div className="flex items-center justify-between border-b border-border px-4 py-3">
             <Dialog.Title className="text-lg font-semibold">
               Adicionar anúncio — {card?.name ?? ""}
             </Dialog.Title>
-            <Dialog.Close className="rounded-lg p-1 hover:bg-white/10" aria-label="Fechar">
+            <Dialog.Close className="rounded-lg p-1 hover:bg-muted" aria-label="Fechar">
               <X className="h-5 w-5" />
             </Dialog.Close>
           </div>
@@ -102,8 +102,8 @@ export function AddListingDrawer({ card, open, onOpenChange, onSaved }: Props) {
                 )}
                 <div className="text-sm">
                   <p className="font-semibold">{card.name}</p>
-                  {card.set_name && <p className="text-luxury-mist">{card.set_name}</p>}
-                  {card.rarity && <p className="text-xs text-luxury-mist">Raridade: {card.rarity}</p>}
+                  {card.set_name && <p className="text-muted-foreground">{card.set_name}</p>}
+                  {card.rarity && <p className="text-xs text-muted-foreground">Raridade: {card.rarity}</p>}
                 </div>
               </div>
 
@@ -113,7 +113,7 @@ export function AddListingDrawer({ card, open, onOpenChange, onSaved }: Props) {
                   type="number"
                   step="0.01"
                   aria-label="Preço"
-                  className="mt-1 w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2"
+                  className="mt-1 w-full surface-card rounded-lg px-3 py-2"
                   {...register("price", { valueAsNumber: true })}
                 />
                 {errors.price && <span className="text-xs text-red-400">{errors.price.message}</span>}
@@ -124,7 +124,7 @@ export function AddListingDrawer({ card, open, onOpenChange, onSaved }: Props) {
                 <input
                   type="number"
                   aria-label="Quantidade"
-                  className="mt-1 w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2"
+                  className="mt-1 w-full surface-card rounded-lg px-3 py-2"
                   {...register("quantity", { valueAsNumber: true })}
                 />
                 {errors.quantity && (
@@ -141,7 +141,7 @@ export function AddListingDrawer({ card, open, onOpenChange, onSaved }: Props) {
                       type="button"
                       onClick={() => setValue("language", lang.value)}
                       className={`rounded px-2 py-1 text-xs ${
-                        language === lang.value ? "bg-luxury-gold/30 text-luxury-gold" : "bg-white/5"
+                        language === lang.value ? "bg-primary/30 text-primary" : "bg-muted/50"
                       }`}
                     >
                       {lang.label}
@@ -171,7 +171,7 @@ export function AddListingDrawer({ card, open, onOpenChange, onSaved }: Props) {
                       type="button"
                       onClick={() => setValue("condition", c)}
                       className={`rounded px-2 py-1 text-xs ${
-                        condition === c ? "bg-luxury-gold/30 text-luxury-gold" : "bg-white/5"
+                        condition === c ? "bg-primary/30 text-primary" : "bg-muted/50"
                       }`}
                     >
                       {c}
@@ -183,7 +183,7 @@ export function AddListingDrawer({ card, open, onOpenChange, onSaved }: Props) {
               <label className="mb-3 block text-sm">
                 Observações
                 <textarea
-                  className="mt-1 w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2"
+                  className="mt-1 w-full surface-card rounded-lg px-3 py-2"
                   rows={2}
                   {...register("description")}
                 />
@@ -192,7 +192,7 @@ export function AddListingDrawer({ card, open, onOpenChange, onSaved }: Props) {
               <label className="mb-4 block text-sm">
                 SKU (opcional)
                 <input
-                  className="mt-1 w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2"
+                  className="mt-1 w-full surface-card rounded-lg px-3 py-2"
                   {...register("sku")}
                 />
               </label>
@@ -201,7 +201,7 @@ export function AddListingDrawer({ card, open, onOpenChange, onSaved }: Props) {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="flex-1 rounded-lg bg-luxury-gold py-2 text-sm font-semibold text-luxury-onyx disabled:opacity-50"
+                  className="flex-1 rounded-lg bg-primary py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
                 >
                   Salvar
                 </button>
@@ -209,7 +209,7 @@ export function AddListingDrawer({ card, open, onOpenChange, onSaved }: Props) {
                   type="button"
                   disabled={isSubmitting}
                   onClick={handleSubmit((v) => onSubmit(v, true))}
-                  className="flex-1 rounded-lg border border-white/20 py-2 text-sm disabled:opacity-50"
+                  className="flex-1 rounded-lg border border-border py-2 text-sm disabled:opacity-50"
                 >
                   Salvar e adicionar outra
                 </button>

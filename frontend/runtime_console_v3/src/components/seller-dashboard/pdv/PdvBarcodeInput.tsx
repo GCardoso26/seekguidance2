@@ -59,11 +59,11 @@ export function PdvBarcodeInput({ onScan, disabled }: Props) {
         ? "border-red-500/60"
         : feedback === "manual"
           ? "border-amber-500/40"
-          : "border-luxury-gold/40";
+          : "border-primary/40";
 
   return (
     <div className="space-y-2" data-testid="pdv-barcode-input">
-      <label htmlFor="pdv-barcode-field" className="text-xs font-semibold uppercase text-luxury-mist">
+      <label htmlFor="pdv-barcode-field" className="text-xs font-semibold uppercase text-muted-foreground">
         Código de barras / SKU
       </label>
       <input

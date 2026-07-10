@@ -20,9 +20,9 @@ function CompletarPerfilForm() {
 
   if (!loading && !user) {
     return (
-      <main className="mx-auto max-w-md p-8 text-center text-luxury-mist">
+      <main className="mx-auto max-w-md p-8 text-center text-muted-foreground">
         <p>Faça login para continuar.</p>
-        <Link href="/entrar?next=/completar-perfil" className="mt-4 inline-block text-luxury-gold underline">
+        <Link href="/entrar?next=/completar-perfil" className="mt-4 inline-block text-primary underline">
           Entrar
         </Link>
       </main>
@@ -77,8 +77,8 @@ function CompletarPerfilForm() {
 
   return (
     <main className="mx-auto flex min-h-[70vh] max-w-md flex-col justify-center p-6">
-      <h1 className="text-2xl font-bold text-luxury-frost">Completar perfil</h1>
-      <p className="mt-2 text-sm text-luxury-mist">
+      <h1 className="text-2xl font-bold text-foreground">Completar perfil</h1>
+      <p className="mt-2 text-sm text-muted-foreground">
         {user?.app_metadata?.provider === "google" || user?.identities?.some((i) => i.provider === "google")
           ? "Sua conta Google está verificada. Informe seu CPF para ativar compras."
           : "Informe seu CPF para ativar sua conta."}
@@ -86,14 +86,14 @@ function CompletarPerfilForm() {
 
       <form onSubmit={(e) => void handleSubmit(e)} className="mt-6 space-y-4">
         <div>
-          <label htmlFor="cpf" className="text-sm text-luxury-mist">
+          <label htmlFor="cpf" className="text-sm text-muted-foreground">
             CPF
           </label>
           <input
             id="cpf"
             inputMode="numeric"
             autoComplete="off"
-            className="mt-1 w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-lg tracking-widest"
+            className="mt-1 w-full rounded-lg border border-border bg-black/30 px-3 py-2 text-lg tracking-widest"
             placeholder="000.000.000-00"
             value={cpf}
             onChange={(e) => setCpf(formatCpfMask(e.target.value))}
@@ -106,7 +106,7 @@ function CompletarPerfilForm() {
         {cpfDuplicate && (
           <p className="text-sm text-amber-200">
             Já tem conta com este CPF?{" "}
-            <Link href="/entrar?next=/completar-perfil" className="font-medium text-luxury-gold underline">
+            <Link href="/entrar?next=/completar-perfil" className="font-medium text-primary underline">
               Faça login
             </Link>{" "}
             com o e-mail que você usou no cadastro original.
@@ -122,7 +122,7 @@ function CompletarPerfilForm() {
 
 export default function CompletarPerfilPage() {
   return (
-    <Suspense fallback={<main className="p-8 text-luxury-mist">Carregando…</main>}>
+    <Suspense fallback={<main className="p-8 text-muted-foreground">Carregando…</main>}>
       <CompletarPerfilForm />
     </Suspense>
   );

@@ -56,7 +56,7 @@ export function PlanCheckout({ storeId, plan, onSuccess }: Props) {
         type="button"
         disabled={loading}
         onClick={() => void checkout("card")}
-        className="w-full rounded-lg bg-luxury-gold px-3 py-2 text-sm font-semibold text-luxury-onyx disabled:opacity-50"
+        className="w-full rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
       >
         {label} — Cartão (R$ {price}/mês)
       </button>
@@ -64,7 +64,7 @@ export function PlanCheckout({ storeId, plan, onSuccess }: Props) {
         type="button"
         disabled={loading}
         onClick={() => void checkout("pix")}
-        className="w-full rounded-lg border border-white/20 px-3 py-2 text-sm disabled:opacity-50"
+        className="w-full rounded-lg border border-border px-3 py-2 text-sm disabled:opacity-50"
       >
         {label} — PIX
       </button>

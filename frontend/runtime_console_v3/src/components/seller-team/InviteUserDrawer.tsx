@@ -30,10 +30,10 @@ export function InviteUserDrawer({
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/60" />
-        <Dialog.Content className="fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col border-l border-white/10 bg-luxury-onyx shadow-xl">
-          <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+        <Dialog.Content className="fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col border-l border-border bg-background shadow-xl">
+          <div className="flex items-center justify-between border-b border-border px-4 py-3">
             <Dialog.Title className="text-lg font-semibold">Convidar membro</Dialog.Title>
-            <Dialog.Close aria-label="Fechar" className="rounded p-1 hover:bg-white/10">
+            <Dialog.Close aria-label="Fechar" className="rounded p-1 hover:bg-muted">
               <X className="h-5 w-5" />
             </Dialog.Close>
           </div>
@@ -45,7 +45,7 @@ export function InviteUserDrawer({
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 w-full rounded border border-white/10 bg-white/5 px-3 py-2"
+                className="mt-1 w-full rounded border border-border bg-card shadow-card px-3 py-2"
                 placeholder="nome@loja.com"
               />
             </label>
@@ -54,7 +54,7 @@ export function InviteUserDrawer({
               <select
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
-                className="mt-1 w-full rounded border border-white/10 bg-white/5 px-3 py-2"
+                className="mt-1 w-full rounded border border-border bg-card shadow-card px-3 py-2"
               >
                 {ROLES.map((r) => (
                   <option key={r} value={r}>
@@ -66,7 +66,7 @@ export function InviteUserDrawer({
             <button
               type="submit"
               disabled={invite.isPending}
-              className="mt-auto rounded bg-luxury-gold px-4 py-2 font-medium text-black disabled:opacity-50"
+              className="mt-auto rounded bg-primary px-4 py-2 font-medium text-black disabled:opacity-50"
             >
               {invite.isPending ? "Enviando…" : "Enviar convite"}
             </button>

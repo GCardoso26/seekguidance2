@@ -52,7 +52,7 @@ export function PriceAlertButton({ productId, product, className, size = "md" }:
         aria-pressed={Boolean(existing)}
         data-testid={`price-alert-button-${productId}`}
         className={cn(
-          "relative rounded-full border border-white/10 bg-black/50 text-white backdrop-blur transition hover:border-sky-400/50 hover:text-sky-300",
+          "relative rounded-full border border-border bg-black/50 text-white backdrop-blur transition hover:border-sky-400/50 hover:text-sky-300",
           pad,
           existing && "border-sky-500/50 bg-sky-500/20 text-sky-300",
           className,

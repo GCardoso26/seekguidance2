@@ -83,7 +83,7 @@ export function SellerCreateListingForm({ card }: Props) {
   }
 
   return (
-    <div className="rounded-xl border border-white/10 bg-white/5 p-6">
+    <div className="surface-card p-6">
       <h2 className="text-lg font-bold text-white">Nova listagem</h2>
       <div className="mt-4 flex items-center gap-3">
         <div className="relative h-16 w-11 shrink-0 overflow-hidden rounded">
@@ -97,7 +97,7 @@ export function SellerCreateListingForm({ card }: Props) {
         </div>
         <div>
           <p className="font-medium text-white">{card.name}</p>
-          <p className="text-xs text-luxury-mist">{card.set?.name}</p>
+          <p className="text-xs text-muted-foreground">{card.set?.name}</p>
         </div>
       </div>
 
@@ -106,14 +106,14 @@ export function SellerCreateListingForm({ card }: Props) {
           <Label htmlFor="listing-name">Nome</Label>
           <Input
             id="listing-name"
-            className="mt-1 border-white/10 bg-luxury-onyx"
+            className="mt-1 border-border bg-background"
             {...register("name")}
           />
           <FieldError message={errors.name?.message} />
         </div>
 
         <div>
-          <p className="mb-2 text-sm font-medium text-luxury-mist">Condição</p>
+          <p className="mb-2 text-sm font-medium text-muted-foreground">Condição</p>
           <div className="flex flex-wrap gap-2">
             {CONDITIONS.map((c) => (
               <button
@@ -122,7 +122,7 @@ export function SellerCreateListingForm({ card }: Props) {
                 onClick={() => setValue("condition", c, { shouldValidate: true })}
                 className={cn(
                   "rounded-lg border p-2 transition-colors",
-                  condition === c ? "border-luxury-gold bg-luxury-gold/10" : "border-white/10 hover:border-white/20",
+                  condition === c ? "border-luxury-gold bg-primary/10" : "border-border hover:border-border",
                 )}
               >
                 <ConditionBadge condition={c.toUpperCase() as CardCondition} size="sm" />
@@ -140,7 +140,7 @@ export function SellerCreateListingForm({ card }: Props) {
               type="number"
               step="0.01"
               min="0.01"
-              className="mt-1 border-white/10 bg-luxury-onyx"
+              className="mt-1 border-border bg-background"
               {...register("price", { valueAsNumber: true })}
             />
             <FieldError message={errors.price?.message} />
@@ -151,7 +151,7 @@ export function SellerCreateListingForm({ card }: Props) {
               id="listing-qty"
               type="number"
               min="1"
-              className="mt-1 border-white/10 bg-luxury-onyx"
+              className="mt-1 border-border bg-background"
               {...register("quantity", { valueAsNumber: true })}
             />
             <FieldError message={errors.quantity?.message} />
@@ -163,20 +163,20 @@ export function SellerCreateListingForm({ card }: Props) {
           <textarea
             id="listing-desc"
             rows={3}
-            className="mt-1 w-full rounded-md border border-white/10 bg-luxury-onyx px-3 py-2 text-sm text-white"
+            className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-white"
             {...register("description")}
           />
           <FieldError message={errors.description?.message} />
         </div>
 
-        <label className="flex cursor-pointer items-center gap-2 text-sm text-luxury-mist">
+        <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
           <input type="checkbox" className="rounded" {...register("foil")} />
           Versão Foil
         </label>
 
         <Button
           type="submit"
-          className="w-full bg-luxury-gold font-semibold text-luxury-onyx hover:bg-luxury-gold-light"
+          className="w-full bg-primary font-semibold text-primary-foreground hover:bg-primary/90-light"
           loading={isSubmitting}
           disabled={isSubmitting}
         >
@@ -184,8 +184,8 @@ export function SellerCreateListingForm({ card }: Props) {
         </Button>
       </form>
 
-      <p className="mt-4 text-center text-xs text-luxury-mist">
-        <Link href="/vendedor/painel/listagens" className="hover:text-luxury-gold">
+      <p className="mt-4 text-center text-xs text-muted-foreground">
+        <Link href="/vendedor/painel/listagens" className="hover:text-primary">
           ← Voltar às listagens
         </Link>
       </p>

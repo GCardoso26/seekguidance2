@@ -72,7 +72,7 @@ export function SellerPanelTopBar({
 
     <>
 
-      <div className="flex items-center gap-2 border-b border-white/10 px-4 py-3">
+      <div className="flex items-center gap-2 border-b border-border px-4 py-3">
 
         {showMenuButton && (
 
@@ -82,7 +82,7 @@ export function SellerPanelTopBar({
 
             onClick={onMenuClick}
 
-            className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg bg-white/10 text-sm lg:hidden"
+            className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg bg-muted text-sm lg:hidden"
 
             aria-label="Abrir menu"
 
@@ -98,7 +98,7 @@ export function SellerPanelTopBar({
 
         <div className="hidden flex-1 flex-col gap-1 lg:flex">
 
-          <Breadcrumbs items={breadcrumbs} className="text-luxury-mist" />
+          <Breadcrumbs items={breadcrumbs} className="text-muted-foreground" />
 
           <GlobalSearchTrigger />
 
@@ -114,7 +114,7 @@ export function SellerPanelTopBar({
 
             onClick={openSearch}
 
-            className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg border border-white/10 bg-white/5 lg:hidden"
+            className="flex min-h-[44px] min-w-[44px] items-center justify-center surface-card rounded-lg lg:hidden"
 
             aria-label="Buscar"
 
@@ -132,7 +132,7 @@ export function SellerPanelTopBar({
 
             onClick={openShortcuts}
 
-            className="hidden min-h-[44px] min-w-[44px] items-center justify-center rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 sm:flex"
+            className="hidden min-h-[44px] min-w-[44px] items-center justify-center surface-card rounded-lg hover:bg-muted sm:flex"
 
             aria-label="Atalhos de teclado"
 

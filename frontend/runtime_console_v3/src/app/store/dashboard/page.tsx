@@ -21,7 +21,7 @@ import { DisputeEmptyState } from "@/components/disputes/DisputeEmptyState";
 import { ProductForm, type ProductFormValues } from "@/components/store/ProductForm";
 
 const SalesChart = dynamic(() => import("@/components/dashboard/SalesChart").then((m) => m.SalesChart), {
-  loading: () => <div className="h-64 animate-pulse rounded-xl bg-white/5" />,
+  loading: () => <div className="h-64 animate-pulse rounded-xl bg-muted/50" />,
   ssr: false,
 });
 
@@ -144,13 +144,13 @@ function DashboardContent() {
     window.open(`/api/marketplace/shop/stores/${encodeURIComponent(storeId)}/orders/export`, "_blank");
   }
 
-  if (storesLoading) return <p className="text-luxury-mist">Carregando loja…</p>;
+  if (storesLoading) return <p className="text-muted-foreground">Carregando loja…</p>;
 
   if (!storeId) {
     return (
-      <div className="rounded-xl border border-white/10 bg-white/5 p-8 text-center">
-        <p className="text-luxury-mist">Você ainda não tem uma loja cadastrada.</p>
-        <Link href="/stores/create" className="mt-4 inline-block text-luxury-gold underline">
+      <div className="surface-card p-8 text-center">
+        <p className="text-muted-foreground">Você ainda não tem uma loja cadastrada.</p>
+        <Link href="/stores/create" className="mt-4 inline-block text-primary underline">
           Cadastrar loja
         </Link>
       </div>
@@ -168,7 +168,7 @@ function DashboardContent() {
   return (
     <div className="space-y-6">
       {onboarding === "success" && (
-        <div className="rounded-xl border border-luxury-gold/30 bg-luxury-gold/10 p-4 text-sm">
+        <div className="rounded-xl border border-primary/30 bg-primary/10 p-4 text-sm">
           Onboarding Stripe concluído! Sua loja pode aceitar cartão (opcional).
         </div>
       )}
@@ -197,7 +197,7 @@ function DashboardContent() {
             type="button"
             onClick={() => selectTab(t.id)}
             className={`rounded-full px-4 py-1 text-sm ${
-              tab === t.id ? "bg-luxury-gold text-luxury-onyx" : "bg-white/10"
+              tab === t.id ? "bg-primary text-primary-foreground" : "bg-muted"
             } ${"highlight" in t && t.highlight && tab !== t.id ? "ring-1 ring-emerald-500/50" : ""}`}
           >
             {t.label}
@@ -206,7 +206,7 @@ function DashboardContent() {
       </div>
 
       {tab === "overview" && dashboardLoading && !store && (
-        <p className="text-luxury-mist">Carregando pedidos…</p>
+        <p className="text-muted-foreground">Carregando pedidos…</p>
       )}
 
       {tab === "overview" && store && (
@@ -219,8 +219,8 @@ function DashboardContent() {
             averageRating={Number(store.average_rating ?? 0)}
             plan={plan}
           />
-          <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-luxury-mist">Vendas (30 dias)</h2>
+          <div className="surface-card p-4">
+            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">Vendas (30 dias)</h2>
             <SalesChart data={salesChart} />
           </div>
           <StoreDashboard
@@ -233,7 +233,7 @@ function DashboardContent() {
             <h2 className="text-lg font-semibold">Todos os pedidos</h2>
             <div className="flex flex-wrap gap-2">
               <OrderFilters status={orderStatusFilter} onChange={setOrderStatusFilter} />
-              <button type="button" onClick={() => void exportOrders()} className="text-sm text-luxury-gold">
+              <button type="button" onClick={() => void exportOrders()} className="text-sm text-primary">
                 Exportar CSV
               </button>
             </div>
@@ -267,9 +267,9 @@ function DashboardContent() {
           <div className="space-y-3">
             <h2 className="font-semibold">Seus produtos</h2>
             {(productsData?.products ?? []).map((p: Record<string, unknown>) => (
-              <div key={String(p.id)} className="rounded-lg border border-white/10 bg-white/5 p-3 text-sm">
+              <div key={String(p.id)} className="surface-card rounded-lg p-3 text-sm">
                 <p className="font-medium">{String(p.name)}</p>
-                <p className="text-luxury-mist">
+                <p className="text-muted-foreground">
                   Estoque: {Number(p.stock)} · {p.is_active ? "Ativo" : "Inativo"}
                 </p>
               </div>
@@ -302,7 +302,7 @@ export default function StoreDashboardPage() {
   return (
     <MobileLayout>
       <div className="container mx-auto px-4 py-8">
-        <Suspense fallback={<p className="text-luxury-mist">Carregando…</p>}>
+        <Suspense fallback={<p className="text-muted-foreground">Carregando…</p>}>
           <DashboardContent />
         </Suspense>
       </div>

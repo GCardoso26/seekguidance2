@@ -43,24 +43,24 @@ export default function OrderReviewPage() {
   return (
     <MobileLayout>
       <div className="container mx-auto max-w-lg px-4 py-8">
-        <Link href="/marketplace/orders" className="text-sm text-luxury-mist">
+        <Link href="/marketplace/orders" className="text-sm text-muted-foreground">
           ← Meus pedidos
         </Link>
         <h1 className="mt-4 text-2xl font-bold">Avaliar pedido</h1>
-        {isLoading && <p className="mt-4 text-luxury-mist">Carregando…</p>}
+        {isLoading && <p className="mt-4 text-muted-foreground">Carregando…</p>}
         {error && <p className="mt-4 text-red-300">Pedido não encontrado.</p>}
         {order && !["delivered", "paid", "shipped"].includes(order.status) && (
           <p className="mt-4 text-amber-300">Aguarde a entrega do pedido para avaliar.</p>
         )}
         {existing && !editing && (
           <div className="mt-6">
-            <p className="mb-3 text-sm text-luxury-mist">Você já avaliou este pedido:</p>
+            <p className="mb-3 text-sm text-muted-foreground">Você já avaliou este pedido:</p>
             <ShopReviewCard review={existing as never} />
             {editable && (
               <button
                 type="button"
                 onClick={() => setEditing(true)}
-                className="mt-4 text-sm text-luxury-gold underline"
+                className="mt-4 text-sm text-primary underline"
               >
                 Editar comentário ou fotos (7 dias)
               </button>
@@ -68,7 +68,7 @@ export default function OrderReviewPage() {
           </div>
         )}
         {existing && editing && (
-          <div className="mt-6 rounded-xl border border-white/10 bg-white/5 p-6">
+          <div className="mt-6 surface-card p-6">
             <ReviewForm
               orderId={orderId}
               editReviewId={String(existing.id)}
@@ -83,8 +83,8 @@ export default function OrderReviewPage() {
           </div>
         )}
         {order && !existing && ["delivered", "paid", "shipped"].includes(order.status) && (
-          <div className="mt-6 rounded-xl border border-white/10 bg-white/5 p-6">
-            <p className="mb-4 text-sm text-luxury-mist">
+          <div className="mt-6 surface-card p-6">
+            <p className="mb-4 text-sm text-muted-foreground">
               Loja: <strong>{order.store_name}</strong>
             </p>
             <ReviewForm

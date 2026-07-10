@@ -11,13 +11,14 @@ const URLS = [
   `${BASE}/loja`,
   `${BASE}/loja/mtg`,
   `${BASE}/loja/busca`,
+  `${BASE}/marketplace/cart`,
   `${BASE}/decks`,
   `${BASE}/perfil`,
   `${BASE}/vendedor/painel`,
 ];
 
 const THRESHOLDS = {
-  performance: 70,
+  performance: 90,
   accessibility: 90,
   bestPractices: 90,
   seo: 95,

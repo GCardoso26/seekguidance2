@@ -24,19 +24,19 @@ function ProfilePage() {
     <MobileLayout>
       <div className="container mx-auto max-w-3xl px-4 py-8">
         <div className="mb-6 flex items-center gap-4">
-          <Link href="/" className="text-sm text-luxury-mist hover:text-luxury-frost">
+          <Link href="/" className="text-sm text-muted-foreground hover:text-foreground">
             ← Início
           </Link>
-          <Link href="/search" className="text-sm text-luxury-mist hover:text-luxury-frost">
+          <Link href="/search" className="text-sm text-muted-foreground hover:text-foreground">
             Descobrir torneios
           </Link>
         </div>
-        {isLoading && <p className="text-luxury-mist">Carregando perfil…</p>}
+        {isLoading && <p className="text-muted-foreground">Carregando perfil…</p>}
         {isError && <p className="text-red-400">Jogador não encontrado.</p>}
         {data && <PlayerProfile profile={data} showFriendButton />}
         {data && posts.length > 0 && (
           <section className="mt-10 space-y-4">
-            <h2 className="text-lg font-semibold text-luxury-frost">Posts públicos</h2>
+            <h2 className="text-lg font-semibold text-foreground">Posts públicos</h2>
             {posts.map((post) => (
               <PostCard key={post.id} post={post} />
             ))}

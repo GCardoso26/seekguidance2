@@ -24,7 +24,7 @@ export function ResolutionForm({ onSubmit }: Props) {
       <label className="block text-sm text-white/70">
         Penalidade
         <select
-          className="mt-1 w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-white"
+          className="mt-1 w-full surface-card rounded-lg px-3 py-2 text-white"
           value={penalty}
           onChange={(e) => setPenalty(e.target.value as PenaltyType)}
         >
@@ -37,7 +37,7 @@ export function ResolutionForm({ onSubmit }: Props) {
       <label className="block text-sm text-white/70">
         Ruling aplicada (ID)
         <input
-          className="mt-1 w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-white"
+          className="mt-1 w-full surface-card rounded-lg px-3 py-2 text-white"
           value={rulingId}
           onChange={(e) => setRulingId(e.target.value)}
           placeholder="seed-lorcana-0"
@@ -46,7 +46,7 @@ export function ResolutionForm({ onSubmit }: Props) {
       <label className="block text-sm text-white/70">
         Notas do juiz
         <textarea
-          className="mt-1 min-h-[100px] w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-white"
+          className="mt-1 min-h-[100px] w-full surface-card rounded-lg px-3 py-2 text-white"
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           placeholder="Notas da decisão..."

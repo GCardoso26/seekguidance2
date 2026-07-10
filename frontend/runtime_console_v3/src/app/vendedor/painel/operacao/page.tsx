@@ -20,11 +20,11 @@ function QueueSection({
   href?: string;
 }) {
   return (
-    <section className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+    <section className="rounded-xl border border-border bg-white/[0.03] p-4">
       <div className="mb-3 flex items-center justify-between">
         <h2 className="font-semibold">{title}</h2>
         {href && (
-          <Link href={href} className="text-xs text-luxury-gold hover:underline">
+          <Link href={href} className="text-xs text-primary hover:underline">
             Ver todos →
           </Link>
         )}
@@ -50,7 +50,7 @@ export default function OperacaoPage() {
             <button
               type="button"
               onClick={() => refetch()}
-              className="rounded-lg border border-white/10 px-3 py-1.5 text-xs hover:bg-white/5"
+              className="rounded-lg border border-border px-3 py-1.5 text-xs hover:bg-muted/80"
             >
               Atualizar
             </button>
@@ -65,11 +65,11 @@ export default function OperacaoPage() {
               {(overview?.recent_orders ?? []).slice(0, 5).map((o) => (
                 <li key={o.id} className="flex justify-between rounded-lg border border-white/5 px-3 py-2">
                   <span className="truncate">{o.customer_name ?? `Pedido ${o.id.slice(0, 8)}`}</span>
-                  <span className="text-luxury-gold">{formatShopPrice(o.total_cents)}</span>
+                  <span className="text-primary">{formatShopPrice(o.total_cents)}</span>
                 </li>
               ))}
               {(overview?.recent_orders?.length ?? 0) === 0 && (
-                <li className="text-luxury-mist">Nenhum pedido recente.</li>
+                <li className="text-muted-foreground">Nenhum pedido recente.</li>
               )}
             </ul>
           </QueueSection>
@@ -79,11 +79,11 @@ export default function OperacaoPage() {
               {(tickets.data?.tickets ?? []).slice(0, 5).map((t) => (
                 <li key={t.id} className="flex justify-between gap-2 rounded-lg border border-white/5 px-3 py-2">
                   <span className="truncate">{t.subject}</span>
-                  <span className="shrink-0 text-xs text-luxury-mist">{ticketStatusLabel(t.status)}</span>
+                  <span className="shrink-0 text-xs text-muted-foreground">{ticketStatusLabel(t.status)}</span>
                 </li>
               ))}
               {(tickets.data?.tickets?.length ?? 0) === 0 && (
-                <li className="text-luxury-mist">Nenhum ticket aberto.</li>
+                <li className="text-muted-foreground">Nenhum ticket aberto.</li>
               )}
             </ul>
           </QueueSection>
@@ -97,7 +97,7 @@ export default function OperacaoPage() {
                 </li>
               ))}
               {(chargebacks.data?.items?.length ?? 0) === 0 && (
-                <li className="text-luxury-mist">Nenhum chargeback aberto.</li>
+                <li className="text-muted-foreground">Nenhum chargeback aberto.</li>
               )}
             </ul>
           </QueueSection>
@@ -111,7 +111,7 @@ export default function OperacaoPage() {
                 </li>
               ))}
               {(overview?.low_stock?.length ?? 0) === 0 && (
-                <li className="text-luxury-mist">Estoque OK.</li>
+                <li className="text-muted-foreground">Estoque OK.</li>
               )}
             </ul>
           </QueueSection>

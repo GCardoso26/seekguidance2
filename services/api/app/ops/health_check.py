@@ -57,6 +57,7 @@ def payments_gate_status() -> str:
 
 async def build_health_payload() -> dict[str, Any]:
     from app.integrations.melhor_envio.validate import melhor_envio_config_snapshot
+    from app.marketplace.freight_quote import shipping_v2_enabled
 
     db_ok = await check_database()
     redis_status = await check_redis()
@@ -77,5 +78,8 @@ async def build_health_payload() -> dict[str, Any]:
             "vapid": service_status("VAPID_PRIVATE_KEY"),
             "sentry": service_status("SENTRY_DSN"),
             "melhor_envio": melhor_envio_config_snapshot(),
+        },
+        "features": {
+            "shipping_v2": shipping_v2_enabled(),
         },
     }

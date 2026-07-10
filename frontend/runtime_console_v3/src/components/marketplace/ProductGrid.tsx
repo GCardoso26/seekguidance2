@@ -37,7 +37,7 @@ export function ProductGrid({
 
   return (
     <div className="space-y-6" data-testid="marketplace-product-grid">
-      <p className="text-sm text-luxury-mist" aria-live="polite">
+      <p className="text-sm text-muted-foreground" aria-live="polite">
         {total.toLocaleString("pt-BR")} produto{total === 1 ? "" : "s"}
       </p>
 
@@ -55,7 +55,7 @@ export function ProductGrid({
             onClick={onLoadMore}
             disabled={isFetchingMore}
             loading={isFetchingMore}
-            className="border-white/20"
+            className="border-border"
           >
             Carregar mais
           </Button>

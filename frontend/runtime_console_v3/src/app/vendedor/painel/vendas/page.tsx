@@ -61,20 +61,20 @@ function VendasContent() {
       />
 
       {!showAnalytics && (
-        <div className="rounded-xl border border-luxury-gold/30 bg-luxury-gold/5 px-4 py-3 text-sm text-luxury-mist">
+        <div className="rounded-xl border border-primary/30 bg-primary/5 px-4 py-3 text-sm text-muted-foreground">
           Estatísticas avançadas disponíveis no plano Lojista.{" "}
-          <Link href="/vendedor/painel/planos" className="text-luxury-gold underline">
+          <Link href="/vendedor/painel/planos" className="text-primary underline">
             Ver planos
           </Link>
         </div>
       )}
       {showAnalytics && (
-        <p className="text-sm text-luxury-mist">
-          <Link href="/vendedor/painel/estatisticas" className="text-luxury-gold hover:underline">
+        <p className="text-sm text-muted-foreground">
+          <Link href="/vendedor/painel/estatisticas" className="text-primary hover:underline">
             Ver estatísticas de vendas →
           </Link>
           {totalPages > 1 && !isLoading ? (
-            <span className="ml-2 text-xs text-luxury-mist/70">
+            <span className="ml-2 text-xs text-muted-foreground/70">
               · página {page} de {totalPages}
             </span>
           ) : null}
@@ -105,7 +105,7 @@ export default function VendedorVendasPage() {
   return (
     <>
       <SellerHeader action={null} />
-      <Suspense fallback={<p className="p-6 text-luxury-mist">Carregando…</p>}>
+      <Suspense fallback={<p className="p-6 text-muted-foreground">Carregando…</p>}>
         <VendasContent />
       </Suspense>
     </>

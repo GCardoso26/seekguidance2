@@ -34,13 +34,13 @@ export function PostVote({ post }: Props) {
   };
 
   return (
-    <div className="flex flex-col items-center gap-0.5 text-luxury-mist">
+    <div className="flex flex-col items-center gap-0.5 text-muted-foreground">
       <motion.button
         type="button"
         whileTap={{ scale: 1.15 }}
         disabled={vote.isPending}
         onClick={() => void cast(1)}
-        className="rounded p-1 hover:bg-luxury-gold/10 hover:text-luxury-gold-light"
+        className="rounded p-1 hover:bg-primary/10 hover:text-primary-light"
         aria-label="Upvote"
       >
         <ChevronUp className="h-5 w-5" strokeWidth={1.5} />
@@ -48,7 +48,7 @@ export function PostVote({ post }: Props) {
       <span
         className={cn(
           "text-sm font-semibold tabular-nums",
-          post.voteCount > 0 && "text-luxury-gold-light",
+          post.voteCount > 0 && "text-primary-light",
           post.voteCount < 0 && "text-rose-400",
         )}
       >

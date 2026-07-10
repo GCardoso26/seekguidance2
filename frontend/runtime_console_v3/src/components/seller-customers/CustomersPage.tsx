@@ -50,33 +50,33 @@ function CustomerDetailDrawer({
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/60" />
-        <Dialog.Content className="fixed inset-y-0 right-0 z-50 flex w-full max-w-lg flex-col border-l border-white/10 bg-luxury-onyx shadow-xl">
-          <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+        <Dialog.Content className="fixed inset-y-0 right-0 z-50 flex w-full max-w-lg flex-col border-l border-border bg-background shadow-xl">
+          <div className="flex items-center justify-between border-b border-border px-4 py-3">
             <Dialog.Title className="text-lg font-semibold">
               {customer?.display_name ?? "Cliente"}
               {customer?.handle ? ` (@${customer.handle})` : ""}
             </Dialog.Title>
-            <Dialog.Close aria-label="Fechar" className="rounded p-1 hover:bg-white/10">
+            <Dialog.Close aria-label="Fechar" className="rounded p-1 hover:bg-muted">
               <X className="h-5 w-5" />
             </Dialog.Close>
           </div>
           {customer && (
             <>
-              <div className="border-b border-white/10 px-4 py-3 text-sm text-luxury-mist">
+              <div className="border-b border-border px-4 py-3 text-sm text-muted-foreground">
                 {customer.email && <p>{customer.email}</p>}
                 {customer.city && <p>{customer.city}</p>}
                 <p className="mt-1 text-white">
                   Total: {formatShopPrice(customer.total_spent_cents)} · {customer.order_count} pedidos
                 </p>
               </div>
-              <div className="flex flex-wrap gap-1 border-b border-white/10 px-2 py-2">
+              <div className="flex flex-wrap gap-1 border-b border-border px-2 py-2">
                 {TABS.map((t) => (
                   <button
                     key={t}
                     type="button"
                     onClick={() => setTab(t)}
                     className={`rounded px-2 py-1 text-xs ${
-                      tab === t ? "bg-luxury-gold/20 text-luxury-gold" : "text-luxury-mist hover:bg-white/5"
+                      tab === t ? "bg-primary/20 text-primary" : "text-muted-foreground hover:bg-muted/80"
                     }`}
                   >
                     {t}
@@ -98,12 +98,12 @@ function CustomerDetailDrawer({
                         ))}
                       </ul>
                     ) : (
-                      <p className="mt-2 text-luxury-mist">Nenhum badge ainda.</p>
+                      <p className="mt-2 text-muted-foreground">Nenhum badge ainda.</p>
                     )}
                   </div>
                 )}
                 {tab !== "Gamificação" && (
-                  <p className="text-luxury-mist">Conteúdo de {tab} em breve.</p>
+                  <p className="text-muted-foreground">Conteúdo de {tab} em breve.</p>
                 )}
               </div>
             </>
@@ -144,14 +144,14 @@ export function CustomersPage() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Nome, Email, Handle…"
-          className="w-full max-w-md rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm"
+          className="w-full max-w-md surface-card rounded-lg px-3 py-2 text-sm"
         />
         {isLoading ? (
-          <p className="text-sm text-luxury-mist">Carregando…</p>
+          <p className="text-sm text-muted-foreground">Carregando…</p>
         ) : (
-          <div className="overflow-x-auto rounded-xl border border-white/10">
+          <div className="overflow-x-auto rounded-xl border border-border">
             <table className="w-full text-sm">
-              <thead className="bg-white/5 text-left text-luxury-mist">
+              <thead className="bg-muted/50 text-left text-muted-foreground">
                 <tr>
                   <th className="p-3">Cliente</th>
                   <th className="p-3">Email</th>
@@ -165,7 +165,7 @@ export function CustomersPage() {
                 {(data?.customers ?? []).map((c) => (
                   <tr
                     key={c.customer_id}
-                    className="cursor-pointer border-t border-white/10 hover:bg-white/[0.03]"
+                    className="cursor-pointer border-t border-border hover:bg-white/[0.03]"
                     onClick={() => setSelected(c)}
                   >
                     <td className="p-3">{c.display_name ?? c.customer_id.slice(0, 8)}</td>

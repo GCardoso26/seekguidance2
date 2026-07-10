@@ -11,14 +11,14 @@ type Props = {
 
 export function ReputationOverviewWidget({ reputation }: Props) {
   if (!reputation) {
-    return <div className="h-16 animate-pulse rounded-xl bg-white/5" />;
+    return <div className="h-16 animate-pulse rounded-xl bg-muted/50" />;
   }
 
   return (
-    <section className="rounded-xl border border-white/10 bg-white/5 p-4">
+    <section className="surface-card p-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-luxury-mist">Reputação</h2>
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Reputação</h2>
           <p className="mt-1 text-2xl font-semibold tabular-nums">{reputation.trust_score.toFixed(1)}</p>
           <TrustBadge
             level={reputation.seller_level}

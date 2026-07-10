@@ -40,19 +40,19 @@ const COLUMNS = [
 
 export function LuxuryFooter() {
   return (
-    <footer className="border-t border-white/5 bg-luxury-obsidian">
+    <footer className="border-t border-white/5 bg-card">
       <div className="mx-auto max-w-7xl px-6 py-16 lg:px-8">
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-5">
           <div className="lg:col-span-1">
             <Link href="/" className="flex items-center gap-3">
-              <span className="flex h-9 w-9 items-center justify-center rounded-full border border-luxury-gold/30 bg-luxury-gold/10">
-                <Scale className="h-4 w-4 text-luxury-gold" strokeWidth={1.5} />
+              <span className="flex h-9 w-9 items-center justify-center rounded-full border border-primary/30 bg-primary/10">
+                <Scale className="h-4 w-4 text-primary" strokeWidth={1.5} />
               </span>
-              <span className="text-sm font-medium tracking-[0.15em] text-luxury-frost uppercase">
+              <span className="text-sm font-medium tracking-[0.15em] text-foreground uppercase">
                 Judge TCG
               </span>
             </Link>
-            <p className="mt-4 max-w-xs text-sm leading-relaxed text-luxury-mist">
+            <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">
               Rulings com fonte. Torneios no horário. A mesa que juízes, jogadores e lojas usam no
               competitivo sério.
             </p>
@@ -60,7 +60,7 @@ export function LuxuryFooter() {
 
           {COLUMNS.map((col) => (
             <div key={col.title}>
-              <h4 className="text-xs font-medium tracking-[0.2em] text-luxury-frost uppercase">
+              <h4 className="text-xs font-medium tracking-[0.2em] text-foreground uppercase">
                 {col.title}
               </h4>
               <ul className="mt-4 space-y-3">
@@ -69,7 +69,7 @@ export function LuxuryFooter() {
                     {link.external ? (
                       <a
                         href={link.href}
-                        className="text-sm text-luxury-mist transition-colors hover:text-luxury-gold"
+                        className="text-sm text-muted-foreground transition-colors hover:text-primary"
                         {...(link.href.startsWith("http") || link.href.startsWith("mailto")
                           ? { target: "_blank", rel: "noopener noreferrer" }
                           : {})}
@@ -79,7 +79,7 @@ export function LuxuryFooter() {
                     ) : (
                       <Link
                         href={link.href}
-                        className="text-sm text-luxury-mist transition-colors hover:text-luxury-gold"
+                        className="text-sm text-muted-foreground transition-colors hover:text-primary"
                       >
                         {link.label}
                       </Link>
@@ -93,7 +93,7 @@ export function LuxuryFooter() {
 
         <Separator className="my-10" />
 
-        <div className="flex flex-col items-center justify-between gap-4 text-xs text-luxury-mist sm:flex-row">
+        <div className="flex flex-col items-center justify-between gap-4 text-xs text-muted-foreground sm:flex-row">
           <p>&copy; {new Date().getFullYear()} Judge TCG / tcghub.ai. Todos os direitos reservados.</p>
           <p className="tracking-wide">Feito para o competitivo sério.</p>
         </div>

@@ -20,10 +20,10 @@ export function JudgeStats({ callsToday, avgResolutionTime = "—", rating = 0 }
 
 function StatCard({ label, value }: { label: string; value: string }) {
   return (
-    <Card className="border-white/10 bg-white/5">
+    <Card className="border-border bg-muted/50">
       <CardContent className="px-4 py-3 text-center">
         <p className="text-xs uppercase tracking-wide text-white/50">{label}</p>
-        <p className="text-xl font-semibold text-luxury-gold-light">{value}</p>
+        <p className="text-xl font-semibold text-primary-light">{value}</p>
       </CardContent>
     </Card>
   );

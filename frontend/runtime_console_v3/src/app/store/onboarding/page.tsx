@@ -80,7 +80,7 @@ export default function StoreOnboardingPage() {
 
         <h1 className="text-xl font-bold">{error ? "Não foi possível conectar" : "Redirecionando para Stripe…"}</h1>
 
-        <p className="mt-2 text-sm text-luxury-mist">
+        <p className="mt-2 text-sm text-muted-foreground">
 
           {error ?? "Configure sua conta para receber pagamentos."}
 
@@ -88,7 +88,7 @@ export default function StoreOnboardingPage() {
 
         {error && (
 
-          <Link href="/store/dashboard?tab=pagamentos" className="mt-6 inline-block text-luxury-gold underline">
+          <Link href="/store/dashboard?tab=pagamentos" className="mt-6 inline-block text-primary underline">
 
             Voltar ao dashboard
 

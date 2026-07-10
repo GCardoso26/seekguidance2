@@ -20,27 +20,27 @@ export default function MyOrdersPage() {
   return (
     <MobileLayout>
       <div className="container mx-auto px-4 py-8">
-        <Link href="/loja" className="text-sm text-luxury-mist">
+        <Link href="/loja" className="text-sm text-muted-foreground">
           ← Marketplace
         </Link>
         <h1 className="mt-4 text-2xl font-bold">Meus pedidos</h1>
-        {isLoading && <p className="mt-4 text-luxury-mist">Carregando…</p>}
+        {isLoading && <p className="mt-4 text-muted-foreground">Carregando…</p>}
         <div className="mt-6 space-y-3">
           {orders.length === 0 && !isLoading && (
-            <p className="text-luxury-mist">Nenhum pedido ainda.</p>
+            <p className="text-muted-foreground">Nenhum pedido ainda.</p>
           )}
           {orders.map((o) => (
             <Link
               key={String(o.id)}
               href={`/marketplace/orders/${String(o.id)}`}
-              className="block rounded-xl border border-white/10 bg-white/5 p-4 hover:bg-white/10"
+              className="block surface-card p-4 hover:bg-muted"
             >
               <div className="flex flex-wrap justify-between gap-2">
                 <span className="font-mono text-sm">#{String(o.id).slice(0, 8)}</span>
-                <span className="text-xs uppercase text-luxury-mist">{String(o.status)}</span>
+                <span className="text-xs uppercase text-muted-foreground">{String(o.status)}</span>
                 <span className="font-semibold">{formatShopPrice(Number(o.total_cents))}</span>
               </div>
-              <p className="mt-1 text-sm text-luxury-mist">{String(o.store_name ?? "")}</p>
+              <p className="mt-1 text-sm text-muted-foreground">{String(o.store_name ?? "")}</p>
               {Boolean(o.use_escrow) && (
                 <span className="mt-2 inline-block text-xs text-emerald-400">Compra Protegida</span>
               )}

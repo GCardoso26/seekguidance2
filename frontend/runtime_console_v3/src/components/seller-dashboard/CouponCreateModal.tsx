@@ -81,19 +81,19 @@ export function CouponCreateModal({ storeId, open, onOpenChange, onCreated }: Pr
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/60" />
         <Dialog.Content
-          className="fixed left-1/2 top-1/2 z-50 max-h-[90vh] w-[min(100vw-2rem,32rem)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-xl border border-white/10 bg-luxury-onyx p-6 shadow-xl"
+          className="fixed left-1/2 top-1/2 z-50 max-h-[90vh] w-[min(100vw-2rem,32rem)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-xl border border-border bg-background p-6 shadow-xl"
           data-testid="coupon-create-modal"
         >
           <Dialog.Title className="text-lg font-semibold text-white">Novo cupom</Dialog.Title>
           <form onSubmit={(e) => void handleSubmit(onSubmit)(e)} className="mt-4 space-y-4">
             <div>
-              <label htmlFor="coupon-code" className="text-sm text-luxury-mist">
+              <label htmlFor="coupon-code" className="text-sm text-muted-foreground">
                 Código
               </label>
               <div className="mt-1 flex gap-2">
                 <Input
                   id="coupon-code"
-                  className="border-white/10 bg-black/30 font-mono uppercase"
+                  className="border-border bg-black/30 font-mono uppercase"
                   data-testid="coupon-code-input"
                   {...register("code")}
                   onChange={(e) => setValue("code", e.target.value.toUpperCase())}
@@ -107,12 +107,12 @@ export function CouponCreateModal({ storeId, open, onOpenChange, onCreated }: Pr
 
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
-                <label htmlFor="coupon-type" className="text-sm text-luxury-mist">
+                <label htmlFor="coupon-type" className="text-sm text-muted-foreground">
                   Tipo
                 </label>
                 <select
                   id="coupon-type"
-                  className="mt-1 w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm"
+                  className="mt-1 w-full rounded-lg border border-border bg-black/30 px-3 py-2 text-sm"
                   data-testid="coupon-type-select"
                   {...register("discount_type")}
                 >
@@ -121,7 +121,7 @@ export function CouponCreateModal({ storeId, open, onOpenChange, onCreated }: Pr
                 </select>
               </div>
               <div>
-                <label htmlFor="coupon-value" className="text-sm text-luxury-mist">
+                <label htmlFor="coupon-value" className="text-sm text-muted-foreground">
                   {discountType === "percentage" ? "Desconto (%)" : "Desconto (centavos)"}
                 </label>
                 <Input
@@ -129,7 +129,7 @@ export function CouponCreateModal({ storeId, open, onOpenChange, onCreated }: Pr
                   type="number"
                   step="0.01"
                   min={0.01}
-                  className="mt-1 border-white/10 bg-black/30"
+                  className="mt-1 border-border bg-black/30"
                   data-testid="coupon-value-input"
                   {...register("discount_value")}
                 />
@@ -139,27 +139,27 @@ export function CouponCreateModal({ storeId, open, onOpenChange, onCreated }: Pr
 
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
-                <label htmlFor="coupon-max-uses" className="text-sm text-luxury-mist">
+                <label htmlFor="coupon-max-uses" className="text-sm text-muted-foreground">
                   Uso máximo (vazio = ilimitado)
                 </label>
                 <Input
                   id="coupon-max-uses"
                   type="number"
                   min={1}
-                  className="mt-1 border-white/10 bg-black/30"
+                  className="mt-1 border-border bg-black/30"
                   data-testid="coupon-max-uses-input"
                   {...register("max_uses")}
                 />
                 <FieldError message={errors.max_uses?.message} />
               </div>
               <div>
-                <label htmlFor="coupon-expires" className="text-sm text-luxury-mist">
+                <label htmlFor="coupon-expires" className="text-sm text-muted-foreground">
                   Validade (opcional)
                 </label>
                 <Input
                   id="coupon-expires"
                   type="date"
-                  className="mt-1 border-white/10 bg-black/30"
+                  className="mt-1 border-border bg-black/30"
                   data-testid="coupon-expires-input"
                   {...register("expires_at")}
                 />
@@ -168,7 +168,7 @@ export function CouponCreateModal({ storeId, open, onOpenChange, onCreated }: Pr
             </div>
 
             <div>
-              <label htmlFor="coupon-min-order" className="text-sm text-luxury-mist">
+              <label htmlFor="coupon-min-order" className="text-sm text-muted-foreground">
                 Pedido mínimo (R$)
               </label>
               <Input
@@ -176,13 +176,13 @@ export function CouponCreateModal({ storeId, open, onOpenChange, onCreated }: Pr
                 type="number"
                 step="0.01"
                 min={0}
-                className="mt-1 border-white/10 bg-black/30"
+                className="mt-1 border-border bg-black/30"
                 {...register("min_order_value")}
               />
               <FieldError message={errors.min_order_value?.message} />
             </div>
 
-            <label className="flex items-center gap-2 text-sm text-luxury-mist">
+            <label className="flex items-center gap-2 text-sm text-muted-foreground">
               <input type="checkbox" className="rounded" {...register("is_active")} />
               Ativo ao criar
             </label>

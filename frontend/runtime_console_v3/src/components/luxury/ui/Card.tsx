@@ -1,23 +1,33 @@
 import type { HTMLAttributes, ReactNode } from "react";
+import { Card as BaseCard, type CardProps } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
-type Props = HTMLAttributes<HTMLDivElement> & {
+type Props = CardProps & {
   children: ReactNode;
+  /** @deprecated Use variant="interactive" */
   hover?: boolean;
 };
 
-export function Card({ children, className, hover = false, ...props }: Props) {
+/** @deprecated Use `@/components/ui/card` */
+export function Card({ children, className, hover = false, variant, ...props }: Props) {
   return (
-    <div
-      className={cn(
-        "glass rounded-2xl p-6",
-        hover &&
-          "transition-all duration-500 hover:-translate-y-1 hover:border-luxury-gold/20 hover:shadow-xl hover:shadow-luxury-gold/5",
-        className,
-      )}
+    <BaseCard
+      variant={variant ?? (hover ? "interactive" : "default")}
+      padding="lg"
+      className={cn(className)}
       {...props}
     >
       {children}
-    </div>
+    </BaseCard>
   );
 }
+
+export {
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+  cardVariants,
+} from "@/components/ui/card";
+export type { CardProps } from "@/components/ui/card";

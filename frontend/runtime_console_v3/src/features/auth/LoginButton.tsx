@@ -11,7 +11,7 @@ export function LoginButton() {
     <button
       type="button"
       onClick={() => void signInWithGoogle()}
-      className="rounded-full border border-luxury-gold/30 bg-luxury-gold/10 px-3 py-1.5 text-xs font-semibold text-luxury-gold transition hover:bg-luxury-gold/20 hover:text-luxury-gold-light"
+      className="rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary transition hover:bg-primary/20 hover:text-primary-light"
     >
       Entrar com Google
     </button>

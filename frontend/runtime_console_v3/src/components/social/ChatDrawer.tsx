@@ -21,8 +21,8 @@ export function ChatDrawer() {
 
       {open && (
         <div className="fixed inset-0 z-50 flex justify-end bg-black/50">
-          <div className="flex h-full w-full max-w-sm flex-col bg-luxury-midnight text-luxury-frost shadow-xl">
-            <div className="flex items-center justify-between border-b border-white/10 p-4">
+          <div className="flex h-full w-full max-w-sm flex-col bg-muted text-foreground shadow-xl">
+            <div className="flex items-center justify-between border-b border-border p-4">
               <h2 className="font-semibold">Mensagens</h2>
               <button type="button" onClick={() => setOpen(false)} className="min-h-[44px] px-2">
                 ✕
@@ -30,14 +30,14 @@ export function ChatDrawer() {
             </div>
 
             <div className="flex flex-1 overflow-hidden">
-              <div className="w-2/5 overflow-y-auto border-r border-white/10">
+              <div className="w-2/5 overflow-y-auto border-r border-border">
                 {friends.map((f: { id: string; display_name?: string; unread?: number }) => (
                   <button
                     key={f.id}
                     type="button"
                     onClick={() => setActiveFriend(f.id)}
-                    className={`flex w-full items-center justify-between px-3 py-3 text-left text-sm hover:bg-white/5 ${
-                      activeFriend === f.id ? "bg-white/5" : ""
+                    className={`flex w-full items-center justify-between px-3 py-3 text-left text-sm hover:bg-muted/80 ${
+                      activeFriend === f.id ? "bg-muted/50" : ""
                     }`}
                   >
                     <span>{f.display_name ?? f.id}</span>
@@ -63,7 +63,7 @@ export function ChatDrawer() {
                 </div>
                 {activeFriend && (
                   <form
-                    className="flex gap-2 border-t border-white/10 p-3"
+                    className="flex gap-2 border-t border-border p-3"
                     onSubmit={(e) => {
                       e.preventDefault();
                       if (!draft.trim()) return;
@@ -74,7 +74,7 @@ export function ChatDrawer() {
                     <input
                       value={draft}
                       onChange={(e) => setDraft(e.target.value)}
-                      className="min-h-[44px] flex-1 rounded-lg border border-white/10 bg-white/5 px-3 text-sm"
+                      className="min-h-[44px] flex-1 surface-card rounded-lg px-3 text-sm"
                       placeholder="Mensagem…"
                     />
                     <button type="submit" className="min-h-[44px] rounded-lg bg-blue-600 px-3 text-sm text-white">

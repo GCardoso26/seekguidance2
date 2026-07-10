@@ -66,7 +66,7 @@ export function ResolveCallModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-      <Card className="w-full max-w-lg border-white/10 bg-[#12121a] text-white">
+      <Card className="w-full max-w-lg border-border bg-[#12121a] text-white">
         <CardHeader>
           <CardTitle>Resolver Chamada</CardTitle>
         </CardHeader>
@@ -78,7 +78,7 @@ export function ResolveCallModal({
               onChange={(e) => setRuling(e.target.value)}
               placeholder="Descreva sua decisão..."
               rows={3}
-              className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white"
+              className="w-full surface-card rounded-lg px-3 py-2 text-sm text-white"
             />
           </div>
 
@@ -87,7 +87,7 @@ export function ResolveCallModal({
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value as RulingCategory)}
-              className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white"
+              className="w-full surface-card rounded-lg px-3 py-2 text-sm text-white"
             >
               <option value="">Selecione...</option>
               {CATEGORIES.map((c) => (
@@ -109,12 +109,12 @@ export function ResolveCallModal({
                   placeholder={
                     callerHandle ? `@${callerHandle} (${callerId ?? "sem ID"})` : "ID do jogador (judge_profiles)"
                   }
-                  className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white"
+                  className="w-full surface-card rounded-lg px-3 py-2 text-sm text-white"
                 />
                 {callerId && infractingPlayerId !== callerId && (
                   <button
                     type="button"
-                    className="text-xs text-luxury-gold-light/90 hover:text-luxury-gold-light"
+                    className="text-xs text-primary-light/90 hover:text-primary-light"
                     onClick={() => setInfractingPlayerId(callerId)}
                   >
                     Usar quem abriu a chamada ({callerHandle ? `@${callerHandle}` : callerId})
@@ -126,7 +126,7 @@ export function ResolveCallModal({
                 <select
                   value={infractionType}
                   onChange={(e) => setInfractionType(e.target.value)}
-                  className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white"
+                  className="w-full surface-card rounded-lg px-3 py-2 text-sm text-white"
                 >
                   <option value="">Selecione...</option>
                   {INFRACTION_TYPES.map((t) => (
@@ -141,7 +141,7 @@ export function ResolveCallModal({
                 <select
                   value={severity}
                   onChange={(e) => setSeverity(e.target.value)}
-                  className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white"
+                  className="w-full surface-card rounded-lg px-3 py-2 text-sm text-white"
                 >
                   <option value="minor">Menor</option>
                   <option value="major">Maior</option>

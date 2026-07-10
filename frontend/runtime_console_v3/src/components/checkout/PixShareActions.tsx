@@ -38,11 +38,11 @@ export function PixShareActions({ copyPayload, qrCode, txid }: Props) {
       <button type="button" onClick={() => void copy()} className="flex-1 rounded-lg border border-emerald-500/40 px-3 py-2 text-sm text-emerald-200">
         {copied ? "Copiado!" : "Copiar PIX"}
       </button>
-      <button type="button" onClick={() => void share()} className="flex-1 rounded-lg border border-white/20 px-3 py-2 text-sm">
+      <button type="button" onClick={() => void share()} className="flex-1 rounded-lg border border-border px-3 py-2 text-sm">
         Compartilhar
       </button>
       {qrCode && (
-        <button type="button" onClick={downloadQr} className="w-full rounded-lg border border-white/20 px-3 py-2 text-sm">
+        <button type="button" onClick={downloadQr} className="w-full rounded-lg border border-border px-3 py-2 text-sm">
           Baixar QR Code
         </button>
       )}

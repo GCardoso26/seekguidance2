@@ -25,18 +25,18 @@ export default function StorePage() {
   return (
     <MobileLayout>
       <div className="container mx-auto px-4 py-8">
-        <Link href="/stores" className="text-sm text-luxury-mist">
+        <Link href="/stores" className="text-sm text-muted-foreground">
           ← Lojas
         </Link>
-        {isLoading && <p className="mt-4 text-luxury-mist">Carregando…</p>}
+        {isLoading && <p className="mt-4 text-muted-foreground">Carregando…</p>}
         {store && (
           <>
             <div className="luxury-card mt-4">
               <h1 className="text-2xl font-bold">{String(store.name)}</h1>
               {Boolean(store.verified) && (
-                <p className="text-sm text-luxury-gold-light">✓ Conta verificada</p>
+                <p className="text-sm text-primary-light">✓ Conta verificada</p>
               )}
-              <p className="text-luxury-mist">
+              <p className="text-muted-foreground">
                 📍 {String(store.city ?? "")} · ⭐ {String(store.average_rating)} (
                 {String(store.review_count)} avaliações)
               </p>
@@ -45,7 +45,7 @@ export default function StorePage() {
               <h2 className="text-lg font-semibold">Próximos torneios</h2>
               <ul className="mt-3 space-y-2">
                 {tournaments.map((t) => (
-                  <li key={String(t.id)} className="rounded-lg border border-white/10 px-4 py-3 text-sm">
+                  <li key={String(t.id)} className="rounded-lg border border-border px-4 py-3 text-sm">
                     {String(t.name)} — {String(t.registered)}/{String(t.max_players)} inscritos
                   </li>
                 ))}

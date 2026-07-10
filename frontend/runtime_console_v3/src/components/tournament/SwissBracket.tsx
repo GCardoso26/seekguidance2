@@ -11,7 +11,7 @@ type Props = {
 export function SwissBracket({ rounds, activeRound }: Props) {
   if (rounds.length === 0) {
     return (
-      <p className="text-sm text-luxury-mist" data-testid="swiss-bracket-empty">
+      <p className="text-sm text-muted-foreground" data-testid="swiss-bracket-empty">
         Nenhuma rodada suíça gerada ainda.
       </p>
     );
@@ -28,7 +28,7 @@ export function SwissBracket({ rounds, activeRound }: Props) {
         >
           <p
             className={`sticky top-0 text-center text-sm font-semibold ${
-              activeRound === round.roundNumber ? "text-sky-300" : "text-luxury-gold-light"
+              activeRound === round.roundNumber ? "text-sky-300" : "text-primary-light"
             }`}
           >
             Rodada {round.roundNumber}

@@ -106,19 +106,19 @@ export function PriceAlertModal({
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/60" />
         <Dialog.Content
-          className="fixed left-1/2 top-1/2 z-50 w-[min(100%,28rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl border border-white/10 bg-luxury-obsidian p-6 shadow-xl"
+          className="fixed left-1/2 top-1/2 z-50 w-[min(100%,28rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl border border-border bg-card p-6 shadow-xl"
           data-testid="price-alert-modal"
         >
-          <Dialog.Title className="text-lg font-semibold text-luxury-frost">
+          <Dialog.Title className="text-lg font-semibold text-foreground">
             Alerta de preço
           </Dialog.Title>
-          <Dialog.Description className="mt-1 text-sm text-luxury-mist">
+          <Dialog.Description className="mt-1 text-sm text-muted-foreground">
             {product?.name ?? "Produto"} — preço atual {formatShopPrice(baselinePriceCents)}
           </Dialog.Description>
 
           <form onSubmit={(e) => void onSubmit(e)} className="mt-5 space-y-4">
             <fieldset className="space-y-2">
-              <legend className="text-sm font-medium text-luxury-frost">Quando avisar?</legend>
+              <legend className="text-sm font-medium text-foreground">Quando avisar?</legend>
               <label className="flex items-center gap-2 text-sm">
                 <input type="radio" value="any_drop" {...register("alert_type")} />
                 Qualquer redução
@@ -135,7 +135,7 @@ export function PriceAlertModal({
 
             {alertType === "target_price" && (
               <div>
-                <label htmlFor="target_price_reais" className="text-xs text-luxury-mist">
+                <label htmlFor="target_price_reais" className="text-xs text-muted-foreground">
                   Preço alvo (R$)
                 </label>
                 <Input
@@ -155,7 +155,7 @@ export function PriceAlertModal({
 
             {alertType === "percentage_drop" && (
               <div>
-                <label htmlFor="percentage" className="text-xs text-luxury-mist">
+                <label htmlFor="percentage" className="text-xs text-muted-foreground">
                   Queda mínima (%)
                 </label>
                 <Input
@@ -185,7 +185,7 @@ export function PriceAlertModal({
                 <Button
                   type="button"
                   variant="outline"
-                  className="border-white/20"
+                  className="border-border"
                   onClick={() => void handleRemove()}
                   disabled={remove.isPending}
                   data-testid="price-alert-remove"

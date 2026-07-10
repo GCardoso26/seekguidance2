@@ -14,12 +14,12 @@ export function SegmentPainSection({ segment }: Props) {
   const isMailto = copy.ctaHref.startsWith("mailto:");
 
   return (
-    <section className="relative border-y border-white/5 bg-luxury-midnight/40 py-28 lg:py-32">
+    <section className="relative border-y border-white/5 bg-muted/40 py-28 lg:py-32">
       <div className="mx-auto max-w-3xl px-6 text-center lg:px-8">
         <RevealOnScroll>
-          <p className="mb-4 text-xs tracking-[0.3em] text-luxury-gold uppercase">{copy.eyebrow}</p>
-          <h2 className="mb-6 text-luxury-frost">{copy.title}</h2>
-          <p className="mb-10 text-lg leading-relaxed font-light text-luxury-mist">{copy.body}</p>
+          <p className="mb-4 text-xs tracking-[0.3em] text-primary uppercase">{copy.eyebrow}</p>
+          <h2 className="mb-6 text-foreground">{copy.title}</h2>
+          <p className="mb-10 text-lg leading-relaxed font-light text-muted-foreground">{copy.body}</p>
           {isMailto ? (
             <a href={copy.ctaHref}>
               <MagneticButton>

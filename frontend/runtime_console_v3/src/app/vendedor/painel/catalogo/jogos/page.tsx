@@ -18,7 +18,7 @@ export default function CatalogoJogosPage() {
           description="TCGs suportados — configuração gerenciada pela plataforma."
         />
         {isLoading ? (
-          <p className="text-sm text-luxury-mist">Carregando…</p>
+          <p className="text-sm text-muted-foreground">Carregando…</p>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {(data?.games ?? []).map((game) => {
@@ -33,7 +33,7 @@ export default function CatalogoJogosPage() {
               return (
                 <article
                   key={String(game.id)}
-                  className="rounded-xl border border-white/10 bg-white/5 p-4"
+                  className="surface-card p-4"
                   style={
                     brand
                       ? { borderColor: `${brand.accent}40` }
@@ -41,11 +41,11 @@ export default function CatalogoJogosPage() {
                   }
                 >
                   <p className="text-lg font-semibold">{String(game.display_name ?? game.name)}</p>
-                  <p className="text-xs text-luxury-mist">{String(game.game_code)}</p>
-                  <p className="mt-2 text-xs text-luxury-mist">
+                  <p className="text-xs text-muted-foreground">{String(game.game_code)}</p>
+                  <p className="mt-2 text-xs text-muted-foreground">
                     Condições: {((cfg.conditions as string[]) ?? []).join(", ") || "NM, LP, MP…"}
                   </p>
-                  <p className="text-xs text-luxury-mist">
+                  <p className="text-xs text-muted-foreground">
                     Idiomas: {((cfg.languages as string[]) ?? []).join(", ") || "pt, en, jp"}
                   </p>
                 </article>

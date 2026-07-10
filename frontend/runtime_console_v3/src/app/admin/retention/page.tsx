@@ -56,7 +56,7 @@ export default function RetentionDashboardPage() {
               <StatCard title="Sessão média" value={`${data.avg_session_seconds}s`} />
             </div>
 
-            <Card className="border-white/10 bg-white/5">
+            <Card className="border-border bg-muted/50">
               <CardHeader>
                 <CardTitle>Funil de conversão (30 dias)</CardTitle>
               </CardHeader>
@@ -89,7 +89,7 @@ export default function RetentionDashboardPage() {
               </CardContent>
             </Card>
 
-            <Card className="border-white/10 bg-white/5">
+            <Card className="border-border bg-muted/50">
               <CardHeader>
                 <CardTitle>Distribuição Liga Pass</CardTitle>
               </CardHeader>
@@ -97,31 +97,31 @@ export default function RetentionDashboardPage() {
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
                   {data.xp_distribution.map((level) => (
                     <div key={level.current_level} className="text-center">
-                      <div className="text-2xl font-bold text-luxury-gold">{level.count}</div>
-                      <div className="text-sm capitalize text-luxury-mist">{level.current_level}</div>
+                      <div className="text-2xl font-bold text-primary">{level.count}</div>
+                      <div className="text-sm capitalize text-muted-foreground">{level.current_level}</div>
                     </div>
                   ))}
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="border-white/10 bg-white/5">
+            <Card className="border-border bg-muted/50">
               <CardHeader>
                 <CardTitle>GMV — {formatCurrency(data.gmv_brl)}</CardTitle>
               </CardHeader>
               <CardContent>
-                <h3 className="mb-3 text-sm font-semibold text-luxury-mist">Top vendedores</h3>
+                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Top vendedores</h3>
                 <ul className="space-y-2">
                   {data.top_sellers.length === 0 && (
-                    <li className="text-sm text-luxury-mist">Sem vendas no período.</li>
+                    <li className="text-sm text-muted-foreground">Sem vendas no período.</li>
                   )}
                   {data.top_sellers.map((s) => (
                     <li
                       key={s.seller_name}
-                      className="flex justify-between rounded-lg border border-white/10 px-3 py-2 text-sm"
+                      className="flex justify-between rounded-lg border border-border px-3 py-2 text-sm"
                     >
                       <span>{s.seller_name}</span>
-                      <span className="text-luxury-gold">
+                      <span className="text-primary">
                         {formatCurrency(s.gmv_brl)} ({s.orders} pedidos)
                       </span>
                     </li>
@@ -130,7 +130,7 @@ export default function RetentionDashboardPage() {
               </CardContent>
             </Card>
 
-            <Link href="/admin/dashboard" className="inline-block text-sm text-luxury-gold hover:underline">
+            <Link href="/admin/dashboard" className="inline-block text-sm text-primary hover:underline">
               Dashboard marketplace →
             </Link>
           </>
@@ -142,9 +142,9 @@ export default function RetentionDashboardPage() {
 
 function StatCard({ title, value }: { title: string; value: string }) {
   return (
-    <div className="rounded-xl border border-white/10 bg-white/5 p-4 text-center">
-      <p className="text-2xl font-bold text-luxury-gold">{value}</p>
-      <p className="text-sm text-luxury-mist">{title}</p>
+    <div className="surface-card p-4 text-center">
+      <p className="text-2xl font-bold text-primary">{value}</p>
+      <p className="text-sm text-muted-foreground">{title}</p>
     </div>
   );
 }
@@ -163,15 +163,15 @@ function FunnelBar({
   const pct = max > 0 ? (value / max) * 100 : 0;
   return (
     <div>
-      <div className="mb-1 flex justify-between text-sm text-luxury-mist">
+      <div className="mb-1 flex justify-between text-sm text-muted-foreground">
         <span>{label}</span>
         <span>
           {value.toLocaleString("pt-BR")}
           {rate !== undefined ? ` (${rate}%)` : ""}
         </span>
       </div>
-      <div className="h-4 overflow-hidden rounded-full bg-white/10">
-        <div className="h-full bg-luxury-gold transition-all" style={{ width: `${pct}%` }} />
+      <div className="h-4 overflow-hidden rounded-full bg-muted">
+        <div className="h-full bg-primary transition-all" style={{ width: `${pct}%` }} />
       </div>
     </div>
   );

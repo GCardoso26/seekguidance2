@@ -71,25 +71,25 @@ function PlayView() {
 
   return (
     <div className="luxury-page mx-auto max-w-lg space-y-6 pb-8">
-      <Link href={`/tournament/${id}`} className="text-sm text-luxury-mist">
+      <Link href={`/tournament/${id}`} className="text-sm text-muted-foreground">
         ← Voltar ao torneio
       </Link>
       <h1 className="text-xl font-bold">Rodada {currentRound}</h1>
       <TimerDisplay roundId={round?.id ?? null} />
 
       {!user && (
-        <p className="rounded-lg border border-luxury-gold/30 bg-luxury-gold/10 p-4 text-sm text-luxury-gold-light">
+        <p className="rounded-lg border border-primary/30 bg-primary/10 p-4 text-sm text-primary-light">
           Faça login para ver sua mesa.
         </p>
       )}
 
       {user && !myPairing && !isRegistered && (
-        <div className="rounded-xl border border-white/10 p-6 text-center">
-          <User className="mx-auto mb-2 h-8 w-8 text-luxury-mist/70" />
+        <div className="rounded-xl border border-border p-6 text-center">
+          <User className="mx-auto mb-2 h-8 w-8 text-muted-foreground/70" />
           <p className="font-medium">Você não está inscrito neste torneio</p>
-          <p className="mt-1 text-sm text-luxury-mist">Inscreva-se para participar das rodadas.</p>
+          <p className="mt-1 text-sm text-muted-foreground">Inscreva-se para participar das rodadas.</p>
           <Button
-            className="mt-4 bg-luxury-gold text-luxury-onyx hover:bg-luxury-gold-light"
+            className="mt-4 bg-primary text-primary-foreground hover:bg-primary/90-light"
             disabled={register.isPending}
             onClick={enroll}
           >

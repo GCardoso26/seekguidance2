@@ -70,7 +70,7 @@ export function BadgesGrid() {
   const selected = badges.find((b) => b.id === selectedId) ?? data?.badges.find((b) => b.id === selectedId);
 
   if (isLoading) {
-    return <p className="text-sm text-luxury-mist">Carregando badges…</p>;
+    return <p className="text-sm text-muted-foreground">Carregando badges…</p>;
   }
 
   return (
@@ -84,8 +84,8 @@ export function BadgesGrid() {
             className={cn(
               "rounded-full px-3 py-1 text-xs font-medium transition",
               category === cat
-                ? "bg-luxury-gold text-luxury-onyx"
-                : "bg-white/5 text-luxury-mist hover:bg-white/10",
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted/50 text-muted-foreground hover:bg-muted",
             )}
           >
             {cat === "all" ? "Todos" : BADGE_CATEGORY_LABELS[cat]}
@@ -105,16 +105,16 @@ export function BadgesGrid() {
               className={cn(
                 "flex flex-col items-center rounded-2xl border p-4 text-center transition",
                 badge.unlocked
-                  ? "border-luxury-gold/30 bg-luxury-gold/5"
-                  : "border-white/10 bg-white/5 grayscale opacity-60",
+                  ? "border-primary/30 bg-primary/5"
+                  : "border-border bg-muted/50 grayscale opacity-60",
                 "ring-2",
                 RARITY_RING[badge.rarity],
               )}
             >
-              <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-black/20">
-                <Icon className="h-6 w-6 text-luxury-frost" aria-hidden />
+              <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-full border border-border bg-black/20">
+                <Icon className="h-6 w-6 text-foreground" aria-hidden />
               </div>
-              <span className="text-sm font-semibold text-luxury-frost">{badge.name}</span>
+              <span className="text-sm font-semibold text-foreground">{badge.name}</span>
             </button>
           );
         })}
@@ -122,12 +122,12 @@ export function BadgesGrid() {
 
       {selected && (
         <div
-          className="mt-6 rounded-xl border border-white/10 bg-luxury-obsidian/80 p-5"
+          className="mt-6 rounded-xl border border-border bg-card/80 p-5"
           data-testid="badge-detail"
         >
-          <h3 className="text-lg font-semibold text-luxury-frost">{selected.name}</h3>
-          <p className="mt-1 text-sm text-luxury-mist">{selected.description}</p>
-          <p className="mt-2 text-xs text-luxury-gold-light">
+          <h3 className="text-lg font-semibold text-foreground">{selected.name}</h3>
+          <p className="mt-1 text-sm text-muted-foreground">{selected.description}</p>
+          <p className="mt-2 text-xs text-primary-light">
             Como desbloquear: {selected.unlock_hint}
           </p>
           {selected.unlocked && selected.unlocked_at && (
@@ -136,7 +136,7 @@ export function BadgesGrid() {
             </p>
           )}
           {!selected.unlocked && (
-            <p className="mt-2 text-xs text-luxury-mist">Ainda bloqueado</p>
+            <p className="mt-2 text-xs text-muted-foreground">Ainda bloqueado</p>
           )}
         </div>
       )}

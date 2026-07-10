@@ -45,27 +45,27 @@ export function StoreReviewsManager({ storeId }: Props) {
     void qc.invalidateQueries({ queryKey: ["store-reviews-manage", storeId] });
   }
 
-  if (isLoading) return <p className="text-luxury-mist">Carregando avaliações…</p>;
+  if (isLoading) return <p className="text-muted-foreground">Carregando avaliações…</p>;
 
   const reviews = data?.reviews ?? [];
   const avg = data?.stats?.average_rating ?? 0;
 
   return (
     <div className="space-y-6">
-      <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-        <p className="text-sm text-luxury-mist">Média geral</p>
+      <div className="surface-card p-4">
+        <p className="text-sm text-muted-foreground">Média geral</p>
         <div className="mt-1 flex items-center gap-2">
           <span className="text-2xl font-bold">{avg.toFixed(1)}</span>
           <ReviewStarsDisplay rating={avg} size="md" />
         </div>
       </div>
       <div className="space-y-3">
-        {reviews.length === 0 && <p className="text-luxury-mist">Nenhuma avaliação recebida.</p>}
+        {reviews.length === 0 && <p className="text-muted-foreground">Nenhuma avaliação recebida.</p>}
         {reviews.map((r) => (
-          <div key={r.id} className="rounded-xl border border-white/10 bg-white/5 p-4">
+          <div key={r.id} className="surface-card p-4">
             <div className="flex flex-wrap justify-between gap-2">
               <ReviewStarsDisplay rating={r.rating} />
-              <span className="text-xs text-luxury-mist">
+              <span className="text-xs text-muted-foreground">
                 {r.store_response ? "Respondida" : "Não respondida"}
               </span>
             </div>
@@ -75,7 +75,7 @@ export function StoreReviewsManager({ storeId }: Props) {
                 <button
                   type="button"
                   onClick={() => setRespondingId(r.id)}
-                  className="rounded-lg border border-white/20 px-3 py-1 text-xs"
+                  className="rounded-lg border border-border px-3 py-1 text-xs"
                 >
                   Responder
                 </button>
@@ -94,13 +94,13 @@ export function StoreReviewsManager({ storeId }: Props) {
                   value={response}
                   onChange={(e) => setResponse(e.target.value)}
                   rows={3}
-                  className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm"
+                  className="w-full surface-card rounded-lg px-3 py-2 text-sm"
                   placeholder="Sua resposta pública…"
                 />
                 <button
                   type="button"
                   onClick={() => void submitResponse(r.id)}
-                  className="rounded-lg bg-luxury-gold px-4 py-2 text-sm font-semibold text-luxury-onyx"
+                  className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
                 >
                   Enviar resposta
                 </button>

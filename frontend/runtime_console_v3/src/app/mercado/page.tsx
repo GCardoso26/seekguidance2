@@ -18,8 +18,8 @@ export default async function MercadoPage() {
   return (
     <main className="mx-auto max-w-6xl px-4 py-10">
       <header className="mb-8">
-        <h1 className="text-3xl font-bold text-luxury-frost">Índice de Mercado</h1>
-        <p className="mt-2 text-luxury-mist">
+        <h1 className="text-3xl font-bold text-foreground">Índice de Mercado</h1>
+        <p className="mt-2 text-muted-foreground">
           Liquidez, estabilidade e sentimento por TCG — atualizado pelo cron semanal.
         </p>
       </header>
@@ -31,7 +31,7 @@ export default async function MercadoPage() {
       </div>
 
       <section className="mt-12">
-        <h2 className="mb-6 text-2xl font-bold text-luxury-frost">Top movers — MTG</h2>
+        <h2 className="mb-6 text-2xl font-bold text-foreground">Top movers — MTG</h2>
         <TopMoversTable
           game="mtg"
           gainers={scores.find((s) => s.game === "mtg")?.topGainers ?? []}

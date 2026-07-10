@@ -50,7 +50,7 @@ export function SourceCard({ source, index, highlightTerms = [], accent }: Props
           .filter(Boolean)
           .join(" · ")}
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-start gap-2 p-3 text-left transition hover:bg-white/10"
+        className="flex w-full items-start gap-2 p-3 text-left transition hover:bg-muted"
       >
         <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[hsl(var(--tcg-accent))] text-xs font-bold text-[hsl(var(--tcg-accent-fg))]">
           {f.index}

@@ -142,7 +142,7 @@ export function PdvManager({ storeId, storeName }: Props) {
     <div className="flex min-h-[calc(100vh-4rem)] flex-col gap-4 lg:grid lg:grid-cols-[1fr_22rem] lg:gap-6" data-testid="pdv-manager">
       <div className="flex min-h-0 flex-1 flex-col gap-4">
         <div className="flex items-center justify-between gap-2">
-          <p className="text-sm text-luxury-mist">Balcão — {storeName}</p>
+          <p className="text-sm text-muted-foreground">Balcão — {storeName}</p>
           <Button asChild variant="ghost" size="sm" className="lg:hidden">
             <Link href="/vendedor/painel">← Painel</Link>
           </Button>

@@ -13,9 +13,9 @@ export function CpfCheckoutModal({ open, onClose }: Props) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-      <div className="w-full max-w-md rounded-xl border border-white/10 bg-luxury-obsidian p-6 shadow-xl">
-        <h2 className="text-lg font-semibold text-luxury-frost">CPF obrigatório</h2>
-        <p className="mt-2 text-sm text-luxury-mist">
+      <div className="w-full max-w-md rounded-xl border border-border bg-card p-6 shadow-xl">
+        <h2 className="text-lg font-semibold text-foreground">CPF obrigatório</h2>
+        <p className="mt-2 text-sm text-muted-foreground">
           Para concluir compras no marketplace, valide seu CPF. Leva menos de um minuto.
         </p>
         <div className="mt-6 flex flex-wrap gap-2">

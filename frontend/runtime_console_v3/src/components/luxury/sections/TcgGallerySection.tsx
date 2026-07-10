@@ -24,7 +24,7 @@ function TcgLogo({
         size === "lg" ? "h-20 w-20" : "h-16 w-16",
         active
           ? "border-current bg-current/10 shadow-lg"
-          : "border-white/10 bg-white/5 text-luxury-silver",
+          : "border-border bg-muted/50 text-muted-foreground",
       )}
       style={active ? { color: accent, borderColor: `${accent}66` } : undefined}
     >
@@ -44,11 +44,11 @@ export function TcgGallerySection() {
     <section className="relative overflow-hidden py-28 lg:py-36">
       <div className="mx-auto mb-16 max-w-7xl px-6 text-center lg:px-8">
         <RevealOnScroll>
-          <p className="mb-4 text-xs tracking-[0.3em] text-luxury-gold uppercase">
+          <p className="mb-4 text-xs tracking-[0.3em] text-primary uppercase">
             {TCG_GALLERY_COPY.eyebrow}
           </p>
-          <h2 className="mb-4 text-luxury-frost">{TCG_GALLERY_COPY.title}</h2>
-          <p className="mx-auto max-w-2xl text-luxury-mist">{TCG_GALLERY_COPY.subtitle}</p>
+          <h2 className="mb-4 text-foreground">{TCG_GALLERY_COPY.title}</h2>
+          <p className="mx-auto max-w-2xl text-muted-foreground">{TCG_GALLERY_COPY.subtitle}</p>
         </RevealOnScroll>
       </div>
 
@@ -67,14 +67,14 @@ export function TcgGallerySection() {
                 <span
                   className={cn(
                     "block text-sm tracking-wide transition-colors duration-500",
-                    active ? "text-luxury-frost" : "text-luxury-mist",
+                    active ? "text-foreground" : "text-muted-foreground",
                   )}
                   style={active ? { color: tcg.accent } : undefined}
                 >
                   {tcg.name}
                 </span>
                 {tcg.description && (
-                  <span className="mt-1 block text-xs text-luxury-mist">{tcg.description}</span>
+                  <span className="mt-1 block text-xs text-muted-foreground">{tcg.description}</span>
                 )}
               </div>
             </div>
@@ -97,7 +97,7 @@ export function TcgGallerySection() {
                 <span
                   className={cn(
                     "text-xs tracking-[0.2em] uppercase transition-colors duration-500",
-                    active ? "text-luxury-frost" : "text-luxury-mist",
+                    active ? "text-foreground" : "text-muted-foreground",
                   )}
                   style={active ? { color: tcg.accent } : undefined}
                 >

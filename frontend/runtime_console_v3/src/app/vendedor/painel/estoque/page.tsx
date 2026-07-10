@@ -123,16 +123,16 @@ export default function EstoquePage() {
               { label: "Estoque baixo", value: products.low_stock ?? 0 },
               { label: "Valor em estoque", value: formatBRL(Number(products.inventory_value_cents ?? 0)) },
             ].map((kpi) => (
-              <div key={kpi.label} className="rounded-xl border border-white/10 bg-white/5 p-4">
-                <p className="text-xs uppercase text-luxury-mist">{kpi.label}</p>
+              <div key={kpi.label} className="surface-card p-4">
+                <p className="text-xs uppercase text-muted-foreground">{kpi.label}</p>
                 <p className="mt-1 text-2xl font-bold">{kpi.value}</p>
               </div>
             ))}
           </div>
 
-          <div className="space-y-3 rounded-xl border border-white/10 bg-white/5 p-4">
+          <div className="space-y-3 surface-card p-4">
             <h3 className="font-semibold">Importar produtos (CSV)</h3>
-            <p className="text-sm text-luxury-mist">
+            <p className="text-sm text-muted-foreground">
               Colunas: name, category, price_cents, stock, sku, description. Categorias: booster, sleeve,
               deck_box, playmat, accessory, single.
             </p>
@@ -192,23 +192,23 @@ export default function EstoquePage() {
             )}
           </div>
 
-          <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+          <div className="surface-card p-4">
             <h3 className="font-semibold">Listagens de cartas</h3>
-            <p className="mt-2 text-sm text-luxury-mist">
+            <p className="mt-2 text-sm text-muted-foreground">
               {listings.active_listings ?? 0} listagens ativas · {listings.total_cards ?? 0} cartas ·{" "}
               {formatBRL(Number(listings.listings_value_cents ?? 0))} em valor
             </p>
-            <Link href="/vendedor/painel/listagens" className="mt-3 inline-block text-sm text-luxury-gold underline">
+            <Link href="/vendedor/painel/listagens" className="mt-3 inline-block text-sm text-primary underline">
               Gerenciar listagens
             </Link>
           </div>
 
-          <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+          <div className="surface-card p-4">
             <h3 className="mb-3 font-semibold">Produtos com estoque baixo</h3>
             {lowStock.length === 0 ? (
-              <p className="text-sm text-luxury-mist">Nenhum produto com estoque crítico.</p>
+              <p className="text-sm text-muted-foreground">Nenhum produto com estoque crítico.</p>
             ) : (
-              <ul className="divide-y divide-white/10">
+              <ul className="divide-y divide-border">
                 {lowStock.map((p) => (
                   <li key={String(p.id)} className="flex justify-between py-2 text-sm">
                     <span>{String(p.name)}</span>

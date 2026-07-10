@@ -138,7 +138,7 @@ function MyProfilePageContent() {
     return (
       <MobileLayout>
         <div className="container mx-auto px-4 py-8">
-          <Link href="/judge" className="text-sm text-luxury-mist">
+          <Link href="/judge" className="text-sm text-muted-foreground">
             ← Mesa de regras
           </Link>
           <div className="mt-6">
@@ -154,7 +154,7 @@ function MyProfilePageContent() {
       <MobileLayout>
         <div className="container mx-auto px-4 py-8">
           <p className="text-red-400">Erro ao carregar perfil. Faça login e crie seu perfil primeiro.</p>
-          <Link href="/" className="mt-4 inline-block text-sm text-luxury-mist">
+          <Link href="/" className="mt-4 inline-block text-sm text-muted-foreground">
             ← Início
           </Link>
         </div>
@@ -181,17 +181,17 @@ function MyProfilePageContent() {
   return (
     <MobileLayout>
       <div className="container mx-auto max-w-2xl px-4 py-8">
-        <Link href="/" className="text-sm text-luxury-mist">
+        <Link href="/" className="text-sm text-muted-foreground">
           ← Início
         </Link>
         <div className="mt-2 flex flex-wrap items-start justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold">{displayName}</h1>
-            <p className="text-sm text-luxury-mist">@{profile.handle}</p>
+            <p className="text-sm text-muted-foreground">@{profile.handle}</p>
           </div>
           <Link
             href="/pricing?from=menu"
-            className="inline-flex items-center gap-1.5 rounded-lg border border-luxury-gold/40 bg-luxury-gold/10 px-3 py-1.5 text-xs font-semibold text-luxury-gold-light"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary-light"
           >
             <CreditCard className="h-3.5 w-3.5" />
             Plano {tier === "free" ? "Grátis" : tier === "pro" ? "Spike" : "Equipe"}
@@ -199,20 +199,20 @@ function MyProfilePageContent() {
         </div>
 
         <div className="mt-6 grid grid-cols-3 gap-3">
-          <div className="judge-card rounded-xl border border-white/10 bg-white/5 p-3 text-center">
-            <MessageCircle className="mx-auto h-5 w-5 text-luxury-gold" />
+          <div className="judge-card surface-card p-3 text-center">
+            <MessageCircle className="mx-auto h-5 w-5 text-primary" />
             <p className="mt-1 text-lg font-bold">{stats.totalConsultations}</p>
-            <p className="text-[10px] text-luxury-mist/70">Consultas</p>
+            <p className="text-[10px] text-muted-foreground/70">Consultas</p>
           </div>
-          <div className="judge-card rounded-xl border border-white/10 bg-white/5 p-3 text-center">
-            <BarChart3 className="mx-auto h-5 w-5 text-luxury-gold-light" />
+          <div className="judge-card surface-card p-3 text-center">
+            <BarChart3 className="mx-auto h-5 w-5 text-primary-light" />
             <p className="mt-1 truncate text-sm font-bold">{stats.topTcgLabel ?? "—"}</p>
-            <p className="text-[10px] text-luxury-mist/70">TCG favorito</p>
+            <p className="text-[10px] text-muted-foreground/70">TCG favorito</p>
           </div>
-          <div className="judge-card rounded-xl border border-white/10 bg-white/5 p-3 text-center">
+          <div className="judge-card surface-card p-3 text-center">
             <Flame className="mx-auto h-5 w-5 text-orange-400" />
             <p className="mt-1 text-lg font-bold">{stats.streakDays}</p>
-            <p className="text-[10px] text-luxury-mist/70">Dias seguidos</p>
+            <p className="text-[10px] text-muted-foreground/70">Dias seguidos</p>
           </div>
         </div>
 
@@ -225,33 +225,33 @@ function MyProfilePageContent() {
         <div className="mt-4 flex gap-2">
           <Link
             href="/player/me/history"
-            className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg border border-white/10 py-2 text-sm font-medium text-luxury-frost hover:bg-white/5"
+            className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg border border-border py-2 text-sm font-medium text-foreground hover:bg-muted/80"
           >
             <History className="h-4 w-4" />
             Histórico completo
           </Link>
           <Link
             href="/player/me/badges"
-            className="inline-flex items-center justify-center gap-1 rounded-lg border border-white/10 px-3 py-2 text-sm text-luxury-frost hover:bg-white/5"
+            className="inline-flex items-center justify-center gap-1 rounded-lg border border-border px-3 py-2 text-sm text-foreground hover:bg-muted/80"
           >
             <Award className="h-4 w-4" />
             Badges
           </Link>
           <Link
             href="/comunidade/leaderboard"
-            className="inline-flex flex-1 items-center justify-center rounded-lg border border-white/10 py-2 text-sm font-medium text-luxury-frost hover:bg-white/5"
+            className="inline-flex flex-1 items-center justify-center rounded-lg border border-border py-2 text-sm font-medium text-foreground hover:bg-muted/80"
           >
             Ranking
           </Link>
           <Link
             href="/judge"
-            className="inline-flex flex-1 items-center justify-center rounded-lg bg-luxury-gold py-2 text-sm font-semibold text-luxury-onyx"
+            className="inline-flex flex-1 items-center justify-center rounded-lg bg-primary py-2 text-sm font-semibold text-primary-foreground"
           >
             Ir para a mesa
           </Link>
         </div>
 
-        <nav className="mt-6 flex flex-wrap gap-2 border-b border-white/10 pb-2">
+        <nav className="mt-6 flex flex-wrap gap-2 border-b border-border pb-2">
           {(
             [
               ["overview", "Visão geral"],
@@ -267,7 +267,7 @@ function MyProfilePageContent() {
               onClick={() => setTab(id)}
               className={cn(
                 "rounded-lg px-3 py-1.5 text-sm",
-                tab === id ? "bg-luxury-gold/20 text-luxury-gold-light" : "text-luxury-mist",
+                tab === id ? "bg-primary/20 text-primary-light" : "text-muted-foreground",
               )}
             >
               {label}
@@ -279,7 +279,7 @@ function MyProfilePageContent() {
           {tab === "overview" && (
             <>
               <LigaPassWidget />
-              <Card className="border-white/10 bg-white/5">
+              <Card className="border-border bg-muted/50">
                 <CardHeader>
                   <CardTitle>Consultas recentes</CardTitle>
                 </CardHeader>
@@ -291,13 +291,13 @@ function MyProfilePageContent() {
           )}
 
           {tab === "posts" && (
-            <Card className="border-white/10 bg-white/5">
+            <Card className="border-border bg-muted/50">
               <CardHeader>
                 <CardTitle>Posts nas comunidades</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 {myPosts.length === 0 && (
-                  <p className="text-sm text-luxury-mist">Você ainda não publicou nada.</p>
+                  <p className="text-sm text-muted-foreground">Você ainda não publicou nada.</p>
                 )}
                 {myPosts.map((post) => (
                   <PostCard key={post.id} post={post} />
@@ -307,7 +307,7 @@ function MyProfilePageContent() {
           )}
 
           {tab === "history" && (
-            <Card className="border-white/10 bg-white/5">
+            <Card className="border-border bg-muted/50">
               <CardHeader>
                 <CardTitle>Histórico de consultas</CardTitle>
               </CardHeader>
@@ -318,26 +318,26 @@ function MyProfilePageContent() {
           )}
 
           {tab === "feedback" && (
-            <Card className="border-white/10 bg-white/5">
+            <Card className="border-border bg-muted/50">
               <CardHeader>
                 <CardTitle>Meus feedbacks</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 {myFeedbacks.length === 0 && (
-                  <p className="text-sm text-luxury-mist">
+                  <p className="text-sm text-muted-foreground">
                     Nenhum feedback enviado.{" "}
-                    <Link href="/social/feedback" className="text-luxury-gold underline">
+                    <Link href="/social/feedback" className="text-primary underline">
                       Enviar feedback
                     </Link>
                   </p>
                 )}
                 {myFeedbacks.map((f) => (
-                  <div key={f.id} className="rounded-lg border border-white/10 p-3">
+                  <div key={f.id} className="rounded-lg border border-border p-3">
                     <p className="font-medium">{f.subject}</p>
-                    <p className="mt-1 text-xs text-luxury-mist">
+                    <p className="mt-1 text-xs text-muted-foreground">
                       #{f.id.slice(0, 8).toUpperCase()} · {f.status} · {f.priority}
                     </p>
-                    <p className="mt-2 text-sm text-luxury-mist">{f.description}</p>
+                    <p className="mt-2 text-sm text-muted-foreground">{f.description}</p>
                   </div>
                 ))}
               </CardContent>
@@ -346,7 +346,7 @@ function MyProfilePageContent() {
 
           {tab === "settings" && (
             <>
-          <Card className="border-white/10 bg-white/5">
+          <Card className="border-border bg-muted/50">
             <CardHeader>
               <CardTitle>Foto de Perfil</CardTitle>
             </CardHeader>
@@ -358,31 +358,31 @@ function MyProfilePageContent() {
             </CardContent>
           </Card>
 
-          <Card className="border-white/10 bg-white/5">
+          <Card className="border-border bg-muted/50">
             <CardHeader>
               <CardTitle>Informações Pessoais</CardTitle>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label htmlFor="handle" className="mb-1 block text-sm text-luxury-frost/90">
+                  <label htmlFor="handle" className="mb-1 block text-sm text-foreground/90">
                     Handle
                   </label>
-                  <Input id="handle" value={profile.handle} disabled className="border-white/10 bg-luxury-midnight" />
+                  <Input id="handle" value={profile.handle} disabled className="border-border bg-muted" />
                 </div>
                 <div>
-                  <label htmlFor="displayName" className="mb-1 block text-sm text-luxury-frost/90">
+                  <label htmlFor="displayName" className="mb-1 block text-sm text-foreground/90">
                     Nome de exibição
                   </label>
                   <Input
                     id="displayName"
                     defaultValue={profile.displayName}
                     onChange={(e) => setFormData((prev) => ({ ...prev, displayName: e.target.value }))}
-                    className="border-white/10 bg-white/5"
+                    className="border-border bg-muted/50"
                   />
                 </div>
                 <div>
-                  <label htmlFor="bio" className="mb-1 block text-sm text-luxury-frost/90">
+                  <label htmlFor="bio" className="mb-1 block text-sm text-foreground/90">
                     Bio
                   </label>
                   <textarea
@@ -390,15 +390,15 @@ function MyProfilePageContent() {
                     defaultValue={profile.bio ?? ""}
                     onChange={(e) => setFormData((prev) => ({ ...prev, bio: e.target.value }))}
                     rows={3}
-                    className="w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm"
+                    className="w-full rounded-md border border-border bg-card shadow-card px-3 py-2 text-sm"
                   />
                 </div>
                 <div>
-                  <p className="mb-2 text-sm text-luxury-frost/90">Jogos favoritos</p>
+                  <p className="mb-2 text-sm text-foreground/90">Jogos favoritos</p>
                   <MultiSelectTCG selected={favoriteTcgs} onChange={setFavoriteTcgs} />
                 </div>
                 <div>
-                  <p className="mb-2 text-sm text-luxury-frost/90">Jogo principal</p>
+                  <p className="mb-2 text-sm text-foreground/90">Jogo principal</p>
                   <GameSelector
                     value={favoriteGame}
                     onChange={(game) => {
@@ -408,13 +408,13 @@ function MyProfilePageContent() {
                   />
                 </div>
                 <div>
-                  <label htmlFor="birthDate" className="mb-1 block text-sm text-luxury-frost/90">
+                  <label htmlFor="birthDate" className="mb-1 block text-sm text-foreground/90">
                     Data de nascimento
                   </label>
                   <DatePicker value={birthDate} onChange={setBirthDate} />
                 </div>
                 <div>
-                  <label htmlFor="state" className="mb-1 block text-sm text-luxury-frost/90">
+                  <label htmlFor="state" className="mb-1 block text-sm text-foreground/90">
                     Estado
                   </label>
                   <select
@@ -431,20 +431,20 @@ function MyProfilePageContent() {
                     ))}
                   </select>
                 </div>
-                {isSuccess && <p className="text-sm text-luxury-gold-light">Perfil atualizado.</p>}
+                {isSuccess && <p className="text-sm text-primary-light">Perfil atualizado.</p>}
                 {updateError && (
                   <p className="text-sm text-red-400">
                     {updateErrorDetail instanceof Error ? updateErrorDetail.message : "Erro ao salvar."}
                   </p>
                 )}
-                <Button type="submit" disabled={isUpdating} className="w-full bg-luxury-gold text-luxury-onyx">
+                <Button type="submit" disabled={isUpdating} className="w-full bg-primary text-primary-foreground">
                   {isUpdating ? "Salvando…" : "Salvar alterações"}
                 </Button>
               </form>
             </CardContent>
           </Card>
 
-          <Card className="border-white/10 bg-white/5">
+          <Card className="border-border bg-muted/50">
             <CardHeader>
               <CardTitle>Notificações</CardTitle>
             </CardHeader>

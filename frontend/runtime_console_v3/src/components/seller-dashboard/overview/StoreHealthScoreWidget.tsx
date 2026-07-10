@@ -60,7 +60,7 @@ export function StoreHealthScoreWidget({
   if (isLoading) {
     return (
       <div
-        className="h-36 animate-pulse rounded-xl border border-white/10 bg-white/5"
+        className="h-36 animate-pulse surface-card"
         data-testid="store-health-skeleton"
         aria-busy="true"
       />
@@ -77,14 +77,14 @@ export function StoreHealthScoreWidget({
     >
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex items-start gap-3">
-          <div className="rounded-lg bg-white/5 p-2">
-            <Activity className="h-5 w-5 text-luxury-gold" aria-hidden />
+          <div className="rounded-lg bg-muted/50 p-2">
+            <Activity className="h-5 w-5 text-primary" aria-hidden />
           </div>
           <div>
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-luxury-mist">
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
               Saúde da loja
             </h2>
-            <p className="mt-1 text-xs text-luxury-mist/80">
+            <p className="mt-1 text-xs text-muted-foreground/80">
               Operacional — KYC, fulfillment, estoque e atendimento
             </p>
           </div>
@@ -97,7 +97,7 @@ export function StoreHealthScoreWidget({
         </div>
       </div>
 
-      <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/10">
+      <div className="mt-4 h-2 overflow-hidden rounded-full bg-muted">
         <div
           className={cn("h-full rounded-full transition-all", styles.bar)}
           style={{ width: `${health.score}%` }}
@@ -111,19 +111,19 @@ export function StoreHealthScoreWidget({
 
       <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {health.factors.map((factor) => (
-          <div key={factor.id} className="rounded-lg border border-white/10 bg-black/20 px-3 py-2">
+          <div key={factor.id} className="rounded-lg border border-border bg-black/20 px-3 py-2">
             <div className="flex items-center justify-between gap-2 text-xs">
-              <span className="font-medium text-luxury-mist">{factor.label}</span>
+              <span className="font-medium text-muted-foreground">{factor.label}</span>
               <span className="tabular-nums text-white">{factor.score}</span>
             </div>
-            <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-white/10">
+            <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-muted">
               <div
-                className="h-full rounded-full bg-luxury-gold/80"
+                className="h-full rounded-full bg-primary/80"
                 style={{ width: `${factor.score}%` }}
               />
             </div>
             {factor.hint && (
-              <p className="mt-1.5 line-clamp-2 text-[11px] text-luxury-mist/80">{factor.hint}</p>
+              <p className="mt-1.5 line-clamp-2 text-[11px] text-muted-foreground/80">{factor.hint}</p>
             )}
           </div>
         ))}
@@ -132,7 +132,7 @@ export function StoreHealthScoreWidget({
       {health.primaryAction && (
         <Link
           href={health.primaryAction.href}
-          className="mt-4 inline-flex text-sm font-medium text-luxury-gold hover:underline"
+          className="mt-4 inline-flex text-sm font-medium text-primary hover:underline"
         >
           {health.primaryAction.label} →
         </Link>

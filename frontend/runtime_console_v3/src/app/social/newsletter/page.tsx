@@ -40,11 +40,11 @@ export default function NewsletterArchivePage() {
   return (
     <MobileLayout>
       <div className="container mx-auto max-w-2xl px-4 py-8">
-        <Link href="/social" className="text-sm text-luxury-mist">
+        <Link href="/social" className="text-sm text-muted-foreground">
           ← Social
         </Link>
-        <h1 className="mt-4 text-2xl font-light text-luxury-frost">Newsletter Judge TCG</h1>
-        <p className="mt-2 text-sm text-luxury-mist">Receba novidades dos TCGs que você joga.</p>
+        <h1 className="mt-4 text-2xl font-light text-foreground">Newsletter Judge TCG</h1>
+        <p className="mt-2 text-sm text-muted-foreground">Receba novidades dos TCGs que você joga.</p>
 
         <section className="luxury-card mt-8 rounded-xl p-6">
           <h2 className="font-medium">Inscrever-se</h2>
@@ -53,7 +53,7 @@ export default function NewsletterArchivePage() {
             placeholder="seu@email.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="mt-3 border-white/10 bg-white/5"
+            className="mt-3 border-border bg-muted/50"
           />
           <div className="mt-4 grid gap-2 sm:grid-cols-2">
             {TCG_OPTIONS.map((t) => (
@@ -63,19 +63,19 @@ export default function NewsletterArchivePage() {
               </label>
             ))}
           </div>
-          <Button className="mt-4 bg-luxury-gold text-luxury-onyx" onClick={() => void subscribe()}>
+          <Button className="mt-4 bg-primary text-primary-foreground" onClick={() => void subscribe()}>
             Inscrever
           </Button>
         </section>
 
         <section className="mt-10 space-y-4">
           <h2 className="text-lg font-medium">Arquivo</h2>
-          {editions.length === 0 && <p className="text-sm text-luxury-mist">Nenhuma edição publicada ainda.</p>}
+          {editions.length === 0 && <p className="text-sm text-muted-foreground">Nenhuma edição publicada ainda.</p>}
           {editions.map((ed) => (
             <article key={ed.id} className="luxury-card rounded-xl p-5">
-              <h3 className="text-lg font-medium text-luxury-frost">{ed.title}</h3>
+              <h3 className="text-lg font-medium text-foreground">{ed.title}</h3>
               {ed.sentAt && (
-                <p className="mt-1 text-xs text-luxury-mist">{new Date(ed.sentAt).toLocaleDateString("pt-BR")}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{new Date(ed.sentAt).toLocaleDateString("pt-BR")}</p>
               )}
               <div
                 className="prose prose-invert mt-3 text-sm"

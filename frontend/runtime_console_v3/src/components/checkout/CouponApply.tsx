@@ -1,17 +1,22 @@
 "use client";
 
 import { useState } from "react";
+import { Tag } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { formatShopPrice } from "@/lib/marketplace-shop";
 import { showToast } from "@/lib/toast";
+import { cn } from "@/lib/utils";
 
 type Props = {
   storeId: string;
   orderTotalCents: number;
   onApplied: (discount: number, code: string) => void;
   onClear: () => void;
+  className?: string;
 };
 
-export function CouponApply({ storeId, orderTotalCents, onApplied, onClear }: Props) {
+export function CouponApply({ storeId, orderTotalCents, onApplied, onClear, className }: Props) {
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [applied, setApplied] = useState<{ code: string; discount: number; final: number } | null>(null);
@@ -47,29 +52,32 @@ export function CouponApply({ storeId, orderTotalCents, onApplied, onClear }: Pr
   }
 
   return (
-    <div className="rounded-lg border border-white/10 bg-white/5 p-4">
-      <p className="text-sm font-medium">Cupom de desconto</p>
-      <div className="mt-2 flex gap-2">
-        <input
+    <div className={cn("rounded-xl border border-border bg-card p-4 shadow-card", className)}>
+      <div className="flex items-center gap-2">
+        <Tag className="h-4 w-4 text-primary" aria-hidden />
+        <p className="text-small font-semibold">Cupom de desconto</p>
+      </div>
+      <div className="mt-3 flex gap-2">
+        <Input
           value={code}
           onChange={(e) => setCode(e.target.value.toUpperCase())}
-          placeholder="Código"
+          placeholder="Código do cupom"
           data-testid="coupon-input"
-          className="flex-1 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm uppercase"
+          className="uppercase"
         />
-        <button
+        <Button
           type="button"
+          variant="outline"
           disabled={loading || !code.trim()}
           data-testid="apply-coupon"
           onClick={() => void apply()}
-          className="rounded-lg bg-luxury-gold px-4 py-2 text-sm font-semibold text-luxury-onyx disabled:opacity-50"
         >
           Aplicar
-        </button>
+        </Button>
       </div>
-      {error && <p className="mt-2 text-sm text-red-300">{error}</p>}
+      {error && <p className="mt-2 text-small text-danger">{error}</p>}
       {applied && (
-        <p className="mt-2 text-sm text-emerald-300">
+        <p className="mt-2 text-small text-success">
           Desconto: −{formatShopPrice(applied.discount)} · Total: {formatShopPrice(applied.final)}
         </p>
       )}

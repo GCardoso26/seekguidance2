@@ -78,7 +78,7 @@ export function PdvPixPoller({
     return null;
   }
   return (
-    <p className="flex items-center gap-2 text-sm text-luxury-mist" data-testid="pdv-pix-polling">
+    <p className="flex items-center gap-2 text-sm text-muted-foreground" data-testid="pdv-pix-polling">
       <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-luxury-gold border-t-transparent" />
       Aguardando confirmação automática…
     </p>

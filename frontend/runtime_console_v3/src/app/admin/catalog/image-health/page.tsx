@@ -40,7 +40,7 @@ export default function AdminImageHealthPage() {
         description="Cartas sem imagem, falhas de carregamento e hosts problemáticos no catálogo e marketplace."
       />
 
-      {isLoading && <p className="text-sm text-luxury-mist">Carregando métricas…</p>}
+      {isLoading && <p className="text-sm text-muted-foreground">Carregando métricas…</p>}
       {error && (
         <p className="rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-2 text-sm text-red-300">
           Não foi possível carregar o dashboard de imagens.
@@ -82,7 +82,7 @@ export default function AdminImageHealthPage() {
             </CardHeader>
             <CardContent>
               {data.broken_hosts.length === 0 ? (
-                <p className="text-sm text-luxury-mist">Nenhuma falha registrada na janela.</p>
+                <p className="text-sm text-muted-foreground">Nenhuma falha registrada na janela.</p>
               ) : (
                 <ul className="space-y-2 text-sm">
                   {data.broken_hosts.map((h) => (
@@ -104,7 +104,7 @@ export default function AdminImageHealthPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
                   <thead>
-                    <tr className="text-luxury-mist">
+                    <tr className="text-muted-foreground">
                       <th className="p-2">Host</th>
                       <th className="p-2">Tipo</th>
                       <th className="p-2">Latência</th>
@@ -126,7 +126,7 @@ export default function AdminImageHealthPage() {
             </CardContent>
           </Card>
 
-          <p className="text-xs text-luxury-mist">Atualizado: {data.computed_at}</p>
+          <p className="text-xs text-muted-foreground">Atualizado: {data.computed_at}</p>
         </div>
       )}
     </PageShell>

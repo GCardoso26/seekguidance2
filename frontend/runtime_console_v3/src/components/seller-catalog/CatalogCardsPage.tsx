@@ -32,7 +32,7 @@ export function CatalogCardsPage() {
         <GameSelectorTabs activeSlug={game} onChange={setGame} />
         <CardSearchInput value={search} onChange={setSearch} />
         {isLoading ? (
-          <p className="text-sm text-luxury-mist">Buscando cartas…</p>
+          <p className="text-sm text-muted-foreground">Buscando cartas…</p>
         ) : (
           <CardGrid cards={data?.cards ?? []} onAddListing={setSelectedCard} />
         )}

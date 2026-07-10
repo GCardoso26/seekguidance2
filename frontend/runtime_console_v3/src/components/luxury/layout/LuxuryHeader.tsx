@@ -32,7 +32,7 @@ export function LuxuryHeader() {
     <header
       className={cn(
         "fixed inset-x-0 top-0 z-50 transition-all duration-500",
-        scrolled ? "border-b border-white/5 bg-luxury-onyx/80 backdrop-blur-xl" : "bg-transparent",
+        scrolled ? "border-b border-white/5 bg-background/80 backdrop-blur-xl" : "bg-transparent",
       )}
     >
       <div
@@ -43,11 +43,11 @@ export function LuxuryHeader() {
 
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5 lg:px-8">
         <Link href="/" className="group flex items-center gap-3" aria-label="Judge TCG — início">
-          <span className="flex h-9 w-9 items-center justify-center rounded-full border border-luxury-gold/30 bg-luxury-gold/10">
-            <Scale className="h-4 w-4 text-luxury-gold" strokeWidth={1.5} />
+          <span className="flex h-9 w-9 items-center justify-center rounded-full border border-primary/30 bg-primary/10">
+            <Scale className="h-4 w-4 text-primary" strokeWidth={1.5} />
           </span>
-          <span className="text-sm font-medium tracking-[0.2em] text-luxury-frost uppercase">
-            Judge <span className="text-luxury-gold">TCG</span>
+          <span className="text-sm font-medium tracking-[0.2em] text-foreground uppercase">
+            Judge <span className="text-primary">TCG</span>
           </span>
         </Link>
 
@@ -56,7 +56,7 @@ export function LuxuryHeader() {
             <Link
               key={item.href}
               href={item.href}
-              className="text-sm text-luxury-mist transition-colors hover:text-luxury-frost"
+              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
             >
               {item.label}
             </Link>
@@ -71,7 +71,7 @@ export function LuxuryHeader() {
 
         <button
           type="button"
-          className="rounded-lg p-2 text-luxury-frost md:hidden"
+          className="rounded-lg p-2 text-foreground md:hidden"
           onClick={() => setOpen((v) => !v)}
           aria-expanded={open}
           aria-controls="luxury-mobile-nav"
@@ -84,7 +84,7 @@ export function LuxuryHeader() {
       {open && (
         <nav
           id="luxury-mobile-nav"
-          className="border-t border-white/5 bg-luxury-obsidian/95 px-6 py-6 backdrop-blur-xl md:hidden"
+          className="border-t border-white/5 bg-card/95 px-6 py-6 backdrop-blur-xl md:hidden"
           aria-label="Mobile"
         >
           <div className="flex flex-col gap-4">
@@ -92,7 +92,7 @@ export function LuxuryHeader() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="text-base text-luxury-frost"
+                className="text-base text-foreground"
                 onClick={() => setOpen(false)}
               >
                 {item.label}

@@ -12,17 +12,17 @@ type Props = {
 
 export function DecklistCard({ id, name, gameCode, priceCents, sellerName, rating, salesCount }: Props) {
   return (
-    <article className="rounded-xl border border-white/10 p-4">
+    <article className="rounded-xl border border-border p-4">
       <h3 className="text-lg font-semibold">{name}</h3>
-      <p className="text-sm text-luxury-mist">
+      <p className="text-sm text-muted-foreground">
         {gameCode} · ⭐ {Number(rating ?? 0).toFixed(1)} · {salesCount ?? 0} vendas
       </p>
       <p className="mt-1 text-sm">👤 {sellerName ?? "Vendedor"}</p>
       <div className="mt-3 flex items-center justify-between">
-        <span className="font-semibold text-luxury-gold">
+        <span className="font-semibold text-primary">
           {new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(priceCents / 100)}
         </span>
-        <Link href={`/marketplace/${id}`} className="rounded-lg bg-luxury-gold px-3 py-1 text-sm font-semibold text-luxury-onyx">
+        <Link href={`/marketplace/${id}`} className="rounded-lg bg-primary px-3 py-1 text-sm font-semibold text-primary-foreground">
           Ver
         </Link>
       </div>

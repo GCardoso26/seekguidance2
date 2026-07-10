@@ -16,7 +16,7 @@ export function PageSkeleton({ rows = 5, className }: { rows?: number; className
       {Array.from({ length: rows }).map((_, i) => (
         <div
           key={i}
-          className="h-16 animate-pulse rounded-xl border border-white/10 bg-white/5"
+          className="h-16 skeleton-shimmer rounded-xl border border-border"
         />
       ))}
     </div>
@@ -47,7 +47,7 @@ export function PageError({
     >
       <AlertCircle className="mx-auto h-8 w-8 text-red-400" aria-hidden />
       <h3 className="mt-3 text-lg font-semibold text-red-300">{title}</h3>
-      <p className="mt-2 text-sm text-luxury-mist">{message}</p>
+      <p className="mt-2 text-sm text-muted-foreground">{message}</p>
       {onRetry && (
         <Button type="button" className="mt-4" onClick={onRetry}>
           Tentar novamente
@@ -84,19 +84,19 @@ export function PageEmpty({
     return (
       <div
         className={cn(
-          "rounded-xl border border-dashed border-white/15 bg-white/5 p-10 text-center",
+          "rounded-xl border border-dashed border-white/15 bg-muted/50 p-10 text-center",
           className,
         )}
         data-testid="page-empty"
       >
         <p className="font-medium text-white">{title}</p>
-        {description && <p className="mt-2 text-sm text-luxury-mist">{description}</p>}
+        {description && <p className="mt-2 text-sm text-muted-foreground">{description}</p>}
         {(action || onAction) && (
           <div className="mt-4">
             {action ? (
               <Link
                 href={action.href}
-                className="inline-flex rounded-lg bg-luxury-gold px-4 py-2 text-sm font-semibold text-luxury-onyx"
+                className="inline-flex rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
               >
                 {action.label}
               </Link>
@@ -185,11 +185,11 @@ export function InlineAlert({
 export function InlineLoading({ message = "Carregando…", className }: { message?: string; className?: string }) {
   return (
     <div
-      className={cn("flex items-center justify-center gap-2 py-12 text-sm text-luxury-mist", className)}
+      className={cn("flex items-center justify-center gap-2 py-12 text-sm text-muted-foreground", className)}
       aria-busy="true"
       aria-live="polite"
     >
-      <Loader2 className="h-5 w-5 animate-spin text-luxury-gold" aria-hidden />
+      <Loader2 className="h-5 w-5 animate-spin text-primary" aria-hidden />
       <span>{message}</span>
     </div>
   );

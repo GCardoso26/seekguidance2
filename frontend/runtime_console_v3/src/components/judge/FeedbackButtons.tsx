@@ -134,7 +134,7 @@ export function FeedbackButtons({ question, gameSlug, verdict }: FeedbackButtons
           <button
             type="button"
             onClick={() => void handleCommentSubmit()}
-            className="verdict-card min-h-12 rounded-md border border-[var(--tcg-border)] px-3 text-xs font-medium hover:bg-white/5"
+            className="verdict-card min-h-12 rounded-md border border-[var(--tcg-border)] px-3 text-xs font-medium hover:bg-muted/80"
           >
             Enviar
           </button>

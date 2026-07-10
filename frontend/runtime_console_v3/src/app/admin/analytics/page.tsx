@@ -10,7 +10,7 @@ import { useBusinessAnalytics } from "@/hooks/useBusinessAnalytics";
 
 const AdminAnalyticsCharts = dynamic(
   () => import("@/components/admin/AdminAnalyticsCharts").then((m) => m.AdminAnalyticsCharts),
-  { ssr: false, loading: () => <p className="text-sm text-luxury-mist">Carregando gráficos…</p> },
+  { ssr: false, loading: () => <p className="text-sm text-muted-foreground">Carregando gráficos…</p> },
 );
 
 const qc = new QueryClient();
@@ -38,7 +38,7 @@ function AnalyticsDashboard() {
                 type="button"
                 onClick={() => setPeriod(p.id)}
                 className={`rounded-lg px-3 py-1.5 text-sm ${
-                  period === p.id ? "bg-luxury-gold/20 text-luxury-gold" : "bg-white/5 text-luxury-mist"
+                  period === p.id ? "bg-primary/20 text-primary" : "bg-muted/50 text-muted-foreground"
                 }`}
               >
                 {p.label}
@@ -102,7 +102,7 @@ function AnalyticsDashboard() {
                   <StatCard title="Buscas" value={String(data.marketplace.searches)} />
                   <StatCard title="Compras" value={String(data.marketplace.purchases)} />
                 </div>
-                <Link href="/admin/dashboard" className="inline-block text-sm text-luxury-gold hover:underline">
+                <Link href="/admin/dashboard" className="inline-block text-sm text-primary hover:underline">
                   Dashboard marketplace completo →
                 </Link>
               </>
@@ -118,10 +118,10 @@ function AnalyticsDashboard() {
 
 function StatCard({ title, value, sub }: { title: string; value: string; sub?: string }) {
   return (
-    <div className="rounded-xl border border-white/10 p-4">
-      <div className="text-2xl font-bold text-luxury-gold">{value}</div>
-      <div className="text-sm text-luxury-mist">{title}</div>
-      {sub && <div className="mt-1 text-xs text-luxury-mist/70">{sub}</div>}
+    <div className="rounded-xl border border-border p-4">
+      <div className="text-2xl font-bold text-primary">{value}</div>
+      <div className="text-sm text-muted-foreground">{title}</div>
+      {sub && <div className="mt-1 text-xs text-muted-foreground/70">{sub}</div>}
     </div>
   );
 }

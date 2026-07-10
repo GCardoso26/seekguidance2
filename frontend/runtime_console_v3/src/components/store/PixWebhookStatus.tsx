@@ -26,18 +26,18 @@ export function PixWebhookStatus({ storeId }: Props) {
   if (isLoading || !data) return null;
 
   return (
-    <div className="rounded-xl border border-white/10 bg-white/5 p-4 text-sm">
+    <div className="surface-card p-4 text-sm">
       <h3 className="font-semibold">Confirmação PIX automática</h3>
-      <p className="mt-2 text-luxury-mist">
+      <p className="mt-2 text-muted-foreground">
         Gateway: <span className="text-white">{data.gateway_provider}</span>
       </p>
-      <p className="mt-1 text-luxury-mist">
+      <p className="mt-1 text-muted-foreground">
         {data.automatic_confirmation
           ? "Pagamentos confirmados automaticamente via webhook."
           : "Modo manual — confirme pedidos PIX no dashboard após receber."}
       </p>
       {data.manual_fallback && (
-        <p className="mt-1 text-xs text-luxury-mist">Fallback manual sempre disponível.</p>
+        <p className="mt-1 text-xs text-muted-foreground">Fallback manual sempre disponível.</p>
       )}
     </div>
   );

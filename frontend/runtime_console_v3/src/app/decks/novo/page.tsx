@@ -47,7 +47,7 @@ export default function NovoDeckPage() {
     return (
       <MobileLayout>
         <main className="container mx-auto max-w-md px-4 py-16">
-          <p className="text-sm text-luxury-mist">Carregando…</p>
+          <p className="text-sm text-muted-foreground">Carregando…</p>
         </main>
       </MobileLayout>
     );
@@ -71,10 +71,10 @@ export default function NovoDeckPage() {
   return (
     <MobileLayout>
       <main className="container mx-auto max-w-md px-4 py-16">
-        <Link href="/decks" className="text-sm text-luxury-mist">
+        <Link href="/decks" className="text-sm text-muted-foreground">
           ← Meus decks
         </Link>
-        <h1 className="mt-4 text-2xl font-bold text-luxury-frost">Criar novo deck</h1>
+        <h1 className="mt-4 text-2xl font-bold text-foreground">Criar novo deck</h1>
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           <div>
             <label className="text-sm font-medium">Nome do deck</label>
@@ -82,7 +82,7 @@ export default function NovoDeckPage() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
-              className="mt-1 border-white/10 bg-luxury-obsidian"
+              className="mt-1 border-border bg-card"
             />
           </div>
           <div>
@@ -90,7 +90,7 @@ export default function NovoDeckPage() {
             <select
               value={game}
               onChange={(e) => setGame(e.target.value)}
-              className="mt-1 w-full rounded-md border border-white/10 bg-luxury-obsidian px-3 py-2 text-sm"
+              className="mt-1 w-full rounded-md border border-border bg-card px-3 py-2 text-sm"
             >
               {TOURNAMENT_GAMES.map((g) => (
                 <option key={g.slug} value={g.slug}>
@@ -104,7 +104,7 @@ export default function NovoDeckPage() {
             <select
               value={format}
               onChange={(e) => setFormat(e.target.value)}
-              className="mt-1 w-full rounded-md border border-white/10 bg-luxury-obsidian px-3 py-2 text-sm"
+              className="mt-1 w-full rounded-md border border-border bg-card px-3 py-2 text-sm"
             >
               {formats.length > 0 ? (
                 formats.map((f) => (

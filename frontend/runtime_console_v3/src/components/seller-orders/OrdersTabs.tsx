@@ -10,7 +10,7 @@ type Props = {
 
 export function OrdersTabs({ activeTab }: Props) {
   return (
-    <div className="flex flex-wrap gap-1 border-b border-white/10 pb-2" role="tablist">
+    <div className="flex flex-wrap gap-1 border-b border-border pb-2" role="tablist">
       {ORDER_TABS.map((tab) => {
         const active = tab.id === activeTab;
         const href = `/vendedor/painel/pedidos?tab=${tab.id}`;
@@ -23,8 +23,8 @@ export function OrdersTabs({ activeTab }: Props) {
             className={cn(
               "rounded-lg px-3 py-1.5 text-sm transition-colors",
               active
-                ? "bg-luxury-gold/20 text-luxury-gold"
-                : "text-luxury-mist hover:bg-white/5",
+                ? "bg-primary/20 text-primary"
+                : "text-muted-foreground hover:bg-muted/80",
             )}
           >
             {tab.label}

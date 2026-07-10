@@ -22,7 +22,7 @@ export function UserLevelBadge({ className, compact = false }: UserLevelBadgePro
   if (isLoading) {
     return (
       <div
-        className={cn("animate-pulse rounded-full bg-white/10", compact ? "h-9 w-9" : "h-12 w-full", className)}
+        className={cn("animate-pulse rounded-full bg-muted", compact ? "h-9 w-9" : "h-12 w-full", className)}
         aria-hidden
       />
     );
@@ -56,7 +56,7 @@ export function UserLevelBadge({ className, compact = false }: UserLevelBadgePro
       href="/profile/gamification"
       data-testid="user-level-badge"
       className={cn(
-        "block rounded-lg border border-white/10 bg-luxury-obsidian/80 p-4 transition hover:border-luxury-gold/30",
+        "block rounded-lg border border-border bg-card/80 p-4 transition hover:border-primary/30",
         className,
       )}
       title={tooltip}
@@ -69,18 +69,18 @@ export function UserLevelBadge({ className, compact = false }: UserLevelBadgePro
           {data.current_level}
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold text-luxury-frost">Nível {data.current_level}</p>
-          <div className="mt-1 h-2 overflow-hidden rounded-full bg-white/10">
+          <p className="text-sm font-semibold text-foreground">Nível {data.current_level}</p>
+          <div className="mt-1 h-2 overflow-hidden rounded-full bg-muted">
             <div
-              className="h-full rounded-full bg-luxury-gold transition-all duration-500"
+              className="h-full rounded-full bg-primary transition-all duration-500"
               style={{ width: `${data.progress_percent}%` }}
             />
           </div>
-          <p className="mt-1 text-xs text-luxury-mist">
+          <p className="mt-1 text-xs text-muted-foreground">
             Faltam {data.xp_to_next.toLocaleString("pt-BR")} XP para o nível {data.current_level + 1}
           </p>
         </div>
-        <span className="text-sm font-bold text-luxury-gold">
+        <span className="text-sm font-bold text-primary">
           {data.total_xp.toLocaleString("pt-BR")} XP
         </span>
       </div>

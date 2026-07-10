@@ -31,25 +31,25 @@ function UserDetailDrawer({
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/60" />
-        <Dialog.Content className="fixed inset-y-0 right-0 z-50 flex w-full max-w-lg flex-col border-l border-white/10 bg-luxury-onyx shadow-xl">
-          <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+        <Dialog.Content className="fixed inset-y-0 right-0 z-50 flex w-full max-w-lg flex-col border-l border-border bg-background shadow-xl">
+          <div className="flex items-center justify-between border-b border-border px-4 py-3">
             <Dialog.Title className="text-lg font-semibold">
               {name} — {ROLE_LABELS[user?.role ?? "operator"]}
             </Dialog.Title>
-            <Dialog.Close aria-label="Fechar" className="rounded p-1 hover:bg-white/10">
+            <Dialog.Close aria-label="Fechar" className="rounded p-1 hover:bg-muted">
               <X className="h-5 w-5" />
             </Dialog.Close>
           </div>
           {user && (
             <>
-              <div className="flex gap-1 border-b border-white/10 px-2 py-2">
+              <div className="flex gap-1 border-b border-border px-2 py-2">
                 {TABS.map((t) => (
                   <button
                     key={t}
                     type="button"
                     onClick={() => setTab(t)}
                     className={`rounded px-2 py-1 text-xs ${
-                      tab === t ? "bg-luxury-gold/20 text-luxury-gold" : "text-luxury-mist hover:bg-white/5"
+                      tab === t ? "bg-primary/20 text-primary" : "text-muted-foreground hover:bg-muted/80"
                     }`}
                   >
                     {t}
@@ -69,7 +69,7 @@ function UserDetailDrawer({
                           onChange={(e) =>
                             updateRole.mutate({ userId: user.user_id, role: e.target.value })
                           }
-                          className="mt-1 w-full rounded border border-white/10 bg-white/5 px-3 py-2"
+                          className="mt-1 w-full rounded border border-border bg-card shadow-card px-3 py-2"
                         >
                           {ROLES.map((r) => (
                             <option key={r} value={r}>
@@ -83,7 +83,7 @@ function UserDetailDrawer({
                 )}
                 {tab === "Permissões" && <UserPermissionsMatrix user={user} />}
                 {tab === "Logs" && (
-                  <p className="text-luxury-mist">Logs individuais em breve. Veja a aba Logs da equipe.</p>
+                  <p className="text-muted-foreground">Logs individuais em breve. Veja a aba Logs da equipe.</p>
                 )}
               </div>
             </>
@@ -99,13 +99,13 @@ export function TeamUsersTable() {
   const [selected, setSelected] = useState<TeamUserRow | null>(null);
   const users = data?.users ?? [];
 
-  if (isLoading) return <p className="text-sm text-luxury-mist">Carregando equipe…</p>;
+  if (isLoading) return <p className="text-sm text-muted-foreground">Carregando equipe…</p>;
 
   return (
     <>
       <table className="w-full text-sm" data-testid="team-users-table">
         <thead>
-          <tr className="border-b border-white/10 text-left text-luxury-mist">
+          <tr className="border-b border-border text-left text-muted-foreground">
             <th className="py-2 pr-4">Nome</th>
             <th className="py-2 pr-4">Função</th>
             <th className="py-2">Status</th>
@@ -115,7 +115,7 @@ export function TeamUsersTable() {
           {users.map((u) => (
             <tr
               key={u.user_id}
-              className="cursor-pointer border-b border-white/5 hover:bg-white/5"
+              className="cursor-pointer border-b border-white/5 hover:bg-muted/80"
               onClick={() => setSelected(u)}
             >
               <td className="py-2 pr-4">

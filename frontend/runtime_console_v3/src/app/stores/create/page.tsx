@@ -48,17 +48,17 @@ export default function CreateStorePage() {
   return (
     <MobileLayout>
       <div className="container mx-auto max-w-2xl px-4 py-8">
-        <Link href="/stores" className="text-sm text-luxury-mist hover:text-white">
+        <Link href="/stores" className="text-sm text-muted-foreground hover:text-white">
           ← Voltar para lojas
         </Link>
         <h1 className="mt-4 text-3xl font-bold">Cadastrar nova loja</h1>
 
         {existingStore && (
-          <div className="mt-4 rounded-lg border border-luxury-gold/30 bg-luxury-gold/10 p-4 text-sm">
+          <div className="mt-4 rounded-lg border border-primary/30 bg-primary/10 p-4 text-sm">
             <p>
               Você já tem a loja <strong>{existingStore.name}</strong> ({existingStore.slug}).
             </p>
-            <Link href="/store/dashboard?tab=pagamentos" className="mt-2 inline-block text-luxury-gold underline">
+            <Link href="/store/dashboard?tab=pagamentos" className="mt-2 inline-block text-primary underline">
               Ir para o dashboard e conectar Stripe
             </Link>
           </div>
@@ -71,13 +71,13 @@ export default function CreateStorePage() {
         )}
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-6">
-          <Card className="border-white/10 bg-white/5">
+          <Card className="border-border bg-muted/50">
             <CardHeader>
               <CardTitle>Informações básicas</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <label htmlFor="name" className="mb-1 block text-sm text-luxury-frost/90">
+                <label htmlFor="name" className="mb-1 block text-sm text-foreground/90">
                   Nome da loja *
                 </label>
                 <Input
@@ -88,17 +88,17 @@ export default function CreateStorePage() {
                     const name = e.target.value;
                     setFormData((prev) => ({ ...prev, name, slug: generateSlug(name) }));
                   }}
-                  className="border-white/10 bg-white/5"
+                  className="border-border bg-muted/50"
                   placeholder="Ex: Loja TCG Central"
                 />
               </div>
 
               <div>
-                <label htmlFor="slug" className="mb-1 block text-sm text-luxury-frost/90">
+                <label htmlFor="slug" className="mb-1 block text-sm text-foreground/90">
                   Slug (URL) *
                 </label>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-luxury-mist/70">/stores/</span>
+                  <span className="text-sm text-muted-foreground/70">/stores/</span>
                   <Input
                     id="slug"
                     required
@@ -111,13 +111,13 @@ export default function CreateStorePage() {
                     }
                     minLength={3}
                     maxLength={50}
-                    className="flex-1 border-white/10 bg-white/5"
+                    className="flex-1 border-border bg-muted/50"
                   />
                 </div>
-                <p className="mt-1 text-xs text-luxury-mist">Letras minúsculas, números e hífens (3–50 caracteres).</p>
+                <p className="mt-1 text-xs text-muted-foreground">Letras minúsculas, números e hífens (3–50 caracteres).</p>
               </div>
               <div>
-                <label htmlFor="description" className="mb-1 block text-sm text-luxury-frost/90">
+                <label htmlFor="description" className="mb-1 block text-sm text-foreground/90">
                   Descrição
                 </label>
                 <textarea
@@ -125,30 +125,30 @@ export default function CreateStorePage() {
                   value={formData.description}
                   onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
                   rows={3}
-                  className="w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm"
+                  className="w-full rounded-md border border-border bg-card shadow-card px-3 py-2 text-sm"
                 />
               </div>
             </CardContent>
           </Card>
 
-          <Card className="border-white/10 bg-white/5">
+          <Card className="border-border bg-muted/50">
             <CardHeader>
               <CardTitle>Localização e contato</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <label htmlFor="city" className="mb-1 block text-sm text-luxury-frost/90">
+                <label htmlFor="city" className="mb-1 block text-sm text-foreground/90">
                   Cidade
                 </label>
                 <Input
                   id="city"
                   value={formData.city}
                   onChange={(e) => setFormData((prev) => ({ ...prev, city: e.target.value }))}
-                  className="border-white/10 bg-white/5"
+                  className="border-border bg-muted/50"
                 />
               </div>
               <div>
-                <label htmlFor="country" className="mb-1 block text-sm text-luxury-frost/90">
+                <label htmlFor="country" className="mb-1 block text-sm text-foreground/90">
                   País *
                 </label>
                 <Input
@@ -156,11 +156,11 @@ export default function CreateStorePage() {
                   required
                   value={formData.country}
                   onChange={(e) => setFormData((prev) => ({ ...prev, country: e.target.value }))}
-                  className="border-white/10 bg-white/5"
+                  className="border-border bg-muted/50"
                 />
               </div>
               <div>
-                <label htmlFor="email" className="mb-1 block text-sm text-luxury-frost/90">
+                <label htmlFor="email" className="mb-1 block text-sm text-foreground/90">
                   E-mail *
                 </label>
                 <Input
@@ -169,13 +169,13 @@ export default function CreateStorePage() {
                   required
                   value={formData.email}
                   onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
-                  className="border-white/10 bg-white/5"
+                  className="border-border bg-muted/50"
                 />
               </div>
             </CardContent>
           </Card>
 
-          <Button type="submit" disabled={isPending} className="w-full bg-luxury-gold text-luxury-onyx">
+          <Button type="submit" disabled={isPending} className="w-full bg-primary text-primary-foreground">
             {isPending ? "Criando…" : "Cadastrar loja"}
           </Button>
         </form>

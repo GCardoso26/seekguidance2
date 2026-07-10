@@ -55,7 +55,7 @@ export function UserPermissionsMatrix({
   }
 
   if (user.is_owner) {
-    return <p className="text-sm text-luxury-mist">Proprietário tem acesso total.</p>;
+    return <p className="text-sm text-muted-foreground">Proprietário tem acesso total.</p>;
   }
 
   return (
@@ -89,14 +89,14 @@ export function UserPermissionsMatrix({
           type="button"
           onClick={save}
           disabled={updatePerms.isPending}
-          className="rounded bg-luxury-gold px-4 py-2 text-sm font-medium text-black disabled:opacity-50"
+          className="rounded bg-primary px-4 py-2 text-sm font-medium text-black disabled:opacity-50"
         >
           Salvar alterações
         </button>
         <button
           type="button"
           onClick={resetToRole}
-          className="rounded border border-white/20 px-4 py-2 text-sm hover:bg-white/5"
+          className="rounded border border-border px-4 py-2 text-sm hover:bg-muted/80"
         >
           Restaurar padrão da função
         </button>

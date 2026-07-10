@@ -179,9 +179,9 @@ export function resolveMatchDisplayStatus(match: {
 }
 
 export const MATCH_STATUS_STYLES: Record<MatchDisplayStatus, string> = {
-  pending: "border-white/10 bg-white/5",
+  pending: "border-border bg-muted/50",
   active: "border-sky-500/40 bg-sky-500/10",
-  completed: "border-white/10 bg-white/5 opacity-90",
+  completed: "border-border bg-muted/50 opacity-90",
   bye: "border-amber-500/40 bg-amber-500/10",
 };
 

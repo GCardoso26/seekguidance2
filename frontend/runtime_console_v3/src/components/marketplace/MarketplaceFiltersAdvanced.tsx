@@ -19,7 +19,7 @@ export function MarketplaceFiltersAdvanced({ filters, onChange }: Props) {
             value={filters.syntaxQuery ?? ""}
             onChange={(e) => onChange({ syntaxQuery: e.target.value || undefined, page: 1 })}
             placeholder='name:"Sol Ring" set:cmd'
-            className="w-full rounded-md border border-white/10 bg-black/20 px-3 py-2 text-sm"
+            className="w-full rounded-md border border-border bg-black/20 px-3 py-2 text-sm"
             aria-label="Busca com sintaxe"
           />
           <SearchSyntaxHelp />
@@ -67,7 +67,7 @@ export function MarketplaceFiltersAdvanced({ filters, onChange }: Props) {
                   page: 1,
                 })
               }
-              className="w-full rounded border border-white/10 bg-black/20 px-2 py-1 text-sm"
+              className="w-full rounded border border-border bg-black/20 px-2 py-1 text-sm"
             >
               <option value="any">Qualquer empresa</option>
               <option value="PSA">PSA</option>
@@ -75,7 +75,7 @@ export function MarketplaceFiltersAdvanced({ filters, onChange }: Props) {
               <option value="CGC">CGC</option>
             </select>
             <div>
-              <label className="text-xs text-luxury-mist">Nota mínima</label>
+              <label className="text-xs text-muted-foreground">Nota mínima</label>
               <input
                 type="range"
                 min={1}

@@ -12,7 +12,7 @@ export function ReviewList({ reviews, page, total, limit = 10, onPageChange }: P
   const totalPages = Math.max(1, Math.ceil(total / limit));
 
   if (reviews.length === 0) {
-    return <p className="text-sm text-luxury-mist">Nenhuma avaliação ainda.</p>;
+    return <p className="text-sm text-muted-foreground">Nenhuma avaliação ainda.</p>;
   }
 
   return (
@@ -26,18 +26,18 @@ export function ReviewList({ reviews, page, total, limit = 10, onPageChange }: P
             type="button"
             disabled={page <= 1}
             onClick={() => onPageChange(page - 1)}
-            className="rounded-lg border border-white/10 px-3 py-1 text-sm disabled:opacity-40"
+            className="rounded-lg border border-border px-3 py-1 text-sm disabled:opacity-40"
           >
             Anterior
           </button>
-          <span className="px-2 py-1 text-sm text-luxury-mist">
+          <span className="px-2 py-1 text-sm text-muted-foreground">
             {page} / {totalPages}
           </span>
           <button
             type="button"
             disabled={page >= totalPages}
             onClick={() => onPageChange(page + 1)}
-            className="rounded-lg border border-white/10 px-3 py-1 text-sm disabled:opacity-40"
+            className="rounded-lg border border-border px-3 py-1 text-sm disabled:opacity-40"
           >
             Próxima
           </button>

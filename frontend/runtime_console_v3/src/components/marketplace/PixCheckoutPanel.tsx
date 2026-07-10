@@ -28,7 +28,7 @@ export function PixCheckoutPanel({ pix }: Props) {
 
   return (
     <div className="space-y-4 text-center">
-      <p className="text-sm text-luxury-mist">
+      <p className="text-sm text-muted-foreground">
         Pagamento PIX para <strong>{pix.store_name}</strong> — {formatShopPrice(pix.amount_cents)}
       </p>
       {pix.qr_code && (
@@ -37,8 +37,8 @@ export function PixCheckoutPanel({ pix }: Props) {
           <img src={pix.qr_code} alt="QR Code PIX" width={220} height={220} />
         </div>
       )}
-      <p className="text-xs text-luxury-mist">Identificador: {pix.txid}</p>
-      <div className="rounded-lg border border-white/10 bg-white/5 p-3 text-left text-xs whitespace-pre-wrap break-all">
+      <p className="text-xs text-muted-foreground">Identificador: {pix.txid}</p>
+      <div className="surface-card rounded-lg p-3 text-left text-xs whitespace-pre-wrap break-all">
         {pix.copy_payload}
       </div>
       <button
@@ -48,7 +48,7 @@ export function PixCheckoutPanel({ pix }: Props) {
       >
         {copied ? "Copiado!" : "Copiar dados PIX"}
       </button>
-      <p className="text-xs text-luxury-mist">
+      <p className="text-xs text-muted-foreground">
         Após pagar, o lojista confirma o recebimento. Expira às {new Date(pix.expires_at).toLocaleTimeString("pt-BR")}.
       </p>
     </div>

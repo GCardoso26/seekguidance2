@@ -18,7 +18,7 @@ function AdminDashboard() {
         description="Visão geral da plataforma e atalhos operacionais."
       />
 
-      {isLoading && <p className="text-luxury-mist">Carregando…</p>}
+      {isLoading && <p className="text-muted-foreground">Carregando…</p>}
       {isError && <p className="text-red-400">Não foi possível carregar estatísticas.</p>}
 
       {d && (
@@ -36,28 +36,28 @@ function AdminDashboard() {
           </div>
 
           <div className="grid gap-6 lg:grid-cols-2">
-            <section className="rounded-xl border border-white/10 p-4">
+            <section className="rounded-xl border border-border p-4">
               <h2 className="font-semibold">Retenção e funil</h2>
-              <p className="mt-2 text-sm text-luxury-mist">WAU/MAU, conversão e Liga Pass.</p>
-              <Link href="/admin/retention" className="mt-3 inline-block text-sm text-luxury-gold hover:underline">
+              <p className="mt-2 text-sm text-muted-foreground">WAU/MAU, conversão e Liga Pass.</p>
+              <Link href="/admin/retention" className="mt-3 inline-block text-sm text-primary hover:underline">
                 Abrir retenção →
               </Link>
             </section>
-            <section className="rounded-xl border border-white/10 p-4">
+            <section className="rounded-xl border border-border p-4">
               <h2 className="font-semibold">Dashboard marketplace</h2>
-              <p className="mt-2 text-sm text-luxury-mist">GMV, conversão, top cartas e eventos.</p>
-              <Link href="/admin/dashboard" className="mt-3 inline-block text-sm text-luxury-gold hover:underline">
+              <p className="mt-2 text-sm text-muted-foreground">GMV, conversão, top cartas e eventos.</p>
+              <Link href="/admin/dashboard" className="mt-3 inline-block text-sm text-primary hover:underline">
                 Abrir dashboard →
               </Link>
             </section>
-            <section className="rounded-xl border border-white/10 p-4">
+            <section className="rounded-xl border border-border p-4">
               <h2 className="font-semibold">Analytics de negócio</h2>
-              <p className="mt-2 text-sm text-luxury-mist">Conversão, churn, LTV e TCGs mais consultados.</p>
-              <Link href="/admin/analytics" className="mt-3 inline-block text-sm text-luxury-gold hover:underline">
+              <p className="mt-2 text-sm text-muted-foreground">Conversão, churn, LTV e TCGs mais consultados.</p>
+              <Link href="/admin/analytics" className="mt-3 inline-block text-sm text-primary hover:underline">
                 Abrir analytics →
               </Link>
             </section>
-            <section className="rounded-xl border border-white/10 p-4">
+            <section className="rounded-xl border border-border p-4">
               <h2 className="font-semibold">Torneios ativos</h2>
               <ul className="mt-3 space-y-2 text-sm">
                 {((d.activeTournaments as Array<Record<string, unknown>>) ?? []).map((t) => (
@@ -67,7 +67,7 @@ function AdminDashboard() {
                 ))}
               </ul>
             </section>
-            <section className="rounded-xl border border-white/10 p-4">
+            <section className="rounded-xl border border-border p-4">
               <h2 className="font-semibold">Usuários recentes</h2>
               <ul className="mt-3 space-y-2 text-sm">
                 {((d.recentUsers as Array<Record<string, unknown>>) ?? []).map((u) => (
@@ -84,9 +84,9 @@ function AdminDashboard() {
 
 function StatCard({ title, value }: { title: string; value: string }) {
   return (
-    <div className="rounded-xl border border-white/10 p-4">
-      <div className="text-2xl font-bold text-luxury-gold">{value}</div>
-      <div className="text-sm text-luxury-mist">{title}</div>
+    <div className="rounded-xl border border-border p-4">
+      <div className="text-2xl font-bold text-primary">{value}</div>
+      <div className="text-sm text-muted-foreground">{title}</div>
     </div>
   );
 }

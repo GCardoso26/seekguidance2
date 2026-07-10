@@ -8,7 +8,7 @@ import { PageSkeleton } from "@/components/seller-dashboard/PageShell";
 const SEVERITY_STYLES = {
   critical: "border-red-500/40 bg-red-500/10",
   warning: "border-amber-500/40 bg-amber-500/10",
-  info: "border-white/10 bg-white/[0.04]",
+  info: "border-border bg-white/[0.04]",
 };
 
 type Props = {
@@ -37,11 +37,11 @@ export function OperationalCommandCenter({ actions, isLoading, compact }: Props)
   return (
     <section data-testid="command-center">
       <div className="mb-3 flex items-center justify-between gap-2">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-luxury-mist">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
           O que fazer agora
         </h2>
         {!compact && (
-          <Link href="/vendedor/painel/operacao" className="text-xs text-luxury-gold hover:underline">
+          <Link href="/vendedor/painel/operacao" className="text-xs text-primary hover:underline">
             Centro de operação →
           </Link>
         )}
@@ -56,22 +56,22 @@ export function OperationalCommandCenter({ actions, isLoading, compact }: Props)
           <article
             key={item.id}
             className={cn(
-              "flex flex-col justify-between rounded-xl border p-4 transition hover:border-luxury-gold/30",
+              "flex flex-col justify-between rounded-xl border p-4 transition hover:border-primary/30",
               SEVERITY_STYLES[item.severity],
             )}
           >
             <div>
               <div className="flex items-start justify-between gap-2">
-                <h3 className="font-semibold text-luxury-frost">{item.title}</h3>
+                <h3 className="font-semibold text-foreground">{item.title}</h3>
                 <span className="shrink-0 rounded-full bg-black/20 px-2 py-0.5 text-sm font-bold tabular-nums">
                   {item.count}
                 </span>
               </div>
-              <p className="mt-1 text-xs text-luxury-mist">{item.description}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{item.description}</p>
             </div>
             <Link
               href={item.href}
-              className="mt-3 inline-flex w-fit rounded-lg bg-luxury-gold px-3 py-1.5 text-xs font-semibold text-luxury-onyx transition hover:bg-luxury-gold-light"
+              className="mt-3 inline-flex w-fit rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground transition hover:bg-primary/90-light"
             >
               {item.cta}
             </Link>

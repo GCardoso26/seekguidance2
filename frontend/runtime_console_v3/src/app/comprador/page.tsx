@@ -6,7 +6,7 @@ import { MobileLayout } from "@/components/layout/MobileLayout";
 const BuyerDashboardPage = dynamic(
   () => import("@/components/buyer/BuyerDashboardPage").then((m) => m.BuyerDashboardPage),
   {
-    loading: () => <p className="text-sm text-luxury-mist">Carregando painel…</p>,
+    loading: () => <p className="text-sm text-muted-foreground">Carregando painel…</p>,
     ssr: false,
   },
 );

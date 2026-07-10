@@ -77,8 +77,8 @@ export function EmptyTableState({ tcg, tcgSelected = true, onExampleClick }: Pro
       </p>
 
       {option && !option.enabled && (
-        <div className="mb-4 rounded-lg border border-luxury-gold/30 bg-luxury-gold/10 px-4 py-2">
-          <p className="text-xs text-luxury-gold-light">Este jogo estará disponível em breve.</p>
+        <div className="mb-4 rounded-lg border border-primary/30 bg-primary/10 px-4 py-2">
+          <p className="text-xs text-primary-light">Este jogo estará disponível em breve.</p>
         </div>
       )}
 
@@ -90,15 +90,15 @@ export function EmptyTableState({ tcg, tcgSelected = true, onExampleClick }: Pro
                 type="button"
                 onClick={() => onExampleClick(q)}
                 className={cn(
-                  "judge-card flex w-full items-start gap-3 rounded-xl border border-white/10/50 bg-luxury-obsidian/80 p-3 text-left transition",
-                  "hover:border-[var(--tcg-border)] hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-luxury-gold/40",
+                  "judge-card flex w-full items-start gap-3 rounded-xl border border-border/50 bg-card/80 p-3 text-left transition",
+                  "hover:border-[var(--tcg-border)] hover:bg-muted/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-luxury-gold/40",
                 )}
               >
                 <MessageCircle
                   className="mt-0.5 h-4 w-4 shrink-0 text-[var(--tcg-primary-light)]"
                   aria-hidden
                 />
-                <span className="text-sm text-luxury-frost">{q}</span>
+                <span className="text-sm text-foreground">{q}</span>
               </button>
             </li>
           ))}

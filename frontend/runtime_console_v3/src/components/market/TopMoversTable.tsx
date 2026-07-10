@@ -27,17 +27,17 @@ function MoverList({
   positive?: boolean;
 }) {
   return (
-    <div className="rounded-xl border border-white/10 bg-luxury-obsidian p-4">
-      <h3 className="mb-3 font-semibold text-luxury-frost">{title}</h3>
+    <div className="rounded-xl border border-border bg-card p-4">
+      <h3 className="mb-3 font-semibold text-foreground">{title}</h3>
       {items.length === 0 ? (
-        <p className="text-sm text-luxury-mist">Sem dados suficientes.</p>
+        <p className="text-sm text-muted-foreground">Sem dados suficientes.</p>
       ) : (
         <ul className="space-y-2">
           {items.map((item) => (
             <li key={item.cardId}>
               <a
                 href={`/loja/cartas/${item.cardId}`}
-                className="flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-sm hover:bg-white/5"
+                className="flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-sm hover:bg-muted/80"
               >
                 <span className="truncate">{item.name}</span>
                 <span
@@ -55,7 +55,7 @@ function MoverList({
           ))}
         </ul>
       )}
-      <a href={`/loja/${game}`} className="mt-3 inline-block text-xs text-luxury-gold">
+      <a href={`/loja/${game}`} className="mt-3 inline-block text-xs text-primary">
         Ver loja {game.toUpperCase()} →
       </a>
     </div>

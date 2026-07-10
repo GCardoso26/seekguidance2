@@ -46,7 +46,7 @@ export function PdvPaymentPanel({
   ];
 
   return (
-    <div className="rounded-xl border border-white/10 bg-white/5 p-4" data-testid="pdv-payment-panel">
+    <div className="surface-card p-4" data-testid="pdv-payment-panel">
       <div className="mb-3 flex gap-1 rounded-lg bg-black/30 p-1" data-testid="pdv-payment-tabs">
         {tabs.map((t) => (
           <button
@@ -54,7 +54,7 @@ export function PdvPaymentPanel({
             type="button"
             onClick={() => setTab(t.id)}
             className={`flex-1 rounded-md px-2 py-1.5 text-xs font-semibold transition ${
-              tab === t.id ? "bg-luxury-gold text-luxury-onyx" : "text-luxury-mist hover:bg-white/5"
+              tab === t.id ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted/80"
             }`}
             data-testid={`pdv-payment-tab-${t.id}`}
           >
@@ -63,13 +63,13 @@ export function PdvPaymentPanel({
         ))}
       </div>
 
-      <p className="mb-3 text-sm text-luxury-mist">
+      <p className="mb-3 text-sm text-muted-foreground">
         Total a receber: <strong className="text-white">{formatShopPrice(total)}</strong>
       </p>
 
       {tab === "cash" && (
         <div className="space-y-3">
-          <p className="text-sm text-luxury-mist">Registre a venda em dinheiro após receber o valor.</p>
+          <p className="text-sm text-muted-foreground">Registre a venda em dinheiro após receber o valor.</p>
           <Button
             type="button"
             className="w-full"
@@ -100,10 +100,10 @@ export function PdvPaymentPanel({
 
       {tab === "card" && (
         <div className="space-y-3">
-          <p className="text-sm text-luxury-mist">
+          <p className="text-sm text-muted-foreground">
             Cobre na maquininha externa e registre a venda aqui (sem integração TEF).
           </p>
-          <label className="block text-xs text-luxury-mist">
+          <label className="block text-xs text-muted-foreground">
             Valor aprovado (opcional)
             <Input
               type="number"
@@ -111,7 +111,7 @@ export function PdvPaymentPanel({
               min="0"
               value={cardAmount}
               onChange={(e) => setCardAmount(e.target.value)}
-              className="mt-1 border-white/10 bg-black/30"
+              className="mt-1 border-border bg-black/30"
               placeholder={String((total / 100).toFixed(2))}
               data-testid="pdv-card-amount"
             />
@@ -120,7 +120,7 @@ export function PdvPaymentPanel({
             value={cardNotes}
             onChange={(e) => setCardNotes(e.target.value)}
             placeholder="NSU / bandeira (opcional)"
-            className="border-white/10 bg-black/30"
+            className="border-border bg-black/30"
             data-testid="pdv-card-notes"
           />
           <Button

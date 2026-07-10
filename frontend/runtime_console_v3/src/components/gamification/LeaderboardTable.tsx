@@ -42,8 +42,8 @@ export function LeaderboardTable() {
             className={cn(
               "rounded-full px-3 py-1 text-xs font-medium transition",
               scope === s
-                ? "bg-luxury-gold text-luxury-onyx"
-                : "bg-white/5 text-luxury-mist hover:bg-white/10",
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted/50 text-muted-foreground hover:bg-muted",
             )}
           >
             {s === "global" ? "Global" : s === "city" ? "Por cidade" : "Por jogo"}
@@ -55,7 +55,7 @@ export function LeaderboardTable() {
         <select
           value={city}
           onChange={(e) => setCity(e.target.value)}
-          className="mt-3 rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm text-luxury-frost"
+          className="mt-3 rounded-lg border border-border bg-black/30 px-3 py-2 text-sm text-foreground"
         >
           {CITIES.map((c) => (
             <option key={c} value={c}>
@@ -69,7 +69,7 @@ export function LeaderboardTable() {
         <select
           value={game}
           onChange={(e) => setGame(e.target.value)}
-          className="mt-3 rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm text-luxury-frost"
+          className="mt-3 rounded-lg border border-border bg-black/30 px-3 py-2 text-sm text-foreground"
         >
           {GAMES.map((g) => (
             <option key={g} value={g}>
@@ -80,11 +80,11 @@ export function LeaderboardTable() {
       )}
 
       {isLoading ? (
-        <p className="mt-6 text-sm text-luxury-mist">Carregando ranking…</p>
+        <p className="mt-6 text-sm text-muted-foreground">Carregando ranking…</p>
       ) : (
-        <div className="mt-6 overflow-x-auto rounded-xl border border-white/10">
+        <div className="mt-6 overflow-x-auto rounded-xl border border-border">
           <table className="w-full min-w-[480px] text-left text-sm">
-            <thead className="border-b border-white/10 bg-white/5 text-xs uppercase text-luxury-mist">
+            <thead className="border-b border-border bg-muted/50 text-xs uppercase text-muted-foreground">
               <tr>
                 <th className="px-4 py-3">#</th>
                 <th className="px-4 py-3">Jogador</th>
@@ -102,12 +102,12 @@ export function LeaderboardTable() {
                     data-testid={row.rank <= 10 ? `leaderboard-row-${row.rank}` : undefined}
                     className={cn(
                       "border-b border-white/5",
-                      isMe && "bg-luxury-gold/10",
+                      isMe && "bg-primary/10",
                     )}
                   >
                     <td className="px-4 py-3 font-medium">{rankEmoji(row.rank)}</td>
                     <td className="px-4 py-3">
-                      <span className={cn(isMe && "font-semibold text-luxury-gold")}>
+                      <span className={cn(isMe && "font-semibold text-primary")}>
                         {row.display_name}
                         {isMe ? " (você)" : ""}
                       </span>
@@ -124,8 +124,8 @@ export function LeaderboardTable() {
       )}
 
       {data?.my_rank != null && (
-        <p className="mt-3 text-sm text-luxury-mist">
-          Sua posição: <span className="font-semibold text-luxury-gold">#{data.my_rank}</span>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Sua posição: <span className="font-semibold text-primary">#{data.my_rank}</span>
         </p>
       )}
     </div>

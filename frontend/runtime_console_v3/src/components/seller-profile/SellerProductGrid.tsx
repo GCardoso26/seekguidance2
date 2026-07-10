@@ -19,26 +19,26 @@ function SellerProductCard({ product }: { product: SellerProduct }) {
   return (
     <Link
       href={`/marketplace/product/${product.id}`}
-      className="flex flex-col overflow-hidden rounded-xl border border-white/10 bg-luxury-obsidian/50 transition hover:border-luxury-gold/30"
+      className="flex flex-col overflow-hidden rounded-xl border border-border bg-card/50 transition hover:border-primary/30"
     >
-      <div className="flex h-36 items-center justify-center bg-white/5 p-3">
+      <div className="flex h-36 items-center justify-center bg-muted/50 p-3">
         {product.image_url ? (
           <Image src={product.image_url} alt="" width={100} height={140} className="max-h-32 object-contain" />
         ) : (
-          <span className="text-xs text-luxury-mist">Sem imagem</span>
+          <span className="text-xs text-muted-foreground">Sem imagem</span>
         )}
       </div>
       <div className="flex flex-1 flex-col p-3">
-        <p className="line-clamp-2 text-sm font-medium text-luxury-frost">{name}</p>
+        <p className="line-clamp-2 text-sm font-medium text-foreground">{name}</p>
         {product.expansion && (
-          <p className="mt-1 text-xs text-luxury-mist">
+          <p className="mt-1 text-xs text-muted-foreground">
             {product.expansion.code.toUpperCase()} · {product.expansion.name_en}
           </p>
         )}
-        <p className="mt-2 text-lg font-bold text-luxury-gold">
+        <p className="mt-2 text-lg font-bold text-primary">
           {formatCurrency(product.price.cents / 100, product.price.currency)}
         </p>
-        <p className="text-xs text-luxury-mist">
+        <p className="text-xs text-muted-foreground">
           {product.condition} · Qtd {product.quantity}
           {product.foil && " · Foil"}
           {product.graded && " · Graduada"}
@@ -68,12 +68,12 @@ export function SellerProductGrid({ username, filters }: Props) {
   }
 
   if (products.length === 0) {
-    return <p className="text-luxury-mist">Nenhum produto encontrado com estes filtros.</p>;
+    return <p className="text-muted-foreground">Nenhum produto encontrado com estes filtros.</p>;
   }
 
   return (
     <div>
-      <p className="mb-4 text-sm text-luxury-mist">{total} produto(s)</p>
+      <p className="mb-4 text-sm text-muted-foreground">{total} produto(s)</p>
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
         {products.map((p) => (
           <SellerProductCard key={p.id} product={p} />

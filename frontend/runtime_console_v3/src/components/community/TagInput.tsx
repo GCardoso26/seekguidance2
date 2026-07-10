@@ -42,7 +42,7 @@ export function TagInput({ tags, onChange, max = 5 }: Props) {
         {tags.map((tag) => (
           <span
             key={tag}
-            className="inline-flex items-center gap-1 rounded-full bg-luxury-gold/15 px-2 py-0.5 text-xs text-luxury-gold-light"
+            className="inline-flex items-center gap-1 rounded-full bg-primary/15 px-2 py-0.5 text-xs text-primary-light"
           >
             #{tag}
             <button type="button" aria-label={`Remover ${tag}`} onClick={() => onChange(tags.filter((t) => t !== tag))}>
@@ -62,10 +62,10 @@ export function TagInput({ tags, onChange, max = 5 }: Props) {
               addTag(input);
             }
           }}
-          className="border-white/10 bg-white/5"
+          className="border-border bg-muted/50"
         />
         {suggestions.length > 0 && (
-          <ul className="absolute z-10 mt-1 w-full rounded-lg border border-white/10 bg-luxury-obsidian py-1 shadow-lg">
+          <ul className="absolute z-10 mt-1 w-full rounded-lg border border-border bg-card py-1 shadow-lg">
             {suggestions
               .filter((s) => !tags.includes(s))
               .slice(0, 6)
@@ -73,7 +73,7 @@ export function TagInput({ tags, onChange, max = 5 }: Props) {
                 <li key={s}>
                   <button
                     type="button"
-                    className="block w-full px-3 py-1.5 text-left text-sm hover:bg-white/5"
+                    className="block w-full px-3 py-1.5 text-left text-sm hover:bg-muted/80"
                     onClick={() => addTag(s)}
                   >
                     #{s}

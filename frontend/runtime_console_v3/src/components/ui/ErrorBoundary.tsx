@@ -30,7 +30,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     if (this.state.hasError) {
       return (
         this.props.fallback ?? (
-          <div className="flex min-h-[40vh] items-center justify-center bg-luxury-onyx p-6">
+          <div className="flex min-h-[40vh] items-center justify-center bg-background p-6">
             <PageError
               title="Algo deu errado"
               message="Ocorreu um erro inesperado. Recarregue a página ou tente novamente em instantes."

@@ -33,7 +33,7 @@ export function DraggableSearchCard({
       {...attributes}
       onClick={onClick}
       className={cn(
-        "relative aspect-[63/88] w-full overflow-hidden rounded-lg border border-white/10 bg-white/5",
+        "relative aspect-[63/88] w-full overflow-hidden surface-card rounded-lg",
         isDragging && "opacity-40",
       )}
       aria-label={`Adicionar ${card.name} ao deck`}

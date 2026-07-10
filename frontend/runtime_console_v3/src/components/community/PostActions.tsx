@@ -65,8 +65,8 @@ export function PostActions({ post }: Props) {
 
   return (
     <>
-      <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-luxury-mist">
-        <button type="button" onClick={() => void share()} className="inline-flex min-h-[44px] items-center gap-1 hover:text-luxury-gold focus-visible:ring-2 focus-visible:ring-luxury-gold" aria-label="Compartilhar post">
+      <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+        <button type="button" onClick={() => void share()} className="inline-flex min-h-[44px] items-center gap-1 hover:text-primary focus-visible:ring-2 focus-visible:ring-luxury-gold" aria-label="Compartilhar post">
           <Share2 className="h-3.5 w-3.5" strokeWidth={1.5} />
           Compartilhar
         </button>
@@ -74,7 +74,7 @@ export function PostActions({ post }: Props) {
           type="button"
           onClick={() => save.mutate()}
           disabled={save.isPending}
-          className="inline-flex items-center gap-1 hover:text-luxury-gold"
+          className="inline-flex items-center gap-1 hover:text-primary"
         >
           <Bookmark className="h-3.5 w-3.5" strokeWidth={1.5} />
           Salvar
@@ -91,7 +91,7 @@ export function PostActions({ post }: Props) {
           <Link
             key={tag}
             href={`/social/communities?tag=${encodeURIComponent(tag)}`}
-            className="rounded-full bg-white/5 px-2 py-0.5 hover:text-luxury-gold"
+            className="rounded-full bg-muted/50 px-2 py-0.5 hover:text-primary"
           >
             #{tag}
           </Link>
@@ -101,7 +101,7 @@ export function PostActions({ post }: Props) {
       {reportOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
           <div className="luxury-card w-full max-w-sm rounded-xl p-5">
-            <h3 className="font-medium text-luxury-frost">Denunciar post</h3>
+            <h3 className="font-medium text-foreground">Denunciar post</h3>
             <div className="mt-3 space-y-2">
               {REPORT_REASONS.map((r) => (
                 <label key={r.id} className="flex items-center gap-2 text-sm">
@@ -111,7 +111,7 @@ export function PostActions({ post }: Props) {
               ))}
             </div>
             <div className="mt-4 flex gap-2">
-              <Button variant="outline" className="flex-1 border-white/10" onClick={() => setReportOpen(false)}>
+              <Button variant="outline" className="flex-1 border-border" onClick={() => setReportOpen(false)}>
                 Cancelar
               </Button>
               <Button

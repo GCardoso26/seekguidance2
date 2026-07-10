@@ -58,13 +58,13 @@ export function CollectionImportCsv() {
   }
 
   return (
-    <div className="rounded-xl border border-white/10 bg-white/5 p-4" data-testid="collection-import-csv">
+    <div className="surface-card p-4" data-testid="collection-import-csv">
       <h2 className="flex items-center gap-2 text-sm font-semibold">
         <Upload className="h-4 w-4" aria-hidden />
         Importar CSV
       </h2>
-      <p className="mt-1 text-xs text-luxury-mist">
-        Cabeçalho: <code className="text-luxury-gold">card_id,quantity</code>. Também é possível importar deck pelo Deck Builder.
+      <p className="mt-1 text-xs text-muted-foreground">
+        Cabeçalho: <code className="text-primary">card_id,quantity</code>. Também é possível importar deck pelo Deck Builder.
       </p>
       <input
         ref={inputRef}
@@ -87,7 +87,7 @@ export function CollectionImportCsv() {
       >
         {busy ? "Importando…" : "Selecionar CSV"}
       </Button>
-      {report && <p className="mt-2 text-xs text-luxury-mist">{report}</p>}
+      {report && <p className="mt-2 text-xs text-muted-foreground">{report}</p>}
     </div>
   );
 }

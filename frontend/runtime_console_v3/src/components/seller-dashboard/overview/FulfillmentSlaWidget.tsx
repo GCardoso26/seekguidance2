@@ -47,7 +47,7 @@ export function FulfillmentSlaWidget({ sla }: Props) {
     return (
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="h-20 animate-pulse rounded-xl bg-white/5" />
+          <div key={i} className="h-20 animate-pulse rounded-xl bg-muted/50" />
         ))}
       </div>
     );
@@ -64,7 +64,7 @@ export function FulfillmentSlaWidget({ sla }: Props) {
 
   return (
     <section aria-label="SLAs de fulfillment">
-      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-luxury-mist">
+      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
         SLAs operacionais
       </h2>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

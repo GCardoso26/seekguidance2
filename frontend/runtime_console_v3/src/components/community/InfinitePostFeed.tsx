@@ -52,9 +52,9 @@ export function InfinitePostFeed({ sort, period, tag, following, communityId }: 
 
   if (posts.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-white/10 p-10 text-center">
-        <p className="text-luxury-mist">Nenhum post ainda. Seja o primeiro!</p>
-        <p className="mt-2 text-sm text-luxury-mist/70">Compartilhe deck tech, resultados de torneio ou dúvidas de regras.</p>
+      <div className="rounded-xl border border-dashed border-border p-10 text-center">
+        <p className="text-muted-foreground">Nenhum post ainda. Seja o primeiro!</p>
+        <p className="mt-2 text-sm text-muted-foreground/70">Compartilhe deck tech, resultados de torneio ou dúvidas de regras.</p>
       </div>
     );
   }

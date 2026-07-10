@@ -8,7 +8,7 @@ const LABELS: Record<SellerCouponStatus, string> = {
 
 const COLORS: Record<SellerCouponStatus, string> = {
   active: "bg-emerald-500/20 text-emerald-200",
-  inactive: "bg-white/10 text-luxury-mist",
+  inactive: "bg-muted text-muted-foreground",
   expired: "bg-red-500/20 text-red-200",
 };
 

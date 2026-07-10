@@ -55,7 +55,7 @@ function SortableWishlistRow({
     >
       <button
         type="button"
-        className="flex w-fit items-center gap-1 text-xs text-luxury-mist"
+        className="flex w-fit items-center gap-1 text-xs text-muted-foreground"
         aria-label="Arrastar para reordenar"
         {...attributes}
         {...listeners}
@@ -158,7 +158,7 @@ export function WishlistPage() {
   }
 
   if (loading) {
-    return <p className="text-sm text-luxury-mist">Carregando wishlist…</p>;
+    return <p className="text-sm text-muted-foreground">Carregando wishlist…</p>;
   }
 
   const totalCount = wishlistV2 ? backendLists.reduce((s, l) => s + l.item_count, 0) : flatItems.length;
@@ -166,17 +166,17 @@ export function WishlistPage() {
   if (totalCount === 0 && items.length === 0) {
     return (
       <div
-        className="rounded-xl border border-dashed border-white/20 p-10 text-center"
+        className="rounded-xl border border-dashed border-border p-10 text-center"
         data-testid="wishlist-empty"
       >
-        <p className="text-lg font-semibold text-luxury-frost">Sua wishlist está vazia</p>
-        <p className="mt-2 text-sm text-luxury-mist">
+        <p className="text-lg font-semibold text-foreground">Sua wishlist está vazia</p>
+        <p className="mt-2 text-sm text-muted-foreground">
           Salve produtos no marketplace para acompanhar depois. Configure alertas de preço, estoque e lojas
           confiáveis.
         </p>
         <Link
           href="/loja"
-          className="mt-6 inline-block rounded-lg bg-luxury-gold px-6 py-3 text-sm font-semibold text-luxury-onyx"
+          className="mt-6 inline-block rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground"
         >
           Explorar marketplace
         </Link>
@@ -189,7 +189,7 @@ export function WishlistPage() {
       <SkipToMain />
       <div className="space-y-6" id="main-content" data-testid="wishlist-page-content">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm text-luxury-mist">
+        <p className="text-sm text-muted-foreground">
           {totalCount} produto{totalCount === 1 ? "" : "s"} salvos · listas inteligentes
           {wishlistV2 ? " (backend)" : ""}
         </p>
@@ -214,7 +214,7 @@ export function WishlistPage() {
           </Button>
           <Link
             href="/wishlist/alerts"
-            className="text-sm text-luxury-gold hover:underline self-center"
+            className="text-sm text-primary hover:underline self-center"
             data-testid="wishlist-alerts-link"
           >
             Alertas de preço / estoque →
@@ -232,8 +232,8 @@ export function WishlistPage() {
             onClick={() => setActiveList(list.id)}
             className={`rounded-full border px-3 py-1 text-xs transition ${
               activeList === list.id
-                ? "border-luxury-gold bg-luxury-gold/20 text-luxury-gold"
-                : "border-white/15 text-luxury-mist"
+                ? "border-luxury-gold bg-primary/20 text-primary"
+                : "border-white/15 text-muted-foreground"
             }`}
           >
             {list.name}
@@ -260,7 +260,7 @@ export function WishlistPage() {
             value={newListName}
             onChange={(e) => setNewListName(e.target.value)}
             placeholder="Nova lista"
-            className="h-8 w-36 border-white/10 bg-luxury-obsidian text-xs"
+            className="h-8 w-36 border-border bg-card text-xs"
             aria-label="Nome da nova lista"
           />
           <Button type="submit" size="sm" variant="outline">
@@ -286,7 +286,7 @@ export function WishlistPage() {
                         <Button
                           type="button"
                           size="sm"
-                          className="flex-1 bg-luxury-gold text-luxury-onyx hover:bg-luxury-gold/90"
+                          className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
                           onClick={() => void handleAddToCart(item.product_id)}
                           data-testid={`wishlist-add-cart-${item.product_id}`}
                         >
@@ -296,7 +296,7 @@ export function WishlistPage() {
                           type="button"
                           size="sm"
                           variant="outline"
-                          className="border-white/20"
+                          className="border-border"
                           disabled={remove.isPending}
                           onClick={() => {
                             void trackEvent("wishlist_remove", { product_id: item.product_id });
@@ -323,7 +323,7 @@ export function WishlistPage() {
                 <Button
                   type="button"
                   size="sm"
-                  className="flex-1 bg-luxury-gold text-luxury-onyx hover:bg-luxury-gold/90"
+                  className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
                   onClick={() => void handleAddToCart(item.product_id)}
                   data-testid={`wishlist-add-cart-${item.product_id}`}
                 >
@@ -333,7 +333,7 @@ export function WishlistPage() {
                   type="button"
                   size="sm"
                   variant="outline"
-                  className="border-white/20"
+                  className="border-border"
                   onClick={() => {
                     addProductToList(activeList, item.product_id);
                     showToast(`Salvo em “${lists.find((l) => l.id === activeList)?.name ?? "lista"}”`, "success");
@@ -345,7 +345,7 @@ export function WishlistPage() {
                   type="button"
                   size="sm"
                   variant="outline"
-                  className="border-white/20"
+                  className="border-border"
                   disabled={remove.isPending}
                   onClick={() => {
                     void trackEvent("wishlist_remove", { product_id: item.product_id });
@@ -361,7 +361,7 @@ export function WishlistPage() {
         </div>
       )}
       {items.length === 0 && (
-        <p className="text-sm text-luxury-mist">Nenhum item nesta lista. Use “+ Lista” nos favoritos.</p>
+        <p className="text-sm text-muted-foreground">Nenhum item nesta lista. Use “+ Lista” nos favoritos.</p>
       )}
       </div>
     </>

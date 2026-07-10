@@ -68,7 +68,7 @@ export function HeaderNotificationsDropdown() {
 
           type="button"
 
-          className="relative flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg border border-white/10 bg-white/5 hover:bg-white/10"
+          className="relative flex min-h-[44px] min-w-[44px] items-center justify-center surface-card rounded-lg hover:bg-muted"
 
           aria-label={`Notificações${total > 0 ? `, ${total} não lidas` : ""}`}
 
@@ -102,7 +102,7 @@ export function HeaderNotificationsDropdown() {
 
         <DropdownMenu.Content
 
-          className="z-[62] w-80 rounded-xl border border-white/10 bg-luxury-onyx p-0 shadow-xl"
+          className="z-[62] w-80 rounded-xl border border-border bg-background p-0 shadow-xl"
 
           sideOffset={8}
 
@@ -110,7 +110,7 @@ export function HeaderNotificationsDropdown() {
 
         >
 
-          <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+          <div className="flex items-center justify-between border-b border-border px-4 py-3">
 
             <h3 className="font-semibold">
 
@@ -118,7 +118,7 @@ export function HeaderNotificationsDropdown() {
 
             </h3>
 
-            <Link href="/vendedor/painel/inbox" className="text-xs text-luxury-gold hover:underline">
+            <Link href="/vendedor/painel/inbox" className="text-xs text-primary hover:underline">
 
               Inbox →
 
@@ -128,11 +128,11 @@ export function HeaderNotificationsDropdown() {
 
           <div className="max-h-80 overflow-y-auto p-2" data-testid="header-notifications-panel">
 
-            {isLoading && <p className="p-3 text-sm text-luxury-mist">Carregando…</p>}
+            {isLoading && <p className="p-3 text-sm text-muted-foreground">Carregando…</p>}
 
             {!isLoading && categories.length === 0 && (
 
-              <p className="p-3 text-sm text-luxury-mist">Nenhuma notificação pendente.</p>
+              <p className="p-3 text-sm text-muted-foreground">Nenhuma notificação pendente.</p>
 
             )}
 
@@ -142,7 +142,7 @@ export function HeaderNotificationsDropdown() {
 
                 key={cat.type}
 
-                className={`mb-2 rounded-lg p-3 ${cat.urgent ? "bg-red-500/10" : "bg-white/5"}`}
+                className={`mb-2 rounded-lg p-3 ${cat.urgent ? "bg-red-500/10" : "bg-muted/50"}`}
 
               >
 
@@ -156,7 +156,7 @@ export function HeaderNotificationsDropdown() {
 
                   href={cat.action}
 
-                  className="mt-1 inline-block text-xs text-luxury-gold underline"
+                  className="mt-1 inline-block text-xs text-primary underline"
 
                 >
 
@@ -172,11 +172,11 @@ export function HeaderNotificationsDropdown() {
 
           {total > 0 && (
 
-            <div className="border-t border-white/10 p-2">
+            <div className="border-t border-border p-2">
 
               <DropdownMenu.Item
 
-                className="w-full cursor-pointer rounded-lg py-2 text-center text-xs text-luxury-mist outline-none hover:bg-white/5"
+                className="w-full cursor-pointer rounded-lg py-2 text-center text-xs text-muted-foreground outline-none hover:bg-muted/80"
 
                 onSelect={handleMarkAllRead}
 

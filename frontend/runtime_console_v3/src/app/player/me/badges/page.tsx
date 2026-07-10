@@ -34,11 +34,11 @@ export default function BadgesPage() {
   return (
     <MobileLayout>
       <div className="container mx-auto max-w-3xl px-4 py-8">
-        <Link href="/perfil" className="text-sm text-luxury-mist">
+        <Link href="/perfil" className="text-sm text-muted-foreground">
           ← Meu perfil
         </Link>
         <h1 className="mt-2 text-3xl font-bold">Badges</h1>
-        <p className="mt-1 text-sm text-luxury-mist">
+        <p className="mt-1 text-sm text-muted-foreground">
           {earnedCount}/{badges.length} conquistados
         </p>
 

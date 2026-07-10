@@ -89,16 +89,16 @@ export function GlobalCommandPalette({ open, onOpenChange }: Props) {
       <div className="mx-auto mt-[10vh] w-full max-w-2xl px-4" onClick={(e) => e.stopPropagation()}>
         <Command
           label="Command Palette"
-          className="overflow-hidden rounded-xl border border-white/10 bg-luxury-obsidian shadow-2xl"
+          className="overflow-hidden rounded-xl border border-border bg-card shadow-2xl"
           shouldFilter={false}
         >
-          <div className="flex items-center gap-2 border-b border-white/10 px-3">
-            <Search className="h-4 w-4 shrink-0 text-luxury-mist" />
+          <div className="flex items-center gap-2 border-b border-border px-3">
+            <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
             <Command.Input
               value={query}
               onValueChange={setQuery}
               placeholder="Buscar cartas, pedidos, clientes, rotas…"
-              className="h-12 flex-1 bg-transparent text-sm text-luxury-frost outline-none placeholder:text-luxury-mist"
+              className="h-12 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
               autoFocus
               data-testid="global-command-palette-input"
               aria-label="Busca global"
@@ -106,7 +106,7 @@ export function GlobalCommandPalette({ open, onOpenChange }: Props) {
             <button
               type="button"
               onClick={() => onOpenChange(false)}
-              className="rounded p-1 hover:bg-white/10"
+              className="rounded p-1 hover:bg-muted"
               aria-label="Fechar"
             >
               <X className="h-4 w-4" />
@@ -121,9 +121,9 @@ export function GlobalCommandPalette({ open, onOpenChange }: Props) {
                     key={f.id}
                     value={`fav-${f.id}`}
                     onSelect={() => router.push(f.href)}
-                    className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 aria-selected:bg-white/5"
+                    className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 aria-selected:bg-muted/50"
                   >
-                    <Star className="h-3.5 w-3.5 text-luxury-gold" />
+                    <Star className="h-3.5 w-3.5 text-primary" />
                     <span className="text-sm">{f.title}</span>
                   </Command.Item>
                 ))}
@@ -140,7 +140,7 @@ export function GlobalCommandPalette({ open, onOpenChange }: Props) {
                       if (h.href) router.push(h.href);
                       else setQuery(h.query);
                     }}
-                    className="cursor-pointer rounded-lg px-2 py-2 text-sm aria-selected:bg-white/5"
+                    className="cursor-pointer rounded-lg px-2 py-2 text-sm aria-selected:bg-muted/50"
                   >
                     {h.title ?? h.query}
                   </Command.Item>
@@ -151,13 +151,13 @@ export function GlobalCommandPalette({ open, onOpenChange }: Props) {
             {query.length >= 2 && loading && (
               <div className="space-y-2 p-2" data-testid="command-palette-skeleton">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="h-10 animate-pulse rounded-lg bg-white/5" />
+                  <div key={i} className="h-10 animate-pulse rounded-lg bg-muted/50" />
                 ))}
               </div>
             )}
 
             {query.length >= 2 && !loading && results.length === 0 && (
-              <Command.Empty className="py-8 text-center text-sm text-luxury-mist">
+              <Command.Empty className="py-8 text-center text-sm text-muted-foreground">
                 Nenhum resultado para &quot;{query}&quot;
               </Command.Empty>
             )}
@@ -172,7 +172,7 @@ export function GlobalCommandPalette({ open, onOpenChange }: Props) {
                       key={item.id}
                       value={item.id}
                       onSelect={() => selectResult(item)}
-                      className="group flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 aria-selected:bg-white/5"
+                      className="group flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 aria-selected:bg-muted/50"
                     >
                       {item.group === "cards" && item.meta?.image ? (
                         <div className="relative h-8 w-6 shrink-0 overflow-hidden rounded">
@@ -182,7 +182,7 @@ export function GlobalCommandPalette({ open, onOpenChange }: Props) {
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-medium">{item.title}</p>
                         {item.subtitle && (
-                          <p className="truncate text-xs text-luxury-mist">{item.subtitle}</p>
+                          <p className="truncate text-xs text-muted-foreground">{item.subtitle}</p>
                         )}
                       </div>
                       <button
@@ -191,7 +191,7 @@ export function GlobalCommandPalette({ open, onOpenChange }: Props) {
                         className="opacity-0 group-hover:opacity-100"
                         onClick={(e) => onToggleFavorite(item, e)}
                       >
-                        <Star className="h-3.5 w-3.5 text-luxury-mist hover:text-luxury-gold" />
+                        <Star className="h-3.5 w-3.5 text-muted-foreground hover:text-primary" />
                       </button>
                     </Command.Item>
                   ))}
@@ -200,17 +200,17 @@ export function GlobalCommandPalette({ open, onOpenChange }: Props) {
             })}
           </Command.List>
 
-          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-white/10 px-3 py-2 text-[10px] text-luxury-mist">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border px-3 py-2 text-[10px] text-muted-foreground">
             <span>
-              <kbd className="rounded border border-white/10 px-1">↑↓</kbd> navegar
+              <kbd className="rounded border border-border px-1">↑↓</kbd> navegar
             </span>
             <span>
-              <kbd className="rounded border border-white/10 px-1">↵</kbd> abrir
+              <kbd className="rounded border border-border px-1">↵</kbd> abrir
             </span>
             <span>
-              <kbd className="rounded border border-white/10 px-1">Esc</kbd> fechar
+              <kbd className="rounded border border-border px-1">Esc</kbd> fechar
             </span>
-            <span className="text-luxury-mist/70">{context.surface}</span>
+            <span className="text-muted-foreground/70">{context.surface}</span>
           </div>
         </Command>
       </div>

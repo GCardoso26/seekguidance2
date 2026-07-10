@@ -11,11 +11,11 @@ export function GamificationProfilePage() {
   const { data, isLoading } = useGamificationProfile();
 
   if (authLoading || (user && isLoading)) {
-    return <p className="text-sm text-luxury-mist" data-testid="gamification-loading">Carregando perfil…</p>;
+    return <p className="text-sm text-muted-foreground" data-testid="gamification-loading">Carregando perfil…</p>;
   }
 
   if (!user || !data) {
-    return <p className="text-sm text-luxury-mist">Faça login para ver sua gamificação.</p>;
+    return <p className="text-sm text-muted-foreground">Faça login para ver sua gamificação.</p>;
   }
 
   return (
@@ -34,33 +34,33 @@ export function GamificationProfilePage() {
       <div className="mt-8 flex flex-wrap gap-3">
         <Link
           href="/badges"
-          className="rounded-lg border border-white/10 px-4 py-2 text-sm text-luxury-frost hover:border-luxury-gold/40"
+          className="rounded-lg border border-border px-4 py-2 text-sm text-foreground hover:border-primary/40"
         >
           Ver todos os badges
         </Link>
         <Link
           href="/leaderboard"
-          className="rounded-lg border border-white/10 px-4 py-2 text-sm text-luxury-frost hover:border-luxury-gold/40"
+          className="rounded-lg border border-border px-4 py-2 text-sm text-foreground hover:border-primary/40"
         >
           Leaderboard
         </Link>
       </div>
 
       <section className="mt-8">
-        <h2 className="text-lg font-semibold text-luxury-frost">Histórico de XP</h2>
+        <h2 className="text-lg font-semibold text-foreground">Histórico de XP</h2>
         {data.recent_events.length === 0 ? (
-          <p className="mt-2 text-sm text-luxury-mist">Nenhum evento ainda.</p>
+          <p className="mt-2 text-sm text-muted-foreground">Nenhum evento ainda.</p>
         ) : (
           <ul className="mt-3 space-y-2">
             {data.recent_events.map((ev) => (
               <li
                 key={ev.id}
-                className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm"
+                className="flex items-center justify-between surface-card rounded-lg px-4 py-2 text-sm"
               >
-                <span className="text-luxury-mist">
+                <span className="text-muted-foreground">
                   {XP_ACTION_LABELS[ev.action] ?? ev.action}
                 </span>
-                <span className="font-semibold text-luxury-gold">+{ev.xp_amount} XP</span>
+                <span className="font-semibold text-primary">+{ev.xp_amount} XP</span>
               </li>
             ))}
           </ul>
@@ -72,9 +72,9 @@ export function GamificationProfilePage() {
 
 function Stat({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-lg border border-white/10 bg-white/5 p-4 text-center">
-      <p className="text-2xl font-bold text-luxury-gold">{value}</p>
-      <p className="text-xs text-luxury-mist">{label}</p>
+    <div className="surface-card rounded-lg p-4 text-center">
+      <p className="text-2xl font-bold text-primary">{value}</p>
+      <p className="text-xs text-muted-foreground">{label}</p>
     </div>
   );
 }

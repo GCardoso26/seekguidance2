@@ -18,10 +18,12 @@ NEXT_PUBLIC_FEATURE_SHIPPING_V2=true
 ## Checklist pós-deploy staging
 
 1. Confirmar migração `sprint15_wishlist_shipping_analytics` aplicada (`wishlist_lists`, `shipping_quote_read_model`).
-2. `GET /runtime/judge/buyer/wishlists` retorna listas seed para usuário autenticado.
-3. `GET /runtime/judge/buyer/shipping/quote?destination_postal_code=01310100` retorna cotações.
-4. Smoke buyer: dashboard → wishlist → smart cart → checkout.
-5. Monitorar por 24h: latência P95, taxa de erro 5xx, abandono de checkout.
+2. `GET /v1/health` → `features.shipping_v2: true` (backend).
+3. `GET /api/health` (frontend staging) → `features.wishlist_v2` e `features.shipping_v2` ambos `true`.
+4. `GET /runtime/judge/buyer/wishlists` retorna listas seed para usuário autenticado.
+5. `GET /runtime/judge/buyer/shipping/quote?destination_postal_code=01310100` retorna cotações.
+6. Smoke buyer: dashboard → wishlist → smart cart → checkout.
+7. Monitorar por 24h: latência P95, taxa de erro 5xx, abandono de checkout.
 
 ## Canary produção (WISHLIST_V2)
 

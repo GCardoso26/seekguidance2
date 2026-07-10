@@ -49,7 +49,7 @@ export function PdvReceiptPrint({ open, sale, items, paymentMethod, storeName, o
       aria-modal
       data-testid="pdv-receipt-modal"
     >
-      <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl border border-white/10 bg-luxury-onyx p-6 shadow-xl print:max-h-none print:max-w-none print:overflow-visible print:border-0 print:p-0 print:shadow-none">
+      <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl border border-border bg-background p-6 shadow-xl print:max-h-none print:max-w-none print:overflow-visible print:border-0 print:p-0 print:shadow-none">
         <div className="mb-4 flex items-center justify-between print:hidden">
           <h3 className="text-lg font-semibold">Cupom de venda</h3>
           <Button type="button" variant="ghost" size="sm" onClick={onClose}>

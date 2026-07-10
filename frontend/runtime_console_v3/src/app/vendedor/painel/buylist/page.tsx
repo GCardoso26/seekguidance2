@@ -187,17 +187,17 @@ function BuylistPageContent() {
           errorMessage="Não foi possível carregar as buylists."
           skeletonRows={6}
         >
-          <div className="space-y-3 rounded-xl border border-white/10 bg-white/5 p-4">
+          <div className="space-y-3 surface-card p-4">
             <h3 className="font-semibold">Nova oferta</h3>
             <input
-              className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm"
+              className="w-full rounded-lg border border-border bg-black/30 px-3 py-2 text-sm"
               placeholder="Título da oferta"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
             />
             <div className="flex gap-2">
               <input
-                className="flex-1 rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm"
+                className="flex-1 rounded-lg border border-border bg-black/30 px-3 py-2 text-sm"
                 placeholder="Nome da carta"
                 value={cardName}
                 onChange={(e) => setCardName(e.target.value)}
@@ -215,7 +215,7 @@ function BuylistPageContent() {
               </Button>
             </div>
             {items.length > 0 && (
-              <ul className="text-sm text-luxury-mist">
+              <ul className="text-sm text-muted-foreground">
                 {items.map((it, i) => (
                   <li key={`${it.card_name}-${i}`}>• {it.card_name}</li>
                 ))}
@@ -232,21 +232,21 @@ function BuylistPageContent() {
             )}
           </div>
 
-          <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+          <div className="surface-card p-4">
             <h3 className="mb-3 font-semibold">Ofertas ativas</h3>
             {(data?.buylists ?? []).length === 0 ? (
-              <p className="text-sm text-luxury-mist">Nenhuma oferta ainda.</p>
+              <p className="text-sm text-muted-foreground">Nenhuma oferta ainda.</p>
             ) : (
               <ul className="space-y-3">
                 {(data?.buylists ?? []).map((b) => (
-                  <li key={String(b.id)} className="rounded-lg border border-white/10 p-3 text-sm">
+                  <li key={String(b.id)} className="rounded-lg border border-border p-3 text-sm">
                     <p className="font-medium">{String(b.title)}</p>
-                    <p className="text-luxury-mist">
+                    <p className="text-muted-foreground">
                       {String(b.item_count)} itens · {formatBRL(Number(b.total_offer_cents ?? 0))}
                     </p>
                     <Link
                       href={`/buylist/${String(b.public_token)}`}
-                      className="mt-2 inline-block text-luxury-gold underline"
+                      className="mt-2 inline-block text-primary underline"
                       target="_blank"
                     >
                       Abrir link público
@@ -257,16 +257,16 @@ function BuylistPageContent() {
             )}
           </div>
 
-          <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+          <div className="surface-card p-4">
             <h3 className="mb-3 font-semibold">Propostas pendentes</h3>
             {(submissionsData?.submissions ?? []).length === 0 ? (
-              <p className="text-sm text-luxury-mist">Nenhuma proposta aguardando.</p>
+              <p className="text-sm text-muted-foreground">Nenhuma proposta aguardando.</p>
             ) : (
               <ul className="space-y-3">
                 {(submissionsData?.submissions ?? []).map((s) => (
-                  <li key={String(s.id)} className="rounded-lg border border-white/10 p-3 text-sm">
+                  <li key={String(s.id)} className="rounded-lg border border-border p-3 text-sm">
                     <p className="font-medium">{String(s.buylist_title ?? "BuyList")}</p>
-                    <p className="text-luxury-mist">{formatBRL(Number(s.total_offer_cents ?? 0))}</p>
+                    <p className="text-muted-foreground">{formatBRL(Number(s.total_offer_cents ?? 0))}</p>
                     <div className="mt-2 flex gap-2">
                       <Button
                         size="sm"
@@ -287,7 +287,7 @@ function BuylistPageContent() {
                     {Boolean(s.shop_order_id) && (
                       <Link
                         href={`/vendedor/painel/vendas/${String(s.shop_order_id)}`}
-                        className="mt-2 inline-block text-luxury-gold underline"
+                        className="mt-2 inline-block text-primary underline"
                       >
                         Ver pedido escrow
                       </Link>
@@ -298,10 +298,10 @@ function BuylistPageContent() {
             )}
           </div>
 
-          <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+          <div className="surface-card p-4">
             <h3 className="mb-3 font-semibold">Aceitas — aguardando PIX</h3>
             {(acceptedData?.submissions ?? []).length === 0 ? (
-              <p className="text-sm text-luxury-mist">Nenhuma proposta aceita pendente de pagamento.</p>
+              <p className="text-sm text-muted-foreground">Nenhuma proposta aceita pendente de pagamento.</p>
             ) : (
               <ul className="space-y-3">
                 {(acceptedData?.submissions ?? []).map((s) => {
@@ -313,15 +313,15 @@ function BuylistPageContent() {
                       key={id}
                       id={`submission-${id}`}
                       className={`rounded-lg border p-3 text-sm ${
-                        highlight ? "border-amber-500/50 bg-amber-500/5" : "border-white/10"
+                        highlight ? "border-amber-500/50 bg-amber-500/5" : "border-border"
                       }`}
                     >
                       <p className="font-medium">{String(s.buylist_title ?? "BuyList")}</p>
-                      <p className="text-luxury-mist">{formatBRL(Number(s.total_offer_cents ?? 0))}</p>
+                      <p className="text-muted-foreground">{formatBRL(Number(s.total_offer_cents ?? 0))}</p>
                       {Boolean(s.shop_order_id) && (
                         <Link
                           href={`/vendedor/painel/vendas/${String(s.shop_order_id)}`}
-                          className="mt-1 inline-block text-luxury-gold underline"
+                          className="mt-1 inline-block text-primary underline"
                         >
                           Ver pedido escrow
                         </Link>

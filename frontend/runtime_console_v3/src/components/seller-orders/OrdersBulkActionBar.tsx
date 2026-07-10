@@ -51,7 +51,7 @@ export function OrdersBulkActionBar({ selectedIds, onClear, onDone }: Props) {
   if (selectedIds.length === 0) return null;
 
   return (
-    <div className="sticky bottom-4 z-20 flex flex-wrap items-center gap-3 rounded-xl border border-luxury-gold/40 bg-luxury-onyx/95 p-3 shadow-lg backdrop-blur">
+    <div className="sticky bottom-4 z-20 flex flex-wrap items-center gap-3 rounded-xl border border-primary/40 bg-background/95 p-3 shadow-lg backdrop-blur">
       <span className="text-sm font-medium text-white">
         {selectedIds.length}{" "}
         {selectedIds.length > 1 ? "pedidos selecionados" : "pedido selecionado"}
@@ -68,7 +68,7 @@ export function OrdersBulkActionBar({ selectedIds, onClear, onDone }: Props) {
                 item.command === "generate_label" ? "melhor_envio" : undefined,
               )
             }
-            className="rounded-lg border border-white/20 px-2.5 py-1 text-xs hover:bg-white/10 disabled:opacity-50"
+            className="rounded-lg border border-border px-2.5 py-1 text-xs hover:bg-muted disabled:opacity-50"
           >
             {item.label}
           </button>
@@ -77,7 +77,7 @@ export function OrdersBulkActionBar({ selectedIds, onClear, onDone }: Props) {
       <button
         type="button"
         onClick={onClear}
-        className="ml-auto text-xs text-luxury-mist underline"
+        className="ml-auto text-xs text-muted-foreground underline"
       >
         Limpar seleção
       </button>

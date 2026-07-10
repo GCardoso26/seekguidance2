@@ -174,7 +174,7 @@ export function SearchBarWithSyntax({
           placeholder={placeholder || "Buscar cards…"}
           className={
             className ??
-            "h-11 w-full rounded-md border border-white/10 bg-white/5 py-2.5 pl-10 pr-20 text-sm"
+            "h-11 w-full rounded-md border border-border bg-card shadow-card py-2.5 pl-10 pr-20 text-sm"
           }
           data-testid={testId}
         />

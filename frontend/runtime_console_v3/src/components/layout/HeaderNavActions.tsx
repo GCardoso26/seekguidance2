@@ -15,7 +15,7 @@ export function HeaderNavActions() {
         data-testid="nav-buy"
         className={cn(
           "flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-          "text-luxury-mist hover:bg-white/5 hover:text-luxury-frost",
+          "text-muted-foreground hover:bg-muted/80 hover:text-foreground",
         )}
       >
         <ShoppingCart className="h-4 w-4" />
@@ -26,7 +26,7 @@ export function HeaderNavActions() {
         data-testid="nav-sell"
         className={cn(
           "flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-          "text-luxury-mist hover:bg-white/5 hover:text-luxury-frost",
+          "text-muted-foreground hover:bg-muted/80 hover:text-foreground",
         )}
       >
         <Store className="h-4 w-4" />
@@ -37,7 +37,7 @@ export function HeaderNavActions() {
         disabled
         title="Em breve"
         data-testid="nav-trade"
-        className="flex cursor-not-allowed items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-luxury-mist/50 opacity-60"
+        className="flex cursor-not-allowed items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground/50 opacity-60"
       >
         <ArrowLeftRight className="h-4 w-4" />
         <span>Trocar</span>

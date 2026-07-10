@@ -37,32 +37,32 @@ export default function CommunityPostPage() {
   return (
     <MobileLayout>
       <div className="container mx-auto max-w-3xl px-4 py-8">
-        <Link href={`/social/communities/${communityId}`} className="text-sm text-luxury-mist">
+        <Link href={`/social/communities/${communityId}`} className="text-sm text-muted-foreground">
           ← Comunidade
         </Link>
 
-        {isLoading && <p className="mt-4 text-luxury-mist">Carregando post…</p>}
+        {isLoading && <p className="mt-4 text-muted-foreground">Carregando post…</p>}
 
         {post && (
           <article className="luxury-card mt-4 flex gap-4 rounded-xl p-6">
             <PostVote post={post} />
             <div className="min-w-0 flex-1">
-              <h1 className="text-2xl font-light text-luxury-frost">{post.title}</h1>
-              <p className="mt-1 text-xs text-luxury-mist">
+              <h1 className="text-2xl font-light text-foreground">{post.title}</h1>
+              <p className="mt-1 text-xs text-muted-foreground">
                 @{post.authorHandle ?? "jogador"}
                 {post.createdAt && ` · ${new Date(post.createdAt).toLocaleString("pt-BR")}`}
               </p>
               {images.length > 0 && (
                 <div className={`mt-4 grid gap-2 ${images.length > 1 ? "grid-cols-2" : ""}`}>
                   {images.map((url, i) => (
-                    <div key={i} className="relative aspect-video overflow-hidden rounded-xl border border-white/10">
+                    <div key={i} className="relative aspect-video overflow-hidden rounded-xl border border-border">
                       <Image src={url} alt="" fill className="object-contain" unoptimized />
                     </div>
                   ))}
                 </div>
               )}
               <div
-                className="prose prose-invert mt-4 max-w-none text-sm leading-relaxed text-luxury-frost/90"
+                className="prose prose-invert mt-4 max-w-none text-sm leading-relaxed text-foreground/90"
                 dangerouslySetInnerHTML={{ __html: renderSimpleMarkdown(post.content) }}
               />
               <PostActions post={post} />
@@ -71,7 +71,7 @@ export default function CommunityPostPage() {
         )}
 
         <section className="mt-8">
-          <h2 className="mb-4 text-lg font-medium text-luxury-frost">Comentários</h2>
+          <h2 className="mb-4 text-lg font-medium text-foreground">Comentários</h2>
           <CommentTree postId={postId} comments={comments} />
           <form onSubmit={(e) => void submitComment(e)} className="mt-6 space-y-3">
             <textarea
@@ -84,7 +84,7 @@ export default function CommunityPostPage() {
             <Button
               type="submit"
               disabled={createComment.isPending || !content.trim()}
-              className="bg-luxury-gold text-luxury-onyx"
+              className="bg-primary text-primary-foreground"
             >
               Comentar
             </Button>

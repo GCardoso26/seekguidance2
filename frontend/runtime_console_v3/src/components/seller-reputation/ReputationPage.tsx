@@ -26,27 +26,27 @@ export function ReputationPage() {
           description="Score derivado de pedidos, SLA, chargebacks e reviews — não só avaliações."
         />
         {isLoading ? (
-          <p className="text-sm text-luxury-mist">Carregando…</p>
+          <p className="text-sm text-muted-foreground">Carregando…</p>
         ) : data ? (
           <>
             <div className="grid gap-4 lg:grid-cols-3">
-              <div className="rounded-xl border border-white/10 bg-white/5 p-5 lg:col-span-1">
-                <p className="text-sm text-luxury-mist">Trust Score</p>
+              <div className="surface-card p-5 lg:col-span-1">
+                <p className="text-sm text-muted-foreground">Trust Score</p>
                 <p className="mt-1 text-4xl font-bold tabular-nums text-emerald-400">
                   {data.trust_score.toFixed(1)}
                 </p>
                 <div className="mt-3">
                   <TrustBadge level={data.seller_level} badges={data.badges} trustScore={data.trust_score} />
                 </div>
-                <p className="mt-3 text-xs text-luxury-mist">
+                <p className="mt-3 text-xs text-muted-foreground">
                   {data.orders_completed} pedidos concluídos · v{data.version}
                 </p>
               </div>
-              <div className="rounded-xl border border-white/10 bg-white/5 p-5 lg:col-span-2">
-                <h3 className="text-sm font-semibold text-luxury-mist">Componentes do score</h3>
+              <div className="surface-card p-5 lg:col-span-2">
+                <h3 className="text-sm font-semibold text-muted-foreground">Componentes do score</h3>
                 <div className="mt-3 grid gap-2 sm:grid-cols-2">
                   {Object.entries(data.components).map(([key, val]) => (
-                    <div key={key} className="flex justify-between rounded-lg bg-white/5 px-3 py-2 text-sm">
+                    <div key={key} className="flex justify-between rounded-lg bg-muted/50 px-3 py-2 text-sm">
                       <span>{COMPONENT_LABELS[key] ?? key}</span>
                       <span className="font-medium tabular-nums">{Number(val).toFixed(1)}</span>
                     </div>
@@ -57,7 +57,7 @@ export function ReputationPage() {
 
             {data.alerts.length > 0 && (
               <section>
-                <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-luxury-mist">
+                <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
                   Alertas de reputação
                 </h3>
                 <div className="space-y-2">
@@ -69,7 +69,7 @@ export function ReputationPage() {
                           ? "border-red-500/30 bg-red-500/10 text-red-200"
                           : a.severity === "medium"
                             ? "border-amber-500/30 bg-amber-500/10 text-amber-200"
-                            : "border-white/10 bg-white/5 text-luxury-mist"
+                            : "border-border bg-muted/50 text-muted-foreground"
                       }`}
                     >
                       {a.message}
@@ -80,7 +80,7 @@ export function ReputationPage() {
             )}
 
             <section>
-              <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-luxury-mist">
+              <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
                 SLA operacional
               </h3>
               <FulfillmentSlaWidget

@@ -24,8 +24,8 @@ export function DeckToolbar({ deck, format, onImport, onSaved, showBuy = false }
   return (
     <div className="flex flex-wrap items-center justify-between gap-3">
       <div>
-        <h1 className="text-xl font-bold text-luxury-frost">{deck.name}</h1>
-        <p className="text-sm capitalize text-luxury-mist">
+        <h1 className="text-xl font-bold text-foreground">{deck.name}</h1>
+        <p className="text-sm capitalize text-muted-foreground">
           {deck.game} · {deck.format}
           {deck.is_public && (
             <span className="ml-2 rounded-full bg-emerald-500/20 px-2 py-0.5 text-xs text-emerald-300">

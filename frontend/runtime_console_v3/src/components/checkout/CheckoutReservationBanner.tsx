@@ -1,5 +1,6 @@
 "use client";
 
+import { Clock } from "lucide-react";
 import { PixTimer } from "@/components/checkout/PixTimer";
 
 interface Props {
@@ -9,11 +10,17 @@ interface Props {
 
 export function CheckoutReservationBanner({ expiresAt, onExpired }: Props) {
   return (
-    <div className="rounded-lg border border-amber-500/40 bg-amber-950/30 p-4 text-sm text-amber-100">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <p>Seu estoque está reservado. Complete o pagamento antes do tempo expirar.</p>
-        <PixTimer expiresAt={expiresAt} onExpired={onExpired} />
+    <div
+      className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-warning/30 bg-warning/10 px-4 py-3"
+      role="status"
+    >
+      <div className="flex items-start gap-2.5">
+        <Clock className="mt-0.5 h-4 w-4 shrink-0 text-warning" aria-hidden />
+        <p className="text-small text-foreground">
+          Estoque reservado — finalize o pagamento antes do tempo expirar.
+        </p>
       </div>
+      <PixTimer expiresAt={expiresAt} onExpired={onExpired} />
     </div>
   );
 }

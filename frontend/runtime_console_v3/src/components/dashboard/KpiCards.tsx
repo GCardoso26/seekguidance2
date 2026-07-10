@@ -34,9 +34,9 @@ export function KpiCards({ revenue, stats, averageRating, plan }: Props) {
       {cards.map((c) => (
         <div
           key={c.label}
-          className={`rounded-xl border bg-white/5 p-4 ${c.alert ? "border-red-500/40" : "border-white/10"}`}
+          className={`rounded-xl border bg-muted/50 p-4 ${c.alert ? "border-red-500/40" : "border-border"}`}
         >
-          <p className="text-xs uppercase tracking-wide text-luxury-mist">{c.label}</p>
+          <p className="text-xs uppercase tracking-wide text-muted-foreground">{c.label}</p>
           <p className="mt-1 text-xl font-bold">{c.value}</p>
         </div>
       ))}

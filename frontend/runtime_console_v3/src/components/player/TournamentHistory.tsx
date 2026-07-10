@@ -20,19 +20,19 @@ function medal(place: number) {
 
 export function TournamentHistory({ items }: Props) {
   if (!items.length) {
-    return <p className="text-sm text-luxury-mist">Nenhum torneio registrado.</p>;
+    return <p className="text-sm text-muted-foreground">Nenhum torneio registrado.</p>;
   }
 
   return (
-    <ul className="divide-y divide-slate-700 rounded-lg border border-white/10">
+    <ul className="divide-y divide-slate-700 rounded-lg border border-border">
       {items.map((t, i) => (
         <li key={i} className="flex items-center justify-between px-4 py-3 text-sm">
           <div>
             <span className="mr-2">{medal(t.placement ?? 0)}</span>
             <span className="font-medium">{t.tournament_name ?? "Torneio"}</span>
-            <span className="ml-2 text-luxury-mist">{t.game_code}</span>
+            <span className="ml-2 text-muted-foreground">{t.game_code}</span>
           </div>
-          <div className="text-luxury-mist">
+          <div className="text-muted-foreground">
             {t.placement}º/{t.total_participants} · +{t.points_earned} pts
           </div>
         </li>

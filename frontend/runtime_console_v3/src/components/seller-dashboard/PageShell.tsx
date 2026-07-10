@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { PageEmpty, PageError, PageSkeleton } from "@/components/ui/async-state";
+import { cn } from "@/lib/utils";
 
 type PageHeaderProps = {
   title: string;
@@ -13,12 +14,12 @@ type PageHeaderProps = {
 export function PageHeader({ title, description, action, meta }: PageHeaderProps) {
   return (
     <div className="flex flex-wrap items-start justify-between gap-4">
-      <div>
-        <h2 className="text-xl font-bold text-white">{title}</h2>
-        {description && <p className="mt-1 text-sm text-luxury-mist">{description}</p>}
+      <div className="space-y-1">
+        <h1 className="text-h2 font-semibold tracking-tight text-foreground">{title}</h1>
+        {description && <p className="text-small text-muted-foreground">{description}</p>}
         {meta}
       </div>
-      {action}
+      {action && <div className="flex shrink-0 items-center gap-2">{action}</div>}
     </div>
   );
 }
@@ -34,7 +35,6 @@ type AsyncPageBodyProps = {
   children: ReactNode;
 };
 
-/** Estados async padronizados dentro de PageShell. */
 export function AsyncPageBody({
   isLoading,
   isError,
@@ -44,19 +44,28 @@ export function AsyncPageBody({
   children,
 }: AsyncPageBodyProps) {
   if (isLoading) return <PageSkeleton rows={skeletonRows} />;
-  if (isError) {
-    return <PageError message={errorMessage} onRetry={onRetry} />;
-  }
+  if (isError) return <PageError message={errorMessage} onRetry={onRetry} />;
   return <>{children}</>;
 }
 
 type PageShellProps = {
   children: ReactNode;
   className?: string;
+  /** Largura máxima do workspace (default: full dentro do painel) */
+  constrained?: boolean;
 };
 
-export function PageShell({ children, className }: PageShellProps) {
+/** Área de conteúdo padronizada dos painéis seller/admin. */
+export function PageShell({ children, className, constrained }: PageShellProps) {
   return (
-    <main className={`flex-1 space-y-4 overflow-y-auto p-6 ${className ?? ""}`}>{children}</main>
+    <main
+      className={cn(
+        "flex-1 space-y-6 overflow-y-auto px-4 py-6 sm:px-6 lg:px-8 lg:py-8",
+        constrained && "mx-auto w-full max-w-7xl",
+        className,
+      )}
+    >
+      {children}
+    </main>
   );
 }

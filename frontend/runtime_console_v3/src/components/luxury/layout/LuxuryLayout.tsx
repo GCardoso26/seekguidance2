@@ -13,7 +13,7 @@ type Props = {
 
 export function LuxuryLayout({ children, variant = "full" }: Props) {
   return (
-    <div className="luxury-marketing relative min-h-screen bg-luxury-onyx text-luxury-frost">
+    <div className="luxury-marketing relative min-h-screen bg-background text-foreground">
       <NoiseOverlay />
       <LuxuryHeader />
       <main className={cn(variant === "minimal" && "pt-24")}>{children}</main>

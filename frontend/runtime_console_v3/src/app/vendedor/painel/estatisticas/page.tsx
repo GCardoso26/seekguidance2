@@ -19,7 +19,7 @@ import { planHasFeature } from "@/lib/seller-plans";
 
 const SalesChart = dynamic(
   () => import("@/components/dashboard/SalesChart").then((m) => m.SalesChart),
-  { loading: () => <div className="h-64 animate-pulse rounded-xl bg-white/5" />, ssr: false },
+  { loading: () => <div className="h-64 animate-pulse rounded-xl bg-muted/50" />, ssr: false },
 );
 
 type Period = "7d" | "30d" | "90d" | "1y" | "all";
@@ -95,20 +95,20 @@ export default function EstatisticasPage() {
             <StatCard label="Compradores únicos" value={String(data?.unique_buyers ?? 0)} />
           </div>
 
-          <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-            <h3 className="mb-3 text-sm font-semibold uppercase text-luxury-mist">Receita</h3>
+          <div className="surface-card p-4">
+            <h3 className="mb-3 text-sm font-semibold uppercase text-muted-foreground">Receita</h3>
             <SalesChart data={chartData} />
           </div>
 
           <div className="grid gap-6 lg:grid-cols-2">
-            <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+            <div className="surface-card p-4">
               <h3 className="mb-3 font-semibold">Top produtos</h3>
               <ul className="space-y-2 text-sm">
                 {(data?.top_cards ?? []).map(
                   (item: { name: string; count: number; revenue_cents: number }) => (
                     <li key={item.name} className="flex justify-between gap-2">
                       <span>{item.name}</span>
-                      <span className="text-luxury-mist">
+                      <span className="text-muted-foreground">
                         {item.count} · {formatShopPrice(item.revenue_cents)}
                       </span>
                     </li>
@@ -116,7 +116,7 @@ export default function EstatisticasPage() {
                 )}
               </ul>
             </div>
-            <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+            <div className="surface-card p-4">
               <h3 className="mb-3 font-semibold">Ticket médio</h3>
               <p className="text-2xl font-bold">
                 {formatShopPrice(Math.round(Number(data?.average_order_value ?? 0) * 100))}

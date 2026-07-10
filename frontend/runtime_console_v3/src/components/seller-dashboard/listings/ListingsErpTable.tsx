@@ -42,7 +42,7 @@ function InlineNumberCell({
     return (
       <button
         type="button"
-        className="tabular-nums hover:text-luxury-gold hover:underline"
+        className="tabular-nums hover:text-primary hover:underline"
         onClick={() => setEditing(true)}
       >
         {format ? format(initial) : initial}
@@ -55,7 +55,7 @@ function InlineNumberCell({
       type="number"
       step={format ? "0.01" : "1"}
       min="0"
-      className="w-20 rounded border border-luxury-gold/40 bg-white/10 px-2 py-1 text-sm"
+      className="w-20 rounded border border-primary/40 bg-muted px-2 py-1 text-sm"
       value={value}
       autoFocus
       disabled={saving}
@@ -137,7 +137,7 @@ const COLUMN_BUILDERS: Record<
           <Image src={src} alt="" fill className="object-cover" unoptimized />
         </div>
       ) : (
-        <div className="h-10 w-7 rounded bg-white/10" />
+        <div className="h-10 w-7 rounded bg-muted" />
       );
     },
   }),
@@ -149,12 +149,12 @@ const COLUMN_BUILDERS: Record<
       <div>
         <Link
           href={`/vendedor/painel/listagens/${row.original.id}`}
-          className="font-medium hover:text-luxury-gold hover:underline"
+          className="font-medium hover:text-primary hover:underline"
         >
           {row.original.cardName || "Carta"}
         </Link>
         {row.original.setName && (
-          <p className="text-xs text-luxury-mist">{row.original.setName}</p>
+          <p className="text-xs text-muted-foreground">{row.original.setName}</p>
         )}
       </div>
     ),
@@ -207,7 +207,7 @@ const COLUMN_BUILDERS: Record<
     accessorFn: (r) => r.status ?? "active",
     header: "Status",
     cell: ({ row }) => (
-      <span className="rounded-full border border-white/10 px-2 py-0.5 text-xs">
+      <span className="rounded-full border border-border px-2 py-0.5 text-xs">
         {listingStatusLabel(row.original.status)}
       </span>
     ),
@@ -217,7 +217,7 @@ const COLUMN_BUILDERS: Record<
     accessorKey: "createdAt",
     header: "Atualizado",
     cell: ({ row }) => (
-      <span className="text-xs text-luxury-mist">{formatListingDate(row.original.createdAt)}</span>
+      <span className="text-xs text-muted-foreground">{formatListingDate(row.original.createdAt)}</span>
     ),
   }),
   actions: ({ onRefresh }) => ({
@@ -228,14 +228,14 @@ const COLUMN_BUILDERS: Record<
       <div className="flex items-center gap-2">
         <Link
           href={`/vendedor/painel/listagens/${row.original.id}`}
-          className="text-xs text-luxury-gold hover:underline"
+          className="text-xs text-primary hover:underline"
         >
           Editar
         </Link>
         <button
           type="button"
           title="Duplicar"
-          className="text-luxury-mist hover:text-luxury-gold"
+          className="text-muted-foreground hover:text-primary"
           onClick={async () => {
             const result = await duplicateListing(row.original);
             if (result) {

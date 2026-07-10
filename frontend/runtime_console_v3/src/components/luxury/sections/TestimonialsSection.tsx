@@ -16,10 +16,10 @@ export function TestimonialsSection({ segment = "home" }: Props) {
     <section className="relative py-28 lg:py-36">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <RevealOnScroll className="mb-16 text-center">
-          <p className="mb-4 text-xs tracking-[0.3em] text-luxury-gold uppercase">
+          <p className="mb-4 text-xs tracking-[0.3em] text-primary uppercase">
             {sectionCopy.eyebrow}
           </p>
-          <h2 className="text-luxury-frost">{sectionCopy.title}</h2>
+          <h2 className="text-foreground">{sectionCopy.title}</h2>
         </RevealOnScroll>
 
         <div
@@ -36,18 +36,18 @@ export function TestimonialsSection({ segment = "home" }: Props) {
                 >
                   &ldquo;
                 </span>
-                <blockquote className="text-sm leading-relaxed font-light text-luxury-frost italic">
+                <blockquote className="text-sm leading-relaxed font-light text-foreground italic">
                   {t.quote}
                 </blockquote>
                 <footer className="mt-8 flex items-center gap-3 border-t border-white/5 pt-6">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full border border-luxury-gold/30 bg-luxury-gold/10 text-xs font-medium text-luxury-gold">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full border border-primary/30 bg-primary/10 text-xs font-medium text-primary">
                     {t.initials}
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-luxury-frost">{t.name}</p>
-                    <p className="text-xs text-luxury-mist">{t.title}</p>
+                    <p className="text-sm font-medium text-foreground">{t.name}</p>
+                    <p className="text-xs text-muted-foreground">{t.title}</p>
                     {t.credential && (
-                      <p className="text-xs text-luxury-gold/80">{t.credential}</p>
+                      <p className="text-xs text-primary/80">{t.credential}</p>
                     )}
                   </div>
                 </footer>

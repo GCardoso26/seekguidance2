@@ -1,34 +1,43 @@
+@import "./design-tokens.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: 222 47% 6%;
-  --foreground: 210 40% 98%;
-  --card: 222 40% 9%;
-  --muted: 217 20% 16%;
-  --muted-foreground: 215 16% 72%;
-  --border: 217 20% 20%;
-  --primary: 217 100% 50%;
-  --success: 142 70% 45%;
-  --warning: 38 92% 50%;
-  --danger: 0 72% 51%;
-}
-
-html {
-  color-scheme: dark;
-}
-.light {
-  --background: 0 0% 100%;
-  --foreground: 222 47% 11%;
-  --card: 0 0% 98%;
-  --muted: 210 20% 96%;
-  --muted-foreground: 215 16% 40%;
-  --border: 214 20% 90%;
-}
-body { @apply bg-background text-foreground antialiased; }
-
 @layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  h1 {
+    font-size: var(--text-h1);
+    font-weight: 600;
+    line-height: var(--leading-tight);
+    letter-spacing: -0.025em;
+  }
+
+  h2 {
+    font-size: var(--text-h2);
+    font-weight: 600;
+    line-height: var(--leading-tight);
+    letter-spacing: -0.02em;
+  }
+
+  h3 {
+    font-size: var(--text-h3);
+    font-weight: 600;
+    line-height: var(--leading-tight);
+  }
+
   :root {
     --condition-nm: 142 76% 36%;
     --condition-lp: 217 91% 60%;
@@ -38,17 +47,65 @@ body { @apply bg-background text-foreground antialiased; }
     --game-primary: var(--game-color, hsl(var(--primary)));
   }
 
-  .dark,
-  :root {
+  .dark {
     --condition-nm: 142 70% 45%;
     --condition-lp: 217 85% 65%;
+  }
+}
+
+@layer components {
+  .surface-card {
+    @apply rounded-xl border border-border bg-card text-card-foreground shadow-card;
+  }
+
+  .surface-card-interactive {
+    @apply surface-card transition-all duration-200 hover:border-primary/25 hover:shadow-card-hover;
+  }
+
+  .surface-muted {
+    @apply rounded-xl border border-border bg-muted/50;
+  }
+
+  .page-container {
+    @apply mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8;
+  }
+
+  .section-title {
+    @apply text-sm font-medium uppercase tracking-wide text-muted-foreground;
+  }
+
+  .focus-ring {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+  }
+
+  .text-display {
+    font-size: var(--text-display);
+    font-weight: 700;
+    line-height: var(--leading-tight);
+    letter-spacing: -0.03em;
+  }
+
+  .text-body {
+    font-size: var(--text-body);
+    line-height: var(--leading-normal);
+  }
+
+  .text-small {
+    font-size: var(--text-small);
+    line-height: var(--leading-normal);
+  }
+
+  .text-caption {
+    font-size: var(--text-caption);
+    line-height: var(--leading-normal);
+    @apply text-muted-foreground;
   }
 }
 
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(6px);
   }
   to {
     opacity: 1;
@@ -57,13 +114,13 @@ body { @apply bg-background text-foreground antialiased; }
 }
 
 .animate-fade-in {
-  animation: fadeIn 0.3s ease-out forwards;
+  animation: fadeIn 0.25s ease-out forwards;
 }
 
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
@@ -73,23 +130,23 @@ body { @apply bg-background text-foreground antialiased; }
 
 .stagger-children > * {
   opacity: 0;
-  animation: fadeInUp 0.3s ease-out forwards;
+  animation: fadeInUp 0.28s ease-out forwards;
 }
 
-.stagger-children > *:nth-child(1) { animation-delay: 0.05s; }
-.stagger-children > *:nth-child(2) { animation-delay: 0.1s; }
-.stagger-children > *:nth-child(3) { animation-delay: 0.15s; }
-.stagger-children > *:nth-child(4) { animation-delay: 0.2s; }
-.stagger-children > *:nth-child(5) { animation-delay: 0.25s; }
-.stagger-children > *:nth-child(6) { animation-delay: 0.3s; }
+.stagger-children > *:nth-child(1) { animation-delay: 0.04s; }
+.stagger-children > *:nth-child(2) { animation-delay: 0.08s; }
+.stagger-children > *:nth-child(3) { animation-delay: 0.12s; }
+.stagger-children > *:nth-child(4) { animation-delay: 0.16s; }
+.stagger-children > *:nth-child(5) { animation-delay: 0.2s; }
+.stagger-children > *:nth-child(6) { animation-delay: 0.24s; }
 
 .hover-lift {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .hover-lift:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.4);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
 }
 
 @keyframes shimmer {
@@ -100,42 +157,30 @@ body { @apply bg-background text-foreground antialiased; }
 .skeleton-shimmer {
   background: linear-gradient(
     90deg,
-    rgba(51, 65, 85, 0.5) 25%,
-    rgba(71, 85, 105, 0.8) 50%,
-    rgba(51, 65, 85, 0.5) 75%
+    hsl(var(--muted)) 25%,
+    hsl(var(--muted-foreground) / 0.12) 50%,
+    hsl(var(--muted)) 75%
   );
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }
 
 .active-scale:active {
-  transform: scale(0.97);
+  transform: scale(0.98);
 }
 
 @keyframes slide-in-right {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
 }
 
 @keyframes slide-out-right {
-  from {
-    transform: translateX(0);
-    opacity: 1;
-  }
-  to {
-    transform: translateX(100%);
-    opacity: 0;
-  }
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(100%); opacity: 0; }
 }
 
 .animate-slide-in-right {
-  animation: slide-in-right 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: slide-in-right 0.28s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .animate-slide-out-right {
@@ -143,13 +188,8 @@ body { @apply bg-background text-foreground antialiased; }
 }
 
 @keyframes pulse-slow {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.6;
-  }
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.65; }
 }
 
 .animate-pulse-slow {

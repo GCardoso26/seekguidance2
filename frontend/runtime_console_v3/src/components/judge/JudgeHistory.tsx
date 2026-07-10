@@ -154,7 +154,7 @@ export function JudgeHistory({ items, onSelect, onClear }: Props) {
 
                       className={cn(
 
-                        "w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-left transition",
+                        "w-full surface-card px-3 py-2.5 text-left transition",
 
                         "hover:border-[hsl(var(--tcg-accent)/0.35)] hover:shadow-sm",
 

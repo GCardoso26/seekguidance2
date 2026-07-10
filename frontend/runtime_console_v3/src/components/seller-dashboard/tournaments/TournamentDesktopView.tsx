@@ -30,7 +30,7 @@ function buildColumns(
       id: "name",
       accessorKey: "name",
       header: "Nome",
-      cell: ({ row }) => <span className="font-medium text-luxury-frost">{row.original.name}</span>,
+      cell: ({ row }) => <span className="font-medium text-foreground">{row.original.name}</span>,
     },
     {
       id: "game",

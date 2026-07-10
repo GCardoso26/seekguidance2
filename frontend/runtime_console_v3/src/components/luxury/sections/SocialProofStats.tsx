@@ -16,8 +16,8 @@ export function SocialProofStats({ segment = "home" }: Props) {
           <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
             {SOCIAL_STATS.map((stat) => (
               <div key={stat.label} className="text-center">
-                <p className="text-3xl font-light text-luxury-gold md:text-4xl">{stat.value}</p>
-                <p className="mt-2 text-xs tracking-[0.2em] text-luxury-mist uppercase">
+                <p className="text-3xl font-light text-primary md:text-4xl">{stat.value}</p>
+                <p className="mt-2 text-xs tracking-[0.2em] text-muted-foreground uppercase">
                   {stat.label}
                 </p>
               </div>

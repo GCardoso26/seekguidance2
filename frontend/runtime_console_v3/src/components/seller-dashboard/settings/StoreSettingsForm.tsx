@@ -71,36 +71,36 @@ export function StoreSettingsForm({ storeId }: Props) {
     <div className="space-y-6">
       <form
         onSubmit={(e) => void handleSubmit(onSubmit)(e)}
-        className="space-y-4 rounded-xl border border-white/10 bg-white/5 p-6"
+        className="space-y-4 surface-card p-6"
         data-testid="store-settings-form"
       >
         <h3 className="font-semibold text-white">Dados da loja</h3>
 
         <div>
-          <label htmlFor="store-name" className="text-sm text-luxury-mist">
+          <label htmlFor="store-name" className="text-sm text-muted-foreground">
             Nome
           </label>
-          <Input id="store-name" className="mt-1 border-white/10 bg-black/30" {...register("name")} />
+          <Input id="store-name" className="mt-1 border-border bg-black/30" {...register("name")} />
           <FieldError message={errors.name?.message} />
         </div>
 
         <div>
-          <label htmlFor="store-slug" className="text-sm text-luxury-mist">
+          <label htmlFor="store-slug" className="text-sm text-muted-foreground">
             Slug (URL pública)
           </label>
-          <Input id="store-slug" className="mt-1 border-white/10 bg-black/30 font-mono" {...register("slug")} />
+          <Input id="store-slug" className="mt-1 border-border bg-black/30 font-mono" {...register("slug")} />
           <FieldError message={errors.slug?.message} />
-          <p className="mt-1 text-xs text-luxury-mist/70">Validação de unicidade no backend ao salvar.</p>
+          <p className="mt-1 text-xs text-muted-foreground/70">Validação de unicidade no backend ao salvar.</p>
         </div>
 
         <div>
-          <label htmlFor="store-desc" className="text-sm text-luxury-mist">
+          <label htmlFor="store-desc" className="text-sm text-muted-foreground">
             Descrição
           </label>
           <textarea
             id="store-desc"
             rows={4}
-            className="mt-1 w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm"
+            className="mt-1 w-full rounded-lg border border-border bg-black/30 px-3 py-2 text-sm"
             {...register("description")}
           />
           <FieldError message={errors.description?.message} />
@@ -111,10 +111,10 @@ export function StoreSettingsForm({ storeId }: Props) {
         </Button>
 
         {data?.store.slug && (
-          <p className="text-sm text-luxury-mist">
+          <p className="text-sm text-muted-foreground">
             <Link
               href={`/seller/${data.store.slug}`}
-              className="text-luxury-gold hover:underline"
+              className="text-primary hover:underline"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -124,7 +124,7 @@ export function StoreSettingsForm({ storeId }: Props) {
         )}
       </form>
 
-      <section className="rounded-xl border border-white/10 bg-white/5 p-6">
+      <section className="surface-card p-6">
         <h3 className="mb-3 font-semibold">Avaliações</h3>
         <StoreReviewsManager storeId={storeId} />
       </section>

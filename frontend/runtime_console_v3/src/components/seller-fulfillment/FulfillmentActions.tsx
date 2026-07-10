@@ -51,15 +51,15 @@ export function FulfillmentActions({ status, onCommand, disabled }: Props) {
   if (!next && !canGenerateLabel) return null;
 
   return (
-    <div className="space-y-2 border-t border-white/10 pt-4">
-      <h3 className="text-sm font-semibold text-luxury-mist">Ações operacionais</h3>
+    <div className="space-y-2 border-t border-border pt-4">
+      <h3 className="text-sm font-semibold text-muted-foreground">Ações operacionais</h3>
       <div className="flex flex-wrap gap-2">
         {next && next !== "confirm_ship" && (
           <button
             type="button"
             disabled={disabled || loading}
             onClick={() => void run(next)}
-            className="rounded-lg bg-luxury-gold px-3 py-1.5 text-xs font-semibold text-luxury-onyx"
+            className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground"
           >
             {COMMAND_LABELS[next]}
           </button>
@@ -69,7 +69,7 @@ export function FulfillmentActions({ status, onCommand, disabled }: Props) {
             type="button"
             disabled={disabled || loading}
             onClick={() => void run("generate_label", "melhor_envio")}
-            className="rounded-lg border border-white/20 px-3 py-1.5 text-xs"
+            className="rounded-lg border border-border px-3 py-1.5 text-xs"
           >
             Gerar etiqueta Melhor Envio
           </button>
@@ -80,19 +80,19 @@ export function FulfillmentActions({ status, onCommand, disabled }: Props) {
               value={carrier}
               onChange={(e) => setCarrier(e.target.value)}
               placeholder="Transportadora"
-              className="rounded border border-white/10 bg-white/5 px-2 py-1 text-xs"
+              className="rounded border border-border bg-card shadow-card px-2 py-1 text-xs"
             />
             <input
               value={tracking}
               onChange={(e) => setTracking(e.target.value)}
               placeholder="Código de rastreio"
-              className="min-w-[140px] flex-1 rounded border border-white/10 bg-white/5 px-2 py-1 text-xs"
+              className="min-w-[140px] flex-1 rounded border border-border bg-card shadow-card px-2 py-1 text-xs"
             />
             <button
               type="button"
               disabled={disabled || loading || !tracking.trim()}
               onClick={() => void run("confirm_ship")}
-              className="rounded-lg bg-luxury-gold px-3 py-1.5 text-xs font-semibold text-luxury-onyx"
+              className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground"
             >
               {COMMAND_LABELS.confirm_ship}
             </button>

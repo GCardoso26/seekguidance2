@@ -93,17 +93,17 @@ export function TournamentRegistrationsManager({ tournamentId, tournamentName }:
         </Button>
       </div>
 
-      {isLoading && <p className="text-sm text-luxury-mist">Carregando inscritos…</p>}
+      {isLoading && <p className="text-sm text-muted-foreground">Carregando inscritos…</p>}
 
       {!isLoading && rows.length === 0 && (
-        <p className="rounded-xl border border-white/10 p-6 text-center text-sm text-luxury-mist">
+        <p className="rounded-xl border border-border p-6 text-center text-sm text-muted-foreground">
           Nenhum inscrito em {tournamentName}.
         </p>
       )}
 
-      <div className="overflow-x-auto rounded-xl border border-white/10">
+      <div className="overflow-x-auto rounded-xl border border-border">
         <table className="w-full min-w-[640px] text-left text-sm" data-testid="inscritos-table">
-          <thead className="border-b border-white/10 bg-white/5 text-luxury-mist">
+          <thead className="border-b border-border bg-muted/50 text-muted-foreground">
             <tr>
               <th className="px-4 py-3">Nome</th>
               <th className="px-4 py-3">Status</th>
@@ -123,21 +123,21 @@ export function TournamentRegistrationsManager({ tournamentId, tournamentName }:
                   <div className="flex flex-wrap gap-1">
                     <button
                       type="button"
-                      className="rounded border border-white/10 px-2 py-1 text-xs hover:border-emerald-500/40"
+                      className="rounded border border-border px-2 py-1 text-xs hover:border-emerald-500/40"
                       onClick={() => void runAction(row.id, "confirm")}
                     >
                       Confirmar
                     </button>
                     <button
                       type="button"
-                      className="rounded border border-white/10 px-2 py-1 text-xs hover:border-amber-500/40"
+                      className="rounded border border-border px-2 py-1 text-xs hover:border-amber-500/40"
                       onClick={() => void runAction(row.id, "mark_paid")}
                     >
                       Marcar pago
                     </button>
                     <button
                       type="button"
-                      className="rounded border border-white/10 px-2 py-1 text-xs hover:border-red-500/40"
+                      className="rounded border border-border px-2 py-1 text-xs hover:border-red-500/40"
                       onClick={() => void runAction(row.id, "cancel")}
                       data-testid={`cancel-inscrito-${row.id}`}
                     >

@@ -51,7 +51,7 @@ export function MultiSelectTCG({ selected, onChange, maxSelection = 5, className
           );
         })}
       </div>
-      <div className="flex max-h-40 flex-wrap gap-2 overflow-y-auto rounded-lg border border-white/10 p-2">
+      <div className="flex max-h-40 flex-wrap gap-2 overflow-y-auto rounded-lg border border-border p-2">
         {TCG_OPTIONS.filter((g) => g.enabled).map((g) => {
           const active = selected.includes(g.id);
           return (
@@ -62,8 +62,8 @@ export function MultiSelectTCG({ selected, onChange, maxSelection = 5, className
               className={cn(
                 "rounded-lg border px-2 py-1 text-xs transition",
                 active
-                  ? "border-luxury-gold bg-luxury-gold/15 text-luxury-gold-light"
-                  : "border-white/10 text-luxury-mist hover:border-white/20",
+                  ? "border-luxury-gold bg-primary/15 text-primary-light"
+                  : "border-border text-muted-foreground hover:border-border",
               )}
             >
               {g.label}
@@ -71,7 +71,7 @@ export function MultiSelectTCG({ selected, onChange, maxSelection = 5, className
           );
         })}
       </div>
-      <p className="text-xs text-luxury-mist/70">Até {maxSelection} jogos favoritos</p>
+      <p className="text-xs text-muted-foreground/70">Até {maxSelection} jogos favoritos</p>
     </div>
   );
 }

@@ -93,7 +93,7 @@ export function ReviewForm({
       <div>
         <p className="mb-2 text-sm font-medium">Sua nota</p>
         <ReviewStars value={rating} onChange={isEdit ? undefined : setRating} size="lg" readonly={isEdit} />
-        {isEdit && <p className="mt-1 text-xs text-luxury-mist">A nota não pode ser alterada após publicar.</p>}
+        {isEdit && <p className="mt-1 text-xs text-muted-foreground">A nota não pode ser alterada após publicar.</p>}
       </div>
       <div>
         <label htmlFor="comment" className="mb-2 block text-sm font-medium">
@@ -105,10 +105,10 @@ export function ReviewForm({
           value={comment}
           onChange={(e) => setComment(e.target.value)}
           rows={4}
-          className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm"
+          className="w-full surface-card rounded-lg px-3 py-2 text-sm"
           placeholder="Conte como foi a experiência de compra…"
         />
-        <p className="mt-1 text-xs text-luxury-mist">{comment.length}/500</p>
+        <p className="mt-1 text-xs text-muted-foreground">{comment.length}/500</p>
       </div>
       <div>
         <label className="text-sm">
@@ -133,14 +133,14 @@ export function ReviewForm({
                 <button
                   type="button"
                   onClick={() => setItemAsDescribed(true)}
-                  className={`rounded-lg px-3 py-1 text-xs ${itemAsDescribed ? "bg-emerald-600/30" : "bg-white/10"}`}
+                  className={`rounded-lg px-3 py-1 text-xs ${itemAsDescribed ? "bg-emerald-600/30" : "bg-muted"}`}
                 >
                   Sim
                 </button>
                 <button
                   type="button"
                   onClick={() => setItemAsDescribed(false)}
-                  className={`rounded-lg px-3 py-1 text-xs ${!itemAsDescribed ? "bg-red-600/30" : "bg-white/10"}`}
+                  className={`rounded-lg px-3 py-1 text-xs ${!itemAsDescribed ? "bg-red-600/30" : "bg-muted"}`}
                 >
                   Não
                 </button>
@@ -165,7 +165,7 @@ export function ReviewForm({
       <button
         type="submit"
         disabled={loading || (!isEdit && rating < 1)}
-        className="w-full rounded-lg bg-luxury-gold py-3 font-semibold text-luxury-onyx disabled:opacity-50"
+        className="w-full rounded-lg bg-primary py-3 font-semibold text-primary-foreground disabled:opacity-50"
       >
         {loading ? "Enviando…" : isEdit ? "Salvar edição" : "Publicar avaliação"}
       </button>

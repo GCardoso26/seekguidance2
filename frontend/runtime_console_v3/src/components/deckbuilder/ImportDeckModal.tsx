@@ -59,22 +59,22 @@ export function ImportDeckModal({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/70 p-4 backdrop-blur-sm">
-      <div className="mx-auto flex h-full max-h-[90vh] w-full max-w-2xl flex-col rounded-xl border border-white/10 bg-luxury-onyx">
-        <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
-          <h2 className="text-lg font-semibold text-luxury-frost">Importar deck</h2>
-          <button type="button" className="rounded-md p-2 hover:bg-white/10" onClick={onClose} aria-label="Fechar">
+      <div className="mx-auto flex h-full max-h-[90vh] w-full max-w-2xl flex-col rounded-xl border border-border bg-background">
+        <div className="flex items-center justify-between border-b border-border px-4 py-3">
+          <h2 className="text-lg font-semibold text-foreground">Importar deck</h2>
+          <button type="button" className="rounded-md p-2 hover:bg-muted" onClick={onClose} aria-label="Fechar">
             <X className="h-4 w-4" />
           </button>
         </div>
 
         <div className="flex-1 space-y-4 overflow-y-auto p-4">
-          <label className="block text-sm text-luxury-mist">
+          <label className="block text-sm text-muted-foreground">
             Cole sua lista (ex: 4 Lightning Bolt ou SB: 3 Pyroblast)
             <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
               rows={8}
-              className="mt-2 w-full rounded-md border border-white/10 bg-luxury-obsidian p-3 font-mono text-sm text-luxury-frost"
+              className="mt-2 w-full rounded-md border border-border bg-card p-3 font-mono text-sm text-foreground"
               placeholder={"4 Lightning Bolt\n2 Counterspell\nSB: 3 Pyroblast"}
             />
           </label>
@@ -84,12 +84,12 @@ export function ImportDeckModal({
           </Button>
 
           <div>
-            <h3 className="mb-2 text-sm font-medium text-luxury-frost">Preview</h3>
+            <h3 className="mb-2 text-sm font-medium text-foreground">Preview</h3>
             <ImportPreview items={preview} />
           </div>
         </div>
 
-        <div className="flex justify-end gap-2 border-t border-white/10 p-4">
+        <div className="flex justify-end gap-2 border-t border-border p-4">
           <Button type="button" variant="outline" onClick={onClose}>
             Cancelar
           </Button>

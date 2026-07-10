@@ -30,11 +30,11 @@ export default function CatalogoExpansoesPage() {
         <PageHeader title="Expansões" description="Sets por jogo — importe cards em massa." />
         <GameSelectorTabs activeSlug={game} onChange={setGame} />
         {isLoading ? (
-          <p className="text-sm text-luxury-mist">Carregando…</p>
+          <p className="text-sm text-muted-foreground">Carregando…</p>
         ) : (
-          <div className="overflow-x-auto rounded-xl border border-white/10">
+          <div className="overflow-x-auto rounded-xl border border-border">
             <table className="w-full text-sm">
-              <thead className="bg-white/5 text-left text-luxury-mist">
+              <thead className="bg-muted/50 text-left text-muted-foreground">
                 <tr>
                   <th className="p-3">Expansão</th>
                   <th className="p-3">Sigla</th>
@@ -46,7 +46,7 @@ export default function CatalogoExpansoesPage() {
               </thead>
               <tbody>
                 {(data?.expansions ?? []).map((exp) => (
-                  <tr key={String(exp.code)} className="border-t border-white/10">
+                  <tr key={String(exp.code)} className="border-t border-border">
                     <td className="p-3">{String(exp.name)}</td>
                     <td className="p-3 font-mono">{String(exp.code)}</td>
                     <td className="p-3">{String(exp.release_date ?? "—")}</td>
@@ -59,7 +59,7 @@ export default function CatalogoExpansoesPage() {
                       <button
                         type="button"
                         onClick={() => void importSet(String(exp.code))}
-                        className="text-xs text-luxury-gold underline"
+                        className="text-xs text-primary underline"
                       >
                         Importar
                       </button>

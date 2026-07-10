@@ -106,7 +106,7 @@ function PedidosContent() {
           <button
             type="button"
             onClick={exportOrders}
-            className="rounded-lg border border-white/20 px-3 py-2 text-sm hover:bg-white/5"
+            className="rounded-lg border border-border px-3 py-2 text-sm hover:bg-muted/80"
           >
             Exportar CSV
           </button>
@@ -131,7 +131,7 @@ function PedidosContent() {
       {error instanceof Error ? (
         <PageError message="Não foi possível carregar os pedidos." onRetry={() => void refetch()} />
       ) : isLoading ? (
-        <p className="text-sm text-luxury-mist">Carregando pedidos…</p>
+        <p className="text-sm text-muted-foreground">Carregando pedidos…</p>
       ) : (
         <>
           <OrdersDataTable
@@ -164,7 +164,7 @@ export default function PedidosPage() {
   return (
     <>
       <SellerHeader action={null} />
-      <Suspense fallback={<p className="p-6 text-luxury-mist">Carregando…</p>}>
+      <Suspense fallback={<p className="p-6 text-muted-foreground">Carregando…</p>}>
         <PedidosContent />
       </Suspense>
     </>

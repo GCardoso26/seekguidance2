@@ -53,14 +53,14 @@ export function DataTable<T>({
   });
 
   if (data.length === 0) {
-    return <p className="text-sm text-luxury-mist">{emptyMessage}</p>;
+    return <p className="text-sm text-muted-foreground">{emptyMessage}</p>;
   }
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-white/10" data-testid={testId}>
+    <div className="overflow-x-auto rounded-xl border border-border" data-testid={testId}>
       <table className={`w-full min-w-[640px] text-left text-sm ${density === "compact" ? "text-xs" : ""}`}>
         <thead
-          className={`border-b border-white/10 bg-white/5 ${stickyHeader ? "sticky top-0 z-10 backdrop-blur-sm" : ""}`}
+          className={`border-b border-border bg-muted/50 ${stickyHeader ? "sticky top-0 z-10 backdrop-blur-sm" : ""}`}
         >
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id}>
@@ -71,7 +71,7 @@ export function DataTable<T>({
                   <th
                     key={header.id}
                     className={cn(
-                      "px-4 font-medium text-luxury-mist",
+                      "px-4 font-medium text-muted-foreground",
                       density === "compact" ? "py-2" : "py-3",
                     )}
                     aria-sort={
@@ -83,7 +83,7 @@ export function DataTable<T>({
                         type="button"
                         className={cn(
                           "inline-flex items-center gap-1 hover:text-white",
-                          sorted && "text-luxury-gold",
+                          sorted && "text-primary",
                         )}
                         onClick={header.column.getToggleSortingHandler()}
                       >

@@ -14,9 +14,9 @@ export function SellerAiAssistantWidget() {
         className="rounded-xl border border-luxury-gold/20 bg-gradient-to-br from-luxury-gold/5 to-transparent p-4"
         data-testid="seller-ai-widget-skeleton"
       >
-        <div className="h-4 w-32 animate-pulse rounded bg-white/10" />
-        <div className="mt-3 h-3 w-full animate-pulse rounded bg-white/5" />
-        <div className="mt-2 h-3 w-2/3 animate-pulse rounded bg-white/5" />
+        <div className="h-4 w-32 animate-pulse rounded bg-muted" />
+        <div className="mt-3 h-3 w-full animate-pulse rounded bg-muted/50" />
+        <div className="mt-2 h-3 w-2/3 animate-pulse rounded bg-muted/50" />
       </div>
     );
   }
@@ -25,23 +25,23 @@ export function SellerAiAssistantWidget() {
 
   return (
     <section
-      className="rounded-xl border border-luxury-gold/25 bg-gradient-to-br from-luxury-gold/8 to-luxury-obsidian p-4"
+      className="rounded-xl border border-luxury-gold/25 bg-gradient-to-br from-luxury-gold/8 to-card p-4"
       data-testid="seller-ai-assistant-widget"
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-2">
-          <Sparkles className="h-4 w-4 text-luxury-gold" aria-hidden />
-          <h3 className="text-sm font-semibold text-luxury-frost">Assistente da Loja</h3>
+          <Sparkles className="h-4 w-4 text-primary" aria-hidden />
+          <h3 className="text-sm font-semibold text-foreground">Assistente da Loja</h3>
         </div>
-        <span className="rounded-full bg-luxury-gold/15 px-2 py-0.5 text-[10px] font-medium text-luxury-gold">
+        <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-medium text-primary">
           {data.opportunity_count} oportunidades
         </span>
       </div>
 
-      <p className="mt-2 line-clamp-3 whitespace-pre-line text-xs text-luxury-mist">{data.summary}</p>
+      <p className="mt-2 line-clamp-3 whitespace-pre-line text-xs text-muted-foreground">{data.summary}</p>
 
       {data.metrics.revenue_today_cents != null && data.metrics.revenue_today_cents > 0 && (
-        <p className="mt-2 text-xs text-luxury-frost">
+        <p className="mt-2 text-xs text-foreground">
           Receita hoje: <span className="font-medium text-emerald-400">{formatShopPrice(data.metrics.revenue_today_cents)}</span>
         </p>
       )}
@@ -51,10 +51,10 @@ export function SellerAiAssistantWidget() {
           <li key={ins.id}>
             <Link
               href={ins.cta_href}
-              className="flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-xs hover:bg-white/5"
+              className="flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-xs hover:bg-muted/80"
             >
-              <span className="truncate text-luxury-frost">{ins.title}</span>
-              <ArrowRight className="h-3 w-3 shrink-0 text-luxury-mist" />
+              <span className="truncate text-foreground">{ins.title}</span>
+              <ArrowRight className="h-3 w-3 shrink-0 text-muted-foreground" />
             </Link>
           </li>
         ))}
@@ -62,7 +62,7 @@ export function SellerAiAssistantWidget() {
 
       <Link
         href="/vendedor/painel/insights"
-        className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-luxury-gold hover:underline"
+        className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
         data-testid="seller-ai-see-all"
       >
         Ver todas as recomendações

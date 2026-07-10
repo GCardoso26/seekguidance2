@@ -23,14 +23,14 @@ export function PendingActions({
   ].filter((i): i is { count: number; label: string; href: string } => Boolean(i && i.count > 0));
 
   if (items.length === 0) {
-    return <p className="text-sm text-luxury-mist">Nenhuma ação pendente.</p>;
+    return <p className="text-sm text-muted-foreground">Nenhuma ação pendente.</p>;
   }
 
   return (
     <ul className="space-y-2 text-sm">
       {items.map((item) => (
         <li key={item.label}>
-          <Link href={item.href} className="text-luxury-gold hover:underline">
+          <Link href={item.href} className="text-primary hover:underline">
             • {item.count} {item.label}
           </Link>
         </li>

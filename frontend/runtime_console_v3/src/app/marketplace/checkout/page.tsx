@@ -2,15 +2,19 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { ArrowLeft, Truck } from "lucide-react";
 import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import { CheckoutOrderSummary } from "@/components/checkout/CheckoutOrderSummary";
 import { CheckoutProgressBar } from "@/components/checkout/CheckoutProgressBar";
+import { CheckoutPaymentMethodPicker } from "@/components/checkout/CheckoutPaymentMethodPicker";
 import { EnhancedPixCheckoutPanel } from "@/components/checkout/EnhancedPixCheckoutPanel";
 import { CouponApply } from "@/components/checkout/CouponApply";
 import { CpfCheckoutModal } from "@/components/kyc/CpfCheckoutModal";
 import { InlineLoading } from "@/components/ui/async-state";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { needsCpfCompletion, useAccountStatus } from "@/hooks/useAccountStatus";
 import { useShopCart } from "@/hooks/useShopCart";
 import { useSmartCart } from "@/hooks/useBuyerExperience";
@@ -69,10 +73,10 @@ function StripeCheckoutForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <PaymentElement />
-      {error && <p className="text-sm text-red-400">{error}</p>}
-      <button type="submit" disabled={!stripe || loading} className="w-full rounded-lg bg-luxury-gold py-3 font-semibold text-luxury-onyx disabled:opacity-50">
-        {loading ? "Processando…" : "Pagar com cartão"}
-      </button>
+      {error && <p className="text-small text-danger">{error}</p>}
+      <Button type="submit" size="lg" className="w-full" disabled={!stripe || loading} loading={loading}>
+        Pagar com cartão
+      </Button>
     </form>
   );
 }
@@ -218,7 +222,6 @@ export default function CheckoutPage() {
   useEffect(() => {
     if (!methods || !checkoutSession || pixData || clientSecret || reservationError) return;
     if (method === "stripe" && methods.methods.stripe) void startStripe();
-    // PIX exige clique explícito (permite aplicar cupom antes)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [method, methods, checkoutSession, reservationError]);
 
@@ -227,9 +230,7 @@ export default function CheckoutPage() {
     const storeId = methods?.stores?.[0]?.store_id;
     if (storeId) {
       setAppliedCoupon({ code, storeId });
-      if (pixData) {
-        setPixData(null);
-      }
+      if (pixData) setPixData(null);
     }
   }
 
@@ -246,19 +247,34 @@ export default function CheckoutPage() {
   const summarySubtotal = productSubtotal;
   const summaryTotal = pixData?.amount_cents ?? previewTotal;
   const cartItems = cart?.items ?? [];
+  const showPaymentStep =
+    methods && (methods.methods.pix || methods.methods.stripe) && !pixData && !clientSecret && checkoutSession && !reservationError;
 
   return (
     <MobileLayout>
       <SkipToMain />
-      <div className="container mx-auto max-w-6xl px-4 py-8" id="main-content">
-        <Link href="/carrinho" className="text-sm text-luxury-mist hover:text-luxury-frost">
-          ← Carrinho
+      <div className="page-container py-6 lg:py-8" id="main-content">
+        <Link
+          href="/carrinho"
+          className="inline-flex items-center gap-1.5 text-small text-muted-foreground transition-colors hover:text-foreground"
+        >
+          <ArrowLeft className="h-4 w-4" aria-hidden />
+          Voltar ao carrinho
         </Link>
-        <h1 className="mt-4 text-2xl font-bold">Checkout</h1>
-        <CheckoutProgressBar currentStep="payment" />
 
-        <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
-          <div className="order-2 min-w-0 space-y-4 lg:order-1">
+        <header className="mt-4 space-y-4">
+          <div>
+            <h1 className="text-h1 text-foreground">Finalizar compra</h1>
+            <p className="mt-1 text-small text-muted-foreground">
+              Revise o resumo, escolha o pagamento e conclua com segurança.
+            </p>
+          </div>
+          <CheckoutProgressBar currentStep="payment" />
+        </header>
+
+        <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
+          {/* Coluna principal — fluxo de pagamento */}
+          <div className="min-w-0 space-y-5">
             {checkoutSession?.expires_at && !reservationError && (
               <CheckoutReservationBanner
                 expiresAt={checkoutSession.expires_at}
@@ -266,14 +282,47 @@ export default function CheckoutPage() {
               />
             )}
 
-            {reservationError && <p className="text-red-400">{reservationError}</p>}
+            {reservationError && (
+              <div className="rounded-xl border border-danger/30 bg-danger/10 px-4 py-3 text-small text-danger" role="alert">
+                {reservationError}
+              </div>
+            )}
 
             {!checkoutSession && !reservationError && (
-              <InlineLoading message="Reservando estoque…" className="py-8" />
+              <Card padding="md">
+                <InlineLoading message="Reservando estoque…" className="py-6" />
+              </Card>
+            )}
+
+            {smartCart?.summary && checkoutSession && !reservationError && (
+              <Card variant="muted" padding="md">
+                <CardHeader className="flex-row items-center gap-2 space-y-0 p-0 pb-3">
+                  <Truck className="h-4 w-4 text-primary" aria-hidden />
+                  <CardTitle className="text-h3">Entrega estimada</CardTitle>
+                </CardHeader>
+                <CardContent className="grid gap-2 p-0 text-small sm:grid-cols-3">
+                  <div>
+                    <p className="text-caption text-muted-foreground">Frete</p>
+                    <p className="font-semibold">
+                      {smartCart.summary.estimated_shipping_cents != null
+                        ? formatShopPrice(smartCart.summary.estimated_shipping_cents)
+                        : "No carrinho"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-caption text-muted-foreground">Prazo</p>
+                    <p className="font-semibold">~{smartCart.summary.estimated_sla_days ?? "—"} dias</p>
+                  </div>
+                  <div>
+                    <p className="text-caption text-muted-foreground">Lojas</p>
+                    <p className="font-semibold">{smartCart.summary.store_count ?? 1}</p>
+                  </div>
+                </CardContent>
+              </Card>
             )}
 
             {methods?.stores?.length === 1 && checkoutSession && !reservationError && (
-              <>
+              <div className="space-y-4">
                 <EscrowToggle
                   enabled={useEscrow}
                   onChange={(value) => {
@@ -290,102 +339,104 @@ export default function CheckoutPage() {
                   onApplied={handleCouponApplied}
                   onClear={handleCouponClear}
                 />
-              </>
+              </div>
             )}
 
-            {methods &&
-              (methods.methods.pix || methods.methods.stripe) &&
-              !pixData &&
-              !clientSecret &&
-              checkoutSession &&
-              !reservationError && (
-                <div className="flex gap-3">
-                  {methods.methods.pix && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setPixData(null);
-                        setClientSecret(null);
-                        setMethod("pix");
-                      }}
-                      className={`flex-1 rounded-lg border p-4 text-left ${method === "pix" ? "border-emerald-500 bg-emerald-500/10" : "border-white/10"}`}
-                    >
-                      <div className="font-semibold">PIX</div>
-                      <div className="text-xs text-emerald-400">Zero comissão</div>
-                    </button>
-                  )}
-                  {methods.methods.stripe && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setPixData(null);
-                        setClientSecret(null);
-                        setMethod("stripe");
-                        void startStripe();
-                      }}
-                      className={`flex-1 rounded-lg border p-4 text-left ${method === "stripe" ? "border-blue-500 bg-blue-500/10" : "border-white/10"}`}
-                    >
-                      <div className="font-semibold">Cartão</div>
-                      <div className="text-xs text-luxury-mist">Stripe (opcional)</div>
-                    </button>
-                  )}
-                </div>
-              )}
+            {showPaymentStep && (
+              <Card padding="md" className="space-y-5">
+                <CheckoutPaymentMethodPicker
+                  method={method}
+                  pixAvailable={methods.methods.pix}
+                  stripeAvailable={methods.methods.stripe}
+                  onSelectPix={() => {
+                    setPixData(null);
+                    setClientSecret(null);
+                    setMethod("pix");
+                  }}
+                  onSelectStripe={() => {
+                    setPixData(null);
+                    setClientSecret(null);
+                    setMethod("stripe");
+                    void startStripe();
+                  }}
+                />
 
-            {method === "pix" &&
-              methods?.methods.pix &&
-              !pixData &&
-              !clientSecret &&
-              checkoutSession &&
-              !reservationError && (
-                <button
-                  type="button"
-                  data-testid="generate-pix"
-                  disabled={pixLoading}
-                  onClick={() => void startPix()}
-                  className="w-full rounded-lg bg-emerald-600 py-3 font-semibold text-white disabled:opacity-50"
-                >
-                  {pixLoading ? "Gerando PIX…" : "Gerar PIX"}
-                </button>
-              )}
+                {method === "pix" && methods.methods.pix && (
+                  <Button
+                    type="button"
+                    size="lg"
+                    className="w-full bg-success hover:bg-success/90"
+                    data-testid="generate-pix"
+                    disabled={pixLoading}
+                    loading={pixLoading}
+                    onClick={() => void startPix()}
+                  >
+                    Gerar código PIX
+                  </Button>
+                )}
+              </Card>
+            )}
 
-            {initError && <p className="text-red-400">{initError}</p>}
+            {initError && (
+              <p className="text-small text-danger" role="alert">
+                {initError}
+              </p>
+            )}
+
             {loading && !pixData && !clientSecret && !initError && method === "stripe" && (
-              <InlineLoading message="Preparando pagamento…" className="py-8" />
+              <Card padding="md">
+                <InlineLoading message="Preparando pagamento com cartão…" className="py-6" />
+              </Card>
             )}
 
             {pixData && (
-              <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-                <EnhancedPixCheckoutPanel
-                  pix={pixData}
-                  onRegenerate={() => {
-                    setPixData(null);
-                    void startPix();
-                  }}
-                />
-                <p className="mt-2 text-center text-lg font-bold" data-testid="final-amount">
-                  {formatShopPrice(pixData.amount_cents)}
-                </p>
-                <Link
-                  href="/marketplace/orders"
-                  className="mt-4 block text-center text-sm text-luxury-gold underline"
-                >
-                  Meus pedidos
-                </Link>
-              </div>
+              <Card padding="md">
+                <CardHeader className="p-0 pb-4">
+                  <CardTitle className="text-h3">Pague com PIX</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4 p-0">
+                  <EnhancedPixCheckoutPanel
+                    pix={pixData}
+                    onRegenerate={() => {
+                      setPixData(null);
+                      void startPix();
+                    }}
+                  />
+                  <div className="rounded-xl bg-muted/40 px-4 py-3 text-center">
+                    <p className="text-caption text-muted-foreground">Valor total</p>
+                    <p className="font-mono text-2xl font-bold" data-testid="final-amount">
+                      {formatShopPrice(pixData.amount_cents)}
+                    </p>
+                  </div>
+                  <Button asChild variant="outline" className="w-full">
+                    <Link href="/marketplace/orders">Ver meus pedidos</Link>
+                  </Button>
+                </CardContent>
+              </Card>
             )}
 
             {clientSecret && stripePromise && (
-              <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-                <Elements stripe={stripePromise} options={{ clientSecret, appearance: { theme: "night" } }}>
-                  <StripeCheckoutForm />
-                </Elements>
-              </div>
+              <Card padding="md">
+                <CardHeader className="p-0 pb-4">
+                  <CardTitle className="text-h3">Pagamento com cartão</CardTitle>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <Elements
+                    stripe={stripePromise}
+                    options={{
+                      clientSecret,
+                      appearance: { theme: "stripe", variables: { colorPrimary: "#7c3aed" } },
+                    }}
+                  >
+                    <StripeCheckoutForm />
+                  </Elements>
+                </CardContent>
+              </Card>
             )}
           </div>
 
+          {/* Resumo sticky */}
           <CheckoutOrderSummary
-            className="order-1 lg:order-2"
             items={cartItems}
             subtotalCents={summarySubtotal}
             discountCents={discountCents}

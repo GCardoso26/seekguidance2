@@ -20,7 +20,7 @@ export function ProductCategoryIcon({ categoryId, size = 32, className, showLabe
   return (
     <span className={cn("inline-flex items-center gap-2", className)}>
       <span
-        className="relative flex shrink-0 items-center justify-center rounded-lg bg-white/5 p-1"
+        className="relative flex shrink-0 items-center justify-center rounded-lg bg-muted/50 p-1"
         style={{ width: size + 8, height: size + 8 }}
       >
         {!failed ? (
@@ -33,10 +33,10 @@ export function ProductCategoryIcon({ categoryId, size = 32, className, showLabe
             onError={() => setFailed(true)}
           />
         ) : (
-          <Package className="h-5 w-5 text-luxury-mist" aria-hidden />
+          <Package className="h-5 w-5 text-muted-foreground" aria-hidden />
         )}
       </span>
-      {showLabel && <span className="text-sm text-luxury-frost">{categoryLabel(categoryId)}</span>}
+      {showLabel && <span className="text-sm text-foreground">{categoryLabel(categoryId)}</span>}
     </span>
   );
 }

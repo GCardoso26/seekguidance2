@@ -53,12 +53,12 @@ export function SellerReviews({ sellerId }: Props) {
   return (
     <div className="space-y-6">
       {summary && summary.total > 0 && (
-        <div className="rounded-xl border border-white/10 bg-white/5 p-6">
+        <div className="surface-card p-6">
           <div className="flex flex-wrap items-center gap-4">
-            <span className="text-4xl font-bold text-luxury-gold">{summary.average.toFixed(1)}</span>
+            <span className="text-4xl font-bold text-primary">{summary.average.toFixed(1)}</span>
             <div>
               <ReviewStarsDisplay rating={summary.average} size="md" />
-              <p className="text-sm text-luxury-mist">{summary.total} avaliações · {summary.positive_rate}% positivas</p>
+              <p className="text-sm text-muted-foreground">{summary.total} avaliações · {summary.positive_rate}% positivas</p>
             </div>
           </div>
           <div className="mt-4 max-w-xs">
@@ -71,7 +71,7 @@ export function SellerReviews({ sellerId }: Props) {
         <button
           type="button"
           onClick={() => { setRatingFilter(null); setPage(1); }}
-          className={`rounded-full px-3 py-1 text-xs ${ratingFilter === null ? "bg-luxury-gold text-luxury-onyx" : "bg-white/10"}`}
+          className={`rounded-full px-3 py-1 text-xs ${ratingFilter === null ? "bg-primary text-primary-foreground" : "bg-muted"}`}
         >
           Todas
         </button>
@@ -80,16 +80,16 @@ export function SellerReviews({ sellerId }: Props) {
             key={r}
             type="button"
             onClick={() => { setRatingFilter(r); setPage(1); }}
-            className={`rounded-full px-3 py-1 text-xs ${ratingFilter === r ? "bg-luxury-gold text-luxury-onyx" : "bg-white/10"}`}
+            className={`rounded-full px-3 py-1 text-xs ${ratingFilter === r ? "bg-primary text-primary-foreground" : "bg-muted"}`}
           >
             {r} ★
           </button>
         ))}
       </div>
 
-      {isLoading && <p className="text-luxury-mist">Carregando…</p>}
+      {isLoading && <p className="text-muted-foreground">Carregando…</p>}
       {!isLoading && reviews.length === 0 && (
-        <p className="py-8 text-center text-luxury-mist">Nenhuma avaliação ainda.</p>
+        <p className="py-8 text-center text-muted-foreground">Nenhuma avaliação ainda.</p>
       )}
       <div className="space-y-4">
         {reviews.map((review) => (
@@ -103,16 +103,16 @@ export function SellerReviews({ sellerId }: Props) {
             type="button"
             disabled={page <= 1}
             onClick={() => setPage((p) => p - 1)}
-            className="rounded-lg bg-white/10 px-3 py-1 text-sm disabled:opacity-40"
+            className="rounded-lg bg-muted px-3 py-1 text-sm disabled:opacity-40"
           >
             Anterior
           </button>
-          <span className="text-sm text-luxury-mist">Página {page}</span>
+          <span className="text-sm text-muted-foreground">Página {page}</span>
           <button
             type="button"
             disabled={page * 10 >= total}
             onClick={() => setPage((p) => p + 1)}
-            className="rounded-lg bg-white/10 px-3 py-1 text-sm disabled:opacity-40"
+            className="rounded-lg bg-muted px-3 py-1 text-sm disabled:opacity-40"
           >
             Próxima
           </button>

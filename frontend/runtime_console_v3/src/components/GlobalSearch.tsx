@@ -50,7 +50,7 @@ export function GlobalSearchTrigger({ onOpen, className }: GlobalSearchTriggerPr
 
         className ??
 
-        "flex min-h-[44px] flex-1 items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-luxury-mist hover:bg-white/10 lg:max-w-md"
+        "flex min-h-[44px] flex-1 items-center gap-2 surface-card rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-muted lg:max-w-md"
 
       }
 
@@ -64,7 +64,7 @@ export function GlobalSearchTrigger({ onOpen, className }: GlobalSearchTriggerPr
 
       <span className="flex-1 text-left">Pesquisar…</span>
 
-      <kbd className="hidden rounded border border-white/20 px-1.5 text-[10px] sm:inline">⌘K</kbd>
+      <kbd className="hidden rounded border border-border px-1.5 text-[10px] sm:inline">⌘K</kbd>
 
     </button>
 

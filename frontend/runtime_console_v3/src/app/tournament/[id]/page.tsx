@@ -53,7 +53,7 @@ function TournamentPublicSection({ id }: { id: string }) {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold">{String(t?.name ?? "Torneio")}</h1>
-          <p className="mt-1 text-sm text-luxury-mist">
+          <p className="mt-1 text-sm text-muted-foreground">
             {String(t?.game_code ?? "")} · {String(t?.format_code ?? "")}
           </p>
         </div>
@@ -62,15 +62,15 @@ function TournamentPublicSection({ id }: { id: string }) {
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <div className="luxury-card rounded-xl p-4">
-          <p className="text-xs text-luxury-mist">Data</p>
+          <p className="text-xs text-muted-foreground">Data</p>
           <p className="font-medium">{formatDate(t?.starts_at as string)}</p>
         </div>
         <div className="luxury-card rounded-xl p-4">
-          <p className="text-xs text-luxury-mist">Local</p>
+          <p className="text-xs text-muted-foreground">Local</p>
           <p className="font-medium">{String(t?.city ?? t?.location ?? "Online")}</p>
         </div>
         <div className="luxury-card rounded-xl p-4">
-          <p className="text-xs text-luxury-mist">Taxa</p>
+          <p className="text-xs text-muted-foreground">Taxa</p>
           <p className="font-medium">{formatFee(entryFee)}</p>
         </div>
       </div>
@@ -79,14 +79,14 @@ function TournamentPublicSection({ id }: { id: string }) {
         <div className="luxury-card space-y-3 rounded-xl p-6">
           {Boolean(t?.description) && (
             <div>
-              <h2 className="text-sm font-semibold text-luxury-frost">Descrição</h2>
-              <p className="mt-1 text-sm text-luxury-mist">{String(t?.description)}</p>
+              <h2 className="text-sm font-semibold text-foreground">Descrição</h2>
+              <p className="mt-1 text-sm text-muted-foreground">{String(t?.description)}</p>
             </div>
           )}
           {Boolean(t?.prize_pool) && (
             <div>
-              <h2 className="text-sm font-semibold text-luxury-frost">Prêmios</h2>
-              <p className="mt-1 text-sm text-luxury-mist">{String(t?.prize_pool)}</p>
+              <h2 className="text-sm font-semibold text-foreground">Prêmios</h2>
+              <p className="mt-1 text-sm text-muted-foreground">{String(t?.prize_pool)}</p>
             </div>
           )}
         </div>
@@ -105,13 +105,13 @@ function TournamentPublicSection({ id }: { id: string }) {
       <div className="flex flex-wrap gap-2">
         <Link
           href={`/tournament/${id}/play`}
-          className="min-h-[44px] rounded-lg border border-white/10 px-4 py-2 text-sm"
+          className="min-h-[44px] rounded-lg border border-border px-4 py-2 text-sm"
         >
           Vista jogador
         </Link>
         <Link
           href={`/tournament/${id}/bracket`}
-          className="min-h-[44px] rounded-lg border border-white/10 px-4 py-2 text-sm"
+          className="min-h-[44px] rounded-lg border border-border px-4 py-2 text-sm"
         >
           Bracket
         </Link>
@@ -133,12 +133,12 @@ function OrganizerSection({ id }: { id: string }) {
   const phase = String(t?.phase ?? t?.status ?? "");
 
   return (
-    <div className="mt-10 space-y-8 border-t border-white/10 pt-8" data-testid="tournament-organizer-section">
+    <div className="mt-10 space-y-8 border-t border-border pt-8" data-testid="tournament-organizer-section">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-xl font-semibold">Painel do organizador</h2>
         <Link
           href={`/vendedor/painel/torneios/${id}/inscritos`}
-          className="rounded-lg border border-luxury-gold/40 px-4 py-2 text-sm text-luxury-gold"
+          className="rounded-lg border border-primary/40 px-4 py-2 text-sm text-primary"
           data-testid="tournament-manage-registrations"
         >
           Gerenciar inscritos
@@ -149,14 +149,14 @@ function OrganizerSection({ id }: { id: string }) {
         <button
           type="button"
           onClick={() => flow.startCheckIn.mutate()}
-          className="min-h-[44px] rounded-lg border border-white/10 px-4 py-2 text-sm"
+          className="min-h-[44px] rounded-lg border border-border px-4 py-2 text-sm"
         >
           Abrir check-in
         </button>
         <button
           type="button"
           onClick={() => flow.startTournament.mutate()}
-          className="min-h-[44px] rounded-lg bg-luxury-gold px-4 py-2 text-sm font-semibold text-luxury-onyx"
+          className="min-h-[44px] rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
         >
           Iniciar torneio
         </button>
@@ -176,7 +176,7 @@ function OrganizerSection({ id }: { id: string }) {
             type="button"
             disabled={flow.advanceTopCut.isPending}
             onClick={() => void flow.advanceTopCut.mutateAsync()}
-            className="rounded-lg bg-luxury-gold px-4 py-2 text-sm font-semibold text-luxury-onyx"
+            className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
           >
             Iniciar Top Cut
           </button>
@@ -191,7 +191,7 @@ function OrganizerSection({ id }: { id: string }) {
       {prizePool > 0 && (
         <section className="luxury-card rounded-xl p-4">
           <h3 className="mb-2 text-lg font-semibold">Premiação</h3>
-          <p className="text-sm text-luxury-mist">Pool: R$ {prizePool.toFixed(2)}</p>
+          <p className="text-sm text-muted-foreground">Pool: R$ {prizePool.toFixed(2)}</p>
         </section>
       )}
 
@@ -226,7 +226,7 @@ function Dashboard() {
         <TournamentPublicSection id={id} />
         {isOrganizer && <OrganizerSection id={id} />}
         {!isOrganizer && user && (
-          <p className="text-xs text-luxury-mist">Somente o organizador pode gerenciar rodadas.</p>
+          <p className="text-xs text-muted-foreground">Somente o organizador pode gerenciar rodadas.</p>
         )}
       </main>
     </div>

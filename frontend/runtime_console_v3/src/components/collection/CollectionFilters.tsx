@@ -35,12 +35,12 @@ export function CollectionFilters({
         value={q}
         onChange={(e) => onQChange(e.target.value)}
         placeholder="Buscar por nome"
-        className="border-white/10 bg-luxury-obsidian"
+        className="border-border bg-card"
       />
       <select
         value={game}
         onChange={(e) => onGameChange(e.target.value)}
-        className="rounded-md border border-white/10 bg-luxury-obsidian px-3 py-2 text-sm"
+        className="rounded-md border border-border bg-card px-3 py-2 text-sm"
       >
         <option value="">Todos os jogos</option>
         <option value="MTG">Magic</option>
@@ -51,7 +51,7 @@ export function CollectionFilters({
       <select
         value={condition}
         onChange={(e) => onConditionChange(e.target.value)}
-        className="rounded-md border border-white/10 bg-luxury-obsidian px-3 py-2 text-sm"
+        className="rounded-md border border-border bg-card px-3 py-2 text-sm"
       >
         <option value="">Condição</option>
         {COLLECTION_CONDITIONS.map((c) => (
@@ -63,7 +63,7 @@ export function CollectionFilters({
       <select
         value={foil}
         onChange={(e) => onFoilChange(e.target.value)}
-        className="rounded-md border border-white/10 bg-luxury-obsidian px-3 py-2 text-sm"
+        className="rounded-md border border-border bg-card px-3 py-2 text-sm"
       >
         <option value="">Foil / Normal</option>
         <option value="foil">Foil</option>
@@ -72,7 +72,7 @@ export function CollectionFilters({
       <select
         value={sort}
         onChange={(e) => onSortChange(e.target.value as CollectionSort)}
-        className="rounded-md border border-white/10 bg-luxury-obsidian px-3 py-2 text-sm"
+        className="rounded-md border border-border bg-card px-3 py-2 text-sm"
       >
         <option value="name">Ordenar: nome</option>
         <option value="acquired">Ordenar: data</option>

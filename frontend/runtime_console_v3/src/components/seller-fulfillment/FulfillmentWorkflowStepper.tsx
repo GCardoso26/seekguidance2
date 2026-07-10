@@ -14,7 +14,7 @@ export function FulfillmentWorkflowStepper({ status }: Props) {
 
   return (
     <div className="space-y-2">
-      <h3 className="text-sm font-semibold text-luxury-mist">Fluxo de fulfillment</h3>
+      <h3 className="text-sm font-semibold text-muted-foreground">Fluxo de fulfillment</h3>
       {terminal ? (
         <p className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-200">
           Estado: {current}
@@ -29,10 +29,10 @@ export function FulfillmentWorkflowStepper({ status }: Props) {
                 key={step.status}
                 className={`rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide ${
                   active
-                    ? "bg-luxury-gold text-luxury-onyx"
+                    ? "bg-primary text-primary-foreground"
                     : done
                       ? "bg-emerald-500/20 text-emerald-300"
-                      : "bg-white/5 text-luxury-mist"
+                      : "bg-muted/50 text-muted-foreground"
                 }`}
               >
                 {step.label}
