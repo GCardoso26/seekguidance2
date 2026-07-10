@@ -8,6 +8,7 @@ import { CardCard } from "@/components/cards/CardCard";
 import { Button } from "@/components/ui/button";
 import { DeckToolbar } from "@/components/deckbuilder/DeckToolbar";
 import { BuyDeckButton } from "@/components/deckbuilder/BuyDeckButton";
+import { DeckShoppingPanel } from "@/components/deckbuilder/DeckShoppingPanel";
 import { useDeck, exportDeck } from "@/hooks/useDeck";
 
 export default function DeckShowcasePage({
@@ -52,6 +53,8 @@ export default function DeckShowcasePage({
         <div className="mt-4">
           <DeckToolbar deck={deck} showBuy />
         </div>
+
+        <DeckShoppingPanel deckId={deck.id} deckName={deck.name} />
 
         {deck.description && <p className="mt-4 text-luxury-mist">{deck.description}</p>}
 

@@ -11,6 +11,9 @@ export type CatalogCard = {
   image_url?: string | null;
   imageUris?: { normal?: string; small?: string; large?: string } | null;
   lowest_price_cents?: number;
+  language?: string;
+  number?: string;
+  game?: string;
 };
 
 export function useCatalogCards(game: string, search: string, page = 1) {

@@ -90,3 +90,7 @@ class MelhorEnvioClient:
     async def get_me(self) -> dict[str, Any]:
         """Valida token — GET /api/v2/me."""
         return await self._request("GET", "/api/v2/me")
+
+    async def calculate_shipping(self, payload: dict[str, Any]) -> Any:
+        """Cotação de frete — POST /api/v2/me/shipment/calculate."""
+        return await self._request("POST", "/api/v2/me/shipment/calculate", json_body=payload)

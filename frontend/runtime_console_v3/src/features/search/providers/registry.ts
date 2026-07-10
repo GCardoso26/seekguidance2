@@ -4,6 +4,11 @@ import { judgeSearchProvider, rulesSearchProvider } from "@/features/search/prov
 import { navigationSearchProvider } from "@/features/search/providers/navigationSearchProvider";
 import { sellerSearchProvider } from "@/features/search/providers/sellerSearchProvider";
 import { ticketSearchProvider } from "@/features/search/providers/ticketSearchProvider";
+import { wishlistSearchProvider } from "@/features/search/providers/wishlistSearchProvider";
+import { buyerOrdersSearchProvider } from "@/features/search/providers/buyerOrdersSearchProvider";
+import { decksSearchProvider } from "@/features/search/providers/decksSearchProvider";
+import { collectionSearchProvider } from "@/features/search/providers/collectionSearchProvider";
+import { favoriteStoresSearchProvider } from "@/features/search/providers/favoriteStoresSearchProvider";
 import type { SearchProvider } from "@/features/search/providers/types";
 
 export const ALL_SEARCH_PROVIDERS: SearchProvider[] = [
@@ -14,6 +19,11 @@ export const ALL_SEARCH_PROVIDERS: SearchProvider[] = [
   navigationSearchProvider,
   rulesSearchProvider,
   judgeSearchProvider,
+  wishlistSearchProvider,
+  buyerOrdersSearchProvider,
+  decksSearchProvider,
+  collectionSearchProvider,
+  favoriteStoresSearchProvider,
 ].sort((a, b) => b.priority - a.priority);
 
 export function getActiveProviders(

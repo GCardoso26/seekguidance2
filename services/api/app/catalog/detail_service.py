@@ -10,8 +10,11 @@ from uuid import UUID
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.catalog.intelligence_service import _extract_taxonomy, get_card_intelligence
 from app.catalog.search_service import _card_payload
-from app.marketplace.card_listings import list_listings_by_card
+
+# ACL Marketplace: ofertas vêm via adapter de leitura (não domain write).
+# Mantido como port temporário — Catalog não deve crescer SQL de Marketplace.
 
 RANGE_DAYS: dict[str, int] = {
     "7d": 7,
@@ -324,6 +327,21 @@ async def get_card_detail(session: AsyncSession, card_id: str) -> dict[str, Any]
 
     card = _card_payload(row)
     card.update(_game_detail_fields(row.get("game_data")))
+    taxonomy = _extract_taxonomy(row.get("game_data") if isinstance(row.get("game_data"), dict) else {})
+    card.update(
+        {
+            "typeLine": taxonomy.get("typeLine"),
+            "types": taxonomy.get("types") or [],
+            "subtypes": taxonomy.get("subtypes") or [],
+            "finishes": taxonomy.get("finishes") or [],
+            "erratas": taxonomy.get("erratas") or [],
+            "manaCost": taxonomy.get("manaCost"),
+            "cmc": taxonomy.get("cmc"),
+            "colors": taxonomy.get("colors"),
+            "power": taxonomy.get("power"),
+            "toughness": taxonomy.get("toughness"),
+        }
+    )
     card["pricesByCondition"] = await _fetch_prices_by_condition(session, uid)
 
     if row.get("latest_recorded_at"):
@@ -344,10 +362,42 @@ async def get_card_detail(session: AsyncSession, card_id: str) -> dict[str, Any]
     ).mappings().all()
     price_history = _normalize_price_history([dict(r) for r in history_rows])
 
-    card_listings = await list_listings_by_card(session, str(uid))
-    if card_listings:
-        listings = card_listings
-    else:
+    listings: list[dict[str, Any]] = []
+    try:
+        from app.marketplace.catalog_marketplace_adapter import CatalogMarketplaceAdapter
+
+        adapter = CatalogMarketplaceAdapter(session)
+        projections = await adapter.project_listings_for_card(str(uid))
+        for projection in projections:
+            dto = await adapter.to_marketplace_dto(projection)
+            listings.append(
+                {
+                    "id": dto["listing_id"],
+                    "cardId": dto["card_id"],
+                    "sellerId": dto["store"]["id"],
+                    "storeId": dto["store"]["id"],
+                    "storeName": dto["store"].get("name"),
+                    "price": round(int(dto["price_cents"]) / 100, 2),
+                    "condition": dto["condition"],
+                    "currency": "BRL",
+                    "quantity": 1,
+                    "imageUrl": dto.get("image_url"),
+                }
+            )
+    except Exception:
+        listings = []
+
+    if not listings:
+        try:
+            from app.marketplace.card_listings import list_listings_by_card
+
+            card_listings = await list_listings_by_card(session, str(uid))
+            if card_listings:
+                listings = card_listings
+        except Exception:
+            listings = []
+
+    if not listings:
         store_listings = await _fetch_store_listings(
             session,
             card_id=uid,
@@ -364,11 +414,61 @@ async def get_card_detail(session: AsyncSession, card_id: str) -> dict[str, Any]
         set_code=row.get("set_code"),
     )
 
+    intelligence = await get_card_intelligence(session, str(uid))
+    trusts = [
+        float(l["sellerReputation"])
+        for l in listings
+        if l.get("sellerReputation") is not None
+    ]
+    avg_trust = round(sum(trusts) / len(trusts), 1) if trusts else None
+    sold_volume = sum(int(p.get("volume") or 0) for p in price_history)
+    market_summary = {
+        "listedQuantity": sum(int(l.get("quantity") or 0) for l in listings),
+        "storeCount": len({str(l.get("sellerId") or l.get("storeId") or l.get("id")) for l in listings}),
+        "bestOffer": min(
+            (float(l["price"]) for l in listings if l.get("price") is not None),
+            default=None,
+        ),
+        "currency": (listings[0].get("currency") if listings else card.get("latestPrice", {}).get("currency"))
+        or "BRL",
+        "soldVolume": sold_volume or None,
+        "avgSellerTrust": avg_trust,
+        "popularity": "alta" if len(listings) >= 8 else "média" if len(listings) >= 3 else "baixa",
+    }
+    if intelligence and intelligence.get("marketStats"):
+        stats = intelligence["marketStats"]
+        market_summary.update(
+            {
+                "avgPrice": stats.get("avgPrice"),
+                "minPrice": stats.get("minPrice"),
+                "maxPrice": stats.get("maxPrice"),
+                "demandSignal": stats.get("demandSignal"),
+                "suggestedPrice": stats.get("suggestedPrice") or stats.get("avgPrice"),
+            }
+        )
+    hints = (intelligence or {}).get("sellerAiHints") or {}
+    if hints:
+        market_summary["suggestedPrice"] = hints.get("suggestedPrice") or market_summary.get(
+            "suggestedPrice"
+        )
+        market_summary["sellVelocity"] = hints.get("velocityHint") or hints.get("demand")
+        market_summary["competitiveness"] = hints.get("competitiveness")
+        if not market_summary.get("popularity") and hints.get("demand"):
+            market_summary["popularity"] = hints.get("demand")
+
     return {
         "card": card,
         "priceHistory": price_history,
         "listings": listings,
         "relatedCards": related,
+        "marketSummary": market_summary,
+        "intelligence": {
+            "sellerAiHints": (intelligence or {}).get("sellerAiHints"),
+            "variantsCount": len((intelligence or {}).get("variants") or []),
+            "staplesCount": len(((intelligence or {}).get("related") or {}).get("staples") or []),
+        }
+        if intelligence
+        else None,
     }
 
 

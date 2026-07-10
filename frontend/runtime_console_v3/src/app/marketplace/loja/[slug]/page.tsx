@@ -7,6 +7,7 @@ import { ProductCard } from "@/components/marketplace/ProductCard";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import { StoreReviews } from "@/components/reviews/StoreReviews";
 import { StoreRatingBadge, StoreRatingInline } from "@/components/store/StoreRatingBadge";
+import { StoreReputationPanel } from "@/components/store/StoreReputationPanel";
 import { ProBadge } from "@/components/store/ProBadge";
 import type { ShopProduct } from "@/lib/marketplace-shop";
 
@@ -43,6 +44,7 @@ export default function StorePage() {
               <StoreRatingBadge className="mt-2" />
             )}
             {store.description && <p className="mt-2 text-luxury-mist">{String(store.description)}</p>}
+            <StoreReputationPanel slug={slug} />
             <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {products.map((p) => (
                 <ProductCard key={p.id} product={p} />

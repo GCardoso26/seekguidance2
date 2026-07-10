@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { LayoutGrid, List } from "lucide-react";
+import { LayoutGrid, List, Rows3, Table2 } from "lucide-react";
 import { CardGrid } from "@/components/cards/CardGrid";
 import { QuickViewModal } from "@/components/cards/QuickViewModal";
 import { ProductFiltersSidebar } from "@/components/marketplace/ProductFiltersSidebar";
@@ -43,7 +43,7 @@ export function FacetedSearch({
 
   const [debouncedQ, setDebouncedQ] = useState(filters.q ?? "");
   const [quickViewCardId, setQuickViewCardId] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [viewMode, setViewMode] = useState<"grid" | "list" | "gallery" | "compact" | "table">("grid");
   const { track } = useAnalytics();
 
   useEffect(() => {
@@ -195,26 +195,28 @@ export function FacetedSearch({
               </select>
 
               <div className="flex rounded-md border border-border">
-                <Button
-                  type="button"
-                  variant={viewMode === "grid" ? "default" : "ghost"}
-                  size="sm"
-                  className="min-h-11"
-                  onClick={() => setViewMode("grid")}
-                  aria-label="Visualização em grade"
-                >
-                  <LayoutGrid className="h-4 w-4" />
-                </Button>
-                <Button
-                  type="button"
-                  variant={viewMode === "list" ? "default" : "ghost"}
-                  size="sm"
-                  className="min-h-11"
-                  onClick={() => setViewMode("list")}
-                  aria-label="Visualização em lista"
-                >
-                  <List className="h-4 w-4" />
-                </Button>
+                {(
+                  [
+                    ["grid", LayoutGrid, "Grade"],
+                    ["gallery", Rows3, "Galeria"],
+                    ["list", List, "Lista"],
+                    ["table", Table2, "Tabela"],
+                    ["compact", LayoutGrid, "Compacto"],
+                  ] as const
+                ).map(([mode, Icon, label]) => (
+                  <Button
+                    key={mode}
+                    type="button"
+                    variant={viewMode === mode ? "default" : "ghost"}
+                    size="sm"
+                    className="min-h-11"
+                    onClick={() => setViewMode(mode)}
+                    aria-label={`Visualização ${label}`}
+                    aria-pressed={viewMode === mode}
+                  >
+                    <Icon className="h-4 w-4" />
+                  </Button>
+                ))}
               </div>
             </div>
           </div>

@@ -43,5 +43,23 @@ export function sortCollectionItems(items: CollectionItem[], sort: CollectionSor
 export function collectionStats(items: CollectionItem[]) {
   const totalCards = items.reduce((sum, i) => sum + i.quantity, 0);
   const foilCount = items.filter((i) => i.is_foil).reduce((sum, i) => sum + i.quantity, 0);
-  return { totalCards, uniqueCards: items.length, foilCount };
+  const duplicates = items.filter((i) => i.quantity > 1).reduce((sum, i) => sum + (i.quantity - 1), 0);
+  const byGame: Record<string, number> = {};
+  const bySet: Record<string, number> = {};
+  for (const item of items) {
+    const game = item.card?.game_code || "unknown";
+    const set = item.card?.set_name || item.card?.set_code || "—";
+    byGame[game] = (byGame[game] ?? 0) + item.quantity;
+    bySet[set] = (bySet[set] ?? 0) + item.quantity;
+  }
+  return { totalCards, uniqueCards: items.length, foilCount, duplicates, byGame, bySet };
+}
+
+export function estimateCollectionValueCents(
+  items: Array<{ quantity: number; card?: { lowestPrice?: number } }>,
+): number {
+  return items.reduce((sum, item) => {
+    const cents = item.card?.lowestPrice ?? 0;
+    return sum + cents * item.quantity;
+  }, 0);
 }

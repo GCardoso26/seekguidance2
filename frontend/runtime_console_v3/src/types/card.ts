@@ -77,6 +77,88 @@ export interface UnifiedCard {
     currency: string;
     listingCount: number;
   }>;
+  typeLine?: string | null;
+  types?: string[];
+  subtypes?: string[];
+  finishes?: string[];
+  erratas?: Array<{ date: string; text: string; source?: string }>;
+  manaCost?: string | null;
+  cmc?: number | null;
+  colors?: string[] | string | null;
+  power?: string | null;
+  toughness?: string | null;
+}
+
+export interface CardMarketSummary {
+  listedQuantity: number;
+  storeCount: number;
+  bestOffer: number | null;
+  currency: string;
+  avgPrice?: number | null;
+  minPrice?: number | null;
+  maxPrice?: number | null;
+  suggestedPrice?: number | null;
+  demandSignal?: string;
+  soldVolume?: number | string | null;
+  sellVelocity?: string | null;
+  popularity?: string | null;
+  competitiveness?: string | null;
+  avgSellerTrust?: number | null;
+}
+
+export interface CardSellerAiHints {
+  suggestedPrice?: number | null;
+  demand?: string;
+  competitiveness?: string;
+  velocityHint?: string;
+}
+
+export interface CardIntelligenceRelated {
+  sameSet: UnifiedCard[];
+  alternatives: UnifiedCard[];
+  staples: UnifiedCard[];
+  upgrades: UnifiedCard[];
+  downgrades: UnifiedCard[];
+  frequentlyTogether: UnifiedCard[];
+  commanderHints: UnifiedCard[];
+}
+
+export interface CardVariantSummary {
+  id: string;
+  name: string;
+  language: string;
+  setCode?: string;
+  setName?: string;
+  number?: string;
+  rarity?: string;
+  imageUrl?: string;
+  finishes?: string[];
+  lowestPrice?: number | null;
+  kind?: string;
+}
+
+export interface CardIntelligenceResponse {
+  cardId: string;
+  taxonomy: {
+    typeLine?: string | null;
+    types?: string[];
+    subtypes?: string[];
+    finishes?: string[];
+    erratas?: Array<{ date: string; text: string; source?: string }>;
+  };
+  related: CardIntelligenceRelated;
+  variants: CardVariantSummary[];
+  marketStats: {
+    sampleCount: number;
+    minPrice: number | null;
+    maxPrice: number | null;
+    avgPrice: number | null;
+    daysWithData: number;
+    demandSignal: string;
+  };
+  sellerAiHints: CardSellerAiHints;
+  generatedAt: string;
+  source: string;
 }
 
 export interface PriceHistoryPoint {
@@ -114,6 +196,12 @@ export interface CardDetailResponse {
   priceHistory: PriceHistoryPoint[];
   listings: CardListing[];
   relatedCards: UnifiedCard[];
+  marketSummary?: CardMarketSummary | null;
+  intelligence?: {
+    sellerAiHints?: CardSellerAiHints | null;
+    variantsCount?: number;
+    staplesCount?: number;
+  } | null;
 }
 
 export interface CatalogSearchResponse {

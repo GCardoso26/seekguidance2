@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -15,6 +15,8 @@ import {
   type AddListingFormValues,
 } from "@/lib/seller-catalog-listing-form";
 import { formatCurrency } from "@/lib/format-currency";
+import { GAME_TOKENS } from "@/lib/tcg-tokens";
+import type { GameId } from "@/types/card";
 
 const LANGUAGES = [
   { value: "pt", label: "PT-BR" },
@@ -24,12 +26,23 @@ const LANGUAGES = [
 
 const CONDITIONS = ["NM", "LP", "MP", "HP", "DM"] as const;
 
+function gameSlugFromCard(game?: string | null): string {
+  if (!game) return "mtg";
+  const token = GAME_TOKENS[game.toUpperCase() as GameId];
+  return token?.slug ?? game.toLowerCase();
+}
+
 export function ListingPublishWizard() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const prefillCardId = searchParams.get("cardId");
+
   const [game, setGame] = useState("mtg");
   const [search, setSearch] = useState("");
   const [debounced, setDebounced] = useState("");
   const [selected, setSelected] = useState<CatalogCard | null>(null);
+  const [prefillDone, setPrefillDone] = useState(false);
+  const [prefillLoading, setPrefillLoading] = useState(Boolean(prefillCardId));
 
   useEffect(() => {
     const t = window.setTimeout(() => setDebounced(search), 250);
@@ -37,6 +50,56 @@ export function ListingPublishWizard() {
   }, [search]);
 
   const { data, isLoading } = useCatalogCards(game, debounced);
+
+  useEffect(() => {
+    if (!prefillCardId || prefillDone) return;
+    let cancelled = false;
+    (async () => {
+      setPrefillLoading(true);
+      try {
+        const res = await fetch(`/api/catalog/cards/${encodeURIComponent(prefillCardId)}`);
+        if (!res.ok) throw new Error("not_found");
+        const detail = (await res.json()) as {
+          card: {
+            id: string;
+            name: string;
+            game: string;
+            set?: { name?: string; code?: string };
+            rarity?: string;
+            number?: string;
+            language?: string;
+            imageUris?: { normal?: string; small?: string };
+            lowestPrice?: number;
+          };
+        };
+        if (cancelled) return;
+        const c = detail.card;
+        setGame(gameSlugFromCard(c.game));
+        setSelected({
+          id: c.id,
+          name: c.name,
+          set_name: c.set?.name,
+          set_code: c.set?.code,
+          rarity: c.rarity,
+          image_url: c.imageUris?.normal ?? c.imageUris?.small ?? null,
+          imageUris: c.imageUris ?? null,
+          lowest_price_cents: c.lowestPrice != null ? Math.round(c.lowestPrice * 100) : undefined,
+          language: c.language,
+          number: c.number,
+          game: c.game,
+        });
+        setSearch(c.name);
+        setPrefillDone(true);
+      } catch {
+        toast.error("Não foi possível pré-carregar a carta.");
+      } finally {
+        if (!cancelled) setPrefillLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [prefillCardId, prefillDone]);
 
   const {
     register,
@@ -64,14 +127,19 @@ export function ListingPublishWizard() {
 
   useEffect(() => {
     if (selected) {
+      const lang = selected.language;
+      const allowed = ["pt", "en", "jp", "de", "es", "fr", "it"] as const;
+      const language = allowed.includes(lang as (typeof allowed)[number])
+        ? (lang as (typeof allowed)[number])
+        : "pt";
       reset({
         price: selected.lowest_price_cents ? selected.lowest_price_cents / 100 : 0,
         quantity: 1,
-        language: "pt",
+        language,
         foil: false,
         condition: "NM",
         description: "",
-        sku: "",
+        sku: selected.number ? `${selected.set_code ?? ""}-${selected.number}` : "",
       });
     }
   }, [selected, reset]);
@@ -95,6 +163,18 @@ export function ListingPublishWizard() {
     <div className="grid gap-6 lg:grid-cols-2" data-testid="listing-publish-wizard">
       <div className="space-y-4">
         <h2 className="text-lg font-semibold">1. Escolha a carta</h2>
+        {prefillLoading && (
+          <p className="text-sm text-luxury-mist" data-testid="listing-prefill-loading">
+            Pré-preenchendo carta selecionada…
+          </p>
+        )}
+        {selected && prefillDone && (
+          <p className="rounded-lg border border-luxury-gold/30 bg-luxury-gold/10 px-3 py-2 text-xs text-luxury-frost">
+            Carta pré-selecionada: <strong>{selected.name}</strong>
+            {selected.set_name ? ` · ${selected.set_name}` : ""}
+            {selected.number ? ` · #${selected.number}` : ""}
+          </p>
+        )}
         <GameSelectorTabs activeSlug={game} onChange={setGame} />
         <CardSearchInput value={search} onChange={setSearch} />
         {isLoading ? (

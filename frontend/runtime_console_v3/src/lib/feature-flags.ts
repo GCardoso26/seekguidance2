@@ -7,6 +7,8 @@ export const FEATURES = {
   TICKETS: process.env.NEXT_PUBLIC_FEATURE_TICKETS !== "false",
   TEAM_RBAC: process.env.NEXT_PUBLIC_FEATURE_TEAM_RBAC !== "false",
   FINANCE_DASHBOARD: process.env.NEXT_PUBLIC_FEATURE_FINANCE_DASHBOARD !== "false",
+  WISHLIST_V2: process.env.NEXT_PUBLIC_FEATURE_WISHLIST_V2 !== "false",
+  SHIPPING_V2: process.env.NEXT_PUBLIC_FEATURE_SHIPPING_V2 !== "false",
 } as const;
 
 export type FeatureKey = keyof typeof FEATURES;

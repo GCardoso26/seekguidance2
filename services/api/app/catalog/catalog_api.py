@@ -12,6 +12,7 @@ from app.catalog.admin_auth import require_catalog_sync_auth
 from app.catalog.card_versions import get_card_versions
 from app.catalog.cron_auth import require_catalog_cron_auth
 from app.catalog.detail_service import get_card_detail, get_price_history
+from app.catalog.intelligence_service import get_card_intelligence
 from app.catalog.health import verify_ingestion, verify_ingestion_lite
 from app.catalog.pipeline import run_full_ingestion, run_game_sync
 from app.catalog.redis_cache import redis_ping
@@ -99,6 +100,15 @@ async def catalog_card_detail(session: DbSession, card_id: str) -> dict[str, Any
     if not detail:
         raise HTTPException(status_code=404, detail="Card not found")
     return detail
+
+
+@router.get("/runtime/judge/catalog/cards/{card_id}/intelligence")
+async def catalog_card_intelligence(session: DbSession, card_id: str) -> dict[str, Any]:
+    """Insights de catálogo (related, variantes, market stats). Sem Marketplace."""
+    data = await get_card_intelligence(session, card_id)
+    if not data:
+        raise HTTPException(status_code=404, detail="Card not found")
+    return data
 
 
 @router.get("/runtime/judge/catalog/cards/{card_id}/versions")

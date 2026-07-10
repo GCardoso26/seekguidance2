@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
-import { Home, Layers, ShoppingBag, User } from "lucide-react";
+import { Home, Layers, ShoppingBag, Sparkles, User } from "lucide-react";
 import { GlobalHeader } from "@/components/layout/GlobalHeader";
 import { cn } from "@/lib/utils";
 
@@ -12,6 +12,7 @@ type NavItem = { href: string; label: string; icon: typeof Home };
 const MOBILE_NAV: NavItem[] = [
   { href: "/", label: "Início", icon: Home },
   { href: "/loja", label: "Loja", icon: ShoppingBag },
+  { href: "/comprador", label: "Comprar", icon: Sparkles },
   { href: "/decks", label: "Decks", icon: Layers },
   { href: "/perfil", label: "Perfil", icon: User },
 ];

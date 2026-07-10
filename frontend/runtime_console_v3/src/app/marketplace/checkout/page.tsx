@@ -13,6 +13,7 @@ import { CpfCheckoutModal } from "@/components/kyc/CpfCheckoutModal";
 import { InlineLoading } from "@/components/ui/async-state";
 import { needsCpfCompletion, useAccountStatus } from "@/hooks/useAccountStatus";
 import { useShopCart } from "@/hooks/useShopCart";
+import { useSmartCart } from "@/hooks/useBuyerExperience";
 import { formatShopPrice } from "@/lib/marketplace-shop";
 import { trackEvent } from "@/lib/analytics";
 import { CheckoutReservationBanner } from "@/components/checkout/CheckoutReservationBanner";
@@ -78,6 +79,7 @@ function StripeCheckoutForm() {
 export default function CheckoutPage() {
   const { data: accountStatus, isLoading: accountLoading } = useAccountStatus();
   const { data: cart, isLoading: cartLoading } = useShopCart();
+  const { data: smartCart } = useSmartCart("best_value");
   const [cpfModal, setCpfModal] = useState(false);
   const [methods, setMethods] = useState<Methods | null>(null);
   const [method, setMethod] = useState<"pix" | "stripe">("pix");
@@ -386,8 +388,12 @@ export default function CheckoutPage() {
             subtotalCents={summarySubtotal}
             discountCents={discountCents}
             escrowFeeCents={escrowFee}
+            shippingCents={smartCart?.summary.estimated_shipping_cents}
+            savingsCents={smartCart?.summary.savings_cents}
             totalCents={summaryTotal}
             storeName={methods?.stores?.[0]?.store_name}
+            storesCount={methods?.stores?.length ?? smartCart?.summary.store_count}
+            deliveryDays={smartCart?.summary.estimated_sla_days}
             couponCode={appliedCoupon?.code ?? pixData?.coupon_code}
             isLoading={loading || cartLoading || accountLoading}
             sticky

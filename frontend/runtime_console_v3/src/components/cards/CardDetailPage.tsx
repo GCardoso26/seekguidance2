@@ -4,20 +4,21 @@ import { useEffect, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import Image from "next/image";
 import Link from "next/link";
-import { AlertCircle, Image as ImageIcon, Sparkles, X, ZoomIn } from "lucide-react";
+import { AlertCircle, Image as ImageIcon, X, ZoomIn } from "lucide-react";
 import { CardValuationPanel } from "@/components/valuation/CardValuationPanel";
 import { CardActions } from "@/components/cards/CardActions";
 import { AddToCollectionButton } from "@/components/cards/AddToCollectionButton";
-import { CardCard } from "@/components/cards/CardCard";
-import { ConditionBadge, type CardCondition } from "@/components/cards/ConditionBadge";
+import { AnnounceCardCta } from "@/components/cards/AnnounceCardCta";
+import { CardBuyPanel } from "@/components/cards/CardBuyPanel";
+import { CardIntelligenceSection } from "@/components/cards/CardIntelligenceSection";
+import { CardJudgeInsights } from "@/components/cards/CardJudgeInsights";
+import { CardVariantSelector } from "@/components/cards/CardVariantSelector";
 import { PriceChart } from "@/components/cards/PriceChart";
 import { SellerOffersTable } from "@/components/cards/SellerOffersTable";
 import { MobileLayout } from "@/components/layout/MobileLayout";
-import { CreateListingForm } from "@/components/seller/CreateListingForm";
-import { CardRulesTab } from "@/components/cards/CardRulesTab";
 import { CardVersionsTab } from "@/components/cards/CardVersionsTab";
 import { CardInfoTab } from "@/components/cards/CardInfoTab";
-import { gameCardDetailPath, gameCardsPath, gameLandingPath } from "@/lib/game-routes";
+import { gameCardsPath, gameLandingPath } from "@/lib/game-routes";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -60,12 +61,27 @@ export function CardDetailPage({ cardId }: CardDetailPageProps) {
     }
   }, [data?.card, track]);
 
+  useEffect(() => {
+    if (!data?.card) return;
+    const started = performance.now();
+    return () => {
+      track("card_dwell_ms", {
+        card_id: data.card.id,
+        ms: Math.round(performance.now() - started),
+      });
+    };
+  }, [data?.card, track]);
+
   const handleBuy = (listing: CardListing) => {
     if (!data) return;
     setBuyError(null);
+    track("card_buy_click", { card_id: data.card.id, listing_id: listing.id });
     addToCart.mutate(
       { listing, card: data.card },
-      { onError: (err) => setBuyError(err instanceof Error ? err.message : "Erro ao adicionar") },
+      {
+        onSuccess: () => track("card_add_to_cart", { card_id: data.card.id, listing_id: listing.id }),
+        onError: (err) => setBuyError(err instanceof Error ? err.message : "Erro ao adicionar"),
+      },
     );
   };
 
@@ -74,11 +90,19 @@ export function CardDetailPage({ cardId }: CardDetailPageProps) {
   if (isLoading) return <CardDetailSkeleton />;
   if (error || !data) return <CardDetailError notFound={error?.message === "not_found"} />;
 
-  const { card, listings, relatedCards } = data;
+  const { card, listings, relatedCards, marketSummary } = data;
   const gameToken = GAME_TOKENS[card.game as GameId];
   const gameSlug = gameToken?.slug || String(card.game).toLowerCase();
   const imageSrc = cardImageUrl(card);
-  const currency = card.latestPrice?.currency || "USD";
+  const currency = card.latestPrice?.currency || marketSummary?.currency || "USD";
+  const typeLine =
+    card.typeLine ||
+    [
+      ...(card.types ?? []),
+      ...(card.subtypes?.length ? ["—", ...card.subtypes] : []),
+    ]
+      .filter(Boolean)
+      .join(" ");
 
   return (
     <MobileLayout>
@@ -98,112 +122,50 @@ export function CardDetailPage({ cardId }: CardDetailPageProps) {
           />
         </div>
 
-        <div className="container mx-auto px-4 py-8">
-          <div className="grid gap-8 lg:grid-cols-2">
-            <div className="space-y-6">
-              <div className="relative mx-auto max-w-md">
-                <button
-                  type="button"
-                  className="group relative block w-full cursor-zoom-in"
-                  onClick={() => setLightboxOpen(true)}
-                  aria-label={`Ampliar imagem de ${card.name}`}
-                >
-                  <div className="relative aspect-[63/88] overflow-hidden rounded-xl shadow-2xl transition-transform duration-300 group-hover:scale-[1.02]">
-                    {!imageError ? (
-                      <Image
-                        src={imageSrc}
-                        alt={card.name}
-                        fill
-                        priority
-                        className="object-cover"
-                        sizes="(max-width: 1024px) 100vw, 50vw"
-                        onError={() => setImageError(true)}
-                        unoptimized={shouldBypassImageOptimizer(imageSrc)}
-                      />
-                    ) : (
-                      <div className="flex h-full items-center justify-center bg-muted">
-                        <ImageIcon className="h-16 w-16 text-muted-foreground" />
-                      </div>
-                    )}
-                    <span className="absolute bottom-3 right-3 rounded-full bg-black/50 p-2 text-white opacity-0 transition-opacity group-hover:opacity-100">
-                      <ZoomIn className="h-4 w-4" />
-                    </span>
-                  </div>
-                </button>
-
-                {card.pricesByCondition && card.pricesByCondition.length > 1 && (
-                  <div className="mt-4 flex flex-wrap justify-center gap-2">
-                    {card.pricesByCondition.map((pc) => (
-                      <button
-                        key={`${pc.condition}-${pc.foil}`}
-                        type="button"
-                        onClick={() => setSelectedCondition(pc.condition)}
-                        className={cn(
-                          "rounded-lg border-2 p-1 transition-colors",
-                          selectedCondition === pc.condition
-                            ? "border-primary"
-                            : "border-transparent hover:border-muted",
-                        )}
-                      >
-                        <ConditionBadge condition={pc.condition as CardCondition} size="sm" />
-                        {pc.foil && (
-                          <Sparkles className="ml-0.5 inline h-3 w-3 text-yellow-500" aria-hidden />
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Texto da Carta</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {card.oracleText ? (
-                    <div className="whitespace-pre-wrap text-sm leading-relaxed">{card.oracleText}</div>
+        <div className="container mx-auto px-4 py-6 lg:py-8">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+            <div className="space-y-5">
+              <button
+                type="button"
+                className="group relative mx-auto block w-full max-w-md cursor-zoom-in"
+                onClick={() => setLightboxOpen(true)}
+                aria-label={`Ampliar imagem de ${card.name}`}
+              >
+                <div className="relative aspect-[63/88] overflow-hidden rounded-2xl shadow-2xl ring-1 ring-border/60 transition-transform duration-300 group-hover:scale-[1.01]">
+                  {!imageError ? (
+                    <Image
+                      src={imageSrc}
+                      alt={`${card.name} — ${card.set?.name ?? ""}`}
+                      fill
+                      priority
+                      className="object-cover"
+                      sizes="(max-width: 1024px) 100vw, 40vw"
+                      onError={() => setImageError(true)}
+                      unoptimized={shouldBypassImageOptimizer(imageSrc)}
+                    />
                   ) : (
-                    <p className="text-sm text-muted-foreground">Texto não disponível para esta carta.</p>
-                  )}
-                  {card.flavorText && (
-                    <p className="text-sm italic text-muted-foreground">&ldquo;{card.flavorText}&rdquo;</p>
-                  )}
-                  {card.artist && (
-                    <p className="text-xs text-muted-foreground">Artista: {card.artist}</p>
-                  )}
-                </CardContent>
-              </Card>
-
-              {card.legalities && Object.keys(card.legalities).length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Legalidades</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                      {Object.entries(card.legalities).map(([format, status]) => (
-                        <div
-                          key={format}
-                          className={cn(
-                            "rounded-md px-3 py-2 text-xs font-medium capitalize",
-                            status === "legal" && "bg-green-500/10 text-green-600",
-                            status === "banned" && "bg-red-500/10 text-red-600",
-                            status !== "legal" &&
-                              status !== "banned" &&
-                              "bg-muted text-muted-foreground",
-                          )}
-                        >
-                          {format}: {status === "not_legal" ? "não legal" : status}
-                        </div>
-                      ))}
+                    <div className="flex h-full items-center justify-center bg-muted">
+                      <ImageIcon className="h-16 w-16 text-muted-foreground" />
                     </div>
-                  </CardContent>
-                </Card>
-              )}
+                  )}
+                  <span className="absolute bottom-3 right-3 rounded-full bg-black/50 p-2 text-white opacity-0 transition-opacity group-hover:opacity-100">
+                    <ZoomIn className="h-4 w-4" />
+                  </span>
+                </div>
+              </button>
+
+              <CardVariantSelector
+                card={card}
+                cardId={cardId}
+                selectedCondition={selectedCondition}
+                onConditionChange={setSelectedCondition}
+              />
+
+              <CardJudgeInsights card={card} cardId={cardId} />
             </div>
 
-            <div className="space-y-6">
-              <div>
+            <div className="space-y-5">
+              <header>
                 <div className="flex flex-wrap items-center gap-2">
                   <span
                     className="rounded-full px-3 py-1 text-xs font-medium"
@@ -212,65 +174,107 @@ export function CardDetailPage({ cardId }: CardDetailPageProps) {
                       color: gameToken?.primary ?? "#666",
                     }}
                   >
-                    {card.set?.name}
+                    {gameToken?.name || card.game}
                   </span>
-                  {card.latestPrice?.condition && (
-                    <ConditionBadge condition={card.latestPrice.condition as CardCondition} />
-                  )}
-                  {card.latestPrice?.foil && (
-                    <span className="flex items-center gap-1 text-yellow-500">
-                      <Sparkles className="h-4 w-4" aria-hidden />
-                      Foil
+                  <span className="rounded-full bg-muted px-2 py-0.5 text-xs">{card.set?.name}</span>
+                  {(card.finishes ?? []).slice(0, 3).map((f) => (
+                    <span key={f} className="rounded-full border px-2 py-0.5 text-[10px] capitalize">
+                      {f.replace(/_/g, " ")}
                     </span>
-                  )}
+                  ))}
                 </div>
-
-                <h1 className="mt-2 text-3xl font-bold">{card.name}</h1>
-                <p className="text-sm text-muted-foreground">
-                  #{card.number} • {card.rarity} • {card.language?.toUpperCase()}
+                <h1 className="mt-2 text-3xl font-bold tracking-tight lg:text-4xl">{card.name}</h1>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  #{card.number} · {card.rarity} · {(card.language || "?").toUpperCase()}
+                  {card.artist ? ` · Arte: ${card.artist}` : ""}
                 </p>
+                {typeLine && <p className="mt-1 text-sm text-muted-foreground">{typeLine}</p>}
+              </header>
+
+              <CardBuyPanel
+                card={card}
+                listings={listings}
+                marketSummary={marketSummary}
+                onBuy={handleBuy}
+                onAddToCart={handleBuy}
+                buying={addToCart.isPending}
+              />
+
+              <div className="flex flex-wrap gap-2">
+                <AddToCollectionButton cardId={card.id} cardName={card.name} />
+                <CardActions card={card} />
+                <AnnounceCardCta card={card} />
               </div>
 
-              <div className="rounded-xl border bg-card p-6">
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Menor preço</p>
-                    <p className="text-4xl font-bold">
-                      {card.lowestPrice != null
-                        ? formatCurrency(card.lowestPrice, currency)
-                        : "Indisponível"}
-                    </p>
-                    {card.priceTrend7d !== undefined && (
-                      <p
-                        className={cn(
-                          "mt-1 text-sm",
-                          card.priceTrend7d >= 0 ? "text-green-500" : "text-red-500",
-                        )}
-                      >
-                        {card.priceTrend7d >= 0 ? "▲" : "▼"}{" "}
-                        {Math.abs(card.priceTrend7d).toFixed(1)}% (7d)
-                      </p>
+              {(card.oracleText || card.flavorText) && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base">Texto oficial</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {card.oracleText && (
+                      <div className="whitespace-pre-wrap text-sm leading-relaxed">{card.oracleText}</div>
                     )}
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    <AddToCollectionButton cardId={card.id} cardName={card.name} />
-                    <CardActions card={card} />
-                  </div>
+                    {card.flavorText && (
+                      <p className="text-sm italic text-muted-foreground">&ldquo;{card.flavorText}&rdquo;</p>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+
+              {card.legalities && Object.keys(card.legalities).length > 0 && (
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3" aria-label="Legalidades">
+                  {Object.entries(card.legalities).map(([format, status]) => (
+                    <div
+                      key={format}
+                      className={cn(
+                        "rounded-md px-3 py-2 text-xs font-medium capitalize",
+                        status === "legal" && "bg-green-500/10 text-green-600",
+                        status === "banned" && "bg-red-500/10 text-red-600",
+                        status !== "legal" && status !== "banned" && "bg-muted text-muted-foreground",
+                      )}
+                    >
+                      {format}: {status === "not_legal" ? "não legal" : status}
+                    </div>
+                  ))}
                 </div>
-              </div>
+              )}
 
               <Tabs defaultValue="marketplace" className="space-y-4">
                 <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4">
-                  <TabsTrigger value="versions">Versões</TabsTrigger>
                   <TabsTrigger value="marketplace">Marketplace</TabsTrigger>
+                  <TabsTrigger value="versions">Versões</TabsTrigger>
+                  <TabsTrigger value="market">Histórico</TabsTrigger>
                   <TabsTrigger value="info">Info</TabsTrigger>
-                  <TabsTrigger value="regras">Regras</TabsTrigger>
                 </TabsList>
+
+                <TabsContent value="marketplace" className="space-y-4" id="offers">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg">
+                        Ofertas ({listings.length})
+                        {marketSummary?.storeCount != null && (
+                          <span className="ml-2 text-sm font-normal text-muted-foreground">
+                            · {marketSummary.storeCount} lojas · {marketSummary.listedQuantity} un.
+                          </span>
+                        )}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <SellerOffersTable
+                        listings={listings}
+                        onBuy={handleBuy}
+                        buyingId={addToCart.isPending ? (addToCart.variables?.listing.id ?? null) : null}
+                      />
+                      {buyError && <p className="mt-3 text-sm text-red-500">{buyError}</p>}
+                    </CardContent>
+                  </Card>
+                </TabsContent>
 
                 <TabsContent value="versions">
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-lg">Versões da carta</CardTitle>
+                      <CardTitle className="text-lg">Versões e reprints</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <CardVersionsTab cardId={cardId} card={card} relatedCards={relatedCards} />
@@ -278,60 +282,102 @@ export function CardDetailPage({ cardId }: CardDetailPageProps) {
                   </Card>
                 </TabsContent>
 
-                <TabsContent value="marketplace" className="space-y-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Ofertas ({listings.length})</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <SellerOffersTable
-                    listings={listings}
-                    onBuy={handleBuy}
-                    buyingId={addToCart.isPending ? addToCart.variables?.listing.id ?? null : null}
-                  />
-                  {buyError && <p className="mt-3 text-sm text-red-500">{buyError}</p>}
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <CardTitle className="text-lg">Histórico de Preço</CardTitle>
-                  <div
-                    className="flex flex-wrap gap-1 rounded-lg border bg-muted/40 p-1"
-                    role="tablist"
-                    aria-label="Período do gráfico"
-                  >
-                    {PRICE_RANGES.map(({ value, label }) => (
-                      <button
-                        key={value}
-                        type="button"
-                        role="tab"
-                        aria-selected={priceRange === value}
-                        onClick={() => setPriceRange(value)}
-                        className={cn(
-                          "rounded-md px-2 py-1 text-xs font-medium transition-colors",
-                          priceRange === value
-                            ? "bg-background text-foreground shadow-sm"
-                            : "text-muted-foreground hover:text-foreground",
-                        )}
+                <TabsContent value="market" className="space-y-4">
+                  <Card>
+                    <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <CardTitle className="text-lg">Histórico de mercado</CardTitle>
+                      <div
+                        className="flex flex-wrap gap-1 rounded-lg border bg-muted/40 p-1"
+                        role="tablist"
+                        aria-label="Período do gráfico"
                       >
-                        {label}
-                      </button>
-                    ))}
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <PriceChart cardId={cardId} range={priceRange} condition={selectedCondition} />
-                  <div className="mt-6">
-                    <CardValuationPanel
-                      cardId={cardId}
-                      cardName={card.name}
-                      game={gameSlug}
-                      condition={selectedCondition ?? "NM"}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
+                        {PRICE_RANGES.map(({ value, label }) => (
+                          <button
+                            key={value}
+                            type="button"
+                            role="tab"
+                            aria-selected={priceRange === value}
+                            onClick={() => setPriceRange(value)}
+                            className={cn(
+                              "rounded-md px-2 py-1 text-xs font-medium transition-colors",
+                              priceRange === value
+                                ? "bg-background text-foreground shadow-sm"
+                                : "text-muted-foreground hover:text-foreground",
+                            )}
+                          >
+                            {label}
+                          </button>
+                        ))}
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      {(marketSummary?.minPrice != null || marketSummary?.avgPrice != null) && (
+                        <dl className="mb-4 grid grid-cols-2 gap-2 text-center text-xs sm:grid-cols-3 lg:grid-cols-6">
+                          <div className="rounded-lg bg-muted/40 p-2">
+                            <dt className="text-muted-foreground">Mín</dt>
+                            <dd className="font-semibold">
+                              {marketSummary.minPrice != null
+                                ? formatCurrency(marketSummary.minPrice, currency)
+                                : "—"}
+                            </dd>
+                          </div>
+                          <div className="rounded-lg bg-muted/40 p-2">
+                            <dt className="text-muted-foreground">Médio</dt>
+                            <dd className="font-semibold">
+                              {marketSummary.avgPrice != null
+                                ? formatCurrency(marketSummary.avgPrice, currency)
+                                : "—"}
+                            </dd>
+                          </div>
+                          <div className="rounded-lg bg-muted/40 p-2">
+                            <dt className="text-muted-foreground">Máx</dt>
+                            <dd className="font-semibold">
+                              {marketSummary.maxPrice != null
+                                ? formatCurrency(marketSummary.maxPrice, currency)
+                                : "—"}
+                            </dd>
+                          </div>
+                          <div className="rounded-lg bg-muted/40 p-2">
+                            <dt className="text-muted-foreground">Sugerido</dt>
+                            <dd className="font-semibold">
+                              {marketSummary.suggestedPrice != null
+                                ? formatCurrency(marketSummary.suggestedPrice, currency)
+                                : marketSummary.avgPrice != null
+                                  ? formatCurrency(marketSummary.avgPrice, currency)
+                                  : "—"}
+                            </dd>
+                          </div>
+                          <div className="rounded-lg bg-muted/40 p-2">
+                            <dt className="text-muted-foreground">Anunciadas</dt>
+                            <dd className="font-semibold">{marketSummary.listedQuantity ?? "—"}</dd>
+                          </div>
+                          <div className="rounded-lg bg-muted/40 p-2">
+                            <dt className="text-muted-foreground">Trust médio</dt>
+                            <dd className="font-semibold">
+                              {marketSummary.avgSellerTrust != null
+                                ? Math.round(marketSummary.avgSellerTrust)
+                                : "—"}
+                            </dd>
+                          </div>
+                        </dl>
+                      )}
+                      <div className="mb-4 grid grid-cols-2 gap-2 text-xs text-muted-foreground sm:grid-cols-4">
+                        <p>Volume: {marketSummary?.soldVolume ?? "—"}</p>
+                        <p>Velocidade: {marketSummary?.sellVelocity ?? "—"}</p>
+                        <p>Popularidade: {marketSummary?.popularity ?? "—"}</p>
+                        <p>Competitividade: {marketSummary?.competitiveness ?? "—"}</p>
+                      </div>
+                      <PriceChart cardId={cardId} range={priceRange} condition={selectedCondition} />
+                      <div className="mt-6">
+                        <CardValuationPanel
+                          cardId={cardId}
+                          cardName={card.name}
+                          game={gameSlug}
+                          condition={selectedCondition ?? "NM"}
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
                 </TabsContent>
 
                 <TabsContent value="info">
@@ -344,31 +390,16 @@ export function CardDetailPage({ cardId }: CardDetailPageProps) {
                     </CardContent>
                   </Card>
                 </TabsContent>
-
-                <TabsContent value="regras">
-                  <Card>
-                    <CardContent className="pt-6">
-                      <CardRulesTab card={card} cardId={cardId} />
-                    </CardContent>
-                  </Card>
-                </TabsContent>
               </Tabs>
-
-              <CreateListingForm card={card} />
-
-              {relatedCards.length > 0 && (
-                <div>
-                  <h2 className="mb-4 text-lg font-semibold">Cartas Relacionadas</h2>
-                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                    {relatedCards.slice(0, 4).map((related) => (
-                      <Link key={related.id} href={gameCardDetailPath(gameSlug, related.id)} className="block">
-                        <CardCard card={related} variant="compact" showPrice source="related" />
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
+          </div>
+
+          <div className="mt-10 border-t pt-8">
+            <CardIntelligenceSection
+              cardId={cardId}
+              card={card}
+              fallbackRelated={relatedCards}
+            />
           </div>
         </div>
 
@@ -421,7 +452,7 @@ export function CardDetailPage({ cardId }: CardDetailPageProps) {
 function CardDetailSkeleton() {
   return (
     <MobileLayout>
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8" aria-busy="true" aria-label="Carregando carta">
         <Skeleton className="mb-6 h-4 w-64" />
         <div className="grid gap-8 lg:grid-cols-2">
           <div className="space-y-6">
@@ -430,9 +461,8 @@ function CardDetailSkeleton() {
           </div>
           <div className="space-y-6">
             <Skeleton className="h-8 w-3/4" />
-            <Skeleton className="h-24 rounded-xl" />
+            <Skeleton className="h-40 rounded-xl" />
             <Skeleton className="h-64 rounded-xl" />
-            <Skeleton className="h-48 rounded-xl" />
           </div>
         </div>
       </main>

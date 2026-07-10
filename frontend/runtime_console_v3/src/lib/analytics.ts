@@ -40,7 +40,36 @@ export type MarketplaceEvent =
   | "purchase"
   | "listing_create";
 
-export type AnalyticsEventName = MonetizationEvent | EngagementEvent | JudgeAssistantEvent | MarketplaceEvent;
+export type BuyerExperienceEvent =
+  | "wishlist_add"
+  | "wishlist_remove"
+  | "wishlist_created"
+  | "wishlist_shared"
+  | "wishlist_converted"
+  | "shipping_quote"
+  | "freight_selected"
+  | "gallery_mode"
+  | "image_retry"
+  | "image_failure"
+  | "checkout_started"
+  | "checkout_completed"
+  | "buyer_ai_used"
+  | "search_converted"
+  | "smart_cart_used"
+  | "cart_abandon_hint"
+  | "recommendation_click"
+  | "buyer_insight_click"
+  | "smart_cart_goal"
+  | "deck_shop_open"
+  | "collection_import"
+  | "time_to_purchase_ms";
+
+export type AnalyticsEventName =
+  | MonetizationEvent
+  | EngagementEvent
+  | JudgeAssistantEvent
+  | MarketplaceEvent
+  | BuyerExperienceEvent;
 
 export type UserTier = "free" | "pro" | "team";
 

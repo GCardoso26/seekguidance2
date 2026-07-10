@@ -5,6 +5,7 @@ import Link from "next/link";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import { CollectionFilters } from "@/components/collection/CollectionFilters";
 import { CollectionGrid } from "@/components/collection/CollectionGrid";
+import { CollectionImportCsv } from "@/components/collection/CollectionImportCsv";
 import { CollectionStats } from "@/components/collection/CollectionStats";
 import { EditCollectionItemModal } from "@/components/collection/EditCollectionItemModal";
 import { useJudgeAuth } from "@/features/auth/AuthProvider";
@@ -67,6 +68,23 @@ export default function ColecaoPage() {
 
         <div className="mt-6">
           <CollectionStats items={items} />
+        </div>
+
+        <div className="mt-6 grid gap-4 lg:grid-cols-[1fr_280px]">
+          <div className="rounded-xl border border-white/10 bg-white/5 p-4 text-sm text-luxury-mist">
+            <p>
+              Gerencie quantidade, duplicatas e valor. Integre com a{" "}
+              <Link href="/wishlist" className="text-luxury-gold hover:underline">
+                wishlist
+              </Link>{" "}
+              e compre faltantes pelos{" "}
+              <Link href="/decks" className="text-luxury-gold hover:underline">
+                decks
+              </Link>
+              .
+            </p>
+          </div>
+          <CollectionImportCsv />
         </div>
 
         <div className="mt-6">

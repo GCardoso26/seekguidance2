@@ -38,6 +38,7 @@
     "@supabase/supabase-js": "^2.47.10",
     "@tanstack/react-query": "^5.62.8",
     "@tanstack/react-table": "^8.21.3",
+    "@tanstack/react-virtual": "^3.14.5",
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.38.0",
     "@vercel/analytics": "^2.0.1",
