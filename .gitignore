@@ -50,6 +50,7 @@ data/ingest/**/*.pdf
 # Logs
 *.log
 logs/
+smoke_test_report.html
 
 # OS
 Thumbs.db

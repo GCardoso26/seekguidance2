@@ -146,6 +146,7 @@ class SmokeTest:
                     "healthy",
                     "ready",
                     "loading",
+                    "ready_for_marketplace",
                 }
 
             success = status_ok and body_ok and json_ok
