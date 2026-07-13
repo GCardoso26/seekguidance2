@@ -27,6 +27,7 @@ on:
 jobs:
   sync:
     runs-on: ubuntu-latest
+    # Exceção documentada: sync multi-jogo pode levar >30 min (see CI_MODERNIZATION.md)
     timeout-minutes: 120
     steps:
       - name: Sync catálogo

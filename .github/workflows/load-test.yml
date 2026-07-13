@@ -25,8 +25,10 @@ defaults:
 jobs:
   load-test:
     runs-on: ubuntu-latest
+    # full_load pode ultrapassar 30 min; smoke semanal cabe em 30
+    timeout-minutes: ${{ github.event.inputs.full_load == 'true' && 90 || 30 }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup k6
         run: |
@@ -55,7 +57,7 @@ jobs:
             k6/search-load-test.js
 
       - name: Upload results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: k6-results
