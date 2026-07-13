@@ -270,7 +270,7 @@ export function WishlistPage() {
       </div>
 
       {wishlistV2 ? (
-        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={(e) => void handleDragEnd(e)}>
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={(e: DragEndEvent) => void handleDragEnd(e)}>
           <SortableContext
             items={items.map((i) => String((i as { id?: string }).id ?? i.product_id))}
             strategy={rectSortingStrategy}

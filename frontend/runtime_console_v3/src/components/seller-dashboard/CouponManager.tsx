@@ -106,16 +106,16 @@ export function CouponManager({
         <CouponCards
           coupons={coupons}
           onEdit={setEditing}
-          onToggleActive={(c) => void toggleActive(c)}
-          onDelete={(c) => void deleteCoupon(c)}
+          onToggleActive={(c: SellerCouponRow) => void toggleActive(c)}
+          onDelete={(c: SellerCouponRow) => void deleteCoupon(c)}
           busyId={busyId}
         />
       ) : (
         <CouponDesktopView
           coupons={coupons}
           onEdit={setEditing}
-          onToggleActive={(c) => void toggleActive(c)}
-          onDelete={(c) => void deleteCoupon(c)}
+          onToggleActive={(c: SellerCouponRow) => void toggleActive(c)}
+          onDelete={(c: SellerCouponRow) => void deleteCoupon(c)}
           busyId={busyId}
         />
       )}
@@ -129,7 +129,7 @@ export function CouponManager({
           storeId={storeId}
           coupon={editing}
           open
-          onOpenChange={(open) => {
+          onOpenChange={(open: boolean) => {
             if (!open) setEditing(null);
           }}
           onSaved={onUpdated}

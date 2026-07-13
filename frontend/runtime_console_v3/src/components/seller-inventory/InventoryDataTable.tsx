@@ -89,107 +89,112 @@ export function InventoryDataTable({ items, kind, queryKey, highlight }: Props) 
     [items, rowSelection],
   );
 
-  const columns = useMemo<ColumnDef<InventoryItem>[]>(
-    () => [
-      col.display({
-        id: "select",
-        header: ({ table }) => (
-          <input
-            type="checkbox"
-            checked={table.getIsAllPageRowsSelected()}
-            onChange={table.getToggleAllPageRowsSelectedHandler()}
-            aria-label="Selecionar todos"
-          />
-        ),
-        cell: ({ row }) => (
-          <input
-            type="checkbox"
-            checked={row.getIsSelected()}
-            onChange={row.getToggleSelectedHandler()}
-            aria-label="Selecionar linha"
-          />
-        ),
-      }),
-      col.accessor("title", {
-        header: "Item",
-        cell: ({ row }) => (
-          <div className="flex max-w-xs items-center gap-2">
-            {row.original.image_url ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={row.original.image_url} alt="" className="h-10 w-8 rounded object-cover" />
-            ) : (
-              <div className="h-10 w-8 rounded bg-muted" />
-            )}
-            <div>
-              <p className="font-medium text-foreground">
-                {highlightTitle(row.original.title, highlight)}
-              </p>
-              <p className="text-caption text-muted-foreground">
-                {[row.original.source, row.original.set_code || row.original.category]
-                  .filter(Boolean)
-                  .join(" · ")}
-              </p>
+  // createColumnHelper infere TValue por coluna; o cast unifica para DataTable.
+  const columns = useMemo(
+    () =>
+      [
+        col.display({
+          id: "select",
+          header: ({ table }) => (
+            <input
+              type="checkbox"
+              checked={table.getIsAllPageRowsSelected()}
+              onChange={table.getToggleAllPageRowsSelectedHandler()}
+              aria-label="Selecionar todos"
+            />
+          ),
+          cell: ({ row }) => (
+            <input
+              type="checkbox"
+              checked={row.getIsSelected()}
+              onChange={row.getToggleSelectedHandler()}
+              aria-label="Selecionar linha"
+            />
+          ),
+        }),
+        col.accessor("title", {
+          header: "Item",
+          cell: ({ row }) => (
+            <div className="flex max-w-xs items-center gap-2">
+              {row.original.image_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={row.original.image_url} alt="" className="h-10 w-8 rounded object-cover" />
+              ) : (
+                <div className="h-10 w-8 rounded bg-muted" />
+              )}
+              <div>
+                <p className="font-medium text-foreground">
+                  {highlightTitle(row.original.title, highlight)}
+                </p>
+                <p className="text-caption text-muted-foreground">
+                  {[row.original.source, row.original.set_code || row.original.category]
+                    .filter(Boolean)
+                    .join(" · ")}
+                </p>
+              </div>
             </div>
-          </div>
-        ),
-      }),
-      col.accessor("quantity", {
-        header: "Estoque",
-        cell: ({ row }) => (
-          <InlineQty
-            item={row.original}
-            kind={kind}
-            onSave={(qty, priceCents) => {
-              undoStack.current.push({
-                item: row.original,
-                mode: "set",
-                quantity: row.original.quantity,
-                price_cents: row.original.price_cents,
-              });
-              adjust.mutate({
-                kind,
-                mode: "set",
-                quantity: qty,
-                price_cents: priceCents,
-                listing_id: row.original.listing_id,
-                product_id: row.original.product_id,
-                card_id: row.original.card_id,
-                title: row.original.title,
-                category: row.original.category,
-              });
-            }}
-          />
-        ),
-      }),
-      col.accessor("price_cents", {
-        header: "Preço",
-        cell: ({ getValue }) =>
-          (Number(getValue()) / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" }),
-      }),
-      col.accessor((r) => r.health?.score ?? r.health_score ?? 0, {
-        id: "health",
-        header: "Saúde",
-        cell: ({ getValue, row }) => {
-          const score = Number(getValue());
-          const band = row.original.health?.band ?? "warn";
-          const tone =
-            band === "healthy"
-              ? "text-success"
-              : band === "critical"
-                ? "text-danger"
-                : "text-warning";
-          return <span className={tone}>{score}</span>;
-        },
-      }),
-      col.accessor("status", {
-        header: "Status",
-        cell: ({ getValue }) => String(getValue() || "active"),
-      }),
-      col.accessor("sold_qty", {
-        header: "Vendidos",
-        cell: ({ getValue }) => (getValue() != null ? String(getValue()) : "—"),
-      }),
-    ],
+          ),
+        }),
+        col.accessor("quantity", {
+          header: "Estoque",
+          cell: ({ row }) => (
+            <InlineQty
+              item={row.original}
+              kind={kind}
+              onSave={(qty, priceCents) => {
+                undoStack.current.push({
+                  item: row.original,
+                  mode: "set",
+                  quantity: row.original.quantity,
+                  price_cents: row.original.price_cents,
+                });
+                adjust.mutate({
+                  kind,
+                  mode: "set",
+                  quantity: qty,
+                  price_cents: priceCents,
+                  listing_id: row.original.listing_id,
+                  product_id: row.original.product_id,
+                  card_id: row.original.card_id,
+                  title: row.original.title,
+                  category: row.original.category,
+                });
+              }}
+            />
+          ),
+        }),
+        col.accessor("price_cents", {
+          header: "Preço",
+          cell: ({ getValue }) =>
+            (Number(getValue()) / 100).toLocaleString("pt-BR", {
+              style: "currency",
+              currency: "BRL",
+            }),
+        }),
+        col.accessor((r) => r.health?.score ?? r.health_score ?? 0, {
+          id: "health",
+          header: "Saúde",
+          cell: ({ getValue, row }) => {
+            const score = Number(getValue());
+            const band = row.original.health?.band ?? "warn";
+            const tone =
+              band === "healthy"
+                ? "text-success"
+                : band === "critical"
+                  ? "text-danger"
+                  : "text-warning";
+            return <span className={tone}>{score}</span>;
+          },
+        }),
+        col.accessor("status", {
+          header: "Status",
+          cell: ({ getValue }) => String(getValue() || "active"),
+        }),
+        col.accessor("sold_qty", {
+          header: "Vendidos",
+          cell: ({ getValue }) => (getValue() != null ? String(getValue()) : "—"),
+        }),
+      ] as ColumnDef<InventoryItem>[],
     [adjust, highlight, kind],
   );
 

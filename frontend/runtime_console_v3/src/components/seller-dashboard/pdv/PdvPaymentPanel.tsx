@@ -88,7 +88,7 @@ export function PdvPaymentPanel({
           storeName={storeName}
           items={items}
           isPending={isPending}
-          onComplete={async (sale) => {
+          onComplete={async (sale: PdvSaleRecord) => {
             if (onPixComplete) {
               await onPixComplete(sale);
             } else {

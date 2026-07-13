@@ -58,7 +58,7 @@ export function UpgradeModal({ open, feature, onClose, billingCycle = "monthly" 
   };
 
   return (
-    <Dialog.Root open={open} onOpenChange={(next) => !next && onClose()}>
+    <Dialog.Root open={open} onOpenChange={(next: boolean) => !next && onClose()}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-[100] bg-foreground/60 backdrop-blur-sm" />
         <Dialog.Content

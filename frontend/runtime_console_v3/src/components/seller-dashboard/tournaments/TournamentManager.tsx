@@ -65,7 +65,7 @@ export function TournamentManager({
         <TournamentDetailsModal
           tournament={details}
           open
-          onOpenChange={(open) => {
+          onOpenChange={(open: boolean) => {
             if (!open) setDetails(null);
           }}
         />

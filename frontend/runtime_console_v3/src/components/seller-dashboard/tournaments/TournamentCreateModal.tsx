@@ -92,7 +92,7 @@ export function TournamentCreateModal({ open, onOpenChange, onCreated }: Props) 
   return (
     <Dialog.Root
       open={open}
-      onOpenChange={(next) => {
+      onOpenChange={(next: boolean) => {
         if (!next) reset({ ...emptyValues, date: defaultDate() });
         onOpenChange(next);
       }}

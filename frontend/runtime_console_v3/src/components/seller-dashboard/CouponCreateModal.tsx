@@ -73,7 +73,7 @@ export function CouponCreateModal({ storeId, open, onOpenChange, onCreated }: Pr
   return (
     <Dialog.Root
       open={open}
-      onOpenChange={(next) => {
+      onOpenChange={(next: boolean) => {
         if (!next) reset({ ...emptyValues, code: randomCouponCode() });
         onOpenChange(next);
       }}

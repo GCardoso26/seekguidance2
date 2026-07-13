@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { TOURNAMENT_API_BASE, tournamentProxyHeaders } from "@/lib/tournament-api";
 
 export async function GET() {
