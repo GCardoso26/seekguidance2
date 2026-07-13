@@ -11,13 +11,7 @@ const API_BASE = (process.env.API_PROXY_TARGET || "https://seekguidance.onrender
 
 type CheckResult = { status: string; latency: number; error?: string };
 
-function mapServiceStatus(value: string | undefined): ServiceHealthStatus {
-  if (value === "ok" || value === "disabled") return "online";
-  if (value === "error") return "offline";
-  return "degraded";
-}
-
-async function checkDatabase(): Promise<CheckResult> {
+async function checkSupabaseCatalog(): Promise<CheckResult> {
   const start = Date.now();
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -27,7 +21,11 @@ async function checkDatabase(): Promise<CheckResult> {
   }
 
   try {
-    const supabase = createClient(url, key, { auth: { persistSession: false } });
+    // Catálogo em tcg_judge — exige schema exposto no PostgREST.
+    const supabase = createClient(url, key, {
+      auth: { persistSession: false },
+      db: { schema: "tcg_judge" },
+    });
     const { error } = await supabase.from("card_catalog").select("id").limit(1);
     if (error) throw error;
     return { status: "ok", latency: Date.now() - start };
@@ -40,20 +38,45 @@ async function checkDatabase(): Promise<CheckResult> {
   }
 }
 
-async function checkCatalogApi(): Promise<CheckResult> {
+async function checkApiHealth(): Promise<{
+  catalogApi: CheckResult;
+  databaseFromApi: CheckResult | null;
+}> {
   const start = Date.now();
+  const timeoutMs = Number(process.env.HEALTH_API_TIMEOUT_MS || 15000);
   try {
     const res = await fetch(`${API_BASE}/v1/health`, {
       cache: "no-store",
-      signal: AbortSignal.timeout(5000),
+      signal: AbortSignal.timeout(timeoutMs),
     });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return { status: "ok", latency: Date.now() - start };
+    const latency = Date.now() - start;
+    if (!res.ok) {
+      return {
+        catalogApi: { status: "error", latency, error: `HTTP ${res.status}` },
+        databaseFromApi: null,
+      };
+    }
+    const data = (await res.json().catch(() => null)) as
+      | { services?: { database?: string } }
+      | null;
+    const dbStatus = data?.services?.database;
+    return {
+      catalogApi: { status: "ok", latency },
+      databaseFromApi:
+        dbStatus === "ok"
+          ? { status: "ok", latency }
+          : dbStatus
+            ? { status: "error", latency, error: `api.services.database=${dbStatus}` }
+            : null,
+    };
   } catch (e) {
     return {
-      status: "error",
-      latency: Date.now() - start,
-      error: e instanceof Error ? e.message : "api error",
+      catalogApi: {
+        status: "error",
+        latency: Date.now() - start,
+        error: e instanceof Error ? e.message : "api error",
+      },
+      databaseFromApi: null,
     };
   }
 }
@@ -82,11 +105,31 @@ async function checkRedis(): Promise<CheckResult> {
 }
 
 export async function GET() {
-  const [database, catalogApi, redis] = await Promise.all([
-    checkDatabase(),
-    checkCatalogApi(),
+  const [supabaseDb, apiHealth, redis] = await Promise.all([
+    checkSupabaseCatalog(),
+    checkApiHealth(),
     checkRedis(),
   ]);
+
+  // Se PostgREST não expõe tcg_judge, usar services.database da API (Postgres real).
+  const database =
+    supabaseDb.status === "ok"
+      ? supabaseDb
+      : apiHealth.databaseFromApi?.status === "ok"
+        ? {
+            status: "ok" as const,
+            latency: apiHealth.databaseFromApi.latency,
+            error: supabaseDb.error
+              ? `supabase_direct_failed:${supabaseDb.error}; using_api_health`
+              : undefined,
+          }
+        : supabaseDb.status === "skipped" && apiHealth.databaseFromApi
+          ? apiHealth.databaseFromApi
+          : supabaseDb.status === "skipped"
+            ? supabaseDb
+            : apiHealth.databaseFromApi || supabaseDb;
+
+  const catalogApi = apiHealth.catalogApi;
 
   const services: ServiceHealth[] = [
     { name: "API Principal", status: catalogApi.status === "ok" ? "online" : "offline" },

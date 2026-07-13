@@ -14,10 +14,14 @@ def test_search_cache_key_stable():
 
 
 def test_redis_ping_without_url(monkeypatch):
+    """Independente de REDIS_URL / cliente Redis residual no processo."""
+
     class FakeSettings:
         redis_url = ""
 
     monkeypatch.setattr("app.catalog.redis_cache.get_settings", lambda: FakeSettings())
+    monkeypatch.setattr("app.core.rate_limit._redis_client", None)
+    monkeypatch.delenv("REDIS_URL", raising=False)
     assert redis_ping()["status"] == "unavailable"
 
 
