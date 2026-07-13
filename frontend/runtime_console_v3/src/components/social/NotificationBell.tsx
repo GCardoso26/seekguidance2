@@ -69,7 +69,7 @@ export function NotificationBell() {
                 {n.content && <p className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">{n.content}</p>}
                 {n.link && (
                   <span className="mt-1 inline-block text-xs text-primary">
-                    <Link href={n.link} onClick={(e) => e.stopPropagation()}>
+                    <Link href={n.link} onClick={(e: React.MouseEvent) => e.stopPropagation()}>
                       Abrir
                     </Link>
                   </span>

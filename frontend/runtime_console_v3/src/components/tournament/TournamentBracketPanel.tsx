@@ -240,7 +240,7 @@ export function TournamentBracketPanel({
             nameById={nameById}
             canEdit={isOrganizer && bracket?.status === "active"}
             reportingMatchId={reportingId}
-            onReportWinner={(matchId, winnerId) => void handleWinner(matchId, winnerId)}
+            onReportWinner={(matchId: string, winnerId: string) => void handleWinner(matchId, winnerId)}
           />
         </section>
       )}

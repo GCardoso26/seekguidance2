@@ -214,7 +214,9 @@ export function GlobalCommandPalette({ open, onOpenChange }: Props) {
           </div>
         </Command>
       </div>
-      <style jsx global>{`
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
         .cmdk-group-heading {
           padding: 0.25rem 0.5rem;
           font-size: 0.65rem;
@@ -223,7 +225,9 @@ export function GlobalCommandPalette({ open, onOpenChange }: Props) {
           letter-spacing: 0.05em;
           color: rgb(163 163 163);
         }
-      `}</style>
+      `,
+        }}
+      />
     </div>
   );
 }

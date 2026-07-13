@@ -17,6 +17,17 @@ build/
 .ruff_cache/
 coverage/
 htmlcov/
+*.tsbuildinfo
+
+# Cursor / IDE local (não versionar)
+.cursor/
+
+# Archives / dumps locais de referência
+*.rar
+context.rar
+CommitSprint16.txt
+*Dashboard Administrativo.html
+*Dashboard Administrativo_files/
 
 # Env & secrets
 .env
@@ -66,3 +77,8 @@ supabase/.temp/
 # Next.js gerado localmente
 frontend/**/next-env.d.ts
 .vercel
+
+# Vendored dump — não versionar (referência externa)
+tcghub.ai/
+services/api/scripts/*_verify_report.json
+services/api/scripts/*_report.json

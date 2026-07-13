@@ -85,11 +85,19 @@ export function PriceChart({ cardId, range, condition, foil }: PriceChartProps) 
           <YAxis
             domain={[minPrice - padding, maxPrice + padding]}
             tick={{ fontSize: 12 }}
-            tickFormatter={(value) => `$${Number(value).toFixed(0)}`}
+            tickFormatter={(value: number | string) => `$${Number(value).toFixed(0)}`}
             width={56}
           />
           <Tooltip
-            content={({ active, payload, label }) => {
+            content={({
+              active,
+              payload,
+              label,
+            }: {
+              active?: boolean;
+              payload?: Array<{ payload?: ChartPoint }>;
+              label?: string;
+            }) => {
               if (!active || !payload?.length) return null;
               const point = payload[0]?.payload as ChartPoint;
               return (

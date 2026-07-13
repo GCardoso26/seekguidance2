@@ -89,7 +89,7 @@ export function InventoryDataTable({ items, kind, queryKey, highlight }: Props) 
     [items, rowSelection],
   );
 
-  const columns = useMemo<ColumnDef<InventoryItem, unknown>[]>(
+  const columns = useMemo<ColumnDef<InventoryItem>[]>(
     () => [
       col.display({
         id: "select",

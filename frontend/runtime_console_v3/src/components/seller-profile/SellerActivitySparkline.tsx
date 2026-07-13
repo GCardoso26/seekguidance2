@@ -29,7 +29,7 @@ export function SellerActivitySparkline({ data }: Props) {
           <Tooltip
             contentStyle={{ fontSize: 12 }}
             formatter={(value: number) => [`${value} vendas`, ""]}
-            labelFormatter={(label) => String(label)}
+            labelFormatter={(label: string | number) => String(label)}
           />
           <Area
             type="monotone"

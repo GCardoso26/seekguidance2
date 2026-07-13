@@ -26,6 +26,8 @@ jobs:
         run: npm run type-check --workspace=runtime-console-v3
       - name: Vitest
         run: npm run test --workspace=runtime-console-v3
+      - name: Design System audit
+        run: npm run ds:audit --workspace=runtime-console-v3
       - name: Build
         run: npm run build --workspace=runtime-console-v3
 
