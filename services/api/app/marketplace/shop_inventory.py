@@ -113,6 +113,8 @@ async def import_products_csv(
     store_id: str,
     owner_id: str,
     csv_text: str,
+    *,
+    dry_run: bool = False,
 ) -> dict[str, Any]:
     import csv
     import io
@@ -131,6 +133,7 @@ async def import_products_csv(
     imported = 0
     skipped = 0
     errors: list[str] = []
+    preview: list[dict[str, Any]] = []
 
     for line_no, row in enumerate(reader, start=2):
         parsed, err = _parse_csv_row(row, line_no)
@@ -139,6 +142,10 @@ async def import_products_csv(
             skipped += 1
             continue
         if not parsed:
+            continue
+        preview.append({**parsed, "line": line_no})
+        if dry_run:
+            imported += 1
             continue
         try:
             await shop_products.create_product(
@@ -159,4 +166,11 @@ async def import_products_csv(
             errors.append(f"Linha {line_no} ({parsed['name']}): {detail}")
             skipped += 1
 
-    return {"imported": imported, "skipped": skipped, "errors": errors[:50]}
+    return {
+        "imported": imported,
+        "skipped": skipped,
+        "errors": errors[:50],
+        "dry_run": dry_run,
+        "preview": preview[:50] if dry_run else [],
+        "rollback_supported": False,
+    }

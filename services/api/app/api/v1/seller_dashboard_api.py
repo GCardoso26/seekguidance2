@@ -12,6 +12,12 @@ from app.marketplace import seller_customers as seller_cust
 from app.marketplace import seller_dashboard as seller_dash
 from app.marketplace import seller_finance as seller_fin
 from app.marketplace import seller_header_notifications as seller_hdr_notif
+from app.marketplace import seller_inventory_search as seller_inv
+from app.marketplace import seller_inventory_dashboard as seller_inv_dash
+from app.marketplace import seller_inventory_analytics as seller_inv_analytics
+from app.marketplace import seller_inventory_export as seller_inv_export
+from app.marketplace import seller_inventory_bulk as seller_inv_bulk
+from app.marketplace import shop_inventory as shop_inv
 from app.marketplace import seller_search as seller_search_svc
 from app.marketplace import seller_team as seller_team_svc
 from app.marketplace import seller_tickets as seller_tix
@@ -121,6 +127,41 @@ class TeamPermissionsBody(BaseModel):
 
 class NotificationSettingsBody(BaseModel):
     settings: dict[str, Any]
+
+
+class InventoryAdjustBody(BaseModel):
+    kind: Literal["cards", "products"] = "cards"
+    mode: Literal["set", "add"] = "set"
+    quantity: int = Field(ge=0, default=0)
+    listing_id: str | None = None
+    product_id: str | None = None
+    card_id: str | None = None
+    price_cents: int | None = Field(default=None, ge=0)
+    condition: str | None = None
+    language: str | None = None
+    foil: bool = False
+    title: str | None = None
+    category: str | None = None
+
+
+class InventoryBulkBody(BaseModel):
+    action: Literal["adjust_set", "adjust_add", "publish", "archive", "delete"]
+    items: list[dict[str, Any]] = Field(default_factory=list)
+    quantity: int | None = None
+
+
+class InventoryExportBody(BaseModel):
+    format: Literal["csv", "json"] = "csv"
+    source: Literal["my_catalog", "system", "bestsellers_marketplace", "bestsellers_store"] = "my_catalog"
+    kind: Literal["cards", "products"] = "products"
+    game: str = "mtg"
+    q: str | None = None
+    ids: list[str] | None = None
+
+
+class InventoryImportBody(BaseModel):
+    csv: str = Field(min_length=1)
+    dry_run: bool = False
 
 
 @router.get("/runtime/judge/seller/dashboard")
@@ -404,6 +445,129 @@ async def seller_catalog_games(
     user_id = _require_user(x_judge_user_id)
     games = await seller_cat.list_seller_games(session, user_id)
     return {"games": games}
+
+
+@router.get("/runtime/judge/seller/inventory/search")
+async def seller_inventory_search(
+    session: DbSession,
+    source: Literal["my_catalog", "system", "bestsellers_marketplace", "bestsellers_store"] = "my_catalog",
+    kind: Literal["cards", "products"] = "cards",
+    game: str = "mtg",
+    q: str | None = None,
+    stock_filter: Literal["all", "with_stock", "without_stock"] = "all",
+    period: Literal["day", "week", "month", "year"] = "month",
+    page: int = 1,
+    limit: int = 24,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    return await seller_inv.search_inventory(
+        session,
+        user_id,
+        source=source,
+        kind=kind,
+        game=game,
+        q=q,
+        stock_filter=stock_filter,
+        period=period,
+        page=page,
+        limit=limit,
+    )
+
+
+@router.post("/runtime/judge/seller/inventory/adjust")
+async def seller_inventory_adjust(
+    session: DbSession,
+    body: InventoryAdjustBody,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    return await seller_inv.adjust_inventory(
+        session,
+        user_id,
+        kind=body.kind,
+        mode=body.mode,
+        quantity=body.quantity,
+        listing_id=body.listing_id,
+        product_id=body.product_id,
+        card_id=body.card_id,
+        price_cents=body.price_cents,
+        condition=body.condition,
+        language=body.language,
+        foil=body.foil,
+        title=body.title,
+        category=body.category,
+    )
+
+
+@router.get("/runtime/judge/seller/inventory/dashboard")
+async def seller_inventory_dashboard(
+    session: DbSession,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    return await seller_inv_dash.get_inventory_dashboard(session, user_id)
+
+
+@router.get("/runtime/judge/seller/inventory/analytics")
+async def seller_inventory_analytics(
+    session: DbSession,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    return await seller_inv_analytics.get_inventory_analytics(session, user_id)
+
+
+@router.post("/runtime/judge/seller/inventory/export")
+async def seller_inventory_export(
+    session: DbSession,
+    body: InventoryExportBody,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    return await seller_inv_export.export_inventory(
+        session,
+        user_id,
+        fmt=body.format,
+        source=body.source,
+        kind=body.kind,
+        game=body.game,
+        q=body.q,
+        ids=body.ids,
+    )
+
+
+@router.post("/runtime/judge/seller/inventory/bulk")
+async def seller_inventory_bulk(
+    session: DbSession,
+    body: InventoryBulkBody,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    return await seller_inv_bulk.bulk_inventory(
+        session,
+        user_id,
+        action=body.action,
+        items=body.items,
+        quantity=body.quantity,
+    )
+
+
+@router.post("/runtime/judge/seller/inventory/import-csv")
+async def seller_inventory_import_csv(
+    session: DbSession,
+    body: InventoryImportBody,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    store = await seller_dash.resolve_owner_store(session, user_id)
+    return await shop_inv.import_products_csv(
+        session,
+        str(store["id"]),
+        user_id,
+        body.csv,
+        dry_run=body.dry_run,
+    )
 
 
 @router.get("/runtime/judge/seller/products")

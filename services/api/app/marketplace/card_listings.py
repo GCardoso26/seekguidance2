@@ -85,6 +85,8 @@ def _listing_payload(row: dict[str, Any]) -> dict[str, Any]:
     else:
         reputation = float(reputation_raw or 4.5)
     product_id = row.get("store_product_id")
+    qty = int(row.get("quantity") or 0)
+    status = str(row.get("status") or "active")
 
     return {
         "id": str(row["id"]),
@@ -96,17 +98,20 @@ def _listing_payload(row: dict[str, Any]) -> dict[str, Any]:
         "condition": str(row["condition"]),
         "price": round(int(row["price_cents"]) / 100, 2),
         "currency": str(row.get("currency") or "BRL"),
-        "quantity": int(row.get("quantity") or 0),
+        "quantity": qty,
         "foil": bool(row.get("foil")),
         "language": str(row.get("language") or "pt"),
         "description": row.get("description"),
         "images": image_list,
         "createdAt": str(row.get("created_at") or ""),
-        "status": str(row.get("status") or "active"),
+        "status": status,
         "productId": str(product_id) if product_id else None,
         "storeId": str(row.get("store_id") or ""),
         "cardName": row.get("card_name"),
         "setName": row.get("set_name"),
+        # Buyer read-model fields (derived from listing row — no Inventory BC query)
+        "availability": "in_stock" if status == "active" and qty > 0 else "out_of_stock",
+        "updatedAt": str(row.get("updated_at") or row.get("created_at") or ""),
     }
 
 

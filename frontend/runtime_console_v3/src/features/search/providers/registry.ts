@@ -3,6 +3,7 @@ import { cardSearchProvider } from "@/features/search/providers/cardSearchProvid
 import { judgeSearchProvider, rulesSearchProvider } from "@/features/search/providers/rulesSearchProvider";
 import { navigationSearchProvider } from "@/features/search/providers/navigationSearchProvider";
 import { sellerSearchProvider } from "@/features/search/providers/sellerSearchProvider";
+import { inventorySearchProvider } from "@/features/search/providers/inventorySearchProvider";
 import { ticketSearchProvider } from "@/features/search/providers/ticketSearchProvider";
 import { wishlistSearchProvider } from "@/features/search/providers/wishlistSearchProvider";
 import { buyerOrdersSearchProvider } from "@/features/search/providers/buyerOrdersSearchProvider";
@@ -13,6 +14,7 @@ import type { SearchProvider } from "@/features/search/providers/types";
 
 export const ALL_SEARCH_PROVIDERS: SearchProvider[] = [
   cardSearchProvider,
+  inventorySearchProvider,
   sellerSearchProvider,
   sellerAiSearchProvider,
   ticketSearchProvider,

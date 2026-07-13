@@ -163,9 +163,7 @@ export const SIDEBAR_ITEMS: SidebarItem[] = [
 
         icon: Package,
 
-        href: "/vendedor/painel/estoque/importacao",
-
-        comingSoon: true,
+        href: "/vendedor/painel/estoque#import",
 
       },
 
