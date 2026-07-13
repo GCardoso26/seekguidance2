@@ -14,6 +14,14 @@ from typing import Any
 
 import requests
 
+# Windows cp1252 não imprime setas/unicode de marks — forçar UTF-8 no stdout.
+if hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
 CONFIG = {
     "frontend": os.getenv("SMOKE_FRONTEND_URL", "https://judgetcg.com.br"),
     "api": os.getenv("SMOKE_API_URL", "https://seekguidance.onrender.com"),
@@ -302,7 +310,7 @@ class SmokeTest:
         return self._check(
             "Frontend Loja (TCG Library)",
             f"{CONFIG['frontend']}/loja",
-            expected_in_body="Biblioteca",
+            expected_in_body="Loja de cartas TCG",
         )
 
     def test_games_api(self) -> bool:
@@ -383,12 +391,12 @@ class SmokeTest:
         )
 
     def test_checkout_expire_stale(self) -> bool:
+        # Endpoint protegido — sem cron/secret espera-se 401 (smoke público).
         return self._check(
-            "Checkout Expire Stale (API)",
+            "Checkout Expire Stale (API auth)",
             f"{CONFIG['api']}/runtime/judge/checkout/expire-stale",
             method="POST",
-            expected_status=200,
-            json_path="expired",
+            expected_status=401,
         )
 
     def test_seller_profile_api(self) -> bool:
@@ -410,7 +418,7 @@ class SmokeTest:
         ("/store/dashboard", "/vendedor/painel"),
         ("/store/listings", "/vendedor/painel/listagens"),
         ("/store/listings/new", "/vendedor/painel/listagens/nova"),
-        ("/store/orders", "/vendedor/painel/vendas"),
+        ("/store/orders", "/vendedor/painel/pedidos"),
         ("/store/analytics", "/vendedor/painel/estatisticas"),
         ("/store/settings", "/vendedor/painel/configuracoes"),
     ]
@@ -439,10 +447,10 @@ class SmokeTest:
             success = status_ok and loc_ok
             if success:
                 self.passed += 1
-                print(f"  {_mark(True)} Redirect {old_path} → {expected_location}")
+                print(f"  {_mark(True)} Redirect {old_path} -> {expected_location}")
             else:
                 self.failed += 1
-                print(f"  {_mark(False)} Redirect {old_path} → {expected_location}")
+                print(f"  {_mark(False)} Redirect {old_path} -> {expected_location}")
                 if not status_ok:
                     print(f"      Status: {response.status_code}")
                 if not loc_ok:

@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
-const lighthouse = require("lighthouse");
+const lighthouseMod = require("lighthouse");
+const lighthouse = lighthouseMod.default || lighthouseMod;
 const chromeLauncher = require("chrome-launcher");
 const fs = require("fs");
 const path = require("path");
@@ -12,16 +13,18 @@ const URLS = [
   `${BASE}/loja/mtg`,
   `${BASE}/loja/busca`,
   `${BASE}/marketplace/cart`,
-  `${BASE}/decks`,
-  `${BASE}/perfil`,
+  `${BASE}/checkout`,
+  `${BASE}/comprador`,
   `${BASE}/vendedor/painel`,
+  `${BASE}/vendedor/painel/estoque`,
+  `${BASE}/decks`,
 ];
 
 const THRESHOLDS = {
-  performance: 90,
-  accessibility: 90,
-  bestPractices: 90,
-  seo: 95,
+  performance: Number(process.env.LH_MIN_PERF || 95),
+  accessibility: Number(process.env.LH_MIN_A11Y || 95),
+  bestPractices: Number(process.env.LH_MIN_BP || 95),
+  seo: Number(process.env.LH_MIN_SEO || 95),
 };
 
 async function runAudit() {

@@ -1,17 +1,18 @@
 # Changelog — Public Beta / RC1
 
-## [Unreleased — RC1 candidate] — 2026-07-13
+## [Unreleased — RC1 blocker resolution] — 2026-07-13
+
+### Fixed
+- BFF `/api/health` 503 → 200 (schema `tcg_judge` + fallback API health)
+- Smoke harness alinhado ao produto (loja title, redirects, expire-stale 401, UTF-8)
+- `test_redis_ping_without_url` independente de REDIS_URL do host
+- Lighthouse audit script (`lighthouse.default`) + URLs RC
 
 ### Release
-- Pacote documental `docs/release/*` + `context/rc1-final-report.md`
-- Decisão **NO-GO** documentada (blockers billing CI + BFF health 503)
-- Smoke harness: aceita status catalog `ready_for_marketplace`
+- Evidências: health/smoke/lighthouse reports em `context/`
+- **NO-GO** mantido (billing CI + Perf Lighthouse <95)
 
-### Sprint 17 (já em main)
-- Inventory Application Layer + BFF + UI estoque MVP (14 épicos)
+## [RC1 candidate / NO-GO] — 2026-07-13 (auditoria)
 
-### Sprint 16/15 (já em main)
-- Quality gates workflow, SkipToMain, Image Health, wishlist/shipping flags
-
-## [Sprint 16] — 2026-07-09
-Ver `docs/CHANGELOG_PUBLIC_BETA.md` (histórico).
+- Pacote canônico em `docs/release/`
+- Tag `RC1` não criada

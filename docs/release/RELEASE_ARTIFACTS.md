@@ -1,37 +1,15 @@
-# Release Artifacts — RC1
-
-## Gerados nesta execução
+# Release Artifacts — RC1 Blocker Resolution
 
 | Artefato | Path |
 |---|---|
-| Blockers | `docs/release/RC1_BLOCKERS.md` |
-| Status | `docs/release/RC1_STATUS.md` |
-| Go/No-Go | `docs/release/RC1_GO_NO_GO.md` |
-| Scorecard | `docs/release/RC1_SCORECARD.md` |
-| Quality Gates | `docs/release/QUALITY_GATES.md` |
-| Manifest | `docs/release/RELEASE_MANIFEST.md` |
-| Staging runbook | `docs/release/STAGING_RUNBOOK.md` |
-| Canary plan | `docs/release/CANARY_PLAN.md` |
-| Post-beta backlog | `docs/release/POST_BETA_BACKLOG.md` |
-| Release notes | `docs/release/RELEASE_NOTES_PUBLIC_BETA.md` |
-| Changelog | `docs/release/CHANGELOG_PUBLIC_BETA.md` |
-| RELEASE_CANDIDATE | `docs/release/RELEASE_CANDIDATE.md` |
-| Checklist | `docs/release/RC1_CHECKLIST.md` |
-| Report final | `context/rc1-final-report.md` |
-| Sprint 18 report | `context/sprint18-report.md` |
-| Canvas | `canvases/judgetcg-rc1.canvas.tsx` (Cursor projects) |
+| Blocker resolution report | `context/rc1-blocker-resolution-report.md` |
+| Health audit | `context/rc1-health-audit.md` |
+| Smoke report | `context/rc1-smoke-report.md` |
+| Lighthouse report | `context/rc1-lighthouse-report.md` |
+| Quality gates | `context/rc1-quality-gates.md` |
+| Release readiness | `context/rc1-release-readiness.md` |
+| Post-beta backlog | `context/post-beta-backlog.md` |
+| Canvas | `canvases/judgetcg-rc1-blocker-resolution.canvas.tsx` |
+| Docs release | `docs/release/RC1_*.md` |
 
-## Não gerados (bloqueados)
-
-| Artefato | Motivo |
-|---|---|
-| Tag git `RC1` | NO-GO |
-| GitHub Release | NO-GO |
-| Relatório Lighthouse ≥95 | CI billing / não executado com budget RC |
-| Bundle report CI | CI billing |
-
-## Commits relevantes recentes
-
-- `e6791933` — Sprint 17 Inventory MVP  
-- `02821ae8` — Sprint 18 + type fixes React19  
-- `e6a3b884` — fix InventoryDataTable ColumnDef (Vercel build)
+Não gerados: tag `RC1`, GitHub Release.

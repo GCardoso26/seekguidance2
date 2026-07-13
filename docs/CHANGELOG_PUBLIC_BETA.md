@@ -1,10 +1,10 @@
 # Changelog Técnico — Public Beta RC
 
-## [RC1 candidate / NO-GO] — 2026-07-13
+## [RC1 blocker resolution] — 2026-07-13
 
-- Pacote canônico em `docs/release/` (blockers, scorecard, Go/No-Go)
-- Smoke: aceita `ready_for_marketplace` no catalog health
-- Tag `RC1` **não** criada — ver `docs/release/RC1_BLOCKERS.md`
+- BFF health 503 → 200; smoke 34/34; redis unit estável
+- Lighthouse evidenciado (Perf &lt;95); CI billing ainda bloqueado
+- **NO-GO** tag RC1 — ver `docs/release/RC1_GO_NO_GO.md`
 
 ## [Sprint 16] — 2026-07-09 — Release Candidate Hardening
 

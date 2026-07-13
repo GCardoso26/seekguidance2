@@ -1,44 +1,24 @@
-# Staging Runbook — RC1
+# Staging Validation — RC1 Blocker Resolution
 
-**Modo:** validação de processo apenas — **sem deploy** nesta execução.
+**Modo:** processo + probes públicos — **sem** novo deploy de staging dedicado nesta fase.
 
-## Pré-requisitos
+## Probes produção (proxy de readiness)
 
-1. Billing GitHub Actions restaurado (opcional para staging, obrigatório para CI).  
-2. Acesso Vercel preview/staging + Render staging.  
-3. Migração Sprint 15 aplicada (`wishlist_lists`, shipping read models).
+| Check | Resultado |
+|---|---|
+| FE features wishlist_v2 / shipping_v2 | true / true (`/api/health`) |
+| BE features.shipping_v2 | **false** (`/v1/health`) |
+| Inventory UI `/vendedor/painel/estoque` | reachable (smoke + LH) |
+| Checkout pages | smoke OK |
 
-## Env alvo
+## Flags
 
-### API
+| Flag | Estado | Ação |
+|---|---|---|
+| WISHLIST_V2 (FE) | on | OK |
+| SHIPPING_V2 (FE) | on | OK |
+| SHIPPING_V2_ENABLED (BE) | **off** | Ativar só após plantão canary (B6) |
 
-```env
-SHIPPING_V2_ENABLED=true
-```
+## Conclusão staging
 
-### Frontend
-
-```env
-NEXT_PUBLIC_FEATURE_WISHLIST_V2=true
-NEXT_PUBLIC_FEATURE_SHIPPING_V2=true
-```
-
-## Checklist (não executado em 2026-07-13)
-
-- [ ] Deploy staging API + FE  
-- [ ] `GET /v1/health` → `features.shipping_v2: true`  
-- [ ] `GET /api/health` → 200, `wishlist_v2` + `shipping_v2` true, DB ok  
-- [ ] Wishlist lists autenticado  
-- [ ] Shipping quote CEP 01310-100  
-- [ ] Smoke buyer: dashboard → wishlist → smart cart → checkout  
-- [ ] Seller dashboard + `/vendedor/painel/estoque`  
-- [ ] Inventory search/adjust dry-run  
-- [ ] Monitor 24h P95 / 5xx  
-
-## Rollback staging
-
-Desligar flags; legacy wishlist flat permanece.
-
-## Referência
-
-`docs/sprint16/STAGING_ROLLOUT.md`
+Runbook válido (`STAGING_RUNBOOK.md`). Execução completa de staging ambiente isolado **ainda pendente** (B4). Não bloqueia sozinho se B1/B5 forem os únicos P0 — mas permanece P1.
