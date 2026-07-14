@@ -1,18 +1,23 @@
 # Changelog — Public Beta / RC1
 
-## [Unreleased — RC1 blocker resolution] — 2026-07-13
+## [RC1] — 2026-07-14 — TAGGED
 
-### Fixed
-- BFF `/api/health` 503 → 200 (schema `tcg_judge` + fallback API health)
-- Smoke harness alinhado ao produto (loja title, redirects, expire-stale 401, UTF-8)
-- `test_redis_ping_without_url` independente de REDIS_URL do host
-- Lighthouse audit script (`lighthouse.default`) + URLs RC
+### Added / Fixed
+- Store Performance Recovery (RC1.1) + Quality Gates (RC1.2) published to production
+- Checkout & busca production Perf recovery (RC final)
+- CI: Ruff + Security Scan green
 
 ### Release
-- Evidências: health/smoke/lighthouse reports em `context/`
-- **NO-GO** mantido (billing CI + Perf Lighthouse <95)
+- Tag: **`RC1`**
+- Production: https://judgetcg.com.br
+- Lighthouse desktop: all critical routes Perf≥95, A/BP/SEO=100
+- Smoke: 34/34
 
-## [RC1 candidate / NO-GO] — 2026-07-13 (auditoria)
+## [Unreleased — pré-tag] — 2026-07-13
 
-- Pacote canônico em `docs/release/`
-- Tag `RC1` não criada
+### Fixed
+- BFF `/api/health` 503 → 200
+- Smoke harness + Redis test
+
+### Release
+- NO-GO histórico documentado (superado em 2026-07-14)

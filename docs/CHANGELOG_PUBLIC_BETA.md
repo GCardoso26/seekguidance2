@@ -1,57 +1,23 @@
-# Changelog Técnico — Public Beta RC
+# Changelog — Public Beta / RC1
 
-## [RC1 blocker resolution] — 2026-07-13
+## [RC1] — 2026-07-14 — TAGGED
 
-- BFF health 503 → 200; smoke 34/34; redis unit estável
-- Lighthouse evidenciado (Perf &lt;95); CI billing ainda bloqueado
-- **NO-GO** tag RC1 — ver `docs/release/RC1_GO_NO_GO.md`
+### Added / Fixed
+- Store Performance Recovery (RC1.1) + Quality Gates (RC1.2) published to production
+- Checkout & busca production Perf recovery (RC final)
+- CI: Ruff + Security Scan green
 
-## [Sprint 16] — 2026-07-09 — Release Candidate Hardening
+### Release
+- Tag: **`RC1`**
+- Production: https://judgetcg.com.br
+- Lighthouse desktop: all critical routes Perf≥95, A/BP/SEO=100
+- Smoke: 34/34
 
-### CI / Quality
-- Novo workflow `.github/workflows/quality-gates.yml` (lint + type-check + vitest + build)
-- `NODE_OPTIONS=--max-old-space-size=8192` no build frontend (corrige OOM)
-- Node 22 no job frontend do CI
-- Correção de type-check em testes legados (`useSubscription`, `seller-operational-actions`)
+## [Unreleased — pré-tag] — 2026-07-13
 
-### Performance
-- Cache `s-maxage=60` em `/api/marketplace/shop/products`
-- Reutilização de virtualização `@tanstack/react-virtual` na galeria
+### Fixed
+- BFF `/api/health` 503 → 200
+- Smoke harness + Redis test
 
-### Accessibility
-- Componente `SkipToMain` para fluxos buyer
-- Testes estruturais de a11y nos fluxos críticos
-
-### Image Health
-- `image_health_service.py` + endpoint admin `/catalog/image-health`
-- Dashboard admin `/admin/catalog/image-health`
-- Telemetria `image_failure` em `CardImage`
-
-### Wishlist
-- BFF reorder + suporte DND (`@dnd-kit`) na wishlist v2
-
-### Docs
-- `docs/sprint16/STAGING_ROLLOUT.md`
-- `docs/RELEASE_NOTES_PUBLIC_BETA.md`
-- `context/sprint16-release-candidate.md`
-
-## [Sprint 15] — 2026-07-08 — Performance & Polish
-
-### Backend
-- Wishlist aggregate + application service + API buyer
-- Freight quote (Melhor Envio + heurístico) + shipping service
-- ACL `CatalogMarketplaceAdapter`
-- Buyer analytics + cohort projections
-- Migração SQL wishlist/shipping/analytics
-
-### Frontend
-- BFF buyer wishlists/shipping
-- Feature flags `WISHLIST_V2`, `SHIPPING_V2`
-- Virtual scroll galeria (>48 cards)
-- Telemetria expandida (wishlist, shipping, gallery, checkout)
-
-## [Sprint 14] — Buyer Experience Platform
-
-- Buyer dashboard, smart cart, deck shopping, search providers
-- Buyer AI insights (sugestões, never auto-buy)
-- Store reputation panel, collection import CSV
+### Release
+- NO-GO histórico documentado (superado em 2026-07-14)

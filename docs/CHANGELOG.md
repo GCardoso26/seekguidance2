@@ -1,5 +1,17 @@
 # Changelog
 
+## [RC1] — 2026-07-14 — Public Beta Release Candidate
+
+### Fixed
+- Checkout production Perf 91→**99**, LCP 2.0s→**0.8s** (lazy Stripe, RSC shell, CheckoutProviders)
+- `/loja/busca` Perf 86→**97**, LCP 2.1s→**1.1s` (RSC shell, dynamic facets, defer catalog sets)
+- Ruff CI gate (`app tests evaluation`)
+- TruffleHog Security Scan (base/head SHAs on push)
+
+### Release
+- Tag **`RC1`** · Deploy `dpl_FHMmjYpsh2W9ewvrC9e5LJpk1z2Y` · https://judgetcg.com.br
+- Evidências: `docs/frontend/PRODUCTION_LIGHTHOUSE_RC_FINAL.md`, `docs/release/*`
+
 ## [Unreleased] — Fase 0 Catálogo
 
 ### Adicionado
