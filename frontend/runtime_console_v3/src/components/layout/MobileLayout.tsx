@@ -61,7 +61,7 @@ export function MobileLayout({ children }: { children: ReactNode }) {
       <main
         id="main-content"
         className={cn(
-          "relative z-0 flex-1 animate-fade-in",
+          "relative z-0 flex-1",
           hideNav || isCheckout
             ? ""
             : "pb-[max(var(--mobile-nav-offset),env(safe-area-inset-bottom))] md:pb-0",

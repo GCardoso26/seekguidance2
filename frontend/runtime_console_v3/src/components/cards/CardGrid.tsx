@@ -125,7 +125,7 @@ function VirtualGalleryGrid({
                   key={card.id}
                   card={card}
                   variant="detailed"
-                  priority={start + index < 2}
+                  priority={false}
                   source={cardSource}
                   onViewDetail={onViewDetail}
                   onAddToDeck={onAddToDeck}
@@ -251,7 +251,7 @@ export function CardGrid({
               key={card.id}
               card={card}
               variant={viewMode === "gallery" ? "detailed" : "compact"}
-              priority={index < 2}
+              priority={false}
               source={cardSource}
               onViewDetail={onViewDetail}
               onAddToDeck={onAddToDeck}

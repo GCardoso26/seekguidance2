@@ -29,7 +29,7 @@ describe("Buyer flows — estrutura a11y mínima (Sprint 16)", () => {
   });
 
   it("Checkout usa barra de progresso", () => {
-    const src = readSrc("src/app/marketplace/checkout/page.tsx");
+    const src = readSrc("src/app/checkout/page.tsx");
     expect(src).toContain("CheckoutProgressBar");
   });
 
