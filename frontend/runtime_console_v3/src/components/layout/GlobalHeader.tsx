@@ -114,16 +114,19 @@ export function GlobalHeader({ showGameTabs = true, chrome = "default" }: Global
             {!isCheckout && (
               <>
                 <HeaderGamePicker />
-                <nav className="hidden items-center gap-0.5 xl:flex" aria-label="Principal">
+                <nav className="hidden shrink-0 items-center gap-0.5 xl:flex" aria-label="Principal">
                   <DesktopNav />
                 </nav>
-                <HeaderNavActions />
-                <div className="min-w-0 flex-1">
+                {/* Busca antes das ações p/ não esmagar Trocar; min-w-0 evita overflow flex */}
+                <div className="min-w-0 flex-1 overflow-hidden px-1 sm:px-2">
                   <GlobalSearchBar
                     variant="header"
-                    placeholder="Buscar cards, sellers, decks…"
-                    className="max-w-none"
+                    placeholder="Buscar cartas, lojas, decks…"
+                    className="mx-auto w-full max-w-xl"
                   />
+                </div>
+                <div className="hidden shrink-0 xl:block">
+                  <HeaderNavActions />
                 </div>
               </>
             )}

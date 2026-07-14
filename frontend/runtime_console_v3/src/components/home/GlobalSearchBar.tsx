@@ -122,10 +122,10 @@ export function GlobalSearchBar({
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
             className={cn(
-              "w-full pr-14",
+              "w-full",
               isHeader
-                ? "h-9 rounded-lg border-border bg-background pl-9 text-sm text-foreground placeholder:text-muted-foreground focus:ring-primary/30"
-                : "h-12 rounded-full border-border bg-card/80 pl-12 text-base shadow-sm backdrop-blur-sm",
+                ? "h-9 rounded-lg border-border bg-background pl-9 pr-16 text-sm text-foreground placeholder:text-muted-foreground focus:ring-primary/30"
+                : "h-12 rounded-full border-border bg-card/80 pl-12 pr-14 text-base shadow-sm backdrop-blur-sm",
             )}
             aria-label="Termo de busca"
             aria-expanded={showDropdown}
@@ -133,12 +133,12 @@ export function GlobalSearchBar({
             aria-autocomplete="list"
             aria-haspopup="listbox"
           />
-          <div className="absolute right-2 top-1/2 flex -translate-y-1/2 items-center gap-1">
+          <div className="pointer-events-none absolute inset-y-0 right-1.5 flex items-center gap-0.5">
             {!query && isHeader && (
               <button
                 type="button"
                 onClick={() => openPalette()}
-                className="hidden min-h-11 min-w-11 items-center justify-center rounded border border-border px-2 text-caption text-muted-foreground hover:bg-muted sm:inline-flex"
+                className="pointer-events-auto hidden h-7 items-center justify-center rounded-md border border-border bg-background px-1.5 text-[10px] font-medium leading-none text-muted-foreground hover:bg-muted sm:inline-flex"
                 aria-label="Abrir busca universal (Ctrl+K)"
               >
                 ⌘K
@@ -151,10 +151,10 @@ export function GlobalSearchBar({
                   setQuery("");
                   setResults(null);
                 }}
-                className="inline-flex min-h-11 min-w-11 items-center justify-center text-muted-foreground hover:text-foreground"
+                className="pointer-events-auto inline-flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
                 aria-label="Limpar busca"
               >
-                <X className="h-4 w-4" aria-hidden />
+                <X className="h-3.5 w-3.5" aria-hidden />
               </button>
             )}
           </div>

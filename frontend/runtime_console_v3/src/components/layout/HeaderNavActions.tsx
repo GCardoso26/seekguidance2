@@ -9,7 +9,7 @@ export function HeaderNavActions() {
   const { user } = useJudgeAuth();
 
   return (
-    <nav className="hidden items-center gap-0.5 md:flex" aria-label="Comprar e vender">
+    <nav className="flex shrink-0 items-center gap-0.5" aria-label="Comprar e vender">
       <Link
         href="/loja"
         data-testid="nav-buy"
