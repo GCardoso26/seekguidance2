@@ -66,7 +66,13 @@ export type BuyerExperienceEvent =
   | "announce_card_click"
   | "card_dwell_ms"
   | "card_buy_click"
-  | "card_add_to_cart";
+  | "card_add_to_cart"
+  | "top_movers_open"
+  | "top_movers_filter"
+  | "top_movers_sort"
+  | "top_movers_card_open"
+  | "top_movers_buy_click"
+  | "top_movers_compare";
 
 export type AnalyticsEventName =
   | MonetizationEvent

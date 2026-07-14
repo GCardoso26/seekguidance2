@@ -138,7 +138,7 @@ export function GlobalSearchBar({
               <button
                 type="button"
                 onClick={() => openPalette()}
-                className="pointer-events-auto hidden h-7 items-center justify-center rounded-md border border-border bg-background px-1.5 text-[10px] font-medium leading-none text-muted-foreground hover:bg-muted sm:inline-flex"
+                className="pointer-events-auto hidden h-7 items-center justify-center rounded-md border border-border bg-background px-1.5 text-caption font-medium leading-none text-muted-foreground hover:bg-muted sm:inline-flex"
                 aria-label="Abrir busca universal (Ctrl+K)"
               >
                 ⌘K

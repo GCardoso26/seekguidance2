@@ -129,3 +129,4 @@ async def test_api_router_imports():
     assert "/runtime/north-star" in paths
     assert "/runtime/runtime-health" in paths
     assert "/runtime/metrics" in paths
+    assert "/runtime/top-movers" in paths

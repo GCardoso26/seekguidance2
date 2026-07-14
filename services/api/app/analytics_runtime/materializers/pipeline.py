@@ -6,6 +6,7 @@ import time
 from typing import Any
 
 from app.analytics_runtime.aggregators.engine import SourceSnapshot, aggregate
+from app.analytics_runtime.aggregators.top_movers import build_top_movers_mart
 from app.analytics_runtime.alerts.engine import alerts_to_mart, evaluate_alerts
 from app.analytics_runtime.cohorts.engine import compute_cohorts
 from app.analytics_runtime.funnels.engine import compute_funnels
@@ -87,6 +88,25 @@ def materialize_all(store: MartStore, snap: SourceSnapshot, *, window_days: int 
     alerts = evaluate_alerts(draft)
     alerts_payload = alerts_to_mart(alerts)
 
+    window_label = f"{window_days}d"
+    top_movers = build_top_movers_mart(state, snap, window=window_label)
+    top_movers["summary"]["product_health_score"] = health.get("product_health_score")
+    top_movers["summary"]["gmv"] = orders_payload["gmv"]
+
+    marketplace_payload = {
+        "orders": orders_payload,
+        "conversion": conversion_payload,
+        "search": search_payload,
+        "top_movers_ref": "mart_top_movers",
+    }
+    product_metrics_payload = {
+        "product_health": health.get("product_health_score"),
+        "north_star": north.get("orders_7d"),
+        "sessions": buyers_payload.get("sessions"),
+        "search_success": search_payload.get("success_rate"),
+        "top_movers_volume": top_movers.get("summary", {}).get("volume"),
+    }
+
     rows = len(snap.events) + len(snap.orders)
     specs = [
         ("mart_orders", orders_payload),
@@ -100,6 +120,9 @@ def materialize_all(store: MartStore, snap: SourceSnapshot, *, window_days: int 
         ("mart_funnels", funnels),
         ("mart_cohorts", cohorts),
         ("mart_alerts", alerts_payload),
+        ("mart_top_movers", top_movers),
+        ("mart_marketplace", marketplace_payload),
+        ("mart_product_metrics", product_metrics_payload),
     ]
     for name, payload in specs:
         t1 = time.perf_counter()

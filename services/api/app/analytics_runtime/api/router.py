@@ -101,6 +101,50 @@ async def get_runtime_health() -> dict[str, Any]:
     return _timed(ENGINE.runtime_health)
 
 
+@router.get("/runtime/top-movers")
+async def get_top_movers(
+    game: str | None = None,
+    period: str = Query(default="7d"),
+    sort: str = Query(default="alta"),
+    foil: bool | None = None,
+    limit: int = Query(default=50, ge=1, le=100),
+) -> dict[str, Any]:
+    """Top Movers — derived only from Data Marts (never analytics_events)."""
+    from app.analytics_runtime.aggregators.top_movers import filter_top_movers
+
+    def _build() -> dict[str, Any]:
+        ENGINE.ensure_ready()
+        raw = ENGINE.providers.mart_payload("mart_top_movers")
+        health = ENGINE.providers.mart_payload("mart_product_health")
+        orders = ENGINE.providers.mart_payload("mart_orders")
+        search = ENGINE.providers.mart_payload("mart_search")
+        catalog = ENGINE.providers.mart_payload("mart_catalog")
+        filtered = filter_top_movers(raw, game=game, foil=foil, period=period, sort=sort, limit=limit)
+        summary = dict(filtered.get("summary") or {})
+        summary["product_health_score"] = health.get("product_health_score")
+        summary["gmv"] = orders.get("gmv", summary.get("gmv"))
+        summary["searches"] = search.get("searches")
+        summary["catalog_items"] = catalog.get("items")
+        return {
+            "source": "data_marts",
+            "marts_used": [
+                "mart_top_movers",
+                "mart_orders",
+                "mart_search",
+                "mart_catalog",
+                "mart_marketplace",
+                "mart_product_metrics",
+                "mart_product_health",
+            ],
+            **filtered,
+            "summary": summary,
+            "marketplace": ENGINE.providers.mart_payload("mart_marketplace"),
+            "product_metrics": ENGINE.providers.mart_payload("mart_product_metrics"),
+        }
+
+    return _timed(_build)
+
+
 @router.post("/runtime/analytics/materialize")
 async def trigger_materialize(use_demo: bool = Query(default=True)) -> dict[str, Any]:
     """Internal ops: rematerialize from demo snapshot (DB load wired when session available)."""

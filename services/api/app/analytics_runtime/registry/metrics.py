@@ -296,6 +296,9 @@ VALID_MART_SOURCES = frozenset(
         "mart_funnels",
         "mart_cohorts",
         "mart_alerts",
+        "mart_top_movers",
+        "mart_marketplace",
+        "mart_product_metrics",
     }
 )
 

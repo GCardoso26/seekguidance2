@@ -5,10 +5,8 @@ from __future__ import annotations
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
-
-from app.judge.event_registry import ALL_ANALYTICS_EVENTS, EVENT_REGISTRY
 from app.judge import analytics_events as ae
-
+from app.judge.event_registry import ALL_ANALYTICS_EVENTS, EVENT_REGISTRY
 
 # Mirrors FE union + orphan emitters audited in Beta 1.5
 FE_EMITTED_OR_TYPED = frozenset(
@@ -69,6 +67,12 @@ FE_EMITTED_OR_TYPED = frozenset(
         "card_dwell_ms",
         "card_buy_click",
         "card_add_to_cart",
+        "top_movers_open",
+        "top_movers_filter",
+        "top_movers_sort",
+        "top_movers_card_open",
+        "top_movers_buy_click",
+        "top_movers_compare",
     }
 )
 

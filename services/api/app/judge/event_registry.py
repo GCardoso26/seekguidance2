@@ -110,6 +110,13 @@ _EVENTS: tuple[EventDef, ...] = (
     _e("card_dwell_ms", "buyer", owner="marketplace", retention_days=180),
     _e("card_buy_click", "buyer", owner="marketplace", criticality="p0"),
     _e("card_add_to_cart", "buyer", owner="marketplace", criticality="p0"),
+    # Top Movers (Fase 1.4)
+    _e("top_movers_open", "buyer", owner="marketplace", criticality="p0"),
+    _e("top_movers_filter", "buyer", owner="marketplace"),
+    _e("top_movers_sort", "buyer", owner="marketplace"),
+    _e("top_movers_card_open", "buyer", owner="marketplace", criticality="p0"),
+    _e("top_movers_buy_click", "buyer", owner="marketplace", criticality="p0"),
+    _e("top_movers_compare", "buyer", owner="marketplace", criticality="p2"),
 )
 
 EVENT_REGISTRY: Final[dict[str, EventDef]] = {e.name: e for e in _EVENTS}
@@ -210,5 +217,11 @@ BUYER_EXPERIENCE_EVENTS: Final[frozenset[str]] = frozenset(
         "card_dwell_ms",
         "card_buy_click",
         "card_add_to_cart",
+        "top_movers_open",
+        "top_movers_filter",
+        "top_movers_sort",
+        "top_movers_card_open",
+        "top_movers_buy_click",
+        "top_movers_compare",
     }
 )
