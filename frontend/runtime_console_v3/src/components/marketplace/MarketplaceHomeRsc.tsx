@@ -105,20 +105,26 @@ function FinalCtaSection() {
   );
 }
 
+function ProgressoTCGTeaser() {
+  return (
+    <section className="container mx-auto px-4 py-12">
+      <div className="rounded-xl border border-warning/20 bg-warning/5 p-8 text-center">
+        <h2 className="text-h2 font-semibold text-foreground">Progresso TCG</h2>
+        <p className="mt-2 text-small text-muted-foreground">
+          Compre, venda, participe da plataforma para ganhar benefícios e participar de sorteios.
+        </p>
+        <Link href="/perfil/liga-pass" className="mt-4 inline-block text-sm text-primary hover:underline">
+          Ver meu progresso →
+        </Link>
+      </div>
+    </section>
+  );
+}
+
 function StaticTeasers() {
   return (
     <>
-      <section className="container mx-auto px-4 py-12">
-        <div className="rounded-xl border border-warning/20 bg-warning/5 p-8 text-center">
-          <h2 className="text-h2 font-semibold text-foreground">Liga Pass</h2>
-          <p className="mt-2 text-small text-muted-foreground">
-            Compre, venda e jogue para subir de nível. Frete grátis, cashback e benefícios.
-          </p>
-          <Link href="/perfil/liga-pass" className="mt-4 inline-block text-sm text-primary hover:underline">
-            Ver meu progresso →
-          </Link>
-        </div>
-      </section>
+      <ProgressoTCGTeaser />
       <section className="container mx-auto border-t border-border px-4 py-10">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <h2 className="text-lg font-semibold text-foreground">Comunidade</h2>

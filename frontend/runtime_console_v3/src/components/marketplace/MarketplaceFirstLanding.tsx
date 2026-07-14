@@ -195,7 +195,7 @@ function FinalCtaSection() {
   );
 }
 
-function LigaPassTeaser() {
+function ProgressoTCGTeaser() {
   return (
     <section className="container mx-auto px-4 py-12">
       <div className="rounded-xl border border-warning/20 bg-warning/5 p-8 text-center">
@@ -254,7 +254,7 @@ export function MarketplaceFirstLanding() {
       <FeaturedSellersSection />
       <WhyJudgeSection />
       <FinalCtaSection />
-      <LigaPassTeaser />
+      <ProgressoTCGTeaser />
       <CommunityTeaser />
       <TournamentsTeaser />
     </MobileLayout>
