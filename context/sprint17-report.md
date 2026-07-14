@@ -37,7 +37,7 @@ UI → BFF (`/api/seller/inventory/*`) → Application Services (`seller_invento
 ## Quality Gates (evidência local)
 | Gate | Resultado |
 |---|---|
-| Pytest inventory unit | **6 passed**, 5 skipped (smoke DB) |
+| Pytest inventory unit | **13 passed** (health + search + dashboard/export/bulk/analytics), smoke DB skipped sem `INVENTORY_SMOKE_TESTS` |
 | `ds:audit` | **0 hits** |
 | CI GitHub billing | Não exigido nesta sprint |
 
