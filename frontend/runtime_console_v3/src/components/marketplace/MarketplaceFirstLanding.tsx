@@ -3,7 +3,6 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { Layers, ShoppingBag } from "lucide-react";
-import { CatalogMarketplaceSection } from "@/components/home/CatalogMarketplaceSection";
 import { GlobalSearchBar } from "@/components/home/GlobalSearchBar";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import { Button } from "@/components/ui/button";
@@ -12,6 +11,14 @@ import { getMegaMenuGames } from "@/lib/catalog-games";
 import { gameSlugFromId } from "@/lib/tcg-tokens";
 import type { GameId } from "@/types/card";
 import Image from "next/image";
+
+const CatalogMarketplaceSection = dynamic(
+  () =>
+    import("@/components/home/CatalogMarketplaceSection").then((m) => m.CatalogMarketplaceSection),
+  {
+    loading: () => <div className="h-64 animate-pulse rounded-lg bg-muted/40" aria-hidden />,
+  },
+);
 
 const TrendingCardsGrid = dynamic(
   () => import("@/components/marketplace/TrendingCardsGrid").then((m) => m.TrendingCardsGrid),

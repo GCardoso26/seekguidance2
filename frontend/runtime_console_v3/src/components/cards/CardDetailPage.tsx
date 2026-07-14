@@ -1,24 +1,42 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import * as Dialog from "@radix-ui/react-dialog";
 import Image from "next/image";
 import Link from "next/link";
 import { AlertCircle, X } from "lucide-react";
-import { CardValuationPanel } from "@/components/valuation/CardValuationPanel";
 import { CardActions } from "@/components/cards/CardActions";
 import { AddToCollectionButton } from "@/components/cards/AddToCollectionButton";
 import { AnnounceCardCta } from "@/components/cards/AnnounceCardCta";
 import { CardBuyPanel } from "@/components/cards/CardBuyPanel";
 import { CardDetailHero } from "@/components/cards/CardDetailHero";
-import { CardIntelligenceSection } from "@/components/cards/CardIntelligenceSection";
-import { CardJudgeInsights } from "@/components/cards/CardJudgeInsights";
 import { CardVariantSelector } from "@/components/cards/CardVariantSelector";
-import { PriceChart } from "@/components/cards/PriceChart";
 import { SellerOffersTable } from "@/components/cards/SellerOffersTable";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import { CardVersionsTab } from "@/components/cards/CardVersionsTab";
 import { CardInfoTab } from "@/components/cards/CardInfoTab";
+
+const PriceChart = dynamic(
+  () => import("@/components/cards/PriceChart").then((m) => m.PriceChart),
+  {
+    ssr: false,
+    loading: () => <div className="h-48 animate-pulse rounded-lg bg-muted/40" aria-hidden />,
+  },
+);
+const CardValuationPanel = dynamic(
+  () => import("@/components/valuation/CardValuationPanel").then((m) => m.CardValuationPanel),
+  { ssr: false },
+);
+const CardIntelligenceSection = dynamic(
+  () =>
+    import("@/components/cards/CardIntelligenceSection").then((m) => m.CardIntelligenceSection),
+  { ssr: false },
+);
+const CardJudgeInsights = dynamic(
+  () => import("@/components/cards/CardJudgeInsights").then((m) => m.CardJudgeInsights),
+  { ssr: false },
+);
 import { gameCardsPath, gameLandingPath } from "@/lib/game-routes";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { Badge } from "@/components/ui/badge";

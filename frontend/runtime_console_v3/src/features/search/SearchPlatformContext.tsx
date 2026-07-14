@@ -9,8 +9,14 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { GlobalCommandPalette } from "@/components/search/GlobalCommandPalette";
+import dynamic from "next/dynamic";
 import { isFeatureEnabled } from "@/lib/feature-flags";
+
+const GlobalCommandPalette = dynamic(
+  () =>
+    import("@/components/search/GlobalCommandPalette").then((m) => m.GlobalCommandPalette),
+  { ssr: false },
+);
 
 type SearchPlatformContextValue = {
   open: boolean;
@@ -66,7 +72,9 @@ export function SearchPlatformProvider({ children }: { children: ReactNode }) {
   return (
     <SearchPlatformContext.Provider value={value}>
       {children}
-      {enabled && <GlobalCommandPalette open={open} onOpenChange={setOpen} />}
+      {enabled && open ? (
+        <GlobalCommandPalette open={open} onOpenChange={setOpen} />
+      ) : null}
     </SearchPlatformContext.Provider>
   );
 }

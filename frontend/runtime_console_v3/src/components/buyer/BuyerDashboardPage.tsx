@@ -51,7 +51,7 @@ export function BuyerDashboardPage() {
   if (!authLoading && !user) {
     return (
       <div className="rounded-xl border border-dashed border-border p-10 text-center" data-testid="buyer-dashboard-login">
-        <h2 className="text-xl font-semibold">Painel do comprador</h2>
+        <h1 className="text-xl font-semibold">Painel do comprador</h1>
         <p className="mt-2 text-sm text-muted-foreground">Entre para ver pedidos, wishlist, coleção e oportunidades.</p>
         <Button asChild className="mt-6">
           <Link href="/entrar?next=/comprador">Entrar</Link>
@@ -62,10 +62,26 @@ export function BuyerDashboardPage() {
 
   if (isLoading || authLoading) {
     return (
-      <div className="space-y-4" aria-busy="true" data-testid="buyer-dashboard-loading">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="h-24 animate-pulse rounded-xl bg-muted/50" />
-        ))}
+      <div className="min-h-[70vh] space-y-8" aria-busy="true" data-testid="buyer-dashboard-loading">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div className="space-y-2">
+            <div className="h-8 w-48 animate-pulse rounded bg-muted/50" />
+            <div className="h-4 w-72 animate-pulse rounded bg-muted/40" />
+          </div>
+          <div className="flex gap-2">
+            <div className="h-9 w-24 animate-pulse rounded-md bg-muted/40" />
+            <div className="h-9 w-36 animate-pulse rounded-md bg-muted/40" />
+          </div>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="h-24 animate-pulse rounded-xl bg-muted/50" />
+          ))}
+        </div>
+        <div className="grid gap-4 lg:grid-cols-2">
+          <div className="h-56 animate-pulse rounded-xl bg-muted/40" />
+          <div className="h-56 animate-pulse rounded-xl bg-muted/40" />
+        </div>
       </div>
     );
   }

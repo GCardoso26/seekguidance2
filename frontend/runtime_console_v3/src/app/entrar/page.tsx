@@ -49,7 +49,7 @@ function EntrarForm() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4 text-foreground">
+    <main className="flex min-h-screen items-center justify-center bg-background p-4 text-foreground">
       <div className="w-full max-w-md rounded-2xl border border-border bg-card p-8 shadow-xl">
         <div className="mb-6 flex items-center gap-3">
           <span className="flex h-10 w-10 items-center justify-center rounded-full border border-primary/30 bg-primary/10">
@@ -114,13 +114,19 @@ function EntrarForm() {
           </Link>
         </p>
       </div>
-    </div>
+    </main>
   );
 }
 
 export default function EntrarPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-background" />}>
+    <Suspense
+      fallback={
+        <main className="flex min-h-screen items-center justify-center bg-background" aria-busy="true">
+          <span className="sr-only">Carregando…</span>
+        </main>
+      }
+    >
       <EntrarForm />
     </Suspense>
   );

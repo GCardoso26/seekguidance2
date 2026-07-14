@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useJudgeAuth } from "@/features/auth/AuthProvider";
 import type { CreateDeckInput, Deck, DeckFormat, DeckValidation } from "@/types/deck";
 import { normalizeValidationResult } from "@/lib/deck-validation";
 
@@ -14,6 +15,7 @@ async function parseDeckResponse(res: Response): Promise<Deck> {
 }
 
 export function useMyDecks() {
+  const { user } = useJudgeAuth();
   return useQuery({
     queryKey: [...DECKS_QUERY_KEY, "mine"],
     queryFn: async () => {
@@ -23,6 +25,7 @@ export function useMyDecks() {
       const data = (await res.json()) as { decks: Deck[] };
       return data.decks ?? [];
     },
+    enabled: Boolean(user),
   });
 }
 

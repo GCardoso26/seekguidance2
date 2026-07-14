@@ -1,0 +1,35 @@
+Auditing: http://localhost:3000/
+  P:95 A:92 BP:96 SEO:100
+Auditing: http://localhost:3000/loja
+  P:98 A:93 BP:96 SEO:100
+Auditing: http://localhost:3000/loja/mtg
+  P:98 A:96 BP:96 SEO:100
+Auditing: http://localhost:3000/loja/busca
+  P:92 A:91 BP:96 SEO:100
+Auditing: http://localhost:3000/marketplace/cart
+  P:97 A:96 BP:96 SEO:100
+Auditing: http://localhost:3000/checkout
+  P:95 A:92 BP:96 SEO:100
+Auditing: http://localhost:3000/comprador
+  P:95 A:94 BP:96 SEO:100
+Auditing: http://localhost:3000/vendedor/painel
+  P:99 A:98 BP:96 SEO:100
+Auditing: http://localhost:3000/vendedor/painel/estoque
+  P:99 A:98 BP:96 SEO:100
+Auditing: http://localhost:3000/decks
+  P:97 A:98 BP:96 SEO:100
+
+RESUMO
+ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+OK http://localhost:3000/                        P:95 A:92 BP:96 S:100
+OK http://localhost:3000/loja                    P:98 A:93 BP:96 S:100
+OK http://localhost:3000/loja/mtg                P:98 A:96 BP:96 S:100
+OK http://localhost:3000/loja/busca              P:92 A:91 BP:96 S:100
+OK http://localhost:3000/marketplace/cart        P:97 A:96 BP:96 S:100
+OK http://localhost:3000/checkout                P:95 A:92 BP:96 S:100
+OK http://localhost:3000/comprador               P:95 A:94 BP:96 S:100
+OK http://localhost:3000/vendedor/painel         P:99 A:98 BP:96 S:100
+OK http://localhost:3000/vendedor/painel/estoque P:99 A:98 BP:96 S:100
+OK http://localhost:3000/decks                   P:97 A:98 BP:96 S:100
+
+Todas as p├íginas passaram no audit.

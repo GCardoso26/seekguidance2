@@ -34,10 +34,24 @@ import { DashboardWorkspace } from "@/components/seller-dashboard/overview/Dashb
 
 import { WorkspaceSettingsButton } from "@/components/seller-dashboard/overview/WorkspaceSettings";
 
-import { SellerAiAssistantWidget } from "@/components/seller-ai/SellerAiAssistantWidget";
-import { OrderDetailDrawer } from "@/components/seller-orders";
+import dynamic from "next/dynamic";
 
-import { ReputationOverviewWidget } from "@/components/seller-reputation/ReputationOverviewWidget";
+const SellerAiAssistantWidget = dynamic(
+  () =>
+    import("@/components/seller-ai/SellerAiAssistantWidget").then((m) => m.SellerAiAssistantWidget),
+  { ssr: false, loading: () => null },
+);
+const OrderDetailDrawer = dynamic(
+  () => import("@/components/seller-orders").then((m) => m.OrderDetailDrawer),
+  { ssr: false },
+);
+const ReputationOverviewWidget = dynamic(
+  () =>
+    import("@/components/seller-reputation/ReputationOverviewWidget").then(
+      (m) => m.ReputationOverviewWidget,
+    ),
+  { ssr: false },
+);
 
 import { useAccountStatus } from "@/hooks/useAccountStatus";
 
@@ -293,7 +307,7 @@ export default function VendedorPainelDashboardPage() {
 
         open={Boolean(drawerOrderId)}
 
-        onOpenChange={(open) => {
+        onOpenChange={(open: boolean) => {
 
           if (!open) setDrawerOrderId(null);
 

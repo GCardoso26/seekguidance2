@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { brand } from "@/lib/brand";
 import { GAME_TOKENS, gameIdFromSlug } from "@/lib/tcg-tokens";
 import type { GameId } from "@/types/card";
 
@@ -38,12 +39,12 @@ export function gameMetadataFromSlug(slug: string, cardCount?: number): Metadata
     title: `${token.name} — Cartas e Listagens`,
     description: `Compre cards de ${token.name} com preços em tempo real no Judge TCG. ${countText} Envio rápido e condições de NM a HP. Zero comissão, PIX direto.`,
     alternates: {
-      canonical: `https://judgetcg.com.br/loja/${slug}`,
+      canonical: `${brand.url.replace(/\/$/, "")}/loja/${slug}`,
     },
     openGraph: {
       title: `${token.name} — Judge TCG`,
       description: `Marketplace de ${token.name}`,
-      url: `https://judgetcg.com.br/loja/${slug}`,
+      url: `${brand.url.replace(/\/$/, "")}/loja/${slug}`,
       images: [token.logo],
     },
     twitter: {

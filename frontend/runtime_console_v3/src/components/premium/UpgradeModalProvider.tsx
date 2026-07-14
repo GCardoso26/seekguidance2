@@ -40,7 +40,10 @@ export function UpgradeModalProvider({ children }: { children: ReactNode }) {
 export function useUpgradeModal() {
   const ctx = useContext(UpgradeModalContext);
   if (!ctx) {
-    throw new Error("useUpgradeModal must be used within UpgradeModalProvider");
+    return {
+      showUpgrade: (_feature: PlanFeature) => {},
+      hideUpgrade: () => {},
+    };
   }
   return ctx;
 }

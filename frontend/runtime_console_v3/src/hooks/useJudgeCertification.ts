@@ -1,9 +1,11 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { useJudgeAuth } from "@/features/auth/AuthProvider";
 import { mapJudgeCertification, type JudgeCertification } from "@/types/judge-calls";
 
 export function useJudgeCertification() {
+  const { user } = useJudgeAuth();
   const query = useQuery({
     queryKey: ["judge-certification"],
     queryFn: async () => {
@@ -13,6 +15,7 @@ export function useJudgeCertification() {
       const data = (await res.json()) as Record<string, unknown>[];
       return data.map(mapJudgeCertification);
     },
+    enabled: Boolean(user),
   });
 
   return {

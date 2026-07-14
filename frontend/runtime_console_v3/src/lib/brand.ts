@@ -37,7 +37,8 @@ export const brand: BrandConfig = {
   supportEmail: process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "suporte@judgetcg.com.br",
   logoPath: process.env.NEXT_PUBLIC_BRAND_LOGO || "/brand/logo.svg",
   logoMarkPath: process.env.NEXT_PUBLIC_BRAND_MARK || "/brand/mark.svg",
-  faviconPath: process.env.NEXT_PUBLIC_BRAND_FAVICON || "/favicon.ico",
+  // Prefer App Router generated icon (src/app/icon.tsx) — avoids /favicon.ico 404.
+  faviconPath: process.env.NEXT_PUBLIC_BRAND_FAVICON || "/icon",
   appleIconPath: process.env.NEXT_PUBLIC_BRAND_APPLE_ICON || "/apple-icon",
   ogImagePath: process.env.NEXT_PUBLIC_BRAND_OG || "/og-image.jpg",
   themeColor: process.env.NEXT_PUBLIC_BRAND_THEME || "#7c3aed",

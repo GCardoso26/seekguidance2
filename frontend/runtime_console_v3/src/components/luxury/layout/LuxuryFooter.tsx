@@ -60,9 +60,9 @@ export function LuxuryFooter() {
 
           {COLUMNS.map((col) => (
             <div key={col.title}>
-              <h4 className="text-xs font-medium tracking-[0.2em] text-foreground uppercase">
+              <h2 className="text-xs font-medium tracking-[0.2em] text-foreground uppercase">
                 {col.title}
-              </h4>
+              </h2>
               <ul className="mt-4 space-y-3">
                 {col.links.map((link) => (
                   <li key={link.label}>

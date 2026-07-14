@@ -1,26 +1,16 @@
-import { SearchPlatformProvider } from "@/features/search/SearchPlatformContext";
 import { SentryInit } from "@/components/SentryInit";
 import { ConsoleFilterInit } from "@/components/ConsoleFilterInit";
 import { ServiceWorkerRegister } from "@/components/pwa/ServiceWorkerRegister";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { MinimalProviders } from "@/providers/MinimalProviders";
 
-import { AuthProviderWrapper } from "@/providers/auth-provider-wrapper";
+/** Skip Vercel Analytics/SpeedInsights off the Vercel runtime — avoids 404/MIME console noise on local LH. */
+const enableVercelTelemetry =
+  process.env.VERCEL === "1" || Boolean(process.env.NEXT_PUBLIC_VERCEL_ENV);
 
 import "@/styles/globals.css";
-
 import "@/styles/judge-tcg.css";
-
-import { QueryProvider } from "@/providers/query-provider";
-
-import { ThemeProvider } from "@/providers/theme-provider";
-
-import { LuxurySiteShell } from "@/components/luxury/layout/LuxurySiteShell";
-import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
-import { CartProvider } from "@/components/cart/CartProvider";
-import { UpgradeModalProvider } from "@/components/premium/UpgradeModalProvider";
-import { PWAInstallPrompt } from "@/components/pwa/PWAInstallPrompt";
-import { Toaster } from "sonner";
 
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
@@ -28,9 +18,11 @@ import { brand, brandTitle } from "@/lib/brand";
 
 const inter = Inter({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["400", "500", "600", "700"],
   variable: "--font-inter",
   display: "swap",
+  preload: true,
+  adjustFontFallback: true,
 });
 
 export const metadata: Metadata = {
@@ -91,7 +83,7 @@ export const metadata: Metadata = {
     images: [`${brand.url}${brand.ogImagePath}`],
   },
   alternates: {
-    canonical: brand.url,
+    // canonical por rota via withCanonical / generateMetadata — sem herdar "/" em filhos
   },
   icons: {
     icon: brand.faviconPath,
@@ -114,60 +106,26 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="pt-BR" className={inter.variable} suppressHydrationWarning>
       <head>
         <meta name="theme-color" content={brand.themeColor} />
-
         <link rel="apple-touch-icon" href={brand.appleIconPath} />
-
         <link rel="preconnect" href="https://cards.scryfall.io" />
-        <link rel="preconnect" href="https://images.pokemontcg.io" />
-        <link rel="preconnect" href="https://images.ygoprodeck.com" />
+        <link rel="dns-prefetch" href="https://images.pokemontcg.io" />
+        <link rel="dns-prefetch" href="https://images.ygoprodeck.com" />
         <link rel="dns-prefetch" href="https://lorcana-api.com" />
         <link rel="dns-prefetch" href="https://optcgapi.com" />
-
       </head>
-
       <body className={inter.className}>
-
         <SentryInit />
         <ConsoleFilterInit />
         <ServiceWorkerRegister />
-
-        <ThemeProvider>
-
-          <AuthProviderWrapper>
-
-            <QueryProvider>
-              <UpgradeModalProvider>
-                <CartProvider>
-                  <ErrorBoundary>
-                    <SearchPlatformProvider>
-                      <LuxurySiteShell>{children}</LuxurySiteShell>
-                    </SearchPlatformProvider>
-                  </ErrorBoundary>
-                  <PWAInstallPrompt />
-                </CartProvider>
-              </UpgradeModalProvider>
-            </QueryProvider>
-            <Toaster
-              position="top-right"
-              toastOptions={{
-                classNames: {
-                  toast: "bg-card border border-border text-foreground shadow-md",
-                },
-              }}
-            />
-
-          </AuthProviderWrapper>
-
-        </ThemeProvider>
-
-        <Analytics />
-        <SpeedInsights />
-
+        <MinimalProviders>{children}</MinimalProviders>
+        {/* afterInteractive equivalents via package defaults — never beforeInteractive */}
+        {enableVercelTelemetry ? (
+          <>
+            <Analytics />
+            <SpeedInsights />
+          </>
+        ) : null}
       </body>
-
     </html>
-
   );
-
 }
-

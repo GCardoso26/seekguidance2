@@ -39,9 +39,10 @@ export const scaleIn: Variants = {
   visible: { opacity: 1, scale: 1, transition: transitionFast },
 };
 
+/** Prefer grid-template / opacity — avoid animating layout height. */
 export const collapse: Variants = {
-  open: { height: "auto", opacity: 1, transition: transitionBase },
-  closed: { height: 0, opacity: 0, transition: transitionFast },
+  open: { opacity: 1, scaleY: 1, transition: transitionBase },
+  closed: { opacity: 0, scaleY: 0.98, transition: transitionFast },
 };
 
 export const overlayFade: Variants = {

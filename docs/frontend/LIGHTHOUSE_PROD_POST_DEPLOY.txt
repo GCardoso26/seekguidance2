@@ -1,0 +1,35 @@
+Auditing: https://judgetcg.com.br/
+  P:79 A:92 BP:96 SEO:100
+Auditing: https://judgetcg.com.br/loja
+  P:77 A:93 BP:96 SEO:92
+Auditing: https://judgetcg.com.br/loja/mtg
+  P:86 A:93 BP:96 SEO:100
+Auditing: https://judgetcg.com.br/loja/busca
+  P:82 A:91 BP:96 SEO:92
+Auditing: https://judgetcg.com.br/marketplace/cart
+  P:99 A:92 BP:96 SEO:92
+Auditing: https://judgetcg.com.br/checkout
+  P:94 A:92 BP:96 SEO:92
+Auditing: https://judgetcg.com.br/comprador
+  P:83 A:91 BP:96 SEO:92
+Auditing: https://judgetcg.com.br/vendedor/painel
+  P:100 A:98 BP:100 SEO:92
+Auditing: https://judgetcg.com.br/vendedor/painel/estoque
+  P:100 A:98 BP:100 SEO:92
+Auditing: https://judgetcg.com.br/decks
+  P:99 A:98 BP:96 SEO:92
+
+RESUMO
+ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+OK https://judgetcg.com.br/                      P:79 A:92 BP:96 S:100
+OK https://judgetcg.com.br/loja                  P:77 A:93 BP:96 S:92
+OK https://judgetcg.com.br/loja/mtg              P:86 A:93 BP:96 S:100
+OK https://judgetcg.com.br/loja/busca            P:82 A:91 BP:96 S:92
+OK https://judgetcg.com.br/marketplace/cart      P:99 A:92 BP:96 S:92
+OK https://judgetcg.com.br/checkout              P:94 A:92 BP:96 S:92
+OK https://judgetcg.com.br/comprador             P:83 A:91 BP:96 S:92
+OK https://judgetcg.com.br/vendedor/painel       P:100 A:98 BP:100 S:92
+OK https://judgetcg.com.br/vendedor/painel/estoque P:100 A:98 BP:100 S:92
+OK https://judgetcg.com.br/decks                 P:99 A:98 BP:96 S:92
+
+Todas as p├íginas passaram no audit.

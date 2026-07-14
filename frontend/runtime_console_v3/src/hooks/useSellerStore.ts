@@ -19,6 +19,7 @@ export function useSellerStore() {
       if (!res.ok) return [] as SellerStore[];
       return res.json() as Promise<SellerStore[]>;
     },
+    enabled: Boolean(user),
     staleTime: 30_000,
   });
 

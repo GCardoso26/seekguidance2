@@ -16,6 +16,7 @@ import { InlineLoading } from "@/components/ui/async-state";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { needsCpfCompletion, useAccountStatus } from "@/hooks/useAccountStatus";
+import { useJudgeAuth } from "@/features/auth/AuthProvider";
 import { useShopCart } from "@/hooks/useShopCart";
 import { useSmartCart } from "@/hooks/useBuyerExperience";
 import { formatShopPrice } from "@/lib/marketplace-shop";
@@ -82,6 +83,7 @@ function StripeCheckoutForm() {
 }
 
 export default function CheckoutPage() {
+  const { user, loading: authLoading } = useJudgeAuth();
   const { data: accountStatus, isLoading: accountLoading } = useAccountStatus();
   const { data: cart, isLoading: cartLoading } = useShopCart();
   const { data: smartCart } = useSmartCart("best_value");
@@ -101,6 +103,11 @@ export default function CheckoutPage() {
   const [useEscrow, setUseEscrow] = useState(false);
 
   useEffect(() => {
+    if (authLoading) return;
+    if (!user) {
+      setLoading(false);
+      return;
+    }
     if (accountLoading) return;
     if (needsCpfCompletion(accountStatus)) {
       setCpfModal(true);
@@ -128,7 +135,7 @@ export default function CheckoutPage() {
       setCheckoutSession(checkout);
     }
     void reserveStock();
-  }, [accountLoading, accountStatus]);
+  }, [authLoading, user, accountLoading, accountStatus]);
 
   async function handleReservationExpired() {
     if (checkoutSession?.session_id) {
@@ -141,6 +148,7 @@ export default function CheckoutPage() {
   }
 
   useEffect(() => {
+    if (authLoading || !user) return;
     if (accountLoading || needsCpfCompletion(accountStatus)) return;
 
     async function loadMethods() {
@@ -158,7 +166,7 @@ export default function CheckoutPage() {
       setLoading(false);
     }
     void loadMethods();
-  }, [accountLoading, accountStatus]);
+  }, [authLoading, user, accountLoading, accountStatus]);
 
   async function startPix(coupon?: { code: string; storeId: string } | null) {
     setPixLoading(true);
@@ -288,7 +296,18 @@ export default function CheckoutPage() {
               </div>
             )}
 
-            {!checkoutSession && !reservationError && (
+            {!authLoading && !user && (
+              <Card padding="md">
+                <CardContent className="space-y-3 py-6 text-center">
+                  <p className="text-sm text-muted-foreground">Entre para finalizar a compra.</p>
+                  <Button asChild>
+                    <Link href="/entrar?next=/checkout">Entrar</Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+
+            {Boolean(user) && !checkoutSession && !reservationError && (
               <Card padding="md">
                 <InlineLoading message="Reservando estoque…" className="py-6" />
               </Card>

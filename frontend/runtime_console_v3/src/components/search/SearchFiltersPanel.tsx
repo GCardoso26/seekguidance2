@@ -75,7 +75,7 @@ function FilterContent({
   return (
     <div className="space-y-6">
       <div>
-        <h4 className="mb-2 text-sm font-semibold">Jogo</h4>
+        <h3 className="mb-2 text-sm font-semibold">Jogo</h3>
         <div className="space-y-1">
           {ALL_GAME_IDS.map((id) => {
             const token = GAME_TOKENS[id];
@@ -88,9 +88,12 @@ function FilterContent({
                   onChange={() => onChange({ game: filters.game === id ? undefined : id })}
                   className="h-4 w-4"
                 />
-                <span className="text-sm" style={{ color: token.primary }}>
-                  {token.name}
-                </span>
+                <span
+                  className="inline-block h-2.5 w-2.5 shrink-0 rounded-full"
+                  style={{ backgroundColor: token.primary }}
+                  aria-hidden
+                />
+                <span className="text-sm text-foreground">{token.name}</span>
               </label>
             );
           })}
@@ -99,7 +102,7 @@ function FilterContent({
 
       {availableSets.length > 0 && (
         <div>
-          <h4 className="mb-2 text-sm font-semibold">Coleção</h4>
+          <h3 className="mb-2 text-sm font-semibold">Coleção</h3>
           <select
             value={filters.set || ""}
             onChange={(e) => onChange({ set: e.target.value || undefined })}
@@ -118,7 +121,7 @@ function FilterContent({
 
       {(filters.game === "mtg" || filters.game === "magic") && gameFilters.mtg?.colors && (
         <div>
-          <h4 className="mb-2 text-sm font-semibold">Cores (Magic)</h4>
+          <h3 className="mb-2 text-sm font-semibold">Cores (Magic)</h3>
           <div className="flex flex-wrap gap-2">
             {gameFilters.mtg.colors.map((color) => {
               const selected = filters.colors?.includes(color.value) ?? false;
@@ -151,7 +154,7 @@ function FilterContent({
       )}
 
       <div>
-        <h4 className="mb-2 text-sm font-semibold">Raridade</h4>
+        <h3 className="mb-2 text-sm font-semibold">Raridade</h3>
         <div className="space-y-1">
           {RARITY_OPTIONS.map((rarity) => (
             <label key={rarity.value} className="flex cursor-pointer items-center gap-2">
@@ -167,16 +170,19 @@ function FilterContent({
                 }}
                 className="h-4 w-4"
               />
-              <span className="text-sm font-medium" style={{ color: rarity.color }}>
-                {rarity.label}
-              </span>
+              <span
+                className="inline-block h-2.5 w-2.5 shrink-0 rounded-full"
+                style={{ backgroundColor: rarity.color }}
+                aria-hidden
+              />
+              <span className="text-sm font-medium text-foreground">{rarity.label}</span>
             </label>
           ))}
         </div>
       </div>
 
       <div>
-        <h4 className="mb-2 text-sm font-semibold">Condição</h4>
+        <h3 className="mb-2 text-sm font-semibold">Condição</h3>
         <div className="space-y-1">
           {CONDITION_OPTIONS.map((condition) => (
             <label key={condition.value} className="flex cursor-pointer items-center gap-2">
@@ -199,7 +205,7 @@ function FilterContent({
       </div>
 
       <div>
-        <h4 className="mb-2 text-sm font-semibold">Preço (USD)</h4>
+        <h3 className="mb-2 text-sm font-semibold">Preço (USD)</h3>
         <div className="flex items-center gap-2">
           <input
             type="number"
@@ -226,7 +232,7 @@ function FilterContent({
       </div>
 
       <div>
-        <h4 className="mb-2 text-sm font-semibold">Idioma</h4>
+        <h3 className="mb-2 text-sm font-semibold">Idioma</h3>
         <select
           value={filters.language || ""}
           onChange={(e) => onChange({ language: e.target.value || undefined })}
@@ -243,7 +249,7 @@ function FilterContent({
       </div>
 
       <div>
-        <h4 className="mb-2 text-sm font-semibold">Acabamento</h4>
+        <h3 className="mb-2 text-sm font-semibold">Acabamento</h3>
         <div className="flex flex-wrap gap-4">
           {[
             { value: null, label: "Todos" },
@@ -282,7 +288,7 @@ export function SearchFiltersPanel(props: SearchFiltersPanelProps) {
     <>
       <aside className="hidden w-64 shrink-0 lg:block">
         <div className="sticky top-20">
-          <h3 className="mb-4 text-lg font-semibold">Filtros</h3>
+          <h2 className="mb-4 text-lg font-semibold">Filtros</h2>
           <FilterContent {...props} />
         </div>
       </aside>

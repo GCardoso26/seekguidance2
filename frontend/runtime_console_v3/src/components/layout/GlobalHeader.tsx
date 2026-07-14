@@ -122,7 +122,7 @@ export function GlobalHeader({ showGameTabs = true }: GlobalHeaderProps) {
                   <UserMenu />
                 </>
               ) : (
-                <Button asChild size="sm">
+                <Button asChild size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90">
                   <Link href="/entrar" data-testid="login-submit">
                     Entrar
                   </Link>

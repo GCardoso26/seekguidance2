@@ -8,6 +8,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { GameMegaMenuPanel } from "@/components/games/GameMegaMenuPanel";
 import { getMegaMenuGames } from "@/lib/catalog-games";
 import { useCatalogHealth } from "@/hooks/useCatalogHealth";
+import { shouldBypassImageOptimizer } from "@/lib/format-currency";
 import { GAME_TOKENS, gameSlugFromId } from "@/lib/tcg-tokens";
 import type { GameId } from "@/types/card";
 import { cn } from "@/lib/utils";
@@ -92,10 +93,13 @@ export function GameMegaMenu({ className }: Props) {
                 )}
               >
                 <Image
-                  src={game.logoUrl || token.logo}
+                  src={token.logo}
                   alt=""
                   width={16}
                   height={16}
+                  sizes="16px"
+                  quality={60}
+                  unoptimized={shouldBypassImageOptimizer(token.logo)}
                   className="h-4 w-4 rounded object-contain"
                 />
                 <span className="max-w-[9rem] truncate sm:max-w-none">{game.name}</span>

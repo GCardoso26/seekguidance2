@@ -1,18 +1,12 @@
-"use client";
-
 import Link from "next/link";
 import { Suspense } from "react";
-import { useSearchParams } from "next/navigation";
 import { MobileLayout } from "@/components/layout/MobileLayout";
-import { GameGrid } from "@/components/games/GameGrid";
+import { GameGridBootstrap, GameGridStream } from "@/components/games/GameGridRsc";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
-import { InlineAlert } from "@/components/ui/async-state";
 import { Button } from "@/components/ui/button";
+import { LojaMarketplaceAlert } from "@/app/loja/LojaMarketplaceAlert";
 
-function LojaPageContent() {
-  const searchParams = useSearchParams();
-  const fromMarketplace = searchParams.get("from") === "marketplace";
-
+export default function LojaPage() {
   return (
     <MobileLayout>
       <div className="border-b border-border bg-gradient-to-b from-primary/5 to-transparent">
@@ -21,13 +15,9 @@ function LojaPageContent() {
             className="mb-4 text-muted-foreground"
             items={[{ label: "Início", href: "/" }, { label: "Loja" }]}
           />
-          {fromMarketplace && (
-            <InlineAlert
-              className="mb-4"
-              tone="info"
-              message="O hub de compras de singles TCG é a Loja. Produtos selados e decklists continuam em Produtos selados."
-            />
-          )}
+          <Suspense fallback={null}>
+            <LojaMarketplaceAlert />
+          </Suspense>
           <h1 className="text-3xl font-bold text-foreground">Marketplace TCG</h1>
           <p className="mt-2 max-w-2xl text-muted-foreground">
             Singles, boosters, decks e acessórios — navegue por jogo e categoria como no CardTrader,
@@ -35,26 +25,24 @@ function LojaPageContent() {
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90">
-              <Link href="/loja/busca">Buscar singles</Link>
+              <Link href="/loja/busca" prefetch>
+                Buscar singles
+              </Link>
             </Button>
             <Button asChild variant="outline" className="border-border">
-              <Link href="/marketplace/produtos">Produtos selados</Link>
+              <Link href="/marketplace/produtos" prefetch={false}>
+                Produtos selados
+              </Link>
             </Button>
           </div>
         </div>
       </div>
       <div className="container mx-auto max-w-6xl px-4 py-8">
         <h2 className="mb-4 text-lg font-semibold text-foreground">Escolha seu jogo</h2>
-        <GameGrid />
+        <Suspense fallback={<GameGridBootstrap />}>
+          <GameGridStream />
+        </Suspense>
       </div>
     </MobileLayout>
-  );
-}
-
-export default function LojaPage() {
-  return (
-    <Suspense fallback={null}>
-      <LojaPageContent />
-    </Suspense>
   );
 }
