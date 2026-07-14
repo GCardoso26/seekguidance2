@@ -5,9 +5,8 @@ from __future__ import annotations
 import asyncio
 from pathlib import Path
 
-from sqlalchemy import text
-
 from app.infrastructure.db.session import get_session_factory
+from sqlalchemy import text
 
 MIGRATION = Path(__file__).resolve().parents[3] / "supabase/migrations/20260621140000_card_catalog_phase0.sql"
 

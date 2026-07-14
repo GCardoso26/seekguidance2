@@ -1,9 +1,8 @@
 """Testes da state machine Fulfillment (WF-006)."""
 
 import pytest
-from fastapi import HTTPException
-
 from app.marketplace.seller_fulfillment import _TRANSITIONS, _validate_transition
+from fastapi import HTTPException
 
 
 def test_pending_to_picking_allowed() -> None:

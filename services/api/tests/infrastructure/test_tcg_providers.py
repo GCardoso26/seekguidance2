@@ -3,7 +3,6 @@ from __future__ import annotations
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-
 from app.infrastructure.external.providers.tcg_api_provider import TcgApiProvider
 from app.infrastructure.external.providers.tcg_csv_provider import TcgCsvProvider
 from app.infrastructure.external.providers.types import CatalogSet

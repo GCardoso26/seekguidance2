@@ -4,9 +4,8 @@ from __future__ import annotations
 
 import asyncio
 
-from sqlalchemy import text
-
 from app.infrastructure.db.session import get_session_factory
+from sqlalchemy import text
 
 ALTERS = [
     "ALTER TABLE tcg_judge.card_catalog ALTER COLUMN card_type TYPE VARCHAR(200)",

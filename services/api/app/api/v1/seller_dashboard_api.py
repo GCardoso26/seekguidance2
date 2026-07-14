@@ -11,17 +11,17 @@ from app.marketplace import seller_catalog as seller_cat
 from app.marketplace import seller_customers as seller_cust
 from app.marketplace import seller_dashboard as seller_dash
 from app.marketplace import seller_finance as seller_fin
+from app.marketplace import seller_fulfillment as seller_ff
 from app.marketplace import seller_header_notifications as seller_hdr_notif
-from app.marketplace import seller_inventory_search as seller_inv
-from app.marketplace import seller_inventory_dashboard as seller_inv_dash
 from app.marketplace import seller_inventory_analytics as seller_inv_analytics
-from app.marketplace import seller_inventory_export as seller_inv_export
 from app.marketplace import seller_inventory_bulk as seller_inv_bulk
-from app.marketplace import shop_inventory as shop_inv
+from app.marketplace import seller_inventory_dashboard as seller_inv_dash
+from app.marketplace import seller_inventory_export as seller_inv_export
+from app.marketplace import seller_inventory_search as seller_inv
 from app.marketplace import seller_search as seller_search_svc
 from app.marketplace import seller_team as seller_team_svc
 from app.marketplace import seller_tickets as seller_tix
-from app.marketplace import seller_fulfillment as seller_ff
+from app.marketplace import shop_inventory as shop_inv
 from app.marketplace import shop_orders
 from app.marketplace import shop_products as shop_products_svc
 from fastapi import APIRouter, Header, HTTPException

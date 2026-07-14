@@ -1010,7 +1010,10 @@ async def _process_melhor_envio_webhook(
                 """
                 UPDATE tcg_judge.fulfillments
                 SET status = :st, updated_at = NOW(),
-                    shipped_at = CASE WHEN :st IN ('Shipped', 'InTransit') THEN COALESCE(shipped_at, NOW()) ELSE shipped_at END
+                    shipped_at = CASE
+                        WHEN :st IN ('Shipped', 'InTransit')
+                        THEN COALESCE(shipped_at, NOW())
+                        ELSE shipped_at END
                 WHERE id = CAST(:fid AS uuid)
                 """
             ),
@@ -1068,7 +1071,9 @@ async def get_fulfillment_sla_metrics(session: AsyncSession, store_id: str) -> d
                       AND accepted_at < NOW() - INTERVAL '24 hours'
                   )::int AS packing_overdue,
                   COUNT(*) FILTER (
-                    WHERE status NOT IN ('Shipped', 'InTransit', 'Delivered', 'Completed', 'Cancelled', 'Failed', 'Lost')
+                    WHERE status NOT IN (
+                      'Shipped', 'InTransit', 'Delivered', 'Completed',
+                      'Cancelled', 'Failed', 'Lost')
                       AND accepted_at IS NOT NULL
                       AND accepted_at < NOW() - INTERVAL '48 hours'
                   )::int AS shipping_overdue

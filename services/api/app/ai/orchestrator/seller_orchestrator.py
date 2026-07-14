@@ -4,8 +4,6 @@ from __future__ import annotations
 
 import asyncio
 
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.ai.context.analytics_context import AnalyticsContextProvider
 from app.ai.context.finance_context import FinanceContextProvider
 from app.ai.context.inventory_context import InventoryContextProvider
@@ -15,6 +13,7 @@ from app.ai.context.reputation_context import ReputationContextProvider
 from app.ai.context.tickets_context import TicketsContextProvider
 from app.ai.contracts.types import SellerContextBundle
 from app.marketplace.seller_dashboard import resolve_owner_store
+from sqlalchemy.ext.asyncio import AsyncSession
 
 ALL_CONTEXT_PROVIDERS = [
     AnalyticsContextProvider(),

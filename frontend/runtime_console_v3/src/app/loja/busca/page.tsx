@@ -1,12 +1,14 @@
-"use client";
-
-import { Suspense } from "react";
 import Link from "next/link";
-import { FacetedSearch } from "@/components/search/FacetedSearch";
-import { CatalogSearchSkeleton } from "@/components/search/CatalogSearchSkeleton";
+import { Suspense } from "react";
 import { MobileLayout } from "@/components/layout/MobileLayout";
+import { CatalogSearchSkeleton } from "@/components/search/CatalogSearchSkeleton";
+import { LojaBuscaClient } from "@/app/loja/busca/LojaBuscaClient";
 
-function CatalogSearchContent() {
+/**
+ * Shell RSC (H1/copy estáticos) + island FacetedSearch.
+ * Alinha `/loja/busca` ao padrão do hub `/loja` para LCP.
+ */
+export default function LojaBuscaPage() {
   return (
     <MobileLayout>
       <div className="container mx-auto px-4 py-8">
@@ -18,17 +20,11 @@ function CatalogSearchContent() {
           Busca facetada com filtros por jogo, coleção, raridade e preço.
         </p>
         <div className="mt-8">
-          <FacetedSearch searchBasePath="/loja/busca" cardDetailPath="/loja/cartas" />
+          <Suspense fallback={<CatalogSearchSkeleton />}>
+            <LojaBuscaClient />
+          </Suspense>
         </div>
       </div>
     </MobileLayout>
-  );
-}
-
-export default function LojaBuscaPage() {
-  return (
-    <Suspense fallback={<CatalogSearchSkeleton />}>
-      <CatalogSearchContent />
-    </Suspense>
   );
 }

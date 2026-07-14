@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.analytics.intelligence_service import get_sales_insights
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class AnalyticsContextProvider:

@@ -66,6 +66,8 @@ export function useCatalogSets(game?: string) {
       const data = (await res.json()) as { sets: CatalogSetOption[] };
       return data.sets;
     },
+    // Sem jogo selecionado o payload /sets é grande e bloqueia a hidratação da busca.
+    enabled: Boolean(game),
     staleTime: 300_000,
     retry: 3,
     retryDelay: (attempt) => Math.min(1_500 * 2 ** attempt, 8_000),

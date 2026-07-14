@@ -5,7 +5,6 @@ from __future__ import annotations
 import json
 import math
 import uuid
-from datetime import UTC, datetime
 from typing import Any, Literal
 
 import structlog
@@ -14,7 +13,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.platform.jobs import (
     JOB_REPUTATION_RECALCULATE,
-    JOB_REPUTATION_SLA_CHECK,
     emit_outbox_event,
     enqueue_job,
 )
@@ -489,7 +487,7 @@ async def get_seller_reputation_dashboard(
     ).mappings().first()
 
     if not row:
-        rep_id = await ensure_reputation(session, store_id)
+        await ensure_reputation(session, store_id)
         result = await recalculate_store_reputation(session, store_id=store_id)
         return {
             **result,

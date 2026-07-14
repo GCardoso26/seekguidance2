@@ -333,7 +333,10 @@ async def get_card_intelligence(session: AsyncSession, card_id: str) -> dict[str
         c for c in staples if (c.get("lowestPrice") or 0) > (market.get("avgPrice") or 0)
     ][:4]
     downgrades = [
-        c for c in staples if (c.get("lowestPrice") or 0) and (c.get("lowestPrice") or 0) < (market.get("avgPrice") or 10**9)
+        c
+        for c in staples
+        if (c.get("lowestPrice") or 0)
+        and (c.get("lowestPrice") or 0) < (market.get("avgPrice") or 10**9)
     ][:4]
 
     competitiveness = "high"
@@ -364,7 +367,13 @@ async def get_card_intelligence(session: AsyncSession, card_id: str) -> dict[str
             "suggestedPrice": market.get("avgPrice"),
             "demand": market.get("demandSignal"),
             "competitiveness": competitiveness,
-            "velocityHint": "rápida" if market.get("demandSignal") == "high" else "moderada" if market.get("demandSignal") == "medium" else "lenta",
+            "velocityHint": (
+                "rápida"
+                if market.get("demandSignal") == "high"
+                else "moderada"
+                if market.get("demandSignal") == "medium"
+                else "lenta"
+            ),
         },
         "generatedAt": datetime.now(UTC).isoformat(),
         "source": "catalog_intelligence_v1",

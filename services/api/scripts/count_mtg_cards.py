@@ -2,9 +2,8 @@ from __future__ import annotations
 
 import asyncio
 
-from sqlalchemy import text
-
 from app.infrastructure.db.session import get_session_factory
+from sqlalchemy import text
 
 
 async def main() -> None:

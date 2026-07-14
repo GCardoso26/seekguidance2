@@ -2,12 +2,8 @@
 
 import dynamic from "next/dynamic";
 import type { ReactNode } from "react";
+import { CartDrawerOnDemand } from "@/components/cart/CartDrawerOnDemand";
 import { SearchPlatformProvider } from "@/features/search/SearchPlatformContext";
-
-const CartDrawer = dynamic(
-  () => import("@/components/cart/CartDrawer").then((m) => m.CartDrawer),
-  { ssr: false },
-);
 
 const PWAInstallPrompt = dynamic(
   () => import("@/components/pwa/PWAInstallPrompt").then((m) => m.PWAInstallPrompt),
@@ -16,13 +12,13 @@ const PWAInstallPrompt = dynamic(
 
 /**
  * Providers mínimos do hub Store (`/loja`).
- * Sem UpgradeModal (não usado no hub). CartDrawer lazy pós-interação.
+ * Sem UpgradeModal. CartDrawer só após interação.
  */
 export function StoreProviders({ children }: { children: ReactNode }) {
   return (
     <SearchPlatformProvider>
       {children}
-      <CartDrawer />
+      <CartDrawerOnDemand />
       <PWAInstallPrompt />
     </SearchPlatformProvider>
   );

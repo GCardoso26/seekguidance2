@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.marketplace import seller_tickets as tickets_svc
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class TicketsContextProvider:

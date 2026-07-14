@@ -1,6 +1,5 @@
 """Testes Sprint 5b — bulk, webhook idempotência, Melhor Envio mapping."""
 
-import pytest
 
 from app.marketplace.seller_fulfillment import (
     _MELHOR_EVENT_TO_FULFILLMENT,

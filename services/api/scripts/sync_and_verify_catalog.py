@@ -16,12 +16,11 @@ _API_ROOT = Path(__file__).resolve().parents[1]
 if str(_API_ROOT) not in sys.path:
     sys.path.insert(0, str(_API_ROOT))
 
-from sqlalchemy import text
-
 from app.catalog.games_service import list_merged_catalog_sets
 from app.catalog.pipeline import run_game_sync
 from app.catalog.search_service import search_catalog_cards
 from app.infrastructure.db.session import get_session_factory
+from sqlalchemy import text
 
 MIGRATION = (
     _API_ROOT.parents[1] / "supabase" / "migrations" / "20260706140000_catalog_sets_images_fix.sql"

@@ -1,11 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import dynamic from "next/dynamic";
 import { useRouter, useSearchParams } from "next/navigation";
 import { LayoutGrid, List, Rows3, Table2 } from "lucide-react";
 import { CardGrid } from "@/components/cards/CardGrid";
-import { QuickViewModal } from "@/components/cards/QuickViewModal";
-import { ProductFiltersSidebar } from "@/components/marketplace/ProductFiltersSidebar";
 import { InlineAlert } from "@/components/ui/async-state";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +16,24 @@ import {
 } from "@/hooks/useCardSearch";
 import type { SearchFilters } from "@/types/search";
 import { useAnalytics } from "@/hooks/useAnalytics";
+
+const QuickViewModal = dynamic(
+  () => import("@/components/cards/QuickViewModal").then((m) => m.QuickViewModal),
+  { ssr: false },
+);
+
+const ProductFiltersSidebar = dynamic(
+  () =>
+    import("@/components/marketplace/ProductFiltersSidebar").then((m) => m.ProductFiltersSidebar),
+  {
+    ssr: false,
+    loading: () => (
+      <aside className="w-full shrink-0 lg:w-64" aria-hidden>
+        <div className="h-64 animate-pulse rounded-xl bg-muted/40" />
+      </aside>
+    ),
+  },
+);
 
 interface FacetedSearchProps {
   initialGame?: string;
@@ -253,11 +270,13 @@ export function FacetedSearch({
         </div>
       </div>
 
-      <QuickViewModal
-        cardId={quickViewCardId}
-        isOpen={Boolean(quickViewCardId)}
-        onClose={() => setQuickViewCardId(null)}
-      />
+      {!cardDetailPath && (
+        <QuickViewModal
+          cardId={quickViewCardId}
+          isOpen={Boolean(quickViewCardId)}
+          onClose={() => setQuickViewCardId(null)}
+        />
+      )}
     </div>
   );
 }

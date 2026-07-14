@@ -5,11 +5,10 @@ from __future__ import annotations
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from fastapi import HTTPException
-
 from app.marketplace.seller_inventory_analytics import _suggestions
 from app.marketplace.seller_inventory_bulk import bulk_inventory
 from app.marketplace.seller_inventory_export import export_inventory
+from fastapi import HTTPException
 
 
 def test_suggestions_from_dashboard_actions():

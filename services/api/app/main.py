@@ -7,6 +7,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1.admin_api import router as admin_api_router
 from app.api.v1.alerts_api import router as alerts_api_router
+from app.api.v1.buyer_api import router as buyer_api_router
+from app.api.v1.carrier_api import router as carrier_api_router
 from app.api.v1.checkout_seller_api import checkout_router, seller_router
 from app.api.v1.decks_api import router as decks_api_router
 from app.api.v1.gamification_api import router as gamification_api_router
@@ -18,6 +20,7 @@ from app.api.v1.leagues_api import router as leagues_api_router
 from app.api.v1.marketplace_api import router as marketplace_api_router
 from app.api.v1.marketplace_sellers_api import router as marketplace_sellers_api_router
 from app.api.v1.overlay_api import router as overlay_api_router
+from app.api.v1.platform_api import router as platform_api_router
 from app.api.v1.players_ecosystem import router as players_ecosystem_router
 from app.api.v1.public_api_v1 import router as public_api_v1_router
 from app.api.v1.reviews_api import router as reviews_api_router
@@ -27,11 +30,8 @@ from app.api.v1.runtime_ingestion_admin import router as runtime_ingestion_admin
 from app.api.v1.runtime_judge import router as runtime_judge_router
 from app.api.v1.runtime_minimal import router as runtime_minimal_router
 from app.api.v1.runtime_operational import router as runtime_operational_router
-from app.api.v1.carrier_api import router as carrier_api_router
-from app.api.v1.platform_api import router as platform_api_router
-from app.api.v1.seller_dashboard_api import router as seller_dashboard_router
-from app.api.v1.buyer_api import router as buyer_api_router
 from app.api.v1.seller_ai_api import router as seller_ai_router
+from app.api.v1.seller_dashboard_api import router as seller_dashboard_router
 from app.api.v1.shop_api import router as shop_api_router
 from app.api.v1.social_api import router as social_api_router
 from app.api.v1.sponsorships_api import router as sponsorships_api_router

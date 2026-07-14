@@ -13,7 +13,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.marketplace import shop_cart, shop_orders
 
-
 IN_PROGRESS = frozenset({"pending", "paid", "processing", "shipped"})
 
 

@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.marketplace import seller_finance as seller_fin
 from app.marketplace.seller_header_notifications import get_header_notifications
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class FinanceContextProvider:

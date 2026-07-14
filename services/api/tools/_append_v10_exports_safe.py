@@ -171,7 +171,7 @@ def patch_init(rel: str, items: list[tuple[str, str]]) -> None:
     text = path.read_text(encoding="utf-8")
     for mod, fn in items:
         imp = f"from .{mod} import {fn}\n"
-        abs_imp = f"from app."
+        abs_imp = "from app."
         if imp not in text and f"import {fn}" not in text:
             idx = text.rfind("\n__all__")
             if idx < 0:

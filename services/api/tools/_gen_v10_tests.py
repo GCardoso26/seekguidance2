@@ -1,7 +1,6 @@
 """Testes sprint v10."""
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
 API = Path(__file__).resolve().parents[1]

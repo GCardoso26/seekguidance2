@@ -3,9 +3,6 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from typing import Any
-
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.ai.contracts.types import ActionPlan, ActionPlanItem, DailyBrief, SellerContextBundle, SellerInsight
 from app.ai.observability.ai_telemetry import AiTelemetrySpan
@@ -15,6 +12,7 @@ from app.ai.tools.recommendation_builder import (
     build_pricing_action_plan,
     build_recommendations,
 )
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 def _greeting_for_hour(hour: int) -> str:

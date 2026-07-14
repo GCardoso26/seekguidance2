@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { MarketplaceProviders } from "@/providers/MarketplaceProviders";
+import { CheckoutProviders } from "@/providers/CheckoutProviders";
 import { withCanonical } from "@/lib/page-metadata";
 
 export const metadata: Metadata = withCanonical("/checkout", {
@@ -9,5 +9,5 @@ export const metadata: Metadata = withCanonical("/checkout", {
 });
 
 export default function CheckoutLayout({ children }: { children: React.ReactNode }) {
-  return <MarketplaceProviders>{children}</MarketplaceProviders>;
+  return <CheckoutProviders>{children}</CheckoutProviders>;
 }

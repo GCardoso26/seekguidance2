@@ -63,7 +63,7 @@ class AiTelemetrySpan:
             store_id=store_id,
         )
 
-    def __enter__(self) -> "AiTelemetrySpan":
+    def __enter__(self) -> AiTelemetrySpan:
         return self
 
     def __exit__(self, exc_type, exc, _tb) -> None:

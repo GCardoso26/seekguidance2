@@ -15,10 +15,9 @@ import uuid
 from dataclasses import dataclass, field
 from typing import Any
 
+from app.players.store import ensure_player_profile
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from app.players.store import ensure_player_profile
 
 PREFIX = "INV-SMOKE"
 

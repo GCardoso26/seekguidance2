@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import asyncio
 import json
-import sys
 
 from app.integrations.melhor_envio.validate import melhor_envio_config_snapshot, melhor_envio_live_check
 

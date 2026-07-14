@@ -40,7 +40,7 @@ _ROOT = Path("generated/runtime_artifacts/{artifact_dir}")
         art_block = ""
 
     field_lines = "\n".join(f'        "{k}": {v},' for k, v in fields)
-    storage = f'str(_ROOT)' if artifact_dir else '"default"'
+    storage = 'str(_ROOT)' if artifact_dir else '"default"'
 
     imports = "from typing import Any\n"
     if artifact_dir:

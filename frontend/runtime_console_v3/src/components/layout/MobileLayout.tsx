@@ -43,6 +43,11 @@ function MobileNavItem({ href, label, icon: Icon }: NavItem) {
 export function MobileLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const hideNav = pathname === "/judge" || pathname.startsWith("/judge/");
+  const isCheckout =
+    pathname === "/checkout" ||
+    pathname?.startsWith("/checkout/") ||
+    pathname === "/marketplace/checkout" ||
+    pathname?.startsWith("/marketplace/checkout/");
 
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
@@ -52,19 +57,19 @@ export function MobileLayout({ children }: { children: ReactNode }) {
       >
         Pular para o conteúdo
       </a>
-      <GlobalHeader />
+      <GlobalHeader chrome={isCheckout ? "checkout" : "default"} />
       <main
         id="main-content"
         className={cn(
           "relative z-0 flex-1 animate-fade-in",
-          hideNav
+          hideNav || isCheckout
             ? ""
             : "pb-[max(var(--mobile-nav-offset),env(safe-area-inset-bottom))] md:pb-0",
         )}
       >
         {children}
       </main>
-      {!hideNav && (
+      {!hideNav && !isCheckout && (
         <nav
           className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card/95 px-2 pt-1.5 backdrop-blur-md supports-[backdrop-filter]:bg-card/80 md:hidden"
           style={{ paddingBottom: "max(0.375rem, env(safe-area-inset-bottom))" }}

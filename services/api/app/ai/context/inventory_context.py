@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.marketplace import card_listings as listings_svc
 from app.marketplace.seller_dashboard import get_dashboard_overview
 from app.marketplace.seller_inventory_dashboard import get_inventory_dashboard
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class InventoryContextProvider:
@@ -16,9 +15,9 @@ class InventoryContextProvider:
         inactive = await listings_svc.list_my_listings(session, owner_id, status="inactive")
         active = await listings_svc.list_my_listings(session, owner_id, status="active")
         missing_image = [
-            l
-            for l in active
-            if not l.get("images") and not l.get("card_image_url") and not l.get("image_url")
+            listing
+            for listing in active
+            if not listing.get("images") and not listing.get("card_image_url") and not listing.get("image_url")
         ]
 
         dash = await get_inventory_dashboard(session, owner_id)

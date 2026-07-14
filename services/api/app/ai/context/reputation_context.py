@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.reputation.reputation_engine import get_seller_reputation_dashboard
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class ReputationContextProvider:

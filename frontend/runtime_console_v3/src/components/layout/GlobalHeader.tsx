@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { Layers, Scale, ShoppingBag, Users } from "lucide-react";
 import { GlobalSearchBar } from "@/components/home/GlobalSearchBar";
-import { GameMegaMenu } from "@/components/games/GameMegaMenu";
 import { HeaderNavActions } from "@/components/layout/HeaderNavActions";
 import { HeaderGamePicker } from "@/components/layout/HeaderGamePicker";
 import { GlobalNotificationBell } from "@/components/notifications/GlobalNotificationBell";
@@ -19,6 +19,11 @@ import { useRulesAccess } from "@/hooks/useRulesAccess";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+
+const GameMegaMenu = dynamic(
+  () => import("@/components/games/GameMegaMenu").then((m) => m.GameMegaMenu),
+  { ssr: false },
+);
 
 type NavItem = { href: string; label: string; icon: typeof ShoppingBag };
 
@@ -64,13 +69,17 @@ function DesktopNav() {
 
 interface GlobalHeaderProps {
   showGameTabs?: boolean;
+  /** Checkout: logo + entrar/conta apenas — sem search/mega/menu badges (LCP). */
+  chrome?: "default" | "checkout";
   children?: ReactNode;
 }
 
-export function GlobalHeader({ showGameTabs = true }: GlobalHeaderProps) {
+export function GlobalHeader({ showGameTabs = true, chrome = "default" }: GlobalHeaderProps) {
   const pathname = usePathname();
   const { user, loading } = useJudgeAuth();
+  const isCheckout = chrome === "checkout";
   const showTabs =
+    !isCheckout &&
     showGameTabs &&
     (pathname.startsWith("/loja") || pathname === "/" || Boolean(pathname.match(/^\/[a-z-]+\/cards/)));
 
@@ -80,7 +89,7 @@ export function GlobalHeader({ showGameTabs = true }: GlobalHeaderProps) {
 
   return (
     <div className="sticky top-0 z-50">
-      <CpfRequiredBanner />
+      {!isCheckout && <CpfRequiredBanner />}
       <header className="border-b border-border bg-card/80 backdrop-blur-md supports-[backdrop-filter]:bg-card/70">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="flex h-12 items-center gap-3 lg:h-14">
@@ -93,32 +102,39 @@ export function GlobalHeader({ showGameTabs = true }: GlobalHeaderProps) {
               <span className="hidden sm:inline">Judge TCG</span>
             </Link>
 
-            <HeaderGamePicker />
+            {!isCheckout && (
+              <>
+                <HeaderGamePicker />
+                <nav className="hidden items-center gap-0.5 xl:flex" aria-label="Principal">
+                  <DesktopNav />
+                </nav>
+                <HeaderNavActions />
+                <div className="min-w-0 flex-1">
+                  <GlobalSearchBar
+                    variant="header"
+                    placeholder="Buscar cards, sellers, decks…"
+                    className="max-w-none"
+                  />
+                </div>
+              </>
+            )}
 
-            <nav className="hidden items-center gap-0.5 xl:flex" aria-label="Principal">
-              <DesktopNav />
-            </nav>
-
-            <HeaderNavActions />
-
-            <div className="min-w-0 flex-1">
-              <GlobalSearchBar
-                variant="header"
-                placeholder="Buscar cards, sellers, decks…"
-                className="max-w-none"
-              />
-            </div>
+            {isCheckout && <div className="min-w-0 flex-1" />}
 
             <div className="flex shrink-0 items-center gap-1">
-              <ThemeToggle compact className="hidden sm:inline-flex" />
-              <UserLevelBadge compact />
-              <WishlistBadge />
-              <CartHeaderButton />
+              {!isCheckout && (
+                <>
+                  <ThemeToggle compact className="hidden sm:inline-flex" />
+                  <UserLevelBadge compact />
+                  <WishlistBadge />
+                  <CartHeaderButton />
+                </>
+              )}
               {loading ? (
                 <div className="h-8 w-8 animate-pulse rounded-full bg-muted" aria-hidden />
               ) : user ? (
                 <>
-                  <GlobalNotificationBell />
+                  {!isCheckout && <GlobalNotificationBell />}
                   <UserMenu />
                 </>
               ) : (

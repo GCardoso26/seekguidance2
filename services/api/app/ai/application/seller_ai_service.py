@@ -5,14 +5,13 @@ from __future__ import annotations
 import os
 from typing import Any
 
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.ai.assistant.seller_copilot import SellerCopilot
-from app.ai.contracts.types import ActionPlan, DailyBrief, SellerInsight
+from app.ai.contracts.types import ActionPlan, DailyBrief
 from app.ai.orchestrator.seller_orchestrator import gather_seller_context
 from app.ai.providers.claude_provider import ClaudeLlmProvider
 from app.ai.providers.mock_provider import MockLlmProvider
 from app.ai.providers.openai_provider import OpenAiLlmProvider
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 def _resolve_llm_provider():

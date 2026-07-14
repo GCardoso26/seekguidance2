@@ -39,7 +39,13 @@ async def export_inventory(
     items = enrich_items_with_health(list(result.get("items") or []))
     if ids:
         idset = set(ids)
-        items = [i for i in items if str(i.get("id")) in idset or str(i.get("listing_id")) in idset or str(i.get("product_id")) in idset]
+        items = [
+            i
+            for i in items
+            if str(i.get("id")) in idset
+            or str(i.get("listing_id")) in idset
+            or str(i.get("product_id")) in idset
+        ]
 
     rows = [
         {

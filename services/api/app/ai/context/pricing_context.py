@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.analytics.pricing_intelligence import get_pricing_suggestions_read
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class PricingContextProvider:

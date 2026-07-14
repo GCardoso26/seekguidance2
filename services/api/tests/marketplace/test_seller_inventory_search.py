@@ -5,7 +5,6 @@ from __future__ import annotations
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-
 from app.marketplace.seller_inventory_search import (
     _image_from_uris,
     _row_item,

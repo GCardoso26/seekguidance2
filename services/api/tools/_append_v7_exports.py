@@ -1,7 +1,6 @@
 """Append v7 exports safely (one entry per line)."""
 from __future__ import annotations
 
-import re
 from pathlib import Path
 
 API = Path(__file__).resolve().parents[1]

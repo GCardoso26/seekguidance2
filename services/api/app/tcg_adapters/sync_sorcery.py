@@ -7,8 +7,8 @@ from typing import Any
 import httpx
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.tcg_adapters.sync_common import maybe_commit_batch, normalize_name, slug_set_code, upsert_card, upsert_set
 from app.catalog.image_utils import sorcery_slug_to_image_url
+from app.tcg_adapters.sync_common import maybe_commit_batch, normalize_name, slug_set_code, upsert_card, upsert_set
 
 SORCERY_API = "https://api.sorcerytcg.com/api/cards"
 

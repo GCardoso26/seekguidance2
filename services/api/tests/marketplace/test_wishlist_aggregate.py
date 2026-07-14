@@ -3,8 +3,6 @@
 from __future__ import annotations
 
 import pytest
-from fastapi import HTTPException
-
 from app.marketplace.wishlist_aggregate import (
     ensure_default_lists_payload,
     merge_list_names,
@@ -12,6 +10,7 @@ from app.marketplace.wishlist_aggregate import (
     validate_list_name,
     validate_slug,
 )
+from fastapi import HTTPException
 
 
 def test_slugify_name():

@@ -12,8 +12,8 @@ from app.catalog.admin_auth import require_catalog_sync_auth
 from app.catalog.card_versions import get_card_versions
 from app.catalog.cron_auth import require_catalog_cron_auth
 from app.catalog.detail_service import get_card_detail, get_price_history
-from app.catalog.intelligence_service import get_card_intelligence
 from app.catalog.health import verify_ingestion, verify_ingestion_lite
+from app.catalog.intelligence_service import get_card_intelligence
 from app.catalog.pipeline import run_full_ingestion, run_game_sync
 from app.catalog.redis_cache import redis_ping
 from app.catalog.search_index import meili_enabled

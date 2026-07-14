@@ -22,7 +22,6 @@ from app.marketplace.wishlist_aggregate import (
     reorder_items,
     slugify_name,
     validate_list_name,
-    validate_slug,
 )
 from app.platform.jobs import emit_outbox_event
 
@@ -316,7 +315,9 @@ async def add_item(
                   (list_id, user_id, product_id, product_snapshot, sort_order)
                 VALUES (
                   CAST(:lid AS uuid), :uid, CAST(:pid AS uuid), CAST(:snap AS jsonb),
-                  (SELECT COALESCE(MAX(sort_order), 0) + 1 FROM tcg_judge.wishlist_items WHERE list_id = CAST(:lid AS uuid))
+                  (SELECT COALESCE(MAX(sort_order), 0) + 1
+                   FROM tcg_judge.wishlist_items
+                   WHERE list_id = CAST(:lid AS uuid))
                 )
                 ON CONFLICT (list_id, product_id) DO UPDATE
                   SET product_snapshot = EXCLUDED.product_snapshot, sort_order = EXCLUDED.sort_order

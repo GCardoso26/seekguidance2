@@ -4,13 +4,11 @@ from __future__ import annotations
 
 import asyncio
 import logging
-import os
-
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from app.config.validate import require_production_config
 from app.core.config import get_settings
 from app.jobs.ranking_decay import apply_ranking_decay_job
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

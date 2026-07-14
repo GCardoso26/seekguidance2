@@ -416,17 +416,32 @@ async def get_card_detail(session: AsyncSession, card_id: str) -> dict[str, Any]
 
     intelligence = await get_card_intelligence(session, str(uid))
     trusts = [
-        float(l["sellerReputation"])
-        for l in listings
-        if l.get("sellerReputation") is not None
+        float(listing["sellerReputation"])
+        for listing in listings
+        if listing.get("sellerReputation") is not None
     ]
     avg_trust = round(sum(trusts) / len(trusts), 1) if trusts else None
     sold_volume = sum(int(p.get("volume") or 0) for p in price_history)
     market_summary = {
-        "listedQuantity": sum(int(l.get("quantity") or 0) for l in listings),
-        "storeCount": len({str(l.get("sellerId") or l.get("storeId") or l.get("id")) for l in listings}),
+        "listedQuantity": sum(
+            int(listing.get("quantity") or 0) for listing in listings
+        ),
+        "storeCount": len(
+            {
+                str(
+                    listing.get("sellerId")
+                    or listing.get("storeId")
+                    or listing.get("id")
+                )
+                for listing in listings
+            }
+        ),
         "bestOffer": min(
-            (float(l["price"]) for l in listings if l.get("price") is not None),
+            (
+                float(listing["price"])
+                for listing in listings
+                if listing.get("price") is not None
+            ),
             default=None,
         ),
         "currency": (listings[0].get("currency") if listings else card.get("latestPrice", {}).get("currency"))

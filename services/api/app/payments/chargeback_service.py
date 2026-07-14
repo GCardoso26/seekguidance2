@@ -93,7 +93,8 @@ async def open_chargeback_from_stripe_dispute(
             payment_row = (
                 await session.execute(
                     text(
-                        "SELECT id, shop_order_id, store_id, status FROM tcg_judge.payments WHERE id = CAST(:pid AS uuid)"
+                        "SELECT id, shop_order_id, store_id, status "
+                        "FROM tcg_judge.payments WHERE id = CAST(:pid AS uuid)"
                     ),
                     {"pid": payment_id},
                 )
@@ -229,7 +230,7 @@ async def process_chargeback_job(
     correlation_id: str | None = None,
 ) -> dict[str, Any]:
     """Job chargeback.process — bloqueia settlement pendente do pagamento."""
-    cid = correlation_id or str(uuid.uuid4())
+    _ = correlation_id  # reserved for future tracing
     await session.execute(
         text(
             """

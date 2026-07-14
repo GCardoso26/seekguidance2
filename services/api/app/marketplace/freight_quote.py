@@ -88,7 +88,11 @@ async def _melhor_envio_quotes(
         quotes.append(
             {
                 "id": str(row.get("id") or row.get("service") or ""),
-                "carrier": str(row.get("company", {}).get("name") if isinstance(row.get("company"), dict) else row.get("company") or "melhor_envio"),
+                "carrier": str(
+                    row.get("company", {}).get("name")
+                    if isinstance(row.get("company"), dict)
+                    else row.get("company") or "melhor_envio"
+                ),
                 "service": str(row.get("name") or row.get("service_name") or "Frete"),
                 "price_cents": int(float(price) * 100),
                 "delivery_days": int(row.get("delivery_time") or row.get("custom_delivery_time") or 5),

@@ -1,9 +1,8 @@
 """Testes da state machine Payment (WF-004)."""
 
 import pytest
-from fastapi import HTTPException
-
 from app.payments.payment_aggregate import _TRANSITIONS, _validate_transition
+from fastapi import HTTPException
 
 
 def test_created_to_pending_authorization() -> None:

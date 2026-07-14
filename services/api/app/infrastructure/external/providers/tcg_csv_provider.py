@@ -4,7 +4,6 @@ import os
 from typing import Any
 
 import structlog
-
 from app.infrastructure.external.providers.http_client import ResilientHttpClient
 from app.infrastructure.external.providers.types import CatalogCard, CatalogSet, PriceQuote
 

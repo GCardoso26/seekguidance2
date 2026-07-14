@@ -1,18 +1,14 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import type { ReactNode } from "react";
+import { CartDrawerOnDemand } from "@/components/cart/CartDrawerOnDemand";
 
-const CartDrawer = dynamic(
-  () => import("@/components/cart/CartDrawer").then((m) => m.CartDrawer),
-  { ssr: false },
-);
-
+/** Compat: monta CartDrawer apenas após primeira abertura. */
 export function CartProvider({ children }: { children: ReactNode }) {
   return (
     <>
       {children}
-      <CartDrawer />
+      <CartDrawerOnDemand />
     </>
   );
 }
