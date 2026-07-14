@@ -32,7 +32,20 @@ function mockBrowser() {
     },
   });
   vi.stubGlobal("crypto", { randomUUID: () => "anon-test-id" });
-  vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true }));
+  vi.stubGlobal(
+    "fetch",
+    vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        ok: true,
+        received: 1,
+        persisted: 1,
+        dead_lettered: 0,
+        duplicates: 0,
+        lost: 0,
+      }),
+    }),
+  );
 }
 
 describe("analytics", () => {
@@ -42,11 +55,12 @@ describe("analytics", () => {
     __resetAnalyticsForTests();
   });
 
-  it("enfileira evento com anonymous_id", async () => {
+  it("enfileira evento com schema version e anonymous_id", async () => {
     await trackEvent("pricing_page_view", { source: "direct" });
     const queue = __readAnalyticsQueueForTests();
     expect(queue).toHaveLength(1);
     expect(queue[0]?.event).toBe("pricing_page_view");
+    expect(queue[0]?.event_schema_version).toBe(1);
     expect(queue[0]?.anonymous_id).toBe("anon-test-id");
     expect(queue[0]?.properties).toEqual(
       expect.objectContaining({ source: "direct" }),

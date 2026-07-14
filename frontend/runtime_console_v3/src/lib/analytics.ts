@@ -62,7 +62,11 @@ export type BuyerExperienceEvent =
   | "smart_cart_goal"
   | "deck_shop_open"
   | "collection_import"
-  | "time_to_purchase_ms";
+  | "time_to_purchase_ms"
+  | "announce_card_click"
+  | "card_dwell_ms"
+  | "card_buy_click"
+  | "card_add_to_cart";
 
 export type AnalyticsEventName =
   | MonetizationEvent
@@ -75,14 +79,20 @@ export type UserTier = "free" | "pro" | "team";
 
 export type PricingCtaLocation = "header" | "hero_secondary" | "mid_page" | "final_cta" | "footer";
 
+/** Envelope schema version — keep in sync with EVENT_VERSIONING.md / BE SUPPORTED_SCHEMA_VERSIONS */
+export const ANALYTICS_SCHEMA_VERSION = 1 as const;
+
 export type EventPayload = {
   event: AnalyticsEventName;
   timestamp: string;
+  event_schema_version: number;
   user_id?: string;
   anonymous_id?: string;
   properties?: Record<string, unknown>;
   tier?: UserTier;
   game_slug?: string;
+  idempotency_key?: string;
+  source?: string;
 };
 
 const QUEUE_KEY = "analytics_queue";
@@ -106,6 +116,20 @@ const FLUSH_IMMEDIATE = new Set<AnalyticsEventName>([
   "paywall_hit",
   "purchase",
   "add_to_cart",
+  "listing_create",
+  "wishlist_shared",
+  "wishlist_converted",
+]);
+
+const IDEMPOTENT_EVENTS = new Set<AnalyticsEventName>([
+  "purchase",
+  "checkout_started",
+  "checkout_completed",
+  "checkout_failed",
+  "listing_create",
+  "wishlist_shared",
+  "add_to_cart",
+  "wishlist_converted",
 ]);
 
 function getAnonymousId(): string {
@@ -132,6 +156,29 @@ function writeQueue(queue: EventPayload[]) {
   localStorage.setItem(QUEUE_KEY, JSON.stringify(queue));
 }
 
+type TrackResponse = {
+  ok?: boolean;
+  received?: number;
+  persisted?: number;
+  dead_lettered?: number;
+  duplicates?: number;
+  lost?: number;
+  ingest_trace_id?: string;
+};
+
+function batchAccounted(data: TrackResponse, sent: number): boolean {
+  const persisted = data.persisted ?? 0;
+  const dead = data.dead_lettered ?? 0;
+  const dupes = data.duplicates ?? 0;
+  const accounted = persisted + dead + dupes;
+  // Prefer explicit ok from Beta 1.5 ingest; fall back to accounting.
+  if (typeof data.ok === "boolean") {
+    return data.ok && (data.lost ?? 0) === 0;
+  }
+  // Legacy upstream that only returned { received: inserted }
+  return accounted >= sent || (typeof data.received === "number" && data.received >= 0);
+}
+
 export async function flushAnalytics(): Promise<void> {
   if (typeof window === "undefined") return;
   const queue = readQueue();
@@ -143,7 +190,19 @@ export async function flushAnalytics(): Promise<void> {
       body: JSON.stringify({ events: queue }),
       keepalive: true,
     });
-    if (res.ok) {
+    if (!res.ok) return;
+    let data: TrackResponse = {};
+    try {
+      data = (await res.json()) as TrackResponse;
+    } catch {
+      /* soft-200 empty body — treat as ambiguous; keep queue */
+      return;
+    }
+    // Gateways always HTTP 200; integrity is in body.ok / accounting.
+    if (data.ok === false || (typeof data.lost === "number" && data.lost > 0)) {
+      return;
+    }
+    if (batchAccounted(data, queue.length)) {
       localStorage.removeItem(QUEUE_KEY);
     }
   } catch {
@@ -157,21 +216,42 @@ export async function trackEvent(
     user_id?: string;
     tier?: UserTier;
     game_slug?: string;
+    idempotency_key?: string;
   },
 ): Promise<void> {
   if (typeof window === "undefined") return;
 
-  const { user_id, tier, game_slug, ...rest } = properties ?? {};
+  const { user_id, tier, game_slug, idempotency_key: idemIn, ...rest } = properties ?? {};
+  const sessionId = getSessionId();
+  const seed =
+    rest.order_id ??
+    rest.session_id ??
+    rest.list_id ??
+    rest.listing_id ??
+    rest.product_id ??
+    rest.card_id;
+  const idempotency_key =
+    idemIn ??
+    (IDEMPOTENT_EVENTS.has(event)
+      ? seed != null
+        ? `${event}:${String(seed)}`
+        : `${event}:${sessionId}`
+      : undefined);
+
   const payload: EventPayload = {
     event,
     timestamp: new Date().toISOString(),
+    event_schema_version: ANALYTICS_SCHEMA_VERSION,
     anonymous_id: getAnonymousId(),
     user_id,
     tier: tier ?? "free",
     game_slug,
+    idempotency_key,
+    source: "client",
     properties: {
       ...rest,
-      session_id: getSessionId(),
+      session_id: sessionId,
+      event_schema_version: ANALYTICS_SCHEMA_VERSION,
       ...(typeof window !== "undefined"
         ? { url: window.location.href, referrer: document.referrer }
         : {}),

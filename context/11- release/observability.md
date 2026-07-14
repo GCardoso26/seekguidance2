@@ -844,3 +844,17 @@ Application Services
 A estratégia de Observability do JudgeTCG garante que toda a plataforma seja transparente, mensurável e operacionalmente segura.
 
 Ao unificar métricas técnicas, eventos de domínio, tracing distribuído, logs estruturados e monitoramento contínuo, a equipe consegue identificar rapidamente problemas, medir impacto no negócio e evoluir a plataforma com confiança. A observabilidade deixa de ser apenas uma ferramenta de suporte e passa a ser parte integrante da arquitetura da plataforma.
+---
+
+# Beta 1.5 — Product Analytics Ingest Observability
+
+Product analytics é sinal de negócio observável:
+
+- `ingest_trace_id` por batch
+- Destinos: `analytics_events` + `analytics_events_dlq`
+- Endpoint: `GET /runtime/judge/analytics/ingestion-health`
+- Garantia: evento desconhecido/inválido **nunca** é descartado sem registro
+- Soft HTTP 200 no browser gateway **não** implica sucesso silencioso (usar `body.ok` / `lost`)
+
+Dashboards ops: `docs/product/EVENT_DASHBOARDS.md`.
+Arquitetura: `docs/product/EVENT_PLATFORM_ARCHITECTURE.md`.

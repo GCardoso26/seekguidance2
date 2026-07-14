@@ -8,10 +8,14 @@ from typing import Any
 import structlog
 from app.api.deps import DbSession
 from app.core.config import get_settings
-from app.judge.analytics_events import monetization_metrics_payload, record_analytics_events
+from app.judge.analytics_events import (
+    ingestion_health_payload,
+    monetization_metrics_payload,
+    record_analytics_events,
+)
 from app.judge.growth_metrics import GROWTH_EVENT_TYPES, growth_dashboard_payload, record_growth_metric
 from app.judge.share_signing import is_valid_uuid, sign_share_id, verify_share_signature
-from fastapi import APIRouter, Header, HTTPException
+from fastapi import APIRouter, Header, HTTPException, Request
 from pydantic import BaseModel, Field
 from sqlalchemy import text
 
@@ -300,6 +304,9 @@ class AnalyticsEventBody(BaseModel):
     properties: dict[str, Any] | None = None
     tier: str | None = "free"
     game_slug: str | None = None
+    event_schema_version: int | None = 1
+    idempotency_key: str | None = None
+    source: str | None = "client"
 
 
 class TrackAnalyticsBody(BaseModel):
@@ -307,17 +314,45 @@ class TrackAnalyticsBody(BaseModel):
 
 
 @router.post("/runtime/judge/analytics/track", status_code=202)
-async def track_analytics_events(body: TrackAnalyticsBody, session: DbSession) -> dict[str, int]:
-    received = await record_analytics_events(
+async def track_analytics_events(
+    body: TrackAnalyticsBody,
+    session: DbSession,
+    request: Request,
+) -> dict[str, Any]:
+    """Ingest product analytics. Unknown/invalid events go to DLQ — never silent-drop.
+
+    HTTP 202 always when the batch was processed (including all-DLQ).
+    Body.ok is false only when events were *lost* (neither persisted nor DLQ'd).
+    Backward compatible: clients that only read `received` still work (`received` == batch size).
+    """
+    origin = request.headers.get("referer") or request.headers.get("origin")
+    result = await record_analytics_events(
         session,
         [e.model_dump() for e in body.events],
+        origin=origin,
     )
-    return {"received": received}
+    # Compatibility: `received` historically meant inserted count; now means batch size.
+    # Expose both `received` (batch) and `persisted` (inserted).
+    return {
+        "received": int(result.get("received") or 0),
+        "persisted": int(result.get("persisted") or 0),
+        "dead_lettered": int(result.get("dead_lettered") or 0),
+        "duplicates": int(result.get("duplicates") or 0),
+        "lost": int(result.get("lost") or 0),
+        "ok": bool(result.get("ok")),
+        "ingest_trace_id": result.get("ingest_trace_id"),
+        "details": result.get("details") or [],
+    }
 
 
 @router.get("/runtime/judge/analytics/metrics")
 async def get_analytics_metrics(session: DbSession, days: int = 30) -> dict[str, Any]:
     return await monetization_metrics_payload(session, days=days)
+
+
+@router.get("/runtime/judge/analytics/ingestion-health")
+async def get_analytics_ingestion_health(session: DbSession, hours: int = 24) -> dict[str, Any]:
+    return await ingestion_health_payload(session, hours=hours)
 
 
 class HistoryMigrateEntry(BaseModel):

@@ -5,6 +5,7 @@ import structlog
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.analytics_runtime.api.router import router as product_analytics_runtime_router
 from app.api.v1.admin_api import router as admin_api_router
 from app.api.v1.alerts_api import router as alerts_api_router
 from app.api.v1.buyer_api import router as buyer_api_router
@@ -78,6 +79,12 @@ async def lifespan(app: FastAPI):
         require_production_config(_cfg)
     ensure_default_admin()
     await run_startup_warmup(_cfg)
+    try:
+        from app.analytics_runtime.runtime.engine import ENGINE
+
+        ENGINE.bootstrap()
+    except Exception:
+        logger.warning("analytics_runtime_bootstrap_skipped", exc_info=True)
     yield
 
 
@@ -302,6 +309,7 @@ app.include_router(alerts_api_router)
 app.include_router(gamification_api_router)
 app.include_router(decks_api_router)
 app.include_router(runtime_ingestion_admin_router)
+app.include_router(product_analytics_runtime_router)
 
 
 

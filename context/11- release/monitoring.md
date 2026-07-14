@@ -823,3 +823,18 @@ Incident Response
 A estratégia de Monitoring do JudgeTCG garante que a plataforma seja monitorada de forma contínua, proativa e orientada ao negócio.
 
 Ao integrar monitoramento de infraestrutura, aplicações, IA, marketplace, catálogo e indicadores comerciais, a equipe consegue detectar rapidamente qualquer degradação, responder com agilidade a incidentes e manter níveis elevados de disponibilidade, desempenho e confiabilidade durante todo o ciclo de vida da plataforma.
+---
+
+# Beta 1.5 — Analytics Ingest Monitoring
+
+Alertas futuros (wire quando Grafana disponível):
+
+| Sinal | Condição | Severidade |
+|-------|----------|------------|
+| lost rate | lost/received > 0 por 15m | P0 |
+| DLQ unknown | unknown_event > 2% volume | P1 |
+| DLQ depth | pending > 500 | P1 |
+| Track availability | gateway/API failures | P0 |
+| AHS | Analytics Health Score < 50 | P0 |
+
+Fonte: `ingestion-health` + logs `analytics_*`.

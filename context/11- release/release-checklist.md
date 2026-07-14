@@ -634,3 +634,25 @@ Release Completed
 O Release Checklist estabelece um padrão único para todas as entregas do JudgeTCG.
 
 Ao combinar validações técnicas, funcionais, operacionais e de observabilidade, o processo reduz significativamente o risco de regressões e garante que cada nova versão da plataforma seja entregue com qualidade, previsibilidade e segurança, mantendo a consistência entre Marketplace, Catálogo, IA, Seller Experience, Buyer Experience e infraestrutura da plataforma.
+---
+
+# Beta 1.5 — Event Integrity Quality Gates
+
+**Status:** Active · **Owner:** Platform
+
+Nenhum evento novo de product analytics pode ir a produção sem:
+
+| Gate | Evidência |
+|------|-----------|
+| Registry entry | `app/judge/event_registry.py` + `docs/product/EVENT_REGISTRY.md` |
+| Schema version | `event_schema_version` em EVENT_VERSIONING |
+| Owner | Campo `owner` no registry |
+| Documentation | Taxonomy / Catalog / Parity atualizados |
+| Test | `tests/judge/test_event_integrity.py` (FE⊆BE) |
+| Payload contract | Props required/optional listadas |
+| Compatibility | Default v1; sem rename breaking sem dual-write |
+| Telemetry | Ingest retorna persisted/DLQ; sem drop silencioso |
+
+**Release blocker:** spike de `lost` / tempestade DLQ `unknown_event` após deploy.
+
+Ver: `docs/product/EVENT_TESTING.md`, `docs/product/ANALYTICS_HEALTH.md`.

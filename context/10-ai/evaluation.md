@@ -941,3 +941,16 @@ O AI Evaluation Framework transforma a evolução da inteligência artificial do
 Ao combinar Golden Datasets, benchmarks entre Providers, validação de prompts, métricas de negócio, custo, latência e segurança, a plataforma elimina decisões subjetivas sobre qualidade e estabelece um ciclo contínuo de melhoria baseado em evidências.
 
 Essa abordagem garante que cada nova versão dos Copilots entregue mais valor aos usuários sem comprometer desempenho, confiabilidade ou governança.
+---
+
+# Beta 1.5 — Cross-cutting: Event Integrity Evaluation Gate
+
+Alterações que emitam novos eventos de product analytics (incl. superfícies de IA) devem passar pelo gate de Event Integrity:
+
+1. Entrada no `EVENT_REGISTRY`
+2. Schema version documentada
+3. Teste de paridade FE⊆BE
+4. Destino persistente ou DLQ explícito
+
+IA não está isenta: telemetria de produto da camada de AI também é missão crítica.
+Ref: `docs/product/EVENT_TESTING.md`.
