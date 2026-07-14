@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import dynamic from "next/dynamic";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import { PageContainer } from "@/components/ui/page-container";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -10,20 +9,10 @@ import {
   TopMoversHero,
   TopMoversInsights,
 } from "@/components/top-movers/TopMoversPanels";
+import { TopMoversFiltersIsland } from "@/components/top-movers/TopMoversFiltersIsland";
+import { TopMoversTableIsland } from "@/components/top-movers/TopMoversTableIsland";
 import { fetchTopMovers } from "@/lib/top-movers/fetch";
 import { withCanonical } from "@/lib/page-metadata";
-
-const TopMoversFiltersIsland = dynamic(
-  () =>
-    import("@/components/top-movers/TopMoversFiltersIsland").then((m) => m.TopMoversFiltersIsland),
-  { ssr: false, loading: () => <Skeleton className="h-28 w-full rounded-xl" /> },
-);
-
-const TopMoversTableIsland = dynamic(
-  () =>
-    import("@/components/top-movers/TopMoversTableIsland").then((m) => m.TopMoversTableIsland),
-  { ssr: false, loading: () => <Skeleton className="h-64 w-full rounded-xl" /> },
-);
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
