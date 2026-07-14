@@ -5,7 +5,6 @@ import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { Layers, Scale, ShoppingBag, Users } from "lucide-react";
-import { GlobalSearchBar } from "@/components/home/GlobalSearchBar";
 import { HeaderNavActions } from "@/components/layout/HeaderNavActions";
 import { HeaderGamePicker } from "@/components/layout/HeaderGamePicker";
 import { GlobalNotificationBell } from "@/components/notifications/GlobalNotificationBell";
@@ -19,6 +18,14 @@ import { useRulesAccess } from "@/hooks/useRulesAccess";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+
+const GlobalSearchBar = dynamic(
+  () => import("@/components/home/GlobalSearchBar").then((m) => m.GlobalSearchBar),
+  {
+    ssr: false,
+    loading: () => <div className="h-9 w-full max-w-xl rounded-lg bg-muted/40" aria-hidden />,
+  },
+);
 
 const GameMegaMenu = dynamic(
   () => import("@/components/games/GameMegaMenu").then((m) => m.GameMegaMenu),
@@ -78,8 +85,10 @@ export function GlobalHeader({ showGameTabs = true, chrome = "default" }: Global
   const pathname = usePathname();
   const { user, loading } = useJudgeAuth();
   const isCheckout = chrome === "checkout";
+  const isStoreSearch = pathname === "/loja/busca" || pathname?.startsWith("/loja/busca?");
   const showTabs =
     !isCheckout &&
+    !isStoreSearch &&
     showGameTabs &&
     (pathname.startsWith("/loja") || pathname === "/" || Boolean(pathname.match(/^\/[a-z-]+\/cards/)));
 
