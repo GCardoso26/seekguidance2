@@ -45,7 +45,7 @@ export function PriceTrendCard({ trend }: PriceTrendCardProps) {
         )}
         <div
           className={`mt-2 flex items-center gap-1 text-sm font-medium ${
-            up ? "text-emerald-500" : "text-danger"
+            up ? "text-success" : "text-danger"
           }`}
         >
           {up ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}

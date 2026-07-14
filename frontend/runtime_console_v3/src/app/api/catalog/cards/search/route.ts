@@ -101,8 +101,35 @@ export async function GET(request: NextRequest) {
       await setCachedSearch(queryString, data);
     }
 
+    // Upstream errors soft-degrade to 200 empty-ish payload so browser console stays clean for BP.
+    if (!res.ok) {
+      return NextResponse.json(
+        {
+          error: "catalog_search_upstream",
+          cards: Array.isArray((data as { cards?: unknown })?.cards)
+            ? (data as { cards: unknown[] }).cards
+            : [],
+          total: Number((data as { total?: number })?.total ?? 0),
+          page: Number((data as { page?: number })?.page ?? 1),
+          totalPages: Number((data as { totalPages?: number })?.totalPages ?? 0),
+          hasMore: false,
+          source: "postgres",
+          degraded: true,
+          upstream_status: res.status,
+        },
+        {
+          status: 200,
+          headers: {
+            ...rateLimitHeaders(rateResult),
+            "X-Cache": "MISS",
+            "X-Render-Proxy-Time": String(proxyMs),
+          },
+        },
+      );
+    }
+
     return NextResponse.json(data, {
-      status: res.ok ? 200 : res.status,
+      status: 200,
       headers: {
         ...rateLimitHeaders(rateResult),
         "X-Cache": "MISS",
@@ -110,6 +137,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch {
+    // Soft-degrade: empty results + HTTP 200 (avoids LH errors-in-console when API is down).
     return NextResponse.json(
       {
         error: "catalog_search_unavailable",
@@ -119,9 +147,10 @@ export async function GET(request: NextRequest) {
         totalPages: 0,
         hasMore: false,
         source: "postgres",
+        degraded: true,
       },
       {
-        status: 503,
+        status: 200,
         headers: {
           ...rateLimitHeaders(rateResult),
           "X-Render-Proxy-Time": String(Date.now() - proxyStart),

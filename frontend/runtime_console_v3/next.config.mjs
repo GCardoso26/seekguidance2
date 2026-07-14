@@ -1,3 +1,9 @@
+import bundleAnalyzer from "@next/bundle-analyzer";
+
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: process.env.ANALYZE === "true",
+});
+
 /** @type {import('next').NextConfig} */
 /** Proxy: rewrites (edge). Em dev usa API_PROXY_TARGET ou localhost. */
 const apiUrl =
@@ -68,6 +74,21 @@ const marketplaceRedirects = [
 
 const nextConfig = {
   reactStrictMode: true,
+  /** Required for Lighthouse Best Practices: valid-source-maps on first-party JS. */
+  productionBrowserSourceMaps: true,
+  experimental: {
+    optimizePackageImports: [
+      "lucide-react",
+      "recharts",
+      "framer-motion",
+      "@radix-ui/react-dialog",
+      "@radix-ui/react-dropdown-menu",
+      "@radix-ui/react-tabs",
+      "@tanstack/react-virtual",
+      "sonner",
+      "cmdk",
+    ],
+  },
   images: {
     dangerouslyAllowSVG: true,
     contentDispositionType: "attachment",
@@ -148,8 +169,12 @@ const nextConfig = {
       process.env.NODE_ENV === "development"
         ? process.env.API_PROXY_TARGET || "http://127.0.0.1:8000"
         : apiUrl;
-    return [{ source: "/api/proxy/:path*", destination: `${target}/:path*` }];
+    return [
+      // Browsers still request /favicon.ico — map to App Router icon route.
+      { source: "/favicon.ico", destination: "/icon" },
+      { source: "/api/proxy/:path*", destination: `${target}/:path*` },
+    ];
   },
 };
 
-export default nextConfig;
+export default withBundleAnalyzer(nextConfig);

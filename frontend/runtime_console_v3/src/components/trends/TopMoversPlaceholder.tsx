@@ -23,7 +23,7 @@ export function TopMoversPlaceholder() {
             <p className="truncate text-xs text-muted-foreground">{item.set}</p>
             <div
               className={`mt-2 flex items-center gap-1 text-sm font-medium ${
-                item.up ? "text-emerald-500" : "text-danger"
+                item.up ? "text-success" : "text-danger"
               }`}
             >
               {item.up ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}

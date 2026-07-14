@@ -122,7 +122,7 @@ export function GlobalSearchBar({
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
             className={cn(
-              "w-full pr-10",
+              "w-full pr-14",
               isHeader
                 ? "h-9 rounded-lg border-border bg-background pl-9 text-sm text-foreground placeholder:text-muted-foreground focus:ring-primary/30"
                 : "h-12 rounded-full border-border bg-card/80 pl-12 text-base shadow-sm backdrop-blur-sm",
@@ -138,7 +138,7 @@ export function GlobalSearchBar({
               <button
                 type="button"
                 onClick={() => openPalette()}
-                className="hidden rounded border border-border px-1.5 py-0.5 text-caption text-muted-foreground hover:bg-muted sm:inline"
+                className="hidden min-h-11 min-w-11 items-center justify-center rounded border border-border px-2 text-caption text-muted-foreground hover:bg-muted sm:inline-flex"
                 aria-label="Abrir busca universal (Ctrl+K)"
               >
                 ⌘K
@@ -151,10 +151,10 @@ export function GlobalSearchBar({
                   setQuery("");
                   setResults(null);
                 }}
-                className="text-muted-foreground hover:text-foreground"
+                className="inline-flex min-h-11 min-w-11 items-center justify-center text-muted-foreground hover:text-foreground"
                 aria-label="Limpar busca"
               >
-                <X className="h-4 w-4" />
+                <X className="h-4 w-4" aria-hidden />
               </button>
             )}
           </div>

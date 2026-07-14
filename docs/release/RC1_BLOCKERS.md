@@ -1,30 +1,35 @@
-# RC1 Blockers — atualizado
+# RC1 Blockers
 
-**Data:** 2026-07-13 (blocker resolution)  
-**Commit health:** `fda702e2`
+**Data:** 2026-07-14 (pós RC1.2 lab)  
+**Escopo:** critérios para **tag** RC1
 
-## Resolvidos
+## Resolvidos (lab medido)
 
 | ID | Was | Resolução |
 |---|---|---|
-| B2 | BFF `/api/health` 503 | Deploy health fix → **HTTP 200** |
-| B3 | Smoke FAIL | Harness + health → **34/34** |
-| P2 redis | `test_redis_ping_without_url` | monkeypatch `_redis_client` |
+| B2 | BFF health 503 | HTTP 200 (prévio) |
+| B3 | Smoke FAIL | 34/34 (prévio) |
+| Store Perf / LCP | 74 / 4.2s | RC1.1 → Perf 97–98 / LCP ~1.3s |
+| A11y lab | 96 | RC1.2 → **100** |
+| BP lab | 96 | RC1.2 → **100** (`errors-in-console` limpo) |
 
 ## Abertos (impedem tag)
 
 | ID | Sev | Descrição | Evidência |
 |---|---|---|---|
-| B1 | P0 | GitHub Actions billing / spending limit | Jobs ~3s, annotation payments failed |
-| B5 | P1→P0 critério | Lighthouse Performance 58–87 (&lt;95) | `context/rc1-lighthouse-report.md` |
+| B1 | P0 | GitHub Actions billing / spending limit | Jobs cortados no CI remoto |
+| **PROD-LH** | **P0** | Production ainda sem deploy RC1.1+RC1.2 — A11y/BP/Perf Store **não** validados em `judgetcg.com.br` | `PRODUCTION_VALIDATION.md` (artefatos pré-fix) |
 
-## Abertos (não P0 tag se policy relaxar)
+## Abertos (não bloqueiam se policy relaxar lab-only)
 
 | ID | Sev | Descrição |
 |---|---|---|
-| B4 | P1 | Staging E2E flags não executado end-to-end (runbook OK) |
-| B6 | P2 | BE `shipping_v2:false` vs FE `true` |
+| B4 | P1 | Staging E2E flags |
+| B6 | P2 | `shipping_v2` BE/FE mismatch |
+| Busca Perf lab | P2 | `/loja/busca` Perf **86** (fora da lista crítica P1-6; A/BP/SEO 100) |
 
 ## Critério tag RC1
 
-Ainda **não** satisfeito: B1 + B5 abertos.
+**Ainda não satisfeito:** B1 + **re-LH production** após deploy.
+
+Status: blockers de quality gate **lab** resolvidos; **não** “All blockers resolved” para tagging até prod + CI.

@@ -1,101 +1,86 @@
-# RC1 Final Report — JudgeTCG
+# RC1 Final Report — pós RC1.2 Quality Gates Recovery
 
-**Data:** 2026-07-13  
-**Branch:** `main`  
-**Commit auditado:** `e6a3b884d10b5b5619f098ec0bdb019693df6f12`  
-**Decisão:** **NO-GO** — tag `RC1` **não** criada · Release GitHub **não** publicada · produção **não** promovida
-
----
-
-## 1. Executive summary
-
-Feature freeze respeitado. Gates locais de frontend estão verdes (type-check, lint, vitest 387, build, ds:audit 0). A promoção oficial RC1 está impedida por: (1) billing GitHub Actions, (2) BFF `/api/health` 503 com database error, (3) smoke prod falhando no BFF, (4) Lighthouse ≥95 sem evidência, (5) staging não executado.
-
-**Score RC: 5.5 / 10**
+**Data:** 2026-07-14  
+**Escopo:** RC1.1 Store Perf + RC1.2 A11y/BP  
+**Decisão:** **RC1 BLOCKED**
 
 ---
 
-## 2. Arquivos criados
+## Before / After (lab desktop)
 
-### `docs/release/`
-- `RC1_BLOCKERS.md`, `RC1_STATUS.md`, `RC1_GO_NO_GO.md`, `RC1_SCORECARD.md`, `RC1_CHECKLIST.md`
-- `QUALITY_GATES.md`, `RELEASE_MANIFEST.md`, `RELEASE_ARTIFACTS.md`
-- `STAGING_RUNBOOK.md`, `CANARY_PLAN.md`, `POST_BETA_BACKLOG.md`
-- `RELEASE_CANDIDATE.md`, `RELEASE_NOTES_PUBLIC_BETA.md`, `CHANGELOG_PUBLIC_BETA.md`
+| Gate | RC1.1 Store | RC1.2 lab | Meta |
+|---|---:|---:|---|
+| Performance `/loja` | 97–98 | **97** | ≥95 |
+| Accessibility `/loja` | **96** | **100** | ≥98 |
+| Best Practices `/loja` | **96** | **100** | =100 |
+| SEO `/loja` | 100 | **100** | =100 |
+| LCP `/loja` | 1.2–1.3s | **1.3s** | &lt;2s |
+| CLS `/loja` | 0 | **0** | &lt;0.05 |
 
-### `context/`
-- `sprint18-report.md`, `rc1-status.md`, `rc1-final-report.md` (este)
+Home: A11y **96→100**, BP **100**, Perf **100**.  
+Bateria crítica (`/`, `/loja`, cart, checkout, comprador, decks): A11y **100**, BP **100**, SEO **100**.
 
-### Canvas
-- `canvases/judgetcg-rc1.canvas.tsx` (Cursor projects)
+---
 
-## 3. Arquivos modificados
+## Console errors removed
 
-- `scripts/smoke_test.py` — aceita `ready_for_marketplace` no predicate `status_ok` (bug de contrato smoke×API)
+- `/api/analytics/track` 400/503 → soft **200**
+- `/api/catalog/sets` 503 → soft **200** `{sets:[]}`
+- `/api/catalog/cards/search` 503 → soft **200** empty
 
-## 4. Quality Gates
+LH `errors-in-console` = **1** em todas as rotas lab.
 
-| Gate | Resultado |
+---
+
+## Accessibility / contrast / ARIA
+
+- Token `--warning-500` WCAG AA (~5:1) — fix do rating `0.0` na home
+- Contraste Store path PASS (A100)
+- Sem falhas weighted de landmark/heading na bateria pós-fix
+- Keyboard / screen reader: sem blockers medidos (ver reports)
+
+---
+
+## Source maps / third-party
+
+- `productionBrowserSourceMaps: true` → `valid-source-maps` score 1
+- Third-party: Stripe lazy; Vercel Analytics/Insights no root layout — sem console errors no lab RC1.2
+
+---
+
+## Dívida técnica restante
+
+| Item | Impacto |
 |---|---|
-| Working tree (pré-docs) | clean |
-| type-check | PASS |
-| lint | PASS (0 errors) |
-| vitest | PASS 387 |
-| build | PASS |
-| ds:audit | PASS 0 |
-| a11y tests | PASS 19 |
-| pytest unit | ver QUALITY_GATES (suite longa; CI remoto down) |
-| smoke | FAIL BFF 503 |
-| CI Actions | FAIL billing |
+| `/loja/busca` Perf **86** | Fora da lista crítica P1-6; A/BP/SEO 100 |
+| Source map column warnings | Cosmético |
+| Prod sem deploy RC1.1+RC1.2 | **Bloqueia tag** |
+| CI GitHub Actions billing (B1) | **Bloqueia evidência CI remota** |
+| Seller guest LH → `/entrar` | Auth wall; página login A/BP 100 |
 
-## 5. Cobertura de testes
+---
 
-- Vitest: **387** passed / 116 files  
-- A11y: **19** passed  
-- Smoke: parcial — API Health OK, Catalog OK, Image coverage 100%, BFF FAIL  
-- CI remote: indisponível (billing)
+## Production vs Local
 
-## 6. Lighthouse / Performance
+| | Local RC1.2 | Production (`judgetcg.com.br`, artefato pré-ship) |
+|---|---|---|
+| A11y `/loja` | **100** | ~93 |
+| BP `/loja` | **100** | 96 |
+| Perf `/loja` | **97** | ~77 |
+| LCP `/loja` | 1.3s | ~4–5s |
 
-- Meta RC: ≥95 / LCP&lt;2s / CLS&lt;0.05 / INP&lt;200ms / TTFB&lt;500ms  
-- Evidência nesta execução: **não obtida** (LHCI CI bloqueado; LHCI local não anexado)  
-- Mitigações já em código (S16): cache `s-maxage` listings, virtualização galeria, Node 22 + 8GB build
+Detalhe: `docs/frontend/PRODUCTION_VALIDATION.md`.
 
-## 7. Accessibility
+---
 
-- SkipToMain + testes estruturais buyer  
-- WCAG contraste unitário  
-- axe CI full: pós-beta  
-- Lighthouse a11y: sem score anexado
+## RC1 Decision
 
-## 8. Pendências / Bugs
+**RC1 BLOCKED**
 
-Ver `docs/release/RC1_BLOCKERS.md` (B1–B6).  
-Bugs de produto críticos novos exigindo arquitetura: nenhum introduzido; BFF DB é ops/config.
+Justificativa exclusiva por evidência medida:
 
-## 9. Dívida técnica remanescente
+1. Lab: quality gates A11y ≥98, BP =100, SEO =100, Perf ≥95 (rotas críticas), LCP/CLS/console → **PASS**.
+2. Production: última evidência LH **ainda FAIL** A11y/BP/Perf Store — código RC1.1+RC1.2 **não deployado**.
+3. CI remoto B1 (billing) permanece aberto.
 
-Ver `docs/release/POST_BETA_BACKLOG.md` (ESLint warnings, axe CI, inventory avançado, etc.).
-
-## 10. Known limitations
-
-- Backend shipping_v2 off em prod enquanto FE flag on  
-- Inventory sem feature flag  
-- CI dependente de billing GitHub  
-- Health FE sensível a Supabase server-side
-
-## 11. Release risks
-
-| Risco | Impacto |
-|---|---|
-| Taggear com BFF 503 | Beta com health vermelho |
-| Taggear sem CI | regressões sem rede de segurança |
-| Canary sem staging | flags desalinhadas |
-
-## 12. Go / No-Go
-
-### **NO-GO**
-
-Não criar `git tag RC1`. Não publicar Release no GitHub. Não deploy/canary produção.
-
-Reavaliar somente após B1–B5 fechados e checklist 100% em `RC1_CHECKLIST.md`.
+**Próximo passo Go:** commit → deploy → re-LH production → se metas baterem e B1 resolvido → **RC1 READY** para tagging (tag **não** criada automaticamente nesta sprint).

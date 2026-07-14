@@ -168,6 +168,15 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
   .animate-fade-in,
   .animate-fade-in-up,
   .skeleton-shimmer {
@@ -176,6 +185,16 @@
 
   .surface-card-interactive {
     transition: none !important;
+  }
+}
+
+/* AA: Tailwind emerald-500 on light cards fails (~2.5:1) — map to success-700 hue */
+@layer utilities {
+  .text-emerald-500 {
+    color: hsl(var(--success-500));
+  }
+  .text-emerald-400 {
+    color: hsl(var(--success-500));
   }
 }
 
