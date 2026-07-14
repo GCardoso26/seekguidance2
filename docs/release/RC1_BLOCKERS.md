@@ -1,35 +1,32 @@
 # RC1 Blockers
 
-**Data:** 2026-07-14 (pós RC1.2 lab)  
+**Data:** 2026-07-14 (pós deploy production)  
 **Escopo:** critérios para **tag** RC1
 
-## Resolvidos (lab medido)
+## Resolvidos
 
-| ID | Was | Resolução |
-|---|---|---|
-| B2 | BFF health 503 | HTTP 200 (prévio) |
-| B3 | Smoke FAIL | 34/34 (prévio) |
-| Store Perf / LCP | 74 / 4.2s | RC1.1 → Perf 97–98 / LCP ~1.3s |
-| A11y lab | 96 | RC1.2 → **100** |
-| BP lab | 96 | RC1.2 → **100** (`errors-in-console` limpo) |
+| ID | Was | Resolução | Evidência |
+|---|---|---|---|
+| Store Perf/LCP lab | 74 / 4.2s | RC1.1 | Lab/docs STORE |
+| A11y/BP lab | 96/96 | RC1.2 | Lab 100/100 |
+| **PROD-LH Store** | A~93 BP96 Perf~77 | Deploy RC1.1+RC1.2 | Prod `/loja` **P100 A100 BP100 SEO100 LCP 0.7s** |
+| Smoke | — | **34/34** | `PRODUCTION_VERIFICATION.md` |
+| Health | — | BFF+API **200** | health endpoints |
+| Deploy FE | pending | Vercel prod READY | `VERCEL_DEPLOYMENT.md` |
 
 ## Abertos (impedem tag)
 
 | ID | Sev | Descrição | Evidência |
 |---|---|---|---|
-| B1 | P0 | GitHub Actions billing / spending limit | Jobs cortados no CI remoto |
-| **PROD-LH** | **P0** | Production ainda sem deploy RC1.1+RC1.2 — A11y/BP/Perf Store **não** validados em `judgetcg.com.br` | `PRODUCTION_VALIDATION.md` (artefatos pré-fix) |
+| **PROD-CHECKOUT-PERF** | P0 | `/checkout` Performance **91** (&lt;95) | `PRODUCTION_LIGHTHOUSE.md` |
+| **PROD-CHECKOUT-LCP** | P0 | `/checkout` LCP **2.0s** (meta &lt;2s) | idem |
+| **CI-API** | P1 | Job `api` / Quality Gates falham (Ruff I001 em testes BE — pré-existente) | GH run `29305641963` / `29305641930` |
+| **CI-SECURITY** | P1 | TruffleHog “BASE and HEAD commits are the same” | GH run `29305641956` |
+| Busca Perf | P2 | `/loja/busca` Perf **86** (fora da lista Phase 8 crítica, mas medido) | LH prod |
 
-## Abertos (não bloqueiam se policy relaxar lab-only)
+## Status
 
-| ID | Sev | Descrição |
-|---|---|---|
-| B4 | P1 | Staging E2E flags |
-| B6 | P2 | `shipping_v2` BE/FE mismatch |
-| Busca Perf lab | P2 | `/loja/busca` Perf **86** (fora da lista crítica P1-6; A/BP/SEO 100) |
+**RC1 BLOCKED** — **não** “ALL BLOCKERS RESOLVED”.
 
-## Critério tag RC1
-
-**Ainda não satisfeito:** B1 + **re-LH production** após deploy.
-
-Status: blockers de quality gate **lab** resolvidos; **não** “All blockers resolved” para tagging até prod + CI.
+Store production quality gates (A11y/BP/SEO/Perf/LCP) **PASS**.  
+Bloqueio restante: **checkout prod Perf/LCP** + **CI não verde**.

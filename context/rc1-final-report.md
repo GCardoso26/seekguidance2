@@ -73,14 +73,16 @@ Detalhe: `docs/frontend/PRODUCTION_VALIDATION.md`.
 
 ---
 
-## RC1 Decision
+## RC1 Decision (pós-deploy 2026-07-14)
 
-**RC1 BLOCKED**
+❌ **RC1 STILL BLOCKED**
 
-Justificativa exclusiva por evidência medida:
+Evidência:
 
-1. Lab: quality gates A11y ≥98, BP =100, SEO =100, Perf ≥95 (rotas críticas), LCP/CLS/console → **PASS**.
-2. Production: última evidência LH **ainda FAIL** A11y/BP/Perf Store — código RC1.1+RC1.2 **não deployado**.
-3. CI remoto B1 (billing) permanece aberto.
+1. Deploy production **READY** (`dpl_85fQfyC21x1kipBK1nC14P18EG1D` → `judgetcg.com.br`).
+2. Store prod `/loja`: **P100 A100 BP100 SEO100 LCP 0.7s** — PASS.
+3. Smoke **34/34**; health BFF/API **200**.
+4. **FAIL:** `/checkout` Perf **91** (&lt;95), LCP **2.0s** (meta &lt;2s).
+5. CI API/Quality Gates/Security ainda vermelhos (Ruff/TruffleHog) — frontend+LH+Vercel hook OK.
 
-**Próximo passo Go:** commit → deploy → re-LH production → se metas baterem e B1 resolvido → **RC1 READY** para tagging (tag **não** criada automaticamente nesta sprint).
+Detalhe operacional: `context/release/RC1_DEPLOYMENT_REPORT.md`.
