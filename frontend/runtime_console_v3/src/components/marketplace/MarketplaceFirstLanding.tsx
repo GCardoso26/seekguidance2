@@ -155,7 +155,7 @@ function WhyJudgeSection() {
   const items = [
     { title: "Compra 100% segura", text: "Nós garantimos a proteção dos seus dados e entrega real dos produtos" },
     { title: "Avaliações verificadas", text: "Reviews após entrega para confiança real entre compradores e vendedores." },
-    { title: "Deckbuilder integrado", text: "Monte decks e encontre cards faltantes no marketplace." },
+    { title: "Deckbuilder integrado", text: "Monte decks e encontre cards que faltam no marketplace." },
     { title: "Multi-TCG", text: "Todos os TCGs em um único lugar, sem a necessidade de multiplos acessos." },
   ];
 
