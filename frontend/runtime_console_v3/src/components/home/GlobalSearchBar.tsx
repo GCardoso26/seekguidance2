@@ -8,7 +8,7 @@ import { useSearchPlatform } from "@/features/search/SearchPlatformContext";
 import { CardImage } from "@/components/ui/CardImage";
 import { Input } from "@/components/ui/input";
 import { useDebounce } from "@/hooks/useDebounce";
-import { cardImageUrl, formatCurrency, isSvgImageUrl } from "@/lib/format-currency";
+import { cardImageUrl, formatCurrency } from "@/lib/format-currency";
 import { GAME_TOKENS } from "@/lib/tcg-tokens";
 import type { CatalogSearchResponse, GameId } from "@/types/card";
 import { cn } from "@/lib/utils";

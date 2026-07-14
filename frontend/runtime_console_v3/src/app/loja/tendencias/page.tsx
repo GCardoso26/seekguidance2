@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Suspense } from "react";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import { PageContainer } from "@/components/ui/page-container";
@@ -69,15 +70,15 @@ async function TopMoversBody({ searchParams }: { searchParams: SearchParams }) {
       <nav aria-label="Breadcrumb" className="mb-4 text-caption text-muted-foreground">
         <ol className="flex flex-wrap gap-1">
           <li>
-            <a href="/" className="hover:text-foreground">
+            <Link href="/" className="hover:text-foreground">
               Início
-            </a>
+            </Link>
           </li>
           <li aria-hidden>/</li>
           <li>
-            <a href="/loja" className="hover:text-foreground">
+            <Link href="/loja" className="hover:text-foreground">
               Loja
-            </a>
+            </Link>
           </li>
           <li aria-hidden>/</li>
           <li className="text-foreground">Top Movers</li>
