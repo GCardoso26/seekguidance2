@@ -55,7 +55,7 @@ function MarketplaceHero() {
     <section className="relative overflow-hidden border-b border-border bg-gradient-to-b from-primary/5 to-background pb-12 pt-8">
       <div className="container mx-auto px-4 text-center">
         <p className="text-overline text-primary mb-2">
-          Marketplace · 0% comissão · PIX direto
+          Marketplace · 0% comissão · Pagamento 100% seguro
         </p>
         <h1 className="text-display-l font-bold tracking-tight text-foreground" data-testid="hero-title">
           O maior marketplace de TCGs do Brasil
@@ -65,7 +65,7 @@ function MarketplaceHero() {
         </p>
 
         <div className="mx-auto mt-8 max-w-2xl">
-          <GlobalSearchBar placeholder="Busque por card, seller ou deck…" />
+          <GlobalSearchBar placeholder="Procure por carta, loja ou decks prontos..." />
         </div>
 
         <div className="mt-6 flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
@@ -153,10 +153,10 @@ function FeaturedSellersSection() {
 
 function WhyJudgeSection() {
   const items = [
-    { title: "Checkout seguro", text: "Proteção ao comprador com checkout atômico e estoque reservado." },
+    { title: "Compra 100% segura", text: "Nós garantimos a proteção dos seus dados e entrega real dos produtos" },
     { title: "Avaliações verificadas", text: "Reviews após entrega para confiança real entre compradores e vendedores." },
     { title: "Deckbuilder integrado", text: "Monte decks e encontre cards faltantes no marketplace." },
-    { title: "Multi-TCG", text: "Do Magic ao Vanguard, tudo em um só lugar." },
+    { title: "Multi-TCG", text: "Todos os TCGs em um único lugar, sem a necessidade de multiplos acessos." },
   ];
 
   return (
@@ -199,9 +199,9 @@ function LigaPassTeaser() {
   return (
     <section className="container mx-auto px-4 py-12">
       <div className="rounded-xl border border-warning/20 bg-warning/5 p-8 text-center">
-        <h2 className="text-h2 font-semibold text-foreground">Liga Pass</h2>
+        <h2 className="text-h2 font-semibold text-foreground">Progresso TCG</h2>
         <p className="mt-2 text-small text-muted-foreground">
-          Compre, venda e jogue para subir de nível. Frete grátis, cashback e benefícios.
+          Compre, venda, participe da plataforma para ganhar benefícios e participar de sorteios.
         </p>
         <Link href="/perfil/liga-pass" className="mt-4 inline-block text-sm text-primary hover:underline">
           Ver meu progresso →

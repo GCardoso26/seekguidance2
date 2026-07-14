@@ -25,7 +25,7 @@ export function MarketplaceHeroSearch({ totalCards, gameCount }: Props) {
         </p>
 
         <div className="mx-auto mt-8 max-w-2xl">
-          <GlobalSearchBar placeholder="Busque por card, seller ou deck…" />
+          <GlobalSearchBar placeholder="Cartas, lojas, decks..." />
         </div>
 
         <div className="mt-6 flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
