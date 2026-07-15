@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useCallback, useRef, type KeyboardEvent } from "react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { formatCountStable } from "@/lib/format-count";
 import type { GameInfo } from "@/lib/catalog-games";
 
 export interface GameSelectorProps {
@@ -15,7 +16,7 @@ export interface GameSelectorProps {
 function formatCardCount(count: number): string {
   if (count >= 1_000_000) return `${(count / 1_000_000).toFixed(1)}M`;
   if (count >= 1_000) return `${(count / 1_000).toFixed(count >= 10_000 ? 0 : 1)}k`;
-  return count.toLocaleString("pt-BR");
+  return formatCountStable(count);
 }
 
 export function GameSelector({ games, onSelect, selectedGame }: GameSelectorProps) {

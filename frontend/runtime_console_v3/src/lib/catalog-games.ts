@@ -10,28 +10,32 @@ export interface GameInfo {
   isAvailable: boolean;
 }
 
-/** Mock para dev quando /api/catalog/health indisponível */
+/** Mock estático para bootstrap SSR/client (ISO fixo evita mismatch de hidratação). */
+const MOCK_BY_GAME: CatalogHealthReport["by_game"] = {
+  MTG: 34717,
+  POKEMON: 23315,
+  YGO: 14422,
+  LORCANA: 2283,
+  ONEPIECE: 3485,
+  FAB: 13988,
+  DIGIMON: 4297,
+  SWU: 7729,
+  RIFTBOUND: 0,
+  SORCERY: 0,
+  UARENA: 0,
+  DBFW: 0,
+  VANGUARD: 0,
+};
+
+const MOCK_TOTAL_CARDS = Object.values(MOCK_BY_GAME).reduce((sum, n) => sum + (n ?? 0), 0);
+
 export const MOCK_CATALOG_HEALTH: CatalogHealthReport = {
   status: "ready_for_marketplace",
-  total_cards: 34717,
-  by_game: {
-    MTG: 34717,
-    POKEMON: 23315,
-    YGO: 14422,
-    LORCANA: 2283,
-    ONEPIECE: 3485,
-    FAB: 13988,
-    DIGIMON: 4297,
-    SWU: 7729,
-    RIFTBOUND: 0,
-    SORCERY: 0,
-    UARENA: 0,
-    DBFW: 0,
-    VANGUARD: 0,
-  },
+  total_cards: MOCK_TOTAL_CARDS,
+  by_game: MOCK_BY_GAME,
   missing_images: [],
   missing_prices: [],
-  last_sync: { MTG: new Date().toISOString() },
+  last_sync: { MTG: "2024-01-01T00:00:00.000Z" },
   ready_for_marketplace: true,
   meilisearch: "disabled",
 };

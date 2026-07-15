@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { CardImage } from "@/components/ui/CardImage";
 import { Badge } from "@/components/ui/badge";
@@ -17,18 +17,23 @@ type Props = {
   onAdd?: (productId: string) => void;
 };
 
-function isNewProduct(createdAt?: string | null): boolean {
+function isNewProduct(createdAt: string | null | undefined, nowMs: number): boolean {
   if (!createdAt) return false;
   const created = new Date(createdAt).getTime();
-  const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  if (!Number.isFinite(created)) return false;
+  const weekAgo = nowMs - 7 * 24 * 60 * 60 * 1000;
   return created >= weekAgo;
 }
 
 export function ProductCard({ product, onAdd }: Props) {
   const [isHovered, setIsHovered] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   const image = product.images?.[0];
   const gameToken = product.tcg_id ? GAME_TOKENS[product.tcg_id as GameId] : null;
-  const showNew = isNewProduct(product.created_at);
+  const showNew = mounted && isNewProduct(product.created_at, Date.now());
   const outOfStock = product.stock !== undefined && product.stock <= 0;
 
   return (

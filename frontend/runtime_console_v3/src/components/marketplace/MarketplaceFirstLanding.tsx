@@ -8,6 +8,7 @@ import { MobileLayout } from "@/components/layout/MobileLayout";
 import { Button } from "@/components/ui/button";
 import { useCatalogHealth } from "@/hooks/useCatalogHealth";
 import { getMegaMenuGames } from "@/lib/catalog-games";
+import { formatCountStable } from "@/lib/format-count";
 import { gameSlugFromId } from "@/lib/tcg-tokens";
 import type { GameId } from "@/types/card";
 import Image from "next/image";
@@ -69,7 +70,7 @@ function MarketplaceHero() {
         </div>
 
         <div className="mt-6 flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
-          <span>{totalCards.toLocaleString("pt-BR")}+ cartas</span>
+          <span>{formatCountStable(totalCards)}+ cartas</span>
           <span>{gameCount} jogos</span>
           <span>Compra garantida</span>
         </div>

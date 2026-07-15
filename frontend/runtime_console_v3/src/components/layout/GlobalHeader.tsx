@@ -29,7 +29,12 @@ const GlobalSearchBar = dynamic(
 
 const GameMegaMenu = dynamic(
   () => import("@/components/games/GameMegaMenu").then((m) => m.GameMegaMenu),
-  { ssr: false },
+  {
+    ssr: false,
+    loading: () => (
+      <div className="hidden h-9 w-28 animate-pulse rounded-lg bg-muted/40 md:block" aria-hidden />
+    ),
+  },
 );
 
 type NavItem = { href: string; label: string; icon: typeof ShoppingBag };

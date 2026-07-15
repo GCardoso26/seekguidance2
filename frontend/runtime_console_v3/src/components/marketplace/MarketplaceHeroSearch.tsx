@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Layers, ShoppingBag } from "lucide-react";
 import { GlobalSearchBar } from "@/components/home/GlobalSearchBar";
 import { Button } from "@/components/ui/button";
+import { formatCountStable } from "@/lib/format-count";
 
 type Props = {
   totalCards: number;
@@ -29,7 +30,7 @@ export function MarketplaceHeroSearch({ totalCards, gameCount }: Props) {
         </div>
 
         <div className="mt-6 flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
-          <span>{totalCards.toLocaleString("pt-BR")}+ cartas</span>
+          <span>{formatCountStable(totalCards)}+ cartas</span>
           <span>{gameCount} jogos</span>
           <span>Compra garantida</span>
         </div>

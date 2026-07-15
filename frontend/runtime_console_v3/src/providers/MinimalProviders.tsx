@@ -6,6 +6,7 @@ import { QueryProvider } from "@/providers/query-provider";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { LuxurySiteShell } from "@/components/luxury/layout/LuxurySiteShell";
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
+import { HydrationMismatchWatcher } from "@/components/telemetry/HydrationMismatchWatcher";
 import { Toaster } from "sonner";
 
 /**
@@ -17,6 +18,7 @@ export function MinimalProviders({ children }: { children: ReactNode }) {
     <ThemeProvider>
       <AuthProviderWrapper>
         <QueryProvider>
+          <HydrationMismatchWatcher />
           <ErrorBoundary>
             <LuxurySiteShell>{children}</LuxurySiteShell>
           </ErrorBoundary>

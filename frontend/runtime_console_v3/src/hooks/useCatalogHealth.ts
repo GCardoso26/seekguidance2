@@ -6,6 +6,15 @@ import { withPerformanceTracking } from "@/lib/performance";
 import { fetchWithTimeout } from "@/lib/fetch-with-timeout";
 import type { CatalogHealthReport } from "@/types/card";
 
+function isUsableCatalogHealth(
+  data: CatalogHealthReport & { error?: string; degraded?: boolean },
+): boolean {
+  if (data.error && !data.degraded) return false;
+  if (data.degraded) return false;
+  if (!Number.isFinite(data.total_cards) || data.total_cards <= 0) return false;
+  return true;
+}
+
 const fetchCatalogHealth = withPerformanceTracking(async (): Promise<CatalogHealthReport> => {
   return fetchWithTimeout(
     async (signal) => {
@@ -14,7 +23,7 @@ const fetchCatalogHealth = withPerformanceTracking(async (): Promise<CatalogHeal
         return MOCK_CATALOG_HEALTH;
       }
       const data = (await res.json()) as CatalogHealthReport & { error?: string; degraded?: boolean };
-      if (data.error && !data.degraded) {
+      if (!isUsableCatalogHealth(data)) {
         return MOCK_CATALOG_HEALTH;
       }
       return {

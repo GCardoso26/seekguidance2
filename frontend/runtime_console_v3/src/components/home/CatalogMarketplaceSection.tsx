@@ -5,6 +5,7 @@ import { GlobalSearchBar } from "@/components/home/GlobalSearchBar";
 import { GameSelector } from "@/components/home/GameSelector";
 import { TopMoversPlaceholder } from "@/components/trends/TopMoversPlaceholder";
 import { countAvailableGames, mapHealthToGames } from "@/lib/catalog-games";
+import { formatCountStable } from "@/lib/format-count";
 import { gameSlugFromId } from "@/lib/tcg-tokens";
 import { useCatalogHealth } from "@/hooks/useCatalogHealth";
 import type { GameId } from "@/types/card";
@@ -57,7 +58,7 @@ export function CatalogMarketplaceSection({
             {!isLoading && health && (
               <>
                 <span aria-label={`${health.total_cards} cartas no catálogo`}>
-                  {health.total_cards.toLocaleString("pt-BR")} cartas
+                  {formatCountStable(health.total_cards)} cartas
                 </span>
                 <span aria-label={`${availableCount} jogos disponíveis`}>
                   {availableCount} jogos
