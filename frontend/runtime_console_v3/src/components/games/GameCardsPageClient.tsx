@@ -80,6 +80,7 @@ function GameCardsContent({ slug }: { slug: string }) {
           initialGame={gameId}
           searchBasePath={cardsPath}
           cardDetailPath={`/${slug}/cards`}
+          lockGame
         />
         <p className="mt-6 text-xs text-muted-foreground">
           Filtros: {config.filters.join(", ")}

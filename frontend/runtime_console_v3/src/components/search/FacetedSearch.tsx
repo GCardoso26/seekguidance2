@@ -14,8 +14,16 @@ import {
   useCardSearch,
   useCatalogSets,
 } from "@/hooks/useCardSearch";
+import { gameCardsPath } from "@/lib/game-routes";
+import { GAME_TOKENS } from "@/lib/tcg-tokens";
+import type { GameId } from "@/types/card";
 import type { SearchFilters } from "@/types/search";
 import { useAnalytics } from "@/hooks/useAnalytics";
+
+/** Base path escopado a um jogo (`/pokemon/cards` ou legado `/loja/pokemon/busca`). */
+function isGameScopedSearchPath(path: string): boolean {
+  return /^\/[^/]+\/cards\/?$/.test(path) || /^\/loja\/[^/]+\/busca\/?$/.test(path);
+}
 
 const QuickViewModal = dynamic(
   () => import("@/components/cards/QuickViewModal").then((m) => m.QuickViewModal),
@@ -40,6 +48,8 @@ interface FacetedSearchProps {
   initialQuery?: string;
   searchBasePath?: string;
   cardDetailPath?: string;
+  /** Quando true, o seletor de jogo fica fixo no `initialGame` (páginas por TCG). */
+  lockGame?: boolean;
 }
 
 export function FacetedSearch({
@@ -47,6 +57,7 @@ export function FacetedSearch({
   initialQuery,
   searchBasePath = "/loja/busca",
   cardDetailPath,
+  lockGame = false,
 }: FacetedSearchProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -120,6 +131,9 @@ export function FacetedSearch({
   const updateFilters = useCallback(
     (updates: Partial<SearchFilters>) => {
       setFilters((prev) => {
+        if (lockGame && updates.game !== undefined && updates.game !== prev.game) {
+          return prev;
+        }
         const gameChanged =
           updates.game !== undefined && updates.game !== prev.game;
         const next: SearchFilters = { ...prev, ...updates };
@@ -128,12 +142,24 @@ export function FacetedSearch({
           if (next.game !== "MTG") {
             next.colors = undefined;
           }
+          // Evita `/pokemon/cards?game=YGO` — navega para o path canônico do jogo.
+          if (next.game && isGameScopedSearchPath(searchBasePath)) {
+            const token = GAME_TOKENS[next.game as GameId];
+            if (token) {
+              const params = searchParamsFromFilters(next);
+              params.delete("game");
+              const qs = params.toString();
+              const dest = gameCardsPath(token.slug);
+              router.replace(qs ? `${dest}?${qs}` : dest, { scroll: false });
+              return next;
+            }
+          }
         }
         syncURL(next);
         return next;
       });
     },
-    [syncURL],
+    [lockGame, router, searchBasePath, syncURL],
   );
 
   useEffect(() => {
@@ -186,6 +212,7 @@ export function FacetedSearch({
           onChange={updateFilters}
           onClear={clearFilters}
           availableSets={availableSets}
+          lockGame={lockGame}
         />
 
         <div className="min-w-0 flex-1">

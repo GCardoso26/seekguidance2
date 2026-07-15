@@ -12,6 +12,7 @@ interface SearchFiltersPanelProps {
   onChange: (updates: Partial<SearchFilters>) => void;
   onClear: () => void;
   availableSets: CatalogSetOption[];
+  lockGame?: boolean;
 }
 
 const RARITY_OPTIONS = [
@@ -71,6 +72,7 @@ function FilterContent({
   onChange,
   onClear,
   availableSets,
+  lockGame = false,
 }: SearchFiltersPanelProps) {
   return (
     <div className="space-y-6">
@@ -79,13 +81,21 @@ function FilterContent({
         <div className="space-y-1">
           {ALL_GAME_IDS.map((id) => {
             const token = GAME_TOKENS[id];
+            const locked = lockGame && filters.game === id;
             return (
-              <label key={id} className="flex cursor-pointer items-center gap-2">
+              <label
+                key={id}
+                className={`flex items-center gap-2 ${lockGame && !locked ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}
+              >
                 <input
                   type="radio"
                   name="game-filter"
                   checked={filters.game === id}
-                  onChange={() => onChange({ game: filters.game === id ? undefined : id })}
+                  disabled={lockGame}
+                  onChange={() => {
+                    if (lockGame) return;
+                    onChange({ game: filters.game === id ? undefined : id });
+                  }}
                   className="h-4 w-4"
                 />
                 <span

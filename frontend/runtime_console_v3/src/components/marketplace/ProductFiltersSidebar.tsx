@@ -9,6 +9,7 @@ type Props = {
   onClear: () => void;
   availableSets: CatalogSetOption[];
   className?: string;
+  lockGame?: boolean;
 };
 
 /**
@@ -21,6 +22,7 @@ export function ProductFiltersSidebar({
   onClear,
   availableSets,
   className,
+  lockGame = false,
 }: Props) {
   return (
     <aside
@@ -32,6 +34,7 @@ export function ProductFiltersSidebar({
         onChange={onChange}
         onClear={onClear}
         availableSets={availableSets}
+        lockGame={lockGame}
       />
     </aside>
   );

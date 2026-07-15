@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="40" viewBox="0 0 180 40" role="img" aria-label="Judge TCG">
+  <rect width="40" height="40" rx="8" fill="#243a52"/>
+  <text x="20" y="27" text-anchor="middle" font-family="Georgia, serif" font-size="20" font-weight="700" fill="#f4f7fb">J</text>
+  <text x="52" y="26" font-family="Georgia, serif" font-size="18" font-weight="600" fill="#243a52">Judge TCG</text>
+</svg>

@@ -24,12 +24,13 @@ async function fetchWishlist(): Promise<WishlistResponse> {
 }
 
 export function useWishlist() {
-  const { user } = useJudgeAuth();
+  const { user, loading: authLoading } = useJudgeAuth();
   return useQuery({
     queryKey: WISHLIST_QUERY_KEY,
     queryFn: fetchWishlist,
-    enabled: Boolean(user),
+    enabled: Boolean(user) && !authLoading,
     staleTime: STALE_TIME,
+    retry: false,
   });
 }
 

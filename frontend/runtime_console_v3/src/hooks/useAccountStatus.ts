@@ -49,7 +49,7 @@ function parseRetryAfterMs(res: Response): number | undefined {
 }
 
 export function useAccountStatus(options?: { refetchInterval?: number }) {
-  const { user } = useJudgeAuth();
+  const { user, loading: authLoading } = useJudgeAuth();
   return useQuery({
     queryKey: ["account-status", user?.id],
     queryFn: async () => {
@@ -75,12 +75,14 @@ export function useAccountStatus(options?: { refetchInterval?: number }) {
         clearTimeout(timeoutId);
       }
     },
-    enabled: Boolean(user),
+    enabled: Boolean(user) && !authLoading,
     staleTime: 60_000,
     refetchOnWindowFocus: false,
     retry: (failureCount, error) => {
       if (failureCount >= 3) return false;
-      if (error instanceof AccountStatusError && error.status === 401) return false;
+      if (error instanceof AccountStatusError && (error.status === 401 || error.status === 403)) {
+        return false;
+      }
       return true;
     },
     retryDelay: (attempt, error) => {

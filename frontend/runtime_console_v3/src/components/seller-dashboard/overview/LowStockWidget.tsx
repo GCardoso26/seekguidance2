@@ -28,7 +28,7 @@ export function LowStockWidget({ items }: Props) {
         </ul>
       )}
       <Link
-        href="/vendedor/painel/estoque/estoque"
+        href="/vendedor/painel/estoque"
         className="mt-3 inline-block text-sm text-primary hover:underline"
       >
         Ver estoque →
