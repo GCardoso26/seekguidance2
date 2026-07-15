@@ -42,6 +42,27 @@ export function useAccountStatus(options?: { refetchInterval?: number }) {
   });
 }
 
+/** Conta já com CPF/documento ativo — não pedir documento de novo. */
+export function isAccountDocumentActive(status: AccountStatusPayload | undefined): boolean {
+  const player = status?.player;
+  if (!player) return false;
+  return (
+    player.account_status === "active" ||
+    (player.can_purchase === true && player.cpf_verified === true)
+  );
+}
+
+/** Precisa coletar/validar CPF (ou reenviar se inválido/pendente). */
 export function needsCpfCompletion(status: AccountStatusPayload | undefined): boolean {
-  return Boolean(status?.player && !status.player.can_purchase);
+  if (!status?.player) return false;
+  return !isAccountDocumentActive(status);
+}
+
+/** Destino pós-login: pula completar-perfil se o documento já estiver ativo. */
+export function resolvePostAuthPath(
+  status: AccountStatusPayload | undefined,
+  destination: string,
+): string {
+  if (isAccountDocumentActive(status)) return destination;
+  return `/completar-perfil?next=${encodeURIComponent(destination)}`;
 }

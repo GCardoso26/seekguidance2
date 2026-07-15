@@ -80,7 +80,9 @@ async def verify_and_bind_cpf(
     if not prof:
         raise HTTPException(404, "Perfil não encontrado")
 
-    if prof.get("account_status") == "active" and prof.get("cpf_hash"):
+    if prof.get("account_status") == "active" and (
+        prof.get("cpf_hash") or prof.get("cpf_verified_at")
+    ):
         return {
             "account_status": "active",
             "cpf_last4": prof.get("cpf_last4"),
@@ -88,7 +90,13 @@ async def verify_and_bind_cpf(
         }
 
     if not is_valid_cpf(cpf):
-        raise HTTPException(400, detail={"code": "cpf_invalid", "message": "CPF inválido"})
+        raise HTTPException(
+            400,
+            detail={
+                "code": "cpf_invalid",
+                "message": "Documento inválido. Informe novamente um CPF válido.",
+            },
+        )
 
     cpf_h = hash_cpf(cpf)
     existing = (

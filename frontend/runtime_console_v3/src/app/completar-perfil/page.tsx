@@ -2,21 +2,34 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useJudgeAuth } from "@/features/auth/AuthProvider";
 import { Button } from "@/components/ui/button";
 import { normalizeInternalPath } from "@/lib/auth/safe-path";
 import { formatCpfMask, isValidCpf } from "@/lib/kyc/cpf";
+import {
+  isAccountDocumentActive,
+  needsCpfCompletion,
+  useAccountStatus,
+} from "@/hooks/useAccountStatus";
 
 function CompletarPerfilForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const afterPath = normalizeInternalPath(searchParams.get("next") ?? "/onboarding", "/onboarding");
   const { user, session, loading } = useJudgeAuth();
+  const { data: accountStatus, isLoading: statusLoading, isFetched } = useAccountStatus();
   const [cpf, setCpf] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [cpfDuplicate, setCpfDuplicate] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (loading || !user || statusLoading || !isFetched) return;
+    if (isAccountDocumentActive(accountStatus)) {
+      router.replace(afterPath);
+    }
+  }, [loading, user, statusLoading, isFetched, accountStatus, afterPath, router]);
 
   if (!loading && !user) {
     return (
@@ -29,12 +42,22 @@ function CompletarPerfilForm() {
     );
   }
 
+  if (loading || statusLoading || (isFetched && isAccountDocumentActive(accountStatus))) {
+    return (
+      <main className="mx-auto max-w-md p-8 text-center text-muted-foreground" aria-busy="true">
+        {isFetched && isAccountDocumentActive(accountStatus)
+          ? "Documento já validado. Redirecionando…"
+          : "Carregando…"}
+      </main>
+    );
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setCpfDuplicate(false);
     if (!isValidCpf(cpf)) {
-      setError("CPF inválido. Verifique os dígitos.");
+      setError("Documento inválido. Informe novamente um CPF válido.");
       return;
     }
     setSubmitting(true);
@@ -49,30 +72,46 @@ function CompletarPerfilForm() {
         credentials: "include",
         body: JSON.stringify({ cpf }),
       });
-      const data = (await res.json().catch(() => ({}))) as { detail?: unknown };
-      if (!res.ok) {
-        const detail = data.detail;
-        if (typeof detail === "object" && detail && "code" in detail) {
-          const coded = detail as { code?: string; message?: string };
-          if (coded.code === "cpf_already_registered") {
-            setCpfDuplicate(true);
-            throw new Error(coded.message ?? "CPF já cadastrado em outra conta.");
-          }
-          if (coded.message) {
-            throw new Error(coded.message);
-          }
-        }
-        if (typeof detail === "object" && detail && "message" in detail) {
-          throw new Error(String((detail as { message: string }).message));
-        }
-        throw new Error(typeof detail === "string" ? detail : "Não foi possível validar o CPF");
+      const data = (await res.json().catch(() => ({}))) as {
+        detail?: unknown;
+        already_verified?: boolean;
+        account_status?: string;
+      };
+      if (res.ok) {
+        router.replace(afterPath);
+        return;
       }
-      router.replace(afterPath);
+      const detail = data.detail;
+      if (typeof detail === "object" && detail && "code" in detail) {
+        const coded = detail as { code?: string; message?: string };
+        if (coded.code === "cpf_already_registered") {
+          setCpfDuplicate(true);
+          throw new Error(coded.message ?? "CPF já cadastrado em outra conta.");
+        }
+        if (coded.code === "cpf_invalid" || coded.code === "cpf_lookup_failed") {
+          throw new Error(
+            coded.message
+              ? `${coded.message} Informe o documento novamente.`
+              : "Documento inválido. Informe novamente um CPF válido.",
+          );
+        }
+        if (coded.message) {
+          throw new Error(coded.message);
+        }
+      }
+      if (typeof detail === "object" && detail && "message" in detail) {
+        throw new Error(String((detail as { message: string }).message));
+      }
+      throw new Error(typeof detail === "string" ? detail : "Não foi possível validar o CPF");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro ao validar CPF");
     } finally {
       setSubmitting(false);
     }
+  }
+
+  if (!needsCpfCompletion(accountStatus) && isFetched) {
+    return null;
   }
 
   return (
@@ -82,6 +121,9 @@ function CompletarPerfilForm() {
         {user?.app_metadata?.provider === "google" || user?.identities?.some((i) => i.provider === "google")
           ? "Sua conta Google está verificada. Informe seu CPF para ativar compras."
           : "Informe seu CPF para ativar sua conta."}
+      </p>
+      <p className="mt-1 text-xs text-muted-foreground">
+        Se o documento for inválido, será necessário informá-lo novamente.
       </p>
 
       <form onSubmit={(e) => void handleSubmit(e)} className="mt-6 space-y-4">
@@ -99,7 +141,7 @@ function CompletarPerfilForm() {
             onChange={(e) => setCpf(formatCpfMask(e.target.value))}
           />
           {cpf.length >= 14 && !isValidCpf(cpf) && (
-            <p className="mt-1 text-xs text-danger">CPF inválido</p>
+            <p className="mt-1 text-xs text-danger">Documento inválido. Informe novamente.</p>
           )}
         </div>
         {error && <p className="text-sm text-danger">{error}</p>}

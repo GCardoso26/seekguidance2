@@ -8,11 +8,26 @@ import { GoogleLoginButton } from "@/features/auth/GoogleLoginButton";
 import { useJudgeAuth } from "@/features/auth/AuthProvider";
 import { Button } from "@/components/ui/button";
 import { normalizeInternalPath } from "@/lib/auth/safe-path";
+import {
+  type AccountStatusPayload,
+  resolvePostAuthPath,
+} from "@/hooks/useAccountStatus";
+
+async function fetchAccountStatus(): Promise<AccountStatusPayload | undefined> {
+  try {
+    const res = await fetch("/api/account/status", { credentials: "include" });
+    if (!res.ok) return undefined;
+    return (await res.json()) as AccountStatusPayload;
+  } catch {
+    return undefined;
+  }
+}
 
 function EntrarForm() {
   const searchParams = useSearchParams();
   const afterCpf = normalizeInternalPath(searchParams.get("next") ?? "/perfil", "/perfil");
-  const nextPath = `/completar-perfil?next=${encodeURIComponent(afterCpf)}`;
+  /** Google/OAuth: completar-perfil redireciona sozinho se o documento já estiver ativo. */
+  const oauthGatePath = `/completar-perfil?next=${encodeURIComponent(afterCpf)}`;
   const { signInWithEmail, signUpWithEmail } = useJudgeAuth();
   const [mode, setMode] = useState<"login" | "register">("login");
   const [email, setEmail] = useState("");
@@ -31,11 +46,12 @@ function EntrarForm() {
           setError("Confirme seu e-mail antes de continuar. Verifique sua caixa de entrada.");
           return;
         }
-        window.location.href = nextPath;
+        window.location.href = resolvePostAuthPath(undefined, afterCpf);
         return;
       }
       await signInWithEmail(email.trim(), password);
-      window.location.href = nextPath;
+      const status = await fetchAccountStatus();
+      window.location.href = resolvePostAuthPath(status, afterCpf);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Falha na autenticação";
       if (msg.toLowerCase().includes("already registered")) {
@@ -63,7 +79,7 @@ function EntrarForm() {
           </div>
         </div>
 
-        <GoogleLoginButton redirectTo={nextPath} />
+        <GoogleLoginButton redirectTo={oauthGatePath} />
 
         <div className="my-6 flex items-center gap-3 text-xs text-muted-foreground">
           <div className="h-px flex-1 bg-muted" />
