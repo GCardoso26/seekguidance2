@@ -91,7 +91,8 @@ export default function OrderDetailPage() {
             <EscrowTimeline status={escrow.status} />
             {escrow.auto_release_at && (
               <p className="text-xs text-muted-foreground">
-                Liberação automática: {new Date(escrow.auto_release_at).toLocaleString("pt-BR")}
+                Pagamento ao vendedor após confirmação:{" "}
+                {new Date(escrow.auto_release_at).toLocaleString("pt-BR")}
               </p>
             )}
             {canConfirm && (

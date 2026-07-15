@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Check, CreditCard, ShoppingBag, Sparkles } from "lucide-react";
+import { Check, CreditCard, ShoppingBag } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export type CheckoutStep = "cart" | "payment" | "confirmation";
@@ -13,7 +13,7 @@ const STEPS: Array<{
 }> = [
   { id: "cart", label: "Carrinho", shortLabel: "Carrinho", href: "/carrinho", icon: ShoppingBag },
   { id: "payment", label: "Pagamento", shortLabel: "Pagar", icon: CreditCard },
-  { id: "confirmation", label: "Confirmação", shortLabel: "Pronto", icon: Sparkles },
+  { id: "confirmation", label: "Confirmação", shortLabel: "Pronto", icon: Check },
 ];
 
 type Props = {

@@ -126,11 +126,35 @@ Ordem atual no `CardBuyPanel`:
 
 Checklist de aceite visual (pós-redeploy do **Next** com as 3 vars):
 
-- [ ] `data-legal-ready="true"` em `pdp-legal-atf`  
-- [ ] Desktop: CNPJ legível sem scroll na sticky column  
-- [ ] Mobile: CNPJ no header do painel (antes de loja/CEP/Comprar)  
-- [ ] Warning “Transparência legal incompleta” / “Dados fiscais…” = **0**  
-- [ ] Endereço no assurance / rodapé (não monopoliza a dobra)
+- [x] Código ATF no bundle prod (`pdp-legal-atf` em chunk buy panel) — audit 2026-07-15  
+- [x] `data-legal-ready="true"` esperado (ENVs inlined + gate trim OK) — audit pós-Vercel  
+- [x] Desktop: CNPJ no header do buy panel (sob o preço) via `PdpLegalAtfLine`  
+- [x] Mobile: mesma linha no topo do painel  
+- [x] Warning “Transparência legal incompleta” / “Dados fiscais…” = **0** (home SSR confirmado)  
+- [x] Endereço no assurance / rodapé  
+- [x] CNPJ **Receita real** publicado no Vercel  
+
+### Audit live 2026-07-15 (após push ATF)
+
+| Check | Resultado |
+|-------|-----------|
+| PDP JS contém `pdp-legal-atf` / CEP / assurance | **PASS** |
+| Home `trust-footer` com CNPJ real | **FAIL** — SSR: “CNPJ ainda não publicado” |
+| `NEXT_PUBLIC_CNPJ` / `LEGAL_ADDRESS` no build Next | **FAIL** (vazios; fallback `\|\|""`) |
+| Gate `brandHasLegalTransparency` | **FAIL** |
+
+PDP de teste: `/cards/2a887bdd-2cde-4c17-9a2d-9ac1106cf6ea`  
+Próximo: setar as 3 vars no **serviço Next** (não só API) + **rebuild/redeploy** do frontend.
+
+### Audit live 2026-07-15 (pós Vercel CNPJ real)
+
+| Check | Resultado |
+|-------|-----------|
+| CNPJ em produção | **PASS** — `58.477.778/0001-76` (JUDGE TCG LTDA) |
+| `data-legal-ready="true"` | **PASS** (gate `brandHasLegalTransparency`) |
+| Warning placeholder/incompleto | **PASS** — 0 em home/PDP |
+| ATF sob o preço | **PASS** |
+| Checkout/carrinho com rodapé legal | **PASS** (código; redeploy pendente para últimas mudanças) |
 
 ---
 

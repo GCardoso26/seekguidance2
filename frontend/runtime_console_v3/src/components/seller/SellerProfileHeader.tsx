@@ -39,7 +39,7 @@ export function SellerProfileHeader({ sellerId, profile }: Props) {
         <div className="min-w-0 flex-1">
           <h1 className="text-2xl font-bold">{profile.shop_name}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            ⭐ {rating} · {profile.rating_count} avaliações · {profile.total_sales} vendas
+            Nota {rating} · {profile.rating_count} avaliações · {profile.total_sales} vendas
             {profile.location ? ` · ${profile.location}` : ""}
           </p>
           {profile.handle && (

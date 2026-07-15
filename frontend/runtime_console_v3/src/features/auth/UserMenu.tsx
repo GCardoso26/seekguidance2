@@ -1,10 +1,23 @@
 "use client";
 
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { Clock, Heart, LogOut, Package, Settings, Store, User, Users } from "lucide-react";
+import {
+  Clock,
+  FlaskConical,
+  Heart,
+  LogOut,
+  Package,
+  Settings,
+  Store,
+  User,
+  Users,
+  Wallet,
+  Calendar,
+} from "lucide-react";
 import Link from "next/link";
 import { useJudgeAuth } from "@/features/auth/AuthProvider";
 import { useSellerStore } from "@/hooks/useSellerStore";
+import { useSandboxEntitlements } from "@/hooks/useSandboxEntitlements";
 import { cn } from "@/lib/utils";
 
 function avatarUrl(user: { user_metadata?: Record<string, unknown> }): string | null {
@@ -31,12 +44,14 @@ type Props = {
 export function UserMenu({ onHistoryClick }: Props = {}) {
   const { user, signOut, configured } = useJudgeAuth();
   const { store } = useSellerStore();
+  const sandbox = useSandboxEntitlements();
 
   if (!configured || !user) return null;
 
   const photo = avatarUrl(user);
   const name = displayName(user);
   const isSeller = Boolean(store?.id);
+  const showSell = isSeller || sandbox.elevated || sandbox.allFeaturesUnlocked;
 
   return (
     <DropdownMenu.Root>
@@ -116,13 +131,51 @@ export function UserMenu({ onHistoryClick }: Props = {}) {
               </Link>
             </DropdownMenu.Item>
           )}
-          {isSeller && (
+          {showSell && (
             <DropdownMenu.Item asChild>
-              <Link href="/vendedor/painel" className={itemClass}>
+              <Link href="/vendedor/painel" className={itemClass} data-testid="nav-sell-menu">
                 <Store className="h-4 w-4" aria-hidden />
-                Painel do Vendedor
+                {isSeller ? "Painel do Vendedor" : "Vender"}
               </Link>
             </DropdownMenu.Item>
+          )}
+          {sandbox.elevated && (
+            <>
+              <DropdownMenu.Separator className="my-1 h-px bg-muted" />
+              <p className="px-3 py-1 text-caption font-semibold uppercase tracking-wide text-muted-foreground">
+                Admin Sandbox
+              </p>
+              <DropdownMenu.Item asChild>
+                <Link href="/vendedor/painel/eventos" className={itemClass}>
+                  <Calendar className="h-4 w-4" aria-hidden />
+                  Eventos Demo
+                </Link>
+              </DropdownMenu.Item>
+              <DropdownMenu.Item asChild>
+                <Link href="/vendedor/painel/torneios" className={itemClass}>
+                  <FlaskConical className="h-4 w-4" aria-hidden />
+                  Tournament Demo
+                </Link>
+              </DropdownMenu.Item>
+              <DropdownMenu.Item asChild>
+                <Link href="/comprador/financeiro" className={itemClass}>
+                  <Wallet className="h-4 w-4" aria-hidden />
+                  Wallet Demo
+                </Link>
+              </DropdownMenu.Item>
+              <DropdownMenu.Item asChild>
+                <Link href="/vendedor/painel/financeiro-platform" className={itemClass}>
+                  <Wallet className="h-4 w-4" aria-hidden />
+                  Financial Demo
+                </Link>
+              </DropdownMenu.Item>
+              <DropdownMenu.Item asChild>
+                <Link href="/vendedor/painel/estatisticas" className={itemClass}>
+                  <FlaskConical className="h-4 w-4" aria-hidden />
+                  Analytics Demo
+                </Link>
+              </DropdownMenu.Item>
+            </>
           )}
           <DropdownMenu.Item asChild>
             <Link href="/settings/notifications" className={itemClass}>

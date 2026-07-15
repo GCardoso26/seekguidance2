@@ -54,7 +54,7 @@ export default function SeguidosPage() {
             Você ainda não segue nenhum vendedor.
             <br />
             <Link href="/loja/busca" className="mt-2 inline-block text-primary underline">
-              Explorar loja
+              Ver ofertas
             </Link>
           </p>
         )}
@@ -89,7 +89,7 @@ export default function SeguidosPage() {
                     )}
                     {rating && (
                       <p className="text-xs text-muted-foreground">
-                        ⭐ {rating}
+                        nota {rating}
                         {seller.review_count != null ? ` · ${seller.review_count} avaliações` : ""}
                       </p>
                     )}

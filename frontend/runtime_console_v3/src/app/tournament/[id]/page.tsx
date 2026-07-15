@@ -148,17 +148,19 @@ function OrganizerSection({ id }: { id: string }) {
       <div className="flex flex-wrap gap-2">
         <button
           type="button"
+          disabled={flow.startCheckIn.isPending || flow.startTournament.isPending}
           onClick={() => flow.startCheckIn.mutate()}
-          className="min-h-[44px] rounded-lg border border-border px-4 py-2 text-sm"
+          className="min-h-[44px] rounded-lg border border-border px-4 py-2 text-sm disabled:opacity-50"
         >
-          Abrir check-in
+          {flow.startCheckIn.isPending ? "Abrindo…" : "Abrir check-in"}
         </button>
         <button
           type="button"
+          disabled={flow.startCheckIn.isPending || flow.startTournament.isPending}
           onClick={() => flow.startTournament.mutate()}
-          className="min-h-[44px] rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
+          className="min-h-[44px] rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
         >
-          Iniciar torneio
+          {flow.startTournament.isPending ? "Iniciando…" : "Iniciar torneio"}
         </button>
       </div>
 

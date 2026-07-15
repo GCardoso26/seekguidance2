@@ -6,11 +6,10 @@ type WalletPayload = {
     cashback_cents?: number;
     store_credit_cents?: number;
     gift_card_cents?: number;
-    checkout_wired?: boolean;
   };
 };
 
-async function loadWallet(): Promise<WalletPayload> {
+async function load(): Promise<WalletPayload> {
   try {
     const base = process.env.NEXT_PUBLIC_SITE_URL || "";
     const res = await fetch(`${base}/api/financial-platform/wallet`, { cache: "no-store" });
@@ -21,34 +20,40 @@ async function loadWallet(): Promise<WalletPayload> {
   }
 }
 
+function brl(cents: number | undefined): string {
+  return ((cents ?? 0) / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
+
+/** BP 5.2 — linguagem humana; deixa claro que isto não é o checkout. */
 export default async function CompradorFinanceiroPage() {
-  const data = await loadWallet();
+  const data = await load();
   const w = data.wallet ?? {};
 
   return (
-    <main className="mx-auto max-w-2xl p-6">
-      <p className="text-sm uppercase tracking-wide text-muted-foreground">Financial Platform</p>
-      <h1 className="mt-1 text-2xl font-semibold tracking-tight">Minha carteira</h1>
-      <p className="mt-2 text-sm text-muted-foreground">
-        Shell RSC do Business Program 3. Checkout e meios de pagamento atuais não foram alterados.
+    <main className="mx-auto max-w-3xl p-6">
+      <h1 className="text-2xl font-semibold tracking-tight">Saldos da conta</h1>
+      <p className="mt-2 text-body text-muted-foreground">
+        Valores abaixo, quando existirem, são créditos na plataforma. O pagamento de pedidos de cartas
+        continua sendo feito no checkout (PIX ou cartão), não por estes saldos — até que isso seja
+        ligado de forma explícita no fluxo de compra.
       </p>
 
       <section className="mt-8 grid gap-4 sm:grid-cols-2">
-        <div>
-          <p className="text-xs uppercase text-muted-foreground">Disponível</p>
-          <p className="text-xl font-medium">{((w.available_cents ?? 0) / 100).toFixed(2)}</p>
+        <div className="rounded-lg border border-border p-4">
+          <p className="text-small text-muted-foreground">Disponível</p>
+          <p className="text-xl font-medium tabular-nums">{brl(w.available_cents)}</p>
         </div>
-        <div>
-          <p className="text-xs uppercase text-muted-foreground">Cashback</p>
-          <p className="text-xl font-medium">{((w.cashback_cents ?? 0) / 100).toFixed(2)}</p>
+        <div className="rounded-lg border border-border p-4">
+          <p className="text-small text-muted-foreground">Cashback acumulado</p>
+          <p className="text-xl font-medium tabular-nums">{brl(w.cashback_cents)}</p>
         </div>
-        <div>
-          <p className="text-xs uppercase text-muted-foreground">Store credit</p>
-          <p className="text-xl font-medium">{((w.store_credit_cents ?? 0) / 100).toFixed(2)}</p>
+        <div className="rounded-lg border border-border p-4">
+          <p className="text-small text-muted-foreground">Crédito em lojas</p>
+          <p className="text-xl font-medium tabular-nums">{brl(w.store_credit_cents)}</p>
         </div>
-        <div>
-          <p className="text-xs uppercase text-muted-foreground">Gift cards</p>
-          <p className="text-xl font-medium">{((w.gift_card_cents ?? 0) / 100).toFixed(2)}</p>
+        <div className="rounded-lg border border-border p-4">
+          <p className="text-small text-muted-foreground">Cartões-presente</p>
+          <p className="text-xl font-medium tabular-nums">{brl(w.gift_card_cents)}</p>
         </div>
       </section>
     </main>

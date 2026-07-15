@@ -1,55 +1,54 @@
 # PSYCHOLOGICAL_METRICS.md — TTFB · TTC · TTP
 
-**Method:** Expert walkthrough of store-facing surfaces post BP 5 / 5.1 / 5.2 fixes (not lab eye-tracking). Re-measure after CNPJ publish.
+**Method:** Expert walkthrough pós-CNPJ real (`58.477.778/0001-76`) em produção.
 
 ## Definitions
 
 | Metric | Meaning | Meta |
 |--------|---------|------|
-| **TTFB** | Time to First Belief — “este site parece confiável” | &lt; 3 s |
-| **TTC** | Time to Confidence — “posso comprar aqui” | &lt; 15 s |
-| **TTP** | Time to Purchase click — first intentional Comprar | &lt; 45 s |
+| **TTFB** | “Esse site parece confiável” | &lt; 3 s |
+| **TTC** | “Posso comprar aqui” | &lt; 15 s |
+| **TTP** | Clique em **Comprar** | &lt; 45 s |
 
-## Current estimates (homepage → PDP → Comprar)
+## Current estimates (home → PDP → Comprar)
 
 | Metric | Estimate | Meta | Gate |
 |--------|----------|------|------|
-| TTFB | **4–6 s** | &lt; 3 s | **FAIL** |
-| TTC | **15–24 s** | &lt; 15 s | **FAIL** (melhorou vs ~18–30; ainda acima) |
-| TTP | **45–75 s** | &lt; 45 s | **FAIL** (borda; auth/CNPJ ainda alongam alto valor) |
+| TTFB | **~2.5–4 s** | &lt; 3 s | **BORDERLINE** (melhor caso ~2.5; típico ~3–4) |
+| TTC | **~14–22 s** | &lt; 15 s | **FAIL** (melhor caso pode passar) |
+| TTP | **~40–65 s** | &lt; 45 s | **FAIL** (melhor caso ~40) |
 
-### Why TTFB &gt; 3 s
+### TTFB — melhorou com CNPJ real
 
-- CNPJ/endereço ausentes ou aviso de “não publicado” na dobra legal (bom honestidade, má First Belief).  
-- Sem fotografia de produto dominante no primeiro viewport.  
-- Header/JT ainda “produto novo” sob auditoria Apple.
+- Home `trust-footer`: razão social + CNPJ + endereço sem warning.  
+- PDP bundle: `legalName` + CNPJ inlined; sem “incompleto”.  
+- Ainda penaliza: header JT fallback, foto produto não dominante na home.
 
-### Why TTC still ≥ 15 s
+### TTC — ainda falha na mediana
 
-- CEP na PDP melhora percepção, mas **preço de frete** só após carrinho + login.  
-- Nota da loja ainda sem volume de reviews óbvio.  
-- Políticas agora coladas à oferta (ganho); legal face ainda incompleta.
+- Frete oficial só no carrinho (auth).  
+- Nota sem N avaliações.  
+- Compra protegida não é default mental.
 
-### Why TTP still ≥ 45 s (alto valor)
+### TTP — borderline
 
-- Busca → PDP → possível login → carrinho → cotação.  
-- Comprar único CTA reduz ruído; Black Lotus ainda exige prova fiscal + loja.
+- CTA único **Comprar** ajuda.  
+- Login + carrinho + checkout alongam alto valor.
 
-## Persona stress (psychological)
+## Personas
 
-| Persona | Dominant fail metric |
-|---------|----------------------|
-| Golpe / paranoico | TTFB (legal face) |
-| Black Lotus | TTC (legitimacy + seller) |
-| Impaciente | TTP (steps) |
-| Leigo | TTC (language residual off-path) |
+| Persona | Métrica |
+|---------|---------|
+| Desconfiado | TTC (escrow opt-in) |
+| Black Lotus | TTC |
+| Impaciente | TTP |
 
-## After CNPJ+address + guest/zero-friction freight (projected)
+## Gates obrigatórios
 
-| Metric | Projected |
-|--------|-----------|
-| TTFB | ~2–3 s |
-| TTC | ~10–14 s |
-| TTP | ~35–45 s |
+| Gate | Status |
+|------|--------|
+| TTFB &lt; 3 s | **BORDERLINE** |
+| TTC &lt; 15 s | **FAIL** |
+| TTP &lt; 45 s | **FAIL** |
 
-Even then, **R$ 50k** may need more seller proof — re-score before claiming pass.
+Programa **NO-GO** até todas as metas + TES ≥ 95.

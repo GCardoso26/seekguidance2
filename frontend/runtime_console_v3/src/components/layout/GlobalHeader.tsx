@@ -4,26 +4,28 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
-import { Layers, Scale, ShoppingBag, Users } from "lucide-react";
 import { HeaderNavActions } from "@/components/layout/HeaderNavActions";
 import { HeaderGamePicker } from "@/components/layout/HeaderGamePicker";
+import { SandboxModeBadge } from "@/components/sandbox/SandboxModeBadge";
 import { GlobalNotificationBell } from "@/components/notifications/GlobalNotificationBell";
 import { CartHeaderButton } from "@/components/cart/CartHeaderButton";
 import { WishlistBadge } from "@/components/marketplace/WishlistBadge";
 import { CpfRequiredBanner } from "@/components/kyc/CpfRequiredBanner";
-import { UserLevelBadge } from "@/components/gamification/UserLevelBadge";
 import { UserMenu } from "@/features/auth/UserMenu";
 import { useJudgeAuth } from "@/features/auth/AuthProvider";
-import { useRulesAccess } from "@/hooks/useRulesAccess";
-import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { isSandboxMode } from "@/lib/app-mode";
+import { entrarPath } from "@/lib/auth/entrar-path";
+import { brand } from "@/lib/brand";
 
 const GlobalSearchBar = dynamic(
   () => import("@/components/home/GlobalSearchBar").then((m) => m.GlobalSearchBar),
   {
     ssr: false,
-    loading: () => <div className="h-9 w-full max-w-xl rounded-lg bg-muted/40" aria-hidden />,
+    loading: () => (
+      <div className="mx-auto h-10 w-full max-w-2xl rounded-md bg-muted/50" aria-hidden />
+    ),
   },
 );
 
@@ -32,21 +34,15 @@ const GameMegaMenu = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="hidden h-9 w-28 animate-pulse rounded-lg bg-muted/40 md:block" aria-hidden />
+      <div className="hidden h-9 w-28 rounded-md bg-muted/50 md:block" aria-hidden />
     ),
   },
 );
 
-type NavItem = { href: string; label: string; icon: typeof ShoppingBag };
+/** BP 5.1 — One goal no header de compra: Loja. Resto no menu da conta. */
+const STORE_NAV = [{ href: "/loja", label: "Loja" }] as const;
 
-const NAV: NavItem[] = [
-  { href: "/loja", label: "Loja", icon: ShoppingBag },
-  { href: "/decks", label: "Decks", icon: Layers },
-  { href: "/regras", label: "Regras", icon: Scale },
-  { href: "/comunidade", label: "Comunidade", icon: Users },
-];
-
-function DesktopNavLink({ href, label, icon: Icon }: NavItem) {
+function DesktopNavLink({ href, label }: { href: string; label: string }) {
   const pathname = usePathname();
   const active = pathname === href || (href !== "/" && pathname.startsWith(href));
   return (
@@ -54,34 +50,18 @@ function DesktopNavLink({ href, label, icon: Icon }: NavItem) {
       href={href}
       data-testid={`nav-${href.replace(/\//g, "") || "home"}`}
       className={cn(
-        "hidden items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors md:flex",
-        active
-          ? "bg-primary/10 text-primary"
-          : "text-muted-foreground hover:bg-muted hover:text-foreground",
+        "hidden items-center rounded-md px-3 py-2 text-sm font-medium md:flex",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
+        active ? "bg-primary text-primary-foreground" : "text-foreground hover:bg-muted",
       )}
     >
-      <Icon className="h-4 w-4" />
       {label}
     </Link>
   );
 }
 
-function DesktopNav() {
-  const { allowed: rulesAllowed, loading: rulesLoading } = useRulesAccess();
-  const items = rulesLoading ? NAV.filter((n) => n.href !== "/regras") : NAV.filter((n) => n.href !== "/regras" || rulesAllowed);
-
-  return (
-    <>
-      {items.map((item) => (
-        <DesktopNavLink key={item.href} {...item} />
-      ))}
-    </>
-  );
-}
-
 interface GlobalHeaderProps {
   showGameTabs?: boolean;
-  /** Checkout: logo + entrar/conta apenas — sem search/mega/menu badges (LCP). */
   chrome?: "default" | "checkout";
   children?: ReactNode;
 }
@@ -104,59 +84,82 @@ export function GlobalHeader({ showGameTabs = true, chrome = "default" }: Global
   return (
     <div className="sticky top-0 z-50">
       {!isCheckout && <CpfRequiredBanner />}
-      <header className="border-b border-border bg-card/80 backdrop-blur-md supports-[backdrop-filter]:bg-card/70">
+      <header className="border-b border-border bg-card" role="banner">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <div className="flex h-12 items-center gap-3 lg:h-14">
+          <div className="flex h-14 items-center gap-3">
             <Link
-              href="/"
-              className="flex shrink-0 items-center gap-2 text-sm font-semibold text-foreground"
+              href="/loja"
+              className="flex shrink-0 items-center gap-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
               data-testid="header-logo"
             >
-              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-base">⚖️</span>
-              <span className="hidden sm:inline">Judge TCG</span>
+              <span className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md bg-primary/10">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={brand.logoMarkPath}
+                  alt=""
+                  className="h-6 w-6 object-contain"
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none";
+                    const fallback = e.currentTarget.nextElementSibling as HTMLElement | null;
+                    if (fallback) fallback.style.display = "flex";
+                  }}
+                />
+                <span
+                  className="hidden h-full w-full items-center justify-center bg-primary text-xs font-bold tracking-tight text-primary-foreground"
+                  aria-hidden
+                >
+                  JT
+                </span>
+              </span>
+              <span className="font-display hidden text-base font-semibold tracking-tight text-foreground sm:inline">
+                {brand.name}
+              </span>
             </Link>
 
             {!isCheckout && (
               <>
                 <HeaderGamePicker />
-                <nav className="hidden shrink-0 items-center gap-0.5 xl:flex" aria-label="Principal">
-                  <DesktopNav />
+                <nav className="hidden shrink-0 items-center gap-1 xl:flex" aria-label="Navegação principal">
+                  {STORE_NAV.map((item) => (
+                    <DesktopNavLink key={item.href} {...item} />
+                  ))}
                 </nav>
-                {/* Busca antes das ações p/ não esmagar Trocar; min-w-0 evita overflow flex */}
-                <div className="min-w-0 flex-1 overflow-hidden px-1 sm:px-2">
+                <div className="min-w-0 flex-1 overflow-hidden px-1 sm:px-3">
                   <GlobalSearchBar
                     variant="header"
-                    placeholder="Buscar cartas, lojas, decks…"
-                    className="mx-auto w-full max-w-xl"
+                    placeholder="Buscar carta ou loja…"
+                    className="mx-auto w-full max-w-2xl"
                   />
-                </div>
-                <div className="hidden shrink-0 xl:block">
-                  <HeaderNavActions />
                 </div>
               </>
             )}
 
             {isCheckout && <div className="min-w-0 flex-1" />}
 
-            <div className="flex shrink-0 items-center gap-1">
+            <div className="flex shrink-0 items-center gap-1" aria-label="Ações da conta">
               {!isCheckout && (
                 <>
-                  <ThemeToggle compact className="hidden sm:inline-flex" />
-                  <UserLevelBadge compact />
+                  {isSandboxMode() && <SandboxModeBadge />}
+                  <div className="hidden lg:block">
+                    <HeaderNavActions />
+                  </div>
                   <WishlistBadge />
                   <CartHeaderButton />
                 </>
               )}
               {loading ? (
-                <div className="h-8 w-8 animate-pulse rounded-full bg-muted" aria-hidden />
+                <div className="h-9 w-9 rounded-md bg-muted/50" aria-hidden />
               ) : user ? (
                 <>
                   {!isCheckout && <GlobalNotificationBell />}
                   <UserMenu />
                 </>
               ) : (
-                <Button asChild size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90">
-                  <Link href="/entrar" data-testid="login-submit">
+                <Button asChild size="sm" className="min-h-10 bg-primary text-primary-foreground">
+                  <Link
+                    href={entrarPath(pathname && pathname !== "/entrar" ? pathname : "/loja")}
+                    data-testid="login-submit"
+                  >
                     Entrar
                   </Link>
                 </Button>

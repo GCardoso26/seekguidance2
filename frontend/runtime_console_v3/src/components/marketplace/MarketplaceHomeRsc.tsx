@@ -100,16 +100,21 @@ function FinalCtaSection() {
   return (
     <section className="border-t border-border py-12">
       <div className="container mx-auto max-w-2xl px-4 text-center">
-        <h2 className="text-2xl font-semibold text-foreground">Ver ofertas ou anunciar</h2>
-        <p className="mt-2 text-muted-foreground">Abra a busca de cartas ou cadastre anúncios da sua loja.</p>
+        <h2 className="text-2xl font-semibold text-foreground">Ver ofertas</h2>
+        <p className="mt-2 text-muted-foreground">
+          Busque a carta, compare lojas e condições, e compre no carrinho.
+        </p>
         <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
           <Button size="lg" asChild className="min-h-12 bg-primary text-primary-foreground">
             <Link href="/loja/busca">Ver ofertas</Link>
           </Button>
-          <Button size="lg" variant="outline" asChild className="min-h-12">
-            <Link href="/vendedor/painel/listagens/nova">Anunciar cartas</Link>
-          </Button>
         </div>
+        <p className="mt-4 text-caption text-muted-foreground">
+          Lojista?{" "}
+          <Link href="/vendedor/painel/listagens/nova" className="underline hover:text-foreground">
+            Anunciar cartas
+          </Link>
+        </p>
       </div>
     </section>
   );

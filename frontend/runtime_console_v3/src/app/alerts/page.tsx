@@ -16,7 +16,7 @@ export default function AlertsPage() {
           <h1 className="text-2xl font-bold">Meus alertas de preço</h1>
           <p className="mt-2 text-muted-foreground">Faça login para ver seus alertas.</p>
           <Button asChild className="mt-6">
-            <Link href="/login?next=/alerts">Entrar</Link>
+            <Link href="/entrar?next=/alerts">Entrar</Link>
           </Button>
         </div>
       </MobileLayout>

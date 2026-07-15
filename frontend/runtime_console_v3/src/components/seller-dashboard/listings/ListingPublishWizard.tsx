@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -33,7 +34,6 @@ function gameSlugFromCard(game?: string | null): string {
 }
 
 export function ListingPublishWizard() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const prefillCardId = searchParams.get("cardId");
 
@@ -155,8 +155,9 @@ export function ListingPublishWizard() {
       toast.error("Não foi possível publicar.");
       return;
     }
-    toast.success("Anúncio publicado!");
-    router.push("/vendedor/painel/listagens");
+    toast.success("Anúncio publicado! Cadastre a próxima carta.");
+    setSelected(null);
+    setSearch("");
   }
 
   return (
@@ -294,8 +295,14 @@ export function ListingPublishWizard() {
               disabled={isSubmitting || !price}
               className="w-full rounded-lg bg-primary py-3 text-sm font-semibold text-primary-foreground disabled:opacity-50"
             >
-              {isSubmitting ? "Publicando…" : "Publicar anúncio"}
+              {isSubmitting ? "Publicando…" : "Publicar e cadastrar outra"}
             </button>
+            <Link
+              href="/vendedor/painel/listagens"
+              className="block text-center text-sm text-muted-foreground underline"
+            >
+              Ver meus anúncios
+            </Link>
           </form>
         )}
       </div>

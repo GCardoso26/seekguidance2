@@ -187,14 +187,14 @@ export function CheckoutOrderSummary({
               )}
               {savingsCents > 0 && (
                 <SummaryRow
-                  label="Economia (smart cart)"
+                  label="Economia nesta combinação"
                   value={`−${formatShopPrice(savingsCents)}`}
                   tone="discount"
                   testId="checkout-savings"
                 />
               )}
               {escrowFeeCents > 0 && (
-                <SummaryRow label="Taxa escrow (3%)" value={formatShopPrice(escrowFeeCents)} />
+                <SummaryRow label="Taxa da compra protegida (3%)" value={formatShopPrice(escrowFeeCents)} />
               )}
             </div>
 
@@ -204,7 +204,7 @@ export function CheckoutOrderSummary({
 
             <div className="flex items-center gap-2 text-caption text-muted-foreground">
               <ShieldCheck className="h-4 w-4 shrink-0 text-success" aria-hidden />
-              <span>Pagamento seguro · estoque reservado durante o checkout</span>
+              <span>Estoque reservado enquanto você finaliza o pagamento</span>
             </div>
           </>
         )}

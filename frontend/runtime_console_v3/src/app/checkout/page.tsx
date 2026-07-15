@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { ArrowLeft } from "lucide-react";
 import { MobileLayout } from "@/components/layout/MobileLayout";
+import { TrustFooterStrip } from "@/components/layout/TrustFooterStrip";
 import { CheckoutClient } from "@/components/checkout/CheckoutClient";
 import { CheckoutProgressBar } from "@/components/checkout/CheckoutProgressBar";
 import { InlineLoading } from "@/components/ui/async-state";
@@ -28,7 +29,7 @@ export default function CheckoutPage() {
           <div>
             <h1 className="text-h1 text-foreground">Finalizar compra</h1>
             <p className="mt-1 text-small text-muted-foreground">
-              Revise o resumo, escolha o pagamento e conclua com segurança.
+              Revise o resumo, escolha o pagamento e confirme o pedido.
             </p>
           </div>
           <CheckoutProgressBar currentStep="payment" />
@@ -43,6 +44,7 @@ export default function CheckoutPage() {
         >
           <CheckoutClient />
         </Suspense>
+        <TrustFooterStrip />
       </div>
     </MobileLayout>
   );

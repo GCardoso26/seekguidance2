@@ -46,7 +46,7 @@ export function CheckoutPaymentMethodPicker({
             </span>
             <span>
               <span className="block text-small font-semibold">PIX</span>
-              <span className="mt-0.5 block text-caption text-success">Confirmação rápida · zero comissão</span>
+              <span className="mt-0.5 block text-caption text-success">Confirmação rápida</span>
             </span>
           </button>
         )}
@@ -72,7 +72,7 @@ export function CheckoutPaymentMethodPicker({
             </span>
             <span>
               <span className="block text-small font-semibold">Cartão</span>
-              <span className="mt-0.5 block text-caption text-muted-foreground">Visa, Mastercard via Stripe</span>
+              <span className="mt-0.5 block text-caption text-muted-foreground">Visa, Mastercard</span>
             </span>
           </button>
         )}

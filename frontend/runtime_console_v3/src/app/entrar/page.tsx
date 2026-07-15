@@ -7,7 +7,7 @@ import { Scale } from "lucide-react";
 import { GoogleLoginButton } from "@/features/auth/GoogleLoginButton";
 import { useJudgeAuth } from "@/features/auth/AuthProvider";
 import { Button } from "@/components/ui/button";
-import { normalizeInternalPath } from "@/lib/auth/safe-path";
+import { readEntrarNext } from "@/lib/auth/entrar-path";
 import {
   type AccountStatusPayload,
   resolvePostAuthPath,
@@ -25,7 +25,7 @@ async function fetchAccountStatus(): Promise<AccountStatusPayload | undefined> {
 
 function EntrarForm() {
   const searchParams = useSearchParams();
-  const afterCpf = normalizeInternalPath(searchParams.get("next") ?? "/perfil", "/perfil");
+  const afterCpf = readEntrarNext((k) => searchParams.get(k), "/perfil");
   /** Google/OAuth: completar-perfil redireciona sozinho se o documento já estiver ativo. */
   const oauthGatePath = `/completar-perfil?next=${encodeURIComponent(afterCpf)}`;
   const { signInWithEmail, signUpWithEmail } = useJudgeAuth();
@@ -33,17 +33,21 @@ function EntrarForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [info, setInfo] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   async function handleEmailAuth(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    setInfo(null);
     setLoading(true);
     try {
       if (mode === "register") {
         const { needsEmailConfirmation } = await signUpWithEmail(email.trim(), password);
         if (needsEmailConfirmation) {
-          setError("Confirme seu e-mail antes de continuar. Verifique sua caixa de entrada.");
+          setInfo(
+            "Enviamos um link de confirmação para o seu e-mail. Depois de confirmar, volte aqui para entrar.",
+          );
           return;
         }
         window.location.href = resolvePostAuthPath(undefined, afterCpf);
@@ -107,9 +111,18 @@ function EntrarForm() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          {error && <p className="text-sm text-danger">{error}</p>}
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Aguarde…" : mode === "login" ? "Entrar com e-mail" : "Registrar"}
+          {error && (
+            <p className="text-sm text-danger" role="alert">
+              {error}
+            </p>
+          )}
+          {info && (
+            <p className="text-sm text-foreground" role="status">
+              {info}
+            </p>
+          )}
+          <Button type="submit" className="w-full min-h-11 text-body" disabled={loading}>
+            {loading ? "Aguarde…" : mode === "login" ? "Entrar com e-mail" : "Criar conta"}
           </Button>
         </form>
 

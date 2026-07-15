@@ -32,7 +32,7 @@ export function WishlistAlertsPage() {
           href="/loja"
           className="mt-6 inline-block rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground"
         >
-          Explorar marketplace
+          Ver ofertas
         </Link>
       </div>
     );

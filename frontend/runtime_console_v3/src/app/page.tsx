@@ -5,12 +5,12 @@ import { MarketplaceProviders } from "@/providers/MarketplaceProviders";
 import { withCanonical } from "@/lib/page-metadata";
 
 export const metadata: Metadata = withCanonical("/", {
-  title: "Judge TCG — O maior marketplace de TCGs do Brasil",
+  title: "Judge TCG — cartas de Pokémon, Magic, Lorcana e outros jogos",
   description:
-    "Compre e venda cartas de Magic, Pokémon, Yu-Gi-Oh!, Lorcana, One Piece, FaB, Digimon, Star Wars, Riftbound, Sorcery, Union Arena, Dragon Ball e Vanguard. Zero comissão, PIX direto.",
+    "Compare ofertas de lojas especializadas em cartas colecionáveis. Veja condição, preço e vendedor; pague com PIX ou cartão no checkout.",
   openGraph: {
-    title: "Judge TCG — Marketplace de TCGs",
-    description: "130K+ cartas · 13 jogos · 0% comissão",
+    title: "Judge TCG — loja de cartas colecionáveis",
+    description: "Ofertas de lojas · catálogo multi-jogo · pagamento no checkout",
     images: ["/og-image.jpg"],
   },
 });
@@ -21,7 +21,7 @@ export default function HomePage() {
       <Suspense
         fallback={
           <div className="flex min-h-[70vh] items-center justify-center text-sm text-muted-foreground">
-            Carregando marketplace…
+            Carregando a loja…
           </div>
         }
       >

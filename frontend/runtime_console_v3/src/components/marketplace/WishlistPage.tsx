@@ -178,7 +178,7 @@ export function WishlistPage() {
           href="/loja"
           className="mt-6 inline-block rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground"
         >
-          Explorar marketplace
+          Ver ofertas
         </Link>
       </div>
     );
@@ -190,7 +190,7 @@ export function WishlistPage() {
       <div className="space-y-6" id="main-content" data-testid="wishlist-page-content">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-muted-foreground">
-          {totalCount} produto{totalCount === 1 ? "" : "s"} salvos · listas inteligentes
+          {totalCount} produto{totalCount === 1 ? "" : "s"} salvos
           {wishlistV2 ? " (backend)" : ""}
         </p>
         <div className="flex flex-wrap gap-2">

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Megaphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useJudgeAuth } from "@/features/auth/AuthProvider";
+import { entrarPath } from "@/lib/auth/entrar-path";
 import type { UnifiedCard } from "@/types/card";
 import { useAnalytics } from "@/hooks/useAnalytics";
 
@@ -19,7 +20,7 @@ export function AnnounceCardCta({ card }: Props) {
   if (!user) {
     return (
       <Button variant="outline" size="sm" asChild>
-        <Link href={`/login?next=${encodeURIComponent(href)}`}>
+        <Link href={entrarPath(href)}>
           <Megaphone className="mr-1 h-4 w-4" />
           Anunciar esta carta
         </Link>

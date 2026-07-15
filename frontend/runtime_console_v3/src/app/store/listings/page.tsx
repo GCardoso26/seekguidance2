@@ -34,7 +34,7 @@ export default function SellerListingsPage() {
         <div className="container mx-auto px-4 py-16 text-center">
           <p className="text-muted-foreground">Faça login para gerenciar suas listagens.</p>
           <Button asChild className="mt-4">
-            <Link href="/login?next=/vendedor/painel/listagens">Entrar</Link>
+            <Link href="/entrar?next=/vendedor/painel/listagens">Entrar</Link>
           </Button>
         </div>
       </MobileLayout>

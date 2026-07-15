@@ -83,7 +83,7 @@ function MarketplaceShopBrowseInner() {
     }
     if (result.needsLogin) {
       showToast("Faça login para adicionar ao carrinho", "error");
-      window.location.href = `/login?next=${encodeURIComponent("/marketplace")}`;
+      window.location.href = `/entrar?next=${encodeURIComponent("/marketplace")}`;
       return;
     }
     showToast(result.message, "error");
@@ -95,7 +95,7 @@ function MarketplaceShopBrowseInner() {
         value={filters.q ?? ""}
         onChange={(v) => updateFilters({ q: v || undefined })}
         onSubmit={(v) => updateFilters({ q: v || undefined })}
-        placeholder="Buscar produtos… name:set:cmd foil:true"
+        placeholder="Buscar pelo nome da carta, loja ou produto…"
         data-testid="marketplace-search"
       />
 

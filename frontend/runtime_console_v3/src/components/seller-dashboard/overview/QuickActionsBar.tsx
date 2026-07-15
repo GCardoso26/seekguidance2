@@ -2,33 +2,23 @@
 
 import Link from "next/link";
 
+/** BP 5.1 — menos decisões: estoque primeiro. */
 export function QuickActionsBar() {
   return (
-    <section
-      className="surface-card p-4"
-      data-testid="quick-actions-bar"
-    >
-      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-        Ações rápidas
-      </h2>
+    <section className="rounded-lg border border-border bg-card p-4" data-testid="quick-actions-bar">
+      <h2 className="mb-3 text-small font-semibold text-muted-foreground">Próximo passo</h2>
       <div className="flex flex-wrap gap-2">
         <Link
           href="/vendedor/painel/listagens/nova"
-          className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
+          className="min-h-11 rounded-md bg-primary px-4 py-2 text-small font-semibold text-primary-foreground"
         >
-          + Novo anúncio
+          Cadastrar carta
         </Link>
         <Link
-          href="/vendedor/painel/pdv"
-          className="rounded-lg border border-border px-4 py-2 text-sm hover:bg-muted/80"
+          href="/vendedor/painel/estoque"
+          className="min-h-11 rounded-md border border-border px-4 py-2 text-small hover:bg-muted"
         >
-          + Novo pedido manual
-        </Link>
-        <Link
-          href="/vendedor/painel/atendimento/tickets?action=new"
-          className="rounded-lg border border-border px-4 py-2 text-sm hover:bg-muted/80"
-        >
-          + Ticket
+          Importar CSV
         </Link>
       </div>
     </section>

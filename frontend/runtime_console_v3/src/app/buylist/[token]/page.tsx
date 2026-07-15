@@ -41,7 +41,7 @@ export default function PublicBuylistPage() {
         body: JSON.stringify({ message }),
       });
       if (res.status === 401) {
-        window.location.href = `/login?next=/buylist/${token}`;
+        window.location.href = `/entrar?next=/buylist/${token}`;
         return;
       }
       if (!res.ok) {
@@ -112,7 +112,8 @@ export default function PublicBuylistPage() {
                 </Button>
                 {error && <p className="text-sm text-danger">{error}</p>}
                 <p className="text-xs text-muted-foreground">
-                  Precisa estar logado. Após aceite, a loja confirma e o pagamento pode usar escrow.
+                  Após aceite, a loja confirma e o pagamento pode usar compra protegida (valor retido
+                  até a confirmação).
                 </p>
               </div>
             )}

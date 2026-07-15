@@ -52,7 +52,7 @@ export function CreateListingForm({ card }: CreateListingFormProps) {
       });
 
       if (res.status === 401) {
-        router.push(`/login?next=${encodeURIComponent(`/loja/cartas/${card.id}`)}`);
+        router.push(`/entrar?next=${encodeURIComponent(`/loja/cartas/${card.id}`)}`);
         return;
       }
 

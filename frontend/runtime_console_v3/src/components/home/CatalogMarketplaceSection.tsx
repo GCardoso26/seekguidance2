@@ -31,20 +31,18 @@ export function CatalogMarketplaceSection({
     <>
       {showHero && (
       <section
-        className="relative overflow-hidden border-b border-border/40 bg-gradient-to-b from-muted/40 to-background pb-16 pt-12 md:pt-16"
+        className="relative overflow-hidden border-b border-border bg-background pb-12 pt-10 md:pt-12"
         aria-labelledby="catalog-hero-title"
       >
         <div className="page-container">
           <div className="mx-auto max-w-3xl text-center">
-            <p className="text-overline text-primary mb-2">
-              Marketplace Neutro · 0% comissão
-            </p>
-            <h2 id="catalog-hero-title" className="text-display font-bold tracking-tight">
-              Descubra, monte decks e compre cartas
+            <p className="text-small font-medium text-primary mb-2">Catálogo de cartas</p>
+            <h2 id="catalog-hero-title" className="text-display font-semibold tracking-tight">
+              Busque a carta e compare ofertas de lojas
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-body-lg text-muted-foreground">
-              Catálogo unificado de TCGs com busca facetada, preços de mercado e checkout PIX direto ao
-              lojista.
+              Preços e estoque vêm das lojas listadas. Você paga no checkout com PIX ou cartão, quando
+              disponível.
             </p>
           </div>
 
@@ -64,8 +62,8 @@ export function CatalogMarketplaceSection({
                   {availableCount} jogos
                 </span>
                 {health.ready_for_marketplace && (
-                  <span className="rounded-full bg-success/10 px-2 py-0.5 text-caption text-success">
-                    Catálogo pronto
+                  <span className="rounded-md bg-muted px-2 py-0.5 text-small text-foreground">
+                    Catálogo disponível
                   </span>
                 )}
               </>

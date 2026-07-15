@@ -46,7 +46,7 @@ export default function DecksPage() {
             <p className="text-sm text-muted-foreground">Crie, edite e publique seus decks</p>
           </div>
           <Link href="/decks/explore" className="text-sm text-primary">
-            Explorar públicos
+            Ver decks públicos
           </Link>
         </div>
 

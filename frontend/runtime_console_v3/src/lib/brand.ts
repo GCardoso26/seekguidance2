@@ -53,7 +53,21 @@ export function brandTitle(page?: string): string {
   return page ? `${page} | ${brand.name}` : `${brand.name} — ${brand.tagline}`;
 }
 
-/** True quando os dados mínimos de transparência legal estão publicados. */
+/** CNPJ só com zeros / vazio = placeholder — não conta como face legal (BP 5.2). */
+export function brandCnpjIsPlaceholder(): boolean {
+  const digits = brand.cnpj.replace(/\D/g, "");
+  return digits.length === 0 || /^0+$/.test(digits);
+}
+
+/**
+ * True quando razão social + CNPJ + endereço estão publicados
+ * e o CNPJ não é placeholder (ex.: 00.000.000/0000-00).
+ */
 export function brandHasLegalTransparency(): boolean {
-  return Boolean(brand.cnpj.trim() && brand.legalAddress.trim() && brand.legalName.trim());
+  return Boolean(
+    brand.cnpj.trim() &&
+      brand.legalAddress.trim() &&
+      brand.legalName.trim() &&
+      !brandCnpjIsPlaceholder(),
+  );
 }

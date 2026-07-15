@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Layers, ShoppingBag } from "lucide-react";
+import { ShoppingBag } from "lucide-react";
 import { GlobalSearchBar } from "@/components/home/GlobalSearchBar";
 import { Button } from "@/components/ui/button";
 import { formatCountStable } from "@/lib/format-count";
@@ -40,13 +40,16 @@ export function MarketplaceHeroSearch({ totalCards, gameCount }: Props) {
               Ver ofertas
             </Link>
           </Button>
-          <Button size="lg" variant="outline" asChild className="min-h-12">
-            <Link href="/decks/novo">
-              <Layers className="mr-2 h-5 w-5" aria-hidden />
-              Montar baralho
-            </Link>
-          </Button>
         </div>
+        <p className="mt-4 text-caption text-muted-foreground">
+          <Link href="/decks/novo" className="underline hover:text-foreground">
+            Montar baralho
+          </Link>
+          {" · "}
+          <Link href="/vendedor/painel/listagens/nova" className="underline hover:text-foreground">
+            Anunciar
+          </Link>
+        </p>
       </div>
     </section>
   );

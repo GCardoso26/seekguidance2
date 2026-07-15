@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
+import { useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { User } from "lucide-react";
 import { MobilePairingCard } from "@/components/tournament/MobilePairingCard";
@@ -57,16 +58,24 @@ function PlayView() {
     router.push(`/tournament/${id}`);
   };
 
+  const [reporting, setReporting] = useState(false);
+
   const report = async (p1: number, p2: number) => {
-    if (!myPairing) return;
-    await fetch(
-      `/api/tournament/tournaments/${id}/rounds/${currentRound}/pairings/${myPairing.id}/report`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ player1_wins: p1, player2_wins: p2 }),
-      },
-    );
+    if (!myPairing || reporting) return;
+    setReporting(true);
+    try {
+      await fetch(
+        `/api/tournament/tournaments/${id}/rounds/${currentRound}/pairings/${myPairing.id}/report`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ player1_wins: p1, player2_wins: p2 }),
+        },
+      );
+      void refetch();
+    } finally {
+      setReporting(false);
+    }
   };
 
   return (
@@ -113,7 +122,7 @@ function PlayView() {
             onReport={() => document.getElementById("report")?.scrollIntoView({ behavior: "smooth" })}
           />
           <div id="report">
-            <ResultReporter onReport={(a, b) => void report(a, b)} />
+            <ResultReporter disabled={reporting} onReport={(a, b) => void report(a, b)} />
           </div>
         </>
       )}

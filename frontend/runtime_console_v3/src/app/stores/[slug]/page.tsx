@@ -37,7 +37,7 @@ export default function StorePage() {
                 <p className="text-sm text-primary">✓ Conta verificada</p>
               )}
               <p className="text-muted-foreground">
-                📍 {String(store.city ?? "")} · ⭐ {String(store.average_rating)} (
+                {String(store.city ?? "")} · nota {String(store.average_rating)} (
                 {String(store.review_count)} avaliações)
               </p>
             </div>

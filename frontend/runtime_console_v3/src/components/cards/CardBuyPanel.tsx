@@ -82,7 +82,7 @@ export function CardBuyPanel({
         <div className="flex items-start justify-between gap-4">
           <div>
             <p id="buy-panel-title" className="section-title">
-              {purchasable.length > 1 ? "A partir de" : "Melhor oferta"}
+              {purchasable.length > 1 ? "A partir de" : "Oferta"}
             </p>
             <p className="mt-1 font-mono text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
               {bestPrice != null ? formatCurrency(bestPrice, currency) : "Indisponível"}
@@ -173,7 +173,7 @@ export function CardBuyPanel({
                 </div>
               </div>
               {best.sellerReputation >= 4.5 && (
-                <ShieldCheck className="h-5 w-5 shrink-0 text-success" aria-label="Loja verificada" />
+                <ShieldCheck className="h-5 w-5 shrink-0 text-success" aria-label="Nota alta" />
               )}
             </div>
 

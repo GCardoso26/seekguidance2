@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
-import { Home, Layers, ShoppingBag, Sparkles, User } from "lucide-react";
+import { Home, Layers, ShoppingBag, User } from "lucide-react";
 import { GlobalHeader } from "@/components/layout/GlobalHeader";
 import { cn } from "@/lib/utils";
 
@@ -12,9 +12,8 @@ type NavItem = { href: string; label: string; icon: typeof Home };
 const MOBILE_NAV: NavItem[] = [
   { href: "/", label: "Início", icon: Home },
   { href: "/loja", label: "Loja", icon: ShoppingBag },
-  { href: "/comprador", label: "Comprar", icon: Sparkles },
-  { href: "/decks", label: "Decks", icon: Layers },
-  { href: "/perfil", label: "Perfil", icon: User },
+  { href: "/comprador", label: "Conta", icon: User },
+  { href: "/decks", label: "Baralhos", icon: Layers },
 ];
 
 function MobileNavItem({ href, label, icon: Icon }: NavItem) {
@@ -28,7 +27,7 @@ function MobileNavItem({ href, label, icon: Icon }: NavItem) {
       href={href}
       data-testid={`mobile-nav-${href === "/" ? "home" : href.slice(1)}`}
       className={cn(
-        "flex min-h-[44px] min-w-[44px] flex-col items-center justify-center gap-0.5 text-caption font-medium transition-colors",
+        "flex min-h-[44px] min-w-[44px] flex-col items-center justify-center gap-0.5 text-small font-medium transition-colors",
         active ? "text-primary" : "text-muted-foreground",
       )}
       aria-label={label}
@@ -71,7 +70,7 @@ export function MobileLayout({ children }: { children: ReactNode }) {
       </main>
       {!hideNav && !isCheckout && (
         <nav
-          className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card/95 px-2 pt-1.5 backdrop-blur-md supports-[backdrop-filter]:bg-card/80 md:hidden"
+          className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card px-2 pt-1.5 md:hidden"
           style={{ paddingBottom: "max(0.375rem, env(safe-area-inset-bottom))" }}
           aria-label="Navegação mobile"
           data-testid="bottom-nav"

@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import Image from "next/image";
-import { Layers, ShoppingBag } from "lucide-react";
+import { ShoppingBag } from "lucide-react";
 import { GlobalSearchBar } from "@/components/home/GlobalSearchBar";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import { TrustFooterStrip } from "@/components/layout/TrustFooterStrip";
@@ -48,8 +48,7 @@ function MarketplaceHero() {
           Compre cartas colecionáveis com clareza
         </h1>
         <p className="mx-auto mt-4 max-w-2xl text-body-lg text-muted-foreground">
-          Compare ofertas de lojas, veja o estado da carta e finalize no carrinho. Sem surpresas no
-          caminho.
+          Compare ofertas de lojas, veja o estado da carta e finalize no carrinho com PIX ou cartão.
         </p>
 
         <div className="mx-auto mt-8 max-w-2xl">
@@ -69,13 +68,12 @@ function MarketplaceHero() {
               Ver ofertas
             </Link>
           </Button>
-          <Button size="lg" variant="outline" asChild className="min-h-12">
-            <Link href="/decks/novo">
-              <Layers className="mr-2 h-5 w-5" />
-              Montar baralho
-            </Link>
-          </Button>
         </div>
+        <p className="mt-4 text-caption text-muted-foreground">
+          <Link href="/decks/novo" className="underline hover:text-foreground">
+            Montar baralho
+          </Link>
+        </p>
       </div>
     </section>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { Eye, Layers, ShoppingCart, Sparkles } from "lucide-react";
+import { Eye, Layers, ShoppingCart } from "lucide-react";
 import { CardImage } from "@/components/ui/CardImage";
 import { PriceSparkline } from "@/components/cards/PriceSparkline";
 import { Badge } from "@/components/ui/badge";
@@ -80,10 +80,7 @@ export function CardCard({
 
         {hasFoil && (
           <div className="absolute right-2 top-2" aria-label="Versão Foil">
-            <Badge variant="warning" className="gap-1">
-              <Sparkles className="h-3 w-3" />
-              Foil
-            </Badge>
+            <Badge variant="warning">Foil</Badge>
           </div>
         )}
 
@@ -97,7 +94,7 @@ export function CardCard({
               e.stopPropagation();
               handleViewDetail();
             }}
-            aria-label={`Ver detalhes de ${card.name}`}
+            aria-label={`Ver oferta de ${card.name}`}
           >
             <Eye className="h-4 w-4" />
           </Button>

@@ -6,42 +6,66 @@
 ## Goal question
 
 > “Eu compraria uma Black Lotus de R$ 50.000 aqui?”  
-> Required answer: **“Sim, sem hesitar.”**
+> Required: **“Sim, sem hesitar.”**
 
-**Current answer: NO** — program = **NO-GO** for BP 5.3.
+**Current answer: NO** — **NO-GO** for BP 5.3.
 
 ## Deliverables
 
 | File | Purpose |
 |------|---------|
-| `docs/product/TRUST_ENGINEERING_AUDIT.md` | Full trust audit |
-| `docs/product/TRUST_ENGINEERING_SCORE.md` | TES breakdown |
+| `docs/product/TRUST_ENGINEERING_AUDIT.md` | Full audit |
+| `docs/product/TRUST_ENGINEERING_SCORE.md` | TES |
 | `docs/product/PSYCHOLOGICAL_METRICS.md` | TTFB / TTC / TTP |
-| `docs/product/TRUST_FIXLOG.md` | What was fixed |
-| `docs/product/PDP_ABOVE_FOLD_CHECKLIST.md` | ENVs legais exatos + ATF PDP pós-CNPJ |
-| this file | Program context |
+| `docs/product/TRUST_FIXLOG.md` | Fixes |
+| `docs/product/PDP_ABOVE_FOLD_CHECKLIST.md` | ENVs + ATF |
+| this file | Context |
 
-## Gate summary
+## Gate summary (pós-CNPJ real)
 
 | Gate | Meta | Status |
 |------|------|--------|
-| TES | ≥ 95 | **~74 — FAIL** |
-| TTFB | &lt; 3 s | **~4–6 s — FAIL** |
-| TTC | &lt; 15 s | **~15–24 s — FAIL** (melhora vs 18–30) |
-| TTP | &lt; 45 s | **~45–75 s — FAIL** |
-| Legal CNPJ+endereço published | required | **FAIL** (env empty) |
-| Black Lotus confidence | yes without hesitation | **NO** |
-| Start BP 5.3 Landing Excellence | only if all above pass | **BLOCKED** |
+| TES | ≥ 95 | **~86 — FAIL** |
+| TTFB | &lt; 3 s | **~2.5–4 s — BORDERLINE** |
+| TTC | &lt; 15 s | **~14–22 s — FAIL** |
+| TTP | &lt; 45 s | **~40–65 s — FAIL** |
+| CNPJ Receita real | required | **PASS** (`58.477.778/0001-76`) |
+| Zero marketing vazio (hot path) | required | **Mostly PASS** |
+| Zero CTAs fracos (hot path) | required | **Mostly PASS** |
+| Zero jargão financeiro sem tradução (hot path) | required | **Mostly PASS** |
+| Zero info jurídica ausente | required | **PASS** |
+| Zero componentes infantis (hot path) | required | **Mostly PASS** |
+| Black Lotus sem hesitar | yes | **NO** |
+| Start BP 5.3 | all pass | **BLOCKED** |
 
-## Done this continuity (perception)
+## Relatório final (obrigatório)
 
-- CEP na PDP (`PdpShippingCepField`) + políticas/legal colados (`PdpPurchaseAssurance`).  
-- Carrinho cota frete com API já existente (`CartShippingQuotePanel`).  
-- Loja na PDP com link perfil/avaliações; CTAs “Explorar” residual limpos; Trust→Nota.
+### O que reduzia confiança e foi eliminado
 
-## Next work (stay on 5.2)
+Claims sem prova (zero comissão, 100% seguro, inteligente); CTAs fracos; escrow cru; sparkles/emoji no path loja; CNPJ placeholder; suporte com e-mails divergentes; checkout/carrinho sem face legal.
 
-1. Publish real `NEXT_PUBLIC_CNPJ`, `NEXT_PUBLIC_LEGAL_NAME`, `NEXT_PUBLIC_LEGAL_ADDRESS`.  
-2. Reduzir friction de login no path de cotação (sem inventar API guest de frete).  
-3. Densidade de prova da loja com dados reais (sem mocks).  
-4. Re-score TES after CNPJ live; only then unlock 5.3.
+### O que ainda impede confiança absoluta
+
+Compra protegida opt-in; prova de loja/autenticidade rara; frete/auth friction; cheiro beta (Render, demo, XP); mocks em falha; inconsistência fora da loja.
+
+### Métricas
+
+- **TES:** ~86  
+- **TTFB:** ~2.5–4 s (borderline)  
+- **TTC:** ~14–22 s  
+- **TTP:** ~40–65 s  
+
+### Black Lotus R$ 50k
+
+**Não** transmite confiança suficiente para compra sem hesitar.
+
+### BP 5.3 Landing Excellence
+
+**Não iniciar.** Critérios mínimos **não** atingidos.
+
+## Next (stay on 5.2)
+
+1. Percepção de Compra protegida para alto valor (copy/default UI — sem nova API).  
+2. Eliminar cheiro beta no hot path (mensagens Render, demo).  
+3. Densidade de prova da loja com dados reais.  
+4. Re-score até TES ≥ 95 e TTC/TTP passarem.

@@ -15,7 +15,7 @@ export function DecklistCard({ id, name, gameCode, priceCents, sellerName, ratin
     <article className="rounded-xl border border-border p-4">
       <h3 className="text-lg font-semibold">{name}</h3>
       <p className="text-sm text-muted-foreground">
-        {gameCode} · ⭐ {Number(rating ?? 0).toFixed(1)} · {salesCount ?? 0} vendas
+        {gameCode} · nota {Number(rating ?? 0).toFixed(1)} · {salesCount ?? 0} vendas
       </p>
       <p className="mt-1 text-sm">👤 {sellerName ?? "Vendedor"}</p>
       <div className="mt-3 flex items-center justify-between">

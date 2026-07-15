@@ -63,7 +63,7 @@ export function CardIntelligenceSection({ cardId, card, fallbackRelated = [] }: 
     <section className="space-y-6" data-testid="card-intelligence-section" aria-labelledby="intel-title">
       <div className="flex flex-wrap items-end justify-between gap-2">
         <h2 id="intel-title" className="text-lg font-semibold">
-          Catálogo inteligente
+          Dados do catálogo
         </h2>
         {hints && (
           <p className="text-xs text-muted-foreground" data-testid="seller-ai-hints">

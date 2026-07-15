@@ -13,13 +13,22 @@ import "@/styles/globals.css";
 import "@/styles/judge-tcg.css";
 
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { IBM_Plex_Sans, Source_Serif_4 } from "next/font/google";
 import { brand, brandTitle } from "@/lib/brand";
 
-const inter = Inter({
+const plexSans = IBM_Plex_Sans({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
-  variable: "--font-inter",
+  variable: "--font-sans-family",
+  display: "swap",
+  preload: true,
+  adjustFontFallback: true,
+});
+
+const sourceSerif = Source_Serif_4({
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  variable: "--font-display-family",
   display: "swap",
   preload: true,
   adjustFontFallback: true,
@@ -103,7 +112,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR" className={inter.variable} suppressHydrationWarning>
+    <html lang="pt-BR" className={`${plexSans.variable} ${sourceSerif.variable}`} suppressHydrationWarning>
       <head>
         <meta name="theme-color" content={brand.themeColor} />
         <link rel="apple-touch-icon" href={brand.appleIconPath} />
@@ -113,7 +122,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="dns-prefetch" href="https://lorcana-api.com" />
         <link rel="dns-prefetch" href="https://optcgapi.com" />
       </head>
-      <body className={inter.className}>
+      <body className={plexSans.className}>
         <SentryInit />
         <ConsoleFilterInit />
         <ServiceWorkerRegister />

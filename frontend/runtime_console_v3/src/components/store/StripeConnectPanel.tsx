@@ -47,7 +47,9 @@ export function StripeConnectPanel({ storeId, store, loading, variant = "panel" 
       <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-6">
         <h2 className="font-semibold text-emerald-200">Stripe conectado (opcional)</h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          Aceita cartão via Stripe Connect. Pagamentos vão 100% para sua conta — sem comissão da plataforma.
+          Aceita cartão via Stripe Connect. Os valores das vendas vão para a conta Stripe da loja,
+          conforme o contrato Stripe — a comissão da plataforma, se houver, aparece nas configurações
+          financeiras.
         </p>
       </div>
     );

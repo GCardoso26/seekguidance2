@@ -29,10 +29,10 @@ export function LandingExploreNav({ className }: Props) {
             "inline-flex items-center gap-1 text-sm font-medium text-slate-400 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/50",
             className,
           )}
-          aria-label="Menu Explorar"
+          aria-label="Menu de seções"
         >
           <Compass className="h-4 w-4" aria-hidden />
-          Explorar
+          Seções
           <ChevronDown className="h-3.5 w-3.5 opacity-70" aria-hidden />
         </button>
       </DropdownMenu.Trigger>

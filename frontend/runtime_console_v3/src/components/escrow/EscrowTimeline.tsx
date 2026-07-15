@@ -8,7 +8,7 @@ const STEPS = [
   { key: "payment", label: "Pagamento", icon: Shield, statuses: ["pending_payment", "payment_received"] as EscrowStatus[] },
   { key: "ship", label: "Envio", icon: Truck, statuses: ["shipped"] as EscrowStatus[] },
   { key: "delivery", label: "Entrega", icon: Package, statuses: ["delivered"] as EscrowStatus[] },
-  { key: "release", label: "Liberação", icon: CheckCircle2, statuses: ["released_to_seller", "resolved"] as EscrowStatus[] },
+  { key: "release", label: "Pago ao vendedor", icon: CheckCircle2, statuses: ["released_to_seller", "resolved"] as EscrowStatus[] },
 ] as const;
 
 function stepIndex(status: EscrowStatus): number {

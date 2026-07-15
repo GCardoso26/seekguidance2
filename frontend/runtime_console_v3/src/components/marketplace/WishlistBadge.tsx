@@ -17,7 +17,7 @@ export function WishlistBadge() {
       href="/wishlist"
       data-testid="wishlist-header-badge"
       className="relative rounded-lg p-2 text-muted-foreground hover:bg-muted/80 hover:text-primary"
-      aria-label={`Wishlist${count ? `, ${count} itens` : ""}`}
+      aria-label={`Lista de desejos${count ? `, ${count} itens` : ""}`}
     >
       <Heart className="h-5 w-5" />
       {count > 0 && (

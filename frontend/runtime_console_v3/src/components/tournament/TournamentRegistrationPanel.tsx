@@ -63,7 +63,7 @@ export function TournamentRegistrationPanel({
 
   const handleRegisterClick = () => {
     if (!user) {
-      router.push(`/entrar?redirect=/tournament/${tournamentId}`);
+      router.push(`/entrar?next=/tournament/${tournamentId}`);
       return;
     }
     if (needsCpfCompletion(accountStatus)) {

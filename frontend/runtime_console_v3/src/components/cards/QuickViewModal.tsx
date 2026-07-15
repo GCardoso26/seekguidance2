@@ -135,7 +135,7 @@ export function QuickViewModal({ cardId, isOpen, onClose }: QuickViewModalProps)
                           >
                             {listing.condition}
                           </span>
-                          {listing.foil && <span className="text-yellow-500">✨</span>}
+                          {listing.foil && <span className="text-caption text-muted-foreground">Foil</span>}
                           <span className="truncate text-sm">{listing.sellerName}</span>
                           {listing.sellerReputation > 0 && (
                             <span className="text-xs text-muted-foreground">

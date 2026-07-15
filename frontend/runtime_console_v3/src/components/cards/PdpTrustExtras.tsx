@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { brand, brandHasLegalTransparency } from "@/lib/brand";
+import { brand, brandCnpjIsPlaceholder, brandHasLegalTransparency } from "@/lib/brand";
 import { formatCepDisplay, readSavedBuyerCep, saveBuyerCep } from "@/lib/buyer-cep";
 
 /**
@@ -82,6 +82,7 @@ function formatCnpjDisplay(raw: string): string {
  */
 export function PdpLegalAtfLine({ className }: { className?: string }) {
   const ok = brandHasLegalTransparency();
+  const placeholder = brandCnpjIsPlaceholder() && Boolean(brand.cnpj.trim());
   return (
     <p
       className={className}
@@ -94,10 +95,14 @@ export function PdpLegalAtfLine({ className }: { className?: string }) {
           {" · CNPJ "}
           <span className="tabular-nums">{formatCnpjDisplay(brand.cnpj)}</span>
         </span>
+      ) : placeholder ? (
+        <span className="text-caption font-medium text-warning" role="status">
+          CNPJ publicado é placeholder — use o CNPJ real da empresa antes de compras de alto valor.
+        </span>
       ) : (
         <span className="text-caption font-medium text-warning" role="status">
-          Transparência legal incompleta — publique CNPJ e endereço neste ambiente antes de compras
-          de alto valor.
+          Transparência legal incompleta — publique CNPJ e endereço reais antes de compras de alto
+          valor.
         </span>
       )}
     </p>
@@ -127,8 +132,8 @@ export function PdpPurchaseAssurance() {
         </p>
       )}
       <p className="text-muted-foreground">
-        A loja vendedora envia o pedido. Com Compra protegida (quando disponível no pagamento), o
-        valor pode ficar retido até a confirmação de recebimento.
+        A loja vendedora envia o pedido. Com Compra protegida ativa no pagamento, o valor fica
+        retido até a confirmação de recebimento; o vendedor recebe depois.
       </p>
       <nav className="flex flex-wrap gap-x-3 gap-y-1" aria-label="Políticas nesta compra">
         <Link href="/politicas/compra" className="text-primary underline">

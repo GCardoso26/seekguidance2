@@ -1,74 +1,92 @@
-# TRUST_ENGINEERING_AUDIT.md — BP 5.2
+# TRUST_ENGINEERING_AUDIT.md — BP 5.2 (pós-CNPJ real)
 
 **Date:** 2026-07-15  
+**Production evidence:** `CNPJ 58.477.778/0001-76` · `JUDGE TCG LTDA` · endereço Osasco — home `trust-footer`, termos, bundle PDP `data-legal-ready` (gate passa).  
 **Question:** Compraria uma Black Lotus de R$ 50.000 aqui?  
 **Answer:** **Não.** (NO-GO)
 
-## Scope respected
+## Scope
 
-- No new product features, APIs, DB, or runtime behavior for money/tournament/analytics cores.  
-- Perception: copy, legal pages, CTAs, chrome, labels, metadata.
+Perception only — copy, labels, legal face, CTAs, chrome. No new APIs/DB/runtimes.
 
-## What reduced trust (and status)
+---
 
-| Issue | Severity | Status |
-|-------|----------|--------|
-| “Maior marketplace” / “0% comissão” / “compra garantida” / “100% seguro” | P0 | **Removed** from primary heroes + home metadata |
-| Termos = Privacidade | P0 | **Fixed** earlier; policies expanded |
-| Missing compra/cancelamento/reembolso/marketplace policies | P0 | **Pages created** under `/politicas/*` |
-| CNPJ / endereço not published | P0 | **Still open** — fields exist, env empty → footer warns |
-| Escrow jargon in checkout summary | P1 | **Relabeled** to compra protegida |
-| Dual money / wallet looking like checkout cash | P0 | **Honest disclaimer** on comprador/financeiro |
-| Weak CTAs (Explorar, Comece agora) | P1 | **Mostly → Ver ofertas** on store surfaces |
-| Decorative star / SaaS indigo / emoji logo | P1 | **Mitigated** in BP 5.1 + TrustScore |
-| Teasers community/judge interrupting buy path | P1 | **Removed** on main marketplace homes |
-| Seller “Trust EN” in offer table | P2 | **→ Nota** |
-| Stripe “100% / sem comissão” absolute | P1 | **Softened to factual** |
-| Frete only after cart | P0 for high ticket | **Mitigated** — CEP na PDP + cotação no carrinho via API existente; preço na PDP guest ainda não (auth/cart) |
-| Auth funnel remnants | P0 | Largely fixed BP5; residual risk |
+## 1. Eliminado / melhorado (evidência)
 
-## Personas: why they still abandon
+| Área | Antes | Depois |
+|------|-------|--------|
+| Legal | CNPJ placeholder / warnings | **CNPJ Receita real** no build Vercel |
+| Marketing | zero comissão, 100% seguro, inteligente | Factual no hot path |
+| CTAs | Explorar, Checkout EN, hero duplo | Ver ofertas / Finalizar compra |
+| Financeiro | custódia, Liberação, via Stripe | Compra protegida, Pago ao vendedor |
+| Ícones | Sparkles/⭐ no path loja | Removidos na maior parte |
+| ATF PDP | CNPJ abaixo do preço | `PdpLegalAtfLine` + assurance |
+| Checkout/carrinho | Sem face legal | Rodapé + linha operador/CNPJ no checkout |
+| Suporte | `contato@` vs `suporte@` | Unificado em `brand.supportEmail` |
 
-| Persona | Still abandons because |
-|---------|------------------------|
-| Desconfiado / golpe | Sem CNPJ+endereço reais na face; claim history recent |
-| Black Lotus / alto valor | Sem legitimidade fiscal visível + frete guest limitado + reputação de loja ainda rasa |
-| Idoso | Ainda densidade e jargão residual fora do funil principal |
-| Impaciente | TTP ainda alto se login/frete atrapalham |
-| Lojista | Out of scope for buyer Black Lotus; ops not trust gate for this question |
-| Paranoico | Wallet page + financial platform shells exist elsewhere |
+---
 
-## Marketing claim sweep (buyer-facing)
+## 2. O que ainda reduz confiança (objetivo)
 
-Removed/rewritten where found on home, heroes, RSC home, catalog hero, metadata. Remaining buy-path CTAs prefer **Ver ofertas / Comprar / Anunciar**; decks usa “Ver decks públicos”.
+### P0 — Black Lotus / R$ 5k+
 
-## Continuity (same day)
+| Bloqueador | Por quê |
+|------------|---------|
+| Compra protegida **opt-in** | R$50k sem retenção padrão — copy PDP promete mais que o default do checkout |
+| Prova de loja rasa | Nota sem volume visível; sem grading/autenticidade na PDP |
+| Mock sellers em falha API | Perfil fictício com Black Lotus no fallback (percepção de golpe se API cair) |
+| Frete pós-login/carrinho | TTC/TTP ainda altos para impaciente |
 
-- PDP: CEP persistido + bloco legal/políticas colado à compra.  
-- Carrinho: `CartShippingQuotePanel` → `/api/buyer/shipping/quote`.  
-- Seller PDP: link perfil + avaliações.  
-- TES ~74; gates still FAIL; **5.3 blocked**.
+### P1 — beta / template
 
-## Legal checklist
+| Bloqueador | Onde |
+|------------|------|
+| Mensagem “Render acordando” | `FacetedSearch` |
+| Lojas demo no fallback | `FeaturedShopsGrid` |
+| XP pós-compra | checkout success |
+| Wallet/Analytics Demo | sandbox menu |
+| Buyer dashboard Sparkles | off hot path |
+| Privacidade curta vs expectativa LGPD fina | `/privacidade` |
 
-| Item | Present? |
-|------|----------|
-| Razão social (config) | Sim (env / default name) |
-| CNPJ published | **Não** sem env |
-| Endereço | **Não** sem env |
-| Contato | Sim (email) |
-| Política de compra | Sim `/politicas/compra` |
-| Cancelamento | Sim |
-| Reembolso | Sim |
-| Regras marketplace | Sim |
-| Termos ≠ Privacidade | Sim |
-| LGPD | Privacidade |
-| Responsabilidade plataforma vs vendedor | Sim (textos) |
+### P2 — residual off-path
 
-## Template / childrens’ UI
+- Seller: “Zero comissão” em painéis  
+- Onboarding “Começar”  
+- Judge / premium / gamificação
 
-Mitigated: ink palette, Plex/Serif, no hero purple gradient on primary heroes, no pulse on home stream fallback, JT mark. Not yet “studio for 15 years” across seller admin / tournament shells.
+---
 
-## Conclusion
+## 3. Jurídico — checklist
 
-Trust engineering **improved materially** but **does not** meet Black Lotus / R$ 50k confidence. Continue BP 5.2; **do not start BP 5.3**.
+| Item | Status |
+|------|--------|
+| Razão social | **OK** (env) |
+| CNPJ real | **OK** `58.477.778/0001-76` |
+| Endereço | **OK** |
+| Contato | **OK** `suporte@judgetcg.com.br` |
+| Políticas compra/cancelamento/reembolso/marketplace | **OK** |
+| Termos ≠ Privacidade | **OK** |
+| LGPD | **Parcial** (texto existe; densidade fina pendente) |
+| Plataforma vs vendedor | **OK** (PDP + políticas) |
+| Legal no checkout/carrinho | **Melhorado** (rodapé + trust line) |
+
+---
+
+## 4. Personas — desistência
+
+| Persona | Ainda desiste porque |
+|---------|----------------------|
+| Golpe / paranoico | Escrow não padrão; mock seller; rotas `/marketplace` |
+| Black Lotus | Sem autenticidade carta; proteção financeira opcional |
+| Leigo | Auth + frete tardio |
+| Impaciente | TTP > meta |
+| Idoso | Densidade ok; chrome ainda “app” |
+| Lojista | N/A para gate comprador |
+
+---
+
+## 5. Conclusão
+
+CNPJ real **destrava face legal** e melhora TTFB/TES materialmente.  
+**Não** atinge “Sim, sem hesitar” para Black Lotus.  
+**BP 5.3 Landing Excellence: BLOCKED.** Continuar BP 5.2.

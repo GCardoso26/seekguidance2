@@ -1,8 +1,11 @@
 import Link from "next/link";
-import { brand, brandHasLegalTransparency } from "@/lib/brand";
+import { brand, brandCnpjIsPlaceholder, brandHasLegalTransparency } from "@/lib/brand";
 
 /** Faixa de confiança — BP 5.2 Trust Engineering. */
 export function TrustFooterStrip() {
+  const ok = brandHasLegalTransparency();
+  const placeholderCnpj = brandCnpjIsPlaceholder() && Boolean(brand.cnpj.trim());
+
   return (
     <footer
       className="border-t border-border bg-muted/40 px-4 py-8 text-small text-foreground"
@@ -15,12 +18,12 @@ export function TrustFooterStrip() {
             <p className="mt-1 text-muted-foreground">
               {brand.cnpj
                 ? `CNPJ ${brand.cnpj}`
-                : "CNPJ ainda não publicado nesta página (obrigatório para go-live)."}
+                : "CNPJ ainda não publicado nesta página."}
             </p>
             <p className="mt-1 text-muted-foreground">
               {brand.legalAddress
                 ? brand.legalAddress
-                : "Endereço comercial ainda não publicado (obrigatório para go-live)."}
+                : "Endereço comercial ainda não publicado."}
             </p>
             <p className="mt-1">
               Contato:{" "}
@@ -28,10 +31,11 @@ export function TrustFooterStrip() {
                 {brand.supportEmail}
               </a>
             </p>
-            {!brandHasLegalTransparency() && (
+            {!ok && (
               <p className="mt-2 font-medium text-warning" role="status">
-                Transparência legal incompleta — não trate esta instância como pronta para compra de
-                alto valor.
+                {placeholderCnpj
+                  ? "CNPJ placeholder (zeros) — troque pelo CNPJ real da empresa antes de compras de alto valor."
+                  : "Transparência legal incompleta — não trate esta página como pronta para compra de alto valor."}
               </p>
             )}
           </div>

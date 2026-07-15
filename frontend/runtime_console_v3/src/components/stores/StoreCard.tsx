@@ -17,7 +17,7 @@ export function StoreCard({ slug, name, city, averageRating, reviewCount, verifi
         {verified && <span className="text-xs text-success">✓ Verificada</span>}
       </div>
       <p className="mt-1 text-sm text-slate-400">
-        {city ?? "Brasil"} · ⭐ {Number(averageRating ?? 0).toFixed(1)} ({reviewCount ?? 0})
+        {city ?? "Brasil"} · nota {Number(averageRating ?? 0).toFixed(1)} ({reviewCount ?? 0})
       </p>
     </Link>
   );

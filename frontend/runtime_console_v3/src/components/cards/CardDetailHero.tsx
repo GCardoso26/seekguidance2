@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Image as ImageIcon, Sparkles, ZoomIn } from "lucide-react";
+import { Image as ImageIcon, ZoomIn } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cardImageUrl, shouldBypassImageOptimizer } from "@/lib/format-currency";
 import { GAME_TOKENS } from "@/lib/tcg-tokens";
@@ -63,10 +63,7 @@ export function CardDetailHero({ card, imageError, onImageError, onZoom, classNa
 
       <div className="flex flex-wrap items-center justify-center gap-2">
         {hasFoil && (
-          <Badge variant="warning" className="gap-1">
-            <Sparkles className="h-3 w-3" aria-hidden />
-            Foil
-          </Badge>
+          <Badge variant="warning">Foil</Badge>
         )}
         {card.rarity && (
           <Badge

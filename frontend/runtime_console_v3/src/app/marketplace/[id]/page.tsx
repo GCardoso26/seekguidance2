@@ -57,7 +57,7 @@ export default function DecklistDetailPage() {
                 @{decklist.seller_handle}
               </Link>
             )}
-            <span>⭐ {Number(decklist.average_rating ?? 0).toFixed(1)}</span>
+            <span>nota {Number(decklist.average_rating ?? 0).toFixed(1)}</span>
             <span>{decklist.sales_count} vendas</span>
           </div>
           {decklist.description && <p className="mt-3 text-foreground/90">{decklist.description}</p>}
@@ -88,7 +88,7 @@ export default function DecklistDetailPage() {
                     {decklist.reviews.map((review) => (
                       <div key={review.id} className="border-b border-border pb-4 last:border-0">
                         <p className="font-medium">
-                          ⭐ {review.rating}/5
+                          nota {review.rating}/5
                           {review.display_name && (
                             <span className="ml-2 text-sm font-normal text-muted-foreground">
                               por {review.display_name}
@@ -116,7 +116,9 @@ export default function DecklistDetailPage() {
                 <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90-light">
                   Comprar agora
                 </Button>
-                <p className="mt-2 text-center text-xs text-muted-foreground/70">Pagamento seguro via Stripe</p>
+                <p className="mt-2 text-center text-xs text-muted-foreground/70">
+                  Pagamento com PIX ou cartão
+                </p>
               </CardContent>
             </Card>
 

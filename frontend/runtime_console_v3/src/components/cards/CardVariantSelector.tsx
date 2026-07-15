@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { Sparkles } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { ConditionBadge, type CardCondition } from "@/components/cards/ConditionBadge";
 import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/lib/format-currency";
@@ -66,7 +66,7 @@ export function CardVariantSelector({
                 )}
               >
                 <ConditionBadge condition={pc.condition as CardCondition} size="sm" />
-                {pc.foil && <Sparkles className="h-3 w-3 text-yellow-500" aria-hidden />}
+                {pc.foil && <span className="text-caption text-muted-foreground">Foil</span>}
                 <span>{formatCurrency(pc.price, pc.currency)}</span>
               </button>
             ))}

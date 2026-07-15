@@ -17,6 +17,7 @@ import { useShopCart } from "@/hooks/useShopCart";
 import { useSmartCart } from "@/hooks/useBuyerExperience";
 import { formatShopPrice } from "@/lib/marketplace-shop";
 import { trackEvent } from "@/lib/analytics";
+import { brand } from "@/lib/brand";
 import { CheckoutReservationBanner } from "@/components/checkout/CheckoutReservationBanner";
 import { EscrowToggle } from "@/components/escrow/EscrowToggle";
 import type { CheckoutSessionInfo } from "@/types/seller";
@@ -240,7 +241,35 @@ export function CheckoutClient() {
 
   return (
     <>
-      <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
+      <p className="mt-4 text-small text-muted-foreground" data-testid="checkout-trust-line">
+        Operador: {brand.legalName}
+        {brand.cnpj ? ` · CNPJ ${brand.cnpj}` : ""}. Dúvidas:{" "}
+        <a className="text-primary underline" href={`mailto:${brand.supportEmail}`}>
+          {brand.supportEmail}
+        </a>
+        .{" "}
+        <Link href="/politicas/compra" className="text-primary underline">
+          Compra
+        </Link>
+        {" · "}
+        <Link href="/politicas/reembolso" className="text-primary underline">
+          Reembolso
+        </Link>
+        {" · "}
+        <Link href="/politicas/cancelamento" className="text-primary underline">
+          Cancelamento
+        </Link>
+        {" · "}
+        <Link href="/termos" className="text-primary underline">
+          Termos
+        </Link>
+        {" · "}
+        <Link href="/privacidade" className="text-primary underline">
+          Privacidade
+        </Link>
+        .
+      </p>
+      <div className="mt-6 grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
           {/* Coluna principal — fluxo de pagamento */}
           <div className="min-w-0 space-y-5">
             {checkoutSession?.expires_at && !reservationError && (
@@ -269,7 +298,7 @@ export function CheckoutClient() {
 
             {Boolean(user) && !checkoutSession && !reservationError && (
               <Card padding="md">
-                <InlineLoading message="Reservando estoque…" className="py-6" />
+                <InlineLoading message="Preparando seu pagamento…" className="py-6" />
               </Card>
             )}
 

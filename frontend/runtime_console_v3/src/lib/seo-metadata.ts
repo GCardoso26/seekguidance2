@@ -37,7 +37,7 @@ export function gameMetadataFromSlug(slug: string, cardCount?: number): Metadata
 
   return {
     title: `${token.name} — Cartas e Listagens`,
-    description: `Compre cards de ${token.name} com preços em tempo real no Judge TCG. ${countText} Envio rápido e condições de NM a HP. Zero comissão, PIX direto.`,
+    description: `Compre cards de ${token.name} com preços em tempo real no Judge TCG. ${countText} Compare estado (NM a HP), frete no carrinho e pagamento via PIX ou cartão.`,
     alternates: {
       canonical: `${brand.url.replace(/\/$/, "")}/loja/${slug}`,
     },

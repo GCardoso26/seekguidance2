@@ -1,3 +1,5 @@
+import { canElevateSandbox } from "@/lib/app-mode";
+
 export type SellerPlanId = "free" | "lojista" | "pro" | "enterprise";
 
 export type SellerPlan = {
@@ -40,6 +42,7 @@ export const SELLER_PLANS: SellerPlan[] = [
 ];
 
 export function planHasFeature(plan: string | undefined, feature: string): boolean {
+  if (canElevateSandbox()) return true;
   const p = plan || "free";
   const lojistaPlus = new Set(["lojista", "pro", "enterprise"]);
   const proPlus = new Set(["pro", "enterprise"]);
@@ -49,8 +52,14 @@ export function planHasFeature(plan: string | undefined, feature: string): boole
   return false;
 }
 
+/** Alias for plan gates that also honor sandbox elevation. */
+export function canAccessPlanFeature(plan: string | undefined, feature: string): boolean {
+  return planHasFeature(plan, feature);
+}
+
 /** Verifica se o lojista ainda pode criar listagens dentro do limite do plano. */
 export function canCreateListing(plan: string | undefined, currentCount: number): boolean {
+  if (canElevateSandbox()) return true;
   const def = SELLER_PLANS.find((item) => item.id === (plan || "free"));
   if (!def?.productLimit) return true;
   return currentCount < def.productLimit;

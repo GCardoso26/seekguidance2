@@ -10,7 +10,7 @@ export const ESCROW_DEADLINES = {
 
 export const ESCROW_STATUS_LABELS: Record<string, string> = {
   pending_payment: "Aguardando pagamento",
-  payment_received: "Pagamento em custódia",
+  payment_received: "Compra protegida (valor retido)",
   shipped: "Enviado",
   delivered: "Aguardando confirmação",
   disputed: "Em disputa",

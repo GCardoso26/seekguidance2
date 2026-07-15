@@ -14,5 +14,7 @@ export const FEATURES = {
 export type FeatureKey = keyof typeof FEATURES;
 
 export function isFeatureEnabled(key: FeatureKey): boolean {
+  const mode = (process.env.NEXT_PUBLIC_APP_MODE || "development").toLowerCase();
+  if (mode === "sandbox" || mode === "development") return true;
   return FEATURES[key];
 }

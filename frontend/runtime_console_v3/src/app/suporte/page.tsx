@@ -3,8 +3,7 @@
 import Link from "next/link";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import { Button } from "@/components/ui/button";
-
-const SUPPORT_EMAIL = "contato@judgetcg.com.br";
+import { brand } from "@/lib/brand";
 
 export default function SuportePage() {
   return (
@@ -15,17 +14,31 @@ export default function SuportePage() {
         </Link>
         <h1 className="mt-4 text-2xl font-bold">Suporte</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Estamos aqui para ajudar com cadastro de loja, verificação KYC (Stripe), pagamentos e painel do
-          vendedor.
+          Ajuda com compras, pedidos, frete, cadastro de loja, verificação e painel do vendedor.
         </p>
 
         <section className="mt-8 space-y-4 surface-card p-5">
-          <h2 className="font-semibold text-primary">Contato</h2>
+          <h2 className="font-semibold text-primary">Comprador</h2>
           <p className="text-sm text-muted-foreground">
-            Envie um e-mail com o assunto do problema e, se possível, o e-mail da sua conta Google.
+            Problemas com pedido, pagamento ou entrega? Envie o número do pedido (se tiver) e o e-mail
+            da conta.
           </p>
           <Button asChild className="w-full bg-primary text-primary-foreground">
-            <a href={`mailto:${SUPPORT_EMAIL}?subject=Suporte%20Judge%20TCG`}>{SUPPORT_EMAIL}</a>
+            <a href={`mailto:${brand.supportEmail}?subject=Suporte%20comprador%20Judge%20TCG`}>
+              {brand.supportEmail}
+            </a>
+          </Button>
+        </section>
+
+        <section className="mt-6 space-y-4 surface-card p-5">
+          <h2 className="font-semibold text-primary">Vendedor / loja</h2>
+          <p className="text-sm text-muted-foreground">
+            Cadastro de loja, verificação (Stripe) e painel.
+          </p>
+          <Button asChild variant="outline" className="w-full">
+            <a href={`mailto:${brand.supportEmail}?subject=Suporte%20vendedor%20Judge%20TCG`}>
+              Falar com o suporte da loja
+            </a>
           </Button>
         </section>
 

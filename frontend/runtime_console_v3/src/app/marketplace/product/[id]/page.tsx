@@ -38,7 +38,7 @@ export default function ProductDetailPage() {
     }
     if (result.needsLogin) {
       showToast("Faça login para comprar", "error");
-      window.location.href = `/login?next=${encodeURIComponent(`/marketplace/product/${product.id}`)}`;
+      window.location.href = `/entrar?next=${encodeURIComponent(`/marketplace/product/${product.id}`)}`;
       return;
     }
     showToast(result.message, "error");

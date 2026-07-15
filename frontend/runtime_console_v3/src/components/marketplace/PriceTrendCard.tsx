@@ -53,7 +53,7 @@ export function PriceTrendCard({ trend }: PriceTrendCardProps) {
           {trend.change7d.toFixed(1)}% (7d)
         </div>
         <Link href={href} className="mt-2 inline-block text-xs text-primary hover:underline">
-          Ver detalhes →
+          Ver oferta →
         </Link>
       </CardContent>
     </Card>

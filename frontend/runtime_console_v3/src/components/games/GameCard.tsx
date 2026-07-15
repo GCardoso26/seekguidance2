@@ -73,7 +73,7 @@ export function GameCard({
           {cardCount > 0 ? `${cardCount.toLocaleString("pt-BR")} cartas` : "Em sincronização"}
         </span>
         <span className="font-medium text-primary opacity-0 transition-opacity group-hover:opacity-100">
-          Explorar →
+          Ver cartas →
         </span>
       </div>
     </Link>

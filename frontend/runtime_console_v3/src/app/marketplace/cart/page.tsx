@@ -4,12 +4,13 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
-import { Sparkles } from "lucide-react";
+import { SlidersHorizontal } from "lucide-react";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import { SkipToMain } from "@/components/a11y/SkipToMain";
 import { CheckoutProgressBar } from "@/components/checkout/CheckoutProgressBar";
 import { SmartCartLineItem } from "@/components/cart/SmartCartLineItem";
 import { CartShippingQuotePanel } from "@/components/cart/CartShippingQuotePanel";
+import { TrustFooterStrip } from "@/components/layout/TrustFooterStrip";
 import { SmartCartSummary } from "@/components/cart/SmartCartSummary";
 import { PageHeader } from "@/components/seller-dashboard/PageShell";
 import { CpfCheckoutModal } from "@/components/kyc/CpfCheckoutModal";
@@ -28,7 +29,7 @@ const GOALS: { id: SmartCartGoal; label: string }[] = [
   { id: "best_value", label: "Custo-benefício" },
   { id: "lowest_price", label: "Menor preço" },
   { id: "fewest_stores", label: "Menos lojas" },
-  { id: "highest_reputation", label: "Maior confiança" },
+  { id: "highest_reputation", label: "Maior nota" },
   { id: "fastest_shipping", label: "Menor prazo" },
 ];
 
@@ -80,8 +81,8 @@ export default function SmartCartPage() {
 
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
           <PageHeader
-            title="Carrinho inteligente"
-            description="Otimize por preço, frete, lojas, prazo ou reputação — sem compras automáticas."
+            title="Carrinho"
+            description="Organize por preço, frete, lojas, prazo ou nota — sem compras automáticas."
           />
           <Button variant="ghost" size="sm" asChild className="shrink-0">
             <Link href="/loja">← Loja</Link>
@@ -92,7 +93,7 @@ export default function SmartCartPage() {
           <Card className="mb-6 border-border bg-card">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-base font-semibold">
-                <Sparkles className="h-4 w-4 text-primary" aria-hidden />
+                <SlidersHorizontal className="h-4 w-4 text-primary" aria-hidden />
                 Estratégia de compra
               </CardTitle>
             </CardHeader>
@@ -243,7 +244,7 @@ export default function SmartCartPage() {
                   router.push("/checkout");
                 }}
               >
-                Checkout
+                Finalizar compra
               </Button>
             </div>
             {smart?.hint && (
@@ -253,6 +254,7 @@ export default function SmartCartPage() {
         )}
 
         <CpfCheckoutModal open={cpfModal} onClose={() => setCpfModal(false)} />
+        <TrustFooterStrip />
       </div>
     </MobileLayout>
   );
