@@ -18,7 +18,7 @@ interface ConditionBadgeProps {
 }
 
 export function ConditionBadge({ condition, size = "sm", showTooltip = true }: ConditionBadgeProps) {
-  const config = CONDITION_CONFIG[condition];
+  const config = CONDITION_CONFIG[condition] ?? CONDITION_CONFIG.NM;
 
   return (
     <span

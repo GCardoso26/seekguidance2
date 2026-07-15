@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { ConditionBadge, type CardCondition } from "@/components/cards/ConditionBadge";
 import { formatCurrency } from "@/lib/format-currency";
 import { isListingPurchasable } from "@/lib/listing-utils";
+import { sellerInitial } from "@/lib/normalize-card-listing";
 import type { CardListing, CardMarketSummary, UnifiedCard } from "@/types/card";
 import { cn } from "@/lib/utils";
 
@@ -131,11 +132,11 @@ export function CardBuyPanel({
                 />
               ) : (
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
-                  {best.sellerName.charAt(0).toUpperCase()}
+                  {sellerInitial(best.sellerName)}
                 </div>
               )}
               <div className="min-w-0 flex-1">
-                <p className="truncate text-small font-semibold">{best.sellerName}</p>
+                <p className="truncate text-small font-semibold">{best.sellerName || "Loja"}</p>
                 <div className="flex flex-wrap items-center gap-2 mt-0.5">
                   <ConditionBadge condition={best.condition as CardCondition} size="sm" />
                   {best.foil && (

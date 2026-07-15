@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/data-table";
 import { formatCurrency } from "@/lib/format-currency";
 import { isListingPurchasable } from "@/lib/listing-utils";
+import { sellerInitial } from "@/lib/normalize-card-listing";
 import type { CardListing } from "@/types/card";
 import { cn } from "@/lib/utils";
 
@@ -42,7 +43,7 @@ export function SellerOffersTable({ listings, onBuy, buyingId }: SellerOffersTab
         comparison = (CONDITION_ORDER[a.condition] ?? 99) - (CONDITION_ORDER[b.condition] ?? 99);
         break;
       case "seller":
-        comparison = a.sellerName.localeCompare(b.sellerName);
+        comparison = (a.sellerName || "").localeCompare(b.sellerName || "");
         break;
       case "quantity":
         comparison = a.quantity - b.quantity;
@@ -108,13 +109,13 @@ export function SellerOffersTable({ listings, onBuy, buyingId }: SellerOffersTab
                     <img src={listing.sellerAvatar} alt="" className="h-8 w-8 rounded-full border border-border" />
                   ) : (
                     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
-                      {listing.sellerName.charAt(0)}
+                      {sellerInitial(listing.sellerName)}
                     </div>
                   )}
                   <div className="min-w-0">
-                    <p className="truncate text-small font-medium">{listing.sellerName}</p>
+                    <p className="truncate text-small font-medium">{listing.sellerName || "Loja"}</p>
                     <p className="text-caption text-muted-foreground">
-                      Trust {listing.sellerReputation.toFixed(1)}
+                      Trust {(listing.sellerReputation ?? 0).toFixed(1)}
                     </p>
                   </div>
                 </div>

@@ -370,18 +370,30 @@ async def get_card_detail(session: AsyncSession, card_id: str) -> dict[str, Any]
         projections = await adapter.project_listings_for_card(str(uid))
         for projection in projections:
             dto = await adapter.to_marketplace_dto(projection)
+            store = dto.get("store") or {}
+            store_name = str(store.get("name") or "Loja")
+            image_url = dto.get("image_url")
             listings.append(
                 {
                     "id": dto["listing_id"],
                     "cardId": dto["card_id"],
-                    "sellerId": dto["store"]["id"],
-                    "storeId": dto["store"]["id"],
-                    "storeName": dto["store"].get("name"),
+                    "sellerId": str(store.get("id") or ""),
+                    "storeId": str(store.get("id") or ""),
+                    "storeName": store_name,
+                    # FE CardListing contract (avatar initial uses sellerName.charAt)
+                    "sellerName": store_name,
+                    "sellerReputation": float(store.get("trust_score") or 4.5),
+                    "sellerAvatar": store.get("logo_url") or store.get("avatar_url"),
                     "price": round(int(dto["price_cents"]) / 100, 2),
-                    "condition": dto["condition"],
+                    "condition": str(dto.get("condition") or "NM"),
                     "currency": "BRL",
-                    "quantity": 1,
-                    "imageUrl": dto.get("image_url"),
+                    "quantity": int(dto.get("quantity") or dto.get("stock") or 1),
+                    "foil": bool(dto.get("foil")),
+                    "language": str(dto.get("language") or "pt"),
+                    "images": [str(image_url)] if image_url else [],
+                    "imageUrl": image_url,
+                    "productId": str(dto["listing_id"]),
+                    "createdAt": str(dto.get("created_at") or datetime.now(UTC).isoformat()),
                 }
             )
     except Exception:
