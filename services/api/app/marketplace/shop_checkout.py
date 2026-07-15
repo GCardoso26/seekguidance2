@@ -21,7 +21,7 @@ logger = structlog.get_logger(__name__)
 
 async def _load_cart_items(session: AsyncSession, user_id: str) -> tuple[dict[str, Any], list[dict[str, Any]]]:
     cart = await shop_cart.get_cart(session, user_id)
-    items = list(cart.get("items") or [])
+    items = shop_cart._parse_cart_items(cart.get("items"))
     if not items:
         raise HTTPException(400, "Carrinho vazio")
     return cart, items

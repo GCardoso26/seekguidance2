@@ -13,6 +13,8 @@ from uuid import UUID
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.marketplace.shop_store import STORE_SELLABLE_SQL
+
 
 @dataclass(frozen=True)
 class CatalogSnapshot:
@@ -121,7 +123,12 @@ class CatalogMarketplaceAdapter:
                     FROM tcg_judge.card_listings cl
                     JOIN tcg_judge.card_catalog cc ON cc.id = cl.card_id
                     JOIN tcg_judge.stores s ON s.id = cl.store_id
-                    WHERE cl.card_id = :cid AND cl.status = 'active'
+                    WHERE cl.card_id = :cid
+                      AND cl.status = 'active'
+                      AND cl.store_product_id IS NOT NULL
+                      AND """
+                    + STORE_SELLABLE_SQL.strip()
+                    + """
                     ORDER BY cl.price_cents ASC
                     LIMIT :lim
                     """

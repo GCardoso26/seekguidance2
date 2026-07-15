@@ -159,7 +159,7 @@ async def get_product(session: AsyncSession, product_id: str) -> dict[str, Any] 
     row = (
         await session.execute(
             text(
-                """
+                f"""
                 SELECT p.*,
                        s.name AS store_name,
                        s.slug AS store_slug,
@@ -167,7 +167,7 @@ async def get_product(session: AsyncSession, product_id: str) -> dict[str, Any] 
                        s.id AS store_id_ref
                 FROM tcg_judge.store_products p
                 JOIN tcg_judge.stores s ON s.id = p.store_id
-                WHERE p.id = :id AND p.is_active = true AND {STORE_SELLABLE_SQL.strip()}
+                WHERE p.id = CAST(:id AS uuid) AND p.is_active = true AND {STORE_SELLABLE_SQL.strip()}
                 """
             ),
             {"id": product_id},

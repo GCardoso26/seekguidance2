@@ -65,7 +65,9 @@ export async function addProductToCart(
     status: res.status,
     message:
       res.status === 404
-        ? "Produto indisponível para compra (oferta sem estoque vinculado)."
+        ? message.includes("Produto")
+          ? message
+          : "Produto indisponível para compra (oferta sem estoque vinculado)."
         : message,
     needsLogin: res.status === 401,
   };
