@@ -42,6 +42,10 @@ class ListingCatalogProjection:
     store_id: str
     store_name: str | None
     store_slug: str | None
+    store_product_id: str | None = None
+    quantity: int = 0
+    foil: bool = False
+    language: str | None = None
 
 
 class CatalogMarketplaceAdapter:
@@ -108,6 +112,10 @@ class CatalogMarketplaceAdapter:
                       cl.price_cents,
                       cl.condition,
                       cl.store_id,
+                      cl.store_product_id,
+                      cl.quantity,
+                      cl.foil,
+                      cl.language,
                       s.name AS store_name,
                       s.slug AS store_slug
                     FROM tcg_judge.card_listings cl
@@ -134,6 +142,10 @@ class CatalogMarketplaceAdapter:
                 store_id=str(r["store_id"]),
                 store_name=r.get("store_name"),
                 store_slug=r.get("store_slug"),
+                store_product_id=str(r["store_product_id"]) if r.get("store_product_id") else None,
+                quantity=int(r.get("quantity") or 0),
+                foil=bool(r.get("foil")),
+                language=r.get("language"),
             )
             for r in rows
         ]
@@ -148,6 +160,10 @@ class CatalogMarketplaceAdapter:
             "image_url": projection.image_url,
             "price_cents": projection.price_cents,
             "condition": projection.condition,
+            "store_product_id": projection.store_product_id,
+            "quantity": projection.quantity,
+            "foil": projection.foil,
+            "language": projection.language,
             "store": {
                 "id": projection.store_id,
                 "name": projection.store_name,

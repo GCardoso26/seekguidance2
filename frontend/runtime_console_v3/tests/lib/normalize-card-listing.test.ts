@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { normalizeCardListing, sellerInitial } from "@/lib/normalize-card-listing";
+import { getListingProductId, isListingPurchasable } from "@/lib/listing-utils";
 
 describe("normalizeCardListing", () => {
   it("mapeia storeName → sellerName quando a API omite sellerName", () => {
@@ -14,14 +15,26 @@ describe("normalizeCardListing", () => {
         condition: "NM",
         currency: "BRL",
         quantity: 1,
+        productId: "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee",
       },
       "2a887bdd-2cde-4c17-9a2d-9ac1106cf6ea",
     );
 
     expect(listing.sellerName).toBe("Lojinha 1");
     expect(listing.sellerReputation).toBe(4.5);
-    expect(listing.productId).toBe(listing.id);
+    expect(listing.productId).toBe("aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee");
     expect(sellerInitial(listing.sellerName)).toBe("L");
+  });
+
+  it("não promove listing.id a productId", () => {
+    const listing = normalizeCardListing({
+      id: "d11687ae-ca05-4ef0-8367-73fd765474f4",
+      quantity: 1,
+      price: 10,
+    });
+    expect(listing.productId).toBeUndefined();
+    expect(getListingProductId(listing)).toBeNull();
+    expect(isListingPurchasable(listing)).toBe(false);
   });
 
   it("sellerInitial tolera null/undefined", () => {

@@ -80,6 +80,7 @@ async def add_to_cart(
     if quantity < 1:
         raise HTTPException(400, "Quantidade inválida")
 
+    resolved_product_id = product_id
     product = (
         await session.execute(
             text(
@@ -90,9 +91,66 @@ async def add_to_cart(
                 WHERE p.id = :id AND p.is_active = true AND {STORE_SELLABLE_SQL.strip()}
                 """
             ),
-            {"id": product_id},
+            {"id": resolved_product_id},
         )
     ).mappings().first()
+
+    # Cliente às vezes envia card_listings.id; resolve para store_product_id.
+    if not product:
+        listing = (
+            await session.execute(
+                text(
+                    """
+                    SELECT store_product_id, store_id, card_id
+                    FROM tcg_judge.card_listings
+                    WHERE id = :id AND status = 'active'
+                    """
+                ),
+                {"id": product_id},
+            )
+        ).mappings().first()
+        if listing:
+            candidate_ids: list[str] = []
+            if listing.get("store_product_id"):
+                candidate_ids.append(str(listing["store_product_id"]))
+            else:
+                linked = (
+                    await session.execute(
+                        text(
+                            """
+                            SELECT id
+                            FROM tcg_judge.store_products
+                            WHERE store_id = :sid
+                              AND catalog_card_id = :cid
+                              AND is_active = true
+                            ORDER BY updated_at DESC NULLS LAST, created_at DESC
+                            LIMIT 1
+                            """
+                        ),
+                        {"sid": listing["store_id"], "cid": listing["card_id"]},
+                    )
+                ).mappings().first()
+                if linked:
+                    candidate_ids.append(str(linked["id"]))
+
+            for candidate in candidate_ids:
+                product = (
+                    await session.execute(
+                        text(
+                            f"""
+                            SELECT p.*, s.shop_enabled, s.pix_key, s.stripe_account_id, s.stripe_onboarding_complete
+                            FROM tcg_judge.store_products p
+                            JOIN tcg_judge.stores s ON s.id = p.store_id
+                            WHERE p.id = :id AND p.is_active = true AND {STORE_SELLABLE_SQL.strip()}
+                            """
+                        ),
+                        {"id": candidate},
+                    )
+                ).mappings().first()
+                if product:
+                    resolved_product_id = candidate
+                    break
+
     if not product:
         raise HTTPException(404, "Produto não encontrado")
     if int(product["stock"]) - int(product.get("reserved_stock") or 0) < quantity:
@@ -105,7 +163,7 @@ async def add_to_cart(
 
     found = False
     for item in items:
-        if item.get("product_id") == product_id:
+        if item.get("product_id") == resolved_product_id:
             new_qty = int(item.get("quantity", 0)) + quantity
             available = int(product["stock"]) - int(product.get("reserved_stock") or 0)
             if new_qty > available:
@@ -117,7 +175,7 @@ async def add_to_cart(
     if not found:
         items.append(
             {
-                "product_id": product_id,
+                "product_id": resolved_product_id,
                 "store_id": str(product["store_id"]),
                 "name": product["name"],
                 "image": image,

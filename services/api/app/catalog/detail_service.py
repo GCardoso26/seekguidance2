@@ -373,6 +373,7 @@ async def get_card_detail(session: AsyncSession, card_id: str) -> dict[str, Any]
             store = dto.get("store") or {}
             store_name = str(store.get("name") or "Loja")
             image_url = dto.get("image_url")
+            store_product_id = dto.get("store_product_id")
             listings.append(
                 {
                     "id": dto["listing_id"],
@@ -387,12 +388,13 @@ async def get_card_detail(session: AsyncSession, card_id: str) -> dict[str, Any]
                     "price": round(int(dto["price_cents"]) / 100, 2),
                     "condition": str(dto.get("condition") or "NM"),
                     "currency": "BRL",
-                    "quantity": int(dto.get("quantity") or dto.get("stock") or 1),
+                    "quantity": int(dto.get("quantity") or 0),
                     "foil": bool(dto.get("foil")),
                     "language": str(dto.get("language") or "pt"),
                     "images": [str(image_url)] if image_url else [],
                     "imageUrl": image_url,
-                    "productId": str(dto["listing_id"]),
+                    # Carrinho exige store_products.id — NÃO usar card_listings.id
+                    "productId": str(store_product_id) if store_product_id else None,
                     "createdAt": str(dto.get("created_at") or datetime.now(UTC).isoformat()),
                 }
             )

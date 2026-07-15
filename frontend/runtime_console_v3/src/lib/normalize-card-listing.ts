@@ -6,7 +6,16 @@ type ListingLike = Partial<CardListing> & {
   seller_name?: string | null;
   storeId?: string | null;
   imageUrl?: string | null;
+  product_id?: string | null;
+  store_product_id?: string | null;
 };
+
+function pickProductId(raw: ListingLike): string | undefined {
+  for (const value of [raw.productId, raw.product_id, raw.store_product_id]) {
+    if (typeof value === "string" && value.trim()) return value.trim();
+  }
+  return undefined;
+}
 
 /** Normaliza listagens do card detail (adapter pode enviar storeName sem sellerName). */
 export function normalizeCardListing(raw: ListingLike, cardId?: string): CardListing {
@@ -20,6 +29,7 @@ export function normalizeCardListing(raw: ListingLike, cardId?: string): CardLis
   const id = String(raw.id ?? "");
   const images =
     raw.images?.length ? raw.images : raw.imageUrl ? [String(raw.imageUrl)] : undefined;
+  const productId = pickProductId(raw);
 
   return {
     id,
@@ -37,7 +47,8 @@ export function normalizeCardListing(raw: ListingLike, cardId?: string): CardLis
     description: raw.description,
     images,
     createdAt: raw.createdAt || new Date(0).toISOString(),
-    productId: raw.productId ?? (id || undefined),
+    // Nunca promover listing.id a productId — cart exige store_products.id
+    productId,
     storeId: raw.storeId ?? undefined,
     cardName: raw.cardName,
     setName: raw.setName,

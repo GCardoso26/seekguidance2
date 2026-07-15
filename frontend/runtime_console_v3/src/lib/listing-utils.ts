@@ -1,12 +1,13 @@
 import type { CardListing } from "@/types/card";
 
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-
-/** ID do produto no marketplace shop (store_products). */
+/**
+ * ID do produto no marketplace shop (`store_products`).
+ * Não usa `listing.id` como fallback — UUID de `card_listings` não é válido no carrinho.
+ */
 export function getListingProductId(listing: CardListing): string | null {
-  if (listing.productId) return listing.productId;
-  if (listing.id.startsWith("market-")) return null;
-  if (UUID_RE.test(listing.id)) return listing.id;
+  if (listing.productId && listing.productId.trim()) {
+    return listing.productId.trim();
+  }
   return null;
 }
 

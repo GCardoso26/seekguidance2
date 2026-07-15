@@ -30,8 +30,12 @@ describe("listing-utils", () => {
     expect(isListingPurchasable({ ...BASE, id: "market-NM-0-scryfall" })).toBe(false);
   });
 
-  it("aceita UUID como product_id fallback", () => {
-    expect(isListingPurchasable(BASE)).toBe(true);
+  it("exige productId explícito (não usa listing.id)", () => {
+    expect(getListingProductId(BASE)).toBeNull();
+    expect(isListingPurchasable(BASE)).toBe(false);
+    expect(isListingPurchasable({ ...BASE, productId: "550e8400-e29b-41d4-a716-446655440000" })).toBe(
+      true,
+    );
   });
 });
 
