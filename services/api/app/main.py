@@ -17,7 +17,6 @@ from app.api.v1.judge_assistant import router as judge_assistant_router
 from app.api.v1.judge_calls_api import router as judge_calls_router
 from app.api.v1.judge_product import router as judge_product_router
 from app.api.v1.kyc_api import router as kyc_api_router
-from app.identity_platform.api import router as identity_platform_router
 from app.api.v1.leagues_api import router as leagues_api_router
 from app.api.v1.marketplace_api import router as marketplace_api_router
 from app.api.v1.marketplace_sellers_api import router as marketplace_sellers_api_router
@@ -55,6 +54,9 @@ from app.core.security.middleware import (
     safe_exception_middleware,
     security_headers_middleware,
 )
+from app.financial_platform.api import router as financial_platform_router
+from app.identity_platform.api import router as identity_platform_router
+from app.tournament_platform.api import router as tournament_platform_router
 
 init_sentry()
 configure_logging()
@@ -279,6 +281,8 @@ app.include_router(runtime_deployments_router)
 # KYC antes de runtime_judge: /runtime/judge/{game_slug}/status capturava game_slug=account.
 app.include_router(kyc_api_router)
 app.include_router(identity_platform_router)
+app.include_router(tournament_platform_router)
+app.include_router(financial_platform_router)
 app.include_router(runtime_judge_router)
 app.include_router(judge_product_router)
 app.include_router(judge_assistant_router)
