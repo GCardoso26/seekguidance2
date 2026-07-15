@@ -115,7 +115,7 @@ export function SellerOffersTable({ listings, onBuy, buyingId }: SellerOffersTab
                   <div className="min-w-0">
                     <p className="truncate text-small font-medium">{listing.sellerName || "Loja"}</p>
                     <p className="text-caption text-muted-foreground">
-                      Trust {(listing.sellerReputation ?? 0).toFixed(1)}
+                      Nota {(listing.sellerReputation ?? 0).toFixed(1)}
                     </p>
                   </div>
                 </div>

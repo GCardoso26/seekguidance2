@@ -51,7 +51,7 @@ export function SmartCartSummary({ summary, className }: Props) {
           <p className="text-small font-semibold">
             {summary.store_count} · ~{summary.estimated_sla_days}d
           </p>
-          <p className="text-caption text-muted-foreground">Trust médio {summary.avg_trust}</p>
+          <p className="text-caption text-muted-foreground">Nota média {summary.avg_trust}</p>
         </div>
       </div>
     </div>

@@ -11,41 +11,39 @@ type Props = {
   gameCount: number;
 };
 
-/** Island client: busca + CTAs do hero (RSC renderiza o resto). */
+/** Hero loja — só fatos (BP 5.2 Trust Engineering). */
 export function MarketplaceHeroSearch({ totalCards, gameCount }: Props) {
   return (
-    <section className="relative overflow-hidden border-b border-border bg-gradient-to-b from-primary/5 to-background pb-12 pt-8">
+    <section className="border-b border-border bg-background pb-10 pt-8">
       <div className="container mx-auto px-4 text-center">
-        <p className="text-overline text-primary mb-2">Marketplace · 0% comissão · PIX direto</p>
-        <h1 className="text-display-l font-bold tracking-tight text-foreground" data-testid="hero-title">
-          O maior marketplace de TCGs do Brasil
+        <h1 className="text-display-l font-semibold tracking-tight text-foreground" data-testid="hero-title">
+          Cartas de Pokémon, Magic, Lorcana e outros jogos, vendidas por lojas especializadas
         </h1>
         <p className="mx-auto mt-4 max-w-2xl text-body-lg text-muted-foreground">
-          Magic, Pokémon, Yu-Gi-Oh!, Lorcana, Riftbound, Vanguard e mais. Compre, venda e monte decks com
-          segurança.
+          Compare preços e condições, veja quem vende e finalize no carrinho com PIX ou cartão.
         </p>
 
         <div className="mx-auto mt-8 max-w-2xl">
-          <GlobalSearchBar placeholder="Cartas, lojas, decks..." />
+          <GlobalSearchBar placeholder="Buscar carta ou loja…" />
         </div>
 
-        <div className="mt-6 flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
-          <span>{formatCountStable(totalCards)}+ cartas</span>
+        <div className="mt-6 flex flex-wrap justify-center gap-6 text-small text-muted-foreground">
+          <span>{formatCountStable(totalCards)} cartas no catálogo</span>
           <span>{gameCount} jogos</span>
-          <span>Compra garantida</span>
+          <span>CEP na página do produto; frete oficial no carrinho</span>
         </div>
 
         <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <Button size="lg" asChild className="bg-primary text-primary-foreground hover:bg-primary/90">
+          <Button size="lg" asChild className="min-h-12 bg-primary text-primary-foreground">
             <Link href="/loja/busca">
-              <ShoppingBag className="mr-2 h-5 w-5" />
-              Explorar cartas
+              <ShoppingBag className="mr-2 h-5 w-5" aria-hidden />
+              Ver ofertas
             </Link>
           </Button>
-          <Button size="lg" variant="outline" asChild className="border-primary/30">
+          <Button size="lg" variant="outline" asChild className="min-h-12">
             <Link href="/decks/novo">
-              <Layers className="mr-2 h-5 w-5" />
-              Montar deck
+              <Layers className="mr-2 h-5 w-5" aria-hidden />
+              Montar baralho
             </Link>
           </Button>
         </div>

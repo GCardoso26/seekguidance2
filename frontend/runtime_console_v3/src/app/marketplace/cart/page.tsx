@@ -9,6 +9,7 @@ import { MobileLayout } from "@/components/layout/MobileLayout";
 import { SkipToMain } from "@/components/a11y/SkipToMain";
 import { CheckoutProgressBar } from "@/components/checkout/CheckoutProgressBar";
 import { SmartCartLineItem } from "@/components/cart/SmartCartLineItem";
+import { CartShippingQuotePanel } from "@/components/cart/CartShippingQuotePanel";
 import { SmartCartSummary } from "@/components/cart/SmartCartSummary";
 import { PageHeader } from "@/components/seller-dashboard/PageShell";
 import { CpfCheckoutModal } from "@/components/kyc/CpfCheckoutModal";
@@ -131,6 +132,14 @@ export default function SmartCartPage() {
 
         {smart?.summary && items.length > 0 && <SmartCartSummary summary={smart.summary} className="mb-6" />}
 
+        {items.length > 0 && (
+          <Card className="mb-6 border-border bg-card">
+            <CardContent className="pt-6">
+              <CartShippingQuotePanel />
+            </CardContent>
+          </Card>
+        )}
+
         {loading && (
           <div className="space-y-3">
             {[1, 2, 3].map((i) => (
@@ -164,7 +173,7 @@ export default function SmartCartPage() {
                     </CardTitle>
                     {"trust_score" in group && typeof group.trust_score === "number" && (
                       <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
-                        Trust {Math.round(group.trust_score)}
+                        Nota {Math.round(group.trust_score)}
                       </span>
                     )}
                   </div>

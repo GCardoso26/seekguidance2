@@ -5,7 +5,9 @@ import dynamic from "next/dynamic";
 import * as Dialog from "@radix-ui/react-dialog";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { AlertCircle, X } from "lucide-react";
+import { entrarPath } from "@/lib/auth/entrar-path";
 import { CardActions } from "@/components/cards/CardActions";
 import { AddToCollectionButton } from "@/components/cards/AddToCollectionButton";
 import { AnnounceCardCta } from "@/components/cards/AnnounceCardCta";
@@ -67,6 +69,7 @@ interface CardDetailPageProps {
 }
 
 export function CardDetailPage({ cardId }: CardDetailPageProps) {
+  const router = useRouter();
   const { data, isLoading, error } = useCardDetail(cardId);
   const { track } = useAnalytics();
   const addToCart = useAddListingToCart();
@@ -100,8 +103,18 @@ export function CardDetailPage({ cardId }: CardDetailPageProps) {
     addToCart.mutate(
       { listing, card: data.card },
       {
-        onSuccess: () => track("card_add_to_cart", { card_id: data.card.id, listing_id: listing.id }),
-        onError: (err) => setBuyError(err instanceof Error ? err.message : "Erro ao adicionar"),
+        onSuccess: () => {
+          track("card_add_to_cart", { card_id: data.card.id, listing_id: listing.id });
+          router.push("/carrinho");
+        },
+        onError: (err) => {
+          const msg = err instanceof Error ? err.message : "Erro ao adicionar";
+          if (msg === "login_required" || /401|não autenticado|login/i.test(msg)) {
+            router.push(entrarPath(`/loja/cartas/${data.card.id}`));
+            return;
+          }
+          setBuyError(msg);
+        },
       },
     );
   };
@@ -193,7 +206,6 @@ export function CardDetailPage({ cardId }: CardDetailPageProps) {
                   listings={listings}
                   marketSummary={marketSummary}
                   onBuy={handleBuy}
-                  onAddToCart={handleBuy}
                   buying={addToCart.isPending}
                 />
 

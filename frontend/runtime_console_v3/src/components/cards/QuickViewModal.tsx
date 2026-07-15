@@ -139,7 +139,7 @@ export function QuickViewModal({ cardId, isOpen, onClose }: QuickViewModalProps)
                           <span className="truncate text-sm">{listing.sellerName}</span>
                           {listing.sellerReputation > 0 && (
                             <span className="text-xs text-muted-foreground">
-                              ⭐ {listing.sellerReputation.toFixed(1)}
+                              Nota {listing.sellerReputation.toFixed(1)}
                             </span>
                           )}
                         </div>

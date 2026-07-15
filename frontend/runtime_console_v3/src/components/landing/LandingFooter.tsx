@@ -30,8 +30,10 @@ const FOOTER_COLUMNS = [
   {
     title: "Legal",
     links: [
+      { href: "/termos", label: "Termos" },
       { href: "/privacidade", label: "Privacidade" },
-      { href: "/privacidade", label: "Termos" },
+      { href: "/politicas/compra", label: "Compra" },
+      { href: "/politicas/reembolso", label: "Reembolso" },
     ],
   },
 ] as const;

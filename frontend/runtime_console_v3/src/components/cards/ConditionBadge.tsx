@@ -4,11 +4,11 @@ export const CONDITION_CONFIG: Record<
   CardCondition,
   { label: string; fullLabel: string; color: string }
 > = {
-  NM: { label: "NM", fullLabel: "Near Mint", color: "#22C55E" },
-  LP: { label: "LP", fullLabel: "Lightly Played", color: "#3B82F6" },
-  MP: { label: "MP", fullLabel: "Moderately Played", color: "#EAB308" },
-  HP: { label: "HP", fullLabel: "Heavily Played", color: "#F97316" },
-  DM: { label: "DM", fullLabel: "Damaged", color: "#EF4444" },
+  NM: { label: "Quase nova", fullLabel: "Quase nova (NM)", color: "#22C55E" },
+  LP: { label: "Pouco usada", fullLabel: "Pouco usada (LP)", color: "#3B82F6" },
+  MP: { label: "Usada", fullLabel: "Usada (MP)", color: "#EAB308" },
+  HP: { label: "Muito usada", fullLabel: "Muito usada (HP)", color: "#F97316" },
+  DM: { label: "Danificada", fullLabel: "Danificada (DM)", color: "#EF4444" },
 };
 
 interface ConditionBadgeProps {
