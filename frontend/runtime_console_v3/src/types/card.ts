@@ -211,6 +211,12 @@ export interface CatalogSearchResponse {
   page: number;
   totalPages: number;
   hasMore: boolean;
+  /** Soft-degrade from BFF when upstream is down/rate-limited. */
+  degraded?: boolean;
+  error?: string;
+  upstream_status?: number;
+  message?: string;
+  retryAfter?: number;
 }
 
 export type CatalogHealthStatus = "ready_for_marketplace" | "loading" | "unavailable";

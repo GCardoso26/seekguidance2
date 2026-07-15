@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { useJudgeAuth } from "@/features/auth/AuthProvider";
 import { Button } from "@/components/ui/button";
+import { InlineAlert } from "@/components/ui/async-state";
 import { normalizeInternalPath } from "@/lib/auth/safe-path";
 import { formatCpfMask, isValidCpf } from "@/lib/kyc/cpf";
 import {
@@ -18,18 +19,25 @@ function CompletarPerfilForm() {
   const searchParams = useSearchParams();
   const afterPath = normalizeInternalPath(searchParams.get("next") ?? "/onboarding", "/onboarding");
   const { user, session, loading } = useJudgeAuth();
-  const { data: accountStatus, isLoading: statusLoading, isFetched } = useAccountStatus();
+  const {
+    data: accountStatus,
+    isLoading: statusLoading,
+    isFetched,
+    isError: statusError,
+    isFetching: statusFetching,
+    refetch: refetchStatus,
+  } = useAccountStatus();
   const [cpf, setCpf] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [cpfDuplicate, setCpfDuplicate] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (loading || !user || statusLoading || !isFetched) return;
+    if (loading || !user || statusLoading || !isFetched || statusError) return;
     if (isAccountDocumentActive(accountStatus)) {
       router.replace(afterPath);
     }
-  }, [loading, user, statusLoading, isFetched, accountStatus, afterPath, router]);
+  }, [loading, user, statusLoading, isFetched, statusError, accountStatus, afterPath, router]);
 
   if (!loading && !user) {
     return (
@@ -42,12 +50,19 @@ function CompletarPerfilForm() {
     );
   }
 
-  if (loading || statusLoading || (isFetched && isAccountDocumentActive(accountStatus))) {
+  // Only block on auth or a healthy "already active" redirect — never hang on KYC errors.
+  if (loading || (statusLoading && !statusError)) {
     return (
       <main className="mx-auto max-w-md p-8 text-center text-muted-foreground" aria-busy="true">
-        {isFetched && isAccountDocumentActive(accountStatus)
-          ? "Documento já validado. Redirecionando…"
-          : "Carregando…"}
+        Carregando…
+      </main>
+    );
+  }
+
+  if (isFetched && !statusError && isAccountDocumentActive(accountStatus)) {
+    return (
+      <main className="mx-auto max-w-md p-8 text-center text-muted-foreground" aria-busy="true">
+        Documento já validado. Redirecionando…
       </main>
     );
   }
@@ -78,6 +93,7 @@ function CompletarPerfilForm() {
         account_status?: string;
       };
       if (res.ok) {
+        await refetchStatus();
         router.replace(afterPath);
         return;
       }
@@ -110,8 +126,14 @@ function CompletarPerfilForm() {
     }
   }
 
-  if (!needsCpfCompletion(accountStatus) && isFetched) {
-    return null;
+  // Fail-open: show CPF form when status is unknown/error or when CPF is required.
+  const showForm = statusError || !isFetched || needsCpfCompletion(accountStatus);
+  if (!showForm) {
+    return (
+      <main className="mx-auto max-w-md p-8 text-center text-muted-foreground" aria-busy="true">
+        Redirecionando…
+      </main>
+    );
   }
 
   return (
@@ -125,6 +147,19 @@ function CompletarPerfilForm() {
       <p className="mt-1 text-xs text-muted-foreground">
         Se o documento for inválido, será necessário informá-lo novamente.
       </p>
+
+      {statusError ? (
+        <div className="mt-4">
+          <InlineAlert
+            message={
+              statusFetching
+                ? "Reconectando ao status da conta…"
+                : "Não foi possível verificar o status da conta. Você ainda pode informar o CPF."
+            }
+            onRetry={!statusFetching ? () => void refetchStatus() : undefined}
+          />
+        </div>
+      ) : null}
 
       <form onSubmit={(e) => void handleSubmit(e)} className="mt-6 space-y-4">
         <div>

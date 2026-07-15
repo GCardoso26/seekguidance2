@@ -1,0 +1,1001 @@
+{
+  "started": "2026-07-15T20:36:23.316Z",
+  "ended": "2026-07-15T20:41:07.740Z",
+  "base": "http://localhost:3000",
+  "counts": {
+    "PASS": 53,
+    "FAIL": 2,
+    "WARN": 7,
+    "BLOCKED": 2
+  },
+  "results": [
+    {
+      "id": "API-_api_health",
+      "module": "APIs",
+      "persona": "system",
+      "steps": [
+        "GET /api/health"
+      ],
+      "status": "PASS",
+      "error": "HTTP 200 {\"timestamp\":\"2026-07-15T20:36:27.249Z\",\"status\":\"ok\",\"version\":\"dev\",\"checks\":{\"database\":{\"status\":\"ok\",\"latency\":629,\"error\":\"supabase_direct_failed:database error; using_api_he"
+    },
+    {
+      "id": "API-_api_catalog_health",
+      "module": "APIs",
+      "persona": "system",
+      "steps": [
+        "GET /api/catalog/health"
+      ],
+      "status": "PASS",
+      "error": "HTTP 200 {\"total_cards\":131526,\"by_game\":{\"MTG\":27298},\"missing_images\":[],\"missing_prices\":[],\"last_sync\":{},\"ready_for_marketplace\":true,\"status\":\"ready_for_marketplace\",\"lite\":true,\"meil"
+    },
+    {
+      "id": "API-_api_catalog_sets",
+      "module": "APIs",
+      "persona": "system",
+      "steps": [
+        "GET /api/catalog/sets"
+      ],
+      "status": "PASS",
+      "error": "HTTP 200 {\"sets\":[],\"degraded\":true}"
+    },
+    {
+      "id": "API-_api_catalog_cards_search_q_bolt",
+      "module": "APIs",
+      "persona": "system",
+      "steps": [
+        "GET /api/catalog/cards/search?q=bolt"
+      ],
+      "status": "PASS",
+      "error": "HTTP 200 {\"error\":\"catalog_search_unavailable\",\"cards\":[],\"total\":0,\"page\":1,\"totalPages\":0,\"hasMore\":false,\"source\":\"postgres\",\"degraded\":true}"
+    },
+    {
+      "id": "API-_api_sandbox_status",
+      "module": "APIs",
+      "persona": "system",
+      "steps": [
+        "GET /api/sandbox/status"
+      ],
+      "status": "PASS",
+      "error": "HTTP 200 {\"game_slug\":\"sandbox\",\"rag_ready\":false,\"ingestion_job_pending\":false,\"chunk_count\":0}"
+    },
+    {
+      "id": "API-_api_analytics_track",
+      "module": "APIs",
+      "persona": "system",
+      "steps": [
+        "POST /api/analytics/track"
+      ],
+      "status": "PASS",
+      "error": "HTTP 200 {\"ok\":false,\"detail\":\"Invalid events array\",\"lost\":-1,\"persisted\":0,\"dead_lettered\":0}"
+    },
+    {
+      "id": "G-HOME",
+      "module": "Guest / Rotas públicas",
+      "persona": "guest",
+      "steps": [
+        "GET /",
+        "Aguardar DOM",
+        "Validar texto/status"
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "G-LOJA",
+      "module": "Guest / Rotas públicas",
+      "persona": "guest",
+      "steps": [
+        "GET /loja",
+        "Aguardar DOM",
+        "Validar texto/status"
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "G-LOJA-MTG",
+      "module": "Guest / Rotas públicas",
+      "persona": "guest",
+      "steps": [
+        "GET /loja/mtg",
+        "Aguardar DOM",
+        "Validar texto/status"
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "G-BUSCA",
+      "module": "Guest / Rotas públicas",
+      "persona": "guest",
+      "steps": [
+        "GET /loja/busca",
+        "Aguardar DOM",
+        "Validar texto/status"
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "G-BUSCA-Q",
+      "module": "Guest / Rotas públicas",
+      "persona": "guest",
+      "steps": [
+        "GET /loja/busca?q=Lightning",
+        "Aguardar DOM",
+        "Validar texto/status"
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "G-BUSCA-XSS",
+      "module": "Guest / Rotas públicas",
+      "persona": "guest",
+      "steps": [
+        "GET /loja/busca?q=%3Cscript%3Ealert(1)%3C%2Fscript%3E",
+        "Aguardar DOM",
+        "Validar texto/status"
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "G-CART",
+      "module": "Guest / Rotas públicas",
+      "persona": "guest",
+      "steps": [
+        "GET /carrinho",
+        "Aguardar DOM",
+        "Validar texto/status"
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "G-MCART",
+      "module": "Guest / Rotas públicas",
+      "persona": "guest",
+      "steps": [
+        "GET /marketplace/cart",
+        "Aguardar DOM",
+        "Validar texto/status"
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "G-CO",
+      "module": "Guest / Rotas públicas",
+      "persona": "guest",
+      "steps": [
+        "GET /checkout",
+        "Aguardar DOM",
+        "Validar texto/status"
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "G-BUYER",
+      "module": "Guest / Rotas públicas",
+      "persona": "guest",
+      "steps": [
+        "GET /comprador",
+        "Aguardar DOM",
+        "Validar texto/status"
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "G-DECKS",
+      "module": "Guest / Rotas públicas",
+      "persona": "guest",
+      "steps": [
+        "GET /decks",
+        "Aguardar DOM",
+        "Validar texto/status"
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "G-ENTRAR",
+      "module": "Guest / Rotas públicas",
+      "persona": "guest",
+      "steps": [
+        "GET /entrar",
+        "Aguardar DOM",
+        "Validar texto/status"
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "G-LOGIN-LEGACY",
+      "module": "Guest / Rotas públicas",
+      "persona": "guest",
+      "steps": [
+        "GET /login",
+        "Aguardar DOM",
+        "Validar texto/status",
+        "URL final: http://localhost:3000/login"
+      ],
+      "status": "WARN",
+      "severity": "P1",
+      "error": "/login ainda existe sem fluxo claro. Final=http://localhost:3000/login",
+      "evidence": "S:\\tcg-judge\\frontend\\runtime_console_v3\\test-results\\qa-sandbox\\G-LOGIN-LEGACY.png"
+    },
+    {
+      "id": "G-SELLER-GATE",
+      "module": "Guest / Rotas públicas",
+      "persona": "guest",
+      "steps": [
+        "GET /vendedor/painel",
+        "Aguardar DOM",
+        "Validar texto/status"
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "G-SUPORTE",
+      "module": "Guest / Rotas públicas",
+      "persona": "guest",
+      "steps": [
+        "GET /suporte",
+        "Aguardar DOM",
+        "Validar texto/status"
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "G-TERMOS",
+      "module": "Guest / Rotas públicas",
+      "persona": "guest",
+      "steps": [
+        "GET /termos",
+        "Aguardar DOM",
+        "Validar texto/status"
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "G-PRIV",
+      "module": "Guest / Rotas públicas",
+      "persona": "guest",
+      "steps": [
+        "GET /privacidade",
+        "Aguardar DOM",
+        "Validar texto/status"
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "G-POL-C",
+      "module": "Guest / Rotas públicas",
+      "persona": "guest",
+      "steps": [
+        "GET /politicas/compra",
+        "Aguardar DOM",
+        "Validar texto/status"
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "G-POL-X",
+      "module": "Guest / Rotas públicas",
+      "persona": "guest",
+      "steps": [
+        "GET /politicas/cancelamento",
+        "Aguardar DOM",
+        "Validar texto/status"
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "G-POL-R",
+      "module": "Guest / Rotas públicas",
+      "persona": "guest",
+      "steps": [
+        "GET /politicas/reembolso",
+        "Aguardar DOM",
+        "Validar texto/status"
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "G-POL-M",
+      "module": "Guest / Rotas públicas",
+      "persona": "guest",
+      "steps": [
+        "GET /politicas/marketplace",
+        "Aguardar DOM",
+        "Validar texto/status"
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "G-GAMES",
+      "module": "Guest / Rotas públicas",
+      "persona": "guest",
+      "steps": [
+        "GET /games",
+        "Aguardar DOM",
+        "Validar texto/status"
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "G-ALERTS",
+      "module": "Guest / Rotas públicas",
+      "persona": "guest",
+      "steps": [
+        "GET /alerts",
+        "Aguardar DOM",
+        "Validar texto/status"
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "G-NOTIF",
+      "module": "Guest / Rotas públicas",
+      "persona": "guest",
+      "steps": [
+        "GET /notifications",
+        "Aguardar DOM",
+        "Validar texto/status"
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "G-LB",
+      "module": "Guest / Rotas públicas",
+      "persona": "guest",
+      "steps": [
+        "GET /leaderboard",
+        "Aguardar DOM",
+        "Validar texto/status"
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "G-ADMIN",
+      "module": "Guest / Rotas públicas",
+      "persona": "guest",
+      "steps": [
+        "GET /admin/console",
+        "Aguardar DOM",
+        "Validar texto/status"
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "G-404",
+      "module": "Guest / Rotas públicas",
+      "persona": "guest",
+      "steps": [
+        "GET /rota-inexistente-qa-404",
+        "Aguardar DOM",
+        "Validar texto/status"
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "G-HOME-LINKS",
+      "module": "Guest / Links home",
+      "persona": "guest",
+      "steps": [
+        "Probe 24 links internos da home"
+      ],
+      "status": "PASS",
+      "error": "24 links <=499"
+    },
+    {
+      "id": "A-INVALID-FORM",
+      "module": "Auth",
+      "persona": "guest",
+      "steps": [
+        "Abrir /entrar",
+        "Submeter formulário vazio",
+        "Submeter email inválido",
+        "Submeter credenciais inexistentes"
+      ],
+      "status": "FAIL",
+      "severity": "P0",
+      "error": "Campos email/senha não encontrados em /entrar",
+      "evidence": "S:\\tcg-judge\\frontend\\runtime_console_v3\\test-results\\qa-sandbox\\A-INVALID-FORM.png"
+    },
+    {
+      "id": "A-SIGNUP-WEAK",
+      "module": "Auth / Cadastro",
+      "persona": "guest",
+      "steps": [
+        "Abrir /entrar (aba cadastro se houver)",
+        "Tentar senha fraca / emails inválidos"
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "B-SEARCH-RESULTS",
+      "module": "Buyer / Busca",
+      "persona": "guest",
+      "steps": [
+        "Buscar Lightning Bolt / Lightning",
+        "Resultados encontrados ou empty state"
+      ],
+      "status": "WARN",
+      "severity": "P2",
+      "error": "Sem links óbvios. Snippet=JUDGE TCG Loja Planos Entrar Faça login para continuar. Entrar JUDGE TCG Rulings com fonte. Torneios no horário. A mesa que juízes, jogadore"
+    },
+    {
+      "id": "B-PDP-PRICE-CTA",
+      "module": "Buyer / PDP",
+      "persona": "guest",
+      "steps": [
+        "Abrir /loja/busca?q=Black Lotus",
+        "Clicar primeiro resultado se houver",
+        "Inspecionar CTA compra / preço / trust"
+      ],
+      "status": "FAIL",
+      "severity": "P1",
+      "error": "Preço=false CTA=false URL=http://localhost:3000/completar-perfil?next=/perfil",
+      "evidence": "S:\\tcg-judge\\frontend\\runtime_console_v3\\test-results\\qa-sandbox\\B-PDP.png"
+    },
+    {
+      "id": "B-PDP-TRUST",
+      "module": "Buyer / PDP Trust",
+      "persona": "guest",
+      "steps": [
+        "Verificar CNPJ/legal/compra protegida na PDP se aplicável"
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "B-PDP-DEMO-SMELL",
+      "module": "Buyer / Percepção",
+      "persona": "guest",
+      "steps": [
+        "Procurar cheiro de demo/sandbox no hot path"
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "B-CART-GUEST",
+      "module": "Buyer / Carrinho",
+      "persona": "guest",
+      "steps": [
+        "Abrir /carrinho sem sessão",
+        "Observar empty vs auth gate"
+      ],
+      "status": "WARN",
+      "severity": "P2",
+      "error": "empty=false loginGate=false snippet=Pular para o conteúdo Judge TCG Jogos Loja SANDBOX Vender Ir para o conteúdo principal Carrinho Etapa atual Pagamento Confirmação Carrinho O",
+      "evidence": "S:\\tcg-judge\\frontend\\runtime_console_v3\\test-results\\qa-sandbox\\B-CART-GUEST.png"
+    },
+    {
+      "id": "B-CART-TRUST-FOOTER",
+      "module": "Buyer / Carrinho Trust",
+      "persona": "guest",
+      "steps": [
+        "Verificar TrustFooterStrip legal no carrinho"
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "B-CHECKOUT-GUEST",
+      "module": "Buyer / Checkout",
+      "persona": "guest",
+      "steps": [
+        "Abrir /checkout guest",
+        "Esperado: redirect/login ou empty guard"
+      ],
+      "status": "PASS",
+      "error": "URL=http://localhost:3000/checkout snippet=Pular para o conteúdo Judge TCG Entrar Ir para o conteúdo principal Voltar ao carrinho Finalizar compra Revise o resumo, escolha o pagamento",
+      "evidence": "S:\\tcg-judge\\frontend\\runtime_console_v3\\test-results\\qa-sandbox\\B-CHECKOUT-GUEST.png"
+    },
+    {
+      "id": "B-CEP-INVALID",
+      "module": "Buyer / Frete",
+      "persona": "guest",
+      "steps": [
+        "CEP field no checkout guest"
+      ],
+      "status": "BLOCKED",
+      "error": "Campo CEP não visível neste estado (esperado se gate de auth)"
+    },
+    {
+      "id": "B-AUTH-PERFIL",
+      "module": "Buyer autenticado",
+      "persona": "buyer",
+      "steps": [
+        "Login programático test-buyer",
+        "Abrir /perfil",
+        "Ver menu usuário"
+      ],
+      "status": "PASS",
+      "severity": "P1",
+      "error": "url=http://localhost:3000/perfil menu=1 snippet=Perfil Coleção Pedidos Seguidos Alertas Pular para o conteúdo Judge TCG Jogos Loja SANDBOX Vender T Test Buyer",
+      "evidence": "S:\\tcg-judge\\frontend\\runtime_console_v3\\test-results\\qa-sandbox\\B-AUTH-PERFIL.png"
+    },
+    {
+      "id": "B-AUTH-CART",
+      "module": "Buyer autenticado / Carrinho",
+      "persona": "buyer",
+      "steps": [
+        "Abrir carrinho autenticado",
+        "Não deve ser 401 silencioso sem UX"
+      ],
+      "status": "PASS",
+      "error": "Pular para o conteúdo Judge TCG Jogos Loja SANDBOX Vender Ir para o conteúdo principal Carrinho Etapa atual Pagamento Confirmação Carrinho Organize por preço, f",
+      "evidence": "S:\\tcg-judge\\frontend\\runtime_console_v3\\test-results\\qa-sandbox\\B-AUTH-CART.png"
+    },
+    {
+      "id": "B-AUTH-CHECKOUT",
+      "module": "Buyer autenticado / Checkout",
+      "persona": "buyer",
+      "steps": [
+        "Abrir checkout",
+        "Ver trust + estado carrinho vazio/com itens"
+      ],
+      "status": "PASS",
+      "error": "Pular para o conteúdo Judge TCG T Test Buyer Ir para o conteúdo principal Voltar ao carrinho Finalizar compra Revise o resumo, escolha o pagamento e confirme o "
+    },
+    {
+      "id": "B-AUTH-CHECKOUT-TRUST",
+      "module": "Buyer autenticado / Checkout Trust",
+      "persona": "buyer",
+      "steps": [
+        "CNPJ/policies no checkout"
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "B-HUB",
+      "module": "Buyer hub",
+      "persona": "buyer",
+      "steps": [
+        "Abrir /comprador"
+      ],
+      "status": "WARN",
+      "error": "JUDGE TCG Loja Planos Entrar Pular para o conteúdo Judge TCG Jogos Loja SANDBOX Vender JUDGE TCG Rulings com fonte. Torneios no horário. A m"
+    },
+    {
+      "id": "B-FINANCEIRO",
+      "module": "Buyer financeiro",
+      "persona": "buyer",
+      "steps": [
+        "Abrir /comprador/financeiro",
+        "Observar se parece pay-ready"
+      ],
+      "status": "WARN",
+      "severity": "P2",
+      "error": "Shell financeiro visitável. Snippet=JUDGE TCG Loja Planos Entrar Saldos da conta Valores abaixo, quando existirem, são créditos na plataforma. O pagamento de pedidos de cartas ",
+      "evidence": "S:\\tcg-judge\\frontend\\runtime_console_v3\\test-results\\qa-sandbox\\B-FINANCEIRO.png"
+    },
+    {
+      "id": "B-ADD-CART",
+      "module": "Buyer / Add to cart",
+      "persona": "buyer",
+      "steps": [
+        "Clicar adicionar na busca/listagem"
+      ],
+      "status": "PASS",
+      "error": "Botão clicado; validar carrinho a seguir"
+    },
+    {
+      "id": "B-ADD-CART-RESULT",
+      "module": "Buyer / Add to cart",
+      "persona": "buyer",
+      "steps": [
+        "Reabrir carrinho após add"
+      ],
+      "status": "WARN",
+      "severity": "P1",
+      "error": "Pular para o conteúdo Judge TCG Jogos Loja SANDBOX Vender Ir para o conteúdo principal Carrinho Etapa atual Pagamento Confirmação Carrinho Organize por preço, frete, lojas, prazo o",
+      "evidence": "S:\\tcg-judge\\frontend\\runtime_console_v3\\test-results\\qa-sandbox\\B-ADD-CART-RESULT.png"
+    },
+    {
+      "id": "S-PAINEL",
+      "module": "Seller",
+      "persona": "seller",
+      "steps": [
+        "Abrir /vendedor/painel",
+        "Validar conteúdo ou gate"
+      ],
+      "status": "PASS",
+      "error": "OK url=http://localhost:3000/vendedor/painel"
+    },
+    {
+      "id": "S-ESTOQUE",
+      "module": "Seller",
+      "persona": "seller",
+      "steps": [
+        "Abrir /vendedor/painel/estoque",
+        "Validar conteúdo ou gate"
+      ],
+      "status": "PASS",
+      "error": "OK url=http://localhost:3000/vendedor/painel/estoque"
+    },
+    {
+      "id": "S-LIST",
+      "module": "Seller",
+      "persona": "seller",
+      "steps": [
+        "Abrir /vendedor/painel/listagens",
+        "Validar conteúdo ou gate"
+      ],
+      "status": "WARN",
+      "severity": "P2",
+      "error": "Conteúdo fraco url=http://localhost:3000/vendedor/painel/listagens snip=Carregando painel…",
+      "evidence": "S:\\tcg-judge\\frontend\\runtime_console_v3\\test-results\\qa-sandbox\\S-LIST.png"
+    },
+    {
+      "id": "S-NOVA",
+      "module": "Seller",
+      "persona": "seller",
+      "steps": [
+        "Abrir /vendedor/painel/listagens/nova",
+        "Validar conteúdo ou gate"
+      ],
+      "status": "PASS",
+      "error": "OK url=http://localhost:3000/vendedor/painel/listagens/nova"
+    },
+    {
+      "id": "S-CSV",
+      "module": "Seller",
+      "persona": "seller",
+      "steps": [
+        "Abrir /vendedor/painel/estoque/importacao",
+        "Validar conteúdo ou gate"
+      ],
+      "status": "PASS",
+      "error": "OK url=http://localhost:3000/vendedor/painel/estoque/importacao"
+    },
+    {
+      "id": "S-FIN",
+      "module": "Seller",
+      "persona": "seller",
+      "steps": [
+        "Abrir /vendedor/painel/financeiro",
+        "Validar conteúdo ou gate"
+      ],
+      "status": "PASS",
+      "error": "OK url=http://localhost:3000/vendedor/painel/financeiro"
+    },
+    {
+      "id": "S-FIN-P",
+      "module": "Seller",
+      "persona": "seller",
+      "steps": [
+        "Abrir /vendedor/painel/financeiro-platform",
+        "Validar conteúdo ou gate"
+      ],
+      "status": "PASS",
+      "error": "OK url=http://localhost:3000/vendedor/painel/financeiro-platform"
+    },
+    {
+      "id": "S-EVT",
+      "module": "Seller",
+      "persona": "seller",
+      "steps": [
+        "Abrir /vendedor/painel/eventos",
+        "Validar conteúdo ou gate"
+      ],
+      "status": "PASS",
+      "error": "OK url=http://localhost:3000/vendedor/painel/eventos"
+    },
+    {
+      "id": "S-INS",
+      "module": "Seller",
+      "persona": "seller",
+      "steps": [
+        "Abrir /vendedor/painel/insights",
+        "Validar conteúdo ou gate"
+      ],
+      "status": "PASS",
+      "error": "OK url=http://localhost:3000/vendedor/painel/insights"
+    },
+    {
+      "id": "S-ADMIN-AS-SELLER",
+      "module": "Seller",
+      "persona": "seller",
+      "steps": [
+        "Abrir /admin/console",
+        "Validar conteúdo ou gate"
+      ],
+      "status": "PASS",
+      "error": "OK url=http://localhost:3000/login?next=%2Fadmin%2Fconsole"
+    },
+    {
+      "id": "S-NOVA-INVALID",
+      "module": "Seller / Cadastro produto",
+      "persona": "seller",
+      "steps": [
+        "Form nova listagem"
+      ],
+      "status": "BLOCKED",
+      "error": "Botão salvar/criar não encontrado — onboarding de loja pode estar incompleto",
+      "evidence": "S:\\tcg-judge\\frontend\\runtime_console_v3\\test-results\\qa-sandbox\\S-NOVA-INVALID.png"
+    },
+    {
+      "id": "SB-STATUS",
+      "module": "Sandbox platform",
+      "persona": "seller",
+      "steps": [
+        "GET /api/sandbox/status"
+      ],
+      "status": "PASS",
+      "error": "HTTP 429 body={\"detail\":\"Muitas consultas em pouco tempo. Aguarde um momento.\"}"
+    }
+  ],
+  "consoleBag": [
+    {
+      "url": "http://localhost:3000/",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/loja",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/loja/mtg",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/loja/busca",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/loja/busca?q=Lightning",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/loja/busca?q=%3Cscript%3Ealert(1)%3C%2Fscript%3E",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/carrinho",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/carrinho",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/checkout",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/comprador",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/decks",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/suporte",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/loja",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/perfil/alertas",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/notifications",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/comunidade/leaderboard",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/rota-inexistente-qa-404",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/loja/busca?q=Lightning+Bolt",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/carrinho",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/checkout",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/perfil",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/perfil",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/perfil",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "url": "http://localhost:3000/carrinho",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/checkout",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/checkout",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "url": "http://localhost:3000/comprador",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/comprador",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "url": "http://localhost:3000/comprador/financeiro",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "url": "http://localhost:3000/loja/busca?q=Bolt",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/loja/busca?q=Bolt",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "url": "http://localhost:3000/carrinho",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/vendedor/painel",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "url": "http://localhost:3000/vendedor/painel/estoque",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "url": "http://localhost:3000/vendedor/painel/listagens",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "url": "http://localhost:3000/vendedor/painel/listagens/nova",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "url": "http://localhost:3000/vendedor/painel/estoque/importacao",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "url": "http://localhost:3000/vendedor/painel/financeiro",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/vendedor/painel/financeiro",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "url": "http://localhost:3000/vendedor/painel/financeiro-platform",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "url": "http://localhost:3000/vendedor/painel/financeiro-platform",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "url": "http://localhost:3000/vendedor/painel/financeiro-platform",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "url": "http://localhost:3000/vendedor/painel/eventos",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "url": "http://localhost:3000/vendedor/painel/eventos",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "url": "http://localhost:3000/vendedor/painel/eventos",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "url": "http://localhost:3000/vendedor/painel/insights",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "url": "http://localhost:3000/vendedor/painel/insights",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "url": "http://localhost:3000/vendedor/painel/insights",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "url": "http://localhost:3000/login?next=%2Fadmin%2Fconsole",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "url": "http://localhost:3000/vendedor/painel/listagens/nova",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "url": "http://localhost:3000/vendedor/painel/listagens/nova",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "url": "http://localhost:3000/vendedor/painel/listagens/nova",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    }
+  ],
+  "networkBag": [
+    {
+      "url": "http://localhost:3000/perfil",
+      "entry": "500 POST http://localhost:3000/api/proxy/runtime/judge/growth/event"
+    },
+    {
+      "url": "http://localhost:3000/checkout",
+      "entry": "500 POST http://localhost:3000/api/proxy/runtime/judge/growth/event"
+    },
+    {
+      "url": "http://localhost:3000/comprador",
+      "entry": "500 POST http://localhost:3000/api/proxy/runtime/judge/growth/event"
+    },
+    {
+      "url": "http://localhost:3000/comprador/financeiro",
+      "entry": "500 POST http://localhost:3000/api/proxy/runtime/judge/growth/event"
+    },
+    {
+      "url": "http://localhost:3000/loja/busca?q=Bolt",
+      "entry": "500 POST http://localhost:3000/api/proxy/runtime/judge/growth/event"
+    },
+    {
+      "url": "http://localhost:3000/vendedor/painel",
+      "entry": "500 POST http://localhost:3000/api/proxy/runtime/judge/growth/event"
+    },
+    {
+      "url": "http://localhost:3000/vendedor/painel/estoque",
+      "entry": "500 POST http://localhost:3000/api/proxy/runtime/judge/growth/event"
+    },
+    {
+      "url": "http://localhost:3000/vendedor/painel/listagens",
+      "entry": "500 POST http://localhost:3000/api/proxy/runtime/judge/growth/event"
+    },
+    {
+      "url": "http://localhost:3000/vendedor/painel/listagens/nova",
+      "entry": "500 POST http://localhost:3000/api/proxy/runtime/judge/growth/event"
+    },
+    {
+      "url": "http://localhost:3000/vendedor/painel/estoque/importacao",
+      "entry": "500 POST http://localhost:3000/api/proxy/runtime/judge/growth/event"
+    },
+    {
+      "url": "http://localhost:3000/vendedor/painel/financeiro",
+      "entry": "500 POST http://localhost:3000/api/proxy/runtime/judge/growth/event"
+    },
+    {
+      "url": "http://localhost:3000/vendedor/painel/financeiro-platform",
+      "entry": "500 POST http://localhost:3000/api/proxy/runtime/judge/growth/event"
+    },
+    {
+      "url": "http://localhost:3000/vendedor/painel/eventos",
+      "entry": "500 POST http://localhost:3000/api/proxy/runtime/judge/growth/event"
+    },
+    {
+      "url": "http://localhost:3000/vendedor/painel/insights",
+      "entry": "500 POST http://localhost:3000/api/proxy/runtime/judge/growth/event"
+    },
+    {
+      "url": "http://localhost:3000/login?next=%2Fadmin%2Fconsole",
+      "entry": "500 POST http://localhost:3000/api/proxy/runtime/judge/growth/event"
+    },
+    {
+      "url": "http://localhost:3000/vendedor/painel/listagens/nova",
+      "entry": "500 POST http://localhost:3000/api/proxy/runtime/judge/growth/event"
+    }
+  ]
+}

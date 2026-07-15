@@ -35,7 +35,7 @@ function getRatelimiters(): Record<RateLimitTier, Ratelimit> {
       }),
       search: new Ratelimit({
         redis,
-        limiter: Ratelimit.slidingWindow(20, "1 m"),
+        limiter: Ratelimit.slidingWindow(60, "1 m"),
         analytics: true,
         prefix: "ratelimit:search",
       }),
@@ -53,7 +53,7 @@ function getRatelimiters(): Record<RateLimitTier, Ratelimit> {
 const TIER_LIMITS: Record<RateLimitTier, number> = {
   public: 30,
   authenticated: 100,
-  search: 20,
+  search: 60,
   checkout: 5,
 };
 

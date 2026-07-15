@@ -159,13 +159,13 @@ export default function VendedorPainelDashboardPage() {
 
 
 
-  if (isLoading || overviewLoading) {
+  if (isLoading) {
 
     return (
 
       <main className="flex flex-1 items-center justify-center p-8">
 
-        <InlineLoading message="Carregando painel…" />
+        <InlineLoading message="Carregando loja…" />
 
       </main>
 

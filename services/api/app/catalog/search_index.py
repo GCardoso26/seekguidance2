@@ -122,22 +122,32 @@ async def search_meili(
     *,
     game: str | None = None,
     limit: int = 20,
-) -> list[dict[str, Any]]:
+) -> list[dict[str, Any]] | None:
+    """
+    Returns:
+      - list of hits when Meili answered successfully (may be empty = no match)
+      - None when Meili is disabled/unavailable so callers can fall back to Postgres
+    """
     if not meili_enabled() or not query.strip():
-        return []
+        return None
     if not await meili_health_ok():
         logger.warning("meilisearch_unavailable_fallback_postgres")
-        return []
+        return None
     host = os.getenv("MEILI_HOST", "").rstrip("/")
     params: dict[str, Any] = {"q": query, "limit": limit}
     if game:
         params["filter"] = f'game = "{game.upper()}"'
-    async with httpx.AsyncClient(timeout=10.0) as client:
-        res = await client.post(
-            f"{host}/indexes/{INDEX_NAME}/search",
-            headers=_headers(),
-            json=params,
-        )
-        if not res.is_success:
-            return []
-        return list(res.json().get("hits") or [])
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            res = await client.post(
+                f"{host}/indexes/{INDEX_NAME}/search",
+                headers=_headers(),
+                json=params,
+            )
+            if not res.is_success:
+                logger.warning("meilisearch_search_failed", status=res.status_code)
+                return None
+            return list(res.json().get("hits") or [])
+    except Exception as exc:
+        logger.warning("meilisearch_search_error", error=str(exc))
+        return None

@@ -246,7 +246,9 @@ async def search_catalog_cards(
     meili_ids: list[str] | None = None
     if meili_enabled() and query:
         hits = await search_meili(query, game=game_code, limit=limit * 3)
-        meili_ids = [str(h.get("id")) for h in hits if h.get("id")]
+        # None = Meili down → Postgres ILIKE. [] = Meili ok, zero hits.
+        if hits is not None:
+            meili_ids = [str(h.get("id")) for h in hits if h.get("id")]
 
     rarities = _split_csv(rarity)
     conditions = _split_csv(condition)

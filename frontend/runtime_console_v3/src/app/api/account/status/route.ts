@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
-import { TOURNAMENT_API_BASE, tournamentProxyHeaders } from "@/lib/tournament-api";
+import { fetchApiResilient } from "@/lib/api-proxy-base";
+import { tournamentProxyHeaders } from "@/lib/tournament-api";
 
 export async function GET() {
   try {
-    const res = await fetch(`${TOURNAMENT_API_BASE}/runtime/judge/account/status`, {
-      headers: await tournamentProxyHeaders(),
+    const headers = await tournamentProxyHeaders();
+    const res = await fetchApiResilient("/runtime/judge/account/status", {
+      headers,
       cache: "no-store",
     });
     const text = await res.text();
@@ -18,7 +20,10 @@ export async function GET() {
         return NextResponse.json({ detail: "Resposta inválida da API" }, { status: 502 });
       }
     }
-    return new NextResponse(text, { status: res.status, headers: { "Content-Type": "application/json" } });
+    const outHeaders: Record<string, string> = { "Content-Type": "application/json" };
+    const retryAfter = res.headers.get("Retry-After");
+    if (retryAfter) outHeaders["Retry-After"] = retryAfter;
+    return new NextResponse(text, { status: res.status, headers: outHeaders });
   } catch {
     return NextResponse.json({ detail: "API indisponível" }, { status: 503 });
   }

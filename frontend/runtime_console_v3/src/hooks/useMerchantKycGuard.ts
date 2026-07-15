@@ -13,7 +13,7 @@ export function useMerchantKycGuard(enabled = true) {
   const onboardingMode = searchParams.get("onboarding");
   const skipForOnboardingReturn = isMerchantOnboardingReturn(onboardingMode);
 
-  const { data, isLoading } = useAccountStatus();
+  const { data, isLoading, isError, refetch } = useAccountStatus();
 
   const blocked = Boolean(data?.merchant && isMerchantKycBlocked(data.merchant));
 
@@ -24,7 +24,9 @@ export function useMerchantKycGuard(enabled = true) {
 
   return {
     isLoading,
+    isError,
     isBlocked: blocked,
     kycStatus: data?.merchant?.kyc_status,
+    refetch,
   };
 }

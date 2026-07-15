@@ -33,6 +33,7 @@ export function GlobalSearchBar({
   const [results, setResults] = useState<CatalogSearchResponse | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isDegraded, setIsDegraded] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const debouncedQuery = useDebounce(query, 200);
 
@@ -56,16 +57,26 @@ export function GlobalSearchBar({
 
   const searchCards = useCallback(async (q: string) => {
     setIsLoading(true);
+    setIsDegraded(false);
     try {
       const params = new URLSearchParams({ q, limit: "8" });
       if (defaultGame) params.set("game", defaultGame);
       const res = await fetch(`/api/catalog/cards/search?${params}`, { cache: "no-store" });
       if (res.ok) {
         const data = (await res.json()) as CatalogSearchResponse;
-        setResults(data);
+        if (data.degraded) {
+          setResults(null);
+          setIsDegraded(true);
+        } else {
+          setResults(data);
+        }
+      } else {
+        setResults(null);
+        setIsDegraded(true);
       }
     } catch {
       setResults(null);
+      setIsDegraded(true);
     } finally {
       setIsLoading(false);
     }
@@ -217,7 +228,13 @@ export function GlobalSearchBar({
             </div>
           )}
 
-          {!isLoading && cards.length === 0 && (
+          {!isLoading && isDegraded && (
+            <p className="p-4 text-center text-sm text-muted-foreground">
+              Catálogo temporariamente indisponível. Tente novamente.
+            </p>
+          )}
+
+          {!isLoading && !isDegraded && cards.length === 0 && (
             <p className="p-4 text-center text-sm text-muted-foreground">Nenhum resultado</p>
           )}
 

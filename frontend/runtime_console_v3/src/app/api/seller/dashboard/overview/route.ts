@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { TOURNAMENT_API_BASE, tournamentProxyHeaders } from "@/lib/tournament-api";
+import { fetchApiResilient } from "@/lib/api-proxy-base";
+import { tournamentProxyHeaders } from "@/lib/tournament-api";
 import { dashboardOverviewMock } from "@/lib/seller-dashboard-overview-mock";
 import { preferSellerCiMocks } from "@/lib/seller-ci-mock";
 
@@ -8,7 +9,7 @@ export async function GET() {
     return NextResponse.json(dashboardOverviewMock());
   }
   try {
-    const res = await fetch(`${TOURNAMENT_API_BASE}/runtime/judge/seller/dashboard/overview`, {
+    const res = await fetchApiResilient("/runtime/judge/seller/dashboard/overview", {
       headers: await tournamentProxyHeaders(),
       next: { revalidate: 60 },
     });

@@ -20,10 +20,32 @@ export type AccountStatusPayload = {
   } | null;
 };
 
+export class AccountStatusError extends Error {
+  status: number;
+  retryAfterMs?: number;
+
+  constructor(message: string, status: number, retryAfterMs?: number) {
+    super(message);
+    this.name = "AccountStatusError";
+    this.status = status;
+    this.retryAfterMs = retryAfterMs;
+  }
+}
+
 function isAccountStatusPayload(data: unknown): data is AccountStatusPayload {
   if (!data || typeof data !== "object") return false;
   const player = (data as AccountStatusPayload).player;
   return Boolean(player && typeof player === "object" && "can_purchase" in player);
+}
+
+function parseRetryAfterMs(res: Response): number | undefined {
+  const raw = res.headers.get("Retry-After");
+  if (!raw) return undefined;
+  const asInt = Number(raw);
+  if (Number.isFinite(asInt) && asInt >= 0) {
+    return Math.min(Math.max(asInt * 1000, 500), 15_000);
+  }
+  return undefined;
 }
 
 export function useAccountStatus(options?: { refetchInterval?: number }) {
@@ -31,13 +53,42 @@ export function useAccountStatus(options?: { refetchInterval?: number }) {
   return useQuery({
     queryKey: ["account-status", user?.id],
     queryFn: async () => {
-      const res = await fetch("/api/account/status");
-      if (!res.ok) throw new Error("status_failed");
-      const data: unknown = await res.json();
-      if (!isAccountStatusPayload(data)) throw new Error("status_invalid");
-      return data;
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8_000);
+      try {
+        const res = await fetch("/api/account/status", {
+          credentials: "include",
+          signal: controller.signal,
+          cache: "no-store",
+        });
+        if (!res.ok) {
+          throw new AccountStatusError(
+            res.status === 429 ? "rate_limited" : "status_failed",
+            res.status,
+            parseRetryAfterMs(res),
+          );
+        }
+        const data: unknown = await res.json();
+        if (!isAccountStatusPayload(data)) throw new Error("status_invalid");
+        return data;
+      } finally {
+        clearTimeout(timeoutId);
+      }
     },
     enabled: Boolean(user),
+    staleTime: 60_000,
+    refetchOnWindowFocus: false,
+    retry: (failureCount, error) => {
+      if (failureCount >= 3) return false;
+      if (error instanceof AccountStatusError && error.status === 401) return false;
+      return true;
+    },
+    retryDelay: (attempt, error) => {
+      if (error instanceof AccountStatusError && error.retryAfterMs) {
+        return error.retryAfterMs;
+      }
+      return Math.min(1_000 * 2 ** attempt, 8_000);
+    },
     refetchInterval: options?.refetchInterval,
   });
 }

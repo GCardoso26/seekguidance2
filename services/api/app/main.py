@@ -56,6 +56,7 @@ from app.core.security.middleware import (
 )
 from app.financial_platform.api import router as financial_platform_router
 from app.identity_platform.api import router as identity_platform_router
+from app.sandbox.api import router as sandbox_router
 from app.tournament_platform.api import router as tournament_platform_router
 
 init_sentry()
@@ -165,6 +166,16 @@ def _rate_limit_bucket(path: str, cfg) -> str | None:
 
         return "judge"
 
+    # Catalog search/sets/health: higher dedicated bucket (BFF egress shares one IP).
+    if path.startswith("/runtime/judge/catalog/"):
+
+        return "catalog_read"
+
+    # Account KYC status: per-user key, avoid starving search/painel under QA load.
+    if path.startswith("/runtime/judge/account/"):
+
+        return "account_read"
+
     if path.startswith("/runtime/judge/"):
 
         return "judge_read"
@@ -224,11 +235,32 @@ async def rate_limit_middleware(request: Request, call_next: Callable[[Request],
                 return build_rate_limit_response()
             return await call_next(request)
 
-        elif bucket == "judge_read":
+        elif bucket == "catalog_read":
 
-            limit = max(60, int(cfg.judge_rate_limit_requests_per_minute) * 4)
+            limit = max(240, int(cfg.judge_rate_limit_requests_per_minute) * 12)
 
             window = float(cfg.judge_rate_limit_window_seconds)
+
+            rl_key = client_key(request, trust_proxy=cfg.judge_trust_proxy_headers)
+
+        elif bucket == "account_read":
+
+            from app.core.rate_limit import judge_query_client_key
+
+            rl_key, _is_auth = judge_query_client_key(
+                request, trust_proxy=cfg.judge_trust_proxy_headers
+            )
+            limit = max(120, int(cfg.judge_rate_limit_requests_per_minute) * 6)
+
+            window = float(cfg.judge_rate_limit_window_seconds)
+
+        elif bucket == "judge_read":
+
+            limit = max(120, int(cfg.judge_rate_limit_requests_per_minute) * 6)
+
+            window = float(cfg.judge_rate_limit_window_seconds)
+
+            rl_key = client_key(request, trust_proxy=cfg.judge_trust_proxy_headers)
 
         elif bucket == "replay":
 
@@ -236,11 +268,15 @@ async def rate_limit_middleware(request: Request, call_next: Callable[[Request],
 
             window = float(cfg.judge_rate_limit_window_seconds)
 
+            rl_key = client_key(request, trust_proxy=cfg.judge_trust_proxy_headers)
+
         elif bucket == "auth_login":
 
             limit = 20
 
             window = 60.0
+
+            rl_key = client_key(request, trust_proxy=cfg.judge_trust_proxy_headers)
 
         else:
 
@@ -248,11 +284,13 @@ async def rate_limit_middleware(request: Request, call_next: Callable[[Request],
 
             window = float(cfg.api_rate_limit_window_seconds)
 
+            rl_key = client_key(request, trust_proxy=cfg.judge_trust_proxy_headers)
+
         if not allow_request(
 
             bucket,
 
-            client_key(request, trust_proxy=cfg.judge_trust_proxy_headers),
+            rl_key,
 
             limit=limit,
 
@@ -283,6 +321,7 @@ app.include_router(kyc_api_router)
 app.include_router(identity_platform_router)
 app.include_router(tournament_platform_router)
 app.include_router(financial_platform_router)
+app.include_router(sandbox_router)
 app.include_router(runtime_judge_router)
 app.include_router(judge_product_router)
 app.include_router(judge_assistant_router)

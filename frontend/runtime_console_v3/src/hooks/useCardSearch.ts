@@ -33,10 +33,26 @@ const fetchCardSearch = withPerformanceTracking(
   async (filters: SearchFilters, page: number): Promise<CatalogSearchResponse> => {
     const params = buildSearchParams(filters, page);
     const res = await fetchCatalogApi(`/api/catalog/cards/search?${params.toString()}`);
+    if (res.status === 429) {
+      const retryAfter = Number(res.headers.get("Retry-After") || "0");
+      const err = new Error("rate_limit_exceeded") as Error & { retryAfter?: number };
+      err.retryAfter = Number.isFinite(retryAfter) ? retryAfter : undefined;
+      throw err;
+    }
     if (!res.ok) {
       throw new Error("Falha ao buscar cartas");
     }
-    return res.json() as Promise<CatalogSearchResponse>;
+    const data = (await res.json()) as CatalogSearchResponse;
+    if (data.degraded) {
+      const err = new Error(data.error || "catalog_degraded") as Error & {
+        degraded?: boolean;
+        upstreamStatus?: number;
+      };
+      err.degraded = true;
+      err.upstreamStatus = data.upstream_status;
+      throw err;
+    }
+    return data;
   },
   "Meilisearch: Search cards",
 );

@@ -244,7 +244,7 @@ export function FacetedSearch({
               message={
                 isFetching
                   ? "Servidor iniciando — tentando reconectar ao catálogo…"
-                  : "Erro ao carregar cartas. O backend pode estar acordando (Render). Aguarde alguns segundos e tente novamente."
+                  : "Catálogo temporariamente indisponível. Tente novamente em instantes."
               }
               onRetry={!isFetching ? () => void refetch() : undefined}
             />
