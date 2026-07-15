@@ -34,3 +34,18 @@ Também houve **Vercel Deploy Hook** CI success no push (`29305641946`).
 | `GET https://judgetcg.com.br/loja` | **200** |
 | `GET https://judgetcg.com.br/logos/mtg.webp` | **200** (~2.3 KB) |
 | Assets WebP na `/loja` | **sim** (refs `.webp` no HTML) |
+
+## Gate de deploy (obrigatório)
+
+O workflow [`.github/workflows/vercel-deploy-hook.yml`](../../.github/workflows/vercel-deploy-hook.yml) só dispara production **depois** do job `frontend-quality` (lint, type-check, Vitest, `ds:audit`, build).
+
+### Checklist operacional (owner — GitHub UI)
+
+O workflow **não** cria branch protection. Configurar manualmente:
+
+1. GitHub → Settings → Branches → Branch protection rule em `main`
+2. Enable **Require status checks to pass before merging**
+3. Adicionar check requerido: **`frontend-quality`** (do workflow Vercel Deploy Hook e/ou Quality Gates)
+4. Não marcar checks de API/`ruff` como required para merge de PRs só-FE (path-filters já skipam jobs irrelevantes)
+
+Falhas de API **não** bloqueiam o deploy do frontend quando o push toca só `frontend/runtime_console_v3/**`.

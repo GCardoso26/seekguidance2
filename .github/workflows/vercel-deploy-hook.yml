@@ -1,7 +1,7 @@
 # Dispara deploy na Vercel sem depender do autor Git (evita bloqueio Co-authored-by Cursor no Hobby).
 #
-# Método preferido: Vercel CLI (envia o código do checkout, não usa autor do commit Git).
-# Fallback: Deploy Hook (pode ser cancelado se o commit tiver Co-authored-by: Cursor).
+# Production FE só sobe após frontend-quality verde (lint/typecheck/vitest/ds:audit/build).
+# Override: workflow_dispatch ainda passa pelo mesmo gate (override consciente = force-push/skip manual no Vercel UI).
 #
 # Secrets (GitHub → Settings → Secrets and variables → Actions):
 #   VERCEL_TOKEN          — Vercel → Account Settings → Tokens (recomendado)
@@ -22,7 +22,34 @@ env:
   VERCEL_PROJECT_ID: prj_7b8QzP5OPHfXKV4YbUT0a8sPn74p
 
 jobs:
+  frontend-quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      NODE_OPTIONS: --max-old-space-size=8192
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Install
+        run: npm ci
+      - name: ESLint
+        run: npm run lint --workspace=runtime-console-v3
+      - name: Type-check
+        run: npm run type-check --workspace=runtime-console-v3
+      - name: Vitest
+        run: npm run test --workspace=runtime-console-v3
+      - name: Design System audit
+        run: npm run ds:audit --workspace=runtime-console-v3
+      - name: Build
+        run: npm run build --workspace=runtime-console-v3
+
   deploy:
+    needs: [frontend-quality]
+    if: success()
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
