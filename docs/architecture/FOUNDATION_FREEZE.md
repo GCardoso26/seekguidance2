@@ -222,12 +222,15 @@ ListingUpdated  correlationId=C1  causationId=<PriceUpdated.id>
 
 ---
 
-## 10. Próximo incremento (quando autorizado)
+## 10. Incremento Outbox — entregue (`5afe8a9c`)
 
-1. Migration `outbox_events` + `consumer_offsets`  
-2. Envelope definitivo  
-3. `OutboxRepository` (insert-only) + lease claim  
-4. `EventPublisher` + `RedisPublisher`  
-5. Publisher worker (SKIP LOCKED + lease + dead)
+| Artefato | Caminho |
+|----------|---------|
+| Migration | `supabase/migrations/20260723130000_platform_outbox.sql` |
+| Envelope | `src/shared/events/types.ts` |
+| OutboxRepository (PG + memory) | `src/platform/outbox/` |
+| EventPublisher + Redis | `src/platform/event-publisher/` |
+| Publisher process | `npm run worker:outbox` |
+| Aceite (18 testes) | `src/platform/outbox/__tests__/outbox.acceptance.test.ts` |
 
-**Sem** Scryfall write · **sem** catalog repositories · **sem** card processors.
+**Próximo (quando autorizado):** TransactionManager → Repository ports — ainda sem Scryfall write.
