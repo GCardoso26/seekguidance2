@@ -1,0 +1,18 @@
+# Domain workers (Node) — mesmo repo/pipeline que a API Python.
+# Build context: monorepo root
+#   docker build -f services/api/Dockerfile.workers -t judgetcg-workers .
+FROM node:20-slim AS build
+WORKDIR /app
+COPY services/api/package.json services/api/package-lock.json* ./
+RUN npm install --omit=dev=false
+COPY services/api/tsconfig.json services/api/vitest.config.ts ./
+COPY services/api/src ./src
+RUN npm run build && npm prune --omit=dev
+
+FROM node:20-slim
+WORKDIR /app
+ENV NODE_ENV=production
+COPY --from=build /app/package.json ./
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/dist ./dist
+CMD ["node", "dist/workers/main.js"]

@@ -1,4 +1,4 @@
-# Imagem API produção — sem ingestão (só worker precisa) para build leve em EC2.
+# Imagem API produção (HTTP). Workers Node: ver Dockerfile.workers (mesmo repo/pipeline).
 FROM python:3.12-slim
 
 WORKDIR /app
