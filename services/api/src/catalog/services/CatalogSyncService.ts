@@ -86,7 +86,7 @@ export async function runCatalogSync(opts: {
               name: card.name,
               shadow: registered.mode === "SHADOW",
             },
-            { requestId: opts.requestId },
+            { requestId: opts.requestId, aggregateType: "catalog_card", correlationId: opts.requestId },
           ),
         );
       }

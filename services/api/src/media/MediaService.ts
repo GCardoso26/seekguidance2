@@ -51,7 +51,7 @@ export class MediaService {
           "MediaUpdated",
           input.ownerId,
           { ownerType: input.ownerType, reused: true, sha256 },
-          { requestId: input.requestId },
+          { requestId: input.requestId, aggregateType: "media_asset", correlationId: input.requestId },
         ),
       );
       return { ...existing, reused: true };
@@ -74,7 +74,7 @@ export class MediaService {
         "MediaUpdated",
         input.ownerId,
         { ownerType: input.ownerType, reused: false, sha256 },
-        { requestId: input.requestId },
+        { requestId: input.requestId, aggregateType: "media_asset", correlationId: input.requestId },
       ),
     );
 

@@ -9,6 +9,7 @@
     "build": "tsc -p tsconfig.json",
     "dev": "tsx watch src/workers/main.ts",
     "worker": "node dist/workers/main.js",
+    "worker:outbox": "node dist/workers/outbox-publisher.js",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc -p tsconfig.json --noEmit"
@@ -19,12 +20,14 @@
   "dependencies": {
     "bullmq": "^5.34.5",
     "ioredis": "^5.4.2",
+    "pg": "^8.13.1",
     "pino": "^9.6.0",
     "uuid": "^11.0.5",
     "zod": "^3.24.1"
   },
   "devDependencies": {
     "@types/node": "^22.10.5",
+    "@types/pg": "^8.11.10",
     "@types/uuid": "^10.0.0",
     "tsx": "^4.19.2",
     "typescript": "^5.7.3",

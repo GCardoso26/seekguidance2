@@ -15,13 +15,19 @@ import { mapCardFinishes } from "./helpers.js";
 import { eventBus } from "../../platform/event-bus/EventBus.js";
 
 describe("DomainEvent envelope", () => {
-  it("includes version and requestId", () => {
-    const ev = createDomainEvent("CardUpdated", "card-1", { name: "Sol Ring" }, { version: 1 });
-    expect(ev.event).toBe("CardUpdated");
-    expect(ev.version).toBe(1);
+  it("includes eventType, versions, correlationId", () => {
+    const ev = createDomainEvent(
+      "CardUpdated",
+      "card-1",
+      { name: "Sol Ring" },
+      { eventVersion: 1, schemaVersion: 1, aggregateType: "catalog_card" },
+    );
+    expect(ev.eventType).toBe("CardUpdated");
+    expect(ev.eventVersion).toBe(1);
+    expect(ev.schemaVersion).toBe(1);
     expect(ev.aggregateId).toBe("card-1");
+    expect(ev.correlationId).toBeTruthy();
     expect(ev.requestId).toBeTruthy();
-    expect(ev.occurredAt).toBeTruthy();
   });
 });
 
@@ -33,9 +39,11 @@ describe("EventBus pub/sub", () => {
       seen.push(e.aggregateId);
     });
     bus.subscribe("*", (e) => {
-      seen.push(`*:${e.event}`);
+      seen.push(`*:${e.eventType}`);
     });
-    await bus.publish(createDomainEvent("CardUpdated", "abc", {}));
+    await bus.publish(
+      createDomainEvent("CardUpdated", "abc", {}, { aggregateType: "catalog_card" }),
+    );
     expect(seen).toContain("abc");
     expect(seen).toContain("*:CardUpdated");
   });
@@ -107,9 +115,20 @@ describe("SearchSyncWorker multi-event + projection version", () => {
   it("indexes multiple event types into projection", async () => {
     const worker = new SearchSyncWorker();
     worker.start();
-    await eventBus.publish(createDomainEvent("CardUpdated", "c1", { name: "A" }));
-    await eventBus.publish(createDomainEvent("PriceUpdated", "c1", { market: 1.2 }));
-    await eventBus.publish(createDomainEvent("MarketplaceListingUpdated", "L9", { cardId: "c1" }));
+    await eventBus.publish(
+      createDomainEvent("CardUpdated", "c1", { name: "A" }, { aggregateType: "catalog_card" }),
+    );
+    await eventBus.publish(
+      createDomainEvent("PriceUpdated", "c1", { market: 1.2 }, { aggregateType: "catalog_card" }),
+    );
+    await eventBus.publish(
+      createDomainEvent(
+        "MarketplaceListingUpdated",
+        "L9",
+        { cardId: "c1" },
+        { aggregateType: "listing" },
+      ),
+    );
     expect(worker.documentCount()).toBeGreaterThanOrEqual(2);
     const next = worker.beginRebuild(2);
     expect(next.name).toBe("cards_v2");

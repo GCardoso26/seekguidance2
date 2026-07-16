@@ -54,7 +54,15 @@ export class SearchSyncWorker {
   }
 
   private async onEvent(event: DomainEvent): Promise<void> {
-    switch (event.event) {
+    if (
+      event.projectionVersion &&
+      event.projectionVersion !== this.projection.name &&
+      this.projection.status === "live"
+    ) {
+      // Event targeted at another projection index — ignore on live worker
+      return;
+    }
+    switch (event.eventType) {
       case "CardUpdated":
       case "PriceUpdated":
       case "MediaUpdated":
@@ -62,14 +70,19 @@ export class SearchSyncWorker {
       case "MarketplaceListingUpdated":
         this.documents.set(event.aggregateId, {
           id: event.aggregateId,
-          event: event.event,
-          version: event.version,
+          eventType: event.eventType,
+          eventVersion: event.eventVersion,
+          schemaVersion: event.schemaVersion,
           ...event.payload,
           updatedAt: event.occurredAt,
-          projection: this.projection.name,
+          projection: event.projectionVersion ?? this.projection.name,
         });
         log.debug(
-          { event: event.event, aggregateId: event.aggregateId, projection: this.projection.name },
+          {
+            eventType: event.eventType,
+            aggregateId: event.aggregateId,
+            projection: this.projection.name,
+          },
           "search_doc_upsert",
         );
         break;

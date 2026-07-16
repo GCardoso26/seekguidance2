@@ -49,6 +49,17 @@ npm run worker
 
 Schemas: `catalog`, `pricing`, `media`, `analytics`, `audit`, `platform`.
 
+## Outbox (v1.2.4)
+
+```bash
+# apply migration 20260723130000_platform_outbox.sql
+npm run build
+DATABASE_URL=... REDIS_URL=... npm run worker:outbox
+```
+
+Contratos: leasing, DLQ `dead`, `EventPublisher` / `RedisEventPublisher`, envelope definitivo.
+Testes de aceite: `src/platform/outbox/__tests__/outbox.acceptance.test.ts`
+
 ## Fase 1 — o que está pronto
 
 - Event Bus versionado (`version` no envelope)

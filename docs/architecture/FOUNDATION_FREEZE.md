@@ -2,8 +2,8 @@
 
 **Tag:** `v0.2.0-foundation`  
 **Data:** 2026-07-16  
-**Status:** Base definitiva para Outbox (docs v1.2.4) — código da tag intacto  
-**Escopo:** Etapa 2 / Fase 1 (fundação) + contrato Outbox definitivo
+**Status:** Outbox implementado — critérios de aceite cobertos por testes · tag fundação `v0.2.0-foundation`  
+**Escopo:** Etapa 2 / Fase 1 (fundação) + incremento Outbox
 
 ---
 
