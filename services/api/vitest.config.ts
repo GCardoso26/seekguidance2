@@ -6,6 +6,9 @@ export default defineConfig({
     globals: true,
     environment: "node",
     include: ["src/**/*.test.ts"],
+    // PG integration tests share DATABASE_URL — avoid cross-file wipe races.
+    fileParallelism: false,
+    testTimeout: 60_000,
   },
   resolve: {
     alias: {

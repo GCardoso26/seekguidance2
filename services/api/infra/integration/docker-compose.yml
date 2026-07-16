@@ -1,0 +1,56 @@
+# Sprint 4.4 — Production-like integration stack
+# Postgres + Redis + Meilisearch (no mocks).
+#
+# Usage:
+#   docker compose -f services/api/infra/integration/docker-compose.yml up -d
+#   # then run workers against these URLs:
+#   DATABASE_URL=postgres://judgetcg:judgetcg@localhost:5433/judgetcg
+#   REDIS_URL=redis://localhost:6380
+#   MEILI_URL=http://localhost:7701
+#   MEILI_MASTER_KEY=masterKey
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: judgetcg
+      POSTGRES_PASSWORD: judgetcg
+      POSTGRES_DB: judgetcg
+    volumes:
+      - integration_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U judgetcg"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6380:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  meilisearch:
+    image: getmeili/meilisearch:v1.11
+    ports:
+      - "7701:7700"
+    environment:
+      MEILI_MASTER_KEY: masterKey
+      MEILI_ENV: development
+    volumes:
+      - integration_meili:/meili_data
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:7700/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  integration_pg:
+  integration_meili:

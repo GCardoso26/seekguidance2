@@ -128,11 +128,7 @@ async def create_event(
 ) -> dict[str, Any]:
     user_id = _require_user(x_judge_user_id)
     if not await can_event(session, user_id, store_id=body.store_id, action="create"):
-        # Owner bootstrap: allow if permission engine has no membership yet (RC1 dual-read deny)
-        # Still require auth — soft-fail only when explicitly denied with membership would be ideal;
-        # for additive BP2 we require permission OR proceed when PermissionService returns False
-        # only if store has no identity memberships (handled inside can → False). Soft open for organizer.
-        pass
+        raise HTTPException(status_code=403, detail="forbidden_event_create")
     ev = await EventService(session).create(
         store_id=body.store_id,
         name=body.name,

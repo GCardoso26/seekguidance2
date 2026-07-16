@@ -1,6 +1,6 @@
-import { createHash } from "node:crypto";
 import { createLogger } from "../platform/logging/logger.js";
 import { createDomainEvent } from "../shared/events/types.js";
+import { getHashPort } from "../shared/hash/HashPort.js";
 import { eventBus } from "../platform/event-bus/EventBus.js";
 
 const log = createLogger("media");
@@ -37,8 +37,9 @@ export class MediaService {
     await this.virusScan(input.sourceUrl);
 
     const bytes = await this.download(input.sourceUrl);
-    const sha256 = createHash("sha256").update(bytes).digest("hex");
-    const perceptualHash = simplePerceptualHash(bytes);
+    const hashes = getHashPort();
+    const sha256 = hashes.sha256(bytes);
+    const perceptualHash = hashes.perceptual(bytes);
 
     const existing = this.bySha.get(sha256) ?? this.findNearDuplicate(perceptualHash);
     if (existing) {
@@ -99,8 +100,7 @@ export class MediaService {
 
 /** Lightweight placeholder until sharp + blockhash in Phase 3. */
 export function simplePerceptualHash(buf: Buffer): string {
-  const sample = buf.subarray(0, Math.min(buf.length, 4096));
-  return createHash("sha1").update(sample).digest("hex").slice(0, 16);
+  return getHashPort().perceptual(buf);
 }
 
 function sniffMime(buf: Buffer): string | undefined {

@@ -1,4 +1,5 @@
 import type { DomainEvent } from "../../shared/events/types.js";
+import type { TxContext } from "../transaction/types.js";
 
 export type OutboxStatus = "pending" | "leased" | "published" | "dead";
 
@@ -17,7 +18,10 @@ export interface OutboxRecord {
   nextRetryAt: Date | null;
   leaseUntil: Date | null;
   leasedBy: string | null;
+  /** Domain fact time is in payload.metadata.occurredAt */
   publishedAt: Date | null;
+  /** TX commit / outbox insert time */
+  committedAt: Date;
   createdAt: Date;
   requestId: string | null;
   traceId: string | null;
@@ -34,8 +38,12 @@ export interface InsertOutboxInput {
 }
 
 export interface OutboxRepository {
-  /** Insert within caller's transaction. Payload must never be updated later. */
-  insert(input: InsertOutboxInput): Promise<OutboxRecord>;
+  /**
+   * Insert within caller's transaction (`tx`).
+   * Application Service decides to insert; TransactionManager does not know Outbox.
+   * Payload must never be updated later.
+   */
+  insert(tx: TxContext, input: InsertOutboxInput): Promise<OutboxRecord>;
 
   /**
    * Claim next claimable rows (pending, or expired lease, or retry-ready).

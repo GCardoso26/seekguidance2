@@ -1,93 +1,89 @@
 import { eventBus } from "../platform/event-bus/EventBus.js";
+import { InMemoryConsumerOffsetRepository } from "../platform/outbox/ConsumerOffsetRepository.js";
 import { createLogger } from "../platform/logging/logger.js";
 import type { DomainEvent } from "../shared/events/types.js";
+import { SearchEventConsumer } from "./consumer/SearchEventConsumer.js";
+import type { SearchProjectionRepository } from "./domain/SearchProjectionRepository.js";
+import type { SearchProjectionVersion } from "./domain/SearchProjectionVersion.js";
+import { InMemorySearchProjectionRepository } from "./persistence/InMemorySearchProjectionRepository.js";
+import { createSearchProjectionFromEnv } from "./persistence/MeilisearchSearchProjectionRepository.js";
+import { ProjectionManager } from "./ProjectionManager.js";
 
 const log = createLogger("search-sync");
 
-export type IndexProjectionStatus = "building" | "live" | "draining" | "retired";
-
-export interface IndexProjection {
-  name: string; // e.g. cards_v1
-  version: number;
-  status: IndexProjectionStatus;
-}
-
 /**
- * SearchSyncWorker — sole writer to Meilisearch (Phase 1: in-memory projection).
- * Subscribes to multiple domain events; never called by CatalogProviders directly.
+ * SearchSyncWorker — wires Event Bus (local) to thin SearchEventConsumer.
+ * Index lifecycle: ProjectionManager. Never mutates Catalog.
  */
 export class SearchSyncWorker {
-  private projection: IndexProjection = { name: "cards_v1", version: 1, status: "live" };
-  private documents = new Map<string, Record<string, unknown>>();
+  private readonly projection: SearchProjectionRepository;
+  private readonly manager: ProjectionManager;
+  private readonly consumer: SearchEventConsumer;
   private unsubscribe?: () => void;
+  private countCache = 0;
+
+  constructor(projection?: SearchProjectionRepository) {
+    this.projection =
+      projection ?? createSearchProjectionFromEnv() ?? new InMemorySearchProjectionRepository();
+    this.manager = new ProjectionManager(this.projection);
+    this.consumer = new SearchEventConsumer(
+      this.projection,
+      new InMemoryConsumerOffsetRepository(),
+      undefined,
+      this.manager,
+    );
+  }
 
   start(): void {
     this.unsubscribe = eventBus.subscribe("*", (event) => this.onEvent(event));
-    log.info({ projection: this.projection.name }, "search_sync_started");
+    void this.manager.ensureIndexes().catch((err) => {
+      log.warn({ err: String(err) }, "search_ensure_index_failed");
+    });
+    log.info(
+      { projection: this.projection.getVersion().name, alias: this.manager.getLiveAlias() },
+      "search_sync_started",
+    );
   }
 
   stop(): void {
     this.unsubscribe?.();
   }
 
-  getProjection(): IndexProjection {
-    return { ...this.projection };
+  getProjection(): SearchProjectionVersion {
+    return this.projection.getVersion();
   }
 
-  /** Blue/green style: build cards_vN then flip live. */
-  beginRebuild(nextVersion: number): IndexProjection {
-    this.projection = {
-      name: `cards_v${nextVersion}`,
-      version: nextVersion,
-      status: "building",
-    };
-    this.documents = new Map();
-    return this.getProjection();
+  getRepository(): SearchProjectionRepository {
+    return this.projection;
+  }
+
+  getManager(): ProjectionManager {
+    return this.manager;
+  }
+
+  beginRebuild(nextVersion: number): SearchProjectionVersion {
+    void this.manager.beginRebuild(nextVersion);
+    this.countCache = 0;
+    return this.projection.getVersion();
   }
 
   activateProjection(): void {
-    this.projection.status = "live";
+    void this.manager.swapAlias();
   }
 
   documentCount(): number {
-    return this.documents.size;
+    return this.countCache;
+  }
+
+  async documentCountAsync(): Promise<number> {
+    this.countCache = await this.projection.documentCount();
+    return this.countCache;
   }
 
   private async onEvent(event: DomainEvent): Promise<void> {
-    if (
-      event.projectionVersion &&
-      event.projectionVersion !== this.projection.name &&
-      this.projection.status === "live"
-    ) {
-      // Event targeted at another projection index — ignore on live worker
-      return;
-    }
-    switch (event.eventType) {
-      case "CardUpdated":
-      case "PriceUpdated":
-      case "MediaUpdated":
-      case "SetUpdated":
-      case "MarketplaceListingUpdated":
-        this.documents.set(event.aggregateId, {
-          id: event.aggregateId,
-          eventType: event.eventType,
-          eventVersion: event.eventVersion,
-          schemaVersion: event.schemaVersion,
-          ...event.payload,
-          updatedAt: event.occurredAt,
-          projection: event.projectionVersion ?? this.projection.name,
-        });
-        log.debug(
-          {
-            eventType: event.eventType,
-            aggregateId: event.aggregateId,
-            projection: this.projection.name,
-          },
-          "search_doc_upsert",
-        );
-        break;
-      default:
-        break;
+    const result = await this.consumer.handle(event);
+    if (result === "applied") {
+      this.countCache = await this.projection.documentCount();
     }
   }
 }

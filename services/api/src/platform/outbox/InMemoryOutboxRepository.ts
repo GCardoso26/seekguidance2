@@ -1,13 +1,30 @@
 import type { DomainEvent } from "../../shared/events/types.js";
+import type { TxParticipant } from "../transaction/InMemoryTransactionManager.js";
+import type { TxContext } from "../transaction/types.js";
 import type { InsertOutboxInput, OutboxRecord, OutboxRepository, OutboxStatus } from "./types.js";
 
 /**
  * In-memory Outbox with SKIP LOCKED–like claim semantics for unit tests.
- * Does not require PostgreSQL.
+ * Does not require PostgreSQL. Implements TxParticipant for rollback with InMemoryTransactionManager.
  */
-export class InMemoryOutboxRepository implements OutboxRepository {
+export class InMemoryOutboxRepository implements OutboxRepository, TxParticipant {
   private rows = new Map<string, OutboxRecord>();
+  private snapshots = new Map<string, Map<string, OutboxRecord>>();
   private mutex: Promise<void> = Promise.resolve();
+
+  beginTx(txId: string): void {
+    this.snapshots.set(txId, cloneMap(this.rows));
+  }
+
+  commitTx(txId: string): void {
+    this.snapshots.delete(txId);
+  }
+
+  rollbackTx(txId: string): void {
+    const snap = this.snapshots.get(txId);
+    if (snap) this.rows = snap;
+    this.snapshots.delete(txId);
+  }
 
   private async withLock<T>(fn: () => T | Promise<T>): Promise<T> {
     let release!: () => void;
@@ -24,20 +41,22 @@ export class InMemoryOutboxRepository implements OutboxRepository {
     }
   }
 
-  async insert(input: InsertOutboxInput): Promise<OutboxRecord> {
+  async insert(_tx: TxContext, input: InsertOutboxInput): Promise<OutboxRecord> {
     return this.withLock(() => {
       const id = input.id ?? input.event.id ?? crypto.randomUUID();
       if (this.rows.has(id)) {
         throw new Error(`outbox_duplicate_id:${id}`);
       }
       const event: DomainEvent = { ...input.event, id };
+      const meta = event.metadata;
+      const now = new Date();
       const record: OutboxRecord = {
         id,
         aggregateType: event.aggregateType,
         aggregateId: event.aggregateId,
         eventName: event.eventType,
-        eventVersion: event.eventVersion,
-        schemaVersion: event.schemaVersion,
+        eventVersion: meta.eventVersion,
+        schemaVersion: meta.schemaVersion,
         payload: structuredClone(event),
         status: "pending",
         attempts: 0,
@@ -46,12 +65,13 @@ export class InMemoryOutboxRepository implements OutboxRepository {
         leaseUntil: null,
         leasedBy: null,
         publishedAt: null,
-        createdAt: new Date(),
-        requestId: event.requestId,
-        traceId: event.traceId ?? null,
-        correlationId: event.correlationId,
-        causationId: event.causationId ?? null,
-        projectionVersion: event.projectionVersion ?? null,
+        committedAt: now,
+        createdAt: now,
+        requestId: meta.requestId,
+        traceId: meta.traceId ?? null,
+        correlationId: meta.correlationId,
+        causationId: meta.causationId ?? null,
+        projectionVersion: meta.projectionVersion ?? null,
         lastError: null,
       };
       this.rows.set(id, record);
@@ -150,4 +170,10 @@ function isClaimable(r: OutboxRecord, now: Date): boolean {
   }
   if (r.status === "leased" && r.leaseUntil && r.leaseUntil <= now) return true;
   return false;
+}
+
+function cloneMap(src: Map<string, OutboxRecord>): Map<string, OutboxRecord> {
+  const out = new Map<string, OutboxRecord>();
+  for (const [k, v] of src) out.set(k, structuredClone(v));
+  return out;
 }

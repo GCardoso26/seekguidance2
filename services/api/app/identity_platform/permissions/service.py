@@ -26,7 +26,17 @@ class PermissionService:
         *,
         store_id: str | None = None,
         company_id: str | None = None,
+        actor_email: str | None = None,
     ) -> bool:
+        # Business Program 3.5 — sandbox SUPER_ADMIN elevation (never in production)
+        try:
+            from app.sandbox.entitlements import is_sandbox_admin
+
+            if is_sandbox_admin(actor_email, actor_id):
+                return permission in PERMISSIONS or permission.startswith("store.")
+        except Exception:
+            pass
+
         if permission not in PERMISSIONS:
             return False
 

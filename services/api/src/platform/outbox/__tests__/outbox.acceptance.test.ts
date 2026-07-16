@@ -7,6 +7,9 @@ import { InMemoryConsumerOffsetRepository } from "../ConsumerOffsetRepository.js
 import { processOnce } from "../processOnce.js";
 import { SimulatedUnitOfWork } from "../SimulatedUnitOfWork.js";
 import { metrics } from "../../metrics/registry.js";
+import type { TxContext } from "../../transaction/types.js";
+
+const memTx: TxContext = { id: "outbox-test", kind: "memory" };
 
 describe("Outbox acceptance criteria", () => {
   let outbox: InMemoryOutboxRepository;
@@ -28,7 +31,7 @@ describe("Outbox acceptance criteria", () => {
     );
 
     uow.scheduleOutboxInsert(async () => {
-      await outbox.insert({ event });
+      await outbox.insert(memTx, { event });
     });
 
     const worker = new OutboxPublisherWorker(outbox, publisher, {
@@ -56,7 +59,7 @@ describe("Outbox acceptance criteria", () => {
       {},
       { aggregateType: "catalog_card", id: "evt-lease-1" },
     );
-    await outbox.insert({ event });
+    await outbox.insert(memTx, { event });
 
     const now = new Date("2026-07-16T12:00:00Z");
     const claimed = await outbox.claimBatch({
@@ -94,7 +97,7 @@ describe("Outbox acceptance criteria", () => {
       {},
       { aggregateType: "catalog_card", id: "evt-idem-1" },
     );
-    await outbox.insert({ event });
+    await outbox.insert(memTx, { event });
 
     const worker = new OutboxPublisherWorker(outbox, publisher, {
       workerId: "w1",
@@ -117,7 +120,7 @@ describe("Outbox acceptance criteria", () => {
       {},
       { aggregateType: "catalog_card", id: "evt-dead-1" },
     );
-    await outbox.insert({ event, maxAttempts: 2 });
+    await outbox.insert(memTx, { event, maxAttempts: 2 });
 
     const now = new Date();
     let batch = await outbox.claimBatch({
@@ -177,7 +180,7 @@ describe("Outbox acceptance criteria", () => {
       {},
       { aggregateType: "catalog_card", id: "evt-conc-1" },
     );
-    await outbox.insert({ event });
+    await outbox.insert(memTx, { event });
 
     const [a, b] = await Promise.all([
       outbox.claimBatch({ workerId: "A", leaseMs: 30_000, limit: 10 }),
@@ -190,10 +193,10 @@ describe("Outbox acceptance criteria", () => {
   });
 
   it("observability metrics: backlog, published, oldest age", async () => {
-    await outbox.insert({
+    await outbox.insert(memTx, {
       event: createDomainEvent("CardUpdated", "c", {}, { aggregateType: "catalog_card", id: "e1" }),
     });
-    await outbox.insert({
+    await outbox.insert(memTx, {
       event: createDomainEvent("CardUpdated", "c2", {}, { aggregateType: "catalog_card", id: "e2" }),
     });
 
@@ -230,15 +233,15 @@ describe("Outbox acceptance criteria", () => {
       {},
       {
         aggregateType: "catalog_card",
-        correlationId: sync.correlationId,
+        correlationId: sync.metadata.correlationId,
         causationId: sync.id,
         projectionVersion: "cards_v1",
       },
     );
-    expect(card.correlationId).toBe("corr-9");
-    expect(card.causationId).toBe("sync-evt");
-    expect(card.eventVersion).toBe(1);
-    expect(card.schemaVersion).toBe(1);
-    expect(card.projectionVersion).toBe("cards_v1");
+    expect(card.metadata.correlationId).toBe("corr-9");
+    expect(card.metadata.causationId).toBe("sync-evt");
+    expect(card.metadata.eventVersion).toBe(1);
+    expect(card.metadata.schemaVersion).toBe(1);
+    expect(card.metadata.projectionVersion).toBe("cards_v1");
   });
 });

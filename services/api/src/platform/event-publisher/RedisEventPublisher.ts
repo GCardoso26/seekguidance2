@@ -23,7 +23,7 @@ export class RedisEventPublisher implements EventPublisher {
       "event_type",
       event.eventType,
       "correlation_id",
-      event.correlationId,
+      event.metadata.correlationId,
       "body",
       JSON.stringify({ ...event, id }),
     );

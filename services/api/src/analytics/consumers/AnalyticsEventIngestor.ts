@@ -16,7 +16,7 @@ export class AnalyticsEventIngestor {
     this.unsubscribe = eventBus.subscribe("*", (event: DomainEvent) => {
       this.buffer.push(event);
       log.debug(
-        { eventType: event.eventType, eventVersion: event.eventVersion },
+        { eventType: event.eventType, eventVersion: event.metadata.eventVersion },
         "analytics_event_buffered",
       );
     });

@@ -1,0 +1,38 @@
+{
+  "uid": "judgetcg-marketplace",
+  "title": "JudgeTCG — Marketplace",
+  "tags": ["judgetcg", "sprint6", "marketplace"],
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "version": 1,
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "Active listings",
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
+      "targets": [{ "expr": "marketplace_active_listings", "legendFormat": "active" }]
+    },
+    {
+      "id": 2,
+      "type": "timeseries",
+      "title": "Listings published",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
+      "targets": [{ "expr": "rate(marketplace_listings_published_total[5m])", "legendFormat": "publish/s" }]
+    },
+    {
+      "id": 3,
+      "type": "timeseries",
+      "title": "Listing → Search latency",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 4 },
+      "targets": [{ "expr": "listing_to_search_latency_seconds_sum / listing_to_search_latency_seconds_count", "legendFormat": "avg" }]
+    },
+    {
+      "id": 4,
+      "type": "timeseries",
+      "title": "First listing duration",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 },
+      "targets": [{ "expr": "marketplace_first_listing_ms", "legendFormat": "ms" }]
+    }
+  ]
+}

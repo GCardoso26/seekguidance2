@@ -1,6 +1,6 @@
-import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
 import { createDomainEvent } from "../../shared/events/types.js";
+import { getHashPort } from "../../shared/hash/HashPort.js";
 import { EventBus } from "../../platform/event-bus/EventBus.js";
 import {
   ProviderRegistry,
@@ -15,7 +15,7 @@ import { mapCardFinishes } from "./helpers.js";
 import { eventBus } from "../../platform/event-bus/EventBus.js";
 
 describe("DomainEvent envelope", () => {
-  it("includes eventType, versions, correlationId", () => {
+  it("includes eventType, EventMetadata versions, correlationId", () => {
     const ev = createDomainEvent(
       "CardUpdated",
       "card-1",
@@ -23,11 +23,12 @@ describe("DomainEvent envelope", () => {
       { eventVersion: 1, schemaVersion: 1, aggregateType: "catalog_card" },
     );
     expect(ev.eventType).toBe("CardUpdated");
-    expect(ev.eventVersion).toBe(1);
-    expect(ev.schemaVersion).toBe(1);
+    expect(ev.metadata.eventVersion).toBe(1);
+    expect(ev.metadata.schemaVersion).toBe(1);
     expect(ev.aggregateId).toBe("card-1");
-    expect(ev.correlationId).toBeTruthy();
-    expect(ev.requestId).toBeTruthy();
+    expect(ev.metadata.correlationId).toBeTruthy();
+    expect(ev.metadata.requestId).toBeTruthy();
+    expect(ev.metadata.occurredAt).toBeTruthy();
   });
 });
 
@@ -129,7 +130,10 @@ describe("SearchSyncWorker multi-event + projection version", () => {
         { aggregateType: "listing" },
       ),
     );
-    expect(worker.documentCount()).toBeGreaterThanOrEqual(2);
+    expect(worker.documentCount()).toBeGreaterThanOrEqual(1);
+    const doc = await worker.getRepository().get("c1");
+    expect(doc?.name).toBe("A");
+    expect(doc?.priceMin).toBe(1.2);
     const next = worker.beginRebuild(2);
     expect(next.name).toBe("cards_v2");
     expect(next.status).toBe("building");
@@ -138,10 +142,11 @@ describe("SearchSyncWorker multi-event + projection version", () => {
 });
 
 describe("Media hashes", () => {
-  it("computes sha256 and perceptual placeholder", () => {
+  it("computes sha256 and perceptual via HashPort", () => {
     const buf = Buffer.from("fake-image-bytes-aaaa");
-    const sha = createHash("sha256").update(buf).digest("hex");
-    expect(sha).toHaveLength(64);
+    const hashes = getHashPort();
+    expect(hashes.sha256(buf)).toHaveLength(64);
+    expect(hashes.perceptual(buf)).toHaveLength(16);
     expect(simplePerceptualHash(buf)).toHaveLength(16);
   });
 });

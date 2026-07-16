@@ -1,0 +1,40 @@
+name: Golden Path Smoke
+
+# Sprint 4.4 — obrigatório antes de merge em main (api/domain changes)
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "services/api/**"
+      - "supabase/migrations/**"
+      - ".github/workflows/golden-path-smoke.yml"
+  push:
+    branches: [main]
+    paths:
+      - "services/api/**"
+      - "supabase/migrations/**"
+
+jobs:
+  golden-path:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: services/api
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: services/api/package-lock.json
+      - name: Install
+        run: npm ci
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Golden Path Smoke (CI gate)
+        run: npm run smoke:golden-path
+      - name: Performance budget + chaos
+        run: |
+          npm run test:budget
+          npm run test:chaos

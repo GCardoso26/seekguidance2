@@ -1,0 +1,63 @@
+# JudgeTCG Sprint 6 — Prometheus alert rules
+# Wire into prometheus.yml: rule_files: [alerts.yml]
+
+groups:
+  - name: judgetcg_critical
+    rules:
+      - alert: OutboxOldestEventAge
+        expr: outbox_oldest_event_age_seconds > 300
+        for: 2m
+        labels:
+          severity: critical
+          runbook: RUNBOOK-001
+        annotations:
+          summary: Outbox oldest pending event age > 5 minutes
+          description: "Outbox may be stopped or publisher degraded. pending={{ $value }}s"
+
+      - alert: OutboxConsumerDegraded
+        expr: rate(outbox_publish_failures_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: critical
+          runbook: RUNBOOK-001
+        annotations:
+          summary: Outbox publish failure rate elevated
+
+      - alert: SearchProjectionLag
+        expr: search_projection_lag_seconds > 60
+        for: 3m
+        labels:
+          severity: warning
+          runbook: RUNBOOK-002
+        annotations:
+          summary: Search projection lag > 60s
+
+      - alert: PaymentPendingTooLong
+        expr: payment_pending_total > 0
+        for: 30m
+        labels:
+          severity: critical
+          runbook: RUNBOOK-003
+        annotations:
+          summary: Payments stuck in PENDING > 30 minutes
+
+      - alert: ReservationExpiredRising
+        expr: increase(reservation_expired_total[15m]) > 50
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: Expired reservations increasing rapidly (possible leak / TTL misconfig)
+
+      - alert: CatalogSyncFailureRate
+        expr: |
+          (
+            rate(catalog_sync_failures_total[15m])
+            /
+            clamp_min(rate(catalog_sync_total[15m]), 0.001)
+          ) > 0.10
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: Catalog sync failure rate > 10%

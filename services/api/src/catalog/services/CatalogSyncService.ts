@@ -1,5 +1,3 @@
-import { createDomainEvent } from "../../shared/events/types.js";
-import { eventBus } from "../../platform/event-bus/EventBus.js";
 import { flagStore } from "../../platform/feature-flags/FlagStore.js";
 import { createLogger } from "../../platform/logging/logger.js";
 import { metrics } from "../../platform/metrics/registry.js";
@@ -34,7 +32,8 @@ export function bootstrapScryfallRegistry(): RegisteredProvider {
 }
 
 /**
- * Phase 1 orchestrator: sync sets (and optionally sample cards) for one game.
+ * @deprecated Prefer `runScryfallShadowSync` — this entry only validates registry/provider fetch.
+ * Domain Events MUST go through Outbox (ADR-004). Direct EventBus publish was removed.
  */
 export async function runCatalogSync(opts: {
   gameCode: string;
@@ -74,22 +73,16 @@ export async function runCatalogSync(opts: {
     if (opts.setCode && providerRegistry.supports(opts.providerId, opts.gameCode, "cards")) {
       const cards = await provider.syncCards(ctx, opts.setCode);
       cardsCount = cards.count;
-
-      for (const card of cards.items ?? []) {
-        await eventBus.publish(
-          createDomainEvent(
-            "CardUpdated",
-            card.providerCardId,
-            {
-              gameCode: opts.gameCode,
-              providerId: opts.providerId,
-              name: card.name,
-              shadow: registered.mode === "SHADOW",
-            },
-            { requestId: opts.requestId, aggregateType: "catalog_card", correlationId: opts.requestId },
-          ),
-        );
-      }
+      // Persistence + Outbox: use runScryfallShadowSync (Sprint 2). No EventBus publish here.
+      log.info(
+        {
+          requestId: opts.requestId,
+          setCode: opts.setCode,
+          cards: cardsCount,
+          hint: "runScryfallShadowSync",
+        },
+        "catalog_sync_fetch_only",
+      );
     }
 
     const durationSec = (Date.now() - started) / 1000;
@@ -99,18 +92,6 @@ export async function runCatalogSync(opts: {
     });
     metrics.inc("sync_cards_total", { providerId: opts.providerId, gameCode: opts.gameCode }, cardsCount);
     providerRegistry.recordSuccess(opts.providerId, opts.gameCode, durationSec * 1000, cardsCount);
-
-    log.info(
-      {
-        requestId: opts.requestId,
-        providerId: opts.providerId,
-        gameCode: opts.gameCode,
-        sets: sets.count,
-        cards: cardsCount,
-        mode: registered.mode,
-      },
-      "catalog_sync_ok",
-    );
 
     return { sets: sets.count, cards: cardsCount, mode: registered.mode };
   } catch (err) {

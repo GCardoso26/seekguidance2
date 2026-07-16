@@ -1,0 +1,53 @@
+{
+  "uid": "judgetcg-sync",
+  "title": "JudgeTCG — Sync Pipeline",
+  "tags": ["judgetcg", "sprint6", "sync"],
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "version": 1,
+  "description": "Provider → Catalog → Outbox → Search",
+  "panels": [
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "Cards processed / min",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "targets": [{ "expr": "rate(catalog_cards_processed_total[1m]) * 60", "legendFormat": "cards/min" }]
+    },
+    {
+      "id": 2,
+      "type": "timeseries",
+      "title": "Sync duration",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "targets": [{ "expr": "catalog_sync_duration_seconds_sum / catalog_sync_duration_seconds_count", "legendFormat": "avg sec" }]
+    },
+    {
+      "id": 3,
+      "type": "timeseries",
+      "title": "Outbox lag (oldest age)",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "targets": [{ "expr": "outbox_oldest_event_age_seconds", "legendFormat": "age_s" }]
+    },
+    {
+      "id": 4,
+      "type": "timeseries",
+      "title": "Search projection lag",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "targets": [{ "expr": "search_projection_lag_seconds", "legendFormat": "lag_s" }]
+    },
+    {
+      "id": 5,
+      "type": "stat",
+      "title": "Outbox pending",
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 16 },
+      "targets": [{ "expr": "outbox_pending_events", "legendFormat": "pending" }]
+    },
+    {
+      "id": 6,
+      "type": "stat",
+      "title": "Outbox dead",
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 16 },
+      "targets": [{ "expr": "outbox_dead_events_total", "legendFormat": "dead" }]
+    }
+  ]
+}

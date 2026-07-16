@@ -1,0 +1,56 @@
+{
+  "uid": "judgetcg-checkout",
+  "title": "JudgeTCG — Checkout",
+  "tags": ["judgetcg", "sprint6", "checkout"],
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "version": 1,
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "Checkout started",
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
+      "targets": [{ "expr": "checkout_started_total", "legendFormat": "started" }]
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Checkout completed",
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 },
+      "targets": [{ "expr": "checkout_completed_total", "legendFormat": "completed" }]
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "Checkout failed",
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 0 },
+      "targets": [{ "expr": "checkout_failed_total", "legendFormat": "failed" }]
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "Payment authorized",
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 0 },
+      "targets": [{ "expr": "payment_authorized_total", "legendFormat": "authorized" }]
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "Reservations (hold / conflict / release)",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
+      "targets": [
+        { "expr": "rate(reservation_hold_total[5m])", "legendFormat": "hold" },
+        { "expr": "rate(reservation_conflict_total[5m])", "legendFormat": "conflict" },
+        { "expr": "rate(reservation_release_total[5m])", "legendFormat": "release" }
+      ]
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "Payment pending gauge",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 4 },
+      "targets": [{ "expr": "payment_pending_total", "legendFormat": "pending" }]
+    }
+  ]
+}

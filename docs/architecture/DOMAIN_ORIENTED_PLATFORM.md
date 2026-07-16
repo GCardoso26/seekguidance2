@@ -1,12 +1,13 @@
 # JudgeTCG — Arquitetura Orientada a Domínios (Revisão Etapa 1.2)
 
-**Status:** Base definitiva para Outbox (docs v1.2.4) — tag `v0.2.0-foundation`  
+**Status:** **FOUNDATION CLOSED** — ADRs + Database Certification + Performance Budget + SLOs  
 **Data:** 2026-07-16  
-**Versão:** 1.2.4  
-**Escopo:** Catalog → Pricing → Marketplace → Search → Analytics (+ Media + Platform + Audit + Outbox)
+**Versão:** 1.3.0  
+**Escopo:** Catalog → Pricing → Marketplace → Search → Analytics (+ Media + Platform + Audit + Outbox + TX)
 
-> Contratos: [`FOUNDATION_FREEZE.md`](./FOUNDATION_FREEZE.md).  
-> Outbox definitivo: leasing, DLQ (`dead`), correlation/causation, EventPublisher port, payload imutável.
+> Contratos: [`FOUNDATION_FREEZE.md`](./FOUNDATION_FREEZE.md) (**FOUNDATION CLOSED** v1.3.0).  
+> ADRs: [`adr/`](./adr/README.md). Database Certification: [`DATABASE_CERTIFICATION.md`](./DATABASE_CERTIFICATION.md).  
+> Roadmap 90d + MVP: [`ROADMAP_90D.md`](./ROADMAP_90D.md).
 
 ---
 
@@ -496,24 +497,30 @@ services/api/
 
 ---
 
-## 10. BullMQ — filas
+## 10. BullMQ — filas + comandos
 
 ```text
-Catalog Sync (orchestrator)
-  → catalog.sets
-  → catalog.cards
-  → catalog.variants
-  → media.process          # (ex-catalog.images)
-  → catalog.legality
-  → catalog.rulings
-
-pricing.prices | pricing.market | pricing.history
-currency.rates
-search.sync
-analytics.ingest
+Scheduler → Queue Producer → BullMQ (comandos) → Processor (adapter) → Application Service
+                                                                    → Repos + Outbox → Event Bus (eventos)
 ```
 
-Cada fila: retry exponencial 3–5 · `*.dlq` · logs `requestId|jobId|providerId|gameCode` · métricas Prometheus (`sync_duration_seconds`, `sync_cards_total`, `sync_errors_total`, `queue_depth`).
+**Comandos (BullMQ):** `SyncSetCommand` · `SyncCardCommand` · `SyncVariantCommand` (+ legality/rulings/media depois).  
+**Eventos (Event Bus):** `CardUpdated` · `SetUpdated` · … — **nunca** enfileirar evento no BullMQ.
+
+Filas:
+
+```text
+catalog.sets | catalog.cards | catalog.variants
+media.process | catalog.legality | catalog.rulings
+pricing.prices | pricing.market | pricing.history
+currency.rates | search.sync | analytics.ingest
+```
+
+Job Envelope obrigatório: `jobType`, `jobVersion`, `requestId`, `correlationId`, `providerId`, `gameCode`, `priority`, `attempt`.  
+Estados: `queued → running → completed` | `failed → retry → … → dead`.  
+Detalhe: [`FOUNDATION_FREEZE.md`](./FOUNDATION_FREEZE.md) §12.
+
+Cada fila: retry exponencial 3–5 · `*.dlq` · métricas Prometheus (`sync_duration_seconds`, `sync_cards_total`, `sync_errors_total`, `queue_depth`).
 
 ---
 
@@ -731,6 +738,12 @@ Rendered Card  ← montado na API/FE; NUNCA escrito de volta no Catalog
 | 1.2.2 | Foundation freeze + tag `v0.2.0-foundation`; Outbox Pattern documentado; contratos públicos congelados |
 | 1.2.3 | Emendas pré-Outbox: consumer_offsets, envelope triplo, TransactionManager, current_price_snapshot, índices, projection_version, registry cost |
 | 1.2.4 | Outbox definitivo: leasing, DLQ dead, correlation/causation, EventPublisher port, payload imutável, consumer metrics, checklist pré-Scryfall write |
+| 1.2.5 | TransactionManager (sem Outbox) + Repository ports + Postgres/InMemory adapters |
+| 1.2.6 | Contratos pré-persistência: Command×Event, Job Envelope, Processor adapter, Scheduler/Producer/Worker, estados sync, Upsert Policy, AS×AR |
+| 1.2.7 | Guard rails: EventMetadata, Clock/Id/Hash ports, RepositoryResult, row_version, outbox timeline, smoke InMemory, Provider Certification |
+| 1.2.8 | Execução: JobEnvelope, Sync*Command, Processors adapters, CatalogQueueProducer, Scheduler, smoke E2E InMemory |
+| 1.2.9 | Persistence Contract Tests; SHADOW comparison; ConsistencyValidator gate pré-CANARY |
+| 1.3.0 | **Foundation closed:** ADRs 001–006, Database Certification, Performance Budget, SLOs |
 
 ---
 
@@ -739,29 +752,32 @@ Rendered Card  ← montado na API/FE; NUNCA escrito de volta no Catalog
 ### 18.1 Runtime
 
 ```text
-Request → TX → Repos → Outbox.insert (immutable) → COMMIT
-  → Publisher (SKIP LOCKED + lease)
+Application Service
+  → TransactionManager.runInTransaction(tx)
+  → Repos.upsert(tx) + Outbox.insert(tx)   // TM não conhece Outbox
+  → COMMIT
+  → Publisher (SKIP LOCKED + lease + claim_limit)
   → EventPublisher → RedisPublisher
   → Consumers (+ consumer_offsets)
 ```
 
-**Proibido:** publish antes do commit · mutar payload do Outbox.
+**Proibido:** publish antes do commit · mutar payload do Outbox · TM acoplado a Outbox.
 
 ### 18.2 Ordem de construção
 
 ```text
-1 Outbox (lease + DLQ + EventPublisher)
-2 TransactionManager
-3 Repository ports + Postgres*
-4 BullMQ processors
-5 Persistência
-6–8 Scryfall OFF → SHADOW → CANARY → LIVE
-9+ …
+FOUNDATION CLOSED (v1.3.0)
+↓
+Database Certification → Contracts PG → Wiring PG
+→ Scryfall SHADOW → Consistency → CANARY → LIVE
+→ Provider Certification (outros jogos)
 ```
+
+ADRs: [`adr/`](./adr/README.md) · DB cert: [`DATABASE_CERTIFICATION.md`](./DATABASE_CERTIFICATION.md)
 
 ### 18.3 Envelope
 
-`eventType` · `eventVersion` (semântica) · `schemaVersion` (formato) · `correlationId` · `causationId` · `projectionVersion?` · `requestId` / `traceId`
+`eventType` · `metadata` (`eventVersion`, `schemaVersion`, `correlationId`, `causationId`, `projectionVersion?`, `producer?`, `occurredAt`, `requestId` / `traceId`)
 
 ### 18.4 Antes da primeira escrita Scryfall
 
@@ -769,14 +785,24 @@ Checklist em [`FOUNDATION_FREEZE.md`](./FOUNDATION_FREEZE.md) §8 (TX, Outbox p�
 
 ---
 
-## 19. Repository Pattern
+## 19. Repository Pattern + Application Services
 
 ```text
-CatalogRepository (port) → PostgresCatalogRepository (adapter)
+CatalogCardRepository (port)  → PostgresCatalogCardRepository (adapter)
+CatalogSetRepository (port)   → PostgresCatalogSetRepository
+CatalogVariantRepository      → PostgresCatalogVariantRepository
+ProviderMappingRepository     → PostgresProviderMappingRepository
 ```
+
+Regras: um repo por Aggregate Root · sem `save(any)` · interfaces de domínio · `TxContext` explícito.  
+Application Service = **um** Aggregate Root principal (`PersistCatalogSet` / `PersistCatalogCard` / `PersistCatalogVariant`).  
+Upsert Policy e emissão de eventos: [`FOUNDATION_FREEZE.md`](./FOUNDATION_FREEZE.md) §12.6–12.7.
 
 Índices `provider_mappings`: `(provider, provider_card_id)`, `(provider, provider_variant_id)`, `(catalog_card_id)`, `(catalog_variant_id)`.
 
 ---
 
-**Próximo incremento após autorização:** Outbox definitivo (migration + lease + DLQ + EventPublisher + worker) — sem Scryfall write.
+**Próximo:** Database Certification (`npm run certify:db`) → Contracts Postgres → wiring → Scryfall SHADOW.  
+Sem novos padrões arquiteturais até piloto estável.
+
+**Produto (paralelo):** MVP marketplace — ver [`ROADMAP_90D.md`](./ROADMAP_90D.md).

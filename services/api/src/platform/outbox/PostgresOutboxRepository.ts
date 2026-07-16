@@ -1,29 +1,33 @@
 import type { Pool, PoolClient } from "pg";
 import type { DomainEvent } from "../../shared/events/types.js";
+import { requirePostgresClient } from "../transaction/types.js";
+import type { TxContext } from "../transaction/types.js";
 import type { InsertOutboxInput, OutboxRecord, OutboxRepository, OutboxStatus } from "./types.js";
 
 type Queryable = Pool | PoolClient;
 
 /**
  * PostgreSQL Outbox — claim uses FOR UPDATE SKIP LOCKED.
- * Caller must run insert() inside the same DB transaction as domain writes.
+ * insert(tx, …) uses the transactional client; claim/mark use pool (publisher worker).
  */
 export class PostgresOutboxRepository implements OutboxRepository {
   constructor(private readonly db: Queryable) {}
 
-  async insert(input: InsertOutboxInput): Promise<OutboxRecord> {
+  async insert(tx: TxContext, input: InsertOutboxInput): Promise<OutboxRecord> {
+    const client = requirePostgresClient(tx);
     const id = input.id ?? input.event.id ?? crypto.randomUUID();
     const event: DomainEvent = { ...input.event, id };
+    const meta = event.metadata;
     const maxAttempts = input.maxAttempts ?? 5;
 
-    const res = await this.db.query(
+    const res = await client.query(
       `
       INSERT INTO platform.outbox_events (
         id, aggregate_type, aggregate_id, event_name, event_version, schema_version,
         payload, status, attempts, max_attempts, request_id, trace_id,
-        correlation_id, causation_id, projection_version
+        correlation_id, causation_id, projection_version, committed_at
       ) VALUES (
-        $1,$2,$3,$4,$5,$6,$7::jsonb,'pending',0,$8,$9,$10,$11,$12,$13
+        $1,$2,$3,$4,$5,$6,$7::jsonb,'pending',0,$8,$9,$10,$11,$12,$13,now()
       )
       RETURNING *
       `,
@@ -32,15 +36,15 @@ export class PostgresOutboxRepository implements OutboxRepository {
         event.aggregateType,
         event.aggregateId,
         event.eventType,
-        event.eventVersion,
-        event.schemaVersion,
+        meta.eventVersion,
+        meta.schemaVersion,
         JSON.stringify(event),
         maxAttempts,
-        event.requestId,
-        event.traceId ?? null,
-        event.correlationId,
-        event.causationId ?? null,
-        event.projectionVersion ?? null,
+        meta.requestId,
+        meta.traceId ?? null,
+        meta.correlationId,
+        meta.causationId ?? null,
+        meta.projectionVersion ?? null,
       ],
     );
     return mapRow(res.rows[0]);
@@ -167,6 +171,7 @@ function mapRow(row: Record<string, unknown>): OutboxRecord {
     leaseUntil: row.lease_until ? new Date(String(row.lease_until)) : null,
     leasedBy: row.leased_by ? String(row.leased_by) : null,
     publishedAt: row.published_at ? new Date(String(row.published_at)) : null,
+    committedAt: new Date(String(row.committed_at ?? row.created_at)),
     createdAt: new Date(String(row.created_at)),
     requestId: row.request_id ? String(row.request_id) : null,
     traceId: row.trace_id ? String(row.trace_id) : null,
