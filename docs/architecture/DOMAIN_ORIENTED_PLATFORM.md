@@ -1,14 +1,14 @@
 # JudgeTCG — Arquitetura Orientada a Domínios (Revisão Etapa 1.2)
 
-**Status:** Fundação congelada — tag `v0.2.0-foundation`  
+**Status:** Fundação congelada — tag `v0.2.0-foundation` (+ emendas pré-Outbox em FOUNDATION_FREEZE §6)  
 **Data:** 2026-07-16  
-**Versão:** 1.2.2  
+**Versão:** 1.2.3  
 **Escopo:** Catalog → Pricing → Marketplace → Search → Analytics (+ Media + Platform + Audit + Outbox)
 
 > Substitui Etapa 1 (`ingestion-platform`) e Etapa 1.1.  
 > Refinamentos 1.2.1 na fundação (§17).  
-> Contratos congelados: [`FOUNDATION_FREEZE.md`](./FOUNDATION_FREEZE.md).  
-> **Outbox Pattern** é incremento obrigatório antes de Scryfall LIVE (§18).
+> Contratos: [`FOUNDATION_FREEZE.md`](./FOUNDATION_FREEZE.md).  
+> **Próximo incremento:** Outbox → TransactionManager → Repository interfaces (§18–19).
 
 ---
 
@@ -564,12 +564,14 @@ Semântica: **mapeamento carta ↔ provider**, não a entidade Provider em si (r
 | Nome | Antes | Notas |
 |------|-------|-------|
 | `pricing_markets` | — | |
-| **`price_snapshots`** | pricing_prices | Snapshot TCGPlayer-ready |
-| **`price_history`** | pricing_history | Série temporal |
+| **`current_price_snapshot`** | (emenda) | Snapshot quente — leitura de vitrine |
+| **`price_history`** | pricing_history | Append-only |
 | `currencies` | — | USD/EUR/JPY |
 | **`currency_rates`** | exchange_rates | + `exchange_provider` |
 
-#### `price_snapshots`
+> Nota 1.2.3: `price_snapshots` da migration Fase 1 será evoluída para `current_price_snapshot` + `price_history` (sync: insert history → upsert current). Não usar overwrite único.
+
+#### `current_price_snapshot` / campos TCGPlayer-ready
 
 ```text
 catalog_card_id, variant_id, market_id
@@ -577,6 +579,7 @@ min_price, avg_price, market_price, max_price?
 currency, condition, printing, language, finish
 seller_count, last_sale, last_sale_date
 recorded_at
+UNIQUE parcial / natural key por dimensão de mercado
 ```
 
 #### `currency_rates`
@@ -728,28 +731,59 @@ Rendered Card  ← montado na API/FE; NUNCA escrito de volta no Catalog
 | 1.2 | Media, Platform, SoT, Registry Health, pub/sub pleno, nomenclatura, Search multi-evento |
 | 1.2.1 | Event versioning, provider_object_type, pHash, IndexProjectionVersion, analytics_events, Cost, queue priority, flags, audit.*, Rendered Card |
 | 1.2.2 | Foundation freeze + tag `v0.2.0-foundation`; Outbox Pattern documentado; contratos públicos congelados |
+| 1.2.3 | Emendas pré-Outbox: consumer_offsets, envelope triplo (type/event/schema), TransactionManager antes de repos, current_price_snapshot, índices mappings, projection_version, registry cost/availability |
 
 ---
 
-## 18. Outbox Pattern (pós-freeze, pré-LIVE)
+## 18. Outbox + Transaction + Repositories (ordem canônica)
 
-Fluxo alvo de publicação de eventos:
+### 18.1 Runtime
 
 ```text
-Domain Transaction (BEGIN)
-  → mutations (sets/cards/variants/mappings)
-  → INSERT outbox_events   // mesma TX
-COMMIT
+Request
+  → TransactionManager.begin()
+  → Repositories (upserts)
+  → OutboxRepository.insert (mesma TX)
+  → COMMIT
   → Outbox Publisher
   → Redis Event Bus
-  → Consumers (Search, Analytics, Notification, …)
+  → Consumers (+ consumer_offsets)
 ```
 
-**Proibido:** `eventBus.publish` antes do commit (ou sem persistência).  
-O `CatalogSyncService` da Fase 1 ainda publica in-memory — débito aceito no freeze; substituir ao introduzir repositories.
+**Proibido:** publish antes do commit (eventos fantasma).
 
-Ver detalhes em [`FOUNDATION_FREEZE.md`](./FOUNDATION_FREEZE.md) §3.
+### 18.2 Ordem de construção
+
+```text
+1 Outbox
+2 TransactionManager
+3 Repository interfaces + Postgres* implementations
+4 BullMQ processors
+5 Persistência real
+6–8 Scryfall OFF → SHADOW → CANARY → LIVE
+9+ Demais providers → Media → Pricing → Search → Analytics
+```
+
+### 18.3 Envelope
+
+`eventType` + `eventVersion` + `schemaVersion` + `projectionVersion?` + `requestId` / `traceId`.
+
+Detalhes de tabelas: [`FOUNDATION_FREEZE.md`](./FOUNDATION_FREEZE.md) §3–6.
 
 ---
 
-**Próximo incremento após tag:** Outbox → Repositories → Transaction layer → BullMQ processors → Scryfall SHADOW.
+## 19. Repository Pattern
+
+```text
+CatalogRepository (port)
+  └── PostgresCatalogRepository (adapter)
+```
+
+Services de domínio nunca dependem de Supabase/SDK vendor.
+
+Índices obrigatórios em `provider_mappings`:  
+`(provider, provider_card_id)`, `(provider, provider_variant_id)`, `(catalog_card_id)`, `(catalog_variant_id)`.
+
+---
+
+**Próximo incremento após autorização:** Outbox (schema + publisher idempotente) — sem Scryfall write.
