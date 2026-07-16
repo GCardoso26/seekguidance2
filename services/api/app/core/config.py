@@ -9,6 +9,11 @@ class Settings(BaseSettings):
 
     app_name: str = "TCG Judge API"
     environment: str = "development"
+    # Business Program 3.5 — production is fail-closed for sandbox entitlements
+    app_mode: str = "development"  # production | beta | sandbox | development
+    sandbox_admin_emails: str = ""  # CSV allowlist
+    seed_demo_force: bool = False
+
     cors_allowed_origins: str = "*"
     api_docs_enabled: bool = True
     log_level: str = "INFO"

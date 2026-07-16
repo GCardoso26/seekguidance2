@@ -56,8 +56,12 @@ from app.core.security.middleware import (
 )
 from app.financial_platform.api import router as financial_platform_router
 from app.identity_platform.api import router as identity_platform_router
-from app.sandbox.api import router as sandbox_router
 from app.tournament_platform.api import router as tournament_platform_router
+
+try:
+    from app.sandbox.api import router as sandbox_router
+except ImportError:  # pacote ainda não presente em alguns deploys
+    sandbox_router = None
 
 init_sentry()
 configure_logging()
@@ -321,7 +325,8 @@ app.include_router(kyc_api_router)
 app.include_router(identity_platform_router)
 app.include_router(tournament_platform_router)
 app.include_router(financial_platform_router)
-app.include_router(sandbox_router)
+if sandbox_router is not None:
+    app.include_router(sandbox_router)
 app.include_router(runtime_judge_router)
 app.include_router(judge_product_router)
 app.include_router(judge_assistant_router)

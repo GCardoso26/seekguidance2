@@ -18,6 +18,8 @@ services:
     envVars:
       - key: ENVIRONMENT
         value: production
+      - key: APP_MODE
+        value: production
       - key: LOG_LEVEL
         value: INFO
       - key: DATABASE_SSL
