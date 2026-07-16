@@ -1,14 +1,12 @@
 # JudgeTCG — Arquitetura Orientada a Domínios (Revisão Etapa 1.2)
 
-**Status:** Fundação congelada — tag `v0.2.0-foundation` (+ emendas pré-Outbox em FOUNDATION_FREEZE §6)  
+**Status:** Base definitiva para Outbox (docs v1.2.4) — tag `v0.2.0-foundation`  
 **Data:** 2026-07-16  
-**Versão:** 1.2.3  
+**Versão:** 1.2.4  
 **Escopo:** Catalog → Pricing → Marketplace → Search → Analytics (+ Media + Platform + Audit + Outbox)
 
-> Substitui Etapa 1 (`ingestion-platform`) e Etapa 1.1.  
-> Refinamentos 1.2.1 na fundação (§17).  
 > Contratos: [`FOUNDATION_FREEZE.md`](./FOUNDATION_FREEZE.md).  
-> **Próximo incremento:** Outbox → TransactionManager → Repository interfaces (§18–19).
+> Outbox definitivo: leasing, DLQ (`dead`), correlation/causation, EventPublisher port, payload imutável.
 
 ---
 
@@ -731,7 +729,8 @@ Rendered Card  ← montado na API/FE; NUNCA escrito de volta no Catalog
 | 1.2 | Media, Platform, SoT, Registry Health, pub/sub pleno, nomenclatura, Search multi-evento |
 | 1.2.1 | Event versioning, provider_object_type, pHash, IndexProjectionVersion, analytics_events, Cost, queue priority, flags, audit.*, Rendered Card |
 | 1.2.2 | Foundation freeze + tag `v0.2.0-foundation`; Outbox Pattern documentado; contratos públicos congelados |
-| 1.2.3 | Emendas pré-Outbox: consumer_offsets, envelope triplo (type/event/schema), TransactionManager antes de repos, current_price_snapshot, índices mappings, projection_version, registry cost/availability |
+| 1.2.3 | Emendas pré-Outbox: consumer_offsets, envelope triplo, TransactionManager, current_price_snapshot, índices, projection_version, registry cost |
+| 1.2.4 | Outbox definitivo: leasing, DLQ dead, correlation/causation, EventPublisher port, payload imutável, consumer metrics, checklist pré-Scryfall write |
 
 ---
 
@@ -740,50 +739,44 @@ Rendered Card  ← montado na API/FE; NUNCA escrito de volta no Catalog
 ### 18.1 Runtime
 
 ```text
-Request
-  → TransactionManager.begin()
-  → Repositories (upserts)
-  → OutboxRepository.insert (mesma TX)
-  → COMMIT
-  → Outbox Publisher
-  → Redis Event Bus
+Request → TX → Repos → Outbox.insert (immutable) → COMMIT
+  → Publisher (SKIP LOCKED + lease)
+  → EventPublisher → RedisPublisher
   → Consumers (+ consumer_offsets)
 ```
 
-**Proibido:** publish antes do commit (eventos fantasma).
+**Proibido:** publish antes do commit · mutar payload do Outbox.
 
 ### 18.2 Ordem de construção
 
 ```text
-1 Outbox
+1 Outbox (lease + DLQ + EventPublisher)
 2 TransactionManager
-3 Repository interfaces + Postgres* implementations
+3 Repository ports + Postgres*
 4 BullMQ processors
-5 Persistência real
+5 Persistência
 6–8 Scryfall OFF → SHADOW → CANARY → LIVE
-9+ Demais providers → Media → Pricing → Search → Analytics
+9+ …
 ```
 
 ### 18.3 Envelope
 
-`eventType` + `eventVersion` + `schemaVersion` + `projectionVersion?` + `requestId` / `traceId`.
+`eventType` · `eventVersion` (semântica) · `schemaVersion` (formato) · `correlationId` · `causationId` · `projectionVersion?` · `requestId` / `traceId`
 
-Detalhes de tabelas: [`FOUNDATION_FREEZE.md`](./FOUNDATION_FREEZE.md) §3–6.
+### 18.4 Antes da primeira escrita Scryfall
+
+Checklist em [`FOUNDATION_FREEZE.md`](./FOUNDATION_FREEZE.md) §8 (TX, Outbox pós-commit, lease recovery, consumers idempotentes, lag, health Publisher, payload imutável).
 
 ---
 
 ## 19. Repository Pattern
 
 ```text
-CatalogRepository (port)
-  └── PostgresCatalogRepository (adapter)
+CatalogRepository (port) → PostgresCatalogRepository (adapter)
 ```
 
-Services de domínio nunca dependem de Supabase/SDK vendor.
-
-Índices obrigatórios em `provider_mappings`:  
-`(provider, provider_card_id)`, `(provider, provider_variant_id)`, `(catalog_card_id)`, `(catalog_variant_id)`.
+Índices `provider_mappings`: `(provider, provider_card_id)`, `(provider, provider_variant_id)`, `(catalog_card_id)`, `(catalog_variant_id)`.
 
 ---
 
-**Próximo incremento após autorização:** Outbox (schema + publisher idempotente) — sem Scryfall write.
+**Próximo incremento após autorização:** Outbox definitivo (migration + lease + DLQ + EventPublisher + worker) — sem Scryfall write.
