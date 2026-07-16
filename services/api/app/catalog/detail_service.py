@@ -35,7 +35,7 @@ def _parse_uuid(card_id: str) -> UUID:
 
 
 def _game_detail_fields(game_data: dict[str, Any] | None) -> dict[str, Any]:
-    gd = game_data or {}
+    gd = game_data if isinstance(game_data, dict) else {}
     legalities = gd.get("legalities") or gd.get("legality") or {}
     if isinstance(legalities, dict):
         legalities = {
@@ -428,7 +428,11 @@ async def get_card_detail(session: AsyncSession, card_id: str) -> dict[str, Any]
         set_code=row.get("set_code"),
     )
 
-    intelligence = await get_card_intelligence(session, str(uid))
+    intelligence = None
+    try:
+        intelligence = await get_card_intelligence(session, str(uid))
+    except Exception:
+        intelligence = None
     trusts = [
         float(listing["sellerReputation"])
         for listing in listings
@@ -458,7 +462,12 @@ async def get_card_detail(session: AsyncSession, card_id: str) -> dict[str, Any]
             ),
             default=None,
         ),
-        "currency": (listings[0].get("currency") if listings else card.get("latestPrice", {}).get("currency"))
+        # latestPrice pode ser None (chave presente) — não usar .get(key, {}).
+        "currency": (
+            listings[0].get("currency")
+            if listings
+            else (card.get("latestPrice") or {}).get("currency")
+        )
         or "BRL",
         "soldVolume": sold_volume or None,
         "avgSellerTrust": avg_trust,

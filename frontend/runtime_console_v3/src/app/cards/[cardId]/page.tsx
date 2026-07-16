@@ -2,14 +2,13 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { CardDetailJsonLd } from "@/components/cards/CardDetailJsonLd";
 import { CardDetailPage } from "@/components/cards/CardDetailPage";
+import { API_PROXY_BASE } from "@/lib/api-proxy-base";
 import type { CardDetailResponse } from "@/types/card";
-
-const API_BASE = (process.env.API_PROXY_TARGET || "http://127.0.0.1:8000").replace(/\/$/, "");
 
 async function fetchCardDetail(cardId: string): Promise<CardDetailResponse | null> {
   try {
     const res = await fetch(
-      `${API_BASE}/runtime/judge/catalog/cards/${encodeURIComponent(cardId)}`,
+      `${API_PROXY_BASE}/runtime/judge/catalog/cards/${encodeURIComponent(cardId)}`,
       { next: { revalidate: 3600 } },
     );
     if (!res.ok) return null;

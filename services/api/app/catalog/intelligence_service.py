@@ -358,7 +358,17 @@ async def get_card_intelligence(session: AsyncSession, card_id: str) -> dict[str
             "downgrades": downgrades,
             "frequentlyTogether": same_set[:3],
             "commanderHints": [
-                c for c in same_set if "legend" in str((c.get("gameData") or {}).get("type_line") or "").lower()
+                c
+                for c in same_set
+                if "legend"
+                in str(
+                    (
+                        c.get("gameData")
+                        if isinstance(c.get("gameData"), dict)
+                        else {}
+                    ).get("type_line")
+                    or ""
+                ).lower()
             ][:4],
         },
         "variants": variants,

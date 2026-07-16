@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-
-const API_BASE = (process.env.API_PROXY_TARGET || "http://127.0.0.1:8000").replace(/\/$/, "");
+import { API_PROXY_BASE } from "@/lib/api-proxy-base";
 
 type RouteParams = { params: Promise<{ cardId: string }> };
 
@@ -8,12 +7,15 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
   const { cardId } = await params;
 
   try {
-    const res = await fetch(`${API_BASE}/runtime/judge/catalog/cards/${encodeURIComponent(cardId)}`, {
-      headers: {
-        "X-Judge-User-Id": _request.headers.get("X-Judge-User-Id") || "",
+    const res = await fetch(
+      `${API_PROXY_BASE}/runtime/judge/catalog/cards/${encodeURIComponent(cardId)}`,
+      {
+        headers: {
+          "X-Judge-User-Id": _request.headers.get("X-Judge-User-Id") || "",
+        },
+        next: { revalidate: 60 },
       },
-      next: { revalidate: 60 },
-    });
+    );
 
     if (res.status === 404) {
       return NextResponse.json({ error: "Card not found" }, { status: 404 });
