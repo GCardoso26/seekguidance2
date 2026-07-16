@@ -5,6 +5,8 @@ from __future__ import annotations
 
 def test_latest_price_none_currency_access():
     """Replica o bug: card['latestPrice'] = None quebra .get(key, {}).get(...)."""
+    from app.catalog.detail_service import _market_currency
+
     card = {"latestPrice": None}
     # Comportamento quebrado (antes do fix)
     broke = False
@@ -14,9 +16,9 @@ def test_latest_price_none_currency_access():
         broke = True
     assert broke
 
-    # Comportamento corrigido
-    currency = (card.get("latestPrice") or {}).get("currency") or "BRL"
-    assert currency == "BRL"
+    assert _market_currency(card, []) == "BRL"
+    assert _market_currency({"latestPrice": {"currency": "USD"}}, []) == "USD"
+    assert _market_currency(card, [{"currency": "BRL"}]) == "BRL"
 
 
 def test_game_detail_fields_tolerates_non_dict():

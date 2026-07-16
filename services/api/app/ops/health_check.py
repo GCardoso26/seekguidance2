@@ -63,10 +63,20 @@ async def build_health_payload() -> dict[str, Any]:
     redis_status = await check_redis()
     core_ok = db_ok and redis_status in {"ok", "disabled"}
 
+    # Render injeta RENDER_GIT_COMMIT no deploy — útil para confirmar se o build novo está vivo.
+    git_commit = (
+        os.getenv("RENDER_GIT_COMMIT")
+        or os.getenv("GIT_COMMIT")
+        or os.getenv("COMMIT_SHA")
+        or ""
+    ).strip()[:40] or None
+
     return {
         "status": "healthy" if core_ok else "degraded",
         "timestamp": datetime.now(UTC).isoformat(),
         "version": APP_VERSION,
+        "gitCommit": git_commit,
+        "buildStamp": "catalog-detail-null-price-fix",
         "services": {
             "database": "ok" if db_ok else "error",
             "redis": redis_status,

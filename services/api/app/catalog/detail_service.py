@@ -34,6 +34,20 @@ def _parse_uuid(card_id: str) -> UUID:
         raise ValueError("invalid_card_id") from exc
 
 
+def _market_currency(card: dict[str, Any], listings: list[dict[str, Any]]) -> str:
+    """Resolve currency without crashing when latestPrice is explicitly None."""
+    if listings:
+        raw = listings[0].get("currency")
+        if raw:
+            return str(raw)
+    latest = card.get("latestPrice")
+    if isinstance(latest, dict):
+        raw = latest.get("currency")
+        if raw:
+            return str(raw)
+    return "BRL"
+
+
 def _game_detail_fields(game_data: dict[str, Any] | None) -> dict[str, Any]:
     gd = game_data if isinstance(game_data, dict) else {}
     legalities = gd.get("legalities") or gd.get("legality") or {}
@@ -462,13 +476,8 @@ async def get_card_detail(session: AsyncSession, card_id: str) -> dict[str, Any]
             ),
             default=None,
         ),
-        # latestPrice pode ser None (chave presente) — não usar .get(key, {}).
-        "currency": (
-            listings[0].get("currency")
-            if listings
-            else (card.get("latestPrice") or {}).get("currency")
-        )
-        or "BRL",
+        # latestPrice pode ser None (chave presente) — nunca .get(key, {}).get(...).
+        "currency": _market_currency(card, listings),
         "soldVolume": sold_volume or None,
         "avgSellerTrust": avg_trust,
         "popularity": "alta" if len(listings) >= 8 else "média" if len(listings) >= 3 else "baixa",

@@ -96,7 +96,14 @@ async def catalog_price_trends(
 
 @router.get("/runtime/judge/catalog/cards/{card_id}")
 async def catalog_card_detail(session: DbSession, card_id: str) -> dict[str, Any]:
-    detail = await get_card_detail(session, card_id)
+    try:
+        detail = await get_card_detail(session, card_id)
+    except Exception as exc:
+        # Defesa extra: nunca 500 opaco por NoneType em campos opcionais de mercado.
+        raise HTTPException(
+            status_code=503,
+            detail=f"card_detail_unavailable:{type(exc).__name__}",
+        ) from exc
     if not detail:
         raise HTTPException(status_code=404, detail="Card not found")
     return detail
