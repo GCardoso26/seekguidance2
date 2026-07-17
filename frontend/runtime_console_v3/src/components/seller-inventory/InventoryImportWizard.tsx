@@ -1,11 +1,13 @@
 "use client";
 
 import { useMutation } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { Upload } from "lucide-react";
+import { useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { InlineAlert } from "@/components/ui/async-state";
 
 const HISTORY_KEY = "judgetcg.inventory.importHistory";
+const MAX_CSV_BYTES = 8 * 1024 * 1024;
 
 type Step = 1 | 2 | 3;
 
@@ -13,15 +15,33 @@ type Props = {
   onImported: () => void;
 };
 
+async function readCsvFile(file: File): Promise<string> {
+  if (file.size > MAX_CSV_BYTES) {
+    throw new Error("Arquivo muito grande (máx. 8 MB)");
+  }
+  const buf = await file.arrayBuffer();
+  const asUtf8 = new TextDecoder("utf-8", { fatal: false }).decode(buf);
+  if (!asUtf8.includes("\uFFFD")) {
+    return asUtf8.replace(/^\uFEFF/, "");
+  }
+  // Export Liga costuma vir em Latin-1 / Windows-1252
+  return new TextDecoder("iso-8859-1").decode(buf);
+}
+
 export function InventoryImportWizard({ onImported }: Props) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [step, setStep] = useState<Step>(1);
   const [csv, setCsv] = useState("");
+  const [fileName, setFileName] = useState<string | null>(null);
+  const [fileError, setFileError] = useState<string | null>(null);
+  const [readingFile, setReadingFile] = useState(false);
   const [preview, setPreview] = useState<Array<Record<string, unknown>>>([]);
   const [result, setResult] = useState<{
     imported: number;
     skipped: number;
     errors: string[];
     dry_run?: boolean;
+    format?: string;
   } | null>(null);
 
   const history = useMemo(() => {
@@ -49,6 +69,7 @@ export function InventoryImportWizard({ onImported }: Props) {
         skipped: number;
         errors: string[];
         dry_run?: boolean;
+        format?: string;
         preview?: Array<Record<string, unknown>>;
         rollback_supported?: boolean;
       };
@@ -75,6 +96,45 @@ export function InventoryImportWizard({ onImported }: Props) {
     },
   });
 
+  async function handleFileChange(fileList: FileList | null) {
+    setFileError(null);
+    const file = fileList?.[0];
+    if (!file) return;
+    const lower = file.name.toLowerCase();
+    if (!lower.endsWith(".csv") && file.type && !file.type.includes("csv") && file.type !== "text/plain") {
+      setFileError("Selecione um arquivo .csv");
+      return;
+    }
+    setReadingFile(true);
+    try {
+      const text = await readCsvFile(file);
+      if (!text.trim()) {
+        setFileError("Arquivo CSV vazio");
+        setCsv("");
+        setFileName(null);
+        return;
+      }
+      setCsv(text);
+      setFileName(file.name);
+    } catch (err) {
+      setCsv("");
+      setFileName(null);
+      setFileError(err instanceof Error ? err.message : "Falha ao ler o arquivo");
+    } finally {
+      setReadingFile(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  }
+
+  function resetImport() {
+    setStep(1);
+    setCsv("");
+    setFileName(null);
+    setFileError(null);
+    setPreview([]);
+    setResult(null);
+  }
+
   return (
     <div id="import" className="scroll-mt-24 space-y-4 rounded-xl border border-border bg-card p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -85,22 +145,57 @@ export function InventoryImportWizard({ onImported }: Props) {
       {step === 1 ? (
         <div className="space-y-3">
           <p className="text-sm text-muted-foreground">
-            Colunas: name, category, price_cents, stock, sku, description
+            Envie o arquivo .csv (JudgeTCG ou export LigaLorcana). Não é necessário colar o conteúdo.
           </p>
-          <textarea
-            className="min-h-32 w-full rounded-md border border-input bg-background p-3 font-mono text-xs text-foreground"
-            value={csv}
-            onChange={(e) => setCsv(e.target.value)}
-            placeholder="name,category,price_cents,stock,sku&#10;Sleeve,sleeve,3490,10,SLV-01"
+
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".csv,text/csv,text/plain"
+            className="sr-only"
+            data-testid="inventory-csv-file-input"
+            onChange={(e) => void handleFileChange(e.target.files)}
           />
+
+          <div className="flex flex-wrap items-center gap-3">
+            <Button
+              type="button"
+              variant="secondary"
+              disabled={readingFile || importMut.isPending}
+              onClick={() => fileInputRef.current?.click()}
+              data-testid="inventory-csv-pick-file"
+            >
+              <Upload className="mr-2 size-4" aria-hidden />
+              {readingFile ? "Lendo arquivo…" : "Selecionar arquivo CSV"}
+            </Button>
+            {fileName ? (
+              <p className="text-sm text-foreground" data-testid="inventory-csv-file-name">
+                {fileName}
+                <span className="ml-2 text-xs text-muted-foreground">
+                  ({Math.ceil(csv.length / 1024)} KB)
+                </span>
+              </p>
+            ) : (
+              <p className="text-sm text-muted-foreground">Nenhum arquivo selecionado</p>
+            )}
+          </div>
+
+          {fileError ? <InlineAlert message={fileError} tone="error" /> : null}
+
           <div className="flex flex-wrap gap-2">
             <Button
               type="button"
-              disabled={!csv.trim() || importMut.isPending}
+              disabled={!csv.trim() || importMut.isPending || readingFile}
               onClick={() => importMut.mutate(true)}
+              data-testid="inventory-csv-preview"
             >
               Preview (dry-run)
             </Button>
+            {fileName ? (
+              <Button type="button" variant="ghost" onClick={resetImport}>
+                Limpar
+              </Button>
+            ) : null}
           </div>
         </div>
       ) : null}
@@ -108,6 +203,7 @@ export function InventoryImportWizard({ onImported }: Props) {
       {step === 2 ? (
         <div className="space-y-3">
           <p className="text-sm text-muted-foreground">
+            {fileName ? `${fileName} · ` : ""}
             Mapeamento automático · {preview.length} linha(s) válidas no preview
           </p>
           <div className="max-h-48 overflow-auto rounded-lg border border-border">
@@ -149,11 +245,12 @@ export function InventoryImportWizard({ onImported }: Props) {
         <div className="space-y-2 text-sm">
           <p className="text-foreground">
             Importados: {result.imported} · Ignorados: {result.skipped}
+            {result.format ? ` · Formato: ${result.format}` : ""}
           </p>
           {result.errors?.length ? (
             <InlineAlert message={result.errors.slice(0, 3).join("; ")} tone="warning" />
           ) : null}
-          <Button type="button" variant="secondary" onClick={() => { setStep(1); setCsv(""); setResult(null); }}>
+          <Button type="button" variant="secondary" onClick={resetImport}>
             Nova importação
           </Button>
         </div>
