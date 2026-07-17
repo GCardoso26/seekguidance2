@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Truck } from "lucide-react";
 import { CheckoutOrderSummary } from "@/components/checkout/CheckoutOrderSummary";
 import { CheckoutPaymentMethodPicker } from "@/components/checkout/CheckoutPaymentMethodPicker";
@@ -82,6 +82,7 @@ export function CheckoutClient() {
   const [loading, setLoading] = useState(true);
   const [pixLoading, setPixLoading] = useState(false);
   const [useEscrow, setUseEscrow] = useState(false);
+  const bootStarted = useRef(false);
 
   useEffect(() => {
     if (authLoading) return;
@@ -95,6 +96,9 @@ export function CheckoutClient() {
       setLoading(false);
       return;
     }
+    // Evita 2º initiate (accountStatus muda de identidade → cancela sessão → Stripe 400)
+    if (bootStarted.current) return;
+    bootStarted.current = true;
 
     async function bootCheckout() {
       setLoading(true);

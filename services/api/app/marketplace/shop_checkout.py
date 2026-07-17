@@ -100,8 +100,30 @@ async def _create_checkout_inner(
 
     created_here = False
     if checkout_session_id:
-        checkout_data = await checkout_atomic.get_active_session(session, checkout_session_id, user_id)
-        session_id = checkout_session_id
+        try:
+            checkout_data = await checkout_atomic.get_active_session(
+                session, checkout_session_id, user_id
+            )
+            session_id = checkout_session_id
+        except HTTPException as exc:
+            # FE pode re-disparar initiate (Strict Mode / accountStatus) e cancelar a sessão
+            detail = str(exc.detail or "")
+            if exc.status_code == 400 and (
+                "cancel" in detail.lower()
+                or "expir" in detail.lower()
+                or "Sessão" in detail
+            ):
+                logger.warning(
+                    "checkout_session_stale_reinit",
+                    user_id=user_id,
+                    old_session_id=checkout_session_id,
+                    detail=detail,
+                )
+                checkout_data = await checkout_atomic.initiate_checkout(session, user_id)
+                session_id = checkout_data["session_id"]
+                created_here = True
+            else:
+                raise
     else:
         checkout_data = await checkout_atomic.initiate_checkout(session, user_id)
         session_id = checkout_data["session_id"]
@@ -319,7 +341,8 @@ async def _build_stripe_checkout(
         commission_rate = float(split.get("commission_rate") or 0.15)
         product_total = int(split["amount_cents"])
         platform_fee = platform_fee_cents(product_total, commission_rate)
-        pi_kwargs["application_fee_amount"] = platform_fee
+        if platform_fee > 0:
+            pi_kwargs["application_fee_amount"] = platform_fee
         pi_kwargs["transfer_data"] = {"destination": str(split["stripe_account_id"])}
         pi_kwargs["metadata"]["platform_fee_cents"] = str(platform_fee)
         pi_kwargs["metadata"]["destination_store_id"] = store_id

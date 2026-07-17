@@ -80,6 +80,52 @@ async def inventory_summary(session: AsyncSession, store_id: str, owner_id: str)
     }
 
 
+def _parse_brl_to_cents(raw: str) -> int | None:
+    text = (raw or "").strip().replace("R$", "").replace(" ", "")
+    if not text:
+        return None
+    # Liga usa ponto decimal (0.30); BR às vezes vírgula
+    if "," in text and "." in text:
+        text = text.replace(".", "").replace(",", ".")
+    elif "," in text:
+        text = text.replace(",", ".")
+    try:
+        return int(round(float(text) * 100))
+    except ValueError:
+        return None
+
+
+def _is_liga_lorcana_headers(fieldnames: list[str] | None) -> bool:
+    if not fieldnames:
+        return False
+    joined = " | ".join(fieldnames).lower()
+    return ("carta id" in joined or "carta_id" in joined) and (
+        "nome da carta" in joined or "quantidade existente" in joined
+    )
+
+
+def _strip_csv_preamble(csv_text: str) -> str:
+    """Remove instruções do export Liga antes da linha de cabeçalho."""
+    lines = csv_text.splitlines()
+    for i, line in enumerate(lines):
+        stripped = line.lstrip("\ufeff").strip()
+        if stripped.startswith('"Tipo"') or stripped.startswith("Tipo,"):
+            return "\n".join(lines[i:])
+    return csv_text
+
+
+def _field(row: dict[str, str], *candidates: str) -> str:
+    lower_map = {str(k).strip().lower(): (v or "") for k, v in row.items() if k is not None}
+    for cand in candidates:
+        if cand.lower() in lower_map:
+            return lower_map[cand.lower()].strip()
+    for key, val in lower_map.items():
+        for cand in candidates:
+            if cand.lower() in key:
+                return val.strip()
+    return ""
+
+
 def _parse_csv_row(row: dict[str, str], line_no: int) -> tuple[dict[str, Any] | None, str | None]:
     name = (row.get("name") or row.get("nome") or "").strip()
     if not name:
@@ -108,6 +154,56 @@ def _parse_csv_row(row: dict[str, str], line_no: int) -> tuple[dict[str, Any] | 
     }, None
 
 
+def _parse_liga_lorcana_row(row: dict[str, str], line_no: int) -> tuple[dict[str, Any] | None, str | None]:
+    """Export Liga Magic / LigaLorcana → produto single JudgeTCG."""
+    name_en = _field(row, "Nome da Carta EN", "nome da carta en")
+    name_pt = _field(row, "Nome da Carta", "nome da carta")
+    base_name = name_en or name_pt
+    if not base_name:
+        return None, None
+
+    qty_delta = _field(row, "Quantidade Para Somar", "Quantidade Para Somar/Subtrair")
+    qty_exist = _field(row, "Quantidade Existente")
+    qty_raw = qty_delta or qty_exist
+    if not qty_raw:
+        return None, None
+    try:
+        stock = int(float(qty_raw))
+    except ValueError:
+        return None, f"Linha {line_no}: quantidade inválida ({qty_raw})"
+    if stock <= 0:
+        return None, None
+
+    price_cents = _parse_brl_to_cents(_field(row, "Preço", "Preco", "price"))
+    if price_cents is None or price_cents <= 0:
+        return None, f"Linha {line_no} ({base_name}): preço inválido ou ausente"
+
+    condition = _field(row, "Qualidade (M, NM, SP, MP, HP, D)", "Qualidade") or "NM"
+    set_code = _field(row, "Edição Sigla", "Edicao Sigla")
+    card_id = _field(row, "Carta ID")
+    number = _field(row, "Número", "Numero").lstrip("=").strip('"')
+    foil = _field(row, "Foil (0 ou 1)", "Foil") == "1"
+
+    name = f"{base_name} ({condition})"
+    if foil:
+        name = f"{base_name} ★ ({condition})"
+
+    sku_parts = [p for p in (set_code, card_id or number, condition, "F" if foil else None) if p]
+    sku = "-".join(sku_parts)[:64] if sku_parts else None
+    description = " · ".join(
+        p for p in (set_code, f"#{number}" if number else None, "LigaLorcana import") if p
+    )
+
+    return {
+        "name": name,
+        "category": "single",
+        "price_cents": price_cents,
+        "stock": stock,
+        "sku": sku,
+        "description": description,
+    }, None
+
+
 async def import_products_csv(
     session: AsyncSession,
     store_id: str,
@@ -126,9 +222,13 @@ async def import_products_csv(
     if not text_clean:
         raise HTTPException(400, "CSV vazio")
 
+    text_clean = _strip_csv_preamble(text_clean)
     reader = csv.DictReader(io.StringIO(text_clean))
     if not reader.fieldnames:
         raise HTTPException(400, "CSV sem cabeçalho (name,category,price_cents,stock,sku)")
+
+    liga_mode = _is_liga_lorcana_headers(list(reader.fieldnames))
+    parse_row = _parse_liga_lorcana_row if liga_mode else _parse_csv_row
 
     imported = 0
     skipped = 0
@@ -136,7 +236,7 @@ async def import_products_csv(
     preview: list[dict[str, Any]] = []
 
     for line_no, row in enumerate(reader, start=2):
-        parsed, err = _parse_csv_row(row, line_no)
+        parsed, err = parse_row(row, line_no)
         if err:
             errors.append(err)
             skipped += 1
@@ -171,6 +271,7 @@ async def import_products_csv(
         "skipped": skipped,
         "errors": errors[:50],
         "dry_run": dry_run,
+        "format": "liga_lorcana" if liga_mode else "judgetcg",
         "preview": preview[:50] if dry_run else [],
         "rollback_supported": False,
     }
