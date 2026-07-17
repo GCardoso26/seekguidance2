@@ -105,7 +105,8 @@ async def upsert_card(session: AsyncSession, card: dict[str, Any]) -> str | None
                   game_specific_type = EXCLUDED.game_specific_type,
                   legality = EXCLUDED.legality,
                   image_url = EXCLUDED.image_url,
-                  game_data = EXCLUDED.game_data,
+                  game_data = COALESCE(tcg_judge.card_catalog.game_data, '{}'::jsonb)
+                    || COALESCE(EXCLUDED.game_data, '{}'::jsonb),
                   external_ids = EXCLUDED.external_ids,
                   image_uris = EXCLUDED.image_uris,
                   language = EXCLUDED.language,

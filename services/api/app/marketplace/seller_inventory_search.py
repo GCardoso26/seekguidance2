@@ -282,10 +282,13 @@ async def _cards_my_catalog(
     """
     ink_sql = """
         (
-          EXISTS (
-            SELECT 1
-            FROM jsonb_array_elements_text(COALESCE(cc.game_data->'colors', '[]'::jsonb)) AS val
-            WHERE lower(val) = :ink
+          (
+            jsonb_typeof(COALESCE(cc.game_data->'colors', '[]'::jsonb)) = 'array'
+            AND EXISTS (
+              SELECT 1
+              FROM jsonb_array_elements_text(COALESCE(cc.game_data->'colors', '[]'::jsonb)) AS val
+              WHERE lower(val) = :ink
+            )
           )
           OR lower(COALESCE(cc.game_data->>'ink', '')) LIKE '%' || :ink || '%'
         )
