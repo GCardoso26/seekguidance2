@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal
 
 from app.api.deps import DbSession, SettingsDep
 from app.api.v1.tournament_system import _require_user
@@ -218,6 +218,8 @@ class CrmNotesBody(BaseModel):
 
 class InventoryImportBody(BaseModel):
     csv: str = Field(min_length=1)
+    dry_run: bool = False
+    on_duplicate: Literal["ask", "merge", "skip"] = "ask"
 
 
 @router.get("/runtime/judge/marketplace/shop/products")
