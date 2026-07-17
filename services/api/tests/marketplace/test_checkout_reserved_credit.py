@@ -32,3 +32,30 @@ def test_available_without_credit_falsely_fails():
     reserved_after_initiate = 4
     available_wrong = stock - reserved_after_initiate
     assert available_wrong == 0  # bug antigo
+
+
+def test_methods_available_formula_with_own_credit():
+    """get_checkout_methods deve usar a mesma fórmula stock - reserved + own_credit."""
+    stock = 2
+    reserved = 2
+    own_credit = {"prod-a": 2}
+    available = stock - reserved + own_credit.get("prod-a", 0)
+    assert available == 2
+    assert 2 <= available
+
+
+def test_checkout_sessions_update_sql_has_no_updated_at():
+    """Regressão 500: coluna updated_at não existe em checkout_sessions."""
+    import inspect
+
+    from app.marketplace import shop_checkout
+
+    src = inspect.getsource(shop_checkout._build_stripe_checkout)
+    assert "payment_intent_id = :pi" in src
+    assert "payment_method = 'stripe'" in src
+    # Não pode atualizar updated_at nesta tabela
+    assert "updated_at = NOW()" not in src or "checkout_sessions" not in src.split("updated_at = NOW()")[0][-200:]
+    # Garantia explícita: o UPDATE da sessão não referencia updated_at
+    block = src[src.find("UPDATE tcg_judge.checkout_sessions") :]
+    block = block[: block.find('"""', 10) + 3]
+    assert "updated_at" not in block

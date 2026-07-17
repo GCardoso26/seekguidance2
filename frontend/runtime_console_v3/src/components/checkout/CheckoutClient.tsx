@@ -96,26 +96,50 @@ export function CheckoutClient() {
       return;
     }
 
-    async function reserveStock() {
-      const res = await fetch("/api/checkout/initiate", {
+    async function bootCheckout() {
+      setLoading(true);
+      setInitError(null);
+      setReservationError(null);
+
+      // Methods ANTES de reservar — evita 400 "estoque insuficiente" por reserved da própria sessão
+      const methodsRes = await fetch("/api/marketplace/shop/checkout/methods");
+      if (!methodsRes.ok) {
+        const body = await methodsRes.json().catch(() => ({}));
+        setInitError(String(body.detail ?? "Não foi possível iniciar checkout"));
+        setLoading(false);
+        return;
+      }
+      const methodsData = (await methodsRes.json()) as Methods;
+      setMethods(methodsData);
+      setTotalCents(methodsData.total_cents);
+      setMethod(
+        methodsData.default_method === "stripe" && methodsData.methods.stripe ? "stripe" : "pix",
+      );
+
+      const initRes = await fetch("/api/checkout/initiate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: "{}",
       });
-      if (res.status === 423) {
-        setReservationError("Item sendo processado por outro comprador. Tente novamente em instantes.");
+      if (initRes.status === 423) {
+        setReservationError(
+          "Item sendo processado por outro comprador. Tente novamente em instantes.",
+        );
+        setLoading(false);
         return;
       }
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
+      if (!initRes.ok) {
+        const body = await initRes.json().catch(() => ({}));
         setReservationError(String(body.detail ?? "Não foi possível reservar estoque"));
+        setLoading(false);
         return;
       }
-      const data = await res.json();
-      const checkout = (data.checkout ?? data) as CheckoutSessionInfo;
+      const initData = await initRes.json();
+      const checkout = (initData.checkout ?? initData) as CheckoutSessionInfo;
       setCheckoutSession(checkout);
+      setLoading(false);
     }
-    void reserveStock();
+    void bootCheckout();
   }, [authLoading, user, accountLoading, accountStatus]);
 
   async function handleReservationExpired() {
@@ -127,27 +151,6 @@ export function CheckoutClient() {
     setClientSecret(null);
     setReservationError("Sessão expirada. Os itens foram liberados — atualize a página para tentar novamente.");
   }
-
-  useEffect(() => {
-    if (authLoading || !user) return;
-    if (accountLoading || needsCpfCompletion(accountStatus)) return;
-
-    async function loadMethods() {
-      const res = await fetch("/api/marketplace/shop/checkout/methods");
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        setInitError(String(body.detail ?? "Não foi possível iniciar checkout"));
-        setLoading(false);
-        return;
-      }
-      const data = (await res.json()) as Methods;
-      setMethods(data);
-      setTotalCents(data.total_cents);
-      setMethod(data.default_method === "stripe" && data.methods.stripe ? "stripe" : "pix");
-      setLoading(false);
-    }
-    void loadMethods();
-  }, [authLoading, user, accountLoading, accountStatus]);
 
   async function startPix(coupon?: { code: string; storeId: string } | null) {
     setPixLoading(true);

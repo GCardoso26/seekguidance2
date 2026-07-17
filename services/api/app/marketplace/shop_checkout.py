@@ -69,6 +69,15 @@ async def create_checkout(
             409,
             "Não foi possível iniciar o checkout (conflito de sessão). Tente novamente.",
         ) from exc
+    except HTTPException:
+        raise
+    except Exception as exc:
+        await session.rollback()
+        logger.exception("checkout_unexpected_error", user_id=user_id, error=str(exc))
+        raise HTTPException(
+            400,
+            "Não foi possível concluir o checkout. Tente novamente em instantes.",
+        ) from exc
 
 
 async def _create_checkout_inner(
@@ -334,11 +343,12 @@ async def _build_stripe_checkout(
             ),
             {"pi": intent.id, "id": order_id},
         )
+    # checkout_sessions não tem updated_at (migration 20260622180000)
     await session.execute(
         text(
             """
             UPDATE tcg_judge.checkout_sessions
-            SET payment_intent_id = :pi, payment_method = 'stripe', updated_at = NOW()
+            SET payment_intent_id = :pi, payment_method = 'stripe'
             WHERE id = :sid AND user_id = :uid
             """
         ),

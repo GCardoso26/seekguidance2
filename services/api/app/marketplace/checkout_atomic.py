@@ -67,6 +67,29 @@ async def _sync_listing_reserve(
     return listing_id
 
 
+async def user_active_locked_qty_credit(session: AsyncSession, user_id: str) -> dict[str, int]:
+    """Soma qty já reservada por sessões active deste usuário (não deve reduzir available)."""
+    rows = (
+        await session.execute(
+            text(
+                """
+                SELECT locked_items FROM tcg_judge.checkout_sessions
+                WHERE user_id = :uid AND status = 'active'
+                """
+            ),
+            {"uid": user_id},
+        )
+    ).mappings().all()
+    credit: dict[str, int] = {}
+    for row in rows:
+        for item in _parse_locked_items(row.get("locked_items")):
+            pid = str(item.get("product_id") or "")
+            if not pid:
+                continue
+            credit[pid] = credit.get(pid, 0) + int(item.get("quantity") or 0)
+    return credit
+
+
 async def cancel_active_checkouts_for_user(session: AsyncSession, user_id: str) -> int:
     """Libera reservas de sessões active do usuário (retries sem deixar reserved zumbi)."""
     rows = (

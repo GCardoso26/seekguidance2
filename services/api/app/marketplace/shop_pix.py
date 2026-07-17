@@ -117,10 +117,20 @@ async def update_payment_settings(
 
 
 async def get_checkout_methods(session: AsyncSession, user_id: str) -> dict[str, Any]:
+    from app.marketplace import checkout_atomic
+
     cart = await shop_cart.get_cart(session, user_id)
     items = list(cart.get("items") or [])
     if not items:
         raise HTTPException(400, "Carrinho vazio")
+
+    try:
+        await checkout_atomic.expire_stale_sessions(session)
+    except Exception as exc:
+        logger.warning("methods_expire_stale_skipped", error=str(exc))
+
+    # FE chama initiate em paralelo — creditá a reserva da própria sessão active
+    own_credit = await checkout_atomic.user_active_locked_qty_credit(session, user_id)
 
     stores: dict[str, dict[str, Any]] = {}
     total_cents = 0
@@ -130,7 +140,7 @@ async def get_checkout_methods(session: AsyncSession, user_id: str) -> dict[str,
             await session.execute(
                 text(
                     """
-                    SELECT p.price_cents, p.stock, COALESCE(p.reserved_stock, 0) AS reserved_stock,
+                    SELECT p.id, p.price_cents, p.stock, COALESCE(p.reserved_stock, 0) AS reserved_stock,
                            p.name, p.store_id,
                            s.name AS store_name, s.pix_key, s.payment_method_preference,
                            s.stripe_account_id, s.stripe_onboarding_complete, s.shop_enabled
@@ -149,7 +159,12 @@ async def get_checkout_methods(session: AsyncSession, user_id: str) -> dict[str,
             raise HTTPException(400, f"Loja não configurou pagamentos: {store.get('store_name')}")
 
         qty = int(item.get("quantity", 0))
-        available = int(store["stock"]) - int(store.get("reserved_stock") or 0)
+        pid = str(store["id"])
+        available = (
+            int(store["stock"])
+            - int(store.get("reserved_stock") or 0)
+            + own_credit.get(pid, 0)
+        )
         if qty < 1 or qty > available:
             raise HTTPException(400, f"Estoque insuficiente: {store['name']}")
 
@@ -208,7 +223,7 @@ async def create_pix_checkout(
     if use_escrow:
         require_live_payments(settings)
 
-    # Validar métodos ANTES de reservar estoque (após initiate, reserved zera available)
+    # Validar métodos (crédito da própria sessão active se FE já fez initiate)
     methods = await get_checkout_methods(session, user_id)
     if not methods["methods"]["pix"]:
         raise HTTPException(400, "PIX indisponível para itens do carrinho. Configure PIX na loja ou use cartão.")
