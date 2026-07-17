@@ -12,5 +12,7 @@ Decisões congeladas da fundação JudgeTCG.
 | [ADR-005](./ADR-005-application-service-per-aggregate.md) | Application Service por Aggregate Root | Accepted |
 | [ADR-006](./ADR-006-provider-certification.md) | Provider Certification | Accepted |
 | [ADR-007](./ADR-007-marketplace-domain-boundaries.md) | Marketplace Domain Boundaries | Accepted |
+| [ADR-012](./ADR-012-lorcana-first-beachhead.md) | Lorcana-first Beachhead Strategy | Accepted |
+| [ADR-013](./ADR-013-tcg-expansion-allowlist.md) | TCG Expansion Allowlist & Denylist | Accepted |
 
 Formato: Context → Decision → Consequences.

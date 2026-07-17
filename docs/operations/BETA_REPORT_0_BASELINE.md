@@ -1,11 +1,12 @@
-# Beta Report #0 — Baseline
+# Beta Report #0 — Baseline (Lorcana-First)
 
 **Preencher no Dia 0, antes de qualquer convite.**  
-**Protocolo:** [`BETA_WAVE1_OPERATION_PROTOCOL.md`](./BETA_WAVE1_OPERATION_PROTOCOL.md)
+**Protocolo:** [`BETA_WAVE1_OPERATION_PROTOCOL.md`](./BETA_WAVE1_OPERATION_PROTOCOL.md)  
+**Beachhead:** Disney Lorcana Brasil · [`MVP_1_0_RELEASE_PLAN.md`](../architecture/MVP_1_0_RELEASE_PLAN.md)
 
-**Data:** ____ / ____ / ______  
-**Ambiente / URL:** _______________________  
-**Autor:** _______________
+**Data:** 2026-07-17  
+**Ambiente / URL:** local (`DATABASE_URL` · Public API smoke in-process)  
+**Autor:** Auto (ops Dia 0) · founder confirma URL de beta público
 
 ---
 
@@ -13,8 +14,17 @@
 
 | Métrica | Valor |
 |---------|-------|
-| Cartas indexadas (aprox.) | |
-| Notas | |
+| Cartas Lorcana indexadas (aprox.) | **10** (watchlist seed) |
+| `game` beachhead | `LORCANA` / `lorcana-dataset` |
+| Notas | Seed `npm run sync:lorcana:seed` OK · sets TFC+ROF com cartas; ITI/URS/SSK só set |
+
+Cartas no catálogo:
+
+- Rapunzel – Gifted with Healing  
+- Belle – Strange but Special  
+- Be Prepared · A Whole New World · Diablo – Devoted Herald  
+- Stitch – Rock Star · Elsa – Spirit of Winter  
+- Mickey Mouse – Brave Little Tailor · Ariel – Spectacular Singer · Winnie the Pooh – Hunny Wizard  
 
 ## Marketplace
 
@@ -36,30 +46,42 @@
 | Métrica | Valor |
 |---------|-------|
 | Ativação | **0** (esperado) |
-| Portal visits | |
+| Portal visits | 0 |
 
-## Liquidez Watchlist (spot check Dia 0)
+## Liquidez Watchlist Lorcana (spot check Dia 0)
 
-| Carta | Oferta? |
-|-------|---------|
-| Sol Ring | Não / — |
-| Arcane Signet | Não / — |
-| Command Tower | Não / — |
-| Cyclonic Rift | Não / — |
-| Rhystic Study | Não / — |
-| Lightning Bolt | Não / — |
-| Counterspell | Não / — |
-| Swords to Plowshares | Não / — |
-| Path to Exile | Não / — |
+| Carta | Oferta? | No catálogo? |
+|-------|---------|--------------|
+| Diablo – Devoted Herald | Não | Sim |
+| Be Prepared | Não | Sim |
+| A Whole New World | Não | Sim |
+| Belle – Strange but Special | Não | Sim |
+| Rapunzel – Gifted with Healing | Não | **Sim · SMOKE_OK** |
+| Stitch – Rock Star | Não | Sim |
+| Elsa – Spirit of Winter | Não | Sim |
+| Encantada (expansão atual) | Não | — (slots manuais) |
 
 ## Infra (Dia 0)
 
-- [ ] Cadastro / login / refresh OK  
-- [ ] Publish Lightning Bolt OK  
+- [x] Migration `catalog_variant_id` → text aplicada (`uuid` → `text`)  
+- [x] `npm run sync:lorcana:seed` OK (10 cartas)  
+- [x] Search `q=Rapunzel` → hit (projection rebuild + HTTP 200)  
+- [ ] Redis / Meili em produção (hoje Redis local **offline** — seed usou publisher in-memory; projection de runtime precisa Redis+worker ou rebuild)  
+- [ ] Cadastro / login / refresh OK (pendente URL beta)  
+- [ ] Publish carta Lorcana da watchlist OK (pendente round-trip manual no front)  
 - [ ] Oferta visível no buyer OK  
 - [ ] Analytics visível OK  
 
 ## Assinatura
 
-Baseline congelado. Próximo: Lote 1 (10 convites).  
-Report #1 em ~7 dias.
+Baseline **parcialmente** congelado (infra catalog+search smoke OK).  
+Pendências antes de Lote 1 em ambiente compartilhado: Redis up · workers outbox/search · URL beta · round-trip publish manual.
+
+| KPI | Baseline Dia 0 |
+|-----|----------------|
+| **LPC** | **0** |
+| **LCS** | **0%** (0/8 watchlist com oferta — esperado) |
+
+Metas: LPC ≥1 · LCS ≥80% · ≥5 lojas · 150–300 listings relevantes.
+
+**P0 desbloqueio:** migration + seed + SMOKE_OK Rapunzel (2026-07-17).

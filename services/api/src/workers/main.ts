@@ -1,4 +1,4 @@
-import { bootstrapScryfallRegistry } from "../catalog/services/CatalogSyncService.js";
+import { bootstrapScryfallRegistry, bootstrapLorcanaRegistry } from "../catalog/services/CatalogSyncService.js";
 import { analyticsIngestor } from "../analytics/consumers/AnalyticsEventIngestor.js";
 import { searchSyncWorker } from "../search/SearchSyncWorker.js";
 import { createLogger } from "../platform/logging/logger.js";
@@ -9,6 +9,7 @@ const log = createLogger("workers");
 
 async function main(): Promise<void> {
   bootstrapScryfallRegistry();
+  bootstrapLorcanaRegistry();
   searchSyncWorker.start();
   analyticsIngestor.start();
 
@@ -17,6 +18,7 @@ async function main(): Promise<void> {
       queues: allPrimaryQueues(),
       sampleDlq: dlqName(QUEUE_NAMES.catalogCards),
       projection: searchSyncWorker.getProjection(),
+      beachhead: "LORCANA",
     },
     "domain_workers_started",
   );

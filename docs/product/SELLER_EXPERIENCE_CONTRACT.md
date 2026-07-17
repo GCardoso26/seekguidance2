@@ -87,7 +87,7 @@ O formulário **nunca** pede IDs técnicos ao usuário.
 **Passo 1 — Buscar**
 
 ```text
-Digite: Lightning Bolt
+Digite: Rapunzel – Gifted with Healing
 → resultados oficiais (nome + set)
 → Selecionar
 ```
@@ -177,7 +177,7 @@ Teste cego interno:
 
 1. Criar conta  
 2. Criar loja  
-3. Publicar **Lightning Bolt** (ou carta indexada)  
+3. Publicar **Rapunzel – Gifted with Healing** (ou carta Lorcana indexada)  
 4. Confirmar anúncio visível como comprador na página da carta  
 
 Sem ajuda externa. Cronômetro &lt; 60s no happy path.

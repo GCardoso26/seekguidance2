@@ -1,39 +1,70 @@
 # Beta Command Center
 
-**Sprint:** 8 — visão interna da equipe  
+**Sprint:** 8 — visão interna da equipe · **beachhead = Disney Lorcana Brasil**  
 **Não é** dashboard de usuário / seller.  
 **Objetivo:** em **≤5 minutos** saber se o marketplace está ganhando vida ou morrendo.  
-**Relaciona:** [`SELLER_BETA_ONBOARDING_RUNBOOK.md`](./SELLER_BETA_ONBOARDING_RUNBOOK.md) · [`BETA_WEEKLY_REPORT_TEMPLATE.md`](./BETA_WEEKLY_REPORT_TEMPLATE.md) · [`BETA_INTERVIEW_SCRIPT.md`](./BETA_INTERVIEW_SCRIPT.md) · [`BETA_WAVE1_OPERATION_PROTOCOL.md`](./BETA_WAVE1_OPERATION_PROTOCOL.md)
+**North Star:** **LPC** + **LCS** (+ **SD**) — [`NORTH_STAR_RELEASE_1.md`](../product/NORTH_STAR_RELEASE_1.md) · spec [`LPC_ANALYTICS_SPEC.md`](../product/LPC_ANALYTICS_SPEC.md)  
+**Relaciona:** [`MVP_1_0_RELEASE_PLAN.md`](../architecture/MVP_1_0_RELEASE_PLAN.md) · [`SELLER_BETA_ONBOARDING_RUNBOOK.md`](./SELLER_BETA_ONBOARDING_RUNBOOK.md) · [`BETA_WEEKLY_REPORT_TEMPLATE.md`](./BETA_WEEKLY_REPORT_TEMPLATE.md) · [`BETA_INTERVIEW_SCRIPT.md`](./BETA_INTERVIEW_SCRIPT.md) · [`BETA_WAVE1_OPERATION_PROTOCOL.md`](./BETA_WAVE1_OPERATION_PROTOCOL.md)
 
-Preencher diariamente (ou a cada check-in). **Primeiros 7 dias:** só observar + P0 — ver protocolo Onda 1.
+Preencher diariamente (ou a cada check-in). **Primeiros 7 dias:** só observar + P0 — ver protocolo Onda 1.  
+**Disciplina:** nenhum P1 vira código antes do Report #1 (registrar pedidos; não implementar).
 
 ---
 
 ## Checklist diário (5 min)
 
-1. [ ] Supply Health — números vs meta  
-2. [ ] Seller Activation — funil + depth + **intent** (`will_add_more` / maybe / no)  
-3. [ ] Liquidity Watchlist — top cartas com oferta?  
-4. [ ] Buyer pulse — alguém chegou em offers/cart?  
-5. [ ] Algum P0 novo?  
-6. [ ] Alguém **voltou sozinho** (2ª sessão)?  
+1. [ ] **LPC** (hoje / acum.) — proofs com R1-LPC-001?  
+2. [ ] **LCS** — % watchlist com oferta  
+3. [ ] **SD** — mediana listings / loja ativa  
+4. [ ] Matriz LCS×LPC — qual quadrante?  
+5. [ ] Seller Activation — funil + intent  
+6. [ ] Algum P0 novo?  
+7. [ ] Alguém **voltou sozinho** (2ª sessão)?  
 
-**Liquidity Proof (marco):** desconhecido publica → outro busca → encontra oferta → cart — sem intervenção.
+**Liquidity Proof (1 unidade de LPC):** desconhecido publica → outro (≠ seller) busca → encontra oferta → cart — sem intervenção.
 
 
 ---
+
+## 0. North Star (preencher primeiro)
+
+| KPI | Hoje (2026-07-17 · Dia 0) | Acum. período | Meta / nota |
+|-----|------|---------------|-------------|
+| **LPC** — Liquidity Proof Count | **0** | 0 | Gate ≥1; ver tendência |
+| **LCS** — Liquidity Coverage Score | **0%** | 0% | ≥80% |
+| **SD** — Supply Depth (mediana) | — | | Supporting |
+| **SCI** — listings/sellers (média) | — | | Ver distribuição |
+| **SCI-Top1** — % da maior loja | — | % | Baixo é melhor |
+| **DC50** — cartas = 50% buscas | — | | Afina watchlist |
+
+**Dia 0:** migration + seed (10 cartas) + SMOKE_OK Rapunzel · Baseline [`BETA_REPORT_0_BASELINE.md`](./BETA_REPORT_0_BASELINE.md) · kit Lote 1 [`BETA_LOTE1_EXECUTION.md`](./BETA_LOTE1_EXECUTION.md) |
+
+```text
+LCS = (# watchlist com ≥1 oferta) / (tamanho watchlist)
+SD  = mediana(listings ativos por loja ativa)
+```
+
+### Matriz rápida — pergunta da weekly: *Em qual quadrante estamos?*
+
+| | LPC alto | LPC baixo |
+|--|----------|-----------|
+| **LCS alto** | Preparar Payment | Investigar aquisição / descoberta / confiança |
+| **LCS baixo** | Ampliar cobertura (casos pontuais) | Foco total em supply |
+
+Evento sintético: `liquidity_proof_completed` · invariantes **R1-LPC-001…005** ([`LPC_ANALYTICS_SPEC.md`](../product/LPC_ANALYTICS_SPEC.md)).  
+Entrada = LPC ≥ 1 · Escala = tendência (não reinterprete o gate no meio da janela).
 
 ## 1. Supply Health
 
 **Pergunta:** temos cartas vendáveis com oferta?
 
-| Métrica | Hoje | Meta (onda 1) |
-|---------|------|----------------|
+| Métrica | Hoje | Meta (onda 1 · Lorcana) |
+|---------|------|-------------------------|
 | Lojas convidadas | | 30 |
-| Lojas aceitas | | 10 |
-| Lojas ativas (≥1 listing) | | 5 |
-| Listings ativos | | 300–500 |
-| Cartas com oferta | | crescente |
+| Lojas aceitas | | ~10 |
+| Lojas especializadas ativas (≥1 listing) | | **≥5** |
+| Listings relevantes | | **150–300** |
+| Cartas da watchlist com oferta | | ≥80% do top ~20 |
 
 Notas do dia: _________________________________
 
@@ -91,31 +122,35 @@ Interpretação:
 **Não** perguntar “quantas cartas existem no catálogo?”.  
 Perguntar: **usuário busca → encontra oferta?**
 
-### Liquidity Watchlist (lista viva)
+### Liquidity Watchlist — Disney Lorcana (lista viva)
 
+Pergunta: **quando alguém procura esta carta, existe oferta?**  
 Atualizar com busca real no beta (`/search` → PDP → Ofertas).
 
-#### Commander
+#### Competitivo / staples
 
 | Carta | Oferta? (S/N) | # offers | Preço min | Data check |
 |-------|---------------|----------|-----------|------------|
-| Sol Ring | | | | |
-| Arcane Signet | | | | |
-| Command Tower | | | | |
-| Cyclonic Rift | | | | |
-| Rhystic Study | | | | |
+| Diablo – Devoted Herald | | | | |
+| Be Prepared | | | | |
+| A Whole New World | | | | |
+| Belle – Strange but Special | | | | |
+| Rapunzel – Gifted with Healing | | | | |
 
-#### Staples gerais
+#### Colecionável / alta procura
 
 | Carta | Oferta? (S/N) | # offers | Preço min | Data check |
 |-------|---------------|----------|-----------|------------|
-| Lightning Bolt | | | | |
-| Counterspell | | | | |
-| Swords to Plowshares | | | | |
-| Path to Exile | | | | |
+| Encantada (expansão atual — slot 1) | | | | |
+| Encantada (expansão atual — slot 2) | | | | |
+| Stitch – Rock Star | | | | |
+| Elsa – Spirit of Winter | | | | |
+| Mickey / Winnie / Ariel (mais pedida do momento) | | | | |
 
-**Meta Sprint 8 → 9:** top da watchlist (aprox. 20 cartas) com **≥1 oferta**.  
-500 listings genéricos **não** substituem staples vazios.
+Completar até ~20 cartas com o metagame / procura local do beta.
+
+**Meta Sprint 8 → 9:** ≥80% do top ~20 com **≥1 oferta**.  
+300 listings irrelevantes **não** substituem staples vazios.
 
 ---
 
@@ -123,7 +158,7 @@ Atualizar com busca real no beta (`/search` → PDP → Ofertas).
 
 Além do seller publicar, rodar **teste comprador cego**:
 
-> “Encontre uma Lightning Bolt e veja se consegue comprar.”
+> “Encontre *Rapunzel – Gifted with Healing* e veja se consegue comprar.”
 
 Medir:
 
@@ -147,14 +182,13 @@ Script completo: [`BETA_INTERVIEW_SCRIPT.md`](./BETA_INTERVIEW_SCRIPT.md)
 
 | Eixo | Critério | OK? |
 |------|----------|-----|
-| Supply | ≥10 lojas cadastradas | |
-| Supply | ≥5 lojas ativas | |
-| Supply | 300–500 listings (não único gatilho) | |
-| Liquidez | Top ~20 watchlist com oferta | |
-| Buyer | Usuários chegam a offers / cart | |
+| **LPC** | ≥1 Liquidity Proof (buyer ≠ seller) | |
+| **LCS** | ≥80% | |
+| Supply | ≥5 lojas especializadas ativas | |
+| Supply | 150–300 listings relevantes | |
 | Seller | 2ª sessão sem ajuda + intent positivo útil | |
 
-**Regra:** 500 cartas ruins &lt; 50 cartas certas. Stripe em vazio ≠ marketplace.
+**Regra:** qualidade do supply Lorcana &gt; volume bruto. Stripe em vazio ≠ marketplace. LPC=0 ⇒ não avance para payment.
 
 ---
 

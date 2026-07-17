@@ -35,6 +35,8 @@
     "test:payment": "vitest run src/payment",
     "api:checkout": "tsx src/workers/checkout-api.ts",
     "sync:scryfall:shadow": "tsx src/workers/scryfall-shadow.ts",
+    "sync:lorcana:seed": "tsx src/workers/lorcana-seed.ts",
+    "smoke:rapunzel": "tsx src/workers/smoke-rapunzel.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "engines": {

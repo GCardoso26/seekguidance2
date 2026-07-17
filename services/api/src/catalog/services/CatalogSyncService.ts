@@ -31,6 +31,27 @@ export function bootstrapScryfallRegistry(): RegisteredProvider {
   return registered;
 }
 
+/** Beachhead R1 — ADR-012 / beachhead.ts */
+export function bootstrapLorcanaRegistry(): RegisteredProvider {
+  const registered: RegisteredProvider = {
+    providerId: "lorcana-dataset",
+    gameCode: "LORCANA",
+    kind: "catalog",
+    capabilities: { ...CATALOG_CAPABILITIES_NO_PRICES, rulings: false },
+    mode: (process.env.LORCANA_ROLLOUT_MODE as RegisteredProvider["mode"]) ?? "LIVE",
+    canaryPercent: Number(process.env.LORCANA_CANARY_PERCENT ?? 100),
+    health: { status: "unknown" },
+    statistics: {
+      requestsToday: 0,
+      requestsTotal: 0,
+      syncCardsTotal: 0,
+      syncErrorsTotal: 0,
+    },
+  };
+  providerRegistry.register(registered);
+  return registered;
+}
+
 /**
  * @deprecated Prefer `runScryfallShadowSync` — this entry only validates registry/provider fetch.
  * Domain Events MUST go through Outbox (ADR-004). Direct EventBus publish was removed.

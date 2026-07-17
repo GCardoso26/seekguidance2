@@ -1,39 +1,40 @@
 # Seller Beta Onboarding Runbook
 
-**Sprint:** 8.0 — Operação Beta  
+**Sprint:** 8.0 — Operação Beta · **Disney Lorcana Brasil**  
 **Status:** Pronto para uso  
 **Modo:** operação · não engenharia · founder-led validation  
 **Antes de enviar convites:** [`BETA_WAVE1_OPERATION_PROTOCOL.md`](./BETA_WAVE1_OPERATION_PROTOCOL.md)  
-**Relaciona:** [`SPRINT_8_PLAN.md`](../product/SPRINT_8_PLAN.md) · [`SELLER_EXPERIENCE_CONTRACT.md`](../product/SELLER_EXPERIENCE_CONTRACT.md)
+**Relaciona:** [`MVP_1_0_RELEASE_PLAN.md`](../architecture/MVP_1_0_RELEASE_PLAN.md) · [`SPRINT_8_PLAN.md`](../product/SPRINT_8_PLAN.md) · [`SELLER_EXPERIENCE_CONTRACT.md`](../product/SELLER_EXPERIENCE_CONTRACT.md)
 
 ## Princípio
 
 Não vender “um marketplace novo”.  
-Vender **um canal adicional para vender cartas**.
+Vender **um canal para as cartas certas de Disney Lorcana aparecerem quando alguém procura**.
 
-Uma loja **ativa** (publicou anúncio) vale mais que 20 cadastros mortos.
+Uma loja **ativa** (publicou anúncio) vale mais que 20 cadastros mortos.  
+Em Lorcana: **qualidade do supply &gt; volume bruto**.
 
 ---
 
 ## 1. Quem convidar
 
-### Grupo A — Lojas físicas MTG (supply)
+### Grupo A — Lojas especializadas em Lorcana (supply)
 
 Perfil:
 
-- já possuem estoque
-- vendem Commander / singles
-- têm comunidade local
+- já possuem estoque de Disney Lorcana
+- vendem singles / sealed / encantadas
+- têm comunidade local ou Discord/WhatsApp de Lorcana
 
-Objetivo: validar **oferta** (listings reais).
+Objetivo: validar **oferta** (listings relevantes).
 
 ### Grupo B — Vendedores pequenos (usabilidade)
 
 Perfil:
 
-- jogadores que vendem cartas
-- vendedores de marketplace (ML / Facebook)
-- colecionadores
+- jogadores que vendem singles de Lorcana
+- vendedores de ML / Facebook / grupos
+- colecionadores com carta quente
 
 Objetivo: validar se **qualquer pessoa** publica sem treinamento.
 
@@ -42,11 +43,10 @@ Objetivo: validar se **qualquer pessoa** publica sem treinamento.
 | Métrica | Esperado |
 |---------|----------|
 | Convites enviados | 30 |
-| Aceites | 10 |
-| Lojas ativas (≥1 anúncio) | 5 |
-| Com primeiro anúncio | 5 |
-
-Stretch (depois da onda 1 estável): até 50 lojas.
+| Aceites | ~10 |
+| Lojas especializadas ativas (≥1 anúncio) | **≥5** |
+| Listings relevantes | **150–300** |
+| Watchlist com oferta | ≥80% do top ~20 |
 
 ---
 
@@ -61,14 +61,15 @@ Foco: **demanda encontra suas cartas**, não “trabalho de cadastro”.
 ```text
 Olá [Nome / Loja],
 
-Estamos testando uma nova forma de conectar jogadores que procuram
-cartas específicas com lojas que já têm estoque.
+Estamos testando uma forma de conectar jogadores que procuram
+cartas específicas de Disney Lorcana com lojas que já têm estoque.
 
-Queremos convidar algumas lojas para colocar suas principais cartas
-no beta do JudgeTCG e acompanhar se aparecem compradores interessados.
+Convidamos algumas lojas especializadas para colocar singles relevantes
+no beta do JudgeTCG e ver se compradores encontram essas cartas na busca.
 
-Não pedimos inventário completo — só as cartas mais procuradas
-(ex.: 50–100 staples / Commander) para aparecerem quando alguém pesquisar.
+Não pedimos inventário completo — só as cartas mais pedidas
+(ex.: 30–80 staples / encantadas / cartas quentes do meta) para
+aparecerem quando alguém pesquisar.
 
 Link: [URL_DO_BETA]
 Contato se travar: [WHATSAPP_OU_EMAIL]
@@ -82,8 +83,8 @@ Equipe JudgeTCG
 ```text
 Olá [Nome],
 
-Estamos abrindo o beta do JudgeTCG (compra/venda de cartas Magic) e
-convidando alguns vendedores para testar de graça.
+Estamos abrindo o beta do JudgeTCG focado em cartas de Disney Lorcana
+e convidando alguns vendedores para testar de graça.
 
 A ideia: colocar suas cartas mais pedidas para aparecerem na busca
 de quem está procurando — e nos ajudar a ajustar a experiência.
@@ -108,10 +109,10 @@ Equipe JudgeTCG
 
 | Pedir | Não pedir |
 |-------|-----------|
-| 50–100 cartas mais vendidas | “Cadastre todo o estoque” |
-| Staples Commander / singles quentes | Import CSV (bloqueado na Sprint 8) |
+| 30–80 cartas mais pedidas de Lorcana | “Cadastre todo o estoque” |
+| Staples competitivos + encantadas / colecionáveis quentes | Import CSV (bloqueado na Sprint 8) |
 
-Objetivo: **liquidez**, não inventário completo.
+Objetivo: **liquidez na watchlist**, não inventário completo.
 
 ### 2.4 Checklist da loja (enviar junto)
 
@@ -134,7 +135,7 @@ Duração alvo: **&lt; 15 min** com a loja (ideal: primeiro anúncio &lt; 60s so
 
 1. Abrir `/register` → criar conta  
 2. Login → `/seller` → **Criar loja**  
-3. `/seller/listings/new` → buscar uma carta conhecida (ex.: Lightning Bolt / Sol Ring)  
+3. `/seller/listings/new` → buscar uma carta conhecida (ex.: Rapunzel – Gifted with Healing / Be Prepared)  
 4. Quantidade · condição · idioma · foil · preço → **Publicar anúncio**  
 5. Abrir em aba anônima: `/search?q=…` → PDP → bloco **Ofertas**  
 6. Pedir mais 9 publicações no mesmo padrão  
@@ -220,9 +221,9 @@ Resumo buyer (teste cego):
 
 | Semana | Foco |
 |--------|------|
-| 1 | Kit pronto · enviar ~30 convites · meta 10 aceites |
-| 2 | Observar publicação real · 5 testes cegos cronometrados |
-| 3 | Corrigir fricções P0/P1 (copy/UX) · **sem feature nova** |
+| 1 | Kit pronto · enviar ~30 convites · meta ≥5 lojas Lorcana ativas |
+| 2 | Observar publicação real · 5 testes cegos (watchlist Lorcana) |
+| 3 | P0 imediato · P1 só após Report #1 (registrar antes; **sem feature nova** na janela) |
 | 4 | Relatório · go/no-go Sprint 9 (payment) |
 
 Relatório semanal: [`BETA_WEEKLY_REPORT_TEMPLATE.md`](./BETA_WEEKLY_REPORT_TEMPLATE.md)
@@ -231,28 +232,31 @@ Relatório semanal: [`BETA_WEEKLY_REPORT_TEMPLATE.md`](./BETA_WEEKLY_REPORT_TEMP
 
 ## 9. Critério para entrar em Sprint 9 (Payment)
 
-Não basta “10 lojas” nem só “500 listings”. Entrar em Sprint 9 se:
+Não basta “5 lojas” nem só “300 listings”. Entrar em Sprint 9 se:
+
+### North Star
+
+- [ ] **LPC** ≥ 1 (buyer ≠ seller → cart, sem intervenção)  
+- [ ] **LCS** ≥ 80%  
 
 ### Supply
 
-- [ ] ≥10 lojas cadastradas  
-- [ ] ≥5 lojas ativas (≥1 anúncio)  
-- [ ] 300–500 listings ativos (meta de volume — **não** único gatilho)
+- [ ] ≥5 lojas especializadas ativas (≥1 anúncio)  
+- [ ] **150–300** listings relevantes (qualidade &gt; bulk)
 
 ### Liquidez (obrigatório)
 
-- [ ] Top ~20 da Liquidity Watchlist com ≥1 oferta  
-  (ver [`BETA_COMMAND_CENTER.md`](./BETA_COMMAND_CENTER.md))
+- [ ] Watchlist alinhada ao LCS — ver [`BETA_COMMAND_CENTER.md`](./BETA_COMMAND_CENTER.md) · [`NORTH_STAR_RELEASE_1.md`](../product/NORTH_STAR_RELEASE_1.md)
 
 ### Buyer (obrigatório)
 
-- [ ] Usuários chegam a ofertas (`buyer_offers_viewed` / teste cego)
+- [ ] ≥1 comprador chega a ofertas / carrinho sem ajuda (contribui ao LPC)
 
 ### Seller (obrigatório)
 
 - [ ] Segunda sessão de publicação **sem** ajuda ao vivo
 
-**Lembrete:** 500 cartas ruins &lt; 50 cartas certas. Watchlist vazia = sem go.
+**Lembrete:** 300 cartas certas &gt; 3000 bulk. LPC=0 = sem go para payment.
 
 ---
 

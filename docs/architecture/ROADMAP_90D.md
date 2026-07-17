@@ -4,6 +4,10 @@
 **Data:** 2026-07-16  
 **Princípio:** um fluxo vertical completo > dez jogos parciais / expansão arquitetural.
 
+> **Atualização de tese (pós–90D):** o Release 1 / Sprint 8 valida liquidez em **Disney Lorcana Brasil**, não MTG — ver [ADR-012](./adr/ADR-012-lorcana-first-beachhead.md).  
+> Este documento permanece como histórico da foundation MTG/Scryfall.  
+> Plano vigente: [`MVP_1_0_RELEASE_PLAN.md`](./MVP_1_0_RELEASE_PLAN.md) (Lorcana-First).
+
 ---
 
 ## Meta única (90 dias)
@@ -13,7 +17,7 @@
 > a operação monitora o fluxo ponta a ponta.
 
 Se isso estiver **LIVE e estável**, a arquitetura e o núcleo do produto estão validados.  
-Pokémon, YGO, Lorcana, IA etc. passam a ser **expansão** — não pré-requisito.
+*(Beachhead de mercado do Release 1: Lorcana — ver MVP 1.0. MTG vira expansão via Provider Adapter.)*
 
 ---
 
@@ -425,6 +429,8 @@ SLOs técnicos: [`FOUNDATION_FREEZE.md`](./FOUNDATION_FREEZE.md) §15.3
 
 ```text
 Pokémon → YGO → Bandai → Lorcana → SWU
+
+> **Nota (ADR-013):** ordem histórica de exploração foundation. Expansão comercial vigente = [ADR-013](./adr/ADR-013-tcg-expansion-allowlist.md). SWU / Vanguard / Union Arena estão na **denylist**.
 ```
 
 Só adapters + [`PROVIDER_CERTIFICATION.md`](./PROVIDER_CERTIFICATION.md).

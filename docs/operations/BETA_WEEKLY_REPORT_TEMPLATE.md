@@ -7,8 +7,10 @@
 | **#0 Baseline** | Antes dos convites — [`BETA_REPORT_0_BASELINE.md`](./BETA_REPORT_0_BASELINE.md) |
 | **#1+** | Semanal / fim da 1ª semana — template abaixo |
 
-**Protocolo Onda 1:** [`BETA_WAVE1_OPERATION_PROTOCOL.md`](./BETA_WAVE1_OPERATION_PROTOCOL.md)  
-Separar sempre **Grupo A vs B** nas taxas. Incluir funil **convite → interessado → entrou → publicou**.
+**Protocolo Onda 1:** [`BETA_WAVE1_OPERATION_PROTOCOL.md`](./BETA_WAVE1_OPERATION_PROTOCOL.md) · **beachhead Lorcana**  
+**North Star:** [`NORTH_STAR_RELEASE_1.md`](../product/NORTH_STAR_RELEASE_1.md) — **LPC** + **LCS**  
+Separar sempre **Grupo A vs B** nas taxas. Incluir funil **convite → interessado → entrou → publicou**.  
+Metas: LPC ≥1 · LCS ≥80% · ≥5 lojas · **150–300** listings relevantes.
 
 ---
 
@@ -16,6 +18,21 @@ Separar sempre **Grupo A vs B** nas taxas. Incluir funil **convite → interessa
 
 **Período:** ____ / ____ / ______ → ____ / ____ / ______  
 **Autor:** _______________
+
+### North Star (obrigatório)
+
+| KPI | Valor período | Acum. | Meta |
+|-----|---------------|-------|------|
+| **LPC** — Liquidity Proof Count | | | ≥1 · acompanhar tendência |
+| **LCS** — Liquidity Coverage Score | | % | ≥80% |
+| **SD** — Supply Depth (mediana listings/loja) | | | supporting |
+| `liquidity_proof_completed` (sintéticos) | | | R1-LPC-001 |
+
+**Quadrante LCS×LPC (obrigatório):** _______________ → ação da semana: _______________
+
+**Tendência / escala (não gate):** lojas distintas nos proofs ___ · compradores distintos ___ · LPC esta semana ___
+
+Entrada = possibilidade (LPC ≥ 1). Escala = repetibilidade. Spec: [`LPC_ANALYTICS_SPEC.md`](../product/LPC_ANALYTICS_SPEC.md).
 
 ### Oferta
 
@@ -98,8 +115,8 @@ Preencher Liquidity Watchlist em [`BETA_COMMAND_CENTER.md`](./BETA_COMMAND_CENTE
 
 | Carta | Tem oferta? |
 |-------|------------|
-| Sol Ring / Arcane Signet / Command Tower / … | |
-| Lightning Bolt / Counterspell / Swords / Path | |
+| Diablo / Be Prepared / A Whole New World / Belle / Rapunzel | |
+| Stitch / Elsa / Encantadas / Mickey·Winnie·Ariel pedidas | |
 
 ### Seller depth
 

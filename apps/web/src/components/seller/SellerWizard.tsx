@@ -293,7 +293,7 @@ export function SellerWizard() {
         <Input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Lightning Bolt"
+          placeholder="Rapunzel – Gifted with Healing"
           aria-label="Buscar carta para vender"
           autoFocus
         />

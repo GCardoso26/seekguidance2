@@ -1,6 +1,6 @@
 # Beta Interview Script
 
-**Sprint:** 8 — pesquisa qualitativa (não feature)  
+**Sprint:** 8 — pesquisa qualitativa (não feature) · **Disney Lorcana**  
 **Usar após:** primeira publicação (seller) ou sessão comprador cega  
 **Relaciona:** [`BETA_COMMAND_CENTER.md`](./BETA_COMMAND_CENTER.md) · [`SELLER_BETA_ONBOARDING_RUNBOOK.md`](./SELLER_BETA_ONBOARDING_RUNBOOK.md)
 
@@ -62,7 +62,7 @@ Espelhar na planilha se responderam no app:
 
 **Tarefa dada (só isso):**
 
-> “Encontre uma Lightning Bolt e veja se consegue comprar.”
+> “Encontre *Rapunzel – Gifted with Healing* e veja se consegue comprar.”
 
 Não explicar Catalog vs Marketplace. Cronometrar em silêncio.
 

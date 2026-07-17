@@ -25,7 +25,7 @@ Search             Ofertas Marketplace           Seleciona carta
 | Seller | Conta · loja · publicar · oferta disponível |
 | Buyer | Busca · Catalog · Offers · cart · checkout start |
 | Técnico | Só APIs existentes · sem BFF · Catalog ≠ Marketplace · JWT/RBAC |
-| Produto | Pessoa A vende Lightning Bolt · Pessoa B compra — caminho técnico existe |
+| Produto | Pessoa A vende carta · Pessoa B compra — caminho técnico existe (beachhead Release 1: Lorcana) |
 
 ## Docs por fatia
 

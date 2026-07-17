@@ -1,6 +1,9 @@
 /**
  * Product funnel events — adapter-agnostic.
  * Sprint 7.1: console structured sink. Swap later without coupling pages.
+ *
+ * North Star R1: LPC / LCS — docs/product/NORTH_STAR_RELEASE_1.md
+ * `liquidity_proof_completed` é sintético (offline), não emitido pelo frontend.
  */
 
 export type AnalyticsEventName =
@@ -19,6 +22,9 @@ export type AnalyticsEventName =
   | "buyer_offers_viewed"
   | "buyer_add_to_cart"
   | "buyer_checkout_started";
+
+/** Evento derivado offline — ver liquidityProof.ts */
+export type SyntheticAnalyticsEventName = "liquidity_proof_completed";
 
 export interface AnalyticsEvent {
   name: AnalyticsEventName;

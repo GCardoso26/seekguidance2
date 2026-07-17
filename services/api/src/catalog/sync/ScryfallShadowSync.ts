@@ -102,7 +102,11 @@ export async function runScryfallShadowSync(
   });
   const scheduler = new CatalogSyncScheduler(new CatalogQueueProducer(jobs));
 
-  const gameId = await ensureMtgGame(deps.pool);
+  const gameId = await ensureCatalogGame(deps.pool, {
+    code: deps.provider.gameCode,
+    name: deps.provider.gameCode === "LORCANA" ? "Disney Lorcana" : "Magic: The Gathering",
+    slug: deps.provider.gameCode === "LORCANA" ? "lorcana" : "mtg",
+  });
   const ctx: SyncContext = {
     requestId,
     mode: "SHADOW",
@@ -129,7 +133,7 @@ export async function runScryfallShadowSync(
         const found = (setsResult.items ?? []).find(
           (s) => s.code.toUpperCase() === opts.setCode.toUpperCase(),
         );
-        if (!found) throw new Error(`scryfall_set_not_found:${opts.setCode}`);
+        if (!found) throw new Error(`provider_set_not_found:${opts.setCode}`);
         setDto = found;
         const cardsResult = await deps.provider.syncCards(ctx, opts.setCode);
         cardItems = cardsResult.items ?? [];
@@ -377,11 +381,18 @@ export async function runScryfallShadowSync(
 
   metrics.observe("sync_duration_seconds", totalMs / 1000, {
     providerId: deps.provider.providerId,
-    gameCode: "MTG",
+    gameCode: deps.provider.gameCode,
   });
-  metrics.inc("sync_cards_total", { providerId: "scryfall", gameCode: "MTG" }, counters.cardsEnqueued);
+  metrics.inc(
+    "sync_cards_total",
+    { providerId: deps.provider.providerId, gameCode: deps.provider.gameCode },
+    counters.cardsEnqueued,
+  );
 
-  log.info({ requestId, setCode: opts.setCode, counters, totalMs, readyForCanary }, "scryfall_shadow_done");
+  log.info(
+    { requestId, setCode: opts.setCode, providerId: deps.provider.providerId, counters, totalMs, readyForCanary },
+    "provider_shadow_done",
+  );
 
   return {
     mode: "SHADOW",
@@ -410,13 +421,19 @@ export async function runScryfallShadowSync(
   };
 }
 
-async function ensureMtgGame(pool: Pool): Promise<string> {
-  const existing = await pool.query(`SELECT id FROM catalog.catalog_games WHERE code = 'MTG' LIMIT 1`);
+async function ensureCatalogGame(
+  pool: Pool,
+  game: { code: string; name: string; slug: string },
+): Promise<string> {
+  const existing = await pool.query(
+    `SELECT id FROM catalog.catalog_games WHERE code = $1 LIMIT 1`,
+    [game.code],
+  );
   if (existing.rows[0]) return String(existing.rows[0].id);
   const id = getIdGenerator().generate();
   await pool.query(
-    `INSERT INTO catalog.catalog_games (id, code, name, slug) VALUES ($1,'MTG','Magic: The Gathering','mtg')`,
-    [id],
+    `INSERT INTO catalog.catalog_games (id, code, name, slug) VALUES ($1,$2,$3,$4)`,
+    [id, game.code, game.name, game.slug],
   );
   return id;
 }
@@ -450,7 +467,7 @@ async function findCardByProvider(
   try {
     await client.query("BEGIN");
     const txCtx: PostgresTxContext = { id: "find-card", kind: "postgres", client };
-    const m = await deps.mappings.findByProviderObject(txCtx, "scryfall", "CARD", {
+    const m = await deps.mappings.findByProviderObject(txCtx, deps.provider.providerId, "CARD", {
       providerCardId,
       providerSetId: providerSetId ?? null,
     });
