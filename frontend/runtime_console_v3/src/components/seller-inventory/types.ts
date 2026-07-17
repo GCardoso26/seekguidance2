@@ -34,6 +34,7 @@ export type InventoryItem = {
   sold_qty?: number | null;
   category?: string | null;
   sku?: string | null;
+  ink?: string | null;
   source?: string | null;
   status?: string | null;
   last_sync?: string | null;
@@ -41,6 +42,25 @@ export type InventoryItem = {
   health?: InventoryHealth;
   health_score?: number;
 };
+
+export const LORCANA_INKS = [
+  { id: "amber", label: "Amber" },
+  { id: "amethyst", label: "Amethyst" },
+  { id: "emerald", label: "Emerald" },
+  { id: "ruby", label: "Ruby" },
+  { id: "sapphire", label: "Sapphire" },
+  { id: "steel", label: "Steel" },
+] as const;
+
+export const INVENTORY_LANGUAGES = [
+  { id: "pt", label: "PT" },
+  { id: "en", label: "EN" },
+  { id: "es", label: "ES" },
+  { id: "de", label: "DE" },
+  { id: "fr", label: "FR" },
+  { id: "it", label: "IT" },
+  { id: "jp", label: "JP" },
+] as const;
 
 export type InventorySearchResponse = {
   items: InventoryItem[];

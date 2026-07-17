@@ -77,6 +77,7 @@ def _row_item(**kwargs: Any) -> dict[str, Any]:
         "sold_qty": kwargs.get("sold_qty"),
         "category": kwargs.get("category"),
         "sku": kwargs.get("sku"),
+        "ink": kwargs.get("ink"),
         "source": kwargs.get("source") or "manual",
         "status": kwargs.get("status") or "active",
         "last_sync": kwargs.get("last_sync"),
@@ -109,11 +110,12 @@ async def search_inventory(
     limit: int = 24,
     health: str | None = None,
     max_stock: int | None = None,
+    ink: str | None = None,
 ) -> dict[str, Any]:
     store = await _resolve_store(session, owner_id)
     store_id = str(store["id"])
     page = max(1, page)
-    limit = min(max(1, limit), 48)
+    limit = min(max(1, limit), 500)
 
     if kind == "cards":
         items, total = await _search_cards(
@@ -129,6 +131,7 @@ async def search_inventory(
             limit=limit,
             health=health,
             max_stock=max_stock,
+            ink=ink,
         )
     else:
         items, total = await _search_products(
@@ -181,6 +184,7 @@ async def _search_cards(
     limit: int,
     health: str | None = None,
     max_stock: int | None = None,
+    ink: str | None = None,
 ) -> tuple[list[dict[str, Any]], int]:
     code = game_code_from_slug(game)
     if not code:
@@ -198,6 +202,7 @@ async def _search_cards(
             limit=limit,
             health=health,
             max_stock=max_stock,
+            ink=ink,
         )
     if source == "system":
         return await _cards_system(
@@ -228,6 +233,7 @@ async def _cards_my_catalog(
     limit: int,
     health: str | None = None,
     max_stock: int | None = None,
+    ink: str | None = None,
 ) -> tuple[list[dict[str, Any]], int]:
     """Meu cadastro de cartas: listagens + singles em store_products (ex.: CSV Liga)."""
     params: dict[str, Any] = {
@@ -274,6 +280,16 @@ async def _cards_my_catalog(
           ELSE ({listing_image_sql})
         END
     """
+    ink_sql = """
+        (
+          EXISTS (
+            SELECT 1
+            FROM jsonb_array_elements_text(COALESCE(cc.game_data->'colors', '[]'::jsonb)) AS val
+            WHERE lower(val) = :ink
+          )
+          OR lower(COALESCE(cc.game_data->>'ink', '')) LIKE '%' || :ink || '%'
+        )
+    """
 
     if health == "missing_image":
         listing_extra.append(f"({listing_image_sql}) IS NULL")
@@ -284,6 +300,57 @@ async def _cards_my_catalog(
     elif health == "missing_price":
         listing_extra.append("cl.price_cents <= 0")
         product_extra.append("p.price_cents <= 0")
+    elif health == "duplicate":
+        listing_extra.append(
+            """
+            EXISTS (
+              SELECT 1 FROM tcg_judge.card_listings cl2
+              WHERE cl2.store_id = cl.store_id
+                AND cl2.id <> cl.id
+                AND cl2.card_id = cl.card_id
+                AND cl2.condition = cl.condition
+                AND cl2.foil = cl.foil
+            )
+            """
+        )
+        product_extra.append(
+            """
+            (
+              EXISTS (
+                SELECT 1 FROM tcg_judge.store_products p2
+                WHERE p2.store_id = p.store_id
+                  AND p2.is_active
+                  AND p2.id <> p.id
+                  AND p2.category IN ('single', 'oversized', 'token')
+                  AND (
+                    (
+                      p.catalog_card_id IS NOT NULL
+                      AND p2.catalog_card_id = p.catalog_card_id
+                      AND COALESCE(p.language, 'pt') = COALESCE(p2.language, 'pt')
+                    )
+                    OR (
+                      lower(trim(p.name)) = lower(trim(p2.name))
+                      AND COALESCE(p.sku, '') = COALESCE(p2.sku, '')
+                    )
+                  )
+              )
+              OR (
+                p.catalog_card_id IS NOT NULL
+                AND EXISTS (
+                  SELECT 1 FROM tcg_judge.card_listings cl2
+                  WHERE cl2.store_id = p.store_id
+                    AND cl2.card_id = p.catalog_card_id
+                    AND cl2.status = 'active'
+                )
+              )
+            )
+            """
+        )
+
+    if ink and ink.strip():
+        listing_extra.append(ink_sql)
+        product_extra.append(ink_sql)
+        params["ink"] = ink.strip().lower()
 
     listing_where = " AND ".join(["cl.seller_id = :owner_id", "cc.game_code = :g", *listing_extra])
     product_where = " AND ".join(
@@ -330,7 +397,8 @@ async def _cards_my_catalog(
             cl.updated_at AS sort_ts,
             'listing'::text AS row_kind,
             NULL::text AS category,
-            NULL::text AS sku
+            NULL::text AS sku,
+            COALESCE(cc.game_data->>'ink', '') AS ink
           FROM tcg_judge.card_listings cl
           JOIN tcg_judge.card_catalog cc ON cc.id = cl.card_id
           WHERE {listing_where}
@@ -345,7 +413,7 @@ async def _cards_my_catalog(
             p.stock::int AS quantity,
             p.price_cents::int AS price_cents,
             'NM'::text AS condition,
-            'pt'::text AS language,
+            COALESCE(NULLIF(p.language, ''), 'pt') AS language,
             false AS foil,
             p.name AS title,
             COALESCE(
@@ -366,7 +434,8 @@ async def _cards_my_catalog(
             p.updated_at AS sort_ts,
             'product'::text AS row_kind,
             p.category::text AS category,
-            p.sku::text AS sku
+            p.sku::text AS sku,
+            COALESCE(cc.game_data->>'ink', '') AS ink
           FROM tcg_judge.store_products p
           LEFT JOIN tcg_judge.card_catalog cc ON cc.id = p.catalog_card_id
           WHERE {product_where}
@@ -416,6 +485,7 @@ async def _cards_my_catalog(
                 foil=bool(r.get("foil")),
                 category=r.get("category"),
                 sku=r.get("sku"),
+                ink=r.get("ink") or None,
                 source="csv" if row_kind == "product" else "catalog",
             )
         )
@@ -997,6 +1067,7 @@ async def adjust_inventory(
         price_cents=price_cents,
         title=title,
         category=category,
+        language=language,
     )
 
 
@@ -1032,6 +1103,10 @@ async def _adjust_card(
         fields: dict[str, Any] = {"quantity": new_qty}
         if price_cents is not None and price_cents > 0:
             fields["price_cents"] = price_cents
+        if language:
+            fields["language"] = language
+        if condition:
+            fields["condition"] = cond
         listing = await card_listings_svc.update_listing(session, listing_id, owner_id, fields)
         return {"item": listing, "created": False}
 
@@ -1047,6 +1122,7 @@ async def _adjust_card(
             price_cents=price_cents,
             title=None,
             category="single",
+            language=language,
         )
 
     if not card_id:
@@ -1107,6 +1183,7 @@ async def _adjust_product(
     price_cents: int | None,
     title: str | None,
     category: str | None,
+    language: str | None = None,
 ) -> dict[str, Any]:
     if product_id:
         existing = (
@@ -1130,6 +1207,8 @@ async def _adjust_product(
         fields: dict[str, Any] = {"stock": new_qty}
         if price_cents is not None and price_cents > 0:
             fields["price_cents"] = price_cents
+        if language:
+            fields["language"] = str(language).strip().lower()[:10]
         product = await shop_products_svc.update_product(session, product_id, owner_id, fields)
         return {"item": product, "created": False}
 

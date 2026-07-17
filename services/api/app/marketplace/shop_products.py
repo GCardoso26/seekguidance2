@@ -362,7 +362,7 @@ async def update_product(
 
     allowed = {
         "name", "description", "tcg_id", "category", "price_cents",
-        "compare_at_price_cents", "stock", "sku", "images", "is_active",
+        "compare_at_price_cents", "stock", "sku", "images", "is_active", "language",
     }
     sets: list[str] = []
     params: dict[str, Any] = {"id": product_id}

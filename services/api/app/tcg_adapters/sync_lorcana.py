@@ -75,6 +75,12 @@ async def sync_lorcana(session: AsyncSession, *, limit: int | None = None) -> di
                     "source": "lorcana-api",
                     "external_ids": {"lorcana_api": ext_id},
                     "game_data": {
+                        "ink": card.get("Color") or card.get("color") or card.get("ink"),
+                        "colors": [
+                            p.strip()
+                            for p in str(card.get("Color") or card.get("color") or "").split(",")
+                            if p.strip()
+                        ],
                         "ink_cost": card.get("Cost") or card.get("cost"),
                         "inkable": card.get("Inkable") or card.get("inkwell"),
                         "text": card.get("Body_Text") or card.get("text"),

@@ -12,16 +12,24 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { InlineAlert } from "@/components/ui/async-state";
 import type { InventoryItem, InventoryKind } from "./types";
+import { INVENTORY_LANGUAGES } from "./types";
 
 const col = createColumnHelper<InventoryItem>();
 
-type UndoEntry = { item: InventoryItem; mode: "set"; quantity: number; price_cents: number };
+type UndoEntry = {
+  item: InventoryItem;
+  mode: "set";
+  quantity: number;
+  price_cents: number;
+  language?: string;
+};
 
 type Props = {
   items: InventoryItem[];
   kind: InventoryKind;
   queryKey: unknown[];
   highlight?: string;
+  fullView?: boolean;
 };
 
 function highlightTitle(title: string, q?: string) {
@@ -38,7 +46,7 @@ function highlightTitle(title: string, q?: string) {
   );
 }
 
-export function InventoryDataTable({ items, kind, queryKey, highlight }: Props) {
+export function InventoryDataTable({ items, kind, queryKey, highlight, fullView }: Props) {
   const qc = useQueryClient();
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [error, setError] = useState<string | null>(null);
@@ -127,7 +135,11 @@ export function InventoryDataTable({ items, kind, queryKey, highlight }: Props) 
                   {highlightTitle(row.original.title, highlight)}
                 </p>
                 <p className="text-caption text-muted-foreground">
-                  {[row.original.source, row.original.set_code || row.original.category]
+                  {[
+                    row.original.source,
+                    row.original.set_code || row.original.category,
+                    row.original.ink,
+                  ]
                     .filter(Boolean)
                     .join(" · ")}
                 </p>
@@ -141,18 +153,50 @@ export function InventoryDataTable({ items, kind, queryKey, highlight }: Props) 
             <InlineQty
               item={row.original}
               kind={kind}
-              onSave={(qty, priceCents) => {
+              onSave={(qty, priceCents, language) => {
                 undoStack.current.push({
                   item: row.original,
                   mode: "set",
                   quantity: row.original.quantity,
                   price_cents: row.original.price_cents,
+                  language: row.original.language,
                 });
                 adjust.mutate({
                   kind,
                   mode: "set",
                   quantity: qty,
                   price_cents: priceCents,
+                  language,
+                  listing_id: row.original.listing_id,
+                  product_id: row.original.product_id,
+                  card_id: row.original.card_id,
+                  title: row.original.title,
+                  category: row.original.category,
+                });
+              }}
+            />
+          ),
+        }),
+        col.accessor("language", {
+          header: "Idioma",
+          cell: ({ row }) => (
+            <LanguageSelect
+              value={row.original.language || "pt"}
+              disabled={adjust.isPending}
+              onChange={(language) => {
+                undoStack.current.push({
+                  item: row.original,
+                  mode: "set",
+                  quantity: row.original.quantity,
+                  price_cents: row.original.price_cents,
+                  language: row.original.language,
+                });
+                adjust.mutate({
+                  kind,
+                  mode: "set",
+                  quantity: row.original.quantity,
+                  price_cents: row.original.price_cents,
+                  language,
                   listing_id: row.original.listing_id,
                   product_id: row.original.product_id,
                   card_id: row.original.card_id,
@@ -206,6 +250,7 @@ export function InventoryDataTable({ items, kind, queryKey, highlight }: Props) 
       mode: "set",
       quantity: last.quantity,
       price_cents: last.price_cents,
+      language: last.language,
       listing_id: last.item.listing_id,
       product_id: last.item.product_id,
       card_id: last.item.card_id,
@@ -262,7 +307,7 @@ export function InventoryDataTable({ items, kind, queryKey, highlight }: Props) 
         </Button>
       </div>
       {error ? <InlineAlert message={error} tone="error" /> : null}
-      <div className="max-h-[560px] overflow-auto">
+      <div className={fullView ? "max-h-[70vh] overflow-auto" : "max-h-[560px] overflow-auto"}>
         <DataTable
           data={items}
           columns={columns}
@@ -279,6 +324,32 @@ export function InventoryDataTable({ items, kind, queryKey, highlight }: Props) 
   );
 }
 
+function LanguageSelect({
+  value,
+  onChange,
+  disabled,
+}: {
+  value: string;
+  onChange: (language: string) => void;
+  disabled?: boolean;
+}) {
+  return (
+    <select
+      className="h-8 rounded-md border border-input bg-background px-2 text-xs"
+      value={value}
+      disabled={disabled}
+      aria-label="Idioma da carta"
+      onChange={(e) => onChange(e.target.value)}
+    >
+      {INVENTORY_LANGUAGES.map((lang) => (
+        <option key={lang.id} value={lang.id}>
+          {lang.label}
+        </option>
+      ))}
+    </select>
+  );
+}
+
 function InlineQty({
   item,
   kind,
@@ -286,7 +357,7 @@ function InlineQty({
 }: {
   item: InventoryItem;
   kind: InventoryKind;
-  onSave: (qty: number, priceCents: number) => void;
+  onSave: (qty: number, priceCents: number, language: string) => void;
 }) {
   const [qty, setQty] = useState(String(item.quantity));
   const [price, setPrice] = useState(((item.price_cents || 0) / 100).toFixed(2));
@@ -303,7 +374,7 @@ function InlineQty({
           const q = Number.parseInt(qty, 10);
           const p = Math.round(Number(price.replace(",", ".")) * 100);
           if (!Number.isFinite(q) || q < 0 || !Number.isFinite(p)) return;
-          onSave(q, p);
+          onSave(q, p, item.language || "pt");
         }}
       >
         OK

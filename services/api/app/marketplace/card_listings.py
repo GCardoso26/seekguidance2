@@ -439,7 +439,7 @@ async def update_listing(
     if not row or row["seller_id"] != seller_id:
         raise HTTPException(403, "Não autorizado")
 
-    allowed = {"price_cents", "quantity", "status", "description"}
+    allowed = {"price_cents", "quantity", "status", "description", "language", "condition"}
     updates: dict[str, Any] = {}
     for key, value in fields.items():
         if key not in allowed or value is None:
@@ -450,6 +450,12 @@ async def update_listing(
             raise HTTPException(400, "Preço inválido")
         if key == "quantity" and int(value) < 0:
             raise HTTPException(400, "Quantidade inválida")
+        if key == "language":
+            updates[key] = str(value).strip().lower()[:10]
+            continue
+        if key == "condition":
+            updates[key] = str(value).strip().upper()[:10]
+            continue
         updates[key] = value
 
     if not updates:
@@ -457,10 +463,19 @@ async def update_listing(
 
     set_parts = [f"{k} = :{k}" for k in updates]
     updates["id"] = uid
-    await session.execute(
-        text(f"UPDATE tcg_judge.card_listings SET {', '.join(set_parts)}, updated_at = NOW() WHERE id = :id"),
-        updates,
-    )
+    try:
+        await session.execute(
+            text(f"UPDATE tcg_judge.card_listings SET {', '.join(set_parts)}, updated_at = NOW() WHERE id = :id"),
+            updates,
+        )
+    except Exception as exc:  # noqa: BLE001 — detectar UNIQUE de language/condition
+        msg = str(exc).lower()
+        if "unique" in msg or "card_listings_unique" in msg:
+            raise HTTPException(
+                409,
+                "Já existe listagem com este idioma/condição para a mesma carta.",
+            ) from exc
+        raise
 
     product_id = row.get("store_product_id")
     if product_id:

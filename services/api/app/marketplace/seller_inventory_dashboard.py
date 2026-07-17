@@ -78,6 +78,76 @@ async def get_inventory_dashboard(session: AsyncSession, owner_id: str) -> dict[
         )
     ).mappings().first()
 
+    duplicate_products = (
+        await session.execute(
+            text(
+                """
+                SELECT COUNT(*) AS c
+                FROM tcg_judge.store_products p
+                WHERE p.store_id = :sid
+                  AND p.is_active
+                  AND p.category IN ('single', 'oversized', 'token')
+                  AND (
+                    EXISTS (
+                      SELECT 1 FROM tcg_judge.store_products p2
+                      WHERE p2.store_id = p.store_id
+                        AND p2.is_active
+                        AND p2.id <> p.id
+                        AND p2.category IN ('single', 'oversized', 'token')
+                        AND (
+                          (
+                            p.catalog_card_id IS NOT NULL
+                            AND p2.catalog_card_id = p.catalog_card_id
+                            AND COALESCE(p.language, 'pt') = COALESCE(p2.language, 'pt')
+                          )
+                          OR (
+                            lower(trim(p.name)) = lower(trim(p2.name))
+                            AND COALESCE(p.sku, '') = COALESCE(p2.sku, '')
+                          )
+                        )
+                    )
+                    OR (
+                      p.catalog_card_id IS NOT NULL
+                      AND EXISTS (
+                        SELECT 1 FROM tcg_judge.card_listings cl2
+                        WHERE cl2.store_id = p.store_id
+                          AND cl2.card_id = p.catalog_card_id
+                          AND cl2.status = 'active'
+                      )
+                    )
+                  )
+                """
+            ),
+            {"sid": store_id},
+        )
+    ).mappings().first()
+
+    duplicate_listings = (
+        await session.execute(
+            text(
+                """
+                SELECT COUNT(*) AS c
+                FROM tcg_judge.card_listings cl
+                WHERE cl.store_id = :sid
+                  AND cl.status = 'active'
+                  AND EXISTS (
+                    SELECT 1 FROM tcg_judge.card_listings cl2
+                    WHERE cl2.store_id = cl.store_id
+                      AND cl2.id <> cl.id
+                      AND cl2.card_id = cl.card_id
+                      AND cl2.condition = cl.condition
+                      AND cl2.foil = cl.foil
+                  )
+                """
+            ),
+            {"sid": store_id},
+        )
+    ).mappings().first()
+
+    dup_count = int((duplicate_products or {}).get("c") or 0) + int(
+        (duplicate_listings or {}).get("c") or 0
+    )
+
     actions = [
         {
             "id": "out_of_stock",
@@ -132,9 +202,8 @@ async def get_inventory_dashboard(session: AsyncSession, owner_id: str) -> dict[
         {
             "id": "duplicates",
             "label": "Duplicados",
-            "count": 0,
+            "count": dup_count,
             "filter": {"health": "duplicate"},
-            "note": "MVP: detecção heurística na próxima iteração",
         },
         {
             "id": "recent_import",

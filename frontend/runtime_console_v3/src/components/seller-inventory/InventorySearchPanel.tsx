@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import {
   INVENTORY_SOURCES,
+  LORCANA_INKS,
   type InventorySource,
   type SalesPeriod,
   type StockFilter,
@@ -22,6 +23,9 @@ type Props = {
   period: SalesPeriod;
   onPeriodChange: (p: SalesPeriod) => void;
   onSearch: () => void;
+  game?: string;
+  ink?: string | null;
+  onInkChange?: (ink: string | null) => void;
 };
 
 export function InventorySearchPanel({
@@ -34,11 +38,15 @@ export function InventorySearchPanel({
   period,
   onPeriodChange,
   onSearch,
+  game,
+  ink,
+  onInkChange,
 }: Props) {
   const [helpOpen, setHelpOpen] = useState(false);
   const isBestsellers =
     source === "bestsellers_marketplace" || source === "bestsellers_store";
   const activeHelp = INVENTORY_SOURCES.find((s) => s.id === source)?.help;
+  const showInk = game === "lorcana" && onInkChange;
 
   return (
     <div className="space-y-4 rounded-xl border border-border bg-card p-4">
@@ -114,7 +122,23 @@ export function InventorySearchPanel({
             <option value="without_stock">Sem estoque</option>
           </select>
         </div>
-        {isBestsellers ? (
+        {showInk ? (
+          <div>
+            <label className="mb-1 block text-xs text-muted-foreground">Ink (Lorcana)</label>
+            <select
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+              value={ink ?? ""}
+              onChange={(e) => onInkChange(e.target.value || null)}
+            >
+              <option value="">Todas</option>
+              {LORCANA_INKS.map((i) => (
+                <option key={i.id} value={i.id}>
+                  {i.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        ) : isBestsellers ? (
           <div>
             <label className="mb-1 block text-xs text-muted-foreground">Período</label>
             <select
@@ -137,7 +161,7 @@ export function InventorySearchPanel({
         )}
       </div>
 
-      {isBestsellers ? (
+      {showInk || isBestsellers ? (
         <div className="flex justify-end">
           <Button type="button" onClick={onSearch}>
             Buscar

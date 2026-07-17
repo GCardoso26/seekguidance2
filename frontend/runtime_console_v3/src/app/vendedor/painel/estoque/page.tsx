@@ -42,6 +42,9 @@ export default function EstoquePage() {
   const [stockFilter, setStockFilter] = useState<StockFilter>("all");
   const [health, setHealth] = useState<string | null>(null);
   const [maxStock, setMaxStock] = useState<number | null>(null);
+  const [ink, setInk] = useState<string | null>(null);
+  const [pageSize, setPageSize] = useState(48);
+  const [fullView, setFullView] = useState(false);
   const [period, setPeriod] = useState<SalesPeriod>("month");
   const [page, setPage] = useState(1);
   const [activeActionId, setActiveActionId] = useState<string | null>(null);
@@ -56,10 +59,12 @@ export default function EstoquePage() {
       stockFilter,
       health,
       maxStock,
+      ink,
       period,
       page,
+      pageSize,
     ],
-    [source, kind, game, committedQuery, stockFilter, health, maxStock, period, page],
+    [source, kind, game, committedQuery, stockFilter, health, maxStock, ink, period, page, pageSize],
   );
 
   const dashQuery = useQuery({
@@ -103,11 +108,12 @@ export default function EstoquePage() {
         stock_filter: stockFilter,
         period,
         page: String(page),
-        limit: "48",
+        limit: String(pageSize),
       });
       if (committedQuery.trim()) params.set("q", committedQuery.trim());
       if (health) params.set("health", health);
       if (maxStock != null) params.set("max_stock", String(maxStock));
+      if (ink) params.set("ink", ink);
       const res = await fetch(`/api/seller/inventory/search?${params}`);
       if (!res.ok) throw new Error("fetch_failed");
       return res.json() as Promise<InventorySearchResponse>;
@@ -268,7 +274,10 @@ export default function EstoquePage() {
           game={game}
           onGameChange={(g) => {
             setGame(g);
+            setInk(null);
             setPage(1);
+            setPageSize(48);
+            setFullView(false);
           }}
         />
 
@@ -291,6 +300,12 @@ export default function EstoquePage() {
           period={period}
           onPeriodChange={(p) => {
             setPeriod(p);
+            setPage(1);
+          }}
+          game={game}
+          ink={ink}
+          onInkChange={(value) => {
+            setInk(value);
             setPage(1);
           }}
           onSearch={runSearch}
@@ -321,11 +336,12 @@ export default function EstoquePage() {
           <PageSkeleton rows={4} />
         ) : (
           <>
-            <div className="flex items-center justify-between text-sm text-muted-foreground">
+            <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-muted-foreground">
               <span>
-                {total} resultado{total === 1 ? "" : "s"}
+                Mostrando {items.length} de {total} resultado{total === 1 ? "" : "s"}
+                {pageSize < total ? ` · página ${page}` : ""}
               </span>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <Button
                   type="button"
                   variant="secondary"
@@ -344,6 +360,31 @@ export default function EstoquePage() {
                 >
                   Próxima
                 </Button>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  disabled={pageSize >= 500 || items.length >= total}
+                  onClick={() => {
+                    setPage(1);
+                    setPageSize((s) => Math.min(500, s + 48));
+                    setFullView(true);
+                  }}
+                >
+                  Carregar mais
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  disabled={pageSize >= 500 && items.length >= Math.min(total, 500)}
+                  onClick={() => {
+                    setPage(1);
+                    setPageSize(500);
+                    setFullView(true);
+                  }}
+                >
+                  Ver estoque completo
+                </Button>
               </div>
             </div>
             <InventoryDataTable
@@ -351,6 +392,7 @@ export default function EstoquePage() {
               kind={kind}
               queryKey={searchKey}
               highlight={committedQuery}
+              fullView={fullView}
             />
           </>
         )}
