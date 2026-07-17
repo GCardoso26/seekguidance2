@@ -351,7 +351,11 @@ async def _cards_my_catalog(
             COALESCE(
               cc.set_code,
               CASE
+                WHEN COALESCE(p.sku, '') ~ '^(TFC|ROF|INK|URS|SSK|AZS|ARI|ROJ|FAB|WHI|WIN|WUN)-'
+                  THEN split_part(p.sku, '-', 1)
                 WHEN COALESCE(p.sku, '') ~ '^LOR[0-9]+-' THEN substring(p.sku from '^(LOR[0-9]+)')
+                WHEN COALESCE(p.description, '') ~ '\\m(TFC|ROF|INK|URS|SSK|AZS|ARI|ROJ|FAB|WHI|WIN|WUN)\\M'
+                  THEN (regexp_match(p.description, '\\m(TFC|ROF|INK|URS|SSK|AZS|ARI|ROJ|FAB|WHI|WIN|WUN)\\M'))[1]
                 WHEN COALESCE(p.description, '') ~ '\\mLOR[0-9]+\\M'
                   THEN (regexp_match(p.description, '\\m(LOR[0-9]+)\\M'))[1]
                 ELSE NULL

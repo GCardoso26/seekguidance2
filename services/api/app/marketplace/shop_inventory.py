@@ -186,9 +186,22 @@ def _catalog_set_from_liga(liga_set: str) -> str | None:
     if code in LIGA_LORCANA_SET_MAP:
         return LIGA_LORCANA_SET_MAP[code]
     # Já no formato do catálogo (TFC, SSK, …)
+    if code in LIGA_LORCANA_SET_MAP.values():
+        return code
     if len(code) <= 5 and code.isalpha():
         return code
     return None
+
+
+def rewrite_liga_set_codes(text: str) -> str:
+    """Troca LOR12…LOR1 pelas siglas do catálogo (TFC, ROF, …). Ordem: códigos longos primeiro."""
+    if not text:
+        return text
+    out = text
+    for liga in sorted(LIGA_LORCANA_SET_MAP.keys(), key=len, reverse=True):
+        catalog = LIGA_LORCANA_SET_MAP[liga]
+        out = re.sub(rf"\b{re.escape(liga)}\b", catalog, out, flags=re.IGNORECASE)
+    return out
 
 
 def _parse_liga_lorcana_row(row: dict[str, str], line_no: int) -> tuple[dict[str, Any] | None, str | None]:
@@ -216,19 +229,27 @@ def _parse_liga_lorcana_row(row: dict[str, str], line_no: int) -> tuple[dict[str
         return None, f"Linha {line_no} ({base_name}): preço inválido ou ausente"
 
     condition = _field(row, "Qualidade (M, NM, SP, MP, HP, D)", "Qualidade") or "NM"
-    set_code = _field(row, "Edição Sigla", "Edicao Sigla")
+    liga_set = (_field(row, "Edição Sigla", "Edicao Sigla") or "").strip().upper()
+    catalog_set = _catalog_set_from_liga(liga_set) or liga_set
     card_id = _field(row, "Carta ID")
     number = _normalize_card_number(_field(row, "Número", "Numero"))
     foil = _field(row, "Foil (0 ou 1)", "Foil") == "1"
 
-    name = f"{base_name} ({condition})"
+    # Nome exibe a sigla do catálogo (TFC), não LOR1 da Liga.
+    # Ex.: "Ariel - Spectacular Singer - TFC (NM)"
+    if catalog_set:
+        name = f"{base_name} - {catalog_set}"
+    else:
+        name = base_name
     if foil:
-        name = f"{base_name} ★ ({condition})"
+        name = f"{name} ★"
+    name = f"{name} ({condition})"
 
-    sku_parts = [p for p in (set_code, card_id or number, condition, "F" if foil else None) if p]
+    # Preferir número de colecionador no SKU (bate com catálogo); Carta ID da Liga é interno.
+    sku_parts = [p for p in (catalog_set, number or card_id, condition, "F" if foil else None) if p]
     sku = "-".join(sku_parts)[:64] if sku_parts else None
     description = " · ".join(
-        p for p in (set_code, f"#{number}" if number else None, "LigaLorcana import") if p
+        p for p in (catalog_set, f"#{number}" if number else None, "LigaLorcana import") if p
     )
 
     return {
@@ -239,7 +260,8 @@ def _parse_liga_lorcana_row(row: dict[str, str], line_no: int) -> tuple[dict[str
         "stock": stock,
         "sku": sku,
         "description": description,
-        "liga_set": set_code,
+        "liga_set": liga_set,
+        "catalog_set": catalog_set,
         "card_number": number,
         "foil": foil,
         "condition": condition,
@@ -449,14 +471,18 @@ async def backfill_liga_lorcana_images(
     store_id: str,
     owner_id: str,
 ) -> dict[str, Any]:
-    """Religa singles importados da Liga ao catálogo e preenche images."""
+    """Religa singles importados da Liga ao catálogo e preenche images.
+
+    Também normaliza LOR* → siglas do catálogo (TFC, ROF, …) em sku/description/name.
+    """
     await _assert_store_owner(session, store_id, owner_id)
     by_set_num, by_set_name = await _load_lorcana_catalog_index(session)
+    catalog_codes = "|".join(sorted(LIGA_LORCANA_SET_MAP.values(), key=len, reverse=True))
 
     rows = (
         await session.execute(
             text(
-                """
+                f"""
                 SELECT id, name, description, sku, images, catalog_card_id
                 FROM tcg_judge.store_products
                 WHERE store_id = :sid
@@ -466,10 +492,15 @@ async def backfill_liga_lorcana_images(
                     catalog_card_id IS NULL
                     OR images IS NULL
                     OR cardinality(images) = 0
+                    OR COALESCE(sku, '') ~ 'LOR[0-9]+'
+                    OR COALESCE(description, '') ~ 'LOR[0-9]+'
+                    OR COALESCE(name, '') ~ 'LOR[0-9]+'
                   )
                   AND (
                     description ILIKE '%LigaLorcana%'
                     OR sku ~ '^LOR[0-9]+-'
+                    OR sku ~ '^({catalog_codes})-'
+                    OR description ~ '(LOR[0-9]+|{catalog_codes})'
                   )
                 """
             ),
@@ -478,6 +509,7 @@ async def backfill_liga_lorcana_images(
     ).mappings().all()
 
     updated = 0
+    rewritten = 0
     unmatched = 0
     for raw in rows:
         row = dict(raw)
@@ -485,18 +517,35 @@ async def backfill_liga_lorcana_images(
         sku = str(row.get("sku") or "")
         name = str(row.get("name") or "")
 
+        new_sku = rewrite_liga_set_codes(sku)
+        new_desc = rewrite_liga_set_codes(desc)
+        new_name = rewrite_liga_set_codes(name)
+        codes_changed = (new_sku, new_desc, new_name) != (sku, desc, name)
+
         liga_set = ""
-        m_set = re.search(r"\b(LOR\d+)\b", desc) or re.search(r"^(LOR\d+)-", sku)
+        m_set = (
+            re.search(r"\b(LOR\d+)\b", desc, re.I)
+            or re.search(r"^(LOR\d+)-", sku, re.I)
+            or re.search(rf"\b({catalog_codes})\b", new_desc)
+            or re.search(rf"^({catalog_codes})-", new_sku)
+        )
         if m_set:
-            liga_set = m_set.group(1)
+            liga_set = m_set.group(1).upper()
 
         card_number = ""
-        m_num = re.search(r"#(\d+)", desc)
+        m_num = re.search(r"#(\d+)", new_desc) or re.search(r"#(\d+)", desc)
         if m_num:
             card_number = m_num.group(1)
+        elif new_sku:
+            # SKU: TFC-26-NM ou TFC-103-NM-F (número pode ser Carta ID da Liga)
+            parts = new_sku.split("-")
+            if len(parts) >= 2 and parts[1].isdigit():
+                card_number = parts[1]
 
-        base_name = re.sub(r"\s*★\s*", " ", name)
+        base_name = re.sub(r"\s*★\s*", " ", new_name)
+        base_name = re.sub(r"\s*-\s*(?:LOR\d+|" + catalog_codes + r")\s*", " ", base_name, flags=re.I)
         base_name = re.sub(r"\s*\((M|NM|SP|MP|HP|D)\)\s*$", "", base_name).strip()
+        base_name = re.sub(r"\s{2,}", " ", base_name)
 
         card = match_liga_lorcana_catalog(
             base_name=base_name,
@@ -505,47 +554,84 @@ async def backfill_liga_lorcana_images(
             by_set_num=by_set_num,
             by_set_name=by_set_name,
         )
-        if not card:
+        # Se o "número" do SKU for Carta ID da Liga (ex. 1324), tenta só por nome+set.
+        if not card and liga_set and base_name:
+            card = match_liga_lorcana_catalog(
+                base_name=base_name,
+                liga_set=liga_set,
+                card_number="",
+                by_set_num=by_set_num,
+                by_set_name=by_set_name,
+            )
+
+        if not card and not codes_changed:
             unmatched += 1
             continue
 
-        images = _image_list_from_catalog(card)
         params: dict[str, Any] = {
-            "cid": str(card["id"]),
             "id": str(row["id"]),
+            "sku": new_sku or None,
+            "desc": new_desc or None,
+            "name": new_name,
         }
-        if images:
-            await session.execute(
-                text(
-                    """
-                    UPDATE tcg_judge.store_products
-                    SET catalog_card_id = :cid,
-                        tcg_id = 'LORCANA',
-                        images = :images,
-                        updated_at = NOW()
-                    WHERE id = :id
-                    """
-                ),
-                {**params, "images": images},
-            )
+        if card:
+            images = _image_list_from_catalog(card)
+            params["cid"] = str(card["id"])
+            if images:
+                await session.execute(
+                    text(
+                        """
+                        UPDATE tcg_judge.store_products
+                        SET catalog_card_id = :cid,
+                            tcg_id = 'LORCANA',
+                            images = :images,
+                            sku = :sku,
+                            description = :desc,
+                            name = :name,
+                            updated_at = NOW()
+                        WHERE id = :id
+                        """
+                    ),
+                    {**params, "images": images},
+                )
+            else:
+                await session.execute(
+                    text(
+                        """
+                        UPDATE tcg_judge.store_products
+                        SET catalog_card_id = :cid,
+                            tcg_id = 'LORCANA',
+                            sku = :sku,
+                            description = :desc,
+                            name = :name,
+                            updated_at = NOW()
+                        WHERE id = :id
+                        """
+                    ),
+                    params,
+                )
+            updated += 1
         else:
             await session.execute(
                 text(
                     """
                     UPDATE tcg_judge.store_products
-                    SET catalog_card_id = :cid,
-                        tcg_id = 'LORCANA',
+                    SET sku = :sku,
+                        description = :desc,
+                        name = :name,
                         updated_at = NOW()
                     WHERE id = :id
                     """
                 ),
                 params,
             )
-        updated += 1
+            rewritten += 1
+            unmatched += 1
 
     await session.commit()
     return {
         "scanned": len(rows),
         "updated": updated,
+        "rewritten_only": rewritten,
         "unmatched": unmatched,
     }

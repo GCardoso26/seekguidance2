@@ -51,14 +51,15 @@ def test_parse_liga_row_uses_existente_when_somar_empty():
     parsed, err = _parse_liga_lorcana_row(row, 12)
     assert err is None
     assert parsed is not None
-    assert parsed["name"] == "Abu - Bold Helmsman (NM)"
+    assert parsed["name"] == "Abu - Bold Helmsman - AZS (NM)"
     assert parsed["stock"] == 20
     assert parsed["price_cents"] == 30
     assert parsed["category"] == "single"
-    assert parsed["sku"] and "LOR6" in parsed["sku"]
+    assert parsed["sku"] == "AZS-114-NM"
     assert parsed["base_name"] == "Abu - Bold Helmsman"
     assert parsed["card_number"] == "114"
     assert parsed["liga_set"] == "LOR6"
+    assert parsed["catalog_set"] == "AZS"
 
 
 def test_parse_liga_skips_zero_stock():
@@ -76,9 +77,22 @@ def test_parse_liga_skips_zero_stock():
 def test_liga_set_map_covers_main_sets():
     assert LIGA_LORCANA_SET_MAP["LOR1"] == "TFC"
     assert LIGA_LORCANA_SET_MAP["LOR7"] == "ARI"
+    assert LIGA_LORCANA_SET_MAP["LOR8"] == "ROJ"
+    assert LIGA_LORCANA_SET_MAP["LOR10"] == "WHI"
     assert LIGA_LORCANA_SET_MAP["LOR12"] == "WUN"
     assert _catalog_set_from_liga("LOR5") == "SSK"
+    assert _catalog_set_from_liga("TFC") == "TFC"
     assert _normalize_card_number('="041"') == "41"
+
+
+def test_rewrite_liga_set_codes_longest_first():
+    from app.marketplace.shop_inventory import rewrite_liga_set_codes
+
+    assert rewrite_liga_set_codes("LOR12 · #1") == "WUN · #1"
+    assert rewrite_liga_set_codes("LOR1-26-NM") == "TFC-26-NM"
+    assert rewrite_liga_set_codes("Ariel - Spectacular Singer - LOR1") == (
+        "Ariel - Spectacular Singer - TFC"
+    )
 
 
 def test_match_liga_lorcana_by_set_and_number():
