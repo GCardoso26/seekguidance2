@@ -1000,7 +1000,14 @@ async def store_inventory_import_csv(
     x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
 ) -> dict[str, Any]:
     user_id = _require_user(x_judge_user_id)
-    result = await shop_inventory.import_products_csv(session, store_id, user_id, body.csv)
+    result = await shop_inventory.import_products_csv(
+        session,
+        store_id,
+        user_id,
+        body.csv,
+        dry_run=body.dry_run,
+        on_duplicate=body.on_duplicate,
+    )
     return result
 
 
