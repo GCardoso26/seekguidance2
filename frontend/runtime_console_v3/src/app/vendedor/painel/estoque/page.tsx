@@ -40,13 +40,26 @@ export default function EstoquePage() {
   const [query, setQuery] = useState("");
   const [committedQuery, setCommittedQuery] = useState("");
   const [stockFilter, setStockFilter] = useState<StockFilter>("all");
+  const [health, setHealth] = useState<string | null>(null);
+  const [maxStock, setMaxStock] = useState<number | null>(null);
   const [period, setPeriod] = useState<SalesPeriod>("month");
   const [page, setPage] = useState(1);
   const [activeActionId, setActiveActionId] = useState<string | null>(null);
 
   const searchKey = useMemo(
-    () => ["seller-inventory-search", source, kind, game, committedQuery, stockFilter, period, page],
-    [source, kind, game, committedQuery, stockFilter, period, page],
+    () => [
+      "seller-inventory-search",
+      source,
+      kind,
+      game,
+      committedQuery,
+      stockFilter,
+      health,
+      maxStock,
+      period,
+      page,
+    ],
+    [source, kind, game, committedQuery, stockFilter, health, maxStock, period, page],
   );
 
   const dashQuery = useQuery({
@@ -93,6 +106,8 @@ export default function EstoquePage() {
         limit: "48",
       });
       if (committedQuery.trim()) params.set("q", committedQuery.trim());
+      if (health) params.set("health", health);
+      if (maxStock != null) params.set("max_stock", String(maxStock));
       const res = await fetch(`/api/seller/inventory/search?${params}`);
       if (!res.ok) throw new Error("fetch_failed");
       return res.json() as Promise<InventorySearchResponse>;
@@ -186,10 +201,15 @@ export default function EstoquePage() {
             onActionClick={(action) => {
               setActiveActionId(action.id);
               const f = action.filter || {};
+              setSource("my_catalog");
+              setKind("cards");
               if (f.stock_filter === "without_stock") setStockFilter("without_stock");
               else if (f.stock_filter === "with_stock") setStockFilter("with_stock");
               else setStockFilter("all");
-              if (f.status === "inactive") setSource("my_catalog");
+              if (typeof f.health === "string") setHealth(f.health);
+              else setHealth(null);
+              if (typeof f.max_stock === "number") setMaxStock(f.max_stock);
+              else setMaxStock(null);
               setPage(1);
             }}
           />
@@ -207,9 +227,26 @@ export default function EstoquePage() {
                       type="button"
                       className="ml-2 text-primary underline"
                       onClick={() => {
-                        if (s.filter === "without_stock") setStockFilter("without_stock");
-                        if (s.filter === "missing_image" || s.filter === "health_critical") {
-                          setSource("my_catalog");
+                        setActiveActionId(s.id);
+                        setSource("my_catalog");
+                        setKind("cards");
+                        setPage(1);
+                        if (s.filter === "without_stock") {
+                          setStockFilter("without_stock");
+                          setHealth(null);
+                          setMaxStock(null);
+                        } else if (s.filter === "missing_image" || s.filter === "health_critical") {
+                          setStockFilter("all");
+                          setHealth("missing_image");
+                          setMaxStock(null);
+                        } else if (s.filter === "low_stock") {
+                          setStockFilter("with_stock");
+                          setHealth(null);
+                          setMaxStock(3);
+                        } else {
+                          setStockFilter("all");
+                          setHealth(null);
+                          setMaxStock(null);
                         }
                       }}
                     >
@@ -246,6 +283,9 @@ export default function EstoquePage() {
           stockFilter={stockFilter}
           onStockFilterChange={(f) => {
             setStockFilter(f);
+            setHealth(null);
+            setMaxStock(null);
+            setActiveActionId(null);
             setPage(1);
           }}
           period={period}

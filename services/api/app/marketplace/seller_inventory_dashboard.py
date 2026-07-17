@@ -23,15 +23,19 @@ async def get_inventory_dashboard(session: AsyncSession, owner_id: str) -> dict[
                   COUNT(*) FILTER (WHERE is_active AND stock <= 0) AS out_of_stock,
                   COUNT(*) FILTER (WHERE is_active AND stock > 0 AND stock <= 3) AS low_stock,
                   COUNT(*) FILTER (
-                    WHERE is_active AND (images IS NULL OR images = '{}')
+                    WHERE is_active AND (images IS NULL OR images = '{}' OR cardinality(images) = 0)
                   ) AS missing_image,
                   COUNT(*) FILTER (WHERE is_active AND price_cents <= 0) AS missing_price,
                   COUNT(*) FILTER (WHERE NOT is_active) AS unpublished,
                   COUNT(*) FILTER (WHERE NOT is_active) AS archived,
                   COALESCE(SUM(stock) FILTER (WHERE is_active), 0) AS total_units,
                   COALESCE(SUM(stock * price_cents) FILTER (WHERE is_active), 0) AS value_cents
-                FROM tcg_judge.store_products
-                WHERE store_id = :sid AND catalog_card_id IS NULL
+                FROM tcg_judge.store_products p
+                WHERE p.store_id = :sid
+                  AND NOT EXISTS (
+                    SELECT 1 FROM tcg_judge.card_listings cl
+                    WHERE cl.store_product_id = p.id
+                  )
                 """
             ),
             {"sid": store_id},

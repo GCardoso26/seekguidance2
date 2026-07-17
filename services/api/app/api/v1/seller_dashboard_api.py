@@ -458,6 +458,8 @@ async def seller_inventory_search(
     period: Literal["day", "week", "month", "year"] = "month",
     page: int = 1,
     limit: int = 24,
+    health: str | None = None,
+    max_stock: int | None = None,
     x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
 ) -> dict[str, Any]:
     user_id = _require_user(x_judge_user_id)
@@ -472,6 +474,8 @@ async def seller_inventory_search(
         period=period,
         page=page,
         limit=limit,
+        health=health,
+        max_stock=max_stock,
     )
 
 

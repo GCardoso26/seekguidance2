@@ -370,6 +370,8 @@ async def import_products_csv(
         tcg_id = parsed.get("tcg_id")
         catalog_matched = False
         if liga_mode:
+            # Sempre Lorcana no formato Liga — mesmo sem match no catálogo.
+            tcg_id = "LORCANA"
             card = match_liga_lorcana_catalog(
                 base_name=str(parsed.get("base_name") or ""),
                 liga_set=str(parsed.get("liga_set") or ""),
@@ -380,7 +382,6 @@ async def import_products_csv(
             if card:
                 catalog_card_id = str(card["id"])
                 images = _image_list_from_catalog(card)
-                tcg_id = "LORCANA"
                 catalog_matched = True
                 matched += 1
             else:

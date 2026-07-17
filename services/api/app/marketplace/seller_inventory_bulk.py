@@ -55,7 +55,7 @@ async def bulk_inventory(
                     await card_listings_svc.update_listing(
                         session, str(raw["listing_id"]), owner_id, {"status": "active"}
                     )
-                elif kind == "products" and raw.get("product_id"):
+                elif raw.get("product_id"):
                     await shop_products_svc.update_product(
                         session, str(raw["product_id"]), owner_id, {"is_active": True}
                     )
@@ -67,7 +67,7 @@ async def bulk_inventory(
                     await card_listings_svc.update_listing(
                         session, str(raw["listing_id"]), owner_id, {"status": "inactive"}
                     )
-                elif kind == "products" and raw.get("product_id"):
+                elif raw.get("product_id"):
                     await shop_products_svc.update_product(
                         session, str(raw["product_id"]), owner_id, {"is_active": False}
                     )

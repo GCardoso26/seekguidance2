@@ -107,6 +107,8 @@ async def search_inventory(
     period: Period = "month",
     page: int = 1,
     limit: int = 24,
+    health: str | None = None,
+    max_stock: int | None = None,
 ) -> dict[str, Any]:
     store = await _resolve_store(session, owner_id)
     store_id = str(store["id"])
@@ -125,6 +127,8 @@ async def search_inventory(
             period=period,
             page=page,
             limit=limit,
+            health=health,
+            max_stock=max_stock,
         )
     else:
         items, total = await _search_products(
@@ -137,6 +141,8 @@ async def search_inventory(
             period=period,
             page=page,
             limit=limit,
+            health=health,
+            max_stock=max_stock,
         )
 
     from app.marketplace.seller_inventory_health import enrich_items_with_health
@@ -173,6 +179,8 @@ async def _search_cards(
     period: Period,
     page: int,
     limit: int,
+    health: str | None = None,
+    max_stock: int | None = None,
 ) -> tuple[list[dict[str, Any]], int]:
     code = game_code_from_slug(game)
     if not code:
@@ -180,7 +188,16 @@ async def _search_cards(
 
     if source == "my_catalog":
         return await _cards_my_catalog(
-            session, owner_id=owner_id, game_code=code, q=q, stock_filter=stock_filter, page=page, limit=limit
+            session,
+            owner_id=owner_id,
+            store_id=store_id,
+            game_code=code,
+            q=q,
+            stock_filter=stock_filter,
+            page=page,
+            limit=limit,
+            health=health,
+            max_stock=max_stock,
         )
     if source == "system":
         return await _cards_system(
@@ -203,39 +220,159 @@ async def _cards_my_catalog(
     session: AsyncSession,
     *,
     owner_id: str,
+    store_id: str,
     game_code: str,
     q: str | None,
     stock_filter: StockFilter,
     page: int,
     limit: int,
+    health: str | None = None,
+    max_stock: int | None = None,
 ) -> tuple[list[dict[str, Any]], int]:
-    clauses = ["cl.seller_id = :sid", "cc.game_code = :g"]
+    """Meu cadastro de cartas: listagens + singles em store_products (ex.: CSV Liga)."""
     params: dict[str, Any] = {
-        "sid": owner_id,
+        "owner_id": owner_id,
+        "store_id": store_id,
         "g": game_code,
         "lim": limit,
         "off": (page - 1) * limit,
     }
+
+    listing_extra: list[str] = []
+    product_extra: list[str] = []
     if q and q.strip():
-        clauses.append("(cc.name ILIKE :q OR COALESCE(cc.set_name, '') ILIKE :q)")
+        listing_extra.append(
+            "(cc.name ILIKE :q OR COALESCE(cc.set_name, '') ILIKE :q OR COALESCE(cc.set_code, '') ILIKE :q)"
+        )
+        product_extra.append(
+            "(p.name ILIKE :q OR COALESCE(p.sku, '') ILIKE :q OR COALESCE(p.description, '') ILIKE :q)"
+        )
         params["q"] = f"%{q.strip()}%"
     if stock_filter == "with_stock":
-        clauses.append("cl.quantity > 0")
+        listing_extra.append("cl.quantity > 0")
+        product_extra.append("p.stock > 0")
     elif stock_filter == "without_stock":
-        clauses.append("cl.quantity <= 0")
+        listing_extra.append("cl.quantity <= 0")
+        product_extra.append("p.stock <= 0")
+    if max_stock is not None:
+        listing_extra.append("cl.quantity > 0 AND cl.quantity <= :max_stock")
+        product_extra.append("p.stock > 0 AND p.stock <= :max_stock")
+        params["max_stock"] = int(max_stock)
 
-    where = " AND ".join(clauses)
+    listing_image_sql = """
+        CASE
+          WHEN COALESCE(cc.image_url, '') <> '' THEN cc.image_url
+          WHEN cc.image_uris ? 'normal' THEN cc.image_uris->>'normal'
+          WHEN cc.image_uris ? 'large' THEN cc.image_uris->>'large'
+          WHEN cc.image_uris ? 'small' THEN cc.image_uris->>'small'
+          ELSE NULL
+        END
+    """
+    product_image_sql = f"""
+        CASE
+          WHEN p.images IS NOT NULL AND cardinality(p.images) > 0 THEN p.images[1]
+          ELSE ({listing_image_sql})
+        END
+    """
+
+    if health == "missing_image":
+        listing_extra.append(f"({listing_image_sql}) IS NULL")
+        product_extra.append(
+            "(p.images IS NULL OR cardinality(p.images) = 0)"
+            f" AND ({listing_image_sql}) IS NULL"
+        )
+    elif health == "missing_price":
+        listing_extra.append("cl.price_cents <= 0")
+        product_extra.append("p.price_cents <= 0")
+
+    listing_where = " AND ".join(["cl.seller_id = :owner_id", "cc.game_code = :g", *listing_extra])
+    product_where = " AND ".join(
+        [
+            "p.store_id = :store_id",
+            "p.is_active",
+            "p.category IN ('single', 'oversized', 'token')",
+            """NOT EXISTS (
+                 SELECT 1 FROM tcg_judge.card_listings clx
+                 WHERE clx.store_product_id = p.id
+               )""",
+            """(
+                 p.tcg_id = :g
+                 OR cc.game_code = :g
+                 OR (
+                   :g = 'LORCANA'
+                   AND p.tcg_id IS NULL
+                   AND (
+                     COALESCE(p.description, '') ILIKE '%LigaLorcana%'
+                     OR COALESCE(p.sku, '') ~ '^LOR[0-9]+-'
+                   )
+                 )
+               )""",
+            *product_extra,
+        ]
+    )
+
+    union_sql = f"""
+        SELECT * FROM (
+          SELECT
+            cl.id::text AS id,
+            cl.id AS listing_id,
+            cl.store_product_id AS product_id,
+            cl.card_id AS card_id,
+            cl.quantity::int AS quantity,
+            cl.price_cents::int AS price_cents,
+            cl.condition AS condition,
+            cl.language AS language,
+            cl.foil AS foil,
+            cc.name AS title,
+            COALESCE(cc.set_code, cc.set_name) AS set_code,
+            LOWER(cc.game_code) AS game,
+            ({listing_image_sql}) AS image_url,
+            cl.updated_at AS sort_ts,
+            'listing'::text AS row_kind,
+            NULL::text AS category,
+            NULL::text AS sku
+          FROM tcg_judge.card_listings cl
+          JOIN tcg_judge.card_catalog cc ON cc.id = cl.card_id
+          WHERE {listing_where}
+
+          UNION ALL
+
+          SELECT
+            p.id::text AS id,
+            NULL::uuid AS listing_id,
+            p.id AS product_id,
+            p.catalog_card_id AS card_id,
+            p.stock::int AS quantity,
+            p.price_cents::int AS price_cents,
+            'NM'::text AS condition,
+            'pt'::text AS language,
+            false AS foil,
+            p.name AS title,
+            COALESCE(
+              cc.set_code,
+              CASE
+                WHEN COALESCE(p.sku, '') ~ '^LOR[0-9]+-' THEN substring(p.sku from '^(LOR[0-9]+)')
+                WHEN COALESCE(p.description, '') ~ '\\mLOR[0-9]+\\M'
+                  THEN (regexp_match(p.description, '\\m(LOR[0-9]+)\\M'))[1]
+                ELSE NULL
+              END
+            ) AS set_code,
+            LOWER(COALESCE(NULLIF(p.tcg_id, ''), cc.game_code, :g)) AS game,
+            ({product_image_sql}) AS image_url,
+            p.updated_at AS sort_ts,
+            'product'::text AS row_kind,
+            p.category::text AS category,
+            p.sku::text AS sku
+          FROM tcg_judge.store_products p
+          LEFT JOIN tcg_judge.card_catalog cc ON cc.id = p.catalog_card_id
+          WHERE {product_where}
+        ) card_rows
+    """
+
     total = int(
         (
             await session.execute(
-                text(
-                    f"""
-                    SELECT COUNT(*) AS c
-                    FROM tcg_judge.card_listings cl
-                    JOIN tcg_judge.card_catalog cc ON cc.id = cl.card_id
-                    WHERE {where}
-                    """
-                ),
+                text(f"SELECT COUNT(*) AS c FROM ({union_sql}) t"),
                 params,
             )
         ).mappings().first()["c"]
@@ -245,14 +382,8 @@ async def _cards_my_catalog(
         await session.execute(
             text(
                 f"""
-                SELECT cl.id AS listing_id, cl.card_id, cl.quantity, cl.price_cents,
-                       cl.condition, cl.language, cl.foil, cl.store_product_id,
-                       cc.name, cc.set_code, cc.set_name, cc.game_code,
-                       cc.image_url, cc.image_uris
-                FROM tcg_judge.card_listings cl
-                JOIN tcg_judge.card_catalog cc ON cc.id = cl.card_id
-                WHERE {where}
-                ORDER BY cc.name ASC, cl.updated_at DESC
+                {union_sql}
+                ORDER BY title ASC, sort_ts DESC
                 LIMIT :lim OFFSET :off
                 """
             ),
@@ -260,25 +391,30 @@ async def _cards_my_catalog(
         )
     ).mappings().all()
 
-    items = [
-        _row_item(
-            id=str(r["listing_id"]),
-            kind="cards",
-            title=r["name"],
-            image_url=_image_from_uris(r.get("image_url"), r.get("image_uris")),
-            game=str(r["game_code"]).lower(),
-            set_code=r.get("set_code") or r.get("set_name"),
-            listing_id=str(r["listing_id"]),
-            product_id=str(r["store_product_id"]) if r.get("store_product_id") else None,
-            card_id=str(r["card_id"]),
-            quantity=r["quantity"],
-            price_cents=r["price_cents"],
-            condition=r["condition"],
-            language=r["language"],
-            foil=r["foil"],
+    items: list[dict[str, Any]] = []
+    for r in rows:
+        row_kind = str(r.get("row_kind") or "")
+        items.append(
+            _row_item(
+                id=str(r["id"]),
+                kind="cards",
+                title=r["title"],
+                image_url=r.get("image_url"),
+                game=r.get("game"),
+                set_code=r.get("set_code"),
+                listing_id=str(r["listing_id"]) if r.get("listing_id") else None,
+                product_id=str(r["product_id"]) if r.get("product_id") else None,
+                card_id=str(r["card_id"]) if r.get("card_id") else None,
+                quantity=r["quantity"],
+                price_cents=r["price_cents"],
+                condition=r.get("condition") or "NM",
+                language=r.get("language") or "pt",
+                foil=bool(r.get("foil")),
+                category=r.get("category"),
+                sku=r.get("sku"),
+                source="csv" if row_kind == "product" else "catalog",
+            )
         )
-        for r in rows
-    ]
     return items, total
 
 
@@ -488,10 +624,19 @@ async def _search_products(
     period: Period,
     page: int,
     limit: int,
+    health: str | None = None,
+    max_stock: int | None = None,
 ) -> tuple[list[dict[str, Any]], int]:
     if source == "my_catalog":
         return await _products_my_catalog(
-            session, store_id=store_id, q=q, stock_filter=stock_filter, page=page, limit=limit
+            session,
+            store_id=store_id,
+            q=q,
+            stock_filter=stock_filter,
+            page=page,
+            limit=limit,
+            health=health,
+            max_stock=max_stock,
         )
     if source == "system":
         return await _products_system(
@@ -517,8 +662,19 @@ async def _products_my_catalog(
     stock_filter: StockFilter,
     page: int,
     limit: int,
+    health: str | None = None,
+    max_stock: int | None = None,
 ) -> tuple[list[dict[str, Any]], int]:
-    clauses = ["p.store_id = :sid", "p.catalog_card_id IS NULL"]
+    # Singles ficam na aba Cartas; aqui só produtos físicos / sem link de listing.
+    clauses = [
+        "p.store_id = :sid",
+        "p.is_active",
+        "p.category NOT IN ('single', 'oversized', 'token')",
+        """NOT EXISTS (
+             SELECT 1 FROM tcg_judge.card_listings cl
+             WHERE cl.store_product_id = p.id
+           )""",
+    ]
     params: dict[str, Any] = {"sid": store_id, "lim": limit, "off": (page - 1) * limit}
     if q and q.strip():
         clauses.append("(p.name ILIKE :q OR COALESCE(p.sku, '') ILIKE :q)")
@@ -527,6 +683,13 @@ async def _products_my_catalog(
         clauses.append("p.stock > 0")
     elif stock_filter == "without_stock":
         clauses.append("p.stock <= 0")
+    if max_stock is not None:
+        clauses.append("p.stock > 0 AND p.stock <= :max_stock")
+        params["max_stock"] = int(max_stock)
+    if health == "missing_image":
+        clauses.append("(p.images IS NULL OR p.images = '{}' OR cardinality(p.images) = 0)")
+    elif health == "missing_price":
+        clauses.append("p.price_cents <= 0")
 
     where = " AND ".join(clauses)
     total = int(
@@ -813,6 +976,7 @@ async def adjust_inventory(
             mode=mode,
             quantity=quantity,
             listing_id=listing_id,
+            product_id=product_id,
             card_id=card_id,
             price_cents=price_cents,
             condition=condition,
@@ -845,6 +1009,7 @@ async def _adjust_card(
     condition: str | None,
     language: str | None,
     foil: bool,
+    product_id: str | None = None,
 ) -> dict[str, Any]:
     cond = (condition or "NM").upper()
     lang = (language or "pt").lower()[:10]
@@ -866,8 +1031,22 @@ async def _adjust_card(
         listing = await card_listings_svc.update_listing(session, listing_id, owner_id, fields)
         return {"item": listing, "created": False}
 
+    # Singles importados (CSV) existem só em store_products — sem listing/card_id.
+    if product_id and not card_id:
+        return await _adjust_product(
+            session,
+            owner_id=owner_id,
+            store_id=store_id,
+            mode=mode,
+            quantity=quantity,
+            product_id=product_id,
+            price_cents=price_cents,
+            title=None,
+            category="single",
+        )
+
     if not card_id:
-        raise HTTPException(400, "Informe listing_id ou card_id")
+        raise HTTPException(400, "Informe listing_id, product_id ou card_id")
 
     # Find existing listing for card+condition+foil+lang
     row = (
