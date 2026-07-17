@@ -130,7 +130,13 @@ async def upsert_card(session: AsyncSession, card: dict[str, Any]) -> str | None
                 "game_specific_type": card.get("game_specific_type"),
                 "legality": json.dumps(card.get("legality") or {}),
                 "image_url": card.get("image_url"),
-                "game_data": json.dumps(card.get("game_data") or {}),
+                "game_data": json.dumps(
+                    {
+                        k: v
+                        for k, v in (card.get("game_data") or {}).items()
+                        if v is not None and v != "" and v != []
+                    }
+                ),
                 "external_ids": json.dumps(card.get("external_ids") or {}),
                 "image_uris": json.dumps(card.get("image_uris") or {}),
                 "language": card.get("language") or "en",
