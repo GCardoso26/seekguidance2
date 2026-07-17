@@ -339,6 +339,116 @@ def match_liga_lorcana_catalog(
     return None
 
 
+def _is_foil_product(name: str | None, sku: str | None = None, foil: bool | None = None) -> bool:
+    if foil is True:
+        return True
+    if name and "★" in name:
+        return True
+    sku_s = sku or ""
+    return bool(re.search(r"(?:^|-)F(?:-|$)", sku_s))
+
+
+def _inventory_match_key(
+    *,
+    catalog_card_id: str | None,
+    name: str,
+    sku: str | None,
+    foil: bool,
+    language: str = "pt",
+) -> str:
+    if catalog_card_id:
+        return f"cid:{catalog_card_id}|f:{str(foil).lower()}|l:{language}"
+    return f"n:{normalize_name(name)}|s:{(sku or '').strip().upper()}|f:{str(foil).lower()}"
+
+
+async def _load_store_inventory_index(
+    session: AsyncSession,
+    store_id: str,
+) -> dict[str, dict[str, Any]]:
+    """Índice de singles ativos da loja para detectar reimportação.
+
+    Chaves: cid+foil+lang, sku, e nome normalizado+foil.
+    """
+    rows = (
+        await session.execute(
+            text(
+                """
+                SELECT id, name, sku, stock, price_cents, catalog_card_id,
+                       COALESCE(language, 'pt') AS language
+                FROM tcg_judge.store_products
+                WHERE store_id = :sid
+                  AND is_active
+                  AND category IN ('single', 'oversized', 'token')
+                """
+            ),
+            {"sid": store_id},
+        )
+    ).mappings().all()
+    index: dict[str, dict[str, Any]] = {}
+    for raw in rows:
+        row = dict(raw)
+        foil = _is_foil_product(str(row.get("name") or ""), str(row.get("sku") or ""))
+        lang = str(row.get("language") or "pt")
+        primary = _inventory_match_key(
+            catalog_card_id=str(row["catalog_card_id"]) if row.get("catalog_card_id") else None,
+            name=str(row.get("name") or ""),
+            sku=str(row.get("sku") or "") or None,
+            foil=foil,
+            language=lang,
+        )
+        index.setdefault(primary, row)
+        sku = str(row.get("sku") or "").strip().upper()
+        if sku:
+            index.setdefault(f"sku:{sku}", row)
+        index.setdefault(
+            _inventory_match_key(
+                catalog_card_id=None,
+                name=str(row.get("name") or ""),
+                sku=None,
+                foil=foil,
+                language=lang,
+            ),
+            row,
+        )
+    return index
+
+
+def _lookup_existing(
+    index: dict[str, dict[str, Any]],
+    *,
+    catalog_card_id: str | None,
+    name: str,
+    sku: str | None,
+    foil: bool,
+    language: str = "pt",
+) -> dict[str, Any] | None:
+    if catalog_card_id:
+        hit = index.get(
+            _inventory_match_key(
+                catalog_card_id=catalog_card_id,
+                name=name,
+                sku=sku,
+                foil=foil,
+                language=language,
+            )
+        )
+        if hit:
+            return hit
+    if sku:
+        hit = index.get(f"sku:{sku.strip().upper()}")
+        if hit:
+            return hit
+    return index.get(
+        _inventory_match_key(
+            catalog_card_id=None,
+            name=name,
+            sku=None,
+            foil=foil,
+            language=language,
+        )
+    )
+
+
 async def import_products_csv(
     session: AsyncSession,
     store_id: str,
@@ -346,11 +456,15 @@ async def import_products_csv(
     csv_text: str,
     *,
     dry_run: bool = False,
+    on_duplicate: str = "ask",
 ) -> dict[str, Any]:
     import csv
     import io
 
     from app.marketplace import shop_products
+
+    if on_duplicate not in {"ask", "merge", "skip"}:
+        raise HTTPException(400, "on_duplicate deve ser ask, merge ou skip")
 
     await _assert_store_owner(session, store_id, owner_id)
     text_clean = csv_text.strip()
@@ -370,13 +484,18 @@ async def import_products_csv(
     if liga_mode:
         by_set_num, by_set_name = await _load_lorcana_catalog_index(session)
 
+    existing_index = await _load_store_inventory_index(session, store_id)
+
     imported = 0
+    updated = 0
     skipped = 0
     matched = 0
     unmatched = 0
     errors: list[str] = []
     preview: list[dict[str, Any]] = []
+    duplicates: list[dict[str, Any]] = []
     to_insert: list[dict[str, Any]] = []
+    to_merge: list[dict[str, Any]] = []
 
     for line_no, row in enumerate(reader, start=2):
         parsed, err = parse_row(row, line_no)
@@ -391,8 +510,12 @@ async def import_products_csv(
         images: list[str] | None = None
         tcg_id = parsed.get("tcg_id")
         catalog_matched = False
+        foil = bool(parsed.get("foil"))
+        if "★" in str(parsed.get("name") or ""):
+            foil = True
+            parsed["foil"] = True
+
         if liga_mode:
-            # Sempre Lorcana no formato Liga — mesmo sem match no catálogo.
             tcg_id = "LORCANA"
             card = match_liga_lorcana_catalog(
                 base_name=str(parsed.get("base_name") or ""),
@@ -409,6 +532,15 @@ async def import_products_csv(
             else:
                 unmatched += 1
 
+        existing = _lookup_existing(
+            existing_index,
+            catalog_card_id=catalog_card_id,
+            name=str(parsed["name"]),
+            sku=str(parsed.get("sku") or "") or None,
+            foil=foil,
+            language="pt",
+        )
+
         preview_row = {
             "name": parsed["name"],
             "category": parsed["category"],
@@ -419,8 +551,46 @@ async def import_products_csv(
             "line": line_no,
             "catalog_matched": catalog_matched,
             "has_image": bool(images),
+            "foil": foil,
+            "already_exists": bool(existing),
+            "existing_stock": int(existing["stock"]) if existing else None,
+            "existing_id": str(existing["id"]) if existing else None,
         }
         preview.append(preview_row)
+
+        if existing:
+            duplicates.append(
+                {
+                    "line": line_no,
+                    "name": parsed["name"],
+                    "sku": parsed.get("sku"),
+                    "foil": foil,
+                    "incoming_stock": int(parsed["stock"]),
+                    "existing_stock": int(existing["stock"] or 0),
+                    "existing_id": str(existing["id"]),
+                    "merged_stock": int(existing["stock"] or 0) + int(parsed["stock"]),
+                }
+            )
+            if dry_run:
+                continue
+            if on_duplicate == "ask":
+                # Commit bloqueado: FE deve confirmar merge/skip
+                continue
+            if on_duplicate == "skip":
+                skipped += 1
+                continue
+            # merge
+            to_merge.append(
+                {
+                    "id": str(existing["id"]),
+                    "add_stock": int(parsed["stock"]),
+                    "price_cents": int(parsed["price_cents"]),
+                    "images": images,
+                    "catalog_card_id": catalog_card_id,
+                }
+            )
+            continue
+
         if dry_run:
             imported += 1
             continue
@@ -439,6 +609,57 @@ async def import_products_csv(
             }
         )
 
+    needs_confirmation = bool(duplicates) and on_duplicate == "ask" and not dry_run
+    if needs_confirmation:
+        return {
+            "imported": 0,
+            "updated": 0,
+            "skipped": skipped,
+            "errors": errors[:50],
+            "dry_run": False,
+            "format": "liga_lorcana" if liga_mode else "judgetcg",
+            "preview": [],
+            "duplicates": duplicates[:100],
+            "duplicates_count": len(duplicates),
+            "needs_confirmation": True,
+            "catalog_matched": matched if liga_mode else None,
+            "catalog_unmatched": unmatched if liga_mode else None,
+            "rollback_supported": False,
+            "message": (
+                f"{len(duplicates)} carta(s) já existem no estoque. "
+                "Confirme se deseja somar as quantidades (merge) ou ignorá-las (skip)."
+            ),
+        }
+
+    if not dry_run and to_merge:
+        for item in to_merge:
+            await session.execute(
+                text(
+                    """
+                    UPDATE tcg_judge.store_products
+                    SET stock = stock + :add,
+                        price_cents = COALESCE(:price, price_cents),
+                        catalog_card_id = COALESCE(:cid, catalog_card_id),
+                        images = CASE
+                          WHEN :has_images THEN CAST(:images AS text[])
+                          ELSE images
+                        END,
+                        updated_at = NOW()
+                    WHERE id = :id
+                    """
+                ),
+                {
+                    "id": item["id"],
+                    "add": int(item["add_stock"]),
+                    "price": item.get("price_cents"),
+                    "cid": item.get("catalog_card_id"),
+                    "has_images": bool(item.get("images")),
+                    "images": item.get("images") or [],
+                },
+            )
+            updated += 1
+        await session.commit()
+
     if not dry_run and to_insert:
         try:
             imported = await shop_products.bulk_create_products(
@@ -454,15 +675,20 @@ async def import_products_csv(
             imported = 0
 
     return {
-        "imported": imported,
+        "imported": imported if not dry_run else len([p for p in preview if not p.get("already_exists")]),
+        "updated": updated,
         "skipped": skipped,
         "errors": errors[:50],
         "dry_run": dry_run,
         "format": "liga_lorcana" if liga_mode else "judgetcg",
         "preview": preview[:50] if dry_run else [],
+        "duplicates": duplicates[:100] if dry_run or duplicates else [],
+        "duplicates_count": len(duplicates),
+        "needs_confirmation": False,
         "catalog_matched": matched if liga_mode else None,
         "catalog_unmatched": unmatched if liga_mode else None,
         "rollback_supported": False,
+        "on_duplicate": on_duplicate,
     }
 
 

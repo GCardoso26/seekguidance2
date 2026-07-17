@@ -74,6 +74,35 @@ def test_parse_liga_skips_zero_stock():
     assert err is None
 
 
+def test_parse_liga_foil_uses_star_and_sku_f():
+    row = {
+        "Nome da Carta EN": "Ariel - Spectacular Singer",
+        "Qualidade (M, NM, SP, MP, HP, D)": "NM",
+        "Quantidade Existente": "2",
+        "Preço": "1.50",
+        "Edição Sigla": "LOR1",
+        "Número": "1",
+        "Foil (0 ou 1)": "1",
+    }
+    parsed, err = _parse_liga_lorcana_row(row, 2)
+    assert err is None
+    assert parsed is not None
+    assert "★" in parsed["name"]
+    assert parsed["foil"] is True
+    assert parsed["sku"] == "TFC-1-NM-F"
+    assert parsed["catalog_set"] == "TFC"
+
+
+def test_inventory_match_key_separates_foil():
+    from app.marketplace.shop_inventory import _inventory_match_key, _is_foil_product
+
+    assert _is_foil_product("Abu - TFC ★ (NM)", "TFC-1-NM-F") is True
+    assert _is_foil_product("Abu - TFC (NM)", "TFC-1-NM") is False
+    a = _inventory_match_key(catalog_card_id="c1", name="x", sku=None, foil=False)
+    b = _inventory_match_key(catalog_card_id="c1", name="x", sku=None, foil=True)
+    assert a != b
+
+
 def test_liga_set_map_covers_main_sets():
     assert LIGA_LORCANA_SET_MAP["LOR1"] == "TFC"
     assert LIGA_LORCANA_SET_MAP["LOR7"] == "ARI"

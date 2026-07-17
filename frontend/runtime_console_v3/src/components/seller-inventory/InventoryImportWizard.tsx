@@ -19,6 +19,7 @@ type Props = {
 
 type ImportResult = {
   imported: number;
+  updated?: number;
   skipped: number;
   errors: string[];
   dry_run?: boolean;
@@ -27,7 +28,22 @@ type ImportResult = {
   catalog_matched?: number | null;
   catalog_unmatched?: number | null;
   rollback_supported?: boolean;
+  duplicates?: Array<{
+    line?: number;
+    name?: string;
+    sku?: string | null;
+    foil?: boolean;
+    incoming_stock?: number;
+    existing_stock?: number;
+    merged_stock?: number;
+    existing_id?: string;
+  }>;
+  duplicates_count?: number;
+  needs_confirmation?: boolean;
+  message?: string;
 };
+
+type OnDuplicate = "ask" | "merge" | "skip";
 
 async function readCsvFile(file: File): Promise<string> {
   if (file.size > MAX_CSV_BYTES) {
@@ -87,11 +103,15 @@ function splitCsvForCommit(csvText: string, maxDataRows: number): string[] {
   return chunks;
 }
 
-async function postImportCsv(csvChunk: string, dryRun: boolean): Promise<ImportResult> {
+async function postImportCsv(
+  csvChunk: string,
+  dryRun: boolean,
+  onDuplicate: OnDuplicate = "ask",
+): Promise<ImportResult> {
   const res = await fetch("/api/seller/inventory/import-csv", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ csv: csvChunk, dry_run: dryRun }),
+    body: JSON.stringify({ csv: csvChunk, dry_run: dryRun, on_duplicate: onDuplicate }),
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
@@ -108,9 +128,12 @@ export function InventoryImportWizard({ onImported }: Props) {
   const [fileError, setFileError] = useState<string | null>(null);
   const [readingFile, setReadingFile] = useState(false);
   const [preview, setPreview] = useState<Array<Record<string, unknown>>>([]);
+  const [duplicates, setDuplicates] = useState<ImportResult["duplicates"]>([]);
+  const [onDuplicate, setOnDuplicate] = useState<OnDuplicate>("merge");
   const [chunkProgress, setChunkProgress] = useState<string | null>(null);
   const [result, setResult] = useState<{
     imported: number;
+    updated?: number;
     skipped: number;
     errors: string[];
     dry_run?: boolean;
@@ -134,11 +157,13 @@ export function InventoryImportWizard({ onImported }: Props) {
     mutationFn: async (dryRun: boolean) => {
       if (dryRun) {
         setChunkProgress(null);
-        return postImportCsv(csv, true);
+        return postImportCsv(csv, true, "ask");
       }
 
+      const mode: OnDuplicate = duplicates && duplicates.length > 0 ? onDuplicate : "skip";
       const chunks = splitCsvForCommit(csv, COMMIT_CHUNK_ROWS);
       let imported = 0;
+      let updated = 0;
       let skipped = 0;
       const errors: string[] = [];
       let format: string | undefined;
@@ -150,8 +175,15 @@ export function InventoryImportWizard({ onImported }: Props) {
         setChunkProgress(
           chunks.length > 1 ? `Importando lote ${i + 1}/${chunks.length}…` : "Importando…",
         );
-        const data = await postImportCsv(chunks[i], false);
+        const data = await postImportCsv(chunks[i], false, mode);
+        if (data.needs_confirmation) {
+          throw new Error(
+            data.message ||
+              "Há cartas duplicadas. Escolha se deseja somar ou ignorar antes de confirmar.",
+          );
+        }
         imported += data.imported ?? 0;
+        updated += data.updated ?? 0;
         skipped += data.skipped ?? 0;
         if (data.errors?.length) errors.push(...data.errors);
         format = data.format ?? format;
@@ -168,6 +200,7 @@ export function InventoryImportWizard({ onImported }: Props) {
       setChunkProgress(null);
       return {
         imported,
+        updated,
         skipped,
         errors: errors.slice(0, 50),
         dry_run: false,
@@ -180,6 +213,8 @@ export function InventoryImportWizard({ onImported }: Props) {
     onSuccess: (data, dryRun) => {
       if (dryRun) {
         setPreview(data.preview ?? []);
+        setDuplicates(data.duplicates ?? []);
+        setOnDuplicate("merge");
         setStep(2);
         return;
       }
@@ -190,7 +225,7 @@ export function InventoryImportWizard({ onImported }: Props) {
           at: string;
           imported: number;
         }>;
-        prev.unshift({ at: new Date().toISOString(), imported: data.imported });
+        prev.unshift({ at: new Date().toISOString(), imported: data.imported + (data.updated ?? 0) });
         localStorage.setItem(HISTORY_KEY, JSON.stringify(prev.slice(0, 10)));
       } catch {
         /* ignore */
@@ -259,6 +294,8 @@ export function InventoryImportWizard({ onImported }: Props) {
     setFileName(null);
     setFileError(null);
     setPreview([]);
+    setDuplicates([]);
+    setOnDuplicate("merge");
     setResult(null);
     setChunkProgress(null);
   }
@@ -334,6 +371,9 @@ export function InventoryImportWizard({ onImported }: Props) {
           <p className="text-sm text-muted-foreground">
             {fileName ? `${fileName} · ` : ""}
             Mapeamento automático · {preview.length} linha(s) válidas no preview
+            {duplicates && duplicates.length > 0
+              ? ` · ${duplicates.length} já existem no estoque`
+              : ""}
           </p>
           <div className="max-h-48 overflow-auto rounded-lg border border-border">
             <table className="w-full text-left text-xs">
@@ -341,9 +381,10 @@ export function InventoryImportWizard({ onImported }: Props) {
                 <tr>
                   <th className="px-2 py-1">Linha</th>
                   <th className="px-2 py-1">Nome</th>
-                  <th className="px-2 py-1">Cat.</th>
+                  <th className="px-2 py-1">Foil</th>
                   <th className="px-2 py-1">Preço</th>
                   <th className="px-2 py-1">Estoque</th>
+                  <th className="px-2 py-1">Status</th>
                 </tr>
               </thead>
               <tbody>
@@ -351,14 +392,77 @@ export function InventoryImportWizard({ onImported }: Props) {
                   <tr key={String(row.line)} className="border-t border-border/60">
                     <td className="px-2 py-1">{String(row.line)}</td>
                     <td className="px-2 py-1">{String(row.name)}</td>
-                    <td className="px-2 py-1">{String(row.category)}</td>
+                    <td className="px-2 py-1">{row.foil ? "★" : "—"}</td>
                     <td className="px-2 py-1">{String(row.price_cents)}</td>
                     <td className="px-2 py-1">{String(row.stock)}</td>
+                    <td className="px-2 py-1">
+                      {row.already_exists
+                        ? `Já existe (${String(row.existing_stock ?? 0)})`
+                        : "Nova"}
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
+
+          {duplicates && duplicates.length > 0 ? (
+            <div className="space-y-2 rounded-lg border border-warning/40 bg-warning/5 p-3">
+              <p className="text-sm font-medium text-foreground">
+                {duplicates.length} carta(s) já existem no estoque
+              </p>
+              <p className="text-xs text-muted-foreground">
+                ★ = foil. Escolha se deseja somar a quantidade importada ao estoque atual ou
+                ignorar essas linhas.
+              </p>
+              <div className="max-h-36 overflow-auto rounded border border-border/60 bg-card text-xs">
+                <table className="w-full text-left">
+                  <thead className="bg-muted/40 text-muted-foreground">
+                    <tr>
+                      <th className="px-2 py-1">Carta</th>
+                      <th className="px-2 py-1">Atual</th>
+                      <th className="px-2 py-1">CSV</th>
+                      <th className="px-2 py-1">Soma</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {duplicates.slice(0, 30).map((d) => (
+                      <tr key={`${d.existing_id}-${d.line}`} className="border-t border-border/60">
+                        <td className="px-2 py-1">
+                          {d.name}
+                          {d.foil ? " ★" : ""}
+                        </td>
+                        <td className="px-2 py-1">{d.existing_stock}</td>
+                        <td className="px-2 py-1">{d.incoming_stock}</td>
+                        <td className="px-2 py-1">{d.merged_stock}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <fieldset className="flex flex-wrap gap-3 text-sm">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="on-duplicate"
+                    checked={onDuplicate === "merge"}
+                    onChange={() => setOnDuplicate("merge")}
+                  />
+                  Somar quantidades e continuar
+                </label>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="on-duplicate"
+                    checked={onDuplicate === "skip"}
+                    onChange={() => setOnDuplicate("skip")}
+                  />
+                  Ignorar cartas já existentes
+                </label>
+              </fieldset>
+            </div>
+          ) : null}
+
           {chunkProgress ? (
             <p className="text-sm text-muted-foreground" data-testid="inventory-csv-chunk-progress">
               {chunkProgress}
@@ -369,7 +473,13 @@ export function InventoryImportWizard({ onImported }: Props) {
               Voltar
             </Button>
             <Button type="button" disabled={importMut.isPending} onClick={() => importMut.mutate(false)}>
-              {importMut.isPending ? "Importando…" : "Confirmar importação"}
+              {importMut.isPending
+                ? "Importando…"
+                : duplicates && duplicates.length > 0
+                  ? onDuplicate === "merge"
+                    ? "Confirmar e somar existentes"
+                    : "Confirmar (ignorando existentes)"
+                  : "Confirmar importação"}
             </Button>
           </div>
         </div>
@@ -378,7 +488,9 @@ export function InventoryImportWizard({ onImported }: Props) {
       {step === 3 && result ? (
         <div className="space-y-2 text-sm">
           <p className="text-foreground">
-            Importados: {result.imported} · Ignorados: {result.skipped}
+            Importados: {result.imported}
+            {typeof result.updated === "number" ? ` · Atualizados (soma): ${result.updated}` : ""}
+            {" · "}Ignorados: {result.skipped}
             {result.format ? ` · Formato: ${result.format}` : ""}
           </p>
           {typeof result.catalog_matched === "number" || typeof result.catalog_unmatched === "number" ? (

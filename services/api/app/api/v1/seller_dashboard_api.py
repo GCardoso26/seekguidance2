@@ -162,6 +162,7 @@ class InventoryExportBody(BaseModel):
 class InventoryImportBody(BaseModel):
     csv: str = Field(min_length=1)
     dry_run: bool = False
+    on_duplicate: Literal["ask", "merge", "skip"] = "ask"
 
 
 @router.get("/runtime/judge/seller/dashboard")
@@ -573,6 +574,7 @@ async def seller_inventory_import_csv(
         user_id,
         body.csv,
         dry_run=body.dry_run,
+        on_duplicate=body.on_duplicate,
     )
 
 
