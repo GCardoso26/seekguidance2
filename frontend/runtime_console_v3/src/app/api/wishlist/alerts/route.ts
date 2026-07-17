@@ -24,7 +24,7 @@ async function proxyAlerts(req: NextRequest, init?: RequestInit): Promise<Respon
       headers: await tournamentProxyHeaders(req),
       cache: "no-store",
     });
-    if (res.status === 404 || res.status === 501) return null;
+    if (res.status === 404 || res.status === 405 || res.status === 501) return null;
     return res;
   } catch {
     return null;

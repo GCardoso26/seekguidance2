@@ -190,6 +190,7 @@ async def create_product(
     stock: int = 0,
     sku: str | None = None,
     images: list[str] | None = None,
+    catalog_card_id: str | None = None,
 ) -> dict[str, Any]:
     from app.kyc.merchant_kyc import require_verified_merchant
 
@@ -219,10 +220,12 @@ async def create_product(
                 """
                 INSERT INTO tcg_judge.store_products (
                   store_id, name, description, tcg_id, category,
-                  price_cents, compare_at_price_cents, stock, sku, images
+                  price_cents, compare_at_price_cents, stock, sku, images,
+                  catalog_card_id
                 ) VALUES (
                   :sid, :name, :desc, :tcg, :cat,
-                  :price, :compare, :stock, :sku, :images
+                  :price, :compare, :stock, :sku, :images,
+                  :cid
                 )
                 RETURNING *
                 """
@@ -238,11 +241,101 @@ async def create_product(
                 "stock": stock,
                 "sku": sku,
                 "images": images or [],
+                "cid": catalog_card_id,
             },
         )
     ).mappings().first()
     await session.commit()
     return dict(row) if row else {}
+
+
+_INSERT_PRODUCT_SQL = text(
+    """
+    INSERT INTO tcg_judge.store_products (
+      store_id, name, description, tcg_id, category,
+      price_cents, compare_at_price_cents, stock, sku, images,
+      catalog_card_id
+    ) VALUES (
+      :sid, :name, :desc, :tcg, :cat,
+      :price, :compare, :stock, :sku, :images,
+      :cid
+    )
+    """
+)
+
+_BULK_INSERT_BATCH = 400
+
+
+async def bulk_create_products(
+    session: AsyncSession,
+    store_id: str,
+    owner_id: str,
+    products: list[dict[str, Any]],
+) -> int:
+    """Insere vários produtos em uma transação (1 check de limite + 1 commit).
+
+    Cada item em ``products`` deve ter: name, category, price_cents;
+    opcionais: description, tcg_id, compare_at_price_cents, stock, sku,
+    images, catalog_card_id.
+    """
+    if not products:
+        return 0
+
+    from app.kyc.merchant_kyc import require_verified_merchant
+
+    store = await _assert_store_owner(session, store_id, owner_id)
+    await require_verified_merchant(session, owner_id)
+    limit = product_limit_for_plan(effective_plan(store))
+
+    params_list: list[dict[str, Any]] = []
+    for p in products:
+        category = str(p.get("category") or "")
+        price_cents = int(p["price_cents"])
+        if category not in PRODUCT_CATEGORIES:
+            raise HTTPException(400, f"Categoria inválida: {category}")
+        if price_cents <= 0:
+            raise HTTPException(400, f"Preço inválido: {p.get('name')}")
+        params_list.append(
+            {
+                "sid": store_id,
+                "name": str(p["name"]).strip(),
+                "desc": p.get("description"),
+                "tcg": p.get("tcg_id"),
+                "cat": category,
+                "price": price_cents,
+                "compare": p.get("compare_at_price_cents"),
+                "stock": int(p.get("stock") or 0),
+                "sku": p.get("sku"),
+                "images": p.get("images") or [],
+                "cid": p.get("catalog_card_id"),
+            }
+        )
+
+    if limit is not None:
+        count_row = (
+            await session.execute(
+                text("SELECT COUNT(*) AS c FROM tcg_judge.store_products WHERE store_id = :sid"),
+                {"sid": store_id},
+            )
+        ).mappings().first()
+        current = int(count_row["c"]) if count_row else 0
+        if current + len(params_list) > limit:
+            raise HTTPException(
+                403,
+                f"Limite de {limit} produtos no plano atual "
+                f"(já tem {current}; esta importação adicionaria {len(params_list)}). "
+                f"Faça upgrade em /vendedor/painel/planos.",
+            )
+
+    # Inserts na mesma transação (sem commit por linha). Lotes só para limitar
+    # o tamanho do executemany com arrays de imagens.
+    for i in range(0, len(params_list), _BULK_INSERT_BATCH):
+        chunk = params_list[i : i + _BULK_INSERT_BATCH]
+        for params in chunk:
+            await session.execute(_INSERT_PRODUCT_SQL, params)
+
+    await session.commit()
+    return len(params_list)
 
 
 async def update_product(

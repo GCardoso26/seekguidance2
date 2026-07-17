@@ -3,22 +3,13 @@ import { TOURNAMENT_API_BASE, tournamentProxyHeaders } from "@/lib/tournament-ap
 
 export const maxDuration = 300;
 
-export async function POST(
-  req: NextRequest,
-  { params }: { params: Promise<{ storeId: string }> },
-) {
+export async function POST(_req: NextRequest) {
   try {
-    const { storeId } = await params;
-    const body = await req.json();
     const res = await fetch(
-      `${TOURNAMENT_API_BASE}/runtime/judge/marketplace/shop/stores/${encodeURIComponent(storeId)}/inventory/import-csv`,
+      `${TOURNAMENT_API_BASE}/runtime/judge/seller/inventory/backfill-liga-images`,
       {
         method: "POST",
-        headers: {
-          ...(await tournamentProxyHeaders()),
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
+        headers: await tournamentProxyHeaders(),
       },
     );
     const text = await res.text();

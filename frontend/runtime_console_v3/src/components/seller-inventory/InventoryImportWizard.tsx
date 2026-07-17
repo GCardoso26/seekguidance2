@@ -8,11 +8,25 @@ import { InlineAlert } from "@/components/ui/async-state";
 
 const HISTORY_KEY = "judgetcg.inventory.importHistory";
 const MAX_CSV_BYTES = 8 * 1024 * 1024;
+/** Linhas de dados por request no commit (evita 504 no gateway). */
+const COMMIT_CHUNK_ROWS = 250;
 
 type Step = 1 | 2 | 3;
 
 type Props = {
   onImported: () => void;
+};
+
+type ImportResult = {
+  imported: number;
+  skipped: number;
+  errors: string[];
+  dry_run?: boolean;
+  format?: string;
+  preview?: Array<Record<string, unknown>>;
+  catalog_matched?: number | null;
+  catalog_unmatched?: number | null;
+  rollback_supported?: boolean;
 };
 
 async function readCsvFile(file: File): Promise<string> {
@@ -28,6 +42,64 @@ async function readCsvFile(file: File): Promise<string> {
   return new TextDecoder("iso-8859-1").decode(buf);
 }
 
+function looksLikeCsvHeader(line: string): boolean {
+  const lower = line.toLowerCase();
+  if (lower.includes("name") && lower.includes("category")) return true;
+  if (lower.includes("card name") || lower.includes("cardname") || lower.includes("card_name")) return true;
+  if (lower.includes("sku") && (lower.includes("price") || lower.includes("preço") || lower.includes("preco"))) {
+    return true;
+  }
+  if (lower.includes("set") && lower.includes("rarity") && lower.includes(",")) return true;
+  return false;
+}
+
+/** Parte o CSV em lotes com o mesmo cabeçalho (e preâmbulo, se houver). */
+function splitCsvForCommit(csvText: string, maxDataRows: number): string[] {
+  const normalized = csvText.replace(/^\uFEFF/, "").replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+  const lines = normalized.split("\n");
+  let headerIdx = -1;
+  for (let i = 0; i < Math.min(lines.length, 60); i++) {
+    const line = lines[i];
+    if (!line?.trim()) continue;
+    if (looksLikeCsvHeader(line)) {
+      headerIdx = i;
+      break;
+    }
+  }
+  if (headerIdx < 0) {
+    headerIdx = lines.findIndex((l) => l.trim().includes(","));
+  }
+  if (headerIdx < 0) return [csvText];
+
+  const preamble = lines.slice(0, headerIdx).join("\n");
+  const header = lines[headerIdx];
+  const dataLines = lines.slice(headerIdx + 1).filter((l) => l.trim().length > 0);
+  if (dataLines.length <= maxDataRows) return [csvText];
+
+  const chunks: string[] = [];
+  for (let i = 0; i < dataLines.length; i += maxDataRows) {
+    const slice = dataLines.slice(i, i + maxDataRows);
+    const body = preamble.trim()
+      ? [preamble, header, ...slice].join("\n")
+      : [header, ...slice].join("\n");
+    chunks.push(body);
+  }
+  return chunks;
+}
+
+async function postImportCsv(csvChunk: string, dryRun: boolean): Promise<ImportResult> {
+  const res = await fetch("/api/seller/inventory/import-csv", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ csv: csvChunk, dry_run: dryRun }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(String((data as { detail?: string }).detail ?? "Falha na importação"));
+  }
+  return data as ImportResult;
+}
+
 export function InventoryImportWizard({ onImported }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [step, setStep] = useState<Step>(1);
@@ -36,12 +108,15 @@ export function InventoryImportWizard({ onImported }: Props) {
   const [fileError, setFileError] = useState<string | null>(null);
   const [readingFile, setReadingFile] = useState(false);
   const [preview, setPreview] = useState<Array<Record<string, unknown>>>([]);
+  const [chunkProgress, setChunkProgress] = useState<string | null>(null);
   const [result, setResult] = useState<{
     imported: number;
     skipped: number;
     errors: string[];
     dry_run?: boolean;
     format?: string;
+    catalog_matched?: number | null;
+    catalog_unmatched?: number | null;
   } | null>(null);
 
   const history = useMemo(() => {
@@ -57,22 +132,50 @@ export function InventoryImportWizard({ onImported }: Props) {
 
   const importMut = useMutation({
     mutationFn: async (dryRun: boolean) => {
-      const res = await fetch("/api/seller/inventory/import-csv", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ csv, dry_run: dryRun }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(String((data as { detail?: string }).detail ?? "Falha na importação"));
-      return data as {
-        imported: number;
-        skipped: number;
-        errors: string[];
-        dry_run?: boolean;
-        format?: string;
-        preview?: Array<Record<string, unknown>>;
-        rollback_supported?: boolean;
-      };
+      if (dryRun) {
+        setChunkProgress(null);
+        return postImportCsv(csv, true);
+      }
+
+      const chunks = splitCsvForCommit(csv, COMMIT_CHUNK_ROWS);
+      let imported = 0;
+      let skipped = 0;
+      const errors: string[] = [];
+      let format: string | undefined;
+      let catalogMatched = 0;
+      let catalogUnmatched = 0;
+      let hasCatalogStats = false;
+
+      for (let i = 0; i < chunks.length; i++) {
+        setChunkProgress(
+          chunks.length > 1 ? `Importando lote ${i + 1}/${chunks.length}…` : "Importando…",
+        );
+        const data = await postImportCsv(chunks[i], false);
+        imported += data.imported ?? 0;
+        skipped += data.skipped ?? 0;
+        if (data.errors?.length) errors.push(...data.errors);
+        format = data.format ?? format;
+        if (typeof data.catalog_matched === "number") {
+          hasCatalogStats = true;
+          catalogMatched += data.catalog_matched;
+        }
+        if (typeof data.catalog_unmatched === "number") {
+          hasCatalogStats = true;
+          catalogUnmatched += data.catalog_unmatched;
+        }
+      }
+
+      setChunkProgress(null);
+      return {
+        imported,
+        skipped,
+        errors: errors.slice(0, 50),
+        dry_run: false,
+        format,
+        catalog_matched: hasCatalogStats ? catalogMatched : null,
+        catalog_unmatched: hasCatalogStats ? catalogUnmatched : null,
+        rollback_supported: false,
+      } satisfies ImportResult;
     },
     onSuccess: (data, dryRun) => {
       if (dryRun) {
@@ -92,6 +195,30 @@ export function InventoryImportWizard({ onImported }: Props) {
       } catch {
         /* ignore */
       }
+      onImported();
+    },
+    onSettled: () => {
+      setChunkProgress(null);
+    },
+  });
+
+  const backfillMut = useMutation({
+    mutationFn: async () => {
+      const res = await fetch("/api/seller/inventory/backfill-liga-images", {
+        method: "POST",
+        credentials: "include",
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(
+          typeof data?.detail === "string"
+            ? data.detail
+            : data?.error || `Backfill falhou (${res.status})`,
+        );
+      }
+      return data as { updated?: number; unmatched?: number; scanned?: number };
+    },
+    onSuccess: () => {
       onImported();
     },
   });
@@ -133,6 +260,7 @@ export function InventoryImportWizard({ onImported }: Props) {
     setFileError(null);
     setPreview([]);
     setResult(null);
+    setChunkProgress(null);
   }
 
   return (
@@ -146,6 +274,7 @@ export function InventoryImportWizard({ onImported }: Props) {
         <div className="space-y-3">
           <p className="text-sm text-muted-foreground">
             Envie o arquivo .csv (JudgeTCG ou export LigaLorcana). Não é necessário colar o conteúdo.
+            Arquivos grandes são enviados em lotes de {COMMIT_CHUNK_ROWS} linhas.
           </p>
 
           <input
@@ -230,12 +359,17 @@ export function InventoryImportWizard({ onImported }: Props) {
               </tbody>
             </table>
           </div>
+          {chunkProgress ? (
+            <p className="text-sm text-muted-foreground" data-testid="inventory-csv-chunk-progress">
+              {chunkProgress}
+            </p>
+          ) : null}
           <div className="flex flex-wrap gap-2">
-            <Button type="button" variant="secondary" onClick={() => setStep(1)}>
+            <Button type="button" variant="secondary" disabled={importMut.isPending} onClick={() => setStep(1)}>
               Voltar
             </Button>
             <Button type="button" disabled={importMut.isPending} onClick={() => importMut.mutate(false)}>
-              Confirmar importação
+              {importMut.isPending ? "Importando…" : "Confirmar importação"}
             </Button>
           </div>
         </div>
@@ -247,12 +381,41 @@ export function InventoryImportWizard({ onImported }: Props) {
             Importados: {result.imported} · Ignorados: {result.skipped}
             {result.format ? ` · Formato: ${result.format}` : ""}
           </p>
+          {typeof result.catalog_matched === "number" || typeof result.catalog_unmatched === "number" ? (
+            <p className="text-xs text-muted-foreground">
+              Catálogo: {result.catalog_matched ?? 0} com match · {result.catalog_unmatched ?? 0} sem imagem/catálogo
+            </p>
+          ) : null}
           {result.errors?.length ? (
             <InlineAlert message={result.errors.slice(0, 3).join("; ")} tone="warning" />
           ) : null}
-          <Button type="button" variant="secondary" onClick={resetImport}>
-            Nova importação
-          </Button>
+          {backfillMut.isSuccess ? (
+            <p className="text-xs text-muted-foreground">
+              Backfill: {backfillMut.data?.updated ?? 0} atualizados
+              {typeof backfillMut.data?.unmatched === "number"
+                ? ` · ${backfillMut.data.unmatched} sem match`
+                : ""}
+            </p>
+          ) : null}
+          {backfillMut.isError ? (
+            <InlineAlert message={(backfillMut.error as Error).message} tone="error" />
+          ) : null}
+          <div className="flex flex-wrap gap-2">
+            {(result.format === "liga_lorcana" || (result.catalog_unmatched ?? 0) > 0) && (
+              <Button
+                type="button"
+                variant="secondary"
+                disabled={backfillMut.isPending}
+                onClick={() => backfillMut.mutate()}
+                data-testid="inventory-csv-backfill-liga"
+              >
+                {backfillMut.isPending ? "Religando imagens…" : "Religar imagens Liga"}
+              </Button>
+            )}
+            <Button type="button" variant="secondary" onClick={resetImport}>
+              Nova importação
+            </Button>
+          </div>
         </div>
       ) : null}
 

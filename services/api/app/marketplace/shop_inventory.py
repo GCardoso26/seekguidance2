@@ -2,13 +2,32 @@
 
 from __future__ import annotations
 
+import re
 from typing import Any
 
 from fastapi import HTTPException
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.catalog.image_utils import resolve_card_image
 from app.marketplace.shop_products import PRODUCT_CATEGORIES
+from app.tcg_adapters.sync_common import normalize_name
+
+# LigaLorcana "Edição Sigla" → card_catalog.set_code (LORCANA)
+LIGA_LORCANA_SET_MAP: dict[str, str] = {
+    "LOR1": "TFC",
+    "LOR2": "ROF",
+    "LOR3": "INK",
+    "LOR4": "URS",
+    "LOR5": "SSK",
+    "LOR6": "AZS",
+    "LOR7": "ARI",
+    "LOR8": "ROJ",
+    "LOR9": "FAB",
+    "LOR10": "WHI",
+    "LOR11": "WIN",
+    "LOR12": "WUN",
+}
 
 
 async def _assert_store_owner(session: AsyncSession, store_id: str, owner_id: str) -> None:
@@ -154,6 +173,24 @@ def _parse_csv_row(row: dict[str, str], line_no: int) -> tuple[dict[str, Any] | 
     }, None
 
 
+def _normalize_card_number(raw: str) -> str:
+    text = (raw or "").lstrip("=").strip().strip('"').strip()
+    text = re.sub(r"^0+(?=\d)", "", text) or text
+    return text
+
+
+def _catalog_set_from_liga(liga_set: str) -> str | None:
+    code = (liga_set or "").strip().upper()
+    if not code:
+        return None
+    if code in LIGA_LORCANA_SET_MAP:
+        return LIGA_LORCANA_SET_MAP[code]
+    # Já no formato do catálogo (TFC, SSK, …)
+    if len(code) <= 5 and code.isalpha():
+        return code
+    return None
+
+
 def _parse_liga_lorcana_row(row: dict[str, str], line_no: int) -> tuple[dict[str, Any] | None, str | None]:
     """Export Liga Magic / LigaLorcana → produto single JudgeTCG."""
     name_en = _field(row, "Nome da Carta EN", "nome da carta en")
@@ -181,7 +218,7 @@ def _parse_liga_lorcana_row(row: dict[str, str], line_no: int) -> tuple[dict[str
     condition = _field(row, "Qualidade (M, NM, SP, MP, HP, D)", "Qualidade") or "NM"
     set_code = _field(row, "Edição Sigla", "Edicao Sigla")
     card_id = _field(row, "Carta ID")
-    number = _field(row, "Número", "Numero").lstrip("=").strip('"')
+    number = _normalize_card_number(_field(row, "Número", "Numero"))
     foil = _field(row, "Foil (0 ou 1)", "Foil") == "1"
 
     name = f"{base_name} ({condition})"
@@ -196,12 +233,88 @@ def _parse_liga_lorcana_row(row: dict[str, str], line_no: int) -> tuple[dict[str
 
     return {
         "name": name,
+        "base_name": base_name,
         "category": "single",
         "price_cents": price_cents,
         "stock": stock,
         "sku": sku,
         "description": description,
+        "liga_set": set_code,
+        "card_number": number,
+        "foil": foil,
+        "condition": condition,
     }, None
+
+
+def _image_list_from_catalog(card: dict[str, Any]) -> list[str]:
+    uris = resolve_card_image(card)
+    url = (uris.get("normal") or card.get("image_url") or "").strip()
+    return [url] if url else []
+
+
+async def _load_lorcana_catalog_index(
+    session: AsyncSession,
+) -> tuple[dict[tuple[str, str], dict[str, Any]], dict[tuple[str, str], dict[str, Any]]]:
+    rows = (
+        await session.execute(
+            text(
+                """
+                SELECT id, name, normalized_name, set_code, external_id,
+                       image_url, image_uris, game_code
+                FROM tcg_judge.card_catalog
+                WHERE game_code = 'LORCANA'
+                """
+            )
+        )
+    ).mappings().all()
+
+    by_set_num: dict[tuple[str, str], dict[str, Any]] = {}
+    by_set_name: dict[tuple[str, str], dict[str, Any]] = {}
+    for raw in rows:
+        card = dict(raw)
+        set_code = str(card.get("set_code") or "").upper()
+        if not set_code:
+            continue
+        ext = str(card.get("external_id") or "")
+        num_part = ext.rsplit("-", 1)[-1] if ext else ""
+        num = _normalize_card_number(num_part)
+        if num:
+            by_set_num[(set_code, num)] = card
+            # Também guarda com zero-pad (041)
+            if num_part and num_part != num:
+                by_set_num[(set_code, num_part)] = card
+        nname = card.get("normalized_name") or normalize_name(str(card.get("name") or ""))
+        if nname:
+            by_set_name[(set_code, nname)] = card
+    return by_set_num, by_set_name
+
+
+def match_liga_lorcana_catalog(
+    *,
+    base_name: str,
+    liga_set: str,
+    card_number: str,
+    by_set_num: dict[tuple[str, str], dict[str, Any]],
+    by_set_name: dict[tuple[str, str], dict[str, Any]],
+) -> dict[str, Any] | None:
+    catalog_set = _catalog_set_from_liga(liga_set)
+    num = _normalize_card_number(card_number)
+    nname = normalize_name(base_name)
+
+    if catalog_set and num:
+        hit = by_set_num.get((catalog_set, num))
+        if hit:
+            return hit
+    if catalog_set and nname:
+        hit = by_set_name.get((catalog_set, nname))
+        if hit:
+            return hit
+    # Fallback: nome único no set map (sem set Liga mapeado)
+    if nname and not catalog_set:
+        candidates = [c for (sc, nn), c in by_set_name.items() if nn == nname]
+        if len(candidates) == 1:
+            return candidates[0]
+    return None
 
 
 async def import_products_csv(
@@ -230,10 +343,18 @@ async def import_products_csv(
     liga_mode = _is_liga_lorcana_headers(list(reader.fieldnames))
     parse_row = _parse_liga_lorcana_row if liga_mode else _parse_csv_row
 
+    by_set_num: dict[tuple[str, str], dict[str, Any]] = {}
+    by_set_name: dict[tuple[str, str], dict[str, Any]] = {}
+    if liga_mode:
+        by_set_num, by_set_name = await _load_lorcana_catalog_index(session)
+
     imported = 0
     skipped = 0
+    matched = 0
+    unmatched = 0
     errors: list[str] = []
     preview: list[dict[str, Any]] = []
+    to_insert: list[dict[str, Any]] = []
 
     for line_no, row in enumerate(reader, start=2):
         parsed, err = parse_row(row, line_no)
@@ -243,28 +364,71 @@ async def import_products_csv(
             continue
         if not parsed:
             continue
-        preview.append({**parsed, "line": line_no})
+
+        catalog_card_id: str | None = None
+        images: list[str] | None = None
+        tcg_id = parsed.get("tcg_id")
+        catalog_matched = False
+        if liga_mode:
+            card = match_liga_lorcana_catalog(
+                base_name=str(parsed.get("base_name") or ""),
+                liga_set=str(parsed.get("liga_set") or ""),
+                card_number=str(parsed.get("card_number") or ""),
+                by_set_num=by_set_num,
+                by_set_name=by_set_name,
+            )
+            if card:
+                catalog_card_id = str(card["id"])
+                images = _image_list_from_catalog(card)
+                tcg_id = "LORCANA"
+                catalog_matched = True
+                matched += 1
+            else:
+                unmatched += 1
+
+        preview_row = {
+            "name": parsed["name"],
+            "category": parsed["category"],
+            "price_cents": parsed["price_cents"],
+            "stock": parsed["stock"],
+            "sku": parsed.get("sku"),
+            "description": parsed.get("description"),
+            "line": line_no,
+            "catalog_matched": catalog_matched,
+            "has_image": bool(images),
+        }
+        preview.append(preview_row)
         if dry_run:
             imported += 1
             continue
+
+        to_insert.append(
+            {
+                "name": parsed["name"],
+                "description": parsed.get("description"),
+                "tcg_id": tcg_id,
+                "category": parsed["category"],
+                "price_cents": parsed["price_cents"],
+                "stock": parsed["stock"],
+                "sku": parsed.get("sku"),
+                "images": images,
+                "catalog_card_id": catalog_card_id,
+            }
+        )
+
+    if not dry_run and to_insert:
         try:
-            await shop_products.create_product(
+            imported = await shop_products.bulk_create_products(
                 session,
                 store_id,
                 owner_id,
-                name=parsed["name"],
-                description=parsed["description"],
-                tcg_id=None,
-                category=parsed["category"],
-                price_cents=parsed["price_cents"],
-                stock=parsed["stock"],
-                sku=parsed["sku"],
+                to_insert,
             )
-            imported += 1
         except HTTPException as exc:
             detail = exc.detail if isinstance(exc.detail, str) else str(exc.detail)
-            errors.append(f"Linha {line_no} ({parsed['name']}): {detail}")
-            skipped += 1
+            errors.append(f"Importação em lote: {detail}")
+            skipped += len(to_insert)
+            imported = 0
 
     return {
         "imported": imported,
@@ -273,5 +437,114 @@ async def import_products_csv(
         "dry_run": dry_run,
         "format": "liga_lorcana" if liga_mode else "judgetcg",
         "preview": preview[:50] if dry_run else [],
+        "catalog_matched": matched if liga_mode else None,
+        "catalog_unmatched": unmatched if liga_mode else None,
         "rollback_supported": False,
+    }
+
+
+async def backfill_liga_lorcana_images(
+    session: AsyncSession,
+    store_id: str,
+    owner_id: str,
+) -> dict[str, Any]:
+    """Religa singles importados da Liga ao catálogo e preenche images."""
+    await _assert_store_owner(session, store_id, owner_id)
+    by_set_num, by_set_name = await _load_lorcana_catalog_index(session)
+
+    rows = (
+        await session.execute(
+            text(
+                """
+                SELECT id, name, description, sku, images, catalog_card_id
+                FROM tcg_judge.store_products
+                WHERE store_id = :sid
+                  AND category = 'single'
+                  AND is_active
+                  AND (
+                    catalog_card_id IS NULL
+                    OR images IS NULL
+                    OR cardinality(images) = 0
+                  )
+                  AND (
+                    description ILIKE '%LigaLorcana%'
+                    OR sku ~ '^LOR[0-9]+-'
+                  )
+                """
+            ),
+            {"sid": store_id},
+        )
+    ).mappings().all()
+
+    updated = 0
+    unmatched = 0
+    for raw in rows:
+        row = dict(raw)
+        desc = str(row.get("description") or "")
+        sku = str(row.get("sku") or "")
+        name = str(row.get("name") or "")
+
+        liga_set = ""
+        m_set = re.search(r"\b(LOR\d+)\b", desc) or re.search(r"^(LOR\d+)-", sku)
+        if m_set:
+            liga_set = m_set.group(1)
+
+        card_number = ""
+        m_num = re.search(r"#(\d+)", desc)
+        if m_num:
+            card_number = m_num.group(1)
+
+        base_name = re.sub(r"\s*★\s*", " ", name)
+        base_name = re.sub(r"\s*\((M|NM|SP|MP|HP|D)\)\s*$", "", base_name).strip()
+
+        card = match_liga_lorcana_catalog(
+            base_name=base_name,
+            liga_set=liga_set,
+            card_number=card_number,
+            by_set_num=by_set_num,
+            by_set_name=by_set_name,
+        )
+        if not card:
+            unmatched += 1
+            continue
+
+        images = _image_list_from_catalog(card)
+        params: dict[str, Any] = {
+            "cid": str(card["id"]),
+            "id": str(row["id"]),
+        }
+        if images:
+            await session.execute(
+                text(
+                    """
+                    UPDATE tcg_judge.store_products
+                    SET catalog_card_id = :cid,
+                        tcg_id = 'LORCANA',
+                        images = :images,
+                        updated_at = NOW()
+                    WHERE id = :id
+                    """
+                ),
+                {**params, "images": images},
+            )
+        else:
+            await session.execute(
+                text(
+                    """
+                    UPDATE tcg_judge.store_products
+                    SET catalog_card_id = :cid,
+                        tcg_id = 'LORCANA',
+                        updated_at = NOW()
+                    WHERE id = :id
+                    """
+                ),
+                params,
+            )
+        updated += 1
+
+    await session.commit()
+    return {
+        "scanned": len(rows),
+        "updated": updated,
+        "unmatched": unmatched,
     }

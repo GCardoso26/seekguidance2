@@ -34,7 +34,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
         cache: "no-store",
       },
     );
-    if (res.status !== 404 && res.status !== 501) {
+    if (res.status !== 404 && res.status !== 405 && res.status !== 501) {
       const text = await res.text();
       return new NextResponse(text, {
         status: res.status,
@@ -66,7 +66,7 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
         cache: "no-store",
       },
     );
-    if (res.status !== 404 && res.status !== 501) {
+    if (res.status !== 404 && res.status !== 405 && res.status !== 501) {
       const text = await res.text();
       return new NextResponse(text, {
         status: res.status,

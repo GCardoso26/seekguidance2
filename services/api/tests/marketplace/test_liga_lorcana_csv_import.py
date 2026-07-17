@@ -3,9 +3,13 @@
 from __future__ import annotations
 
 from app.marketplace.shop_inventory import (
+    LIGA_LORCANA_SET_MAP,
+    _catalog_set_from_liga,
     _is_liga_lorcana_headers,
+    _normalize_card_number,
     _parse_liga_lorcana_row,
     _strip_csv_preamble,
+    match_liga_lorcana_catalog,
 )
 
 
@@ -52,6 +56,9 @@ def test_parse_liga_row_uses_existente_when_somar_empty():
     assert parsed["price_cents"] == 30
     assert parsed["category"] == "single"
     assert parsed["sku"] and "LOR6" in parsed["sku"]
+    assert parsed["base_name"] == "Abu - Bold Helmsman"
+    assert parsed["card_number"] == "114"
+    assert parsed["liga_set"] == "LOR6"
 
 
 def test_parse_liga_skips_zero_stock():
@@ -64,3 +71,33 @@ def test_parse_liga_skips_zero_stock():
     parsed, err = _parse_liga_lorcana_row(row, 3)
     assert parsed is None
     assert err is None
+
+
+def test_liga_set_map_covers_main_sets():
+    assert LIGA_LORCANA_SET_MAP["LOR1"] == "TFC"
+    assert LIGA_LORCANA_SET_MAP["LOR7"] == "ARI"
+    assert LIGA_LORCANA_SET_MAP["LOR12"] == "WUN"
+    assert _catalog_set_from_liga("LOR5") == "SSK"
+    assert _normalize_card_number('="041"') == "41"
+
+
+def test_match_liga_lorcana_by_set_and_number():
+    card = {
+        "id": "c1",
+        "name": "Amber Coil",
+        "normalized_name": "amber coil",
+        "set_code": "ARI",
+        "external_id": "ARI-041",
+        "image_url": "https://example.com/coil.png",
+    }
+    by_set_num = {("ARI", "41"): card, ("ARI", "041"): card}
+    by_set_name = {("ARI", "amber coil"): card}
+    hit = match_liga_lorcana_catalog(
+        base_name="Amber Coil",
+        liga_set="LOR7",
+        card_number="41",
+        by_set_num=by_set_num,
+        by_set_name=by_set_name,
+    )
+    assert hit is not None
+    assert hit["id"] == "c1"

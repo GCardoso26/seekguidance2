@@ -570,6 +570,21 @@ async def seller_inventory_import_csv(
     )
 
 
+@router.post("/runtime/judge/seller/inventory/backfill-liga-images")
+async def seller_inventory_backfill_liga_images(
+    session: DbSession,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    """Religa singles importados da Liga ao catálogo Lorcana e preenche imagens."""
+    user_id = _require_user(x_judge_user_id)
+    store = await seller_dash.resolve_owner_store(session, user_id)
+    return await shop_inv.backfill_liga_lorcana_images(
+        session,
+        str(store["id"]),
+        user_id,
+    )
+
+
 @router.get("/runtime/judge/seller/products")
 async def seller_products_list(
     session: DbSession,
