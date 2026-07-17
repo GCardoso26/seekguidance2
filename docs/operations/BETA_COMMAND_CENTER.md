@@ -11,6 +11,8 @@ Preencher diariamente (ou a cada check-in). **Primeiros 7 dias:** só observar +
 
 **P0 aberto (2026-07-17):** carta errada no carrinho (fallback PDP `tcg_id`) + 500 cart/checkout (race `shopping_carts`). Patch no repo — **deploy API Python (Render)** obrigatório antes do Lote 1.
 
+**P0 estoque (2026-07-17):** checkout dizia “estoque insuficiente” após `initiate_checkout` reservar o próprio qty (ex.: Merida 4/4). Fix: credit da sessão + cancel de sessões active no retry + release se falhar depois do lock. Se prod ainda bloquear: zerar `reserved_stock` órfão ou esperar expire de sessões active.
+
 ---
 
 ## Checklist diário (5 min)

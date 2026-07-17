@@ -67,6 +67,43 @@ async def _sync_listing_reserve(
     return listing_id
 
 
+async def cancel_active_checkouts_for_user(session: AsyncSession, user_id: str) -> int:
+    """Libera reservas de sessões active do usuário (retries sem deixar reserved zumbi)."""
+    rows = (
+        await session.execute(
+            text(
+                """
+                SELECT * FROM tcg_judge.checkout_sessions
+                WHERE user_id = :uid AND status = 'active'
+                ORDER BY created_at ASC
+                """
+            ),
+            {"uid": user_id},
+        )
+    ).mappings().all()
+    if not rows:
+        return 0
+
+    count = 0
+    for row in rows:
+        data = dict(row)
+        data["locked_items"] = _parse_locked_items(data.get("locked_items"))
+        await _release_session_stock(session, data)
+        await session.execute(
+            text(
+                """
+                UPDATE tcg_judge.checkout_sessions
+                SET status = 'cancelled', completed_at = NOW()
+                WHERE id = :id AND status = 'active'
+                """
+            ),
+            {"id": str(row["id"])},
+        )
+        count += 1
+    await session.commit()
+    return count
+
+
 async def initiate_checkout(
     session: AsyncSession,
     user_id: str,
@@ -76,6 +113,14 @@ async def initiate_checkout(
     """Reserva estoque com lock pessimista (FOR UPDATE NOWAIT)."""
     await ensure_player_profile(session, user_id)
     await require_active_account(session, user_id)
+
+    try:
+        await expire_stale_sessions(session)
+    except Exception as exc:
+        logger.warning("expire_stale_sessions_skipped", error=str(exc))
+
+    await cancel_active_checkouts_for_user(session, user_id)
+
     cart = await shop_cart.get_cart(session, user_id)
     if cart_id and str(cart.get("id")) != str(cart_id):
         raise HTTPException(404, "Carrinho não encontrado")
@@ -141,6 +186,8 @@ async def initiate_checkout(
             ),
             {"pid": product_id, "qty": requested_qty},
         )
+        # Keep in-memory reserved in sync for duplicate lines in same cart
+        product["reserved_stock"] = int(product["reserved_stock"]) + requested_qty
         listing_id = await _sync_listing_reserve(session, product_id, requested_qty)
 
         unit_price = int(product["price_cents"])

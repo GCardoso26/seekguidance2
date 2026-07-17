@@ -27,6 +27,17 @@ async def _load_cart_items(session: AsyncSession, user_id: str) -> tuple[dict[st
     return cart, items
 
 
+def _locked_qty_credit(checkout_data: dict[str, Any]) -> dict[str, int]:
+    """Quantidades já reservadas por esta sessão (não devem reduzir available)."""
+    credit: dict[str, int] = {}
+    for item in checkout_data.get("locked_items") or []:
+        pid = str(item.get("product_id") or "")
+        if not pid:
+            continue
+        credit[pid] = credit.get(pid, 0) + int(item.get("quantity") or 0)
+    return credit
+
+
 async def create_checkout(
     session: AsyncSession,
     user_id: str,
@@ -78,14 +89,50 @@ async def _create_checkout_inner(
         raise HTTPException(503, "Stripe não configurado")
     stripe.api_key = settings.stripe_secret_key
 
+    created_here = False
     if checkout_session_id:
         checkout_data = await checkout_atomic.get_active_session(session, checkout_session_id, user_id)
         session_id = checkout_session_id
     else:
         checkout_data = await checkout_atomic.initiate_checkout(session, user_id)
         session_id = checkout_data["session_id"]
+        created_here = True
 
+    try:
+        return await _build_stripe_checkout(
+            session,
+            user_id,
+            shipping_address=shipping_address,
+            use_escrow=use_escrow,
+            checkout_data=checkout_data,
+            session_id=session_id,
+            shop_escrow=shop_escrow,
+        )
+    except Exception:
+        if created_here:
+            try:
+                await checkout_atomic.cancel_checkout(session, session_id, user_id)
+            except Exception as release_exc:
+                logger.warning(
+                    "checkout_release_after_failure",
+                    session_id=session_id,
+                    error=str(release_exc),
+                )
+        raise
+
+
+async def _build_stripe_checkout(
+    session: AsyncSession,
+    user_id: str,
+    *,
+    shipping_address: dict[str, Any] | None,
+    use_escrow: bool,
+    checkout_data: dict[str, Any],
+    session_id: str,
+    shop_escrow,
+) -> dict[str, Any]:
     cart, items = await _load_cart_items(session, user_id)
+    locked_credit = _locked_qty_credit(checkout_data)
 
     store_splits: dict[str, dict[str, Any]] = {}
     total_cents = 0
@@ -117,7 +164,8 @@ async def _create_checkout_inner(
 
         qty = int(item.get("quantity", 0))
         reserved = int(product.get("reserved_stock") or 0)
-        available = int(product["stock"]) - reserved
+        # initiate_checkout already reserved this session's qty — credit it back
+        available = int(product["stock"]) - reserved + locked_credit.get(str(product["id"]), 0)
         if qty < 1 or qty > available:
             raise HTTPException(400, f"Estoque insuficiente: {product['name']}")
 

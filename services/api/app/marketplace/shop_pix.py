@@ -208,19 +208,59 @@ async def create_pix_checkout(
     if use_escrow:
         require_live_payments(settings)
 
-    if checkout_session_id:
-        checkout_data = await checkout_atomic.get_active_session(session, checkout_session_id, user_id)
-        session_id = checkout_session_id
-    else:
-        checkout_data = await checkout_atomic.initiate_checkout(session, user_id)
-        session_id = checkout_data["session_id"]
-
+    # Validar métodos ANTES de reservar estoque (após initiate, reserved zera available)
     methods = await get_checkout_methods(session, user_id)
     if not methods["methods"]["pix"]:
         raise HTTPException(400, "PIX indisponível para itens do carrinho. Configure PIX na loja ou use cartão.")
     if use_escrow and not methods["methods"].get("escrow"):
         raise HTTPException(400, "Compra protegida disponível apenas para pedidos de uma loja")
 
+    created_here = False
+    if checkout_session_id:
+        checkout_data = await checkout_atomic.get_active_session(session, checkout_session_id, user_id)
+        session_id = checkout_session_id
+    else:
+        checkout_data = await checkout_atomic.initiate_checkout(session, user_id)
+        session_id = checkout_data["session_id"]
+        created_here = True
+
+    try:
+        return await _finish_pix_checkout(
+            session,
+            user_id,
+            shipping_address=shipping_address,
+            coupon_code=coupon_code,
+            store_id=store_id,
+            use_escrow=use_escrow,
+            checkout_data=checkout_data,
+            session_id=session_id,
+            shop_escrow=shop_escrow,
+            settings=settings,
+            methods=methods,
+        )
+    except Exception:
+        if created_here:
+            try:
+                await checkout_atomic.cancel_checkout(session, session_id, user_id)
+            except Exception as release_exc:
+                logger.warning("pix_checkout_release_after_failure", error=str(release_exc))
+        raise
+
+
+async def _finish_pix_checkout(
+    session: AsyncSession,
+    user_id: str,
+    *,
+    shipping_address: dict[str, Any] | None,
+    coupon_code: str | None,
+    store_id: str | None,
+    use_escrow: bool,
+    checkout_data: dict[str, Any],
+    session_id: str,
+    shop_escrow: Any,
+    settings: Settings,
+    methods: dict[str, Any],
+) -> dict[str, Any]:
     cart = await shop_cart.get_cart(session, user_id)
     items = list(cart.get("items") or [])
 
