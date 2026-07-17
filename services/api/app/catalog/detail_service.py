@@ -107,6 +107,14 @@ def _normalize_price_history(prices: list[dict[str, Any]]) -> list[dict[str, Any
     return result
 
 
+def _store_product_matches_card(row: dict[str, Any], card_id: str) -> bool:
+    """Reject products whose catalog_card_id points at a different card."""
+    catalog_card_id = row.get("catalog_card_id")
+    if catalog_card_id is None:
+        return True
+    return str(catalog_card_id) == str(card_id)
+
+
 def _listing_from_store(row: dict[str, Any], *, card_id: str) -> dict[str, Any]:
     images = row.get("images") or []
     image_list = [str(i) for i in images if i]
@@ -231,19 +239,28 @@ async def _fetch_store_listings(
     card_name: str,
     normalized_name: str | None,
 ) -> list[dict[str, Any]]:
+    """Match by catalog_card_id or product name — never by game_code alone.
+
+    `game_code` is kept for call-site compatibility but must not broaden the
+    match set (that caused wrong productId on PDPs, e.g. Buzz under Whole New World).
+    """
+    _ = game_code
     pattern = f"%{normalized_name or card_name}%"
     sql = text(
         """
         SELECT sp.id, sp.store_id, sp.name, sp.description, sp.price_cents,
-               sp.stock, sp.images, sp.created_at,
+               sp.stock, sp.images, sp.created_at, sp.catalog_card_id,
                s.name AS store_name, s.logo_url AS store_logo
         FROM tcg_judge.store_products sp
         JOIN tcg_judge.stores s ON s.id = sp.store_id
         WHERE sp.is_active = true
           AND s.shop_enabled = true
           AND (
-            sp.tcg_id = :game_code
-            OR sp.name ILIKE :pattern
+            sp.catalog_card_id = CAST(:card_id AS uuid)
+            OR (
+              sp.catalog_card_id IS NULL
+              AND sp.name ILIKE :pattern
+            )
           )
         ORDER BY sp.price_cents ASC
         LIMIT 30
@@ -252,10 +269,17 @@ async def _fetch_store_listings(
     rows = (
         await session.execute(
             sql,
-            {"game_code": game_code, "pattern": pattern},
+            {"card_id": str(card_id), "pattern": pattern},
         )
     ).mappings().all()
-    return [_listing_from_store(dict(r), card_id=str(card_id)) for r in rows]
+    card_id_str = str(card_id)
+    listings: list[dict[str, Any]] = []
+    for r in rows:
+        row = dict(r)
+        if not _store_product_matches_card(row, card_id_str):
+            continue
+        listings.append(_listing_from_store(row, card_id=card_id_str))
+    return listings
 
 
 async def _fetch_market_listings(session: AsyncSession, card_id: UUID) -> list[dict[str, Any]]:

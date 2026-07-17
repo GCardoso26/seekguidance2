@@ -35,9 +35,42 @@ async def create_checkout(
     checkout_session_id: str | None = None,
     use_escrow: bool = False,
 ) -> dict[str, Any]:
+    from sqlalchemy.exc import IntegrityError
+
     from app.kyc.player_account import require_active_account
     from app.marketplace import checkout_atomic, shop_escrow
 
+    try:
+        return await _create_checkout_inner(
+            session,
+            user_id,
+            shipping_address=shipping_address,
+            checkout_session_id=checkout_session_id,
+            use_escrow=use_escrow,
+            require_active_account=require_active_account,
+            checkout_atomic=checkout_atomic,
+            shop_escrow=shop_escrow,
+        )
+    except IntegrityError as exc:
+        await session.rollback()
+        logger.warning("checkout_integrity_error", user_id=user_id, error=str(exc))
+        raise HTTPException(
+            409,
+            "Não foi possível iniciar o checkout (conflito de sessão). Tente novamente.",
+        ) from exc
+
+
+async def _create_checkout_inner(
+    session: AsyncSession,
+    user_id: str,
+    *,
+    shipping_address: dict[str, Any] | None,
+    checkout_session_id: str | None,
+    use_escrow: bool,
+    require_active_account,
+    checkout_atomic,
+    shop_escrow,
+) -> dict[str, Any]:
     await require_active_account(session, user_id)
 
     settings = get_settings()
@@ -101,11 +134,14 @@ async def create_checkout(
                 "lines": [],
             }
         store_splits[store_id]["amount_cents"] += line_total
+        images = product.get("images") or []
+        if not isinstance(images, list):
+            images = []
         store_splits[store_id]["lines"].append(
             {
                 "product_id": str(product["id"]),
                 "product_name": product["name"],
-                "product_image": (product.get("images") or [None])[0],
+                "product_image": images[0] if images else None,
                 "quantity": qty,
                 "unit_price_cents": int(product["price_cents"]),
                 "total_price_cents": line_total,

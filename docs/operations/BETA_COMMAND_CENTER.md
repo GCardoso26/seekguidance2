@@ -9,6 +9,8 @@
 Preencher diariamente (ou a cada check-in). **Primeiros 7 dias:** só observar + P0 — ver protocolo Onda 1.  
 **Disciplina:** nenhum P1 vira código antes do Report #1 (registrar pedidos; não implementar).
 
+**P0 aberto (2026-07-17):** carta errada no carrinho (fallback PDP `tcg_id`) + 500 cart/checkout (race `shopping_carts`). Patch no repo — **deploy API Python (Render)** obrigatório antes do Lote 1.
+
 ---
 
 ## Checklist diário (5 min)

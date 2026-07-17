@@ -40,11 +40,16 @@ export type ShopCart = {
 export async function addProductToCart(
   productId: string,
   quantity = 1,
+  cardId?: string | null,
 ): Promise<{ ok: true } | { ok: false; status: number; message: string; needsLogin?: boolean }> {
   const res = await fetch("/api/marketplace/shop/cart", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ product_id: productId, quantity }),
+    body: JSON.stringify({
+      product_id: productId,
+      quantity,
+      ...(cardId ? { card_id: cardId } : {}),
+    }),
   });
 
   if (res.ok) {

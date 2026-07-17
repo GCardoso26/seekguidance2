@@ -8,6 +8,7 @@ from typing import Any
 
 from sqlalchemy import bindparam, text
 from sqlalchemy.dialects.postgresql import ARRAY, VARCHAR
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.players.achievements import codes_to_unlock
@@ -45,25 +46,31 @@ async def ensure_player_profile(session: AsyncSession, user_id: str) -> None:
         return
     await ensure_judge_profile(session, user_id)
     handle = f"u{user_id.replace('-', '')[:28]}"
-    await session.execute(
-        text(
-            """
-            INSERT INTO tcg_judge.player_profiles (id, handle, display_name)
-            VALUES (:id, :handle, :name)
-            ON CONFLICT (id) DO NOTHING
-            """
-        ),
-        {"id": user_id, "handle": handle[:30], "name": "Jogador"},
-    )
-    await session.execute(
-        text(
-            """
-            INSERT INTO tcg_judge.notification_preferences (player_id)
-            VALUES (:id) ON CONFLICT (player_id) DO NOTHING
-            """
-        ),
-        {"id": user_id},
-    )
+    try:
+        await session.execute(
+            text(
+                """
+                INSERT INTO tcg_judge.player_profiles (id, handle, display_name)
+                VALUES (:id, :handle, :name)
+                ON CONFLICT (id) DO NOTHING
+                """
+            ),
+            {"id": user_id, "handle": handle[:30], "name": "Jogador"},
+        )
+        await session.execute(
+            text(
+                """
+                INSERT INTO tcg_judge.notification_preferences (player_id)
+                VALUES (:id) ON CONFLICT (player_id) DO NOTHING
+                """
+            ),
+            {"id": user_id},
+        )
+    except IntegrityError:
+        await session.rollback()
+        if not await get_profile_by_id(session, user_id):
+            raise
+
 
 
 async def get_profile_by_handle(session: AsyncSession, handle: str) -> dict[str, Any] | None:

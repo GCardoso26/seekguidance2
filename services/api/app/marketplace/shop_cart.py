@@ -8,6 +8,7 @@ from typing import Any
 from fastapi import HTTPException
 from sqlalchemy import bindparam, text
 from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.marketplace.shop_store import store_is_sellable
@@ -24,6 +25,22 @@ def _parse_cart_items(raw: Any) -> list[dict[str, Any]]:
     return []
 
 
+def _assert_product_matches_expected_card(
+    product: dict[str, Any],
+    expected_card_id: str | None,
+) -> None:
+    if not expected_card_id:
+        return
+    catalog_card_id = product.get("catalog_card_id")
+    if catalog_card_id is None:
+        return
+    if str(catalog_card_id) != str(expected_card_id):
+        raise HTTPException(
+            409,
+            "Este produto não corresponde à carta da página. Atualize a oferta e tente de novo.",
+        )
+
+
 async def get_cart(session: AsyncSession, user_id: str) -> dict[str, Any]:
     from app.players.store import ensure_player_profile
 
@@ -35,19 +52,26 @@ async def get_cart(session: AsyncSession, user_id: str) -> dict[str, Any]:
         )
     ).mappings().first()
     if not row:
-        row = (
+        try:
             await session.execute(
                 text(
                     """
                     INSERT INTO tcg_judge.shopping_carts (user_id, items, total_cents)
                     VALUES (:uid, '[]'::jsonb, 0)
-                    RETURNING *
+                    ON CONFLICT (user_id) DO NOTHING
                     """
                 ),
                 {"uid": user_id},
             )
+            await session.commit()
+        except IntegrityError:
+            await session.rollback()
+        row = (
+            await session.execute(
+                text("SELECT * FROM tcg_judge.shopping_carts WHERE user_id = :uid"),
+                {"uid": user_id},
+            )
         ).mappings().first()
-        await session.commit()
     cart = dict(row) if row else {"items": [], "total_cents": 0}
     cart["items"] = _parse_cart_items(cart.get("items"))
     return cart
@@ -83,11 +107,8 @@ async def _load_active_product(session: AsyncSession, product_id: str) -> dict[s
             text(
                 """
                 SELECT p.*,
-                       s.shop_enabled,
-                       s.pix_key,
-                       s.stripe_account_id,
-                       s.stripe_onboarding_complete,
-                       s.name AS store_name
+                       s.shop_enabled, s.pix_key, s.stripe_account_id,
+                       s.stripe_onboarding_complete, s.name AS store_name
                 FROM tcg_judge.store_products p
                 JOIN tcg_judge.stores s ON s.id = p.store_id
                 WHERE p.id = CAST(:id AS uuid) AND p.is_active = true
@@ -98,10 +119,16 @@ async def _load_active_product(session: AsyncSession, product_id: str) -> dict[s
     ).mappings().first()
 
 
-async def _resolve_product_id_for_cart(session: AsyncSession, raw_id: str) -> str:
+async def _resolve_product_id_for_cart(
+    session: AsyncSession,
+    raw_id: str,
+    *,
+    expected_card_id: str | None = None,
+) -> str:
     """Aceita store_products.id ou card_listings.id."""
     product = await _load_active_product(session, raw_id)
     if product:
+        _assert_product_matches_expected_card(dict(product), expected_card_id)
         return str(product["id"])
 
     listing = (
@@ -119,8 +146,20 @@ async def _resolve_product_id_for_cart(session: AsyncSession, raw_id: str) -> st
     if not listing:
         raise HTTPException(404, "Produto não encontrado")
 
+    listing_card_id = str(listing["card_id"])
+    if expected_card_id and str(expected_card_id) != listing_card_id:
+        raise HTTPException(
+            409,
+            "Esta oferta não corresponde à carta da página. Atualize e tente de novo.",
+        )
+
     if listing.get("store_product_id"):
-        return str(listing["store_product_id"])
+        product = await _load_active_product(session, str(listing["store_product_id"]))
+        if not product:
+            raise HTTPException(404, "Produto não encontrado")
+        _assert_product_matches_expected_card(dict(product), listing_card_id)
+        _assert_product_matches_expected_card(dict(product), expected_card_id)
+        return str(product["id"])
 
     linked = (
         await session.execute(
@@ -152,14 +191,22 @@ async def add_to_cart(
     user_id: str,
     product_id: str,
     quantity: int = 1,
+    *,
+    expected_card_id: str | None = None,
 ) -> dict[str, Any]:
     if quantity < 1:
         raise HTTPException(400, "Quantidade inválida")
 
-    resolved_product_id = await _resolve_product_id_for_cart(session, product_id)
+    resolved_product_id = await _resolve_product_id_for_cart(
+        session,
+        product_id,
+        expected_card_id=expected_card_id,
+    )
     product = await _load_active_product(session, resolved_product_id)
     if not product:
         raise HTTPException(404, "Produto não encontrado")
+
+    _assert_product_matches_expected_card(dict(product), expected_card_id)
 
     store_row = dict(product)
     if not store_is_sellable(store_row):
@@ -175,6 +222,8 @@ async def add_to_cart(
     cart = await get_cart(session, user_id)
     items = _parse_cart_items(cart.get("items"))
     images = product.get("images") or []
+    if not isinstance(images, list):
+        images = []
     image = images[0] if images else None
 
     found = False

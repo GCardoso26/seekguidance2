@@ -46,7 +46,7 @@ export function useAddListingToCart() {
       if (!productId) {
         throw new Error("Esta oferta não está disponível para compra online.");
       }
-      return addProductToCart(productId, quantity);
+      return addProductToCart(productId, quantity, listing.cardId);
     },
     onSuccess: (result, variables) => {
       if (result.ok) {

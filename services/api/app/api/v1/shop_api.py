@@ -59,6 +59,7 @@ class ProductUpdateBody(BaseModel):
 class CartAddBody(BaseModel):
     product_id: str
     quantity: int = Field(default=1, ge=1)
+    card_id: str | None = None
 
 
 class CartUpdateBody(BaseModel):
@@ -330,7 +331,13 @@ async def add_cart_item(
     x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
 ) -> dict[str, Any]:
     user_id = _require_user(x_judge_user_id)
-    cart = await shop_cart.add_to_cart(session, user_id, body.product_id, body.quantity)
+    cart = await shop_cart.add_to_cart(
+        session,
+        user_id,
+        body.product_id,
+        body.quantity,
+        expected_card_id=body.card_id,
+    )
     return {"cart": cart}
 
 
