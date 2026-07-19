@@ -58,3 +58,17 @@ export function useUpdateProduct() {
     onSuccess: () => void qc.invalidateQueries({ queryKey: ["seller-products"] }),
   });
 }
+
+export function useDeleteProduct() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const res = await fetch(`/api/seller/products/${encodeURIComponent(id)}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error("delete_failed");
+      return res.json().catch(() => ({ ok: true }));
+    },
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ["seller-products"] }),
+  });
+}

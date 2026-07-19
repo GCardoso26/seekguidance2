@@ -86,7 +86,7 @@ export default function EstatisticasPage() {
           errorMessage="Não foi possível carregar as estatísticas."
           skeletonRows={5}
         >
-          <div className="grid gap-3 sm:grid-cols-3">
+          <div className="grid gap-3 sm:grid-cols-3" data-testid="seller-report">
             <StatCard
               label="Receita"
               value={formatShopPrice(Number(data?.revenue?.total_cents ?? 0))}

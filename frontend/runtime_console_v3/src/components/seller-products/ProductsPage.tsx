@@ -4,7 +4,13 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { PageHeader, PageShell } from "@/components/seller-dashboard/PageShell";
 import { SellerHeader } from "@/components/seller-dashboard/SellerHeader";
-import { useCreateProduct, useSellerProducts } from "@/hooks/useSellerProducts";
+import {
+  useCreateProduct,
+  useDeleteProduct,
+  useSellerProducts,
+  useUpdateProduct,
+  type SellerProduct,
+} from "@/hooks/useSellerProducts";
 import { formatShopPrice } from "@/lib/marketplace-shop";
 import { SELLER_PRODUCT_CATEGORIES } from "@/lib/seller-product-categories";
 import { cn } from "@/lib/utils";
@@ -12,6 +18,7 @@ import { cn } from "@/lib/utils";
 export function ProductsPage() {
   const [category, setCategory] = useState<string>("");
   const [showForm, setShowForm] = useState(false);
+  const [editing, setEditing] = useState<SellerProduct | null>(null);
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
   const [qty, setQty] = useState("1");
@@ -19,22 +26,64 @@ export function ProductsPage() {
 
   const { data, isLoading } = useSellerProducts(category || undefined);
   const createProduct = useCreateProduct();
+  const updateProduct = useUpdateProduct();
+  const deleteProduct = useDeleteProduct();
 
-  async function handleCreate(e: React.FormEvent) {
+  function openCreate() {
+    setEditing(null);
+    setName("");
+    setPrice("");
+    setQty("1");
+    setFormCategory("sleeve");
+    setShowForm(true);
+  }
+
+  function openEdit(p: SellerProduct) {
+    setEditing(p);
+    setName(p.name);
+    setPrice((p.price_cents / 100).toFixed(2));
+    setQty(String(p.stock));
+    setFormCategory(p.category || "sleeve");
+    setShowForm(true);
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     try {
-      await createProduct.mutateAsync({
-        name,
-        category: formCategory,
-        price: parseFloat(price),
-        quantity: parseInt(qty, 10) || 0,
-      });
-      toast.success("Produto criado");
+      if (editing) {
+        await updateProduct.mutateAsync({
+          id: editing.id,
+          name,
+          category: formCategory,
+          price: parseFloat(price),
+          quantity: parseInt(qty, 10) || 0,
+        });
+        toast.success("Produto atualizado");
+      } else {
+        await createProduct.mutateAsync({
+          name,
+          category: formCategory,
+          price: parseFloat(price),
+          quantity: parseInt(qty, 10) || 0,
+        });
+        toast.success("Cadastrado com sucesso");
+      }
       setShowForm(false);
+      setEditing(null);
       setName("");
       setPrice("");
     } catch {
-      toast.error("Erro ao criar produto");
+      toast.error(editing ? "Erro ao cadastrar" : "Erro ao cadastrar");
+    }
+  }
+
+  async function handleDelete(p: SellerProduct) {
+    if (!window.confirm(`Excluir "${p.name}"?`)) return;
+    try {
+      await deleteProduct.mutateAsync(p.id);
+      toast.success("Produto excluído");
+    } catch {
+      toast.error("Erro ao excluir produto");
     }
   }
 
@@ -44,7 +93,8 @@ export function ProductsPage() {
         action={
           <button
             type="button"
-            onClick={() => setShowForm(true)}
+            onClick={openCreate}
+            data-testid="btn-add-product"
             className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
           >
             + Novo produto
@@ -53,7 +103,7 @@ export function ProductsPage() {
       />
       <PageShell>
         <PageHeader title="Produtos" description="Sleeves, deck boxes, playmats e acessórios." />
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2" data-testid="product-categories">
           <button
             type="button"
             onClick={() => setCategory("")}
@@ -80,18 +130,24 @@ export function ProductsPage() {
         </div>
 
         {showForm && (
-          <form onSubmit={handleCreate} className="surface-card p-4 space-y-3">
+          <form
+            onSubmit={handleSubmit}
+            className="surface-card space-y-3 p-4"
+            data-testid="product-form"
+          >
             <input
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Nome do produto"
-              className="w-full surface-card rounded-lg px-3 py-2 text-sm"
+              data-testid="product-name-input"
+              className="w-full rounded-lg surface-card px-3 py-2 text-sm"
             />
             <select
               value={formCategory}
               onChange={(e) => setFormCategory(e.target.value)}
-              className="w-full surface-card rounded-lg px-3 py-2 text-sm"
+              data-testid="product-category-select"
+              className="w-full rounded-lg surface-card px-3 py-2 text-sm"
             >
               {SELLER_PRODUCT_CATEGORIES.map((c) => (
                 <option key={c.id} value={c.id}>
@@ -107,21 +163,34 @@ export function ProductsPage() {
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
                 placeholder="Preço R$"
-                className="flex-1 surface-card rounded-lg px-3 py-2 text-sm"
+                data-testid="product-price-input"
+                className="flex-1 rounded-lg surface-card px-3 py-2 text-sm"
               />
               <input
                 type="number"
                 value={qty}
                 onChange={(e) => setQty(e.target.value)}
                 placeholder="Qtd"
-                className="w-24 surface-card rounded-lg px-3 py-2 text-sm"
+                data-testid="product-stock-input"
+                className="w-24 rounded-lg surface-card px-3 py-2 text-sm"
               />
             </div>
             <div className="flex gap-2">
-              <button type="submit" className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">
+              <button
+                type="submit"
+                data-testid="save-product"
+                className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
+              >
                 Salvar
               </button>
-              <button type="button" onClick={() => setShowForm(false)} className="text-sm text-muted-foreground">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowForm(false);
+                  setEditing(null);
+                }}
+                className="text-sm text-muted-foreground"
+              >
                 Cancelar
               </button>
             </div>
@@ -132,7 +201,7 @@ export function ProductsPage() {
           <p className="text-sm text-muted-foreground">Carregando…</p>
         ) : (
           <div className="overflow-x-auto rounded-xl border border-border">
-            <table className="w-full text-sm">
+            <table className="w-full text-sm" data-testid="products-table">
               <thead className="bg-muted/50 text-left text-muted-foreground">
                 <tr>
                   <th className="p-3">Nome</th>
@@ -140,16 +209,37 @@ export function ProductsPage() {
                   <th className="p-3">Preço</th>
                   <th className="p-3">Estoque</th>
                   <th className="p-3">SKU</th>
+                  <th className="p-3">Ações</th>
                 </tr>
               </thead>
               <tbody>
                 {(data?.products ?? []).map((p) => (
-                  <tr key={p.id} className="border-t border-border">
+                  <tr key={p.id} className="border-t border-border" data-testid={`product-row-${p.id}`}>
                     <td className="p-3">{p.name}</td>
                     <td className="p-3">{p.category}</td>
                     <td className="p-3">{formatShopPrice(p.price_cents)}</td>
                     <td className="p-3">{p.stock}</td>
                     <td className="p-3 font-mono text-xs">{p.sku ?? "—"}</td>
+                    <td className="p-3">
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          data-testid={`product-edit-${p.id}`}
+                          onClick={() => openEdit(p)}
+                          className="text-xs text-primary hover:underline"
+                        >
+                          Editar
+                        </button>
+                        <button
+                          type="button"
+                          data-testid={`product-delete-${p.id}`}
+                          onClick={() => void handleDelete(p)}
+                          className="text-xs text-danger hover:underline"
+                        >
+                          Excluir
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>

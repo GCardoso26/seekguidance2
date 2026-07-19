@@ -16,7 +16,7 @@ export function DashboardKpiStrip() {
   const { kpis, isLoading } = useDashboardKpis(period);
 
   return (
-    <section className="space-y-3" data-testid="dashboard-kpi-strip">
+    <section className="space-y-3" data-testid="dashboard-metrics">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Indicadores</h2>
         <div className="flex flex-wrap gap-1">

@@ -363,13 +363,24 @@ function InlineQty({
   const [price, setPrice] = useState(((item.price_cents || 0) / 100).toFixed(2));
 
   return (
-    <div className="flex items-center gap-1">
-      <Input className="h-8 w-16" value={qty} onChange={(e) => setQty(e.target.value)} />
-      <Input className="h-8 w-20" value={price} onChange={(e) => setPrice(e.target.value)} />
+    <div className="flex items-center gap-1" data-testid={`inventory-qty-row-${item.id}`}>
+      <Input
+        className="h-8 w-16"
+        value={qty}
+        onChange={(e) => setQty(e.target.value)}
+        data-testid={`inventory-qty-input-${item.id}`}
+      />
+      <Input
+        className="h-8 w-20"
+        value={price}
+        onChange={(e) => setPrice(e.target.value)}
+        data-testid={`inventory-price-input-${item.id}`}
+      />
       <Button
         type="button"
         size="sm"
         variant="ghost"
+        data-testid={`inventory-qty-save-${item.id}`}
         onClick={() => {
           const q = Number.parseInt(qty, 10);
           const p = Math.round(Number(price.replace(",", ".")) * 100);
