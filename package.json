@@ -14,7 +14,18 @@
     "web:build": "npm run build --workspace=web",
     "web:test": "npm run test --workspace=web",
     "console": "npm run dev --workspace=runtime-console-v3",
-    "console:build": "npm run build --workspace=runtime-console-v3"
+    "console:build": "npm run build --workspace=runtime-console-v3",
+    "test:guard": "node testing/guards/assert-not-beta.mjs",
+    "seed:local": "node testing/seed/seed-local.mjs",
+    "seed:ci": "node testing/seed/seed-ci.mjs",
+    "seed:demo": "node testing/seed/seed-demo.mjs",
+    "seed:staging": "node testing/seed/seed-demo.mjs",
+    "seed:personas": "node testing/seed/seed-personas.mjs",
+    "test:personas": "node testing/seed/validate-personas.mjs",
+    "cleanup:ci": "node testing/seed/cleanup-ci.mjs",
+    "cleanup:demo": "node testing/seed/cleanup-demo.mjs",
+    "test:smoke": "node testing/smoke/smoke-readonly.mjs",
+    "test:infra:ci": "node testing/seed/run-ci-pipeline.mjs"
   },
   "devDependencies": {
     "supabase": "^2.101.0"

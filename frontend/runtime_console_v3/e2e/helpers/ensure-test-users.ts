@@ -38,3 +38,9 @@ export const E2E_TEST_ACCOUNTS = [
   { email: "test-buyer-b@judgetcg.com", password: "TestBuyerB123!", file: "buyer-b.json", role: "buyer-b" },
   { email: "test-seller@judgetcg.com", password: "TestSeller123!", file: "seller.json", role: "seller" },
 ] as const;
+
+/**
+ * Migração: preferir aliases de `testing/personas` via `loadTestingPersonaCredentials`
+ * (`seller-alpha` / `buyer-alpha`). Contas acima permanecem para compatibilidade
+ * até o storageState ser gerado a partir das personas.
+ */

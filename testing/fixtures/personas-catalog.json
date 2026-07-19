@@ -1,0 +1,32 @@
+{
+  "exportedAt": "2026-07-19T16:02:12.005Z",
+  "games": [
+    "lorcana",
+    "mtg",
+    "pokemon",
+    "onepiece",
+    "digimon",
+    "dragonball",
+    "riftbound",
+    "naruto"
+  ],
+  "aliases": {
+    "seller-alpha": "lorcana-store-alpha",
+    "buyer-alpha": "lorcana-competitive-buyer",
+    "collector-alpha": "lorcana-collector"
+  },
+  "credentials": {
+    "seller-alpha": {
+      "email": "seller-alpha-lorcana@judgetcg.test",
+      "password": "PersonaSeller1!"
+    },
+    "buyer-alpha": {
+      "email": "buyer-alpha-lorcana@judgetcg.test",
+      "password": "PersonaBuyer1!"
+    },
+    "collector-alpha": {
+      "email": "collector-alpha-lorcana@judgetcg.test",
+      "password": "PersonaCollector1!"
+    }
+  }
+}

@@ -1,15 +1,34 @@
 /**
  * Lifecycle E2E — seed isolado por runId.
  * Manifest: e2e/.seed/run.json
+ *
+ * Guard: nunca em beta/production (LPC/LCS isolation).
  */
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { spawnSync } from "node:child_process";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, "../..");
+const repoRoot = path.resolve(root, "../..");
 const seedDir = path.join(root, "e2e", ".seed");
 const manifestPath = path.join(seedDir, "run.json");
+
+function assertNotBeta() {
+  const guard = path.join(repoRoot, "testing", "guards", "assert-not-beta.mjs");
+  if (!fs.existsSync(guard)) return;
+  const r = spawnSync(process.execPath, [guard, "seed"], {
+    cwd: repoRoot,
+    env: process.env,
+    encoding: "utf8",
+  });
+  if (r.status !== 0) {
+    console.error(r.stderr || r.stdout || "seed blocked by testing guard");
+    process.exit(r.status ?? 1);
+  }
+  if (r.stdout) process.stdout.write(r.stdout);
+}
 
 function loadDotEnv() {
   const envPath = path.join(root, ".env.local");
@@ -145,6 +164,7 @@ async function ensureAuthUsers(seed) {
 
 async function main() {
   loadDotEnv();
+  assertNotBeta();
   ensureDir(seedDir);
   const seed = buildSeed();
   fs.writeFileSync(manifestPath, JSON.stringify(seed, null, 2), "utf8");

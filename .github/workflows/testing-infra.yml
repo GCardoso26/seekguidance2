@@ -1,0 +1,50 @@
+name: Testing Infrastructure Pipeline
+
+# seed-ci → personas → smoke → cleanup-ci
+# Nunca corre lógica de mercado (LPC/LCS). Bloqueado se ENV=beta.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "testing/**"
+      - "frontend/runtime_console_v3/e2e/**"
+      - ".github/workflows/testing-infra.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "testing/**"
+      - "frontend/runtime_console_v3/e2e/**"
+      - ".github/workflows/testing-infra.yml"
+  workflow_dispatch:
+
+jobs:
+  testing-infra:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      JUDGE_TEST_ENV: ci
+      CI: "1"
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+      - name: Guard (must fail if beta)
+        run: node testing/guards/assert-not-beta.mjs seed
+      - name: seed-ci → personas → smoke → cleanup
+        run: node testing/seed/run-ci-pipeline.mjs
+        env:
+          BASE_URL: http://127.0.0.1:9
+          SMOKE_SOFT: "1"
+      - name: Beta contamination self-test
+        run: |
+          set +e
+          JUDGE_TEST_ENV=beta node testing/guards/assert-not-beta.mjs seed
+          status=$?
+          set -e
+          if [ "$status" -eq 0 ]; then
+            echo "Guard failed to block beta"
+            exit 1
+          fi
+          echo "✓ beta correctly blocked"
