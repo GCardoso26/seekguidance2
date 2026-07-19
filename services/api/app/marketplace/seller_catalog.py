@@ -28,7 +28,8 @@ async def search_catalog_cards(
     page: int = 1,
     limit: int = 24,
 ) -> dict[str, Any]:
-    await resolve_owner_store(session, owner_id)
+    store = await resolve_owner_store(session, owner_id)
+    store_id = str(store["id"])
     result = await search_game_cards(
         session,
         game,
@@ -36,7 +37,31 @@ async def search_catalog_cards(
         page=page,
         limit=min(limit, 48),
     )
-    cards = result.get("cards") or []
+    cards = list(result.get("cards") or [])
+    card_ids = [str(c.get("id")) for c in cards if c.get("id")]
+    inventory = await _store_inventory_by_card(session, store_id, card_ids)
+    for card in cards:
+        cid = str(card.get("id") or "")
+        inv = inventory.get(cid)
+        if inv:
+            card["my_quantity"] = inv["quantity"]
+            card["my_price_cents"] = inv["price_cents"]
+            card["my_listed"] = True
+        else:
+            card["my_quantity"] = 0
+            card["my_price_cents"] = None
+            card["my_listed"] = False
+        # Normaliza campos snake_case usados no grid seller
+        if card.get("lowest_price_cents") is None and card.get("lowestPrice") is not None:
+            try:
+                card["lowest_price_cents"] = int(round(float(card["lowestPrice"]) * 100))
+            except (TypeError, ValueError):
+                pass
+        if not card.get("set_name") and isinstance(card.get("set"), dict):
+            card["set_name"] = card["set"].get("name") or card["set"].get("code")
+        if not card.get("image_url"):
+            uris = card.get("imageUris") or {}
+            card["image_url"] = uris.get("normal") or uris.get("large") or uris.get("small")
     return {
         "cards": cards,
         "total": result.get("total", 0),
@@ -44,6 +69,61 @@ async def search_catalog_cards(
         "limit": limit,
         "has_more": result.get("hasMore", False),
     }
+
+
+async def _store_inventory_by_card(
+    session: AsyncSession,
+    store_id: str,
+    card_ids: list[str],
+) -> dict[str, dict[str, Any]]:
+    if not card_ids:
+        return {}
+    rows = (
+        await session.execute(
+            text(
+                """
+                WITH listing_agg AS (
+                  SELECT cl.card_id::text AS card_id,
+                         COALESCE(SUM(cl.quantity), 0)::int AS qty,
+                         MIN(cl.price_cents) FILTER (WHERE cl.price_cents > 0)::int AS price_cents
+                  FROM tcg_judge.card_listings cl
+                  WHERE cl.store_id = :sid
+                    AND cl.status = 'active'
+                    AND cl.card_id = ANY(CAST(:ids AS uuid[]))
+                  GROUP BY cl.card_id
+                ),
+                product_agg AS (
+                  SELECT p.catalog_card_id::text AS card_id,
+                         COALESCE(SUM(p.stock), 0)::int AS qty,
+                         MIN(p.price_cents) FILTER (WHERE p.price_cents > 0)::int AS price_cents
+                  FROM tcg_judge.store_products p
+                  WHERE p.store_id = :sid
+                    AND p.is_active
+                    AND p.catalog_card_id = ANY(CAST(:ids AS uuid[]))
+                    AND p.category IN ('single', 'oversized', 'token')
+                  GROUP BY p.catalog_card_id
+                )
+                SELECT COALESCE(l.card_id, p.card_id) AS card_id,
+                       COALESCE(l.qty, 0) + COALESCE(p.qty, 0) AS quantity,
+                       COALESCE(l.price_cents, p.price_cents) AS price_cents
+                FROM listing_agg l
+                FULL OUTER JOIN product_agg p ON p.card_id = l.card_id
+                """
+            ),
+            {"sid": store_id, "ids": card_ids},
+        )
+    ).mappings().all()
+    out: dict[str, dict[str, Any]] = {}
+    for r in rows:
+        cid = str(r["card_id"])
+        qty = int(r["quantity"] or 0)
+        if qty <= 0 and r["price_cents"] is None:
+            continue
+        out[cid] = {
+            "quantity": qty,
+            "price_cents": int(r["price_cents"]) if r["price_cents"] is not None else None,
+        }
+    return out
 
 
 async def list_expansions(

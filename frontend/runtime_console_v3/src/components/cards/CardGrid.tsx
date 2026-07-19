@@ -39,6 +39,8 @@ function CardListItem({
 }) {
   const gameToken = GAME_TOKENS[card.game as GameId] ?? null;
   const price = card.lowestPrice ?? card.latestPrice?.price;
+  const currency = card.priceCurrency || card.latestPrice?.currency || "BRL";
+  const stock = card.availableStock ?? card.marketplaceStock;
 
   return (
     <article className="flex gap-4 rounded-lg border border-border bg-card p-3 transition hover:shadow-md">
@@ -64,11 +66,17 @@ function CardListItem({
         {card.rarity && (
           <span className="mt-1 text-xs text-muted-foreground">{card.rarity}</span>
         )}
+        {card.listingCount != null && card.listingCount > 0 ? (
+          <span className="mt-1 text-xs text-muted-foreground">
+            {card.listingCount} oferta{card.listingCount !== 1 ? "s" : ""}
+            {stock != null && stock > 0 ? ` · ${stock} un.` : ""}
+          </span>
+        ) : null}
       </div>
       <div className="flex shrink-0 flex-col items-end justify-center gap-2">
         {price !== undefined && (
           <span className="text-lg font-bold">
-            {formatCurrency(price, card.latestPrice?.currency ?? "USD")}
+            {formatCurrency(price, currency)}
           </span>
         )}
         <Button type="button" size="sm" onClick={() => onAddToCart?.(card)}>

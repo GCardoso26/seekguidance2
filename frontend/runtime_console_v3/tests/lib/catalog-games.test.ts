@@ -23,6 +23,9 @@ describe("getMegaMenuGames", () => {
     expect(ids).toContain("POKEMON");
     expect(ids).toContain("YGO");
     expect(ids).toContain("LORCANA");
+    expect(ids).toContain("FAB");
+    expect(ids).not.toContain("SWU");
+    expect(ids).not.toContain("VANGUARD");
     expect(games.every((g) => g.isAvailable)).toBe(true);
   });
 });

@@ -64,7 +64,10 @@ export interface UnifiedCard {
   priceTrend7d?: number;
   priceTrend30d?: number;
   lowestPrice?: number;
+  priceCurrency?: string;
   listingCount?: number;
+  marketplaceStock?: number;
+  availableStock?: number;
   oracleText?: string;
   flavorText?: string;
   artist?: string;

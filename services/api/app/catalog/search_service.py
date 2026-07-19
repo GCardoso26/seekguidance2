@@ -33,6 +33,9 @@ def _card_payload(row: dict[str, Any]) -> dict[str, Any]:
     latest_cents = row.get("latest_price_cents")
     lowest_cents = row.get("lowest_price_cents")
     week_ago_cents = row.get("week_ago_price_cents")
+    market_lowest = row.get("marketplace_lowest_cents")
+    market_offers = int(row.get("marketplace_offer_count") or 0)
+    market_stock = int(row.get("marketplace_stock") or 0)
 
     trend_7d: float | None = None
     if latest_cents is not None and week_ago_cents and int(week_ago_cents) > 0:
@@ -50,6 +53,18 @@ def _card_payload(row: dict[str, Any]) -> dict[str, Any]:
             "foil": bool(row.get("latest_foil")),
             "source": row.get("latest_source") or "market",
         }
+
+    # Prefere oferta do marketplace (BRL); fallback para preço de referência do catálogo
+    display_lowest = None
+    display_currency = "USD"
+    if market_lowest is not None:
+        display_lowest = round(int(market_lowest) / 100, 2)
+        display_currency = "BRL"
+    elif lowest_cents is not None:
+        display_lowest = round(int(lowest_cents) / 100, 2)
+        display_currency = (row.get("latest_currency") or "USD")
+
+    offer_count = market_offers if market_offers > 0 else int(row.get("listing_count") or 0)
 
     return {
         "id": str(row["id"]),
@@ -75,8 +90,11 @@ def _card_payload(row: dict[str, Any]) -> dict[str, Any]:
         "isReprint": bool(row.get("is_reprint")),
         "latestPrice": latest_price,
         "priceTrend7d": trend_7d,
-        "lowestPrice": round(int(lowest_cents) / 100, 2) if lowest_cents is not None else None,
-        "listingCount": int(row.get("listing_count") or 0),
+        "lowestPrice": display_lowest,
+        "priceCurrency": display_currency,
+        "listingCount": offer_count,
+        "marketplaceStock": market_stock,
+        "availableStock": market_stock,
     }
 
 
@@ -301,6 +319,15 @@ async def search_catalog_cards(
           FROM tcg_judge.card_prices cp4
           WHERE cp4.card_id = cc.id
         ) listings ON TRUE
+        LEFT JOIN LATERAL (
+          SELECT COUNT(*)::int AS offer_cnt,
+                 MIN(cl.price_cents) FILTER (WHERE cl.price_cents > 0)::int AS min_offer_cents,
+                 COALESCE(SUM(cl.quantity), 0)::int AS stock_units
+          FROM tcg_judge.card_listings cl
+          WHERE cl.card_id = cc.id
+            AND cl.status = 'active'
+            AND cl.quantity > 0
+        ) market_offers ON TRUE
         WHERE {where_sql}
     """
 
@@ -318,7 +345,10 @@ async def search_catalog_cards(
                latest.source AS latest_source,
                minp.min_cents AS lowest_price_cents,
                week_ago.week_ago_cents AS week_ago_price_cents,
-               listings.cnt AS listing_count
+               listings.cnt AS listing_count,
+               market_offers.offer_cnt AS marketplace_offer_count,
+               market_offers.min_offer_cents AS marketplace_lowest_cents,
+               market_offers.stock_units AS marketplace_stock
         {base_from}
         ORDER BY {_order_by(sort_key)}
         LIMIT :lim OFFSET :off

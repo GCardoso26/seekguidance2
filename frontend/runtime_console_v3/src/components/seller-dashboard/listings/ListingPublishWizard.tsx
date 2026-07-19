@@ -16,6 +16,7 @@ import {
   type AddListingFormValues,
 } from "@/lib/seller-catalog-listing-form";
 import { formatCurrency } from "@/lib/format-currency";
+import { DEFAULT_CATALOG_GAME_SLUG } from "@/lib/seller-product-categories";
 import { GAME_TOKENS } from "@/lib/tcg-tokens";
 import type { GameId } from "@/types/card";
 
@@ -37,7 +38,7 @@ export function ListingPublishWizard() {
   const searchParams = useSearchParams();
   const prefillCardId = searchParams.get("cardId");
 
-  const [game, setGame] = useState("mtg");
+  const [game, setGame] = useState(DEFAULT_CATALOG_GAME_SLUG);
   const [search, setSearch] = useState("");
   const [debounced, setDebounced] = useState("");
   const [selected, setSelected] = useState<CatalogCard | null>(null);
@@ -152,10 +153,10 @@ export function ListingPublishWizard() {
       body: JSON.stringify(addListingToApiPayload(selected.id, values)),
     });
     if (!res.ok) {
-      toast.error("Não foi possível publicar.");
+      toast.error("Erro ao cadastrar");
       return;
     }
-    toast.success("Anúncio publicado! Cadastre a próxima carta.");
+    toast.success("Cadastrado com sucesso");
     setSelected(null);
     setSearch("");
   }

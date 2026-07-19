@@ -1,5 +1,6 @@
 import { ALL_GAME_IDS, GAME_TOKENS } from "@/lib/tcg-tokens";
-import type { CatalogHealthReport, GameId } from "@/types/card";
+import { IMPLEMENTATION_WAVE_GAME_IDS, isGameInImplementationWave } from "@/lib/game-rollout";
+import type { CatalogHealthReport } from "@/types/card";
 
 export interface GameInfo {
   id: string;
@@ -51,7 +52,7 @@ export function mapHealthToGames(health?: CatalogHealthReport | null): GameInfo[
       logoUrl: token.logo,
       cardCount: count,
       primaryColor: token.primary,
-      isAvailable: count > 0,
+      isAvailable: count > 0 && isGameInImplementationWave(id),
     };
   });
 }
@@ -60,21 +61,12 @@ export function countAvailableGames(health?: CatalogHealthReport | null): number
   return mapHealthToGames(health).filter((g) => g.isAvailable).length;
 }
 
-/** Jogos sempre visíveis no mega-menu do header (independente do health da API). */
-export const MEGA_MENU_GAME_IDS = [
-  "LORCANA",
-  "MTG",
-  "POKEMON",
-  "YGO",
-  "FAB",
-  "DIGIMON",
-  "ONEPIECE",
-  "SWU",
-] as const satisfies readonly GameId[];
+/** Jogos sempre visíveis no mega-menu do header (apenas wave de implementação). */
+export const MEGA_MENU_GAME_IDS = IMPLEMENTATION_WAVE_GAME_IDS;
 
 export function getMegaMenuGames(health?: CatalogHealthReport | null): GameInfo[] {
   const byHealth = new Map(mapHealthToGames(health).map((g) => [g.id, g]));
-  return MEGA_MENU_GAME_IDS.map((id) => {
+  return MEGA_MENU_GAME_IDS.filter((id) => isGameInImplementationWave(id)).map((id) => {
     const fromApi = byHealth.get(id);
     const token = GAME_TOKENS[id];
     return {

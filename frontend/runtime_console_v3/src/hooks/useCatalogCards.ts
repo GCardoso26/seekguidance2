@@ -14,6 +14,11 @@ export type CatalogCard = {
   language?: string;
   number?: string;
   game?: string;
+  /** Qtd. no estoque/anúncios do lojista logado */
+  my_quantity?: number;
+  /** Menor preço cadastrado pelo lojista (centavos BRL) */
+  my_price_cents?: number | null;
+  my_listed?: boolean;
 };
 
 export function useCatalogCards(game: string, search: string, page = 1) {

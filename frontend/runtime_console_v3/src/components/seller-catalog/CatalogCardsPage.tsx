@@ -8,11 +8,12 @@ import { AddListingDrawer } from "./AddListingDrawer";
 import { CardGrid } from "./CardGrid";
 import { CardSearchInput } from "./CardSearchInput";
 import { GameSelectorTabs } from "./GameSelectorTabs";
+import { DEFAULT_CATALOG_GAME_SLUG } from "@/lib/seller-product-categories";
 import { useCatalogCards, type CatalogCard } from "@/hooks/useCatalogCards";
 
 export function CatalogCardsPage() {
   const searchParams = useSearchParams();
-  const [game, setGame] = useState("mtg");
+  const [game, setGame] = useState(DEFAULT_CATALOG_GAME_SLUG);
   const [search, setSearch] = useState(searchParams.get("search") ?? "");
   const [debounced, setDebounced] = useState("");
   const [selectedCard, setSelectedCard] = useState<CatalogCard | null>(null);

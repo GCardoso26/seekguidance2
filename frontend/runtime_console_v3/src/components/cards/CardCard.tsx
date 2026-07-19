@@ -35,8 +35,10 @@ export function CardCard({
   const gameToken = GAME_TOKENS[card.game as GameId];
   const hasFoil = card.latestPrice?.foil;
   const price = card.lowestPrice ?? card.latestPrice?.price;
+  const currency = card.priceCurrency || card.latestPrice?.currency || "BRL";
   const trend = card.priceTrend7d;
   const imageSrc = cardImageUrl(card);
+  const stock = card.availableStock ?? card.marketplaceStock;
   const { track } = useAnalytics();
 
   function handleViewDetail() {
@@ -151,6 +153,7 @@ export function CardCard({
           {card.listingCount !== undefined && card.listingCount > 0 && (
             <span className="text-caption text-muted-foreground">
               {card.listingCount} oferta{card.listingCount !== 1 ? "s" : ""}
+              {stock != null && stock > 0 ? ` · ${stock} un.` : ""}
             </span>
           )}
         </div>
@@ -159,7 +162,7 @@ export function CardCard({
           <div className="mt-auto pt-3">
             <div className="flex items-center justify-between gap-2">
               <span className="font-mono text-lg font-semibold tracking-tight">
-                {formatCurrency(price, card.latestPrice?.currency || "USD")}
+                {formatCurrency(price, currency)}
               </span>
               {trend !== undefined && (
                 <span

@@ -16,16 +16,22 @@ import {
 import { gameIdFromSlug, GAME_TOKENS } from "@/lib/tcg-tokens";
 import type { GameId } from "@/types/card";
 import { getGameConfig } from "@/lib/games";
+import { isGameInImplementationWave } from "@/lib/game-rollout";
 
 function GameCardsContent({ slug }: { slug: string }) {
   const gameId = gameIdFromSlug(slug);
-  if (!gameId) {
+  if (!gameId || !isGameInImplementationWave(gameId)) {
     return (
       <MobileLayout>
         <div className="container mx-auto px-4 py-16 text-center">
-          <h1 className="text-2xl font-bold">Jogo não encontrado</h1>
+          <h1 className="text-2xl font-bold">
+            {!gameId ? "Jogo não encontrado" : "Jogo em breve"}
+          </h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Este TCG ainda não está disponível nesta wave de implementação.
+          </p>
           <Link href="/loja" className="mt-4 inline-block text-primary hover:underline">
-            Ver todos os jogos
+            Ver jogos disponíveis
           </Link>
         </div>
       </MobileLayout>

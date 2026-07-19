@@ -62,10 +62,10 @@ export function AddListingDrawer({ card, open, onOpenChange, onSaved }: Props) {
       body: JSON.stringify(addListingToApiPayload(card.id, values)),
     });
     if (!res.ok) {
-      toast.error("Não foi possível criar o anúncio.");
+      toast.error("Erro ao cadastrar");
       return;
     }
-    toast.success("Anúncio criado");
+    toast.success("Cadastrado com sucesso");
     onSaved?.();
     if (addAnother) {
       reset({ ...values, quantity: 1, description: "", sku: "" });
