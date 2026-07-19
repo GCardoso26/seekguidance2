@@ -49,22 +49,41 @@ export function ProductsPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    const trimmed = name.trim();
+    if (!trimmed) {
+      toast.error("Nome obrigatório");
+      return;
+    }
+    if (trimmed.length > 255) {
+      toast.error("Nome muito longo (máx. 255)");
+      return;
+    }
+    const priceNum = parseFloat(price);
+    if (!Number.isFinite(priceNum) || priceNum < 0.01) {
+      toast.error("Preço inválido");
+      return;
+    }
+    const qtyNum = parseInt(qty, 10);
+    if (!Number.isFinite(qtyNum) || qtyNum < 0) {
+      toast.error("Estoque inválido");
+      return;
+    }
     try {
       if (editing) {
         await updateProduct.mutateAsync({
           id: editing.id,
-          name,
+          name: trimmed,
           category: formCategory,
-          price: parseFloat(price),
-          quantity: parseInt(qty, 10) || 0,
+          price: priceNum,
+          quantity: qtyNum,
         });
         toast.success("Produto atualizado");
       } else {
         await createProduct.mutateAsync({
-          name,
+          name: trimmed,
           category: formCategory,
-          price: parseFloat(price),
-          quantity: parseInt(qty, 10) || 0,
+          price: priceNum,
+          quantity: qtyNum,
         });
         toast.success("Cadastrado com sucesso");
       }
@@ -160,6 +179,7 @@ export function ProductsPage() {
                 required
                 type="number"
                 step="0.01"
+                min="0.01"
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
                 placeholder="Preço R$"
@@ -168,6 +188,7 @@ export function ProductsPage() {
               />
               <input
                 type="number"
+                min="0"
                 value={qty}
                 onChange={(e) => setQty(e.target.value)}
                 placeholder="Qtd"

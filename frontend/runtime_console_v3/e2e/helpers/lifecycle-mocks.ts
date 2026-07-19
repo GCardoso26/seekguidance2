@@ -89,9 +89,27 @@ function json(route: Route, body: unknown, status = 200) {
   });
 }
 
+export type LifecycleMockOptions = {
+  /** Plano/estado da loja (ex.: free, expired, suspended). */
+  storeOverrides?: Partial<LifecycleSeed["store"]> & {
+    account_status?: "active" | "suspended" | "expired";
+    subscription_plan?: string;
+  };
+  /** Bloqueia mutações de produto (simula comprador / sem permissão). */
+  forbidProductMutations?: boolean;
+  /** Respostas 403 em rotas de seller sensíveis. */
+  forbidSellerApis?: boolean;
+};
+
 /** Instala mocks stateful cobrindo o lifecycle seller completo. */
-export async function installLifecycleMocks(page: Page, seed?: LifecycleSeed) {
-  const state = seed ?? getLifecycleSharedState();
+export async function installLifecycleMocks(page: Page, seedOrOpts?: LifecycleSeed | LifecycleMockOptions) {
+  const opts: LifecycleMockOptions =
+    seedOrOpts && "runId" in seedOrOpts ? {} : ((seedOrOpts as LifecycleMockOptions | undefined) ?? {});
+  const seed = seedOrOpts && "runId" in seedOrOpts ? (seedOrOpts as LifecycleSeed) : getLifecycleSharedState();
+  const state = seed;
+  if (opts.storeOverrides) {
+    Object.assign(state.store, opts.storeOverrides);
+  }
   const couponsList: Array<Record<string, unknown>> = [];
   if (state.promotion) {
     couponsList.push({
@@ -117,9 +135,21 @@ export async function installLifecycleMocks(page: Page, seed?: LifecycleSeed) {
   await page.route("**/api/seller/account**", (route) =>
     json(route, { merchant: { kyc_status: "verified" } }),
   );
-  await page.route("**/api/account/**", (route) =>
-    json(route, { merchant: { kyc_status: "verified" } }),
+  await page.route("**/api/account/status**", (route) =>
+    json(route, {
+      merchant: { kyc_status: "verified", rejection_reason: null },
+      user: { role: "seller" },
+    }),
   );
+  await page.route("**/api/account/**", (route) => {
+    if (route.request().url().includes("/status")) {
+      return json(route, {
+        merchant: { kyc_status: "verified", rejection_reason: null },
+        user: { role: "seller" },
+      });
+    }
+    return json(route, { ok: true });
+  });
 
   await page.route("**/api/seller/notifications/header**", (route) =>
     json(route, { items: [], unread: 0 }),
@@ -127,8 +157,12 @@ export async function installLifecycleMocks(page: Page, seed?: LifecycleSeed) {
   await page.route("**/api/seller/search/global**", (route) =>
     json(route, { results: [] }),
   );
-  await page.route("**/api/stores/mine**", (route) => json(route, [state.store]));
+  await page.route("**/api/stores/mine**", (route) => {
+    if (opts.forbidSellerApis) return json(route, { detail: "forbidden" }, 403);
+    return json(route, [state.store]);
+  });
   await page.route("**/api/seller/dashboard**", async (route) => {
+    if (opts.forbidSellerApis) return json(route, { detail: "forbidden" }, 403);
     if (route.request().url().includes("/overview")) {
       const overview = marceloPersonaDashboardOverviewMock();
       overview.metrics.pending_payment = state.orders.filter((o) => o.status === "pending").length;
@@ -142,10 +176,53 @@ export async function installLifecycleMocks(page: Page, seed?: LifecycleSeed) {
       }));
       return json(route, overview);
     }
+    const plan = String(opts.storeOverrides?.subscription_plan ?? state.store.subscription_plan ?? "pro");
     return json(route, {
-      store: { ...state.store, subscription_plan: "pro" },
+      store: { ...state.store, subscription_plan: plan },
       kpis: { revenue_cents: state.report.revenue_cents, orders: state.orders.length },
+      account_status: opts.storeOverrides?.account_status ?? "active",
     });
+  });
+
+  await page.route("**/api/seller/catalog/**", async (route) => {
+    const url = new URL(route.request().url());
+    if (url.pathname.includes("/games")) {
+      return json(route, {
+        games: [
+          { slug: "lorcana", name: "Lorcana", game_code: "LORCANA" },
+          { slug: "mtg", name: "Magic", game_code: "MTG" },
+          { slug: "pokemon", name: "Pokemon", game_code: "POKEMON" },
+          { slug: "onepiece", name: "One Piece", game_code: "ONEPIECE" },
+          { slug: "digimon", name: "Digimon", game_code: "DIGIMON" },
+          { slug: "swu", name: "Star Wars: Unlimited", game_code: "SWU" },
+        ],
+      });
+    }
+    const game = url.searchParams.get("game") || "lorcana";
+    const q = (url.searchParams.get("q") || url.searchParams.get("search") || "").toLowerCase();
+    const cardName =
+      game === "pokemon"
+        ? "Pikachu"
+        : game === "lorcana"
+          ? "Elsa - Snow Queen"
+          : game === "onepiece"
+            ? "Monkey D. Luffy"
+            : game === "digimon"
+              ? "Agumon"
+              : "Lightning Bolt";
+    const cards = [
+      {
+        id: `${game}-card-1`,
+        name: cardName,
+        set_name: `${game.toUpperCase()} Set`,
+        set_code: game.slice(0, 3).toUpperCase(),
+        game_code: game.toUpperCase(),
+        rarity: "common",
+        image_url: null,
+        lowest_price_cents: 199,
+      },
+    ].filter((c) => !q || c.name.toLowerCase().includes(q) || q.length < 2);
+    return json(route, { cards, total: cards.length, page: 1, limit: 24, has_more: false });
   });
 
   await page.route("**/api/seller/products**", async (route) => {
@@ -153,24 +230,38 @@ export async function installLifecycleMocks(page: Page, seed?: LifecycleSeed) {
     const url = new URL(req.url());
     const method = req.method();
 
+    if (opts.forbidSellerApis || (opts.forbidProductMutations && method !== "GET")) {
+      return json(route, { detail: "forbidden" }, 403);
+    }
+
     if (method === "GET" && !url.pathname.match(/\/products\/[^/]+$/)) {
       return json(route, { products: state.products, total: state.products.length });
     }
 
     if (method === "POST") {
       const body = req.postDataJSON() as Record<string, unknown>;
+      const name = String(body.name ?? "").trim();
+      const priceRaw = body.price != null ? Number(body.price) : null;
+      const priceCents =
+        body.price_cents != null
+          ? Number(body.price_cents)
+          : priceRaw != null
+            ? Math.round(priceRaw * 100)
+            : 0;
+      const stock = Number(body.quantity ?? body.stock ?? 0);
+      if (!name) return json(route, { detail: "name_required" }, 400);
+      if (name.length > 255) return json(route, { detail: "name_too_long" }, 400);
+      if (!(priceCents >= 1)) return json(route, { detail: "invalid_price" }, 400);
+      if (stock < 0) return json(route, { detail: "invalid_stock" }, 400);
       const created = {
         id: `${state.runId}-product-${state.products.length + 1}`,
-        name: String(body.name ?? "Produto E2E"),
+        name,
         category: String(body.category ?? "sleeve"),
-        price_cents: Math.round(Number(body.price ?? body.price_cents ?? 10) * (body.price ? 100 : 1)),
-        stock: Number(body.quantity ?? body.stock ?? 1),
+        price_cents: priceCents,
+        stock,
         sku: `E2E-${Date.now().toString(36).slice(-5)}`,
         is_active: true,
       };
-      if (created.price_cents < 100 && body.price != null) {
-        created.price_cents = Math.round(Number(body.price) * 100);
-      }
       state.products.unshift(created);
       state.stock.unshift({
         id: `${created.id}-stock`,
@@ -206,6 +297,8 @@ export async function installLifecycleMocks(page: Page, seed?: LifecycleSeed) {
         stock: body.quantity != null || body.stock != null ? Number(body.quantity ?? body.stock) : cur.stock,
         category: body.category != null ? String(body.category) : cur.category,
       };
+      if (next.price_cents < 1) return json(route, { detail: "invalid_price" }, 400);
+      if (next.stock < 0) return json(route, { detail: "invalid_stock" }, 400);
       state.products[idx] = next;
       const stock = state.stock.find((s) => s.product_id === productId);
       if (stock) {
@@ -218,6 +311,8 @@ export async function installLifecycleMocks(page: Page, seed?: LifecycleSeed) {
     }
 
     if (method === "DELETE") {
+      const existed = state.products.some((p) => p.id === productId);
+      if (!existed) return json(route, { detail: "already_deleted" }, 404);
       state.products = state.products.filter((p) => p.id !== productId);
       state.stock = state.stock.filter((s) => s.product_id !== productId);
       persistSharedState();
@@ -251,6 +346,10 @@ export async function installLifecycleMocks(page: Page, seed?: LifecycleSeed) {
     }
     if (url.pathname.includes("/adjust") && req.method() === "POST") {
       const body = req.postDataJSON() as Record<string, unknown>;
+      const qty = Number(body.quantity);
+      if (Number.isFinite(qty) && qty < 0) {
+        return json(route, { detail: "invalid_stock" }, 400);
+      }
       const productId = String(body.product_id ?? "");
       const stock = state.stock.find((s) => s.product_id === productId || s.id === String(body.id ?? ""));
       if (stock) {
@@ -291,34 +390,40 @@ export async function installLifecycleMocks(page: Page, seed?: LifecycleSeed) {
 
     const idMatch = url.pathname.match(/\/orders\/([^/]+)/);
     const orderId = idMatch?.[1] ? decodeURIComponent(idMatch[1]) : null;
-    const order = state.orders.find((o) => o.id === orderId) ?? state.orders[0];
+    const order = orderId ? state.orders.find((o) => o.id === orderId) : undefined;
+
+    if (orderId && !order && !url.pathname.includes("/fulfillment")) {
+      if (method === "GET" || method === "PATCH") {
+        return json(route, { detail: "order_not_found" }, 404);
+      }
+    }
 
     if (url.pathname.includes("/fulfillment/commands") && method === "POST") {
+      if (!order) return json(route, { detail: "order_not_found" }, 404);
       const body = req.postDataJSON() as { command?: string };
-      if (order) {
-        const cmd = body.command || "";
-        if (cmd.includes("picking")) {
-          order.status = "processing";
-          order.fulfillment_status = "Picking";
-        } else if (cmd === "confirm_ship") {
-          order.status = "shipped";
-          order.fulfillment_status = "Shipped";
-        } else if (cmd === "complete" || cmd === "confirm_delivery") {
-          order.status = "delivered";
-          order.fulfillment_status = "Delivered";
-        } else {
-          order.status = "processing";
-          order.fulfillment_status = "Picking";
-        }
-        persistSharedState();
+      const cmd = body.command || "";
+      if (cmd.includes("picking")) {
+        order.status = "processing";
+        order.fulfillment_status = "Picking";
+      } else if (cmd === "confirm_ship") {
+        order.status = "shipped";
+        order.fulfillment_status = "Shipped";
+      } else if (cmd === "complete" || cmd === "confirm_delivery") {
+        order.status = "delivered";
+        order.fulfillment_status = "Delivered";
+      } else {
+        order.status = "processing";
+        order.fulfillment_status = "Picking";
       }
+      persistSharedState();
       return json(route, { ok: true, order });
     }
 
     if (url.pathname.includes("/fulfillment") && method === "GET") {
+      if (!order) return json(route, { detail: "order_not_found" }, 404);
       return json(route, {
         fulfillment: {
-          fulfillment_status: order?.fulfillment_status || "Pending",
+          fulfillment_status: order.fulfillment_status || "Pending",
           shipment_tracking_code: null,
           carrier: null,
           label_url: null,
@@ -363,16 +468,24 @@ export async function installLifecycleMocks(page: Page, seed?: LifecycleSeed) {
     }
     if (method === "POST") {
       const body = req.postDataJSON() as Record<string, unknown>;
+      const code = String(body.code ?? "E2EPROMO").toUpperCase();
+      if (couponsList.some((c) => String(c.code).toUpperCase() === code)) {
+        return json(route, { detail: "coupon_duplicate" }, 409);
+      }
+      const expiresAt = body.expires_at ? String(body.expires_at) : null;
+      if (expiresAt && new Date(expiresAt).getTime() < Date.now() - 60_000) {
+        return json(route, { detail: "coupon_expired" }, 400);
+      }
       const created = {
         id: `${state.runId}-promo-${couponsList.length + 1}`,
-        code: String(body.code ?? "E2EPROMO").toUpperCase(),
+        code,
         discountType: String(body.type ?? "percentage") === "fixed" ? "fixed" : "percentage",
         valueCents: Number(body.value_cents ?? body.value ?? 10),
         minOrderCents: Number(body.min_order_cents ?? 0),
         maxUses: body.max_uses == null ? null : Number(body.max_uses),
         currentUses: 0,
         isActive: body.is_active !== false,
-        expiresAt: body.expires_at ? String(body.expires_at) : null,
+        expiresAt,
         createdAt: new Date().toISOString(),
       };
       couponsList.unshift(created);

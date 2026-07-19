@@ -6,6 +6,7 @@ import {
   installLifecycleMocks,
   resetLifecycleSharedState,
 } from "../helpers/lifecycle-mocks";
+import { uniqueLabel } from "../helpers/unique";
 import { waitForSellerPanelReady } from "../helpers/wait-panel";
 
 const AUTH = path.join(__dirname, "../.auth/seller.json");
@@ -50,7 +51,7 @@ test.describe("Seller lifecycle E2E", () => {
     await waitForSellerPanelReady(page);
     await page.getByTestId("btn-add-product").click();
     await expect(page.getByTestId("product-form")).toBeVisible();
-    const name = `Lifecycle Card ${Date.now().toString(36).slice(-4)}`;
+    const name = uniqueLabel("Lifecycle Card");
     await page.getByTestId("product-name-input").fill(name);
     await page.getByTestId("product-category-select").selectOption("sleeve");
     await page.getByTestId("product-price-input").fill("29.90");

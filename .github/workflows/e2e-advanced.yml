@@ -1,0 +1,88 @@
+name: E2E Advanced Pipeline
+
+# Pipeline ideal (front):
+# Lint → Type Check → Unit → Seed → Lifecycle → Advanced → Visual → Cleanup
+# (Deploy homolog / smoke / prod ficam nos workflows existentes)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "frontend/runtime_console_v3/**"
+      - ".github/workflows/e2e-advanced.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "frontend/runtime_console_v3/**"
+      - ".github/workflows/e2e-advanced.yml"
+  workflow_dispatch:
+    inputs:
+      visual:
+        description: "Rodar regressão visual"
+        type: boolean
+        default: false
+
+defaults:
+  run:
+    working-directory: frontend/runtime_console_v3
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      NODE_OPTIONS: --max-old-space-size=8192
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - run: npm ci
+        working-directory: .
+      - name: Lint
+        run: npm run lint
+      - name: Type-check
+        run: npm run type-check
+      - name: Unit tests
+        run: npm run test
+
+  e2e-advanced:
+    needs: quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      NODE_OPTIONS: --max-old-space-size=8192
+      CI: true
+      BASE_URL: http://localhost:3000
+      API_PROXY_TARGET: https://seekguidance.onrender.com
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      E2E_VISUAL: ${{ inputs.visual && '1' || '0' }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - run: npm ci
+        working-directory: .
+      - run: npx playwright install --with-deps chromium
+      - name: Build
+        run: npm run build
+        env:
+          NEXT_PUBLIC_FEATURE_GLOBAL_SEARCH: "true"
+          NEXT_PUBLIC_FEATURE_HEADER_NOTIFICATIONS: "true"
+      - name: Seed → Advanced E2E → Cleanup
+        run: npm run test:e2e:advanced
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: e2e-advanced-report
+          path: |
+            frontend/runtime_console_v3/playwright-report/
+            frontend/runtime_console_v3/test-results/
+            frontend/runtime_console_v3/e2e/specs/**/*-snapshots/

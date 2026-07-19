@@ -30,13 +30,22 @@ export default defineConfig({
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
       dependencies: ["setup"],
-      testIgnore: /.*\.setup\.ts/,
+      testIgnore: [/.*\.setup\.ts/, /visual-regression\.spec\.ts/],
+    },
+    {
+      name: "visual",
+      use: {
+        ...devices["Desktop Chrome"],
+        viewport: { width: 1280, height: 720 },
+      },
+      dependencies: ["setup"],
+      testMatch: /visual-regression\.spec\.ts/,
     },
     {
       name: "Mobile Chrome",
       use: { ...devices["Pixel 5"] },
       dependencies: ["setup"],
-      testIgnore: /.*\.setup\.ts/,
+      testIgnore: [/.*\.setup\.ts/, /visual-regression\.spec\.ts/],
     },
   ],
   webServer: process.env.CI
