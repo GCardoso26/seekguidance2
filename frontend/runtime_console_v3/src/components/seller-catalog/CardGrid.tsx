@@ -13,7 +13,7 @@ export function CardGrid({ cards, onAddListing }: Props) {
     return <p className="text-sm text-muted-foreground">Nenhuma carta encontrada. Tente outro termo ou jogo.</p>;
   }
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" data-testid="products-table">
       {cards.map((card) => (
         <CardGridItem key={card.id} card={card} onAdd={() => onAddListing(card)} />
       ))}

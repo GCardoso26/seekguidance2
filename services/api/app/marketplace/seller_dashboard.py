@@ -36,7 +36,15 @@ async def resolve_owner_store(session: AsyncSession, owner_id: str) -> dict[str,
                 SELECT id, slug, name, owner_id
                 FROM tcg_judge.stores
                 WHERE owner_id = :oid
-                ORDER BY created_at ASC
+                ORDER BY
+                  CASE WHEN shop_enabled THEN 0 ELSE 1 END,
+                  CASE lower(COALESCE(subscription_plan, 'free'))
+                    WHEN 'enterprise' THEN 0
+                    WHEN 'pro' THEN 1
+                    WHEN 'lojista' THEN 2
+                    ELSE 3
+                  END,
+                  created_at ASC
                 LIMIT 1
                 """
             ),

@@ -51,6 +51,7 @@ export function CardGridItem({ card, onAdd }: Props) {
       <button
         type="button"
         onClick={onAdd}
+        data-testid="btn-add-product"
         className="mt-3 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground"
       >
         {listed ? "Atualizar anúncio" : "+ Anúncio"}

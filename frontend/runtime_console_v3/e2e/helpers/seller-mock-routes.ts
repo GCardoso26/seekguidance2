@@ -4,9 +4,29 @@ import {
   sellerHeaderNotificationsMock,
 } from "../../src/lib/seller-global-search-mock";
 import { dashboardOverviewMock } from "../../src/lib/seller-dashboard-overview-mock";
+import {
+  marceloPersonaDashboardOverviewMock,
+  marceloPersonaStoreMineMock,
+} from "../../src/lib/seller-persona-marcelo-mock";
+
+type MockMode = "default" | "persona-marcelo";
 
 /** Intercepta BFFs do painel lojista com dados mock (CI sem loja / API vazia). */
-export async function mockSellerSprintApis(page: Page) {
+export async function mockSellerSprintApis(page: Page, mode: MockMode = "default") {
+  const overview =
+    mode === "persona-marcelo" ? marceloPersonaDashboardOverviewMock() : dashboardOverviewMock();
+  const stores =
+    mode === "persona-marcelo"
+      ? marceloPersonaStoreMineMock()
+      : [
+          {
+            id: "e2e-store-1",
+            slug: "e2e-test-store",
+            name: "E2E Test Store",
+            owner_id: "e2e-seller",
+          },
+        ];
+
   await page.route("**/api/seller/notifications/header**", async (route) => {
     await route.fulfill({
       status: 200,
@@ -29,7 +49,7 @@ export async function mockSellerSprintApis(page: Page) {
     await route.fulfill({
       status: 200,
       contentType: "application/json",
-      body: JSON.stringify(dashboardOverviewMock()),
+      body: JSON.stringify(overview),
     });
   });
 
@@ -37,14 +57,12 @@ export async function mockSellerSprintApis(page: Page) {
     await route.fulfill({
       status: 200,
       contentType: "application/json",
-      body: JSON.stringify([
-        {
-          id: "e2e-store-1",
-          slug: "e2e-test-store",
-          name: "E2E Test Store",
-          owner_id: "e2e-seller",
-        },
-      ]),
+      body: JSON.stringify(stores),
     });
   });
+}
+
+/** Atalho E2E para a persona Premium Marcelo TCG. */
+export async function mockMarceloPersonaApis(page: Page) {
+  await mockSellerSprintApis(page, "persona-marcelo");
 }

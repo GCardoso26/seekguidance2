@@ -108,6 +108,7 @@ export function InventorySearchPanel({
               if (e.key === "Enter") onSearch();
             }}
             placeholder="Nome, set ou SKU…"
+            data-testid="search-card"
           />
         </div>
         <div>

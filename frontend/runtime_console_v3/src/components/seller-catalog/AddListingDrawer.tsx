@@ -201,6 +201,7 @@ export function AddListingDrawer({ card, open, onOpenChange, onSaved }: Props) {
                 <button
                   type="submit"
                   disabled={isSubmitting}
+                  data-testid="save-product"
                   className="flex-1 rounded-lg bg-primary py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
                 >
                   Salvar

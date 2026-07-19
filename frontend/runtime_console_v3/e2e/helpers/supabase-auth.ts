@@ -24,7 +24,14 @@ async function ensureUser(email: string, password: string, metadata: Record<stri
 
   const { data: list } = await admin.auth.admin.listUsers({ perPage: 200 });
   const existing = list?.users?.find((u) => u.email === email);
-  if (existing) return existing;
+  if (existing) {
+    await admin.auth.admin.updateUserById(existing.id, {
+      password,
+      email_confirm: true,
+      user_metadata: { ...existing.user_metadata, ...metadata },
+    });
+    return existing;
+  }
 
   const { data, error } = await admin.auth.admin.createUser({
     email,
@@ -102,6 +109,20 @@ export async function setupTestUsers(baseURL: string) {
     name: "Test Buyer B",
     full_name: "Test Buyer B",
   });
+
+  // Persona Premium Marcelo TCG (admin@admin.com)
+  try {
+    const { PERSONA_EMAIL, PERSONA_PASSWORD, PERSONA_DISPLAY_NAME } = await import(
+      "../../src/lib/e2e-persona-marcelo"
+    );
+    await ensureUser(PERSONA_EMAIL, PERSONA_PASSWORD, {
+      name: PERSONA_DISPLAY_NAME,
+      full_name: PERSONA_DISPLAY_NAME,
+    });
+    await signInAndSaveState(PERSONA_EMAIL, PERSONA_PASSWORD, "seller-persona.json", baseURL);
+  } catch (err) {
+    console.warn("[e2e] Persona Marcelo auth state skipped:", err);
+  }
 
   await signInAndSaveState("test-buyer@judgetcg.com", "TestBuyer123!", "buyer.json", baseURL);
   await signInAndSaveState("test-buyer-b@judgetcg.com", "TestBuyerB123!", "buyer-b.json", baseURL);
