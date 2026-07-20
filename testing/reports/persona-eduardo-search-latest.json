@@ -1,0 +1,105 @@
+{
+  "generatedAt": "2026-07-20T13:44:40.991Z",
+  "personaId": "eduardo-search",
+  "displayName": "Eduardo Lima",
+  "role": "Search Specialist",
+  "status": "pass",
+  "searchScore": 85,
+  "unitTests": {
+    "feGameConfig": true,
+    "apiProjection": true
+  },
+  "queries": [
+    {
+      "query": "Rapunzel",
+      "ok": true,
+      "status": 200,
+      "latencyMs": 226
+    },
+    {
+      "query": "Rap",
+      "ok": true,
+      "status": 200,
+      "latencyMs": 193
+    },
+    {
+      "query": "RaPun",
+      "ok": true,
+      "status": 200,
+      "latencyMs": 177
+    },
+    {
+      "query": "Rapunzel Gifted",
+      "ok": true,
+      "status": 200,
+      "latencyMs": 180
+    },
+    {
+      "query": "gifted",
+      "ok": true,
+      "status": 200,
+      "latencyMs": 273
+    },
+    {
+      "query": "Merlin",
+      "ok": true,
+      "status": 200,
+      "latencyMs": 186
+    },
+    {
+      "query": "dragon",
+      "ok": true,
+      "status": 200,
+      "latencyMs": 188
+    },
+    {
+      "query": "charizard",
+      "ok": true,
+      "status": 200,
+      "latencyMs": 182
+    },
+    {
+      "query": "pikachu",
+      "ok": true,
+      "status": 200,
+      "latencyMs": 174
+    },
+    {
+      "query": "black lotus",
+      "ok": true,
+      "status": 200,
+      "latencyMs": 181
+    },
+    {
+      "query": "sol ring",
+      "ok": true,
+      "status": 200,
+      "latencyMs": 174
+    },
+    {
+      "query": "be prepared",
+      "ok": true,
+      "status": 200,
+      "latencyMs": 197
+    },
+    {
+      "query": "diablo",
+      "ok": true,
+      "status": 200,
+      "latencyMs": 186
+    }
+  ],
+  "facets": {
+    "note": "validar facets no browser — campanha média"
+  },
+  "synonyms": {
+    "note": "cobertura parcial via gameConfig.r2"
+  },
+  "automated": true,
+  "bugs": {
+    "p0": [],
+    "p1": [],
+    "p2": [],
+    "p3": []
+  }
+}

@@ -1,0 +1,204 @@
+{
+  "schemaVersion": 1,
+  "campaignNumber": 1,
+  "id": "campaign-001",
+  "generatedAt": "2026-07-20T13:31:14.359Z",
+  "durationMinutes": 1,
+  "environment": "LOCAL",
+  "stack": "FAIL",
+  "counts": {
+    "p0": 1,
+    "p1": 2,
+    "p2": 0,
+    "regressions": 0,
+    "seenAgain": 0,
+    "newBugs": 3
+  },
+  "confidence": {
+    "infrastructure": {
+      "status": "WARN",
+      "confidence": 55,
+      "level": "weak"
+    },
+    "personas": {
+      "marina-seller": {
+        "status": "FAIL",
+        "confidence": 8,
+        "level": "none"
+      },
+      "carlos-buyer": {
+        "status": "FAIL",
+        "confidence": 8,
+        "level": "none"
+      },
+      "fernanda-marketplace": {
+        "status": "WARN",
+        "confidence": 45,
+        "level": "weak"
+      },
+      "juliana-ux": {
+        "status": "WARN",
+        "confidence": 62,
+        "level": "partial"
+      },
+      "eduardo-search": {
+        "status": "WARN",
+        "confidence": 72,
+        "level": "strong"
+      },
+      "daniela-catalog": {
+        "status": "PASS",
+        "confidence": 65,
+        "level": "partial"
+      },
+      "renato-performance": {
+        "status": "WARN",
+        "confidence": 72,
+        "level": "strong"
+      }
+    }
+  },
+  "featureCoverage": {
+    "name": "FCS",
+    "note": "Feature Coverage — engenharia, não North Star",
+    "averagePercent": 48,
+    "features": [
+      {
+        "name": "Login",
+        "percent": 15,
+        "exercised": false
+      },
+      {
+        "name": "Inventory",
+        "percent": 100,
+        "exercised": true
+      },
+      {
+        "name": "Listing",
+        "percent": 10,
+        "exercised": false
+      },
+      {
+        "name": "Search",
+        "percent": 92,
+        "exercised": true
+      },
+      {
+        "name": "Checkout",
+        "percent": 15,
+        "exercised": false
+      },
+      {
+        "name": "Reports",
+        "percent": 40,
+        "exercised": false
+      },
+      {
+        "name": "Sealed Products",
+        "percent": 15,
+        "exercised": false
+      },
+      {
+        "name": "Favorites",
+        "percent": 100,
+        "exercised": true
+      }
+    ]
+  },
+  "releaseReadiness": {
+    "generatedAt": "2026-07-20T13:31:14.367Z",
+    "dimensions": {
+      "Infrastructure": {
+        "status": "WARN",
+        "confidence": 55,
+        "level": "weak"
+      },
+      "Catalog": {
+        "status": "PASS",
+        "confidence": 65
+      },
+      "Providers": {
+        "status": "PASS",
+        "confidence": 65
+      },
+      "Search": {
+        "status": "WARN",
+        "confidence": 72
+      },
+      "Seller": {
+        "status": "FAIL",
+        "confidence": 8
+      },
+      "Buyer": {
+        "status": "FAIL",
+        "confidence": 8
+      },
+      "Checkout": {
+        "status": "FAIL",
+        "confidence": 15
+      },
+      "Performance": {
+        "status": "WARN",
+        "confidence": 72
+      },
+      "UX": {
+        "status": "WARN",
+        "confidence": 62
+      }
+    },
+    "overall": "NOT READY",
+    "engineeringNote": "Responde se a plataforma está tecnicamente pronta para a próxima etapa de validação — não é Go/No-Go de mercado."
+  },
+  "personas": [
+    {
+      "personaId": "marina-seller",
+      "displayName": "Marina Costa",
+      "role": "Seller QA",
+      "status": "blocked",
+      "automated": false
+    },
+    {
+      "personaId": "carlos-buyer",
+      "displayName": "Carlos Henrique",
+      "role": "Buyer QA",
+      "status": "blocked",
+      "automated": false
+    },
+    {
+      "personaId": "fernanda-marketplace",
+      "displayName": "Fernanda Rocha",
+      "role": "Marketplace QA",
+      "status": "pending_manual",
+      "automated": false
+    },
+    {
+      "personaId": "juliana-ux",
+      "displayName": "Juliana Almeida",
+      "role": "UI/UX Auditor",
+      "status": "partial",
+      "automated": true
+    },
+    {
+      "personaId": "eduardo-search",
+      "displayName": "Eduardo Lima",
+      "role": "Search Specialist",
+      "status": "warn",
+      "automated": true
+    },
+    {
+      "personaId": "daniela-catalog",
+      "displayName": "Daniela Costa",
+      "role": "Catalog Specialist",
+      "status": "pass",
+      "automated": true
+    },
+    {
+      "personaId": "renato-performance",
+      "displayName": "Renato Oliveira",
+      "role": "Performance Auditor",
+      "status": "warn",
+      "automated": true
+    }
+  ],
+  "source": "QA Orchestrator R4"
+}

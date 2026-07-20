@@ -1,0 +1,17 @@
+{
+  "generatedAt": "2026-07-20T13:44:32.186Z",
+  "personaId": "fernanda-marketplace",
+  "displayName": "Fernanda Rocha",
+  "role": "Marketplace QA",
+  "status": "pending_manual",
+  "reason": "Liquidez, ofertas, confiança — notas qualitativas para MRB (Market Learning R5)",
+  "automated": false,
+  "bugs": {
+    "p0": [],
+    "p1": [],
+    "p2": [],
+    "p3": []
+  },
+  "marketplaceNotes": [],
+  "checklistDoc": "docs/testing/personas/fernanda-rocha-marketplace-qa.md"
+}

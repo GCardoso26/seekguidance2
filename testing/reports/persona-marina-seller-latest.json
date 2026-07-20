@@ -1,0 +1,22 @@
+{
+  "generatedAt": "2026-07-20T13:44:32.032Z",
+  "personaId": "marina-seller",
+  "displayName": "Marina Costa",
+  "role": "Seller QA",
+  "status": "pending_manual",
+  "reason": "Gates OK — executar campanha curta/média (Playwright ou supervisionado)",
+  "automated": false,
+  "bugs": {
+    "p0": [],
+    "p1": [],
+    "p2": [],
+    "p3": []
+  },
+  "sellerReadiness": "unknown",
+  "campaign": {
+    "short": "20-30min",
+    "medium": "60-90min",
+    "long": "2-3h supervisionada"
+  },
+  "checklistDoc": "docs/testing/personas/marina-costa-seller-qa.md"
+}

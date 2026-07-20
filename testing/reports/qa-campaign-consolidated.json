@@ -1,0 +1,251 @@
+{
+  "generatedAt": "2026-07-20T13:45:17.965Z",
+  "source": "QA Orchestrator R4",
+  "campaignId": "campaign-004",
+  "environment": {
+    "score": 100,
+    "readyForFunctionalQA": true,
+    "blockingIssues": 0
+  },
+  "personas": [
+    {
+      "personaId": "marina-seller",
+      "displayName": "Marina Costa",
+      "role": "Seller QA",
+      "status": "pending_manual",
+      "automated": false
+    },
+    {
+      "personaId": "carlos-buyer",
+      "displayName": "Carlos Henrique",
+      "role": "Buyer QA",
+      "status": "pending_manual",
+      "automated": false
+    },
+    {
+      "personaId": "fernanda-marketplace",
+      "displayName": "Fernanda Rocha",
+      "role": "Marketplace QA",
+      "status": "pending_manual",
+      "automated": false
+    },
+    {
+      "personaId": "juliana-ux",
+      "displayName": "Juliana Almeida",
+      "role": "UI/UX Auditor",
+      "status": "partial",
+      "automated": true
+    },
+    {
+      "personaId": "eduardo-search",
+      "displayName": "Eduardo Lima",
+      "role": "Search Specialist",
+      "status": "pass",
+      "automated": true
+    },
+    {
+      "personaId": "daniela-catalog",
+      "displayName": "Daniela Costa",
+      "role": "Catalog Specialist",
+      "status": "pass",
+      "automated": true
+    },
+    {
+      "personaId": "renato-performance",
+      "displayName": "Renato Oliveira",
+      "role": "Performance Auditor",
+      "status": "pass",
+      "automated": true
+    }
+  ],
+  "confidence": {
+    "infrastructure": {
+      "status": "PASS",
+      "confidence": 95,
+      "level": "full"
+    },
+    "personas": {
+      "marina-seller": {
+        "status": "WARN",
+        "confidence": 45,
+        "level": "weak"
+      },
+      "carlos-buyer": {
+        "status": "WARN",
+        "confidence": 45,
+        "level": "weak"
+      },
+      "fernanda-marketplace": {
+        "status": "WARN",
+        "confidence": 45,
+        "level": "weak"
+      },
+      "juliana-ux": {
+        "status": "WARN",
+        "confidence": 62,
+        "level": "partial"
+      },
+      "eduardo-search": {
+        "status": "PASS",
+        "confidence": 98,
+        "level": "full"
+      },
+      "daniela-catalog": {
+        "status": "PASS",
+        "confidence": 65,
+        "level": "partial"
+      },
+      "renato-performance": {
+        "status": "PASS",
+        "confidence": 98,
+        "level": "full"
+      }
+    }
+  },
+  "featureCoverage": {
+    "name": "FCS",
+    "note": "Feature Coverage — engenharia, não North Star",
+    "averagePercent": 82,
+    "features": [
+      {
+        "name": "Login",
+        "percent": 100,
+        "exercised": true
+      },
+      {
+        "name": "Inventory",
+        "percent": 100,
+        "exercised": true
+      },
+      {
+        "name": "Listing",
+        "percent": 100,
+        "exercised": true
+      },
+      {
+        "name": "Search",
+        "percent": 100,
+        "exercised": true
+      },
+      {
+        "name": "Checkout",
+        "percent": 100,
+        "exercised": true
+      },
+      {
+        "name": "Reports",
+        "percent": 40,
+        "exercised": false
+      },
+      {
+        "name": "Sealed Products",
+        "percent": 15,
+        "exercised": false
+      },
+      {
+        "name": "Favorites",
+        "percent": 100,
+        "exercised": true
+      }
+    ]
+  },
+  "releaseReadiness": {
+    "generatedAt": "2026-07-20T13:45:17.973Z",
+    "dimensions": {
+      "Infrastructure": {
+        "status": "PASS",
+        "confidence": 95,
+        "level": "full"
+      },
+      "Catalog": {
+        "status": "PASS",
+        "confidence": 65
+      },
+      "Providers": {
+        "status": "PASS",
+        "confidence": 65
+      },
+      "Search": {
+        "status": "PASS",
+        "confidence": 98
+      },
+      "Seller": {
+        "status": "WARN",
+        "confidence": 45
+      },
+      "Buyer": {
+        "status": "WARN",
+        "confidence": 45
+      },
+      "Checkout": {
+        "status": "PASS",
+        "confidence": 100
+      },
+      "Performance": {
+        "status": "PASS",
+        "confidence": 98
+      },
+      "UX": {
+        "status": "WARN",
+        "confidence": 62
+      }
+    },
+    "overall": "NOT READY",
+    "engineeringNote": "Responde se a plataforma está tecnicamente pronta para a próxima etapa de validação — não é Go/No-Go de mercado."
+  },
+  "operationalMemory": {
+    "counts": {
+      "p0": 0,
+      "p1": 0,
+      "p2": 1,
+      "p3": 0,
+      "seenAgain": 0,
+      "new": 1
+    },
+    "seenAgain": [],
+    "bugKnowledge": {
+      "newBugs": 1,
+      "seenAgain": 0,
+      "openP0": 1
+    },
+    "archive": {
+      "id": "campaign-004",
+      "campaignNumber": 4,
+      "file": "history\\campaign-004.json"
+    }
+  },
+  "cursorHandoff": {
+    "bugsP0": [],
+    "bugsP1": [],
+    "bugsP2": [
+      {
+        "priority": "P2",
+        "text": "cart P95>4963ms",
+        "personaId": "renato-performance",
+        "persona": "Renato Oliveira",
+        "files": [],
+        "bugId": "BUG-0004",
+        "deduplicated": false
+      }
+    ],
+    "seenAgain": [],
+    "regressions": [],
+    "affectedFiles": [],
+    "correctionPrompt": "Corrigir apenas itens com evidência nos relatórios persona-* e environment-audit-latest.json. Não alterar North Star, não seeds em Beta, respeitar ADR-001–014.",
+    "mandatoryTests": [
+      "npm run test:audit",
+      "npm run test:campaign:gates",
+      "npm run test:qa:orchestrator",
+      "npm run test --prefix services/api -- src/catalog/providers/__tests__/gameConfigRegistry.test.ts",
+      "npm run test --prefix services/api -- src/search/__tests__/searchProjection.test.ts",
+      "npm run test --prefix services/api -- src/ops/__tests__/performanceBudget.test.ts"
+    ],
+    "acceptanceCriteria": [
+      "Ready for Functional QA: YES (Ricardo)",
+      "Smoke PASS",
+      "Nenhum P0 **novo** aberto da campanha (KB deduplicada)",
+      "Relatórios persona-*-latest.json presentes",
+      "MRB revisou consolidação antes de handoff ao Cursor"
+    ]
+  }
+}

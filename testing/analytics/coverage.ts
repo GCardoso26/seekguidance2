@@ -6,7 +6,7 @@
  */
 
 export type CoverageScore = {
-  name: "TCS" | "PCS";
+  name: "TCS" | "PCS" | "FCS";
   numerator: number;
   denominator: number;
   score: number;

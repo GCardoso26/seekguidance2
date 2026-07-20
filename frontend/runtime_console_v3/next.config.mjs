@@ -43,7 +43,7 @@ const marketplaceRedirects = [
   { source: "/loja/:game/busca", destination: "/:game/cards", permanent: false },
   { source: "/cards/:id", destination: "/loja/cartas/:id", permanent: true },
   { source: "/marketplace/checkout", destination: "/checkout", permanent: true },
-  { source: "/marketplace/cart", destination: "/carrinho", permanent: true },
+  // /marketplace/cart → rewrite (não redirect) em rewrites() — evita hop extra + P95 inflado
   { source: "/player/me", destination: "/perfil", permanent: true },
   { source: "/leaderboard", destination: "/comunidade/leaderboard", permanent: true },
   { source: "/alerts", destination: "/perfil/alertas", permanent: true },
@@ -172,6 +172,7 @@ const nextConfig = {
     return [
       // Browsers still request /favicon.ico — map to App Router icon route.
       { source: "/favicon.ico", destination: "/icon" },
+      { source: "/marketplace/cart", destination: "/carrinho" },
       { source: "/api/proxy/:path*", destination: `${target}/:path*` },
     ];
   },

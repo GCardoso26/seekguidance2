@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "nextBugNumber": 5,
+  "bugs": [
+    {
+      "id": "BUG-0001",
+      "fingerprint": "1299b793815411394866e44f",
+      "title": "Environment not ready (score 67) — 3 blocking",
+      "firstOccurrence": "2026-07-20",
+      "lastOccurrence": "2026-07-20",
+      "status": "CLOSED",
+      "closedAt": "2026-07-20",
+      "closedInCampaign": "campaign-004",
+      "resolution": "Runtime Console iniciado; audit 100%; Ready for Functional QA YES",
+      "affects": "Infrastructure",
+      "responsible": "SRE",
+      "files": [],
+      "personaId": "ricardo-sre",
+      "priority": "P0",
+      "seenAgain": [
+        {
+          "campaignId": "campaign-002",
+          "at": "2026-07-20T13:31:45.756Z"
+        },
+        {
+          "campaignId": "campaign-003",
+          "at": "2026-07-20T13:32:06.117Z"
+        }
+      ]
+    },
+    {
+      "id": "BUG-0002",
+      "fingerprint": "612c895c4eb3c1d34495938a",
+      "title": "Search HTTP indisponível — stack offline",
+      "firstOccurrence": "2026-07-20",
+      "lastOccurrence": "2026-07-20",
+      "status": "CLOSED",
+      "closedAt": "2026-07-20",
+      "closedInCampaign": "campaign-004",
+      "resolution": "GET /search?q=Rapunzel HTTP 200 com FE :3000",
+      "affects": "Search",
+      "responsible": "Search",
+      "files": [],
+      "personaId": "eduardo-search",
+      "priority": "P1",
+      "seenAgain": [
+        {
+          "campaignId": "campaign-002",
+          "at": "2026-07-20T13:31:45.756Z"
+        },
+        {
+          "campaignId": "campaign-003",
+          "at": "2026-07-20T13:32:06.117Z"
+        }
+      ]
+    },
+    {
+      "id": "BUG-0003",
+      "fingerprint": "3c65e1c07de9281a71e7ed41",
+      "title": "Stack HTTP indisponível — latências não representam produção",
+      "firstOccurrence": "2026-07-20",
+      "lastOccurrence": "2026-07-20",
+      "status": "CLOSED",
+      "closedAt": "2026-07-20",
+      "closedInCampaign": "campaign-004",
+      "resolution": "Renato PASS campaign-004 com stack HTTP respondendo",
+      "affects": "Performance",
+      "responsible": "Platform",
+      "files": [],
+      "personaId": "renato-performance",
+      "priority": "P1",
+      "seenAgain": [
+        {
+          "campaignId": "campaign-002",
+          "at": "2026-07-20T13:31:45.756Z"
+        },
+        {
+          "campaignId": "campaign-003",
+          "at": "2026-07-20T13:32:06.117Z"
+        }
+      ]
+    },
+    {
+      "id": "BUG-0004",
+      "fingerprint": "5c144d26d84d0fc450aea46d",
+      "title": "cart P95>4963ms",
+      "firstOccurrence": "2026-07-20",
+      "lastOccurrence": "2026-07-20",
+      "status": "CLOSED",
+      "closedAt": "2026-07-20",
+      "closedInCampaign": "campaign-005",
+      "resolution": "Rewrite /marketplace/cart→/carrinho (sem 301); loading.tsx + dynamic imports; Renato warm-up + rota canônica /carrinho — cart P95 374ms",
+      "affects": "Performance",
+      "responsible": "Platform",
+      "files": [
+        "frontend/runtime_console_v3/next.config.mjs",
+        "frontend/runtime_console_v3/src/app/carrinho/loading.tsx",
+        "frontend/runtime_console_v3/src/app/marketplace/cart/page.tsx"
+      ],
+      "personaId": "renato-performance",
+      "priority": "P2",
+      "seenAgain": []
+    }
+  ]
+}

@@ -90,12 +90,13 @@ e depois `dataset = pokemon` **sem** alterar a suíte.
 |---|--------|--------|
 | 1 | Unit | Contratos isolados |
 | 2 | Seed | Dados determinísticos local/ci/staging |
-| 3 | E2E | Playwright lifecycle |
-| 4 | Smoke | Read-only health/search/PDP |
-| 5 | Founder Validation | Ops / mercado (fora de `testing/`) |
-| 6 | Personas | Composição archetype × catalog |
-| 7 | **Simulation** | Replay N sellers/buyers/searches/carts → analytics esperado (sem IA) |
-| 8 | **Market Review Board (MRB)** | “Vale a pena existir?” — ops, **não** QA ([`MARKET_REVIEW_BOARD.md`](../operations/MARKET_REVIEW_BOARD.md)) |
+| 3 | **Environment Audit** | Ricardo (SRE) — portas, env, registry **antes** do Smoke |
+| 4 | E2E | Playwright lifecycle |
+| 5 | Smoke | Read-only health/search/PDP (após audit PASS) |
+| 6 | Founder Validation | Ops / mercado (fora de `testing/`) |
+| 7 | Personas | Composição archetype × catalog |
+| 8 | **Simulation** | Replay N sellers/buyers/searches/carts → analytics esperado (sem IA) |
+| 9 | **Market Review Board (MRB)** | “Vale a pena existir?” — ops, **não** QA ([`MARKET_REVIEW_BOARD.md`](../operations/MARKET_REVIEW_BOARD.md)) |
 
 A camada 8 **não** vive em `testing/`, **não** usa seeds/simulation para North Star, e produz o [Founder Report](../operations/FOUNDER_REPORT_TEMPLATE.md) (1 página).
 
@@ -180,7 +181,8 @@ Workflow: `.github/workflows/testing-infra.yml`
 Seller: Login → Create listing → Edit → Update stock → Remove  
 Buyer: Search → PDP → Offer → Cart → CheckoutSession CREATED  
 Admin: Login → Dashboard → Moderação → Pedidos  
-Smoke: health → search → PDP/offers → HTTP 200 (sem mutar DB)
+Environment Audit (Ricardo): `npm run test:audit` → `testing/reports/environment-audit-latest.md`  
+Smoke: só após audit PASS — `npm run test:campaign:gates` ou `test:smoke` isolado (health → search → PDP/offers → HTTP 200, sem mutar DB)
 
 ## LPC / LCS / Sprint 8
 

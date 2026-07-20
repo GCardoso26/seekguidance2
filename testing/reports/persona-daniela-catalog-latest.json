@@ -1,0 +1,53 @@
+{
+  "generatedAt": "2026-07-20T13:44:48.569Z",
+  "personaId": "daniela-catalog",
+  "displayName": "Daniela Costa",
+  "role": "Catalog Specialist",
+  "status": "pass",
+  "catalogScore": 100,
+  "providerSuites": [
+    {
+      "suite": "src/catalog/providers/__tests__/gameConfigRegistry.test.ts",
+      "pass": true
+    },
+    {
+      "suite": "src/catalog/providers/__tests__/providerLifecycle.test.ts",
+      "pass": true
+    },
+    {
+      "suite": "src/catalog/validation/__tests__/validation.test.ts",
+      "pass": true
+    },
+    {
+      "suite": "src/catalog/providers/lorcana/__tests__/LorcanaProvider.test.ts",
+      "pass": true
+    },
+    {
+      "suite": "src/catalog/providers/pokemon/__tests__/PokemonProvider.test.ts",
+      "pass": true
+    }
+  ],
+  "fieldsChecked": [
+    "imagem",
+    "coleção",
+    "idioma",
+    "acabamento",
+    "raridade",
+    "collector number",
+    "legality",
+    "variant",
+    "foil",
+    "reverse holo",
+    "enchanted",
+    "serialized",
+    "atributos por jogo"
+  ],
+  "note": "Validação profunda por provider exige campanha manual + staging",
+  "automated": true,
+  "bugs": {
+    "p0": [],
+    "p1": [],
+    "p2": [],
+    "p3": []
+  }
+}

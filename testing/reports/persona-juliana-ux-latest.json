@@ -1,0 +1,33 @@
+{
+  "generatedAt": "2026-07-20T13:44:34.563Z",
+  "personaId": "juliana-ux",
+  "displayName": "Juliana Almeida",
+  "role": "UI/UX Auditor",
+  "status": "partial",
+  "uxScore": 6.5,
+  "note": "Automação parcial — campanha visual exige browser supervisionado",
+  "sections": {
+    "visualBugs": [],
+    "loading": [
+      {
+        "screen": "N/A",
+        "note": "validar manualmente pós-gates"
+      }
+    ],
+    "accessibility": [
+      {
+        "item": "buyer-flows-structure",
+        "pass": true
+      }
+    ],
+    "perceivedPerformance": [],
+    "topImprovements": []
+  },
+  "automated": true,
+  "bugs": {
+    "p0": [],
+    "p1": [],
+    "p2": [],
+    "p3": []
+  }
+}

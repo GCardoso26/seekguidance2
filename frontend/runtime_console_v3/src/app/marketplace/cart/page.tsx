@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
@@ -9,11 +10,7 @@ import { MobileLayout } from "@/components/layout/MobileLayout";
 import { SkipToMain } from "@/components/a11y/SkipToMain";
 import { CheckoutProgressBar } from "@/components/checkout/CheckoutProgressBar";
 import { SmartCartLineItem } from "@/components/cart/SmartCartLineItem";
-import { CartShippingQuotePanel } from "@/components/cart/CartShippingQuotePanel";
-import { TrustFooterStrip } from "@/components/layout/TrustFooterStrip";
-import { SmartCartSummary } from "@/components/cart/SmartCartSummary";
 import { PageHeader } from "@/components/seller-dashboard/PageShell";
-import { CpfCheckoutModal } from "@/components/kyc/CpfCheckoutModal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -24,6 +21,23 @@ import type { SmartCartGoal } from "@/types/buyer-experience";
 import { formatShopPrice } from "@/lib/marketplace-shop";
 import { trackEvent } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
+
+const CartShippingQuotePanel = dynamic(
+  () => import("@/components/cart/CartShippingQuotePanel").then((m) => m.CartShippingQuotePanel),
+  { loading: () => <Skeleton className="h-20 w-full rounded-lg" /> },
+);
+const SmartCartSummary = dynamic(
+  () => import("@/components/cart/SmartCartSummary").then((m) => m.SmartCartSummary),
+  { loading: () => <Skeleton className="mb-6 h-16 w-full rounded-xl" /> },
+);
+const CpfCheckoutModal = dynamic(
+  () => import("@/components/kyc/CpfCheckoutModal").then((m) => m.CpfCheckoutModal),
+  { ssr: false },
+);
+const TrustFooterStrip = dynamic(
+  () => import("@/components/layout/TrustFooterStrip").then((m) => m.TrustFooterStrip),
+  { loading: () => null },
+);
 
 const GOALS: { id: SmartCartGoal; label: string }[] = [
   { id: "best_value", label: "Custo-benefício" },

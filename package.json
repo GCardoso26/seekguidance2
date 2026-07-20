@@ -28,6 +28,10 @@
     "cleanup:ci": "node testing/seed/cleanup-ci.mjs",
     "cleanup:demo": "node testing/seed/cleanup-demo.mjs",
     "test:smoke": "node testing/smoke/smoke-readonly.mjs",
+    "test:audit": "node testing/audit/environment-audit.mjs",
+    "test:campaign:gates": "node testing/audit/run-campaign-gates.mjs",
+    "test:qa:orchestrator": "node testing/orchestrator/qa-orchestrator.mjs",
+    "test:qa:trends": "node testing/orchestrator/generate-quality-trends.mjs",
     "test:infra:ci": "node testing/seed/run-ci-pipeline.mjs"
   },
   "devDependencies": {

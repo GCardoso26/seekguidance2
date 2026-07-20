@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "nextCampaignNumber": 5,
+  "campaigns": [
+    {
+      "id": "campaign-001",
+      "campaignNumber": 1,
+      "file": "campaign-001.json",
+      "generatedAt": "2026-07-20T13:31:14.359Z",
+      "p0": 1,
+      "p1": 2,
+      "p2": 0,
+      "regressions": 0,
+      "durationMinutes": 1,
+      "environment": "LOCAL",
+      "stack": "FAIL",
+      "overall": "NOT READY"
+    },
+    {
+      "id": "campaign-002",
+      "campaignNumber": 2,
+      "file": "campaign-002.json",
+      "generatedAt": "2026-07-20T13:31:45.756Z",
+      "p0": 0,
+      "p1": 0,
+      "p2": 0,
+      "regressions": 0,
+      "durationMinutes": 1,
+      "environment": "LOCAL",
+      "stack": "FAIL",
+      "overall": "NOT READY"
+    },
+    {
+      "id": "campaign-003",
+      "campaignNumber": 3,
+      "file": "campaign-003.json",
+      "generatedAt": "2026-07-20T13:32:06.117Z",
+      "p0": 0,
+      "p1": 0,
+      "p2": 0,
+      "regressions": 0,
+      "durationMinutes": 1,
+      "environment": "LOCAL",
+      "stack": "FAIL",
+      "overall": "NOT READY"
+    },
+    {
+      "id": "campaign-004",
+      "campaignNumber": 4,
+      "file": "campaign-004.json",
+      "generatedAt": "2026-07-20T13:45:17.965Z",
+      "p0": 0,
+      "p1": 0,
+      "p2": 1,
+      "regressions": 0,
+      "durationMinutes": 1,
+      "environment": "LOCAL",
+      "stack": "PASS",
+      "overall": "NOT READY"
+    }
+  ]
+}

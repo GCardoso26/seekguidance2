@@ -1,0 +1,17 @@
+{
+  "generatedAt": "2026-07-20T13:44:32.111Z",
+  "personaId": "carlos-buyer",
+  "displayName": "Carlos Henrique",
+  "role": "Buyer QA",
+  "status": "pending_manual",
+  "reason": "Executar jornada buyer (busca → PDP → carrinho → checkout simulado)",
+  "automated": false,
+  "bugs": {
+    "p0": [],
+    "p1": [],
+    "p2": [],
+    "p3": []
+  },
+  "buyerReadiness": "unknown",
+  "checklistDoc": "docs/testing/personas/carlos-henrique-buyer-qa.md"
+}
