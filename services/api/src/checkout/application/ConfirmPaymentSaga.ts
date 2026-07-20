@@ -19,6 +19,7 @@ export interface ConfirmPaymentSagaContext extends Record<string, unknown> {
   clientSecret?: string;
   reservationIds: string[];
   paymentStatus?: string;
+  paymentId?: string;
   confirmedReservationIds?: string[];
 }
 
@@ -96,7 +97,24 @@ export function buildConfirmPaymentSagaDefinition(deps: {
             });
             throw new Error(`payment_not_succeeded:${result.status}`);
           }
-          return { paymentStatus: result.status };
+
+          // Intent succeeded → persist Payment (confirmed fact), distinct from Intent
+          const intentRow = await deps.repo.findPaymentIntentByExternalId(
+            String(ctx.paymentIntentId),
+          );
+          const session = await deps.repo.findSession(ctx.sessionId);
+          const payment = await deps.repo.recordPayment({
+            sessionId: ctx.sessionId,
+            paymentIntentInternalId: intentRow?.id ?? null,
+            externalIntentId: String(ctx.paymentIntentId),
+            provider: result.provider,
+            amountCents: result.amountCents || session?.totalCents || intentRow?.amountCents || 0,
+            currency: result.currency || session?.currency || "BRL",
+            method: "unknown",
+            status: "captured",
+            providerPayload: { gatewayStatus: result.status },
+          });
+          return { paymentStatus: result.status, paymentId: payment.id };
         },
       },
       {

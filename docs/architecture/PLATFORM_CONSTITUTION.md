@@ -88,8 +88,10 @@ ADRs **implementam** a Constituição. A Constituição **não supersede** ADRs 
 | --- | --- | --- |
 | Foundation / Governance | **Frozen** | Evidência excepcional + RFC + ADR |
 | Marketplace (orquestrador) | **Frozen** (API pública só) | Evidência de mercado + ADR se estrutural |
-| **Checkout** | **Open — próximo épico** | [CHECKOUT_BC_EPIC.md](./CHECKOUT_BC_EPIC.md) |
-| Orders / Notifications / Analytics | **Planned** | Após Checkout (roadmap ADR-015) |
+| **Checkout** | ✅ **Done** | [CHECKOUT_BC_EPIC.md](./CHECKOUT_BC_EPIC.md) |
+| **Orders** (+ Projections) | **Open — próximo épico** | [ORDERS_BC_EPIC.md](./ORDERS_BC_EPIC.md) |
+| Notifications / Analytics | **Planned** | Após Orders; só eventos |
+| Identity / Fulfillment | **Later** | Fulfillment consome `OrderPaid` |
 | Catalog / Pricing / Inventory | **Frozen** (só Public API) | Provider Lifecycle / ADR |
 | Testing / Ops Framework | **Frozen** | ADR que supersede |
 

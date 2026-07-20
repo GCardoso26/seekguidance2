@@ -23,13 +23,14 @@ Adicionar mais camadas transversais agora tende a **aumentar complexidade** com 
 
 | Épico | Prioridade |
 |-------|------------|
-| Checkout BC | Muito alta |
-| Orders BC | Muito alta |
+| Checkout BC | ✅ Done |
+| Orders BC | Muito alta (atual) |
+| Projections (Orders) | Muito alta (junto com Orders) |
 | Notifications BC | Alta |
 | Analytics BC | Alta |
 | Search BC | Média |
-| Identity BC | Média |
-| Fulfillment BC | Média |
+| Identity BC | Depois |
+| Fulfillment BC | Depois (consome `OrderPaid`) |
 
 3. **Evolução estrutural** só via: RFC → discussão → ADR → implementação → testes → deploy.
 
@@ -46,7 +47,7 @@ Adicionar mais camadas transversais agora tende a **aumentar complexidade** com 
 ## Consequences
 
 - PRs de “mais infra por preferência” são rejeitados.
-- Checkout BC é o **próximo desenvolvimento autorizado** (especificação em [`CHECKOUT_BC_EPIC.md`](../CHECKOUT_BC_EPIC.md)).
+- Checkout BC está **Done**; **Orders BC** é o próximo desenvolvimento autorizado ([`ORDERS_BC_EPIC.md`](../ORDERS_BC_EPIC.md)).
 - Mudanças em Public API de um BC exigem atualização de `PUBLIC_API_BOUNDARIES.md` + testes de arquitetura.
 
 ## Declaration (formal)

@@ -36,6 +36,13 @@ export type DomainEventName =
   | "PaymentFailed"
   | "PaymentCancelled"
   | "OrderCreated"
+  | "OrderPaid"
+  | "OrderProcessing"
+  | "OrderShipped"
+  | "OrderDelivered"
+  | "OrderCancelled"
+  | "OrderRefundRequested"
+  | "OrderRefunded"
   | "OrderCompleted";
 
 /**

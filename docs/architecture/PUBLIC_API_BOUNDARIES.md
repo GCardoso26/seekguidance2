@@ -138,10 +138,11 @@ Tudo que não está listado é **interno** e não pode ser importado por outro B
 | Service | `CheckoutService` / `createCheckoutService` |
 | Aggregate | `CartAggregate` |
 | Coupon | `CouponEngine` / Rules (Fixed, Percentage, FreeShipping, …) |
-| Payment | `PaymentGateway` / `createPaymentGateway` (adapters) |
+| Payment | `PaymentIntent` (quero pagar) ≠ `Payment` (gateway confirmou); `PaymentGateway` |
+| Handoff | `CheckoutHandoffQuery` / `CheckoutHandoffDTO` (para Orders) |
 | Validation | `CheckoutValidationPipeline` |
-| Commands | `AddToCart`, `UpdateQuantity`, `MergeGuest/UserCart`, `StartCheckout` |
-| Events | `CheckoutStarted.v1`, `PaymentApproved.v1`, `InventoryConfirmed.v1`, `OrderCreated.v1`, `CheckoutCompleted.v1` |
+| Commands | `AddToCart`, `UpdateQuantity`, `MergeGuest/UserCart`, `StartCheckout`, `ConfirmPayment` |
+| Events | `CheckoutStarted.v1`, `PaymentApproved.v1`, `InventoryConfirmed.v1`, `OrderCreated.v1` (handoff), `CheckoutCompleted.v1` |
 | HTTP | `/api/v1/checkout-v2/*` incl. `POST .../confirm-payment` |
 | Barrel | `checkout/public.ts` |
 
@@ -161,3 +162,31 @@ SELECT * FROM pricing.…;
 ```
 
 - Importar `*/persistence/*` de outro BC
+
+---
+
+## Orders
+
+**Expose**
+
+| Tipo | Símbolo |
+|------|---------|
+| Service | `OrdersService` / `createOrdersService` |
+| Aggregate | `OrderAggregate` |
+| Projections | `SellerOrdersProjection`, `BuyerOrdersProjection`, `DashboardProjection`, `RecentOrdersProjection` |
+| Handoff consumer | `CreateOrderFromCheckoutProjection` |
+| Events | `OrderCreated/Paid/Processing/Shipped/Delivered/Cancelled/RefundRequested/Refunded.v1` |
+| Barrel | `orders/public.ts` |
+
+**May call**
+
+- `CheckoutHandoffQuery` (`checkout/public`) only
+- ProjectionWorker, Outbox, DomainEventFactory
+
+**Never**
+
+```sql
+SELECT * FROM checkout.sessions;
+```
+
+Listagens HTTP **somente** via projeções — nunca pelo Aggregate.

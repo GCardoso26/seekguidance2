@@ -426,6 +426,138 @@ export class CheckoutRepository {
     );
   }
 
+  async findPaymentIntentByExternalId(
+    externalId: string,
+  ): Promise<{ id: string; sessionId: string; amountCents: number; currency: string; provider: string } | null> {
+    const res = await this.db.query(
+      `
+      SELECT id, session_id, amount_cents, currency, provider
+      FROM checkout.payment_intents WHERE external_id = $1
+      `,
+      [externalId],
+    );
+    const row = res.rows[0];
+    if (!row) return null;
+    return {
+      id: String(row.id),
+      sessionId: String(row.session_id),
+      amountCents: Number(row.amount_cents),
+      currency: String(row.currency),
+      provider: String(row.provider),
+    };
+  }
+
+  /**
+   * Payment = gateway confirmed. Distinct from PaymentIntent.
+   */
+  async recordPayment(input: {
+    sessionId: string;
+    paymentIntentInternalId?: string | null;
+    externalIntentId: string;
+    provider: string;
+    amountCents: number;
+    currency: string;
+    method?: string;
+    status?: string;
+    providerPayload?: Record<string, unknown>;
+  }): Promise<{ id: string }> {
+    const id = getIdGenerator().generate();
+    await this.db.query(
+      `
+      INSERT INTO checkout.payments (
+        id, session_id, payment_intent_id, external_intent_id, provider,
+        amount_cents, currency, method, status, provider_payload
+      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10::jsonb)
+      ON CONFLICT (external_intent_id) DO UPDATE SET
+        status = EXCLUDED.status,
+        provider_payload = EXCLUDED.provider_payload
+      RETURNING id
+      `,
+      [
+        id,
+        input.sessionId,
+        input.paymentIntentInternalId ?? null,
+        input.externalIntentId,
+        input.provider,
+        input.amountCents,
+        input.currency,
+        input.method ?? "unknown",
+        input.status ?? "captured",
+        JSON.stringify(input.providerPayload ?? {}),
+      ],
+    );
+    const res = await this.db.query(
+      `SELECT id FROM checkout.payments WHERE external_intent_id = $1`,
+      [input.externalIntentId],
+    );
+    const paymentId = String(res.rows[0]!.id);
+    await this.db.query(
+      `UPDATE checkout.sessions SET payment_id = $2, updated_at = now() WHERE id = $1`,
+      [input.sessionId, paymentId],
+    );
+    return { id: paymentId };
+  }
+
+  async getHandoff(sessionId: string): Promise<{
+    sessionId: string;
+    buyerId: string;
+    status: string;
+    subtotalCents: number;
+    discountCents: number;
+    totalCents: number;
+    currency: string;
+    paymentIntentId: string | null;
+    paymentId: string | null;
+    reservationIds: string[];
+    items: Array<{
+      listingId: string;
+      productVariantId: string | null;
+      catalogVariantId: string | null;
+      sellerId: string | null;
+      quantity: number;
+      unitPriceCents: number;
+      currency: string;
+    }>;
+  } | null> {
+    const session = await this.findSession(sessionId);
+    if (!session) return null;
+    const cart = await this.findCart(session.cartId);
+    const items =
+      cart?.items.map((i) => ({
+        listingId: i.listingId,
+        productVariantId: i.productVariantId,
+        catalogVariantId: i.catalogVariantId,
+        sellerId: i.sellerId,
+        quantity: i.quantity,
+        unitPriceCents: i.priceSnapshotCents,
+        currency: i.currency,
+      })) ?? [];
+    return {
+      sessionId: session.id,
+      buyerId: session.buyerId,
+      status: session.status,
+      subtotalCents: session.subtotalCents,
+      discountCents: session.discountCents,
+      totalCents: session.totalCents,
+      currency: session.currency,
+      paymentIntentId: session.paymentIntentId,
+      paymentId: null, // filled below if column present
+      reservationIds: session.reservationIds,
+      items,
+    };
+  }
+
+  async getHandoffWithPayment(sessionId: string) {
+    const handoff = await this.getHandoff(sessionId);
+    if (!handoff) return null;
+    const res = await this.db.query(
+      `SELECT payment_id FROM checkout.sessions WHERE id = $1`,
+      [sessionId],
+    );
+    const paymentId = res.rows[0]?.payment_id ? String(res.rows[0].payment_id) : null;
+    return { ...handoff, paymentId };
+  }
+
   async incrementCouponUse(code: string): Promise<void> {
     await this.db.query(
       `

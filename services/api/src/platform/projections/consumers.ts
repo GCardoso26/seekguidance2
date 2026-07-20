@@ -1,6 +1,8 @@
 import type { Pool } from "pg";
 import type { PlatformDomainEvent } from "../events/DomainEvent.js";
 import type { ProjectionConsumer } from "./ProjectionWorker.js";
+import { createOrdersProjectionConsumers } from "../../orders/projections/OrdersProjections.js";
+import { CreateOrderFromCheckoutProjection } from "../../orders/projections/CreateOrderFromCheckoutProjection.js";
 
 /** Seller dashboard MV — listens to listing/inventory events only. */
 export class SellerDashboardProjection implements ProjectionConsumer {
@@ -93,4 +95,16 @@ export class AnalyticsProjection implements ProjectionConsumer {
   async project(event: PlatformDomainEvent): Promise<void> {
     this.seen.push(event);
   }
+}
+
+/** Default set including Orders projections + Checkout→Order handoff. */
+export function createDefaultBusinessProjections(pool: Pool): ProjectionConsumer[] {
+  return [
+    new SellerDashboardProjection(pool),
+    new LowestPriceProjection(pool),
+    new SearchProjection(),
+    new AnalyticsProjection(),
+    new CreateOrderFromCheckoutProjection(pool),
+    ...createOrdersProjectionConsumers(pool),
+  ];
 }

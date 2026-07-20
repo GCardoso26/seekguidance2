@@ -34,6 +34,12 @@ export {
 } from "./application/CheckoutValidationPipeline.js";
 export type { PaymentGateway, PaymentIntentResult } from "./application/payment/PaymentGateway.js";
 export { createPaymentGateway } from "./application/payment/createPaymentGateway.js";
+export type { PaymentRecord, PaymentIntentRecord } from "./domain/Payment.js";
+export {
+  CheckoutHandoffQuery,
+  createCheckoutHandoffQuery,
+  type CheckoutHandoffDTO,
+} from "./application/CheckoutHandoffQuery.js";
 export type {
   Cart,
   CartItem,

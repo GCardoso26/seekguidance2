@@ -44,6 +44,16 @@ const FORBIDDEN: Array<{ from: RegExp; importPattern: RegExp; reason: string }> 
     importPattern: /inventory[\\/]persistence/,
     reason: "Orders must not import Inventory persistence",
   },
+  {
+    from: /[\\/]orders[\\/]/,
+    importPattern: /from ["'].*\/(marketplace|inventory|pricing|checkout)\/persistence/,
+    reason: "Orders BC must not import other BC persistence",
+  },
+  {
+    from: /[\\/]orders[\\/]/,
+    importPattern: /from ["'].*\/(marketplace|inventory|pricing|checkout)\/(?!public)/,
+    reason: "Orders BC must import other BCs only via */public",
+  },
 ];
 
 function walk(dir: string, acc: string[] = []): string[] {
@@ -104,5 +114,6 @@ describe("architecture boundaries (ADR-011)", () => {
     expect(content).toContain("Checkout");
     expect(content).toContain("CheckoutService");
     expect(content).toContain("ListingPublicQuery");
+    expect(content).toContain("Orders");
   });
 });

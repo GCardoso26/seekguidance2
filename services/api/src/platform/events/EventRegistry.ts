@@ -36,9 +36,16 @@ const CORE_EVENTS: EventSchemaRegistration[] = [
   { eventType: "ProductImported.v1", version: 1, description: "Product import upsert", frozen: true },
   { eventType: "CheckoutStarted.v1", version: 1, description: "Checkout V2 session started", frozen: true, payloadKeys: ["cartId", "buyerId", "totalCents"] },
   { eventType: "CheckoutCompleted.v1", version: 1, description: "Checkout V2 payment confirmed and inventory confirmed", frozen: true, payloadKeys: ["buyerId", "sessionId", "totalCents"] },
-  { eventType: "PaymentApproved.v1", version: 1, description: "Payment intent succeeded", frozen: true, payloadKeys: ["paymentIntentId", "sessionId"] },
+  { eventType: "PaymentApproved.v1", version: 1, description: "Payment intent succeeded / Payment recorded", frozen: true, payloadKeys: ["paymentIntentId", "sessionId"] },
   { eventType: "InventoryConfirmed.v1", version: 1, description: "Reservations confirmed after payment", frozen: true, payloadKeys: ["reservationIds", "sessionId"] },
   { eventType: "OrderCreated.v1", version: 1, description: "Order created from checkout session", frozen: true, payloadKeys: ["buyerId", "checkoutSessionId", "totalAmountCents"] },
+  { eventType: "OrderPaid.v1", version: 1, description: "Order payment confirmed", frozen: true, payloadKeys: ["buyerId", "totalAmountCents"] },
+  { eventType: "OrderProcessing.v1", version: 1, description: "Order preparing shipment", frozen: true },
+  { eventType: "OrderShipped.v1", version: 1, description: "Order shipped", frozen: true },
+  { eventType: "OrderDelivered.v1", version: 1, description: "Order delivered", frozen: true },
+  { eventType: "OrderCancelled.v1", version: 1, description: "Order cancelled", frozen: true },
+  { eventType: "OrderRefundRequested.v1", version: 1, description: "Refund requested", frozen: true },
+  { eventType: "OrderRefunded.v1", version: 1, description: "Order refunded", frozen: true },
 ];
 
 export class EventRegistry {
