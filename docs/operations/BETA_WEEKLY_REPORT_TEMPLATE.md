@@ -26,6 +26,7 @@ Metas: LPC ≥1 · LCS ≥80% · ≥5 lojas · **150–300** listings relevantes
 | **LPC** — Liquidity Proof Count | | | ≥1 · acompanhar tendência |
 | **LCS** — Liquidity Coverage Score | | % | ≥80% |
 | **SD** — Supply Depth (mediana listings/loja) | | | supporting |
+| **SRR** — Seller Return Rate (voltaram / ativados) | | % | supporting — vontade de continuar |
 | `liquidity_proof_completed` (sintéticos) | | | R1-LPC-001 |
 
 **Quadrante LCS×LPC (obrigatório):** _______________ → ação da semana: _______________

@@ -94,6 +94,27 @@ Não é gate. Diferencia 5×1 listing de 5×80 listings; mediana evita outlier d
 
 ---
 
+## Supporting KPI — Seller Return Rate (SRR)
+
+```text
+SRR = (sellers que voltaram — ≥2ª sessão de publicação)
+      ──────────────────────────────────────────────────
+      (sellers ativados — ≥1 listing)
+```
+
+Exemplo: 5 ativados → 3 voltaram → **SRR = 60%**.
+
+| SRR responde | SRR **não** responde |
+|--------------|----------------------|
+| O marketplace gerou vontade de **continuar** publicando? | Se oferta encontrou demanda (isso é **LPC**) |
+| Retenção operacional do seller | Cobertura da watchlist (**LCS**) |
+| Qualidade da ativação ao longo do tempo | Profundidade de estoque (**SD**) |
+
+**Não é gate** de Sprint 8 → 9 (o gate permanece **LPC ≥ 1**).  
+É companion de tendência — junto de SCI/DC — para o [Founder Report](../operations/FOUNDER_REPORT_TEMPLATE.md) e o [MRB](../operations/MARKET_REVIEW_BOARD.md).
+
+---
+
 ## Supporting KPI — Seller Concentration Index (SCI)
 
 ```text
@@ -164,8 +185,11 @@ Detalhe: [`LPC_ANALYTICS_SPEC.md`](./LPC_ANALYTICS_SPEC.md) · código: `apps/we
 
 ## Congelamento do framework
 
-LPC · LCS · SD · SCI/DC (supporting) · matriz · invariantes R1-LPC-001…005 · gate de entrada · MVS estão **congelados**.  
+LPC · LCS · SD · SRR/SCI/DC (supporting) · matriz · invariantes R1-LPC-001…005 · gate de entrada · MVS estão **congelados**.  
 Ordem de expansão TCG: **ADR-013** (não a ordem MVS histórica One Piece→MTG).
+
+**SRR** foi adicionado como supporting KPI (retenção de seller); **não** altera o gate LPC ≥ 1.  
+Ritual de valor de mercado: [`MARKET_REVIEW_BOARD.md`](../operations/MARKET_REVIEW_BOARD.md).
 
 Maior risco daqui em diante: disciplina de executar o experimento (freeze 7 dias do protocolo Onda 1), registrar dados e **não** reinterpretar resultados antes de completar a janela de observação.
 

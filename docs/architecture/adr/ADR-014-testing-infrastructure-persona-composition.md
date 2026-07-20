@@ -164,3 +164,5 @@ Nenhuma simulação, seed, persona ou KPI de engenharia (TCS/PCS) pode alterar, 
 | **ADR-014** | Como garantimos qualidade técnica **sem** contaminar o experimento de mercado? |
 
 Este ADR cobre apenas a camada de **Engenharia** (testing, personas, simulation, CI, Playwright). Estratégia, produto e operação têm objetivos e indicadores próprios; decisões técnicas não podem influenciar indevidamente a validação de mercado.
+
+**Camada 8 — Market Review Board (MRB):** ritual de ops que pergunta “vale a pena existir?” — ver [`MARKET_REVIEW_BOARD.md`](../../operations/MARKET_REVIEW_BOARD.md). Não faz parte de `testing/` e não usa simulation para LPC/LCS/SD/SRR.

@@ -3,7 +3,9 @@
 **Sprint:** 8 — visão interna da equipe · **beachhead = Disney Lorcana Brasil**  
 **Não é** dashboard de usuário / seller.  
 **Objetivo:** em **≤5 minutos** saber se o marketplace está ganhando vida ou morrendo.  
-**North Star:** **LPC** + **LCS** (+ **SD**) — [`NORTH_STAR_RELEASE_1.md`](../product/NORTH_STAR_RELEASE_1.md) · spec [`LPC_ANALYTICS_SPEC.md`](../product/LPC_ANALYTICS_SPEC.md)  
+**North Star:** **LPC** + **LCS** (+ **SD**, **SRR** supporting) — [`NORTH_STAR_RELEASE_1.md`](../product/NORTH_STAR_RELEASE_1.md) · spec [`LPC_ANALYTICS_SPEC.md`](../product/LPC_ANALYTICS_SPEC.md)  
+**MRB (camada 8):** [`MARKET_REVIEW_BOARD.md`](./MARKET_REVIEW_BOARD.md) · Founder Report 1-pager [`FOUNDER_REPORT_TEMPLATE.md`](./FOUNDER_REPORT_TEMPLATE.md)  
+**Fila engenharia (hipótese):** [`ENGINEERING_PRIORITY_QUEUE.md`](./ENGINEERING_PRIORITY_QUEUE.md)  
 **Relaciona:** [`MVP_1_0_RELEASE_PLAN.md`](../architecture/MVP_1_0_RELEASE_PLAN.md) · [`SELLER_BETA_ONBOARDING_RUNBOOK.md`](./SELLER_BETA_ONBOARDING_RUNBOOK.md) · [`BETA_WEEKLY_REPORT_TEMPLATE.md`](./BETA_WEEKLY_REPORT_TEMPLATE.md) · [`BETA_INTERVIEW_SCRIPT.md`](./BETA_INTERVIEW_SCRIPT.md) · [`BETA_WAVE1_OPERATION_PROTOCOL.md`](./BETA_WAVE1_OPERATION_PROTOCOL.md)
 
 Preencher diariamente (ou a cada check-in). **Primeiros 7 dias:** só observar + P0 — ver protocolo Onda 1.  
@@ -37,6 +39,7 @@ Preencher diariamente (ou a cada check-in). **Primeiros 7 dias:** só observar +
 | **LPC** — Liquidity Proof Count | **0** | 0 | Gate ≥1; ver tendência |
 | **LCS** — Liquidity Coverage Score | **0%** | 0% | ≥80% |
 | **SD** — Supply Depth (mediana) | — | | Supporting |
+| **SRR** — Seller Return Rate | — | | Supporting (voltaram / ativados) |
 | **SCI** — listings/sellers (média) | — | | Ver distribuição |
 | **SCI-Top1** — % da maior loja | — | % | Baixo é melhor |
 | **DC50** — cartas = 50% buscas | — | | Afina watchlist |

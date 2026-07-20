@@ -82,7 +82,7 @@ Scenario → Lorcana → Seller Large → Buyer Competitive → Checkout → Ass
 
 e depois `dataset = pokemon` **sem** alterar a suíte.
 
-## Camadas de teste (7)
+## Camadas de teste (7) + camada 8 de mercado
 
 | # | Camada | Papel |
 |---|--------|--------|
@@ -93,6 +93,9 @@ e depois `dataset = pokemon` **sem** alterar a suíte.
 | 5 | Founder Validation | Ops / mercado (fora de `testing/`) |
 | 6 | Personas | Composição archetype × catalog |
 | 7 | **Simulation** | Replay N sellers/buyers/searches/carts → analytics esperado (sem IA) |
+| 8 | **Market Review Board (MRB)** | “Vale a pena existir?” — ops, **não** QA ([`MARKET_REVIEW_BOARD.md`](../operations/MARKET_REVIEW_BOARD.md)) |
+
+A camada 8 **não** vive em `testing/`, **não** usa seeds/simulation para North Star, e produz o [Founder Report](../operations/FOUNDER_REPORT_TEMPLATE.md) (1 página).
 
 ## Composição de personas
 
