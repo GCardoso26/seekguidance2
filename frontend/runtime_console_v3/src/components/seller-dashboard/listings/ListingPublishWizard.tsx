@@ -17,14 +17,16 @@ import {
 } from "@/lib/seller-catalog-listing-form";
 import { formatCurrency } from "@/lib/format-currency";
 import { getGameConfigOrFallback } from "@/lib/game-config";
-import { DEFAULT_CATALOG_GAME_SLUG } from "@/lib/seller-product-categories";
+import { CATALOG_GAME_SLUGS, DEFAULT_CATALOG_GAME_SLUG, type CatalogGameSlug } from "@/lib/seller-product-categories";
 import { GAME_TOKENS } from "@/lib/tcg-tokens";
 import type { GameId } from "@/types/card";
 
-function gameSlugFromCard(game?: string | null): string {
-  if (!game) return "mtg";
+function gameSlugFromCard(game?: string | null): CatalogGameSlug {
+  if (!game) return DEFAULT_CATALOG_GAME_SLUG;
   const token = GAME_TOKENS[game.toUpperCase() as GameId];
-  return token?.slug ?? game.toLowerCase();
+  const slug = (token?.slug ?? game.toLowerCase()) as string;
+  const match = CATALOG_GAME_SLUGS.find((g) => g.slug === slug);
+  return match?.slug ?? DEFAULT_CATALOG_GAME_SLUG;
 }
 
 export function ListingPublishWizard() {

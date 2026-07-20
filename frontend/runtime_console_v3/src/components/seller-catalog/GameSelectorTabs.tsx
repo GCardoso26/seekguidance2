@@ -1,11 +1,15 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { CATALOG_GAME_SLUGS, isCatalogGameEnabled } from "@/lib/seller-product-categories";
+import {
+  CATALOG_GAME_SLUGS,
+  isCatalogGameEnabled,
+  type CatalogGameSlug,
+} from "@/lib/seller-product-categories";
 
 type Props = {
   activeSlug: string;
-  onChange: (slug: string) => void;
+  onChange: (slug: CatalogGameSlug) => void;
 };
 
 export function GameSelectorTabs({ activeSlug, onChange }: Props) {

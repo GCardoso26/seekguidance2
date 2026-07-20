@@ -2,13 +2,14 @@
 
 import { GameSelectorTabs } from "@/components/seller-catalog/GameSelectorTabs";
 import { cn } from "@/lib/utils";
+import type { CatalogGameSlug } from "@/lib/seller-product-categories";
 import type { InventoryKind } from "./types";
 
 type Props = {
   kind: InventoryKind;
   onKindChange: (k: InventoryKind) => void;
   game: string;
-  onGameChange: (slug: string) => void;
+  onGameChange: (slug: CatalogGameSlug) => void;
 };
 
 export function InventoryKindTabs({ kind, onKindChange, game, onGameChange }: Props) {
