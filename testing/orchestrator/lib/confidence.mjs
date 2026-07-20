@@ -12,9 +12,32 @@ const STATUS_BASE = {
   pending_manual: 0.45,
 };
 
-/** @param {{ status?: string, automated?: boolean, note?: string }} persona */
+/** @param {{ status?: string, automated?: boolean, note?: string, reason?: string, confidence?: number, coverageLevel?: string }} persona */
 export function confidenceForPersona(persona) {
   const status = (persona?.status || "pending_manual").toLowerCase();
+
+  // Respeita confidence explícita do runner (ex.: Marina lifecycle parcial = 78).
+  if (typeof persona?.confidence === "number" && Number.isFinite(persona.confidence)) {
+    const conf = Math.max(0, Math.min(100, Math.round(persona.confidence)));
+    const level =
+      persona.coverageLevel === "partial"
+        ? "partial"
+        : conf >= 90
+          ? "full"
+          : conf >= 70
+            ? "strong"
+            : conf >= 50
+              ? "partial"
+              : conf >= 25
+                ? "weak"
+                : "none";
+    return {
+      status: mapDisplayStatus(status),
+      confidence: conf,
+      level,
+    };
+  }
+
   let base = STATUS_BASE[status] ?? 0.4;
 
   if (persona?.automated === true) {
@@ -25,7 +48,7 @@ export function confidenceForPersona(persona) {
     if (status === "pass" || status === "pending_manual") base = Math.min(base, 0.61);
   }
 
-  if (/campanha|manual|browser|supervisionado/i.test(persona?.note || persona?.reason || "")) {
+  if (/campanha|manual|browser|supervisionado|parcial/i.test(persona?.note || persona?.reason || "")) {
     base = Math.min(base, 0.65);
   }
 

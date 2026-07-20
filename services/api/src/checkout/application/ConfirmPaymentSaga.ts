@@ -21,13 +21,14 @@ export interface ConfirmPaymentSagaContext extends Record<string, unknown> {
   paymentStatus?: string;
   paymentId?: string;
   confirmedReservationIds?: string[];
+  paymentMethod?: string;
 }
 
 /**
  * ConfirmPayment saga:
  * ValidateSession → ConfirmGatewayPayment → InventoryConfirm → MarkSessionCompleted
  *
- * Falha no gateway → release holds (compensate path via explicit release step on fail).
+ * Compensates: InventoryConfirm fail after capture → refund + release remaining holds.
  */
 export function buildConfirmPaymentSagaDefinition(deps: {
   pool: Pool;
@@ -55,6 +56,9 @@ export function buildConfirmPaymentSagaDefinition(deps: {
               paymentIntentId: session.paymentIntentId ?? ctx.paymentIntentId,
             };
           }
+          if (session.status === "expired") {
+            throw new Error("checkout_session_expired");
+          }
           if (session.status !== "payment_pending") {
             throw new Error(`checkout_session_not_payable:${session.status}`);
           }
@@ -80,7 +84,6 @@ export function buildConfirmPaymentSagaDefinition(deps: {
           });
           await deps.repo.updatePaymentIntentStatus(String(ctx.paymentIntentId), result.status);
           if (result.status !== "succeeded") {
-            // Payment declined — release holds before failing the saga
             for (const id of [...ctx.reservationIds].reverse()) {
               try {
                 await inventory.release(id, ctx.requestId);
@@ -98,7 +101,6 @@ export function buildConfirmPaymentSagaDefinition(deps: {
             throw new Error(`payment_not_succeeded:${result.status}`);
           }
 
-          // Intent succeeded → persist Payment (confirmed fact), distinct from Intent
           const intentRow = await deps.repo.findPaymentIntentByExternalId(
             String(ctx.paymentIntentId),
           );
@@ -110,11 +112,49 @@ export function buildConfirmPaymentSagaDefinition(deps: {
             provider: result.provider,
             amountCents: result.amountCents || session?.totalCents || intentRow?.amountCents || 0,
             currency: result.currency || session?.currency || "BRL",
-            method: "unknown",
+            method: result.method === "pix" ? "pix" : result.method === "card" ? "card" : "unknown",
             status: "captured",
             providerPayload: { gatewayStatus: result.status },
           });
-          return { paymentStatus: result.status, paymentId: payment.id };
+          return {
+            paymentStatus: result.status,
+            paymentId: payment.id,
+            paymentMethod: result.method ?? "unknown",
+          };
+        },
+        compensate: async (ctx) => {
+          // Undo capture if a later step fails
+          if (ctx.alreadyCompleted) return;
+          if (deps.payment.refundPayment) {
+            try {
+              await deps.payment.refundPayment({
+                externalId: String(ctx.paymentIntentId),
+                reason: "confirm_payment_compensate",
+              });
+            } catch (e) {
+              log.error(
+                {
+                  paymentIntentId: ctx.paymentIntentId,
+                  err: e instanceof Error ? e.message : String(e),
+                },
+                "confirm_payment_refund_failed",
+              );
+            }
+          }
+          for (const id of [...ctx.reservationIds].reverse()) {
+            try {
+              await inventory.release(id, `${ctx.requestId}:compensate`);
+            } catch (e) {
+              log.error(
+                { reservationId: id, err: e instanceof Error ? e.message : String(e) },
+                "confirm_payment_compensate_release_failed",
+              );
+            }
+          }
+          await deps.repo.updateSession(ctx.sessionId, {
+            status: "failed",
+            error: "confirm_payment_compensated",
+          });
         },
       },
       {
@@ -130,6 +170,23 @@ export function buildConfirmPaymentSagaDefinition(deps: {
             confirmed.push(reservationId);
           }
           return { confirmedReservationIds: confirmed };
+        },
+        compensate: async (ctx, stepOutput) => {
+          // Partial confirms — release what we can (confirm usually irreversible; best-effort)
+          const confirmed =
+            (stepOutput.confirmedReservationIds as string[] | undefined) ??
+            (ctx.confirmedReservationIds as string[] | undefined) ??
+            [];
+          for (const id of [...confirmed].reverse()) {
+            try {
+              await inventory.release(id, `${ctx.requestId}:inv_compensate`);
+            } catch (e) {
+              log.warn(
+                { reservationId: id, err: e instanceof Error ? e.message : String(e) },
+                "inventory_confirm_compensate_release_skipped",
+              );
+            }
+          }
         },
       },
       {

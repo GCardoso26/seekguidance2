@@ -32,8 +32,9 @@ export {
   CheckoutValidationPipeline,
   type CheckoutValidator,
 } from "./application/CheckoutValidationPipeline.js";
-export type { PaymentGateway, PaymentIntentResult } from "./application/payment/PaymentGateway.js";
+export type { PaymentGateway, PaymentIntentResult, PixDetails } from "./application/payment/PaymentGateway.js";
 export { createPaymentGateway } from "./application/payment/createPaymentGateway.js";
+export { StubPaymentGateway } from "./application/payment/StubPaymentGateway.js";
 export type { PaymentRecord, PaymentIntentRecord } from "./domain/Payment.js";
 export {
   CheckoutHandoffQuery,
@@ -47,3 +48,5 @@ export type {
   Coupon,
 } from "./domain/types.js";
 export { cartSubtotalCents } from "./domain/types.js";
+export type { ShippingProvider, ShippingQuoteOption } from "./application/shipping/ShippingProvider.js";
+export { createShippingProvider } from "./application/shipping/createShippingProvider.js";

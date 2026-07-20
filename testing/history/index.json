@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "nextCampaignNumber": 5,
+  "nextCampaignNumber": 11,
   "campaigns": [
     {
       "id": "campaign-001",
@@ -57,6 +57,90 @@
       "environment": "LOCAL",
       "stack": "PASS",
       "overall": "NOT READY"
+    },
+    {
+      "id": "campaign-005",
+      "campaignNumber": 5,
+      "file": "campaign-005.json",
+      "generatedAt": "2026-07-20T17:52:43.168Z",
+      "p0": 0,
+      "p1": 0,
+      "p2": 0,
+      "regressions": 0,
+      "durationMinutes": 1,
+      "environment": "LOCAL",
+      "stack": "PASS",
+      "overall": "NOT READY"
+    },
+    {
+      "id": "campaign-006",
+      "campaignNumber": 6,
+      "file": "campaign-006.json",
+      "generatedAt": "2026-07-20T18:18:51.966Z",
+      "p0": 0,
+      "p1": 0,
+      "p2": 0,
+      "regressions": 0,
+      "durationMinutes": 2,
+      "environment": "LOCAL",
+      "stack": "PASS",
+      "overall": "READY WITH WARNINGS"
+    },
+    {
+      "id": "campaign-007",
+      "campaignNumber": 7,
+      "file": "campaign-007.json",
+      "generatedAt": "2026-07-20T18:19:27.342Z",
+      "p0": 0,
+      "p1": 0,
+      "p2": 0,
+      "regressions": 0,
+      "durationMinutes": 2,
+      "environment": "LOCAL",
+      "stack": "PASS",
+      "overall": "READY WITH WARNINGS"
+    },
+    {
+      "id": "campaign-008",
+      "campaignNumber": 8,
+      "file": "campaign-008.json",
+      "generatedAt": "2026-07-20T18:19:35.168Z",
+      "p0": 0,
+      "p1": 0,
+      "p2": 0,
+      "regressions": 0,
+      "durationMinutes": 2,
+      "environment": "LOCAL",
+      "stack": "PASS",
+      "overall": "READY WITH WARNINGS"
+    },
+    {
+      "id": "campaign-009",
+      "campaignNumber": 9,
+      "file": "campaign-009.json",
+      "generatedAt": "2026-07-20T18:19:59.688Z",
+      "p0": 0,
+      "p1": 0,
+      "p2": 0,
+      "regressions": 0,
+      "durationMinutes": 2,
+      "environment": "LOCAL",
+      "stack": "PASS",
+      "overall": "NOT READY"
+    },
+    {
+      "id": "campaign-010",
+      "campaignNumber": 10,
+      "file": "campaign-010.json",
+      "generatedAt": "2026-07-20T20:25:20.751Z",
+      "p0": 0,
+      "p1": 0,
+      "p2": 0,
+      "regressions": 0,
+      "durationMinutes": 2,
+      "environment": "LOCAL",
+      "stack": "PASS",
+      "overall": "READY WITH WARNINGS"
     }
   ]
 }

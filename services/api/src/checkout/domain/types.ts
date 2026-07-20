@@ -8,7 +8,8 @@ export type CheckoutSessionStatus =
   | "payment_pending"
   | "completed"
   | "failed"
-  | "cancelled";
+  | "cancelled"
+  | "expired";
 
 export interface CartItem {
   id: string;

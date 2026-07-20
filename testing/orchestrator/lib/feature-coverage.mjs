@@ -31,17 +31,33 @@ export function computeFeatureCoverage(ctx) {
   const renato = p["renato-performance"];
 
   const rules = {
-    Login: scoreFrom(ready && smoke, marina?.status === "pending_manual" ? 0.7 : ready ? 1 : 0.15),
-    Inventory: scoreFrom(daniela?.status === "pass", marina?.status === "pending_manual" ? 0.5 : 0.2),
-    Listing: scoreFrom(marina?.status === "pending_manual", marina?.status === "blocked" ? 0.1 : 0.35),
+    Login: scoreFrom(
+      marina?.status === "pass" || (ready && smoke && marina?.status === "pending_manual"),
+      ready && smoke ? 0.7 : 0.15,
+    ),
+    Inventory: scoreFrom(
+      marina?.status === "pass" || daniela?.status === "pass",
+      marina?.status === "pending_manual" ? 0.5 : daniela?.status === "pass" ? 0.55 : 0.2,
+    ),
+    Listing: scoreFrom(
+      Array.isArray(marina?.coveredFlows) && marina.coveredFlows.length >= 6,
+      marina?.status === "pass" ? 0.72 : marina?.status === "pending_manual" ? 0.35 : 0.1,
+    ),
     Search: scoreFrom(
       eduardo?.status === "pass",
       eduardo?.unitTests?.feGameConfig && eduardo?.unitTests?.apiProjection ? 0.92 : eduardo?.status === "warn" ? 0.75 : 0.4,
     ),
-    Checkout: scoreFrom(carlos?.status === "pending_manual", carlos?.status === "blocked" ? 0.15 : 0.45),
-    Reports: scoreFrom(false, 0.4),
+    // pending_manual ≠ exercitado — não marcar Checkout como 100% sem Carlos PASS
+    Checkout: scoreFrom(
+      carlos?.status === "pass",
+      carlos?.status === "pending_manual" ? 0.2 : carlos?.status === "blocked" ? 0.1 : 0.15,
+    ),
+    Reports: scoreFrom(
+      Array.isArray(marina?.coveredFlows) && marina.coveredFlows.some((f) => /relatório/i.test(f)),
+      0.4,
+    ),
     "Sealed Products": scoreFrom(false, 0.15),
-    Favorites: scoreFrom(juliana?.status === "partial" || juliana?.status === "pass", 0.9),
+    Favorites: scoreFrom(juliana?.status === "pass", juliana?.status === "partial" ? 0.35 : 0.15),
   };
 
   const features = PLATFORM_FEATURES.map((name) => ({

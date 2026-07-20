@@ -67,6 +67,8 @@ export interface StartCheckoutCommand {
   cartId: string;
   couponCode?: string;
   idempotencyKey?: string;
+  /** card (default) | pix */
+  paymentMethod?: "card" | "pix";
 }
 
 export interface StartCheckoutV2Result {
@@ -74,6 +76,11 @@ export interface StartCheckoutV2Result {
   sagaId: string | null;
   status: string;
   clientSecret: string | null;
+  pix?: {
+    qrCodeBase64?: string | null;
+    copyPaste?: string | null;
+    expiresAt?: string | null;
+  } | null;
   error?: string;
   validationIssues?: ValidationIssue[];
 }
@@ -365,6 +372,7 @@ export class CheckoutService {
           buyerId: cmd.buyerId,
           couponCode: cmd.couponCode?.toUpperCase() ?? null,
           cartItems: cartItemsToSagaPayload(cart),
+          paymentMethod: cmd.paymentMethod === "pix" ? "pix" : "card",
         },
       });
 
@@ -412,6 +420,8 @@ export class CheckoutService {
       });
 
       const finalSession = (await this.repo.findSession(session.id))!;
+      const paymentPix =
+        (sagaResult.context.paymentPix as StartCheckoutV2Result["pix"]) ?? null;
       log.info(
         {
           requestId: cmd.requestId,
@@ -426,6 +436,7 @@ export class CheckoutService {
         sagaId: sagaResult.sagaId,
         status: "payment_pending",
         clientSecret,
+        pix: paymentPix,
       };
     };
 
@@ -589,6 +600,104 @@ export class CheckoutService {
     if (!session) throw new Error("checkout_session_not_found");
     if (session.buyerId !== buyerId) throw new Error("checkout_buyer_mismatch");
     return session;
+  }
+
+  /**
+   * Expire payment_pending session: release holds + CheckoutExpired.v1 via Outbox.
+   */
+  async expireSession(sessionId: string, requestId?: string): Promise<CheckoutSession> {
+    const session = await this.repo.findSession(sessionId);
+    if (!session) throw new Error("checkout_session_not_found");
+    if (session.status === "completed" || session.status === "expired") {
+      return session;
+    }
+    if (session.status !== "payment_pending" && session.status !== "failed") {
+      throw new Error(`checkout_session_not_expirable:${session.status}`);
+    }
+
+    const { createInventoryService } = await import("../../inventory/public.js");
+    const inventory = createInventoryService(this.pool);
+    const rid = requestId ?? `expire:${sessionId}`;
+    for (const id of [...session.reservationIds].reverse()) {
+      try {
+        await inventory.release(id, rid);
+      } catch (e) {
+        log.warn(
+          { reservationId: id, err: e instanceof Error ? e.message : String(e) },
+          "expire_release_failed",
+        );
+      }
+    }
+
+    try {
+      await this.repo.updateSession(sessionId, {
+        status: "expired",
+        error: "checkout_expired",
+      });
+    } catch {
+      await this.repo.updateSession(sessionId, {
+        status: "cancelled",
+        error: "checkout_expired",
+      });
+    }
+
+    const correlationId = rid;
+    await this.tx.runInTransaction(async (txCtx) => {
+      const expired = domainEventFactory.create({
+        eventType: "CheckoutExpired.v1",
+        aggregateId: sessionId,
+        aggregateType: "checkout_session",
+        correlationId,
+        payload: {
+          sessionId,
+          buyerId: session.buyerId,
+          paymentIntentId: session.paymentIntentId,
+        },
+      });
+      await this.outbox.insert(txCtx, {
+        event: domainEventFactory.toLegacy(expired),
+      });
+    });
+
+    return (await this.repo.findSession(sessionId))!;
+  }
+
+  /**
+   * Provider webhook → ConfirmPayment (idempotent by session completed + payment unique).
+   */
+  async handlePaymentWebhook(input: {
+    headers: Record<string, string | string[] | undefined>;
+    rawBody: string;
+    requestId?: string;
+  }): Promise<{ ok: boolean; sessionId?: string; status?: string; error?: string }> {
+    if (!this.payment.parseWebhook) {
+      return { ok: false, error: "webhook_not_supported" };
+    }
+    const event = await this.payment.parseWebhook(input.headers, input.rawBody);
+    if (!event) return { ok: false, error: "webhook_parse_failed" };
+    if (event.status !== "succeeded") {
+      return { ok: true, status: event.status };
+    }
+
+    const intent = await this.repo.findPaymentIntentByExternalId(event.externalIntentId);
+    if (!intent) return { ok: false, error: "payment_intent_not_found" };
+    const session = await this.repo.findSession(intent.sessionId);
+    if (!session) return { ok: false, error: "checkout_session_not_found" };
+
+    const result = await this.confirmPayment({
+      requestId: input.requestId ?? `wh:${event.eventId}`,
+      buyerId: session.buyerId,
+      sessionId: session.id,
+      simulateSuccess: false,
+      idempotencyKey: `webhook:${event.provider}:${event.eventId}`,
+    });
+
+    return {
+      ok: result.status === "completed" || result.status === "failed",
+      sessionId: session.id,
+      status: result.status,
+      error: result.error,
+    };
   }
 }
 

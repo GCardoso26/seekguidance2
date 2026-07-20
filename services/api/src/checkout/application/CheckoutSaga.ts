@@ -36,6 +36,8 @@ export interface CheckoutSagaContext extends Record<string, unknown> {
   pricingSnapshot?: Record<string, unknown>;
   paymentIntentId?: string;
   paymentClientSecret?: string;
+  paymentMethod?: "card" | "pix";
+  paymentPix?: { qrCodeBase64?: string | null; copyPaste?: string | null; expiresAt?: string | null };
 }
 
 export function buildStartCheckoutSagaDefinition(deps: {
@@ -198,11 +200,15 @@ export function buildStartCheckoutSagaDefinition(deps: {
         execute: async (ctx) => {
           const total = Number(ctx.totalCents ?? 0);
           if (total <= 0) throw new Error("checkout_total_invalid");
+          const method = ctx.paymentMethod === "pix" ? "pix" : "card";
+          const expiresAt = new Date(Date.now() + 15 * 60_000).toISOString();
           const pi = await deps.payment.createPaymentIntent({
             amountCents: total,
             currency: "BRL",
             sessionId: ctx.sessionId,
             buyerId: ctx.buyerId,
+            method,
+            expiresAt: method === "pix" ? expiresAt : undefined,
           });
           await deps.repo.insertPaymentIntent({
             sessionId: ctx.sessionId,
@@ -210,6 +216,11 @@ export function buildStartCheckoutSagaDefinition(deps: {
             currency: pi.currency,
             externalId: pi.externalId,
             clientSecret: pi.clientSecret,
+            provider: pi.provider,
+            paymentMethod: pi.method ?? method,
+            pixQrCode: pi.pix?.qrCodeBase64 ?? null,
+            pixCopyPaste: pi.pix?.copyPaste ?? null,
+            expiresAt: pi.pix?.expiresAt ?? (method === "pix" ? expiresAt : null),
           });
           await deps.repo.updateSession(ctx.sessionId, {
             status: "payment_pending",
@@ -218,6 +229,7 @@ export function buildStartCheckoutSagaDefinition(deps: {
           return {
             paymentIntentId: pi.externalId,
             paymentClientSecret: pi.clientSecret,
+            paymentPix: pi.pix ?? null,
           };
         },
       },

@@ -1,16 +1,16 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useAccountStatus } from "@/hooks/useAccountStatus";
+import { useOnboardingQueryParam } from "@/hooks/useOnboardingQueryParam";
 import { isMerchantKycBlocked } from "@/lib/merchant-kyc-guard";
 import { isMerchantOnboardingReturn } from "@/lib/merchant-onboarding-return";
 
 /** Redireciona lojistas com KYC bloqueado (pending/rejected/restricted) para /loja/suspensa. */
 export function useMerchantKycGuard(enabled = true) {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const onboardingMode = searchParams.get("onboarding");
+  const onboardingMode = useOnboardingQueryParam();
   const skipForOnboardingReturn = isMerchantOnboardingReturn(onboardingMode);
 
   const { data, isLoading, isError, refetch } = useAccountStatus();

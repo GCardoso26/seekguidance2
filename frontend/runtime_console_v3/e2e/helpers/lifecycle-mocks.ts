@@ -137,14 +137,32 @@ export async function installLifecycleMocks(page: Page, seedOrOpts?: LifecycleSe
   );
   await page.route("**/api/account/status**", (route) =>
     json(route, {
-      merchant: { kyc_status: "verified", rejection_reason: null },
+      player: {
+        account_status: "active",
+        cpf_verified: true,
+        can_purchase: true,
+      },
+      merchant: {
+        kyc_status: "verified",
+        rejection_reason: null,
+        can_publish: true,
+      },
       user: { role: "seller" },
     }),
   );
   await page.route("**/api/account/**", (route) => {
     if (route.request().url().includes("/status")) {
       return json(route, {
-        merchant: { kyc_status: "verified", rejection_reason: null },
+        player: {
+          account_status: "active",
+          cpf_verified: true,
+          can_purchase: true,
+        },
+        merchant: {
+          kyc_status: "verified",
+          rejection_reason: null,
+          can_publish: true,
+        },
         user: { role: "seller" },
       });
     }

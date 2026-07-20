@@ -1,22 +1,37 @@
 {
-  "generatedAt": "2026-07-20T13:44:32.032Z",
+  "generatedAt": "2026-07-20T20:23:56.804Z",
   "personaId": "marina-seller",
   "displayName": "Marina Costa",
   "role": "Seller QA",
-  "status": "pending_manual",
-  "reason": "Gates OK — executar campanha curta/média (Playwright ou supervisionado)",
-  "automated": false,
+  "status": "pass",
+  "reason": "Seller lifecycle E2E PASS (9 tests) — cobertura parcial do dia de trabalho",
+  "automated": true,
+  "confidence": 78,
+  "coverageLevel": "partial",
+  "coverageNote": "Não cobre cadastro/KYC/PIX/avatar/banner/jogos SHADOW/OFF/publicação multi-estado/financeiro completo — só lifecycle serial com mocks.",
+  "coveredFlows": [
+    "login→dashboard",
+    "cadastrar produto",
+    "editar produto",
+    "excluir produto",
+    "atualizar estoque",
+    "criar cupom",
+    "pedido→status",
+    "relatório"
+  ],
+  "evidence": {
+    "command": "npm run test:e2e:lifecycle",
+    "exitCode": 0,
+    "passedCount": 9,
+    "failedCount": 0,
+    "tail": "lifecycle.spec.ts:136:7 › Seller lifecycle E2E › 07 receber pedido → alterar status (4.3s)\n  ok 9 [chromium] › e2e\\specs\\seller-lifecycle.spec.ts:149:7 › Seller lifecycle E2E › 08 gerar relatório (11.3s)\n\n  9 passed (50.8s)\n\n> runtime-console-v3@0.1.0 seed:test:cleanup\n> node e2e/scripts/cleanup-test.mjs\n\n✓ apagado run e2e-mrto900o\n✓ produtos / pedidos / categorias / estoque / carrinhos (manifest)\n\n(node:22168) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///S:/tcg-judge/frontend/runtime_console_v3/e2e/helpers/supabase-auth.ts is not specified and it doesn't parse as CommonJS.\nReparsing as ES module because module syntax was detected. This incurs a performance overhead.\nTo eliminate this warning, add \"type\": \"module\" to S:\\tcg-judge\\frontend\\runtime_console_v3\\package.json.\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:18616) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:25564) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+  },
+  "sellerReadiness": "partial_ready",
+  "checklistDoc": "docs/testing/personas/marina-costa-seller-qa.md",
   "bugs": {
     "p0": [],
     "p1": [],
     "p2": [],
     "p3": []
-  },
-  "sellerReadiness": "unknown",
-  "campaign": {
-    "short": "20-30min",
-    "medium": "60-90min",
-    "long": "2-3h supervisionada"
-  },
-  "checklistDoc": "docs/testing/personas/marina-costa-seller-qa.md"
+  }
 }

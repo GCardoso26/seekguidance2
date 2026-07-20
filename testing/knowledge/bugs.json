@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "nextBugNumber": 5,
+  "nextBugNumber": 7,
   "bugs": [
     {
       "id": "BUG-0001",
@@ -99,6 +99,47 @@
       ],
       "personaId": "renato-performance",
       "priority": "P2",
+      "seenAgain": []
+    },
+    {
+      "id": "BUG-0005",
+      "fingerprint": "fe-chunks-404-mime-plaintext",
+      "title": "Next.js /_next/static/chunks/*.js → 404 text/plain — painel SSR eterno",
+      "firstOccurrence": "2026-07-20",
+      "lastOccurrence": "2026-07-20",
+      "status": "CLOSED",
+      "closedAt": "2026-07-20",
+      "closedInCampaign": "campaign-006",
+      "resolution": "Reinício do runtime-console-v3 com API_PROXY_TARGET=https://seekguidance.onrender.com; chunks 200 OK; hidratação restaurada",
+      "affects": "Infrastructure / FE",
+      "responsible": "SRE",
+      "files": [],
+      "personaId": "ricardo-sre",
+      "priority": "P0",
+      "seenAgain": []
+    },
+    {
+      "id": "BUG-0006",
+      "fingerprint": "seller-panel-stuck-loading-suspense",
+      "title": "seller_panel_stuck_loading — useSearchParams/Suspense sem fail-open",
+      "firstOccurrence": "2026-07-20",
+      "lastOccurrence": "2026-07-20",
+      "status": "CLOSED",
+      "closedAt": "2026-07-20",
+      "closedInCampaign": "campaign-006",
+      "resolution": "useOnboardingQueryParam (window) + remoção Suspense no layout; fail-open 12s; mock account/status completo; lifecycle 9/9 PASS",
+      "affects": "Seller Panel",
+      "responsible": "Frontend",
+      "files": [
+        "frontend/runtime_console_v3/src/hooks/useOnboardingQueryParam.ts",
+        "frontend/runtime_console_v3/src/hooks/useMerchantKycGuard.ts",
+        "frontend/runtime_console_v3/src/hooks/useMerchantOnboardingSync.ts",
+        "frontend/runtime_console_v3/src/app/vendedor/painel/VendedorPainelClientLayout.tsx",
+        "frontend/runtime_console_v3/e2e/helpers/lifecycle-mocks.ts",
+        "frontend/runtime_console_v3/e2e/helpers/wait-panel.ts"
+      ],
+      "personaId": "marina-seller",
+      "priority": "P0",
       "seenAgain": []
     }
   ]

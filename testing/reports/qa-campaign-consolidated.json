@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-07-20T13:45:17.965Z",
+  "generatedAt": "2026-07-20T20:25:20.751Z",
   "source": "QA Orchestrator R4",
-  "campaignId": "campaign-004",
+  "campaignId": "campaign-010",
   "environment": {
     "score": 100,
     "readyForFunctionalQA": true,
@@ -12,15 +12,15 @@
       "personaId": "marina-seller",
       "displayName": "Marina Costa",
       "role": "Seller QA",
-      "status": "pending_manual",
-      "automated": false
+      "status": "pass",
+      "automated": true
     },
     {
       "personaId": "carlos-buyer",
       "displayName": "Carlos Henrique",
       "role": "Buyer QA",
-      "status": "pending_manual",
-      "automated": false
+      "status": "pass",
+      "automated": true
     },
     {
       "personaId": "fernanda-marketplace",
@@ -66,14 +66,14 @@
     },
     "personas": {
       "marina-seller": {
-        "status": "WARN",
-        "confidence": 45,
-        "level": "weak"
+        "status": "PASS",
+        "confidence": 78,
+        "level": "partial"
       },
       "carlos-buyer": {
-        "status": "WARN",
-        "confidence": 45,
-        "level": "weak"
+        "status": "PASS",
+        "confidence": 72,
+        "level": "partial"
       },
       "fernanda-marketplace": {
         "status": "WARN",
@@ -105,7 +105,7 @@
   "featureCoverage": {
     "name": "FCS",
     "note": "Feature Coverage — engenharia, não North Star",
-    "averagePercent": 82,
+    "averagePercent": 81,
     "features": [
       {
         "name": "Login",
@@ -134,8 +134,8 @@
       },
       {
         "name": "Reports",
-        "percent": 40,
-        "exercised": false
+        "percent": 100,
+        "exercised": true
       },
       {
         "name": "Sealed Products",
@@ -144,13 +144,13 @@
       },
       {
         "name": "Favorites",
-        "percent": 100,
-        "exercised": true
+        "percent": 35,
+        "exercised": false
       }
     ]
   },
   "releaseReadiness": {
-    "generatedAt": "2026-07-20T13:45:17.973Z",
+    "generatedAt": "2026-07-20T20:25:20.757Z",
     "dimensions": {
       "Infrastructure": {
         "status": "PASS",
@@ -170,12 +170,12 @@
         "confidence": 98
       },
       "Seller": {
-        "status": "WARN",
-        "confidence": 45
+        "status": "PASS",
+        "confidence": 78
       },
       "Buyer": {
-        "status": "WARN",
-        "confidence": 45
+        "status": "PASS",
+        "confidence": 72
       },
       "Checkout": {
         "status": "PASS",
@@ -190,44 +190,34 @@
         "confidence": 62
       }
     },
-    "overall": "NOT READY",
+    "overall": "READY WITH WARNINGS",
     "engineeringNote": "Responde se a plataforma está tecnicamente pronta para a próxima etapa de validação — não é Go/No-Go de mercado."
   },
   "operationalMemory": {
     "counts": {
       "p0": 0,
       "p1": 0,
-      "p2": 1,
+      "p2": 0,
       "p3": 0,
       "seenAgain": 0,
-      "new": 1
+      "new": 0
     },
     "seenAgain": [],
     "bugKnowledge": {
-      "newBugs": 1,
+      "newBugs": 0,
       "seenAgain": 0,
-      "openP0": 1
+      "openP0": 0
     },
     "archive": {
-      "id": "campaign-004",
-      "campaignNumber": 4,
-      "file": "history\\campaign-004.json"
+      "id": "campaign-010",
+      "campaignNumber": 10,
+      "file": "history\\campaign-010.json"
     }
   },
   "cursorHandoff": {
     "bugsP0": [],
     "bugsP1": [],
-    "bugsP2": [
-      {
-        "priority": "P2",
-        "text": "cart P95>4963ms",
-        "personaId": "renato-performance",
-        "persona": "Renato Oliveira",
-        "files": [],
-        "bugId": "BUG-0004",
-        "deduplicated": false
-      }
-    ],
+    "bugsP2": [],
     "seenAgain": [],
     "regressions": [],
     "affectedFiles": [],

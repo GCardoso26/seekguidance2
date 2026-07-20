@@ -2,14 +2,15 @@
 
 import "@/styles/seller-panel.css";
 import { SellerPanelThemeProvider, useSellerPanelTheme } from "@/contexts/SellerPanelThemeContext";
-import { Suspense, useEffect, useState } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { PanelShell } from "@/components/layout/PanelShell";
 import { Sidebar } from "@/components/seller-dashboard/Sidebar";
 import { SellerPanelTopBar } from "@/components/seller-dashboard/SellerPanelTopBar";
 import { SellerPanelProvider } from "@/contexts/SellerPanelContext";
 import { useMerchantKycGuard } from "@/hooks/useMerchantKycGuard";
 import { useMerchantOnboardingSync } from "@/hooks/useMerchantOnboardingSync";
+import { useOnboardingQueryParam } from "@/hooks/useOnboardingQueryParam";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { useSellerStore } from "@/hooks/useSellerStore";
 import { InlineAlert, InlineLoading } from "@/components/ui/async-state";
@@ -21,8 +22,7 @@ const GUARD_TIMEOUT_MS = 12_000;
 function VendedorPainelLayoutInner({ children }: { children: React.ReactNode }) {
   const { theme } = useSellerPanelTheme();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const onboardingMode = searchParams.get("onboarding");
+  const onboardingMode = useOnboardingQueryParam();
   const onboardingReturn = isMerchantOnboardingReturn(onboardingMode);
   const returnPath = pathname?.startsWith("/vendedor/painel") ? pathname : "/vendedor/painel";
   const { user, loading: authLoading } = useRequireAuth(returnPath);
@@ -36,20 +36,35 @@ function VendedorPainelLayoutInner({ children }: { children: React.ReactNode }) 
   const plan = String((dashboard?.store as Record<string, unknown> | undefined)?.subscription_plan ?? "free");
 
   useEffect(() => {
-    const id = window.setTimeout(() => setGuardsTimedOut(true), GUARD_TIMEOUT_MS);
+    // Persist start across remounts so fail-open always fires within GUARD_TIMEOUT_MS.
+    const key = "judgetcg.seller-panel-guard-started-at";
+    let startedAt = Number(sessionStorage.getItem(key) || "");
+    if (!Number.isFinite(startedAt) || startedAt <= 0) {
+      startedAt = Date.now();
+      sessionStorage.setItem(key, String(startedAt));
+    }
+    const remaining = Math.max(0, GUARD_TIMEOUT_MS - (Date.now() - startedAt));
+    const id = window.setTimeout(() => setGuardsTimedOut(true), remaining);
     return () => window.clearTimeout(id);
   }, []);
+
+  useEffect(() => {
+    if (!guardsTimedOut && user && !authLoading) {
+      sessionStorage.removeItem("judgetcg.seller-panel-guard-started-at");
+    }
+  }, [guardsTimedOut, user, authLoading]);
 
   const kycGateActive = isBlocked && !onboardingReturn;
   // Fail-open after timeout / KYC error so the shell never hangs forever.
   const kycBlocking = kycLoading && !kycError && !guardsTimedOut;
   const authBlocking = authLoading && !guardsTimedOut;
+  const syncBlocking = onboardingSyncing && !guardsTimedOut;
   const guardsPending =
-    authBlocking || kycBlocking || (!user && !guardsTimedOut) || kycGateActive || onboardingSyncing;
+    authBlocking || kycBlocking || (!user && !guardsTimedOut) || kycGateActive || syncBlocking;
   const isPdvRoute = pathname?.includes("/vendedor/painel/pdv");
 
   if (guardsPending) {
-    const guardMessage = onboardingSyncing
+    const guardMessage = syncBlocking
       ? "Atualizando status do cadastro Stripe…"
       : authBlocking || kycBlocking
         ? "Carregando painel…"
@@ -120,15 +135,7 @@ function VendedorPainelLayoutInner({ children }: { children: React.ReactNode }) 
 export default function VendedorPainelLayout({ children }: { children: React.ReactNode }) {
   return (
     <SellerPanelThemeProvider>
-      <Suspense
-        fallback={
-          <main className="flex min-h-screen items-center justify-center bg-background" aria-busy="true">
-            <InlineLoading message="Carregando painel…" />
-          </main>
-        }
-      >
-        <VendedorPainelLayoutInner>{children}</VendedorPainelLayoutInner>
-      </Suspense>
+      <VendedorPainelLayoutInner>{children}</VendedorPainelLayoutInner>
     </SellerPanelThemeProvider>
   );
 }

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-20T13:59:52.699Z",
+  "generatedAt": "2026-07-20T20:25:20.732Z",
   "personaId": "renato-performance",
   "displayName": "Renato Oliveira",
   "role": "Performance Auditor",
@@ -11,34 +11,34 @@
       "label": "search",
       "count": 5,
       "ok": 5,
-      "avgMs": 1082,
-      "p95Ms": 4636,
-      "p99Ms": 4636,
+      "avgMs": 176,
+      "p95Ms": 177,
+      "p99Ms": 177,
       "sample": [
         {
           "ok": true,
           "status": 200,
-          "ms": 4636
+          "ms": 176
         },
         {
           "ok": true,
           "status": 200,
-          "ms": 171
+          "ms": 177
         },
         {
           "ok": true,
           "status": 200,
-          "ms": 210
+          "ms": 176
         },
         {
           "ok": true,
           "status": 200,
-          "ms": 183
+          "ms": 175
         },
         {
           "ok": true,
           "status": 200,
-          "ms": 211
+          "ms": 176
         }
       ]
     },
@@ -53,27 +53,27 @@
         {
           "ok": false,
           "status": 404,
-          "ms": 5365
+          "ms": 5433
         },
         {
           "ok": false,
           "status": 404,
-          "ms": 484
+          "ms": 458
         },
         {
           "ok": false,
           "status": 404,
-          "ms": 499
+          "ms": 486
         },
         {
           "ok": false,
           "status": 404,
-          "ms": 876
+          "ms": 476
         },
         {
           "ok": false,
           "status": 404,
-          "ms": 473
+          "ms": 468
         }
       ]
     },
@@ -81,9 +81,9 @@
       "label": "filters",
       "count": 10,
       "ok": 10,
-      "avgMs": 197,
-      "p95Ms": 234,
-      "p99Ms": 234,
+      "avgMs": 194,
+      "p95Ms": 232,
+      "p99Ms": 232,
       "sample": [
         {
           "ok": true,
@@ -93,12 +93,12 @@
         {
           "ok": true,
           "status": 200,
-          "ms": 198
+          "ms": 174
         },
         {
           "ok": true,
           "status": 200,
-          "ms": 182
+          "ms": 189
         },
         {
           "ok": true,
@@ -108,7 +108,7 @@
         {
           "ok": true,
           "status": 200,
-          "ms": 178
+          "ms": 182
         }
       ]
     },
@@ -116,34 +116,34 @@
       "label": "cart",
       "count": 5,
       "ok": 5,
-      "avgMs": 281,
-      "p95Ms": 374,
-      "p99Ms": 374,
+      "avgMs": 251,
+      "p95Ms": 300,
+      "p99Ms": 300,
       "sample": [
         {
           "ok": true,
           "status": 200,
-          "ms": 374
+          "ms": 300
         },
         {
           "ok": true,
           "status": 200,
-          "ms": 248
+          "ms": 228
         },
         {
           "ok": true,
           "status": 200,
-          "ms": 264
+          "ms": 254
         },
         {
           "ok": true,
           "status": 200,
-          "ms": 252
+          "ms": 231
         },
         {
           "ok": true,
           "status": 200,
-          "ms": 267
+          "ms": 242
         }
       ]
     }
@@ -167,9 +167,7 @@
   "bugs": {
     "p0": [],
     "p1": [],
-    "p2": [
-      "search P95>4636ms"
-    ],
+    "p2": [],
     "p3": []
   }
 }

@@ -4,7 +4,7 @@ import { TOURNAMENT_API_BASE, tournamentProxyHeaders } from "@/lib/tournament-ap
 import { mockWishlistAdd, mockWishlistGet, WISHLIST_MOCK_CATALOG } from "@/lib/wishlist-mock";
 import type { ShopProduct } from "@/lib/marketplace-shop";
 
-async function resolveUser(req: NextRequest) {
+async function resolveUser(_req: NextRequest) {
   const supabase = await createSupabaseServerClient();
   if (!supabase) return null;
   const {
@@ -44,6 +44,17 @@ export async function GET(req: NextRequest) {
       status: proxied.status,
       headers: { "Content-Type": "application/json" },
     });
+  }
+
+  // Fail-closed in Beta / when explicitly requested — no silent mock success.
+  if (
+    process.env.JUDGE_BETA === "1" ||
+    process.env.NEXT_PUBLIC_WISHLIST_FAIL_CLOSED === "1"
+  ) {
+    return NextResponse.json(
+      { detail: "wishlist_upstream_unavailable", items: [], total: 0 },
+      { status: 503 },
+    );
   }
 
   const items = mockWishlistGet(user.id);

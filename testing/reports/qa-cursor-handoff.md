@@ -1,16 +1,16 @@
 # QA Cursor Handoff
 
-Campanha: **campaign-004** · Gerado: 2026-07-20T13:45:17.965Z
+Campanha: **campaign-010** · Gerado: 2026-07-20T20:25:20.751Z
 
 ## Release Readiness
-**NOT READY** — ver `testing/reports/release-readiness.md`
+**READY WITH WARNINGS** — ver `testing/reports/release-readiness.md`
 
 ## Environment
 - Score: **100** | Ready for Functional QA: **YES**
 
 ## Confidence (personas)
-- `marina-seller`: WARN — **45%** (weak)
-- `carlos-buyer`: WARN — **45%** (weak)
+- `marina-seller`: PASS — **78%** (partial)
+- `carlos-buyer`: PASS — **72%** (partial)
 - `fernanda-marketplace`: WARN — **45%** (weak)
 - `juliana-ux`: WARN — **62%** (partial)
 - `eduardo-search`: PASS — **98%** (full)
@@ -23,9 +23,9 @@ Campanha: **campaign-004** · Gerado: 2026-07-20T13:45:17.965Z
 - Listing: **100%**
 - Search: **100%**
 - Checkout: **100%**
-- Reports: **40%**
+- Reports: **100%**
 - Sealed Products: **15%**
-- Favorites: **100%**
+- Favorites: **35%**
 
 ## Bugs P0 (novos nesta campanha)
 - (nenhum)
@@ -59,6 +59,6 @@ Corrigir apenas itens com evidência nos relatórios persona-* e environment-aud
 - Relatórios persona-*-latest.json presentes
 - MRB revisou consolidação antes de handoff ao Cursor
 
-Histórico imutável: `testing/history/history\campaign-004.json`
+Histórico imutável: `testing/history/history\campaign-010.json`
 
 → **Market Review Board** consolida decisão antes de engenharia.

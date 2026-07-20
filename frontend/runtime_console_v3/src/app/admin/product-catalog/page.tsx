@@ -19,6 +19,8 @@ async function fetchStats() {
       items_upserted: number;
       errors: unknown;
     }[];
+    /** Opcional — alguns backends ainda não enviam registry de providers. */
+    providers?: { provider_id: string; last_status: string }[];
   }>;
 }
 
@@ -74,7 +76,17 @@ export default function AdminProductCatalogPage() {
           <section className="rounded-xl border border-border p-4 md:col-span-2">
             <h2 className="mb-3 font-semibold">Providers (registry)</h2>
             <ul className="space-y-1 text-sm">
-              {(data.providers ?? []).map((p: { provider_id: string; last_status: string }) => (
+              {(
+                data.providers ??
+                Array.from(
+                  new Map(
+                    data.recent_syncs.map((s) => [
+                      s.provider_id,
+                      { provider_id: s.provider_id, last_status: s.status },
+                    ]),
+                  ).values(),
+                )
+              ).map((p) => (
                 <li key={p.provider_id} className="flex justify-between">
                   <span className="font-mono text-xs">{p.provider_id}</span>
                   <span>{p.last_status}</span>

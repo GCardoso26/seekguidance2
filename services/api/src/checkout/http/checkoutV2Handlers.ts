@@ -27,7 +27,17 @@ function toCartJson(cart: Cart) {
   };
 }
 
-function toSessionJson(session: CheckoutSession, clientSecret?: string | null) {
+function toSessionJson(
+  session: CheckoutSession,
+  extras?: {
+    clientSecret?: string | null;
+    pix?: {
+      qrCodeBase64?: string | null;
+      copyPaste?: string | null;
+      expiresAt?: string | null;
+    } | null;
+  },
+) {
   return {
     id: session.id,
     cartId: session.cartId,
@@ -39,7 +49,8 @@ function toSessionJson(session: CheckoutSession, clientSecret?: string | null) {
     currency: session.currency,
     sagaId: session.sagaId,
     paymentIntentId: session.paymentIntentId,
-    clientSecret: clientSecret ?? null,
+    clientSecret: extras?.clientSecret ?? null,
+    pix: extras?.pix ?? null,
     error: session.error,
   };
 }
@@ -192,20 +203,55 @@ export async function handleCheckoutV2Api(
         (typeof req.headers["idempotency-key"] === "string"
           ? req.headers["idempotency-key"]
           : undefined) ?? str(body, "idempotencyKey") ?? undefined;
+      const paymentMethod = str(body, "paymentMethod") === "pix" ? "pix" : "card";
       const result = await deps.checkout.startCheckout({
         requestId: getIdGenerator().generate(),
         buyerId: user.userId,
         cartId,
         couponCode: str(body, "couponCode") ?? undefined,
         idempotencyKey,
+        paymentMethod,
       });
       const status = result.status === "failed" ? 409 : 201;
       sendJson(res, status, {
-        ...toSessionJson(result.session, result.clientSecret),
+        ...toSessionJson(result.session, {
+          clientSecret: result.clientSecret,
+          pix: result.pix,
+        }),
         sagaId: result.sagaId,
         error: result.error ?? null,
         validationIssues: result.validationIssues ?? [],
       });
+      return true;
+    }
+
+    // POST /api/v1/checkout-v2/webhooks/:provider (Stripe | mercado_pago | stub)
+    const webhookMatch = path.match(/^\/api\/v1\/checkout-v2\/webhooks\/([^/]+)$/);
+    if (webhookMatch && method === "POST") {
+      const chunks: Buffer[] = [];
+      for await (const chunk of req) {
+        chunks.push(typeof chunk === "string" ? Buffer.from(chunk) : chunk);
+      }
+      const rawBody = Buffer.concat(chunks).toString("utf8");
+      const result = await deps.checkout.handlePaymentWebhook({
+        headers: req.headers as Record<string, string | string[] | undefined>,
+        rawBody,
+        requestId: getIdGenerator().generate(),
+      });
+      sendJson(res, result.ok ? 200 : 400, result);
+      return true;
+    }
+
+    // POST /api/v1/checkout-v2/sessions/:id/expire
+    const expireMatch = path.match(/^\/api\/v1\/checkout-v2\/sessions\/([^/]+)\/expire$/);
+    if (expireMatch && method === "POST") {
+      const user = await deps.auth.requireBuyer(req);
+      const session = await deps.checkout.getSession(expireMatch[1]!, user.userId);
+      const expired = await deps.checkout.expireSession(
+        session.id,
+        getIdGenerator().generate(),
+      );
+      sendJson(res, 200, toSessionJson(expired));
       return true;
     }
 

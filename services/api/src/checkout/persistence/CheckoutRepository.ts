@@ -391,6 +391,10 @@ export class CheckoutRepository {
     externalId: string;
     clientSecret: string;
     provider?: string;
+    paymentMethod?: string | null;
+    pixQrCode?: string | null;
+    pixCopyPaste?: string | null;
+    expiresAt?: string | null;
   }): Promise<{ id: string; externalId: string; clientSecret: string }> {
     const id = getIdGenerator().generate();
     await this.db.query(
@@ -409,6 +413,31 @@ export class CheckoutRepository {
         input.clientSecret,
       ],
     );
+    // PIX metadata columns from migration 20260720230000 — best-effort until applied.
+    if (input.paymentMethod || input.pixCopyPaste || input.expiresAt) {
+      try {
+        await this.db.query(
+          `
+          UPDATE checkout.payment_intents
+          SET payment_method = COALESCE($2, payment_method),
+              pix_qr_code = COALESCE($3, pix_qr_code),
+              pix_copy_paste = COALESCE($4, pix_copy_paste),
+              expires_at = COALESCE($5::timestamptz, expires_at),
+              updated_at = now()
+          WHERE external_id = $1
+          `,
+          [
+            input.externalId,
+            input.paymentMethod ?? null,
+            input.pixQrCode ?? null,
+            input.pixCopyPaste ?? null,
+            input.expiresAt ?? null,
+          ],
+        );
+      } catch {
+        /* columns may not exist yet */
+      }
+    }
     return { id, externalId: input.externalId, clientSecret: input.clientSecret };
   }
 

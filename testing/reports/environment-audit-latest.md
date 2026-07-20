@@ -1,6 +1,6 @@
 # Environment Audit — Ricardo Menezes (SRE)
 
-_Gerado em 2026-07-20T13:44:29.753Z_
+_Gerado em 2026-07-20T20:22:59.095Z_
 
 | Métrica | Valor |
 | --- | --- |
@@ -20,13 +20,13 @@ _Gerado em 2026-07-20T13:44:29.753Z_
 | Runtime Console (FE) | PASS | yes | ok status=200 |
 | API health | PASS | no | ok |
 | Redis | PASS | yes | 127.0.0.1:6379 |
-| PostgreSQL | PASS | yes | default 127.0.0.1:5432 |
+| PostgreSQL | PASS | yes | DATABASE_URL set + TCP |
 | Search (OpenSearch / HTTP) | PASS | yes | HTTP search ok |
 | Workers / filas | WARN | no | Redis up — workers não inspecionados (sem endpoint liveness dedicado) |
 | Projection / catálogo indexado | PASS | no | search/cards respondeu |
 | Storage | WARN | no | não auditado automaticamente — validar em staging com upload real |
 | Upload | WARN | no | não auditado automaticamente — validar rota seller em campanha funcional |
-| Migrations | WARN | no | DATABASE_URL ausente — não é possível verificar schema |
+| Migrations | WARN | no | DATABASE_URL presente — rode certify:db / migrate manualmente antes de campanha longa |
 | Provider Registry (CI artefato) | PASS | yes | registry + lifecycle tests OK |
 | Game Configuration | PASS | yes | GameConfiguration registry OK |
 

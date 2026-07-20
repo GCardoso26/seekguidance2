@@ -1,17 +1,33 @@
 {
-  "generatedAt": "2026-07-20T13:44:32.111Z",
+  "generatedAt": "2026-07-20T20:24:39.731Z",
   "personaId": "carlos-buyer",
   "displayName": "Carlos Henrique",
   "role": "Buyer QA",
-  "status": "pending_manual",
-  "reason": "Executar jornada buyer (busca → PDP → carrinho → checkout simulado)",
-  "automated": false,
+  "status": "pass",
+  "reason": "Buyer lifecycle E2E PASS (9) — páginas críticas; checkout V2 API wiring em progresso",
+  "automated": true,
+  "confidence": 72,
+  "coverageLevel": "partial",
+  "coverageNote": "Não cobre ainda: cadastro/recuperação senha/avaliação/recompra/pagamento PSP real sem simulate — ver plano Beta sprint.",
+  "coveredFlows": [
+    "search",
+    "marketplace",
+    "wishlist",
+    "cart",
+    "checkout-page",
+    "orders-history"
+  ],
+  "evidenceDir": "testing/reports/persona-carlos",
+  "evidence": {
+    "command": "npx playwright test e2e/specs/buyer-lifecycle.spec.ts",
+    "exitCode": 0,
+    "passedCount": 9,
+    "failedCount": 0
+  },
   "bugs": {
     "p0": [],
     "p1": [],
     "p2": [],
     "p3": []
-  },
-  "buyerReadiness": "unknown",
-  "checklistDoc": "docs/testing/personas/carlos-henrique-buyer-qa.md"
+  }
 }
