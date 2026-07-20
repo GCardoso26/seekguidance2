@@ -81,6 +81,21 @@ Unit → Seed → E2E → Smoke → Founder Validation (ops) → Personas → **
 
 Founder Validation e North Star permanecem fora da contaminação por dados artificiais.
 
+## Non-goals
+
+A infraestrutura descrita neste ADR **não** existe para:
+
+- medir sucesso do produto;
+- substituir validação com usuários reais;
+- produzir métricas de LPC, LCS ou Supply Depth;
+- servir como ambiente de demonstração do Beta;
+- gerar dados para analytics de negócio;
+- alimentar dashboards operacionais com buyers/sellers/carts simulados (“já temos 500 buyers — por que não no dashboard?”).
+
+Seu **único** objetivo é aumentar a confiabilidade da engenharia.
+
+Qualquer uso que alimente, substitua ou complemente a medição de mercado do R1 é **desvio** deste ADR.
+
 ## Consequences
 
 ### Não altera
@@ -125,3 +140,27 @@ Simulation → N buyers/sellers → Projection → Analytics → “LPC esperado
 Esse sinal **nunca** entra no North Star nem no Go/No-Go de mercado.
 
 Alterar isolation Beta, composição de personas, ou o papel de TCS/PCS/Simulation exige **ADR que supersede este**.
+
+## Relationship with North Star (Hierarchy of Truth)
+
+Hierarchy of Truth:
+
+```
+ADRs → North Star → MVP → Sprint → Ops → Código
+```
+
+Este ADR é **subordinado** ao North Star do Release 1 ([`NORTH_STAR_RELEASE_1.md`](../../product/NORTH_STAR_RELEASE_1.md)).
+
+Caso exista conflito entre a infraestrutura de testes e a medição do experimento operacional (Sprint 8 / Beta), **prevalece sempre o North Star**.
+
+Nenhuma simulação, seed, persona ou KPI de engenharia (TCS/PCS) pode alterar, substituir ou complementar as métricas oficiais de produto (**LPC**, **LCS**, **Supply Depth**).
+
+### Posição na tríade estratégica / produto / engenharia
+
+| ADR | Pergunta que responde |
+|-----|------------------------|
+| [ADR-012](./ADR-012-lorcana-first-beachhead.md) | Qual mercado validamos primeiro? |
+| [ADR-013](./ADR-013-tcg-expansion-allowlist.md) | Quais TCGs fazem parte oficialmente do ecossistema? |
+| **ADR-014** | Como garantimos qualidade técnica **sem** contaminar o experimento de mercado? |
+
+Este ADR cobre apenas a camada de **Engenharia** (testing, personas, simulation, CI, Playwright). Estratégia, produto e operação têm objetivos e indicadores próprios; decisões técnicas não podem influenciar indevidamente a validação de mercado.

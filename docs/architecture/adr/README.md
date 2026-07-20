@@ -16,4 +16,12 @@ Decisões congeladas da fundação JudgeTCG.
 | [ADR-013](./ADR-013-tcg-expansion-allowlist.md) | TCG Expansion Allowlist & Denylist | Accepted |
 | [ADR-014](./ADR-014-testing-infrastructure-persona-composition.md) | Testing Infrastructure & Persona Composition | Accepted |
 
-Formato: Context → Decision → Consequences.
+### Tríade R1 (mercado × escopo × engenharia)
+
+| ADR | Pergunta |
+|-----|----------|
+| **012** | Qual mercado validamos primeiro? |
+| **013** | Quais TCGs fazem parte oficialmente do ecossistema? |
+| **014** | Como garantimos qualidade técnica sem contaminar o experimento de mercado? |
+
+Formato: Context → Decision → Non-goals (quando aplicável) → Consequences → Future.
