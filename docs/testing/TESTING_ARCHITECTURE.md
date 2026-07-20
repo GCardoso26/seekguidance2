@@ -44,8 +44,6 @@ ADRs preservados (invariantes): ADR-001 … ADR-007, ADR-012, ADR-013.
 
 Configuração: `testing/config/environments/{local,ci,staging,beta,production}.ts`
 
-Resolução: `JUDGE_TEST_ENV` → senão `APP_MODE` / `ENVIRONMENT` / `CI`.
-
 ### Regra fundamental — Beta
 
 ```bash
@@ -53,34 +51,64 @@ JUDGE_TEST_ENV=beta node testing/guards/assert-not-beta.mjs seed
 # → exit 1 (sempre)
 ```
 
-Não existem e **não devem existir**:
+Não existem e **não devem existir**: `seed-beta`, `cleanup-beta`.
 
-- `seed-beta`
-- `cleanup-beta`
-
-## Sexta camada: personas por TCG
+## Domínio de infraestrutura (`testing/`)
 
 ```
-testing/personas/
-  core/          # Persona, behaviors, builders
-  games/
-    lorcana/     # Store Alpha, Competitive, Collector
-    mtg/         # Commander Store, Competitive, Staples
-    pokemon/
-    onepiece/
-    digimon/
-    dragonball/
-    riftbound/
-    naruto/      # scaffold (datasetReady=false)
+testing/
+  personas/
+    archetypes/   # seller-large, competitive, collector, …
+    core/         # types, builders, behaviors
+    games/        # packs compostos (IDs estáveis / aliases)
+    compose.ts    # archetype × catalog → Persona
+  catalogs/       # datasets por jogo (lorcana, mtg, pokemon, …)
+  fixtures/
+  scenarios/      # Scenario → game → archetypes → flow → expect
+  builders/
+  executors/      # Simulation Layer (replay determinístico)
+  analytics/      # TCS / PCS (KPIs de engenharia)
+  reports/
+  seed/ guards/ playwright/ smoke/ config/
 ```
 
-### Modelo comum
+Objetivo: executar
 
-`Persona`: id, email, password, displayName, game, role, shop, inventory, wishlist, favorites, orders, cart, listings, behavior.
+```
+Scenario → Lorcana → Seller Large → Buyer Competitive → Checkout → Assertions
+```
 
-### Behaviors
+e depois `dataset = pokemon` **sem** alterar a suíte.
 
-`weeklyPublisher` | `competitiveSeller` | `casualSeller` | `collectorOnly` | `buyerOnly` | `hybrid`
+## Camadas de teste (7)
+
+| # | Camada | Papel |
+|---|--------|--------|
+| 1 | Unit | Contratos isolados |
+| 2 | Seed | Dados determinísticos local/ci/staging |
+| 3 | E2E | Playwright lifecycle |
+| 4 | Smoke | Read-only health/search/PDP |
+| 5 | Founder Validation | Ops / mercado (fora de `testing/`) |
+| 6 | Personas | Composição archetype × catalog |
+| 7 | **Simulation** | Replay N sellers/buyers/searches/carts → analytics esperado (sem IA) |
+
+## Composição de personas
+
+```
+archetypes/          catalogs/
+  seller-large   ×     lorcana  →  Lorcana Store Alpha
+  competitive    ×     lorcana  →  Lorcana Competitive
+  competitive    ×     pokemon  →  Pokémon Competitive
+  collector      ×     mtg      →  MTG Collector
+```
+
+Arquétipos: `seller-large` | `seller-small` | `collector` | `competitive` | `casual` | `buyer`
+
+### Behavior Profile
+
+Além de inventory / wishlist / orders / favorites:
+
+`publishesPerWeek`, `averageListings`, `averageOrderValueCents`, `returnsAfterDays`, `favoriteRarity`, `preferredLanguage`, `preferredCondition`, `foilPreference`, `competitiveFormat`, `collectionFocus`
 
 ### Aliases canônicos (Playwright)
 
@@ -90,7 +118,27 @@ testing/personas/
 | `buyer-alpha` | lorcana-competitive-buyer |
 | `collector-alpha` | lorcana-collector |
 
-A suíte E2E reutiliza os **mesmos fluxos**; só muda o dataset do jogo.
+## KPIs de engenharia (não são North Star)
+
+```
+TCS = Fluxos Automatizados / Fluxos Definidos
+PCS = Personas Exercitadas / Personas Existentes
+```
+
+```bash
+npm run test:coverage
+# → testing/reports/coverage-latest.json
+```
+
+Úteis ao abrir Pokémon / MTG / Naruto sem confundir com LPC/LCS/SD.
+
+## Simulation Layer (7ª)
+
+```
+50 sellers → 100 buyers → 1000 searches → 300 add-to-cart → analytics esperado
+```
+
+Sem IA / LLM. Replay determinístico em `testing/executors/simulation.ts`.
 
 ## Fluxo de execução
 
@@ -102,71 +150,55 @@ Local → CI → Staging → Beta → Produção
   free    personas demo   real     real
 ```
 
-### Pipeline CI (testing)
-
-```
-seed-ci → seed-personas → smoke (read-only) → cleanup-ci
-```
-
+Pipeline CI: `seed-ci → seed-personas → smoke → cleanup-ci`  
 Workflow: `.github/workflows/testing-infra.yml`
 
-### Seeds disponíveis
+## Como adicionar um novo jogo
 
-| Script | Ambiente |
-|--------|----------|
-| `testing/seed/seed-local.mjs` | local |
-| `testing/seed/seed-ci.mjs` | ci |
-| `testing/seed/seed-demo.mjs` | staging |
-| `testing/seed/seed-personas.mjs` | local/ci/staging |
-| `testing/seed/cleanup-ci.mjs` | ci |
-| `testing/seed/cleanup-demo.mjs` | staging |
-
-## Como adicionar um novo jogo (ex.: Naruto TCG)
-
-1. Criar `testing/personas/games/<slug>/index.ts` com `GamePersonaPack`.
-2. Se ainda não houver dataset: `datasetReady: false` (scaffold).
-3. Registrar em `testing/personas/games/index.ts`.
-4. **Não** reescrever specs Playwright — parametrizar pelo `game`.
-5. Respeitar ADR-013 (allowlist) no **produto**; aqui só existe dataset de teste.
+1. Criar `testing/catalogs/<slug>.ts` (`GameCatalog`; scaffold com `datasetReady: false`).
+2. Registrar em `testing/catalogs/index.ts` (+ overrides de IDs se necessário).
+3. Criar `testing/personas/games/<slug>/index.ts` via `composeDefaultPack(...)`.
+4. Registrar em `testing/personas/games/index.ts`.
+5. **Não** reescrever specs — parametrizar `game` / scenario.
+6. Produto: respeitar ADR-013 (allowlist); aqui só dataset de teste.
 
 ## Playwright
 
-- Specs de produto permanecem em `frontend/runtime_console_v3/e2e/`.
-- Bridge: `e2e/helpers/testing-bridge.ts` → personas.
-- Referência: `testing/playwright/persona-flows.spec.ts`.
-- `auth.setup.ts` e `seed:test` chamam o guard Beta.
+- Specs: `frontend/runtime_console_v3/e2e/`
+- Bridge: `e2e/helpers/testing-bridge.ts`
+- Guard Beta em `auth.setup.ts` e `seed:test`
 
-### Fluxos obrigatórios (migração)
+### Fluxos obrigatórios
 
 Seller: Login → Create listing → Edit → Update stock → Remove  
 Buyer: Search → PDP → Offer → Cart → CheckoutSession CREATED  
-Admin: Login → Dashboard → Moderar → Pedidos  
-Smoke: health → search Rapunzel → PDP/offers → HTTP 200 (sem mutar DB)
+Admin: Login → Dashboard → Moderação → Pedidos  
+Smoke: health → search → PDP/offers → HTTP 200 (sem mutar DB)
 
 ## LPC / LCS / Sprint 8
 
-- **Nenhuma** seed escreve em bancos que alimentam métricas de Beta/Prod.
+- Nenhuma seed escreve em bancos que alimentam métricas de Beta/Prod.
 - Guard falha se `JUDGE_TEST_ENV=beta` ou `APP_MODE=beta` / `production`.
 - Sprint 8 permanece congelada; esta infra **não** é feature de produto.
+
+## Backlog (não-P0)
+
+Já esboçado nesta pasta:
+
+- [x] Arquétipos reutilizáveis + composição
+- [x] Behavior Profile
+- [x] Scaffold Simulation Layer + TCS/PCS
+- [ ] Executor de scenarios ligado ao Playwright (param `dataset`)
+- [ ] Simulation com HTTP/API real em ci (ainda in-memory)
 
 ## Comandos
 
 ```bash
-# Guard
 node testing/guards/assert-not-beta.mjs seed
-
-# Seeds
-node testing/seed/seed-local.mjs
-node testing/seed/seed-ci.mjs
-node testing/seed/seed-personas.mjs
-node testing/seed/cleanup-ci.mjs
-
-# Pipeline
-node testing/seed/run-ci-pipeline.mjs
-
-# Smoke
-node testing/smoke/smoke-readonly.mjs
-
-# FE lifecycle (já guarda beta)
+npm run seed:personas
+npm run test:personas
+npm run test:compose    # archetype × catalog
+npm run test:coverage   # TCS / PCS
+npm run test:infra:ci
 cd frontend/runtime_console_v3 && npm run test:e2e:lifecycle
 ```

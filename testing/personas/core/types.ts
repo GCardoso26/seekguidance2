@@ -1,7 +1,11 @@
 /**
  * Modelo comum de Persona — exclusivo de testing/.
  * Não é domínio de produto; não altera contratos públicos.
+ *
+ * Persona = Archetype (comportamento) + GameCatalog (dataset).
  */
+
+import type { ArchetypeId, BehaviorProfile } from "../archetypes/types.ts";
 
 export type PersonaRole = "seller" | "buyer" | "collector" | "admin" | "hybrid";
 
@@ -56,6 +60,10 @@ export type Persona = {
   game: GameSlug;
   role: PersonaRole;
   behavior: SellerBehavior;
+  /** Composição: archetipo reutilizável (seller-large, competitive, …) */
+  archetypeId?: ArchetypeId;
+  /** Perfil de uso determinístico para cenários / simulation */
+  profile?: BehaviorProfile;
   shop: PersonaShop | null;
   inventory: InventoryLine[];
   wishlist: string[];

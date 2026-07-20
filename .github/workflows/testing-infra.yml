@@ -37,6 +37,10 @@ jobs:
         env:
           BASE_URL: http://127.0.0.1:9
           SMOKE_SOFT: "1"
+      - name: Compose (archetype × catalog)
+        run: npm run test:compose
+      - name: Coverage KPIs (TCS/PCS)
+        run: npm run test:coverage
       - name: Beta contamination self-test
         run: |
           set +e

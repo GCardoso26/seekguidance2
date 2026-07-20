@@ -1,0 +1,27 @@
+{
+  "generatedAt": "2026-07-19T16:30:16.508Z",
+  "note": "KPIs de engenharia de testes — NÃO são LPC/LCS/SD",
+  "tcs": {
+    "name": "TCS",
+    "numerator": 11,
+    "denominator": 17,
+    "score": 0.6470588235294118,
+    "percent": "64.7%"
+  },
+  "pcs": {
+    "name": "PCS",
+    "numerator": 3,
+    "denominator": 24,
+    "score": 0.125,
+    "percent": "12.5%"
+  },
+  "simulation": {
+    "planId": "sim-scale-smoke",
+    "sellers": 50,
+    "buyers": 100,
+    "searches": 1000,
+    "addToCart": 300,
+    "checkouts": 50,
+    "ok": true
+  }
+}

@@ -22,6 +22,8 @@
     "seed:staging": "node testing/seed/seed-demo.mjs",
     "seed:personas": "node testing/seed/seed-personas.mjs",
     "test:personas": "node testing/seed/validate-personas.mjs",
+    "test:coverage": "node testing/analytics/report-coverage.mjs",
+    "test:compose": "node --experimental-strip-types testing/seed/validate-compose.mjs",
     "cleanup:ci": "node testing/seed/cleanup-ci.mjs",
     "cleanup:demo": "node testing/seed/cleanup-demo.mjs",
     "test:smoke": "node testing/smoke/smoke-readonly.mjs",

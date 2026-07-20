@@ -1,3 +1,4 @@
+import type { ArchetypeId, BehaviorProfile } from "../archetypes/types.ts";
 import type { InventoryLine, Persona, PersonaOrder, PersonaShop } from "./types.ts";
 
 type BuildOpts = {
@@ -8,6 +9,8 @@ type BuildOpts = {
   game: Persona["game"];
   role: Persona["role"];
   behavior: Persona["behavior"];
+  archetypeId?: ArchetypeId;
+  profile?: BehaviorProfile;
   shop?: PersonaShop | null;
   inventory?: InventoryLine[];
   wishlist?: string[];
@@ -27,6 +30,8 @@ export function buildPersona(opts: BuildOpts): Persona {
     game: opts.game,
     role: opts.role,
     behavior: opts.behavior,
+    archetypeId: opts.archetypeId,
+    profile: opts.profile,
     shop: opts.shop ?? null,
     inventory: opts.inventory ?? [],
     wishlist: opts.wishlist ?? [],
