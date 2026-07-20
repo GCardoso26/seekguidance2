@@ -238,7 +238,7 @@ function FilterContent({
         </select>
       </div>
 
-      {gameCfg.filterFacets.map((facet) => (
+      {(gameCfg?.filterFacets ?? []).map((facet) => (
         <div key={facet.id}>
           <h3 className="mb-2 text-sm font-semibold">{facet.label}</h3>
           <div className="space-y-1">
@@ -249,7 +249,9 @@ function FilterContent({
               </label>
             ))}
           </div>
-          <p className="mt-1 text-xs text-muted-foreground">Facetas por GameConfig ({gameCfg.gameCode})</p>
+          {gameCfg ? (
+            <p className="mt-1 text-xs text-muted-foreground">Facetas por GameConfig ({gameCfg.gameCode})</p>
+          ) : null}
         </div>
       ))}
 
@@ -258,9 +260,12 @@ function FilterContent({
         <div className="flex flex-wrap gap-4">
           {[
             { value: null, label: "Todos" },
-            ...(gameCfg.capabilities.foil || gameCfg.capabilities.reverseHolo
+            ...(gameCfg?.capabilities.foil || gameCfg?.capabilities.reverseHolo
               ? [
-                  { value: true as boolean | null, label: gameCfg.capabilities.reverseHolo ? "Holo / Foil" : "Foil" },
+                  {
+                    value: true as boolean | null,
+                    label: gameCfg?.capabilities.reverseHolo ? "Holo / Foil" : "Foil",
+                  },
                   { value: false as boolean | null, label: "Normal" },
                 ]
               : []),
@@ -276,7 +281,7 @@ function FilterContent({
             </label>
           ))}
         </div>
-        {gameCfg.finishes.length > 0 && (
+        {gameCfg && gameCfg.finishes.length > 0 && (
           <p className="mt-2 text-xs text-muted-foreground">
             Disponíveis: {gameCfg.finishes.map((f) => f.label).join(", ")}
             {gameCfg.capabilities.etched ? " · etched" : ""}

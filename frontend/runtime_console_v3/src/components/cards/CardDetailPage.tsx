@@ -40,6 +40,7 @@ const CardJudgeInsights = dynamic(
   { ssr: false },
 );
 import { formatRarityDisplay } from "@/lib/game-config/rarity";
+import { gameCardsPath, gameLandingPath } from "@/lib/game-routes";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

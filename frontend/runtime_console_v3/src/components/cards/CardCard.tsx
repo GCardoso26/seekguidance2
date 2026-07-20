@@ -8,8 +8,7 @@ import { RarityBadge } from "@/components/catalog/RarityBadge";
 import { formatRarityDisplay } from "@/lib/game-config/rarity";
 import { Button } from "@/components/ui/button";
 import { cardImageUrl, formatCurrency } from "@/lib/format-currency";
-import { GAME_TOKENS } from "@/lib/tcg-tokens";
-import type { GameId, UnifiedCard } from "@/types/card";
+import type { UnifiedCard } from "@/types/card";
 import { cn } from "@/lib/utils";
 import { useAnalytics } from "@/hooks/useAnalytics";
 
@@ -34,7 +33,6 @@ export function CardCard({
   onAddToDeck,
   onViewDetail,
 }: CardCardProps) {
-  const gameToken = GAME_TOKENS[card.game as GameId];
   const hasFoil = card.latestPrice?.foil;
   const price = card.lowestPrice ?? card.latestPrice?.price;
   const currency = card.priceCurrency || card.latestPrice?.currency || "BRL";

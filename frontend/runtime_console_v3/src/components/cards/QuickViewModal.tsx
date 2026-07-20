@@ -6,6 +6,7 @@ import { CardImage } from "@/components/ui/CardImage";
 import { Button } from "@/components/ui/button";
 import { useCardDetail } from "@/hooks/useCardDetail";
 import { cardImageUrl, formatCurrency } from "@/lib/format-currency";
+import { cn } from "@/lib/utils";
 import { GAME_TOKENS, gameSlugFromId } from "@/lib/tcg-tokens";
 import type { GameId } from "@/types/card";
 import { RarityBadge } from "@/components/catalog/RarityBadge";
