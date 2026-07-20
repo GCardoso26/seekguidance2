@@ -32,7 +32,15 @@
     "test:campaign:gates": "node testing/audit/run-campaign-gates.mjs",
     "test:qa:orchestrator": "node testing/orchestrator/qa-orchestrator.mjs",
     "test:qa:trends": "node testing/orchestrator/generate-quality-trends.mjs",
-    "test:infra:ci": "node testing/seed/run-ci-pipeline.mjs"
+    "test:infra:ci": "node testing/seed/run-ci-pipeline.mjs",
+    "sync:sealed": "npm run sync:sealed --prefix services/api",
+    "sync:sleeves": "npm run sync:sleeves --prefix services/api",
+    "sync:deckboxes": "npm run sync:deckboxes --prefix services/api",
+    "sync:binders": "npm run sync:binders --prefix services/api",
+    "sync:pages": "npm run sync:pages --prefix services/api",
+    "sync:dice": "npm run sync:dice --prefix services/api",
+    "sync:counters": "npm run sync:counters --prefix services/api",
+    "sync:playmats": "npm run sync:playmats --prefix services/api"
   },
   "devDependencies": {
     "supabase": "^2.101.0"

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
 import { PageHeader, PageShell } from "@/components/seller-dashboard/PageShell";
@@ -110,14 +111,23 @@ export function ProductsPage() {
     <>
       <SellerHeader
         action={
-          <button
-            type="button"
-            onClick={openCreate}
-            data-testid="btn-add-product"
-            className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
-          >
-            + Novo produto
-          </button>
+          <div className="flex gap-2">
+            <Link
+              href="/vendedor/painel/catalogo/produtos/catalogo-mestre"
+              className="rounded-full border border-border px-4 py-2 text-sm font-semibold"
+              data-testid="btn-master-catalog"
+            >
+              Catálogo mestre
+            </Link>
+            <button
+              type="button"
+              onClick={openCreate}
+              data-testid="btn-add-product"
+              className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
+            >
+              + Novo produto
+            </button>
+          </div>
         }
       />
       <PageShell>

@@ -42,6 +42,9 @@ from app.api.v1.tournament_flow import router as tournament_flow_router
 from app.api.v1.tournament_system import router as tournament_system_router
 from app.catalog.catalog_api import router as catalog_api_router
 from app.catalog.games_api import router as catalog_games_api_router
+from app.product_catalog.product_catalog_api import router as product_catalog_api_router
+from app.pricing_platform.api import router as pricing_platform_api_router
+from app.marketplace_orchestrator.api import router as marketplace_orchestrator_api_router
 from app.config.sentry import init_sentry
 from app.core.config import get_settings
 from app.core.logging import configure_logging
@@ -355,6 +358,9 @@ app.include_router(platform_api_router)
 app.include_router(carrier_api_router)
 app.include_router(catalog_api_router)
 app.include_router(catalog_games_api_router)
+app.include_router(product_catalog_api_router)
+app.include_router(pricing_platform_api_router)
+app.include_router(marketplace_orchestrator_api_router)
 app.include_router(alerts_api_router)
 app.include_router(gamification_api_router)
 app.include_router(decks_api_router)

@@ -26,6 +26,10 @@ import {
   type CheckoutHttpDeps,
 } from "../../order/http/checkoutHandlers.js";
 import {
+  handleCheckoutV2Api,
+  type CheckoutV2HttpDeps,
+} from "../../checkout/http/checkoutV2Handlers.js";
+import {
   handlePaymentWebhookApi,
   mapPaymentWebhookError,
   type PaymentWebhookHttpDeps,
@@ -50,6 +54,8 @@ export interface AuthenticatedApiDeps {
   adjustInventory: AdjustInventoryApplicationService;
   /** Sprint 5.4 — optional until checkout stack is wired. */
   checkout?: CheckoutHttpDeps;
+  /** Checkout BC V2 (ADR-015) — /api/v1/checkout-v2/* */
+  checkoutV2?: CheckoutV2HttpDeps;
   /** Sprint 5.5 — Fake payment webhook simulation. */
   paymentWebhook?: PaymentWebhookHttpDeps;
   /** Sprint 6 — readiness probes (defaults to in-memory green). */
@@ -142,6 +148,12 @@ export function createAuthenticatedApiServer(deps: AuthenticatedApiDeps): Server
       // ── Checkout API (Sprint 5.4) ─────────────────────────────────────
       if (deps.checkout) {
         const handled = await handleCheckoutApi(deps.checkout, req, res, path, method);
+        if (handled) return;
+      }
+
+      // ── Checkout BC V2 (ADR-015) ───────────────────────────────────────
+      if (deps.checkoutV2) {
+        const handled = await handleCheckoutV2Api(deps.checkoutV2, req, res, path, method);
         if (handled) return;
       }
 

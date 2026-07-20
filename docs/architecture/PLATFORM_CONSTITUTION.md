@@ -79,21 +79,21 @@ ADRs **implementam** a Constituição. A Constituição **não supersede** ADRs 
 
 ---
 
-## Platform Freeze (pós-R3)
+## Platform Freeze (pós-R3 / ADR-015)
 
-> A arquitetura-base está **congelada**. A partir daqui só evolui **mediante evidência**.
+> A **fundação transversal** está **congelada**. Evolução estrutural exige RFC + ADR.  
+> **Épicos de negócio** (Checkout, Orders, Notifications, …) são a prioridade — ver [ADR-015](./adr/ADR-015-architecture-freeze-product-first.md).
 
 | Área | Estado | Evolui quando |
 | --- | --- | --- |
-| Foundation | **Frozen** | Evidência + ADR que supersede |
-| Marketplace | **Frozen** | Evidência de mercado (Beta) + ADR se estrutural |
-| Checkout | **Frozen** | Critério no [Debt Register](./TECHNICAL_DEBT_REGISTER.md) ou ADR |
-| Catalog | **Frozen** | Provider Lifecycle + certification |
-| Providers | **Frozen** | Expansion Playbook + certification (sem BC novo) |
-| Testing | **Frozen** | ADR que supersede ADR-014 |
-| Ops Framework | **Frozen** | Evidência operacional / MRB (sem dashboards de produto) |
+| Foundation / Governance | **Frozen** | Evidência excepcional + RFC + ADR |
+| Marketplace (orquestrador) | **Frozen** (API pública só) | Evidência de mercado + ADR se estrutural |
+| **Checkout** | **Open — próximo épico** | [CHECKOUT_BC_EPIC.md](./CHECKOUT_BC_EPIC.md) |
+| Orders / Notifications / Analytics | **Planned** | Após Checkout (roadmap ADR-015) |
+| Catalog / Pricing / Inventory | **Frozen** (só Public API) | Provider Lifecycle / ADR |
+| Testing / Ops Framework | **Frozen** | ADR que supersede |
 
-**Congelado** ≠ “nunca mais tocamos código”. Significa: **sem feature creep**, sem novos bounded contexts, sem atalhos por jogo, sem reabrir fundação por preferência.
+**Congelado** ≠ “nunca tocamos código”. Significa: **sem novos componentes transversais**, sem feature creep de infra, sem reabrir fundação por preferência. Código de **negócio** avança via interfaces públicas.
 
 ---
 
@@ -106,8 +106,10 @@ ADRs **implementam** a Constituição. A Constituição **não supersede** ADRs 
 5. Adicionar um TCG **sem** Provider Lifecycle (`Research` → … → Live / Beachhead).
 6. Criar **exceções por jogo** (`if (game === …)` fora de `GameConfiguration` / módulo do provider).
 7. Abrir Payment / SEO / IA / Chat / Social / Ranking / ERP / CSV **antes** de evidência de mercado que justifique.
-8. Alterar North Star Release 1 ou ADRs 001–014 **in-place** para acomodar feature.
+8. Alterar North Star Release 1 ou ADRs 001–015 **in-place** para acomodar feature.
 9. Construir features para **problemas imaginados** (Decision Quality).
+10. Adicionar **componente transversal** (Event Store integral, mesh, novo bus, etc.) **sem** RFC + ADR (ADR-015).
+11. Acessar SQL/repositórios internos de outro BC a partir de Checkout/Orders (ADR-011).
 
 ---
 
@@ -120,7 +122,9 @@ ADRs **implementam** a Constituição. A Constituição **não supersede** ADRs 
 5. Separar **Engineering / Operations / Market / Business** nos relatórios ops.
 6. Tratar débitos temporários no [Technical Debt Register](./TECHNICAL_DEBT_REGISTER.md).
 7. Perguntar: **reduz incerteza?** e **problema observado?** — senão, **não entra**.
-8. Manter [`PROJECT_STATUS.md`](../../PROJECT_STATUS.md) gerado (`npm run test:ops-reports`) como porta de entrada do repo.
+8. Respeitar **ADR-015**: produto primeiro; infra transversal só com RFC + ADR.
+9. Cumprir [Definition of Done](../engineering/DEFINITION_OF_DONE.md) em todo PR.
+10. Manter [`PROJECT_STATUS.md`](../../PROJECT_STATUS.md) gerado (`npm run test:ops-reports`) como porta de entrada do repo.
 
 ---
 

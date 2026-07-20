@@ -15,9 +15,21 @@ Débitos aceitos temporariamente: [`TECHNICAL_DEBT_REGISTER.md`](../TECHNICAL_DE
 | [ADR-005](./ADR-005-application-service-per-aggregate.md) | Application Service por Aggregate Root | Accepted |
 | [ADR-006](./ADR-006-provider-certification.md) | Provider Certification | Accepted |
 | [ADR-007](./ADR-007-marketplace-domain-boundaries.md) | Marketplace Domain Boundaries | Accepted |
+| [ADR-008](./ADR-008-domain-event-contract.md) | Domain Event Contract | Accepted |
+| [ADR-009](./ADR-009-idempotent-command-handlers.md) | Idempotent Command Handlers | Accepted |
+| [ADR-010](./ADR-010-event-versioning.md) | Event Versioning | Accepted |
+| [ADR-011](./ADR-011-public-api-boundaries.md) | Public API Boundaries | Accepted |
 | [ADR-012](./ADR-012-lorcana-first-beachhead.md) | Lorcana-first Beachhead Strategy | Accepted |
 | [ADR-013](./ADR-013-tcg-expansion-allowlist.md) | TCG Expansion Allowlist & Denylist | Accepted |
 | [ADR-014](./ADR-014-testing-infrastructure-persona-composition.md) | Testing Infrastructure & Persona Composition | Accepted |
+| [ADR-015](./ADR-015-architecture-freeze-product-first.md) | Architecture Freeze & Product-First Delivery | Accepted |
+
+### Processo de engenharia (pós-fundação)
+
+- [Definition of Done](../../engineering/DEFINITION_OF_DONE.md)
+- [RFC Process](../../engineering/RFC_PROCESS.md)
+- [Release Train](../../engineering/RELEASE_TRAIN.md)
+- [Checkout BC Epic](../CHECKOUT_BC_EPIC.md)
 
 ### Tríade R1 (mercado × escopo × engenharia)
 

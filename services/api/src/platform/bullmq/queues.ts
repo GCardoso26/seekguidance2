@@ -20,6 +20,14 @@ export const QUEUE_NAMES = {
   currencyRates: "currency.rates",
   searchSync: "search.sync",
   analyticsIngest: "analytics.ingest",
+  productCatalogSealed: "catalog.sync.sealed",
+  productCatalogSleeves: "catalog.sync.sleeves",
+  productCatalogDeckboxes: "catalog.sync.deckboxes",
+  productCatalogBinders: "catalog.sync.binders",
+  productCatalogPages: "catalog.sync.pages",
+  productCatalogDice: "catalog.sync.dice",
+  productCatalogCounters: "catalog.sync.counters",
+  productCatalogPlaymats: "catalog.sync.playmats",
 } as const;
 
 export type QueueName = (typeof QUEUE_NAMES)[keyof typeof QUEUE_NAMES];
