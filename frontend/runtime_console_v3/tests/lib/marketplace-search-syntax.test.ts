@@ -30,6 +30,7 @@ describe("isKnownValue", () => {
 
   it("rejeita valor desconhecido em campo com lista fixa", () => {
     expect(isKnownValue("color", "Z")).toBe(false);
+    expect(isKnownValue("rarity", "legendary", "mtg")).toBe(false);
     expect(isKnownValue("rarity", "legendary")).toBe(false);
   });
 
@@ -41,7 +42,7 @@ describe("isKnownValue", () => {
 describe("suggestValue", () => {
   it("sugere correção para typo parcial", () => {
     expect(suggestValue("color", "bl")).toBe("Blue");
-    expect(suggestValue("rarity", "myt")).toBe("mythic");
+    expect(suggestValue("rarity", "myt", "mtg")).toBe("mythic");
   });
 
   it("retorna null quando não há match", () => {

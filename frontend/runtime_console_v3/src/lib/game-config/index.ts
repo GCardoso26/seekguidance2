@@ -162,8 +162,10 @@ export const GAME_CONFIGS: GameConfiguration[] = [
       { value: "common", label: "Common", color: "#9CA3AF" },
       { value: "uncommon", label: "Uncommon", color: "#22C55E" },
       { value: "rare", label: "Rare", color: "#3B82F6" },
-      { value: "mythic", label: "Mythic", color: "#EF4444" },
+      { value: "mythic", label: "Mythic Rare", color: "#EF4444" },
       { value: "special", label: "Special", color: "#F59E0B" },
+      { value: "bonus", label: "Bonus", color: "#8B5CF6" },
+      { value: "masterpiece", label: "Masterpiece", color: "#EC4899" },
     ],
     languages: [
       { value: "en", label: "Inglês" },
@@ -253,10 +255,14 @@ export const GAME_CONFIGS: GameConfiguration[] = [
       { value: "Common", label: "Common", color: "#9CA3AF" },
       { value: "Uncommon", label: "Uncommon", color: "#22C55E" },
       { value: "Rare", label: "Rare", color: "#3B82F6" },
-      { value: "Rare Holo", label: "Rare Holo", color: "#6366F1" },
+      { value: "Double Rare", label: "Double Rare", color: "#6366F1" },
+      { value: "Rare Holo", label: "Rare Holo", color: "#818CF8" },
       { value: "Illustration Rare", label: "Illustration Rare", color: "#EC4899" },
       { value: "Special Illustration Rare", label: "Special Illustration Rare", color: "#F59E0B" },
+      { value: "Hyper Rare", label: "Hyper Rare", color: "#D946EF" },
       { value: "ACE SPEC", label: "ACE SPEC", color: "#EF4444" },
+      { value: "Amazing Rare", label: "Amazing Rare", color: "#14B8A6" },
+      { value: "Promo", label: "Promo", color: "#64748B" },
     ],
     languages: [
       { value: "en", label: "Inglês" },
@@ -327,5 +333,15 @@ export function getGameConfig(gameOrSlug: string | undefined | null): GameConfig
 }
 
 export function getGameConfigOrFallback(gameOrSlug: string | undefined | null): GameConfiguration {
+  /** Apenas para watchlist/synonyms quando slug ausente — não usar para filtros de raridade. */
   return getGameConfig(gameOrSlug) ?? GAME_CONFIGS.find((c) => c.gameCode === "LORCANA")!;
 }
+
+export {
+  formatRarityDisplay,
+  findRarityOption,
+  getRarityOptions,
+  getRaritySyntaxValues,
+  isRarityAllowedForGame,
+  normalizedRarityValue,
+} from "./rarity";

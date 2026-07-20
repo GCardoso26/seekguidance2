@@ -26,9 +26,10 @@ export const mtgGameConfig: GameConfiguration = {
     { value: "common", label: "Common", color: "#9CA3AF" },
     { value: "uncommon", label: "Uncommon", color: "#22C55E" },
     { value: "rare", label: "Rare", color: "#3B82F6" },
-    { value: "mythic", label: "Mythic", color: "#EF4444" },
+    { value: "mythic", label: "Mythic Rare", color: "#EF4444" },
     { value: "special", label: "Special", color: "#F59E0B" },
     { value: "bonus", label: "Bonus", color: "#8B5CF6" },
+    { value: "masterpiece", label: "Masterpiece", color: "#EC4899" },
   ],
   languages: [
     { value: "en", label: "English" },

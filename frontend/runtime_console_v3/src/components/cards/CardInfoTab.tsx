@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { formatRarityDisplay } from "@/lib/game-config/rarity";
 import type { UnifiedCard } from "@/types/card";
 
 type Props = {
@@ -37,7 +38,7 @@ export function CardInfoTab({ card }: Props) {
         <dt className="text-muted-foreground">Número</dt>
         <dd>{card.number}</dd>
         <dt className="text-muted-foreground">Raridade</dt>
-        <dd className="capitalize">{card.rarity}</dd>
+        <dd>{formatRarityDisplay(card.game, card.rarity)}</dd>
         <dt className="text-muted-foreground">Idioma</dt>
         <dd>{card.language?.toUpperCase()}</dd>
       </dl>

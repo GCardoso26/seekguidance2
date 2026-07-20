@@ -1,3 +1,5 @@
+import { isRarityAllowedForGame, getRaritySyntaxValues } from "@/lib/game-config/rarity";
+
 export type SyntaxFilterField =
   | "name"
   | "set"
@@ -84,14 +86,24 @@ export const FIELD_COLORS: Record<string, string> = {
 
 const VALUE_AUTOCOMPLETE_FIELDS = new Set(["set", "color", "colors", "artist", "rarity", "type", "types"]);
 
-export function isKnownValue(field: string, value: string): boolean {
-  const known = KNOWN_VALUES[field.toLowerCase()];
+export function isKnownValue(field: string, value: string, gameOrSlug?: string | null): boolean {
+  const fieldKey = field.toLowerCase();
+  if (fieldKey === "rarity" && gameOrSlug) {
+    return isRarityAllowedForGame(gameOrSlug, value);
+  }
+  const known = KNOWN_VALUES[fieldKey];
   if (!known) return true;
   return known.some((k) => k.toLowerCase() === value.toLowerCase());
 }
 
-export function suggestValue(field: string, value: string): string | null {
-  const known = KNOWN_VALUES[field.toLowerCase()];
+export function suggestValue(field: string, value: string, gameOrSlug?: string | null): string | null {
+  const fieldKey = field.toLowerCase();
+  if (fieldKey === "rarity" && gameOrSlug) {
+    const known = getRaritySyntaxValues(gameOrSlug);
+    const match = known.find((k) => k.toLowerCase().startsWith(value.toLowerCase()));
+    return match ?? null;
+  }
+  const known = KNOWN_VALUES[fieldKey];
   if (!known) return null;
   const match = known.find((k) => k.toLowerCase().startsWith(value.toLowerCase()));
   return match ?? null;

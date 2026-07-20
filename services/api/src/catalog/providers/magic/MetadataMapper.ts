@@ -1,4 +1,6 @@
 import type { CardDTO, SetDTO, VariantDTO } from "../interfaces/CatalogProvider.js";
+import { displayRarityFromConfig } from "../shared/rarityFromConfig.js";
+import { mtgGameConfig } from "./GameConfig.js";
 import { resolveScryfallImageUrl } from "./ImageResolver.js";
 import type { ScryfallCard, ScryfallSet } from "./types.js";
 
@@ -18,7 +20,7 @@ export function mapCard(c: ScryfallCard): CardDTO {
     name: c.name,
     normalizedName: c.name.trim().toLowerCase().replace(/\s+/g, " "),
     cardNumber: c.collector_number,
-    rarity: c.rarity,
+    rarity: displayRarityFromConfig(mtgGameConfig.rarities, c.rarity),
     language: c.lang,
     oracleText: c.oracle_text ?? c.card_faces?.[0]?.oracle_text,
     typeLine: c.type_line ?? c.card_faces?.[0]?.type_line,

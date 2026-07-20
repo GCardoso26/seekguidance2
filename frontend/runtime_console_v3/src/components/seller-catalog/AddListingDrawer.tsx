@@ -12,6 +12,7 @@ import {
   type AddListingFormValues,
 } from "@/lib/seller-catalog-listing-form";
 import type { CatalogCard } from "@/hooks/useCatalogCards";
+import { formatRarityDisplay } from "@/lib/game-config/rarity";
 
 type Props = {
   card: CatalogCard | null;
@@ -103,7 +104,11 @@ export function AddListingDrawer({ card, open, onOpenChange, onSaved }: Props) {
                 <div className="text-sm">
                   <p className="font-semibold">{card.name}</p>
                   {card.set_name && <p className="text-muted-foreground">{card.set_name}</p>}
-                  {card.rarity && <p className="text-xs text-muted-foreground">Raridade: {card.rarity}</p>}
+                  {card.rarity && (
+                    <p className="text-xs text-muted-foreground">
+                      Raridade: {formatRarityDisplay(card.game, card.rarity)}
+                    </p>
+                  )}
                 </div>
               </div>
 

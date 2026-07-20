@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { Image as ImageIcon, ZoomIn } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { RarityBadge } from "@/components/catalog/RarityBadge";
 import { cardImageUrl, shouldBypassImageOptimizer } from "@/lib/format-currency";
 import { GAME_TOKENS } from "@/lib/tcg-tokens";
 import type { GameId, UnifiedCard } from "@/types/card";
@@ -65,17 +66,7 @@ export function CardDetailHero({ card, imageError, onImageError, onZoom, classNa
         {hasFoil && (
           <Badge variant="warning">Foil</Badge>
         )}
-        {card.rarity && (
-          <Badge
-            variant="secondary"
-            style={{
-              backgroundColor: `${gameToken?.primary ?? "#666"}12`,
-              color: gameToken?.primary ?? undefined,
-            }}
-          >
-            {card.rarity}
-          </Badge>
-        )}
+        {card.rarity && <RarityBadge game={card.game} rarity={card.rarity} />}
         {card.set?.name && <Badge variant="outline">{card.set.name}</Badge>}
         {card.number && <Badge variant="muted">#{card.number}</Badge>}
       </div>

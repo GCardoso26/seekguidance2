@@ -39,7 +39,7 @@ const CardJudgeInsights = dynamic(
   () => import("@/components/cards/CardJudgeInsights").then((m) => m.CardJudgeInsights),
   { ssr: false },
 );
-import { gameCardsPath, gameLandingPath } from "@/lib/game-routes";
+import { formatRarityDisplay } from "@/lib/game-config/rarity";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -194,7 +194,7 @@ export function CardDetailPage({ cardId }: CardDetailPageProps) {
                   <p className="text-small text-muted-foreground">
                     {card.set?.name}
                     {card.number ? ` · #${card.number}` : ""}
-                    {card.rarity ? ` · ${card.rarity}` : ""}
+                    {card.rarity ? ` · ${formatRarityDisplay(card.game, card.rarity)}` : ""}
                     {card.language ? ` · ${card.language.toUpperCase()}` : ""}
                     {card.artist ? ` · ${card.artist}` : ""}
                   </p>

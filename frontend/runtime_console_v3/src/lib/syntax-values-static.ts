@@ -1,3 +1,6 @@
+import { getGameConfig } from "@/lib/game-config";
+import { getRaritySyntaxValues } from "@/lib/game-config/rarity";
+
 export type SyntaxValueOption = {
   value: string;
   count: number;
@@ -10,23 +13,6 @@ export type SyntaxValuesResponse = {
   query: string;
   values: SyntaxValueOption[];
   total: number;
-};
-
-const STATIC_VALUES: Record<string, Record<string, string[]>> = {
-  mtg: {
-    color: ["W", "U", "B", "R", "G", "C", "M", "White", "Blue", "Black", "Red", "Green", "Colorless", "Multicolor"],
-    rarity: ["common", "uncommon", "rare", "mythic", "special", "bonus", "land"],
-    type: ["Creature", "Instant", "Sorcery", "Enchantment", "Artifact", "Planeswalker", "Land", "Battle"],
-    set: ["Dominaria United", "Modern Horizons 3", "Outlaws of Thunder Junction", "Bloomburrow", "Commander Masters"],
-    artist: ["John Avon", "Terese Nielsen", "Seb McKinnon"],
-    grading_company: ["PSA", "BGS", "CGC", "SGC", "ACE"],
-  },
-  pokemon: {
-    color: ["Grass", "Fire", "Water", "Lightning", "Psychic", "Fighting", "Darkness", "Metal", "Fairy", "Dragon", "Colorless"],
-    rarity: ["Common", "Uncommon", "Rare", "Rare Holo", "Ultra Rare", "Secret Rare", "Promo"],
-    type: ["Pokemon", "Trainer", "Energy"],
-    set: ["Scarlet & Violet", "Paldea Evolved", "Obsidian Flames"],
-  },
 };
 
 const COLOR_LABELS: Record<string, string> = {
@@ -49,6 +35,20 @@ function highlightText(value: string, query: string): string | null {
   return `${before}<b>${match}</b>${after}`;
 }
 
+function staticPoolForField(game: string, fieldKey: string): string[] {
+  const cfg = getGameConfig(game);
+  if (!cfg) return [];
+
+  if (fieldKey === "rarity") return getRaritySyntaxValues(game);
+  if (fieldKey === "color" || fieldKey === "colors") {
+    return (cfg.colors ?? []).map((c) => c.value);
+  }
+  if (fieldKey === "type" || fieldKey === "types") {
+    return cfg.types ?? [];
+  }
+  return [];
+}
+
 export function getStaticSyntaxValues(
   field: string,
   game: string,
@@ -57,7 +57,7 @@ export function getStaticSyntaxValues(
 ): SyntaxValuesResponse {
   const gameKey = game.toLowerCase();
   const fieldKey = field.toLowerCase();
-  const pool = STATIC_VALUES[gameKey]?.[fieldKey] ?? STATIC_VALUES.mtg?.[fieldKey] ?? [];
+  const pool = staticPoolForField(gameKey, fieldKey);
   const query = q.trim().toLowerCase();
 
   let filtered = pool;

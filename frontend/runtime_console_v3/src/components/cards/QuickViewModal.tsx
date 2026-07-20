@@ -8,7 +8,7 @@ import { useCardDetail } from "@/hooks/useCardDetail";
 import { cardImageUrl, formatCurrency } from "@/lib/format-currency";
 import { GAME_TOKENS, gameSlugFromId } from "@/lib/tcg-tokens";
 import type { GameId } from "@/types/card";
-import { cn } from "@/lib/utils";
+import { RarityBadge } from "@/components/catalog/RarityBadge";
 import { useEffect } from "react";
 
 interface QuickViewModalProps {
@@ -102,17 +102,7 @@ export function QuickViewModal({ cardId, isOpen, onClose }: QuickViewModalProps)
                 <p className="text-muted-foreground">
                   {card.set.name} · {gameToken?.name ?? card.game}
                 </p>
-                {card.rarity && (
-                  <span
-                    className="mt-2 inline-block rounded-full px-2 py-0.5 text-xs font-medium"
-                    style={{
-                      backgroundColor: `${gameToken?.primary ?? "#666"}20`,
-                      color: gameToken?.primary ?? "#666",
-                    }}
-                  >
-                    {card.rarity}
-                  </span>
-                )}
+                {card.rarity && <RarityBadge game={card.game} rarity={card.rarity} className="mt-2" />}
               </div>
 
               <div className="space-y-2">

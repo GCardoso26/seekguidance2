@@ -1,4 +1,6 @@
 import type { CardDTO, SetDTO, VariantDTO } from "../interfaces/CatalogProvider.js";
+import { displayRarityFromConfig } from "../shared/rarityFromConfig.js";
+import { lorcanaGameConfig } from "./GameConfig.js";
 import { resolveLorcanaImageUrl } from "./ImageResolver.js";
 import type { LorcanaDatasetCard, LorcanaDatasetSet } from "./types.js";
 
@@ -34,7 +36,7 @@ export function mapCard(card: LorcanaDatasetCard): CardDTO {
     name,
     normalizedName: name.trim().toLowerCase().replace(/\s+/g, " "),
     cardNumber: card.collectorNumber,
-    rarity: card.rarity,
+    rarity: displayRarityFromConfig(lorcanaGameConfig.rarities, card.rarity),
     language: card.lang ?? "en",
     oracleText: card.text,
     typeLine: typeLine || undefined,

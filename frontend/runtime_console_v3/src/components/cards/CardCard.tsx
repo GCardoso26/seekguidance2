@@ -4,6 +4,8 @@ import { Eye, Layers, ShoppingCart } from "lucide-react";
 import { CardImage } from "@/components/ui/CardImage";
 import { PriceSparkline } from "@/components/cards/PriceSparkline";
 import { Badge } from "@/components/ui/badge";
+import { RarityBadge } from "@/components/catalog/RarityBadge";
+import { formatRarityDisplay } from "@/lib/game-config/rarity";
 import { Button } from "@/components/ui/button";
 import { cardImageUrl, formatCurrency } from "@/lib/format-currency";
 import { GAME_TOKENS } from "@/lib/tcg-tokens";
@@ -59,7 +61,7 @@ export function CardCard({
         variant === "detailed" && "p-1",
       )}
       role="article"
-      aria-label={`${card.name}, ${card.set.name}, ${card.rarity}`}
+      aria-label={`${card.name}, ${card.set.name}, ${formatRarityDisplay(card.game, card.rarity)}`}
       onClick={handleViewDetail}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
@@ -139,17 +141,7 @@ export function CardCard({
         </p>
 
         <div className="mt-2 flex flex-wrap items-center gap-2">
-          {card.rarity && (
-            <Badge
-              variant="secondary"
-              style={{
-                backgroundColor: `${gameToken?.primary ?? "#666"}15`,
-                color: gameToken?.primary ?? undefined,
-              }}
-            >
-              {card.rarity}
-            </Badge>
-          )}
+          {card.rarity && <RarityBadge game={card.game} rarity={card.rarity} />}
           {card.listingCount !== undefined && card.listingCount > 0 && (
             <span className="text-caption text-muted-foreground">
               {card.listingCount} oferta{card.listingCount !== 1 ? "s" : ""}

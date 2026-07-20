@@ -11,6 +11,7 @@ import { Search } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { trackEvent } from "@/lib/analytics";
+import { formatRarityDisplay } from "@/lib/game-config/rarity";
 import type { GameId, UnifiedCard } from "@/types/card";
 
 export interface CardGridProps {
@@ -64,7 +65,9 @@ function CardListItem({
           {card.number ? ` · #${card.number}` : ""}
         </p>
         {card.rarity && (
-          <span className="mt-1 text-xs text-muted-foreground">{card.rarity}</span>
+          <span className="mt-1 text-xs text-muted-foreground">
+            {formatRarityDisplay(card.game, card.rarity)}
+          </span>
         )}
         {card.listingCount != null && card.listingCount > 0 ? (
           <span className="mt-1 text-xs text-muted-foreground">
@@ -214,7 +217,7 @@ export function CardGrid({
                       <td className="p-2 font-medium">{card.name}</td>
                       <td className="p-2 text-muted-foreground">{card.set?.name}</td>
                       <td className="p-2">{card.number}</td>
-                      <td className="p-2 capitalize">{card.rarity}</td>
+                      <td className="p-2">{formatRarityDisplay(card.game, card.rarity)}</td>
                       <td className="p-2 text-right font-semibold">
                         {price != null
                           ? formatCurrency(price, card.latestPrice?.currency ?? "USD")

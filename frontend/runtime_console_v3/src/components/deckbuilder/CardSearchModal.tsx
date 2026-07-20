@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { X } from "lucide-react";
 import { useCardSearch, useCatalogSets } from "@/hooks/useCardSearch";
 import { useDebounce } from "@/hooks/useDebounce";
+import { getRarityOptions } from "@/lib/game-config";
 import { gameFilters } from "@/lib/game-filters";
 import type { DeckBuilderZoneId } from "@/types/deck";
 import type { UnifiedCard } from "@/types/card";
@@ -33,6 +34,7 @@ export function CardSearchModal({
 
   const gameSlug = gameCode.toLowerCase();
   const filterConfig = gameFilters[gameSlug] ?? {};
+  const rarityOptions = getRarityOptions(gameSlug);
   const { data: availableSets = [] } = useCatalogSets(gameCode);
 
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useCardSearch({
@@ -81,6 +83,7 @@ export function CardSearchModal({
             rarity={rarity}
             onRarityChange={setRarity}
             availableSets={availableSets}
+            rarityOptions={rarityOptions}
             gameSpecificTypes={filterConfig.types}
             selectedType={selectedType}
             onTypeChange={setSelectedType}

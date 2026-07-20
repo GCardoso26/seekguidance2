@@ -4,8 +4,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { Filter, X } from "lucide-react";
 import { useMemo } from "react";
 import { ALL_GAME_IDS, GAME_TOKENS } from "@/lib/tcg-tokens";
-import { gameFilters } from "@/lib/game-filters";
-import { getGameConfigOrFallback } from "@/lib/game-config";
+import { getGameConfig } from "@/lib/game-config";
 import type { CatalogSetOption, SearchFilters } from "@/types/search";
 
 interface SearchFiltersPanelProps {
@@ -49,11 +48,11 @@ function FilterContent({
   availableSets,
   lockGame = false,
 }: SearchFiltersPanelProps) {
-  const gameCfg = getGameConfigOrFallback(filters.game);
-  const rarityOptions = gameCfg.rarities;
-  const conditionOptions = gameCfg.conditions;
-  const languageOptions = gameCfg.languages;
-  const colorOptions = gameCfg.colors ?? gameFilters.mtg?.colors;
+  const gameCfg = getGameConfig(filters.game);
+  const rarityOptions = gameCfg?.rarities ?? [];
+  const conditionOptions = gameCfg?.conditions ?? [];
+  const languageOptions = gameCfg?.languages ?? [];
+  const colorOptions = gameCfg?.colors ?? [];
 
   return (
     <div className="space-y-6">

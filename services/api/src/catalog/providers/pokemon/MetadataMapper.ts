@@ -1,4 +1,6 @@
 import type { CardDTO, SetDTO, VariantDTO } from "../interfaces/CatalogProvider.js";
+import { displayRarityFromConfig } from "../shared/rarityFromConfig.js";
+import { pokemonGameConfig } from "./GameConfig.js";
 import { resolvePokemonImageUrl } from "./ImageResolver.js";
 import type { PokemonDatasetCard, PokemonDatasetSet } from "./types.js";
 
@@ -18,7 +20,7 @@ export function mapCard(card: PokemonDatasetCard): CardDTO {
     name: card.name,
     normalizedName: card.name.trim().toLowerCase().replace(/\s+/g, " "),
     cardNumber: card.collectorNumber,
-    rarity: card.rarity,
+    rarity: displayRarityFromConfig(pokemonGameConfig.rarities, card.rarity),
     language: card.lang ?? "en",
     oracleText: card.text,
     typeLine: card.types?.join(" "),
