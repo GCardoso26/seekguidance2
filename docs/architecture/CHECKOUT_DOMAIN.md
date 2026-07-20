@@ -1,6 +1,6 @@
 # Checkout BC V2
 
-**Status:** Implementing (ADR-015)  
+**Status:** Sprint 1 — Cart / Coupon Rules / PaymentGateway / Validation  
 **Épico:** [CHECKOUT_BC_EPIC.md](./CHECKOUT_BC_EPIC.md)  
 **Public API:** `services/api/src/checkout/public.ts`
 
@@ -8,25 +8,23 @@
 
 | Capacidade | Implementação |
 |------------|----------------|
-| Cart | `checkout.carts` / `checkout.cart_items` |
-| Hold | `InventoryService.hold` (Saga step) |
-| Pricing refresh | `PricingService.getValuation` |
-| Cupom | `checkout.coupons` (percent / amount) |
-| Payment Intent | `StubPaymentIntentAdapter` |
-| Saga | `StartCheckout` via `SagaOrchestrator` |
-| Events | `CheckoutStarted.v1`, `OrderCreated.v1` via Factory + Outbox |
+| Cart Aggregate | `CartAggregate` — AddItem, RemoveItem, UpdateQuantity, Merge*, ValidateItems |
+| Coupon Rules | `CouponEngine` + rules (fixed, %, free shipping, min, max uses, expiry, seller/marketplace, game/category) |
+| Validation pipeline | Validators independentes → CreateSession |
+| Hold | `InventoryService.hold` (Saga) |
+| Pricing | `PricingService.getValuation` |
+| Payment | `PaymentGateway` — create + confirm (Stub; Stripe/MP via adapter) |
+| Confirm | Saga `ConfirmPayment`: gateway → `InventoryService.confirm` → completed |
+| Events | `CheckoutStarted` → (`PaymentApproved`, `InventoryConfirmed`, `OrderCreated`, `CheckoutCompleted`) |
 
 ## HTTP
 
-Prefixo: `/api/v1/checkout-v2` (não colide com Order legado)
+`/api/v1/checkout-v2` — cart CRUD, merge, validate, sessions, **confirm-payment**.
 
-- `POST /cart` · `GET /cart/:id` · `POST /cart/:id/items` · `DELETE /cart/:id/items/:listingId`
-- `POST /sessions` · `GET /sessions/:id`
-
-Feature flag: `checkout_v2` (default OFF). CLI: `CHECKOUT_V2_FORCE=1 npm run checkout:start -- <buyerId> <cartId>`.
+Feature flag: `checkout_v2` (default OFF).
 
 ## Boundaries
 
 Checkout **may** import: `marketplace/public`, `pricing/public`, `inventory/public`, platform saga/flags/outbox/events.
 
-Checkout **must not** SQL em `marketplace.*`, `inventory.*`, `pricing.*`.
+Checkout **must not** SQL em schemas alheios.

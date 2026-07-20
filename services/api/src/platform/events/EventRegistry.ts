@@ -35,6 +35,9 @@ const CORE_EVENTS: EventSchemaRegistration[] = [
   { eventType: "ProductCreated.v1", version: 1, description: "Master catalog product", frozen: true },
   { eventType: "ProductImported.v1", version: 1, description: "Product import upsert", frozen: true },
   { eventType: "CheckoutStarted.v1", version: 1, description: "Checkout V2 session started", frozen: true, payloadKeys: ["cartId", "buyerId", "totalCents"] },
+  { eventType: "CheckoutCompleted.v1", version: 1, description: "Checkout V2 payment confirmed and inventory confirmed", frozen: true, payloadKeys: ["buyerId", "sessionId", "totalCents"] },
+  { eventType: "PaymentApproved.v1", version: 1, description: "Payment intent succeeded", frozen: true, payloadKeys: ["paymentIntentId", "sessionId"] },
+  { eventType: "InventoryConfirmed.v1", version: 1, description: "Reservations confirmed after payment", frozen: true, payloadKeys: ["reservationIds", "sessionId"] },
   { eventType: "OrderCreated.v1", version: 1, description: "Order created from checkout session", frozen: true, payloadKeys: ["buyerId", "checkoutSessionId", "totalAmountCents"] },
 ];
 

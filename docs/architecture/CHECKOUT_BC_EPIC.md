@@ -1,12 +1,21 @@
-# Checkout BC — Épico (próximo desenvolvimento)
+# Checkout BC — Épico
 
-**Status:** In progress (implementação iniciada)  
+**Status:** In progress — Sprint 1 (capacidades de domínio)  
 **Prioridade:** 🔴 Muito alta  
-**Não começar** novos componentes transversais neste épico.
+**Disciplina (ADR-015):** Arquitetura em **modo manutenção** — só evolui via RFC + ADR.  
+Desenvolvimento foca em **funcionalidades de negócio**. Métrica de sucesso = valor ao usuário, não novos componentes transversais.
 
 ## Objetivo
 
-Fluxo completo de negócio: carrinho → reserva → preço → cupom (simples) → Payment Intent → confirmação, **orquestrado por Saga**, eventos via **Outbox**.
+Fluxo completo via **interfaces públicas**, **Saga**, **Outbox**, **sem SQL cross-schema**:
+
+```text
+Carrinho → Validação → Reserva → Precificação → Cupom
+  → Payment Intent → Pagamento confirmado → OrderCreated
+  → InventoryConfirm → Notification* → Analytics*
+```
+
+\* Notification e Analytics **consomem eventos** — nenhum BC chama Notification diretamente; Analytics nunca faz `SELECT checkout.sessions`.
 
 ## Domínio
 
@@ -15,13 +24,12 @@ Ver [CHECKOUT_DOMAIN.md](./CHECKOUT_DOMAIN.md).
 ## Consumidores permitidos (somente Public API)
 
 ```text
-MarketplaceOrchestrator / marketplace/public
-PricingService           / pricing/public
-InventoryService         / inventory/public  (hold | confirm | release)
+ListingPublicQuery / marketplace/public
+PricingService     / pricing/public
+InventoryService   / inventory/public  (hold | confirm | release)
 SagaOrchestrator
-FeatureFlagService       (checkout_v2)
-DomainEventFactory
-Outbox (via Application Service na mesma TX)
+FeatureFlagService (checkout_v2)
+DomainEventFactory + Outbox
 ```
 
 ## Proibido
@@ -34,40 +42,102 @@ SELECT * FROM pricing.…;
 
 Importar `*/persistence/*` de outro BC.
 
-## Capacidades V1
+---
 
-| Capacidade | Notas |
-|------------|--------|
-| Cart | Itens por `listingId` / `productVariantId` |
-| Inventory hold | `InventoryService.hold` na Saga |
-| Price refresh | `PricingService` (suggested / snapshot) |
-| Coupons | Stub ou regras mínimas (sem motor complexo) |
-| Payment Intent | Adapter (Stripe já existe no monorepo — não reinventar) |
-| Checkout Saga | Steps + compensate (release stock) |
-| Events | `CheckoutStarted.v1`, `InventoryReserved.v1`, `OrderCreated.v1` (via Factory + Registry) |
+## Sprint 1 — Capacidades naturais do Checkout
 
-## Saga (esboço)
+### Cart Engine (Aggregate)
+
+| Comando | Notas |
+|---------|--------|
+| `AddItem` | Aggregate mutates + snapshot |
+| `RemoveItem` | |
+| `UpdateQuantity` | qty ≤ 0 → remove |
+| `MergeGuestCart` | guest → user open cart |
+| `MergeUserCart` | fonte → destino (mesmo buyer ou pós-login) |
+| `ValidateItems` | listing ativo, qty, snapshot coerente |
+
+### Coupon Engine (Rules)
+
+| Rule | |
+|------|--|
+| Fixed / Percentage / FreeShipping | |
+| MinimumValue / MaximumUses / Expiration | |
+| SellerCoupon / MarketplaceCoupon | |
+| GameRestriction / CategoryRestriction | |
+
+### Payment Intent — Adapter Pattern
 
 ```text
-ValidateCart
-  → HoldInventory
-  → RefreshPricing
-  → ApplyCoupon
-  → CreatePaymentIntent
-  → PersistCheckoutSession
-  → EmitCheckoutStarted (Outbox)
+PaymentGateway → Stripe | MercadoPago | PagSeguro | Pagar.me | Asaas
 ```
 
-Falha → compensate `InventoryService.release`.
+Nunca código de gateway específico no núcleo do Checkout.
 
-## DoD do épico
+### Checkout Validation Pipeline
 
-Ver [DEFINITION_OF_DONE.md](../engineering/DEFINITION_OF_DONE.md).  
-Atualizar `PUBLIC_API_BOUNDARIES.md` com seção Checkout **Expose** ao final.
+```text
+ValidateSeller → ValidateInventory → ValidateCoupon
+  → ValidatePrices → ValidatePayment → CreateSession
+```
 
-## Fora de escopo (V1)
+Cada validator independente.
 
-- Fulfillment / labels
-- Event Store completo
-- Motor fiscal completo
-- Multi-moeda avançada
+---
+
+## Saga (StartCheckout)
+
+```text
+ValidateCart → HoldInventory → RefreshPricing → ApplyCoupon
+  → CreatePaymentIntent → PersistCheckoutSession → Emit CheckoutStarted
+```
+
+## Saga (ConfirmPayment)
+
+```text
+ValidateSession → ConfirmGatewayPayment → InventoryConfirm → MarkSessionCompleted
+  → Outbox: PaymentApproved + InventoryConfirmed + OrderCreated + CheckoutCompleted
+```
+
+Pagamento recusado → `InventoryService.release` + sessão `failed`.
+
+O épico fecha quando o fluxo ponta a ponta abaixo funciona **só** com APIs públicas + Saga + Outbox:
+
+1. Carrinho  
+2. Validação (pipeline)  
+3. Reserva de estoque  
+4. Precificação  
+5. Cupom (rules)  
+6. Payment Intent (gateway adapter)  
+7. Pagamento confirmado  
+8. `OrderCreated` (handoff Orders BC quando existir; até lá evento + sessão)  
+9. `InventoryConfirm`  
+10. Eventos prontos para Notification / Analytics (sem acoplamento)
+
+## Métricas de produto (não de arquitetura)
+
+| Funil | Eventos |
+|-------|---------|
+| Checkout | Started → Completed → conversão |
+| Carrinho | Created → Abandoned → recovery |
+| Reserva | Hold → Released / Expired / Confirmed |
+| Pagamento | Intent Created → Succeeded / Failed / Timeout |
+| Marketplace | Listing Viewed → Added to Cart → Purchased |
+
+---
+
+## Próximos BCs (após Checkout estabilizar)
+
+| Ordem | BC | Notas |
+|-------|-----|--------|
+| 1 | **Orders** | Aggregate simples: Order → Items → Timeline → Status → Payment → Shipment **reference**. Sem lógica de envio. Eventos: `OrderCreated/Paid/Cancelled/Refunded.v1` |
+| 2 | **Notification** | Só eventos → Email / Discord / Push / Webhook |
+| 3 | **Analytics** | Projections a partir de eventos — nunca SQL em `checkout.*` |
+| 4 | **Fulfillment** | Shipment / Carrier / Tracking / Label / Delivered — **separado** |
+
+## Fora de escopo neste épico
+
+- Fulfillment / labels  
+- Event Store completo / mesh novo  
+- Motor fiscal completo  
+- Multi-moeda avançada  

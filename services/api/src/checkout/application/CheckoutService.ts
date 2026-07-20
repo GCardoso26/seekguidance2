@@ -15,11 +15,18 @@ import {
 } from "../../platform/idempotency/IdempotentCommandHandler.js";
 import { CheckoutRepository } from "../persistence/CheckoutRepository.js";
 import type { Cart, CheckoutSession } from "../domain/types.js";
-import { StubPaymentIntentAdapter } from "./StubPaymentIntentAdapter.js";
+import { CartAggregate } from "../domain/CartAggregate.js";
+import type { PaymentGateway } from "./payment/PaymentGateway.js";
+import { createPaymentGateway } from "./payment/createPaymentGateway.js";
+import {
+  createCheckoutValidationPipeline,
+  type ValidationIssue,
+} from "./CheckoutValidationPipeline.js";
 import {
   cartItemsToSagaPayload,
   runStartCheckoutSaga,
 } from "./CheckoutSaga.js";
+import { runConfirmPaymentSaga } from "./ConfirmPaymentSaga.js";
 
 const log = createLogger("checkout.service");
 
@@ -29,6 +36,28 @@ export interface AddToCartCommand {
   cartId?: string;
   listingId: string;
   quantity: number;
+}
+
+export interface UpdateCartQuantityCommand {
+  requestId: string;
+  buyerId: string;
+  cartId: string;
+  listingId: string;
+  quantity: number;
+}
+
+export interface MergeGuestCartCommand {
+  requestId: string;
+  buyerId: string;
+  guestToken: string;
+  targetCartId?: string;
+}
+
+export interface MergeUserCartCommand {
+  requestId: string;
+  buyerId: string;
+  sourceCartId: string;
+  targetCartId: string;
 }
 
 export interface StartCheckoutCommand {
@@ -46,26 +75,51 @@ export interface StartCheckoutV2Result {
   status: string;
   clientSecret: string | null;
   error?: string;
+  validationIssues?: ValidationIssue[];
+}
+
+export interface ConfirmPaymentCommand {
+  requestId: string;
+  correlationId?: string;
+  buyerId: string;
+  sessionId: string;
+  /** Default true for stub/dev; real gateways ignore or verify PSP. */
+  simulateSuccess?: boolean;
+  clientSecret?: string;
+  idempotencyKey?: string;
+}
+
+export interface ConfirmPaymentResult {
+  session: CheckoutSession;
+  sagaId: string | null;
+  status: string;
+  confirmedReservationIds: string[];
+  error?: string;
 }
 
 /**
- * Checkout BC V2 — cart + saga orchestration.
- * Consumes only Marketplace/Pricing/Inventory public APIs + platform saga/outbox/flags.
+ * Checkout BC V2 — Cart Aggregate + Coupon Rules + PaymentGateway + Validation pipeline + Saga.
  */
 export class CheckoutService {
   private readonly repo: CheckoutRepository;
-  private readonly payment = new StubPaymentIntentAdapter();
+  private readonly payment: PaymentGateway;
   private readonly flags: FeatureFlagService | InMemoryFeatureFlagService;
   private readonly outbox: PostgresOutboxRepository;
   private readonly tx: PostgresTransactionManager;
   private readonly idempotent: IdempotentCommandHandler;
+  private readonly validation = createCheckoutValidationPipeline();
 
   constructor(
     private readonly pool: Pool,
-    opts?: { flags?: FeatureFlagService | InMemoryFeatureFlagService },
+    opts?: {
+      flags?: FeatureFlagService | InMemoryFeatureFlagService;
+      payment?: PaymentGateway;
+    },
   ) {
     this.repo = new CheckoutRepository(pool);
     this.flags = opts?.flags ?? createFeatureFlagService(pool);
+    this.payment =
+      opts?.payment ?? createPaymentGateway(process.env.CHECKOUT_PAYMENT_GATEWAY ?? "stub");
     this.outbox = new PostgresOutboxRepository(pool);
     this.tx = new PostgresTransactionManager(pool);
     this.idempotent = createIdempotentHandler(pool);
@@ -74,14 +128,33 @@ export class CheckoutService {
   async getOrCreateCart(buyerId: string): Promise<Cart> {
     const existing = await this.repo.findOpenCartByBuyer(buyerId);
     if (existing) return existing;
-    return this.repo.createCart(buyerId);
+    const agg = CartAggregate.create(buyerId);
+    return this.repo.saveCartAggregate(agg);
+  }
+
+  async getOrCreateGuestCart(guestToken: string): Promise<Cart> {
+    const existing = await this.repo.findOpenCartByGuestToken(guestToken);
+    if (existing) return existing;
+    const agg = CartAggregate.create(`guest:${guestToken}`, { guestToken });
+    return this.repo.saveCartAggregate(agg);
   }
 
   async getCart(cartId: string, buyerId: string): Promise<Cart> {
     const cart = await this.repo.findCart(cartId);
     if (!cart) throw new Error("cart_not_found");
-    if (cart.buyerId !== buyerId) throw new Error("cart_buyer_mismatch");
+    if (cart.buyerId !== buyerId && !cart.buyerId.startsWith("guest:")) {
+      throw new Error("cart_buyer_mismatch");
+    }
+    if (cart.buyerId !== buyerId && cart.buyerId.startsWith("guest:")) {
+      throw new Error("cart_buyer_mismatch");
+    }
     return cart;
+  }
+
+  private async loadAggregate(cartId: string): Promise<CartAggregate> {
+    const cart = await this.repo.findCart(cartId);
+    if (!cart) throw new Error("cart_not_found");
+    return CartAggregate.rehydrate(cart, cart.guestToken ?? null);
   }
 
   async addToCart(cmd: AddToCartCommand): Promise<Cart> {
@@ -92,37 +165,109 @@ export class CheckoutService {
     if (cmd.quantity <= 0) throw new Error("quantity_invalid");
     if (listing.quantity < cmd.quantity) throw new Error("listing_insufficient_qty");
 
-    let cart: Cart;
+    let agg: CartAggregate;
     if (cmd.cartId) {
-      cart = await this.getCart(cmd.cartId, cmd.buyerId);
-      if (cart.status !== "open") throw new Error("cart_not_open");
+      await this.getCart(cmd.cartId, cmd.buyerId);
+      agg = await this.loadAggregate(cmd.cartId);
     } else {
-      cart = await this.getOrCreateCart(cmd.buyerId);
+      const cart = await this.getOrCreateCart(cmd.buyerId);
+      agg = CartAggregate.rehydrate(cart, cart.guestToken ?? null);
     }
 
-    await this.repo.upsertCartItem({
-      cartId: cart.id,
+    agg.addItem({
       listingId: listing.id,
+      quantity: cmd.quantity,
+      priceSnapshotCents: listing.priceCents,
+      currency: listing.currency,
       productVariantId: listing.productVariantId,
       catalogVariantId: listing.catalogVariantId,
       sellerId: listing.sellerId,
       stockUnitId: listing.inventoryStockUnitId,
-      quantity: cmd.quantity,
-      priceSnapshotCents: listing.priceCents,
-      currency: listing.currency,
     });
 
+    const saved = await this.repo.saveCartAggregate(agg);
     log.info(
-      { requestId: cmd.requestId, cartId: cart.id, listingId: listing.id },
+      { requestId: cmd.requestId, cartId: saved.id, listingId: listing.id },
       "checkout_cart_item_added",
     );
-    return (await this.repo.findCart(cart.id))!;
+    return saved;
   }
 
   async removeFromCart(buyerId: string, cartId: string, listingId: string): Promise<Cart> {
     await this.getCart(cartId, buyerId);
-    await this.repo.removeCartItem(cartId, listingId);
-    return (await this.repo.findCart(cartId))!;
+    const agg = await this.loadAggregate(cartId);
+    agg.removeItem(listingId);
+    return this.repo.saveCartAggregate(agg);
+  }
+
+  async updateQuantity(cmd: UpdateCartQuantityCommand): Promise<Cart> {
+    await this.getCart(cmd.cartId, cmd.buyerId);
+    const agg = await this.loadAggregate(cmd.cartId);
+    agg.updateQuantity(cmd.listingId, cmd.quantity);
+    return this.repo.saveCartAggregate(agg);
+  }
+
+  async mergeGuestCart(cmd: MergeGuestCartCommand): Promise<Cart> {
+    const guestCart = await this.repo.findOpenCartByGuestToken(cmd.guestToken);
+    if (!guestCart) throw new Error("guest_cart_not_found");
+
+    const target =
+      cmd.targetCartId != null
+        ? await this.getCart(cmd.targetCartId, cmd.buyerId)
+        : await this.getOrCreateCart(cmd.buyerId);
+
+    const userAgg = CartAggregate.rehydrate(target, target.guestToken ?? null);
+    const guestAgg = CartAggregate.rehydrate(guestCart, guestCart.guestToken ?? null);
+    userAgg.mergeGuestCart(guestAgg);
+    const saved = await this.repo.saveCartAggregate(userAgg);
+    await this.repo.markCartAbandoned(guestCart.id, saved.id);
+    log.info(
+      { requestId: cmd.requestId, guestCartId: guestCart.id, userCartId: saved.id },
+      "checkout_merge_guest_cart",
+    );
+    return saved;
+  }
+
+  async mergeUserCart(cmd: MergeUserCartCommand): Promise<Cart> {
+    await this.getCart(cmd.sourceCartId, cmd.buyerId);
+    await this.getCart(cmd.targetCartId, cmd.buyerId);
+    const target = await this.loadAggregate(cmd.targetCartId);
+    const source = await this.loadAggregate(cmd.sourceCartId);
+    target.mergeUserCart(source);
+    const saved = await this.repo.saveCartAggregate(target);
+    await this.repo.markCartAbandoned(cmd.sourceCartId, saved.id);
+    log.info(
+      {
+        requestId: cmd.requestId,
+        sourceCartId: cmd.sourceCartId,
+        targetCartId: saved.id,
+      },
+      "checkout_merge_user_cart",
+    );
+    return saved;
+  }
+
+  async validateItems(buyerId: string, cartId: string) {
+    await this.getCart(cartId, buyerId);
+    const agg = await this.loadAggregate(cartId);
+    const listings = createListingPublicQuery(this.pool);
+    const map = new Map<
+      string,
+      { listingId: string; status: string; quantityAvailable: number; priceCents: number; active: boolean }
+    >();
+    for (const item of agg.items) {
+      const listing = await listings.getListing(item.listingId);
+      if (listing) {
+        map.set(item.listingId, {
+          listingId: listing.id,
+          status: listing.status,
+          quantityAvailable: listing.quantity,
+          priceCents: listing.priceCents,
+          active: listing.status === "active",
+        });
+      }
+    }
+    return agg.validateItems(map);
   }
 
   async startCheckout(cmd: StartCheckoutCommand): Promise<StartCheckoutV2Result> {
@@ -143,9 +288,63 @@ export class CheckoutService {
       }
 
       const cart = await this.getCart(cmd.cartId, cmd.buyerId);
-      if (cart.status !== "open") throw new Error("cart_not_open");
-      if (cart.items.length === 0) throw new Error("cart_empty");
+      const agg = CartAggregate.rehydrate(cart, cart.guestToken ?? null);
+      agg.assertOpen();
+      if (agg.items.length === 0) throw new Error("cart_empty");
 
+      const listingsApi = createListingPublicQuery(this.pool);
+      const listings = new Map(
+        await Promise.all(
+          [...agg.items].map(async (i) => {
+            const l = await listingsApi.getListing(i.listingId);
+            return [i.listingId, l] as const;
+          }),
+        ),
+      );
+      const listingMap = new Map(
+        [...listings].filter(([, v]) => v != null).map(([k, v]) => [k, v!]),
+      );
+
+      const coupon = cmd.couponCode
+        ? await this.repo.getCouponDefinition(cmd.couponCode)
+        : null;
+
+      const validation = await this.validation.run({
+        cart: agg,
+        listings: listingMap,
+        coupon,
+        paymentReady: true,
+      });
+      if (!validation.ok) {
+        return {
+          session: {
+            id: "",
+            cartId: cart.id,
+            buyerId: cmd.buyerId,
+            status: "failed",
+            couponCode: cmd.couponCode ?? null,
+            subtotalCents: 0,
+            discountCents: 0,
+            totalCents: 0,
+            currency: "BRL",
+            sagaId: null,
+            paymentIntentId: null,
+            reservationIds: [],
+            pricingSnapshot: {},
+            idempotencyKey: cmd.idempotencyKey ?? null,
+            error: validation.issues[0]?.code ?? "validation_failed",
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+          sagaId: null,
+          status: "failed",
+          clientSecret: null,
+          error: validation.issues[0]?.code ?? "validation_failed",
+          validationIssues: validation.issues,
+        };
+      }
+
+      // CreateSession after validation pipeline
       const session = await this.repo.createSession({
         cartId: cart.id,
         buyerId: cmd.buyerId,
@@ -189,12 +388,11 @@ export class CheckoutService {
         sagaId: sagaResult.sagaId,
         status: "payment_pending",
       });
-      await this.repo.markCartCheckedOut(cart.id);
+      agg.markCheckedOut();
+      await this.repo.saveCartAggregate(agg);
 
       const clientSecret =
         (sagaResult.context.paymentClientSecret as string | undefined) ?? null;
-      const paymentIntentId =
-        (sagaResult.context.paymentIntentId as string | undefined) ?? null;
 
       await this.tx.runInTransaction(async (txCtx) => {
         const started = domainEventFactory.create({
@@ -210,23 +408,6 @@ export class CheckoutService {
         });
         await this.outbox.insert(txCtx, {
           event: domainEventFactory.toLegacy(started),
-        });
-
-        const orderCreated = domainEventFactory.create({
-          eventType: "OrderCreated.v1",
-          aggregateId: session.id,
-          aggregateType: "checkout_session",
-          correlationId,
-          causationId: started.eventId,
-          payload: {
-            buyerId: cmd.buyerId,
-            checkoutSessionId: session.id,
-            totalAmountCents: Number(sagaResult.context.totalCents ?? 0),
-            paymentIntentId,
-          },
-        });
-        await this.outbox.insert(txCtx, {
-          event: domainEventFactory.toLegacy(orderCreated),
         });
       });
 
@@ -258,6 +439,151 @@ export class CheckoutService {
     return run();
   }
 
+  /**
+   * Confirm payment → InventoryConfirm → CheckoutCompleted + OrderCreated (Outbox).
+   */
+  async confirmPayment(cmd: ConfirmPaymentCommand): Promise<ConfirmPaymentResult> {
+    const enabled = await this.flags.isEnabled("checkout_v2", { userId: cmd.buyerId });
+    if (!enabled) throw new Error("checkout_v2_disabled");
+
+    const run = async (): Promise<ConfirmPaymentResult> => {
+      const session = await this.getSession(cmd.sessionId, cmd.buyerId);
+      if (session.status === "completed") {
+        return {
+          session,
+          sagaId: session.sagaId,
+          status: "completed",
+          confirmedReservationIds: session.reservationIds,
+        };
+      }
+      if (!session.paymentIntentId) throw new Error("payment_intent_missing");
+
+      const correlationId = cmd.correlationId ?? cmd.requestId;
+      const sagaResult = await runConfirmPaymentSaga({
+        pool: this.pool,
+        repo: this.repo,
+        payment: this.payment,
+        correlationId,
+        context: {
+          requestId: cmd.requestId,
+          sessionId: session.id,
+          buyerId: cmd.buyerId,
+          paymentIntentId: session.paymentIntentId,
+          reservationIds: session.reservationIds,
+          simulateSuccess: cmd.simulateSuccess,
+          clientSecret: cmd.clientSecret,
+        },
+      });
+
+      if (sagaResult.status === "failed") {
+        const failed = (await this.repo.findSession(session.id))!;
+        return {
+          session: failed,
+          sagaId: sagaResult.sagaId,
+          status: "failed",
+          confirmedReservationIds: [],
+          error: sagaResult.error,
+        };
+      }
+
+      const finalSession = (await this.repo.findSession(session.id))!;
+      const confirmedIds =
+        (sagaResult.context.confirmedReservationIds as string[] | undefined) ??
+        finalSession.reservationIds;
+
+      await this.tx.runInTransaction(async (txCtx) => {
+        const paymentApproved = domainEventFactory.create({
+          eventType: "PaymentApproved.v1",
+          aggregateId: session.id,
+          aggregateType: "checkout_session",
+          correlationId,
+          payload: {
+            paymentIntentId: session.paymentIntentId,
+            sessionId: session.id,
+            amountCents: finalSession.totalCents,
+          },
+        });
+        await this.outbox.insert(txCtx, {
+          event: domainEventFactory.toLegacy(paymentApproved),
+        });
+
+        const inventoryConfirmed = domainEventFactory.create({
+          eventType: "InventoryConfirmed.v1",
+          aggregateId: session.id,
+          aggregateType: "checkout_session",
+          correlationId,
+          causationId: paymentApproved.eventId,
+          payload: {
+            sessionId: session.id,
+            reservationIds: confirmedIds,
+          },
+        });
+        await this.outbox.insert(txCtx, {
+          event: domainEventFactory.toLegacy(inventoryConfirmed),
+        });
+
+        const orderCreated = domainEventFactory.create({
+          eventType: "OrderCreated.v1",
+          aggregateId: session.id,
+          aggregateType: "checkout_session",
+          correlationId,
+          causationId: paymentApproved.eventId,
+          payload: {
+            buyerId: cmd.buyerId,
+            checkoutSessionId: session.id,
+            totalAmountCents: finalSession.totalCents,
+            paymentIntentId: session.paymentIntentId,
+          },
+        });
+        await this.outbox.insert(txCtx, {
+          event: domainEventFactory.toLegacy(orderCreated),
+        });
+
+        const completed = domainEventFactory.create({
+          eventType: "CheckoutCompleted.v1",
+          aggregateId: session.id,
+          aggregateType: "checkout_session",
+          correlationId,
+          causationId: orderCreated.eventId,
+          payload: {
+            buyerId: cmd.buyerId,
+            sessionId: session.id,
+            totalCents: finalSession.totalCents,
+          },
+        });
+        await this.outbox.insert(txCtx, {
+          event: domainEventFactory.toLegacy(completed),
+        });
+      });
+
+      log.info(
+        {
+          requestId: cmd.requestId,
+          correlationId,
+          sessionId: session.id,
+          sagaId: sagaResult.sagaId,
+        },
+        "checkout_v2_payment_confirmed",
+      );
+
+      return {
+        session: finalSession,
+        sagaId: sagaResult.sagaId,
+        status: "completed",
+        confirmedReservationIds: confirmedIds,
+      };
+    };
+
+    if (cmd.idempotencyKey) {
+      return this.idempotent.handle(
+        { name: "checkout.ConfirmPayment", execute: () => run() },
+        undefined,
+        cmd.idempotencyKey,
+      );
+    }
+    return run();
+  }
+
   async getSession(sessionId: string, buyerId: string): Promise<CheckoutSession> {
     const session = await this.repo.findSession(sessionId);
     if (!session) throw new Error("checkout_session_not_found");
@@ -268,7 +594,10 @@ export class CheckoutService {
 
 export function createCheckoutService(
   pool: Pool,
-  opts?: { flags?: FeatureFlagService | InMemoryFeatureFlagService },
+  opts?: {
+    flags?: FeatureFlagService | InMemoryFeatureFlagService;
+    payment?: PaymentGateway;
+  },
 ): CheckoutService {
   return new CheckoutService(pool, opts);
 }

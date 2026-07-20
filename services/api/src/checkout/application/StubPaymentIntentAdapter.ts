@@ -1,28 +1,25 @@
 import { getIdGenerator } from "../../shared/ids/IdGenerator.js";
-
-export interface PaymentIntentResult {
-  externalId: string;
-  clientSecret: string;
-  amountCents: number;
-  currency: string;
-}
+import type { CreatePaymentIntentInput, PaymentIntentResult } from "./payment/PaymentGateway.js";
+import { StubPaymentGateway } from "./payment/StubPaymentGateway.js";
 
 /**
- * Stub Payment Intent adapter (V1).
- * Stripe integration exists in the monorepo — do not reinvent; swap adapter later.
+ * @deprecated Use PaymentGateway / StubPaymentGateway — kept for brief compatibility.
  */
 export class StubPaymentIntentAdapter {
+  private readonly gateway = new StubPaymentGateway();
+
   async create(input: {
     amountCents: number;
     currency: string;
     sessionId: string;
   }): Promise<PaymentIntentResult> {
-    const externalId = `pi_stub_${getIdGenerator().generate().replace(/-/g, "").slice(0, 24)}`;
-    return {
-      externalId,
-      clientSecret: `${externalId}_secret_${input.sessionId.slice(0, 8)}`,
-      amountCents: input.amountCents,
-      currency: input.currency,
-    };
+    return this.gateway.createPaymentIntent({
+      ...input,
+      metadata: { migratedFrom: "StubPaymentIntentAdapter" },
+    } satisfies CreatePaymentIntentInput);
   }
+}
+
+export function createStubPaymentIntentId(): string {
+  return `pi_stub_${getIdGenerator().generate().replace(/-/g, "").slice(0, 24)}`;
 }

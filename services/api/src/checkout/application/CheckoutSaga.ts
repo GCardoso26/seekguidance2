@@ -7,10 +7,11 @@ import {
   type SagaDefinition,
 } from "../../platform/saga/SagaOrchestrator.js";
 import { createLogger } from "../../platform/logging/logger.js";
-import type { Cart, CartItem, Coupon } from "../domain/types.js";
-import { applyCouponDiscount, cartSubtotalCents } from "../domain/types.js";
+import type { Cart, CartItem } from "../domain/types.js";
+import { cartSubtotalCents } from "../domain/types.js";
+import { createCouponEngine } from "../domain/CouponEngine.js";
 import type { CheckoutRepository } from "../persistence/CheckoutRepository.js";
-import type { StubPaymentIntentAdapter } from "./StubPaymentIntentAdapter.js";
+import type { PaymentGateway } from "./payment/PaymentGateway.js";
 
 const log = createLogger("checkout.saga");
 
@@ -40,13 +41,14 @@ export interface CheckoutSagaContext extends Record<string, unknown> {
 export function buildStartCheckoutSagaDefinition(deps: {
   pool: Pool;
   repo: CheckoutRepository;
-  payment: StubPaymentIntentAdapter;
+  payment: PaymentGateway;
   /** Tests: fail fast without backoff sleep. */
   maxAttempts?: number;
 }): SagaDefinition<CheckoutSagaContext> {
   const inventory = createInventoryService(deps.pool);
   const pricing = createPricingService(deps.pool);
   const listings = createListingPublicQuery(deps.pool);
+  const coupons = createCouponEngine();
   const maxAttempts = deps.maxAttempts ?? 3;
 
   return {
@@ -160,17 +162,34 @@ export function buildStartCheckoutSagaDefinition(deps: {
         maxAttempts: 1,
         execute: async (ctx) => {
           const subtotal = Number(ctx.subtotalCents ?? 0);
-          let coupon: Coupon | null = null;
+          const sellerIds = [
+            ...new Set(
+              (
+                await Promise.all(
+                  ctx.cartItems.map(async (i) => {
+                    const l = await listings.getListing(i.listingId);
+                    return l?.sellerId ?? null;
+                  }),
+                )
+              ).filter((s): s is string => Boolean(s)),
+            ),
+          ];
+          let coupon = null;
           if (ctx.couponCode) {
-            coupon = await deps.repo.getCoupon(ctx.couponCode);
+            coupon = await deps.repo.getCouponDefinition(ctx.couponCode);
             if (!coupon || !coupon.active) throw new Error(`coupon_invalid:${ctx.couponCode}`);
           }
-          const { discountCents, totalCents } = applyCouponDiscount(subtotal, coupon);
+          const applied = coupons.apply(coupon, { subtotalCents: subtotal, sellerIds });
+          if (!applied.ok) throw new Error(applied.code ?? "coupon_invalid");
           await deps.repo.updateSession(ctx.sessionId, {
-            discountCents,
-            totalCents,
+            discountCents: applied.discountCents,
+            totalCents: applied.totalCents,
           });
-          return { discountCents, totalCents };
+          return {
+            discountCents: applied.discountCents,
+            totalCents: applied.totalCents,
+            freeShipping: applied.freeShipping,
+          };
         },
       },
       {
@@ -179,10 +198,11 @@ export function buildStartCheckoutSagaDefinition(deps: {
         execute: async (ctx) => {
           const total = Number(ctx.totalCents ?? 0);
           if (total <= 0) throw new Error("checkout_total_invalid");
-          const pi = await deps.payment.create({
+          const pi = await deps.payment.createPaymentIntent({
             amountCents: total,
             currency: "BRL",
             sessionId: ctx.sessionId,
+            buyerId: ctx.buyerId,
           });
           await deps.repo.insertPaymentIntent({
             sessionId: ctx.sessionId,
@@ -230,7 +250,7 @@ export function cartItemsToSagaPayload(cart: Cart): CheckoutSagaContext["cartIte
 export async function runStartCheckoutSaga(deps: {
   pool: Pool;
   repo: CheckoutRepository;
-  payment: StubPaymentIntentAdapter;
+  payment: PaymentGateway;
   context: CheckoutSagaContext;
   correlationId: string;
   maxAttempts?: number;

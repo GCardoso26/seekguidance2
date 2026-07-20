@@ -111,6 +111,74 @@ export async function handleCheckoutV2Api(
       return true;
     }
 
+    // PATCH /api/v1/checkout-v2/cart/:id/items/:listingId
+    if (cartItemDel && method === "PATCH") {
+      const user = await deps.auth.requireBuyer(req);
+      const body = await readJsonBody(req);
+      const quantity = num(body, "quantity");
+      if (quantity == null) {
+        sendJson(res, 400, { error: "quantity_required" });
+        return true;
+      }
+      const cart = await deps.checkout.updateQuantity({
+        requestId: getIdGenerator().generate(),
+        buyerId: user.userId,
+        cartId: cartItemDel[1]!,
+        listingId: cartItemDel[2]!,
+        quantity,
+      });
+      sendJson(res, 200, toCartJson(cart));
+      return true;
+    }
+
+    // POST /api/v1/checkout-v2/cart/merge-guest
+    if (path === "/api/v1/checkout-v2/cart/merge-guest" && method === "POST") {
+      const user = await deps.auth.requireBuyer(req);
+      const body = await readJsonBody(req);
+      const guestToken = str(body, "guestToken");
+      if (!guestToken) {
+        sendJson(res, 400, { error: "guestToken_required" });
+        return true;
+      }
+      const cart = await deps.checkout.mergeGuestCart({
+        requestId: getIdGenerator().generate(),
+        buyerId: user.userId,
+        guestToken,
+        targetCartId: str(body, "targetCartId") ?? undefined,
+      });
+      sendJson(res, 200, toCartJson(cart));
+      return true;
+    }
+
+    // POST /api/v1/checkout-v2/cart/merge-user
+    if (path === "/api/v1/checkout-v2/cart/merge-user" && method === "POST") {
+      const user = await deps.auth.requireBuyer(req);
+      const body = await readJsonBody(req);
+      const sourceCartId = str(body, "sourceCartId");
+      const targetCartId = str(body, "targetCartId");
+      if (!sourceCartId || !targetCartId) {
+        sendJson(res, 400, { error: "source_and_target_required" });
+        return true;
+      }
+      const cart = await deps.checkout.mergeUserCart({
+        requestId: getIdGenerator().generate(),
+        buyerId: user.userId,
+        sourceCartId,
+        targetCartId,
+      });
+      sendJson(res, 200, toCartJson(cart));
+      return true;
+    }
+
+    // POST /api/v1/checkout-v2/cart/:id/validate
+    const cartValidate = path.match(/^\/api\/v1\/checkout-v2\/cart\/([^/]+)\/validate$/);
+    if (cartValidate && method === "POST") {
+      const user = await deps.auth.requireBuyer(req);
+      const result = await deps.checkout.validateItems(user.userId, cartValidate[1]!);
+      sendJson(res, result.ok ? 200 : 409, result);
+      return true;
+    }
+
     // POST /api/v1/checkout-v2/sessions
     if (path === "/api/v1/checkout-v2/sessions" && method === "POST") {
       const user = await deps.auth.requireBuyer(req);
@@ -136,6 +204,7 @@ export async function handleCheckoutV2Api(
         ...toSessionJson(result.session, result.clientSecret),
         sagaId: result.sagaId,
         error: result.error ?? null,
+        validationIssues: result.validationIssues ?? [],
       });
       return true;
     }
@@ -146,6 +215,37 @@ export async function handleCheckoutV2Api(
       const user = await deps.auth.requireBuyer(req);
       const session = await deps.checkout.getSession(sessionGet[1]!, user.userId);
       sendJson(res, 200, toSessionJson(session));
+      return true;
+    }
+
+    // POST /api/v1/checkout-v2/sessions/:id/confirm-payment
+    const confirmPay = path.match(
+      /^\/api\/v1\/checkout-v2\/sessions\/([^/]+)\/confirm-payment$/,
+    );
+    if (confirmPay && method === "POST") {
+      const user = await deps.auth.requireBuyer(req);
+      const body = await readJsonBody(req);
+      const idempotencyKey =
+        (typeof req.headers["idempotency-key"] === "string"
+          ? req.headers["idempotency-key"]
+          : undefined) ?? str(body, "idempotencyKey") ?? undefined;
+      const simulateSuccess =
+        body.simulateSuccess === undefined ? true : Boolean(body.simulateSuccess);
+      const result = await deps.checkout.confirmPayment({
+        requestId: getIdGenerator().generate(),
+        buyerId: user.userId,
+        sessionId: confirmPay[1]!,
+        simulateSuccess,
+        clientSecret: str(body, "clientSecret") ?? undefined,
+        idempotencyKey,
+      });
+      const status = result.status === "failed" ? 409 : 200;
+      sendJson(res, status, {
+        ...toSessionJson(result.session),
+        sagaId: result.sagaId,
+        confirmedReservationIds: result.confirmedReservationIds,
+        error: result.error ?? null,
+      });
       return true;
     }
 
@@ -173,6 +273,19 @@ export function mapCheckoutV2Error(message: string): { status: number; code: str
     coupon_invalid: 400,
     checkout_session_not_found: 404,
     checkout_buyer_mismatch: 403,
+    guest_cart_not_found: 404,
+    cart_item_not_found: 404,
+    cart_merge_buyer_mismatch: 403,
+    cart_merge_same_cart: 400,
+    coupon_expired: 400,
+    coupon_max_uses: 409,
+    coupon_min_value: 400,
+    validation_failed: 409,
+    checkout_session_not_payable: 409,
+    payment_intent_missing: 409,
+    reservations_missing: 409,
+    payment_not_succeeded: 402,
+    reservation_not_held: 409,
     stock_unit_missing: 409,
     insufficient_stock: 409,
   };

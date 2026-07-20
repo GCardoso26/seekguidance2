@@ -30,6 +30,7 @@ export interface Cart {
   items: CartItem[];
   createdAt: Date;
   updatedAt: Date;
+  guestToken?: string | null;
 }
 
 export interface CheckoutSession {
@@ -63,18 +64,4 @@ export function cartSubtotalCents(cart: Cart): number {
   return cart.items.reduce((sum, i) => sum + i.priceSnapshotCents * i.quantity, 0);
 }
 
-export function applyCouponDiscount(
-  subtotalCents: number,
-  coupon: Coupon | null,
-): { discountCents: number; totalCents: number } {
-  if (!coupon || !coupon.active) {
-    return { discountCents: 0, totalCents: subtotalCents };
-  }
-  let discount = 0;
-  if (coupon.percentOff != null) {
-    discount = Math.floor((subtotalCents * coupon.percentOff) / 100);
-  } else if (coupon.amountOffCents != null) {
-    discount = Math.min(coupon.amountOffCents, subtotalCents);
-  }
-  return { discountCents: discount, totalCents: Math.max(0, subtotalCents - discount) };
-}
+export { applyCouponDiscount } from "./CouponEngine.js";

@@ -136,10 +136,13 @@ Tudo que não está listado é **interno** e não pode ser importado por outro B
 | Tipo | Símbolo |
 |------|---------|
 | Service | `CheckoutService` / `createCheckoutService` |
-| Commands | `AddToCartCommand`, `StartCheckoutCommand` |
-| Queries | Cart / Session via `CheckoutService` |
-| Events | `CheckoutStarted.v1`, `OrderCreated.v1` |
-| HTTP | `/api/v1/checkout-v2/*` |
+| Aggregate | `CartAggregate` |
+| Coupon | `CouponEngine` / Rules (Fixed, Percentage, FreeShipping, …) |
+| Payment | `PaymentGateway` / `createPaymentGateway` (adapters) |
+| Validation | `CheckoutValidationPipeline` |
+| Commands | `AddToCart`, `UpdateQuantity`, `MergeGuest/UserCart`, `StartCheckout` |
+| Events | `CheckoutStarted.v1`, `PaymentApproved.v1`, `InventoryConfirmed.v1`, `OrderCreated.v1`, `CheckoutCompleted.v1` |
+| HTTP | `/api/v1/checkout-v2/*` incl. `POST .../confirm-payment` |
 | Barrel | `checkout/public.ts` |
 
 **May call**
