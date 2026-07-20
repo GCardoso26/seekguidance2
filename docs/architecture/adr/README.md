@@ -14,5 +14,6 @@ Decisões congeladas da fundação JudgeTCG.
 | [ADR-007](./ADR-007-marketplace-domain-boundaries.md) | Marketplace Domain Boundaries | Accepted |
 | [ADR-012](./ADR-012-lorcana-first-beachhead.md) | Lorcana-first Beachhead Strategy | Accepted |
 | [ADR-013](./ADR-013-tcg-expansion-allowlist.md) | TCG Expansion Allowlist & Denylist | Accepted |
+| [ADR-014](./ADR-014-testing-infrastructure-persona-composition.md) | Testing Infrastructure & Persona Composition | Accepted |
 
 Formato: Context → Decision → Consequences.

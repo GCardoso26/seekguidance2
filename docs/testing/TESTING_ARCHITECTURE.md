@@ -25,6 +25,8 @@ Esta pasta `testing/` e `docs/testing/` **não** criam ADRs de produto, **não**
 
 ADRs preservados (invariantes): ADR-001 … ADR-007, ADR-012, ADR-013.
 
+**Decisão desta pasta:** [ADR-014 — Testing Infrastructure & Persona Composition](../architecture/adr/ADR-014-testing-infrastructure-persona-composition.md).
+
 ## Separação: técnica vs mercado
 
 | Camada | Pergunta | Instrumentos | Dados |
@@ -181,15 +183,18 @@ Smoke: health → search → PDP/offers → HTTP 200 (sem mutar DB)
 - Guard falha se `JUDGE_TEST_ENV=beta` ou `APP_MODE=beta` / `production`.
 - Sprint 8 permanece congelada; esta infra **não** é feature de produto.
 
-## Backlog (não-P0)
+## Backlog (não-P0 — pós-R1)
 
-Já esboçado nesta pasta:
+Já esboçado nesta pasta / ADR-014 Future:
 
 - [x] Arquétipos reutilizáveis + composição
 - [x] Behavior Profile
 - [x] Scaffold Simulation Layer + TCS/PCS
+- [x] ADR-014 (invariantes de isolamento e composição)
+- [ ] **Market Scenario** (Commander Night, Championship, Expansion Release — mix de archetypes, não só usuários)
 - [ ] Executor de scenarios ligado ao Playwright (param `dataset`)
 - [ ] Simulation com HTTP/API real em ci (ainda in-memory)
+- [ ] “LPC esperado” técnico via simulation (sanity de pipeline — **nunca** North Star)
 
 ## Comandos
 
