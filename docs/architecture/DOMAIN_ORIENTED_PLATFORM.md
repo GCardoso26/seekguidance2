@@ -6,6 +6,7 @@
 **Escopo:** Catalog → Pricing → Marketplace → Search → Analytics (+ Media + Platform + Audit + Outbox + TX)
 
 > Contratos: [`FOUNDATION_FREEZE.md`](./FOUNDATION_FREEZE.md) (**FOUNDATION CLOSED** v1.3.0).  
+> Constituição: [`PLATFORM_CONSTITUTION.md`](./PLATFORM_CONSTITUTION.md) · Debt: [`TECHNICAL_DEBT_REGISTER.md`](./TECHNICAL_DEBT_REGISTER.md).  
 > ADRs: [`adr/`](./adr/README.md). Database Certification: [`DATABASE_CERTIFICATION.md`](./DATABASE_CERTIFICATION.md).  
 > Roadmap 90d + MVP: [`ROADMAP_90D.md`](./ROADMAP_90D.md).
 

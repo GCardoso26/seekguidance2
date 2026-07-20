@@ -23,6 +23,7 @@
     "seed:personas": "node testing/seed/seed-personas.mjs",
     "test:personas": "node testing/seed/validate-personas.mjs",
     "test:coverage": "node testing/analytics/report-coverage.mjs",
+    "test:ops-reports": "npm run test --prefix services/api -- src/catalog/providers/__tests__/opsReports.test.ts && node --experimental-strip-types testing/analytics/generate-ops-reports.mjs",
     "test:compose": "node --experimental-strip-types testing/seed/validate-compose.mjs",
     "cleanup:ci": "node testing/seed/cleanup-ci.mjs",
     "cleanup:demo": "node testing/seed/cleanup-demo.mjs",

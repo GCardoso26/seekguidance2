@@ -2,6 +2,8 @@
 
 Structural debt from Product Validation 4.5 (not exhaustive codebase debt).
 
+**Plataforma / arquitetura / ops (débitos aceitos com critério de remoção):** ver [`docs/architecture/TECHNICAL_DEBT_REGISTER.md`](../architecture/TECHNICAL_DEBT_REGISTER.md) e a [`PLATFORM_CONSTITUTION.md`](../architecture/PLATFORM_CONSTITUTION.md).
+
 | Debt | Why it hurts | Related IDs |
 |------|--------------|-------------|
 | Dual auth entrypoints `/login` vs `/entrar` | Conversion + support load | BUY-001 |

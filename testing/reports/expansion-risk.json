@@ -1,0 +1,117 @@
+{
+  "generatedAt": "2026-07-20T03:18:24.688Z",
+  "games": [
+    {
+      "gameCode": "LORCANA",
+      "displayName": "Disney Lorcana",
+      "factors": {
+        "providerCoverage": 99.8,
+        "capabilities": 50,
+        "dataset": 85,
+        "marketBr": 63,
+        "documentation": 80,
+        "certification": 90,
+        "lifecycle": 90
+      },
+      "risk": "LOW"
+    },
+    {
+      "gameCode": "MTG",
+      "displayName": "Magic: The Gathering",
+      "factors": {
+        "providerCoverage": 96,
+        "capabilities": 70,
+        "dataset": 40,
+        "marketBr": 72,
+        "documentation": 80,
+        "certification": 35,
+        "lifecycle": 55
+      },
+      "risk": "MEDIUM"
+    },
+    {
+      "gameCode": "POKEMON",
+      "displayName": "Pokémon TCG",
+      "factors": {
+        "providerCoverage": 85,
+        "capabilities": 50,
+        "dataset": 40,
+        "marketBr": 68,
+        "documentation": 80,
+        "certification": 50,
+        "lifecycle": 45
+      },
+      "risk": "MEDIUM"
+    },
+    {
+      "gameCode": "ONEPIECE",
+      "displayName": "One Piece",
+      "factors": {
+        "providerCoverage": 5,
+        "capabilities": 5,
+        "dataset": 5,
+        "marketBr": 55,
+        "documentation": 40,
+        "certification": 15,
+        "lifecycle": 10
+      },
+      "risk": "VERY_HIGH"
+    },
+    {
+      "gameCode": "DRAGONBALL",
+      "displayName": "Dragon Ball FW",
+      "factors": {
+        "providerCoverage": 5,
+        "capabilities": 5,
+        "dataset": 5,
+        "marketBr": 48,
+        "documentation": 40,
+        "certification": 15,
+        "lifecycle": 10
+      },
+      "risk": "VERY_HIGH"
+    },
+    {
+      "gameCode": "DIGIMON",
+      "displayName": "Digimon",
+      "factors": {
+        "providerCoverage": 5,
+        "capabilities": 5,
+        "dataset": 5,
+        "marketBr": 40,
+        "documentation": 40,
+        "certification": 15,
+        "lifecycle": 10
+      },
+      "risk": "VERY_HIGH"
+    },
+    {
+      "gameCode": "RIFTBOUND",
+      "displayName": "Riftbound",
+      "factors": {
+        "providerCoverage": 5,
+        "capabilities": 5,
+        "dataset": 5,
+        "marketBr": 15,
+        "documentation": 25,
+        "certification": 15,
+        "lifecycle": 5
+      },
+      "risk": "VERY_HIGH"
+    },
+    {
+      "gameCode": "NARUTO",
+      "displayName": "Naruto TCG",
+      "factors": {
+        "providerCoverage": 5,
+        "capabilities": 5,
+        "dataset": 5,
+        "marketBr": 12,
+        "documentation": 25,
+        "certification": 15,
+        "lifecycle": 5
+      },
+      "risk": "VERY_HIGH"
+    }
+  ]
+}

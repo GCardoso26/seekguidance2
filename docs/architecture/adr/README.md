@@ -3,6 +3,9 @@
 Decisões congeladas da fundação JudgeTCG.  
 **Não remover nem inverter sem novo ADR que supersede o anterior.**
 
+Princípios permanentes (acima dos ADRs na Hierarchy of Truth): [`PLATFORM_CONSTITUTION.md`](../PLATFORM_CONSTITUTION.md).  
+Débitos aceitos temporariamente: [`TECHNICAL_DEBT_REGISTER.md`](../TECHNICAL_DEBT_REGISTER.md).
+
 | ADR | Título | Status |
 |-----|--------|--------|
 | [ADR-001](./ADR-001-catalog-source-of-truth.md) | Catalog é Source of Truth | Accepted |

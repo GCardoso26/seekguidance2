@@ -1,0 +1,16 @@
+{
+  "generatedAt": "2026-07-20T03:18:24.687Z",
+  "note": "Substituir placeholders por snapshot Beta/warehouse; não alimentar North Star com simulation.",
+  "snapshots": [
+    {
+      "gameCode": "LORCANA",
+      "asOf": "1970-01-01T00:00:00.000Z",
+      "catalogPercent": 100,
+      "cardsWithListingPercent": 31,
+      "cardsWithStockPercent": 28,
+      "cardsSearchedPercent": 17,
+      "cardsWithLiquidityPercent": 5,
+      "source": "placeholder"
+    }
+  ]
+}

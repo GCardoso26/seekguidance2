@@ -1,0 +1,76 @@
+{
+  "version": "r2-pokemon-shadow-1",
+  "sets": [
+    {
+      "id": "sv3",
+      "code": "SV3",
+      "name": "Obsidian Flames",
+      "releaseDate": "2023-08-11"
+    }
+  ],
+  "cards": [
+    {
+      "id": "pkm_pikachu_sv3",
+      "name": "Pikachu",
+      "setCode": "SV3",
+      "collectorNumber": "50",
+      "rarity": "Common",
+      "lang": "en",
+      "types": ["Lightning"],
+      "hp": "60",
+      "finishes": ["nonholo", "reverse_holo"],
+      "imageUrl": "https://assets.tcgdex.net/en/sv/sv3/50/high.webp",
+      "legalities": { "standard": "legal" }
+    },
+    {
+      "id": "pkm_charizard_ex_sv3",
+      "name": "Charizard ex",
+      "setCode": "SV3",
+      "collectorNumber": "125",
+      "rarity": "Special Illustration Rare",
+      "lang": "en",
+      "types": ["Fire"],
+      "hp": "330",
+      "stage": "Stage 2",
+      "finishes": ["holo"],
+      "imageUrl": "https://assets.tcgdex.net/en/sv/sv3/125/high.webp",
+      "legalities": { "standard": "legal" }
+    },
+    {
+      "id": "pkm_professors_research",
+      "name": "Professor's Research",
+      "setCode": "SV3",
+      "collectorNumber": "189",
+      "rarity": "Rare",
+      "lang": "en",
+      "types": ["Trainer"],
+      "finishes": ["nonholo", "reverse_holo"],
+      "imageUrl": "https://assets.tcgdex.net/en/sv/sv3/189/high.webp",
+      "legalities": { "standard": "legal" }
+    },
+    {
+      "id": "pkm_ultra_ball",
+      "name": "Ultra Ball",
+      "setCode": "SV3",
+      "collectorNumber": "196",
+      "rarity": "Uncommon",
+      "lang": "en",
+      "types": ["Trainer"],
+      "finishes": ["nonholo"],
+      "imageUrl": "https://assets.tcgdex.net/en/sv/sv3/196/high.webp",
+      "legalities": { "standard": "legal" }
+    },
+    {
+      "id": "pkm_boss_orders",
+      "name": "Boss's Orders",
+      "setCode": "SV3",
+      "collectorNumber": "172",
+      "rarity": "Rare",
+      "lang": "en",
+      "types": ["Trainer"],
+      "finishes": ["nonholo"],
+      "imageUrl": "https://assets.tcgdex.net/en/sv/sv3/172/high.webp",
+      "legalities": { "standard": "legal" }
+    }
+  ]
+}

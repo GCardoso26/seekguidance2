@@ -1,0 +1,56 @@
+{
+  "generatedAt": "2026-07-20T03:18:24.687Z",
+  "providers": [
+    {
+      "gameCode": "LORCANA",
+      "displayName": "Disney Lorcana",
+      "lifecycle": "beachhead",
+      "rolloutMode": "LIVE",
+      "coveragePercent": 99.8,
+      "cardsSynced": 2389,
+      "imagesPercent": 100,
+      "variantsPercent": 100,
+      "syncStatus": "OK",
+      "searchProjectionStatus": "OK",
+      "certification": "PASS",
+      "pendingChecklist": []
+    },
+    {
+      "gameCode": "MTG",
+      "displayName": "Magic: The Gathering",
+      "lifecycle": "shadow",
+      "rolloutMode": "SHADOW",
+      "coveragePercent": 96,
+      "cardsSynced": 0,
+      "imagesPercent": 99,
+      "variantsPercent": 92,
+      "syncStatus": "OK",
+      "searchProjectionStatus": "DEGRADED",
+      "certification": "FAIL",
+      "pendingChecklist": [
+        "Collector Number mapping completo",
+        "Double-faced cards (DFC)",
+        "Etched finish em variants",
+        "SHADOW exit gate assinado"
+      ]
+    },
+    {
+      "gameCode": "POKEMON",
+      "displayName": "Pokémon TCG",
+      "lifecycle": "implemented",
+      "rolloutMode": "OFF",
+      "coveragePercent": 85,
+      "cardsSynced": 5,
+      "imagesPercent": 100,
+      "variantsPercent": 100,
+      "syncStatus": "OK",
+      "searchProjectionStatus": "N/A",
+      "certification": "PENDING",
+      "pendingChecklist": [
+        "Scryfall CANARY/LIVE estável (ADR-006)",
+        "Dataset além do seed shadow",
+        "Certification SHADOW completa"
+      ]
+    }
+  ]
+}

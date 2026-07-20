@@ -3,7 +3,6 @@
  * Usage: DATABASE_URL=... npx tsx src/workers/smoke-rapunzel.ts
  */
 import pg from "pg";
-import { createServer } from "node:http";
 import { InMemorySearchProjectionRepository } from "../search/persistence/InMemorySearchProjectionRepository.js";
 import { ProjectionSearchQueryService } from "../search/application/ProjectionSearchQueryService.js";
 import { createPublicReadServer } from "../public-api/http/createPublicReadServer.js";

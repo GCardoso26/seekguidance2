@@ -1,0 +1,101 @@
+import type { GameConfiguration } from "../interfaces/GameConfiguration.js";
+
+export const pokemonGameConfig: GameConfiguration = {
+  gameCode: "POKEMON",
+  displayName: "Pokémon TCG",
+  market: {
+    releaseTier: "R2",
+    primaryMarket: "BR",
+    liquidityHypothesis: "Modelo Lorcana se repete em Pokémon (IR/SIR/staples)",
+    watchlistTargetSize: 25,
+    catalogProviderId: "pokemon-dataset",
+  },
+  capabilities: {
+    foil: true,
+    etched: false,
+    serialized: false,
+    reverseHolo: true,
+    collectorNumber: true,
+    multiLanguageListings: true,
+    competitiveFormats: true,
+    commanderStyle: false,
+    enchantedStyleRarities: false,
+    sealedProduct: false,
+  },
+  rarities: [
+    { value: "Common", label: "Common", color: "#9CA3AF" },
+    { value: "Uncommon", label: "Uncommon", color: "#22C55E" },
+    { value: "Rare", label: "Rare", color: "#3B82F6" },
+    { value: "Rare Holo", label: "Rare Holo", color: "#6366F1" },
+    { value: "Illustration Rare", label: "Illustration Rare", color: "#EC4899" },
+    { value: "Special Illustration Rare", label: "Special Illustration Rare", color: "#F59E0B" },
+    { value: "ACE SPEC", label: "ACE SPEC", color: "#EF4444" },
+    { value: "Rare Ultra", label: "Rare Ultra", color: "#8B5CF6" },
+    { value: "Rare Secret", label: "Rare Secret", color: "#14B8A6" },
+  ],
+  languages: [
+    { value: "en", label: "English" },
+    { value: "pt", label: "Português" },
+    { value: "jp", label: "日本語" },
+  ],
+  conditions: [
+    { value: "NM", label: "Near Mint" },
+    { value: "LP", label: "Lightly Played" },
+    { value: "MP", label: "Moderately Played" },
+    { value: "HP", label: "Heavily Played" },
+    { value: "DM", label: "Damaged" },
+  ],
+  finishes: [
+    { value: "nonholo", label: "Non-Holo" },
+    { value: "holo", label: "Holo" },
+    { value: "reverse_holo", label: "Reverse Holo" },
+  ],
+  formats: [
+    { value: "standard", label: "Standard" },
+    { value: "expanded", label: "Expanded" },
+  ],
+  watchlistCardNames: [
+    "Pikachu",
+    "Charizard ex",
+    "Professor's Research",
+    "Ultra Ball",
+    "Boss's Orders",
+  ],
+  searchSynonyms: {
+    pika: ["pikachu"],
+    char: ["charizard", "charizard ex"],
+    zard: ["charizard ex"],
+    prof: ["professor's research"],
+    research: ["professor's research"],
+    ultra: ["ultra ball"],
+    boss: ["boss's orders"],
+    ir: ["illustration rare"],
+    sir: ["special illustration rare"],
+  },
+  filterFacets: [
+    {
+      id: "finish",
+      label: "Acabamento",
+      options: [
+        { value: "nonholo", label: "Non-Holo" },
+        { value: "holo", label: "Holo" },
+        { value: "reverse_holo", label: "Reverse Holo" },
+      ],
+    },
+    {
+      id: "rarity_special",
+      label: "Raridade especial",
+      options: [
+        { value: "Illustration Rare", label: "Illustration Rare" },
+        { value: "Special Illustration Rare", label: "SIR" },
+        { value: "ACE SPEC", label: "ACE SPEC" },
+      ],
+    },
+  ],
+  sellerWizardCopy: {
+    searchPlaceholder: "Buscar carta Pokémon (ex.: Charizard ex)",
+    conditionHint: "Condição da single Pokémon",
+    finishHint: "Holo, Reverse Holo ou Non-Holo",
+    emptyInventoryHint: "Publique staples Standard da watchlist Pokémon",
+  },
+};

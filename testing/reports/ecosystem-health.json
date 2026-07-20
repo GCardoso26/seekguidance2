@@ -1,0 +1,86 @@
+{
+  "generatedAt": "2026-07-20T03:18:24.688Z",
+  "note": "Camadas separadas (Engineering / Operations / Market / Business).",
+  "games": [
+    {
+      "gameCode": "LORCANA",
+      "displayName": "Disney Lorcana",
+      "engineering": 87,
+      "operations": 100,
+      "market": 25,
+      "business": 23,
+      "overall": 59,
+      "health": "GOOD"
+    },
+    {
+      "gameCode": "MTG",
+      "displayName": "Magic: The Gathering",
+      "engineering": 83,
+      "operations": 63,
+      "market": 0,
+      "business": 0,
+      "overall": 37,
+      "health": "NOT_STARTED"
+    },
+    {
+      "gameCode": "POKEMON",
+      "displayName": "Pokémon TCG",
+      "engineering": 75,
+      "operations": 69,
+      "market": 0,
+      "business": 0,
+      "overall": 36,
+      "health": "IMPLEMENTED"
+    },
+    {
+      "gameCode": "ONEPIECE",
+      "displayName": "One Piece",
+      "engineering": 0,
+      "operations": 3,
+      "market": 0,
+      "business": 0,
+      "overall": 1,
+      "health": "PLANNED"
+    },
+    {
+      "gameCode": "DRAGONBALL",
+      "displayName": "Dragon Ball FW",
+      "engineering": 25,
+      "operations": 3,
+      "market": 0,
+      "business": 0,
+      "overall": 7,
+      "health": "PLANNED"
+    },
+    {
+      "gameCode": "DIGIMON",
+      "displayName": "Digimon",
+      "engineering": 25,
+      "operations": 3,
+      "market": 0,
+      "business": 0,
+      "overall": 7,
+      "health": "PLANNED"
+    },
+    {
+      "gameCode": "RIFTBOUND",
+      "displayName": "Riftbound",
+      "engineering": 12,
+      "operations": 3,
+      "market": 0,
+      "business": 0,
+      "overall": 4,
+      "health": "RESEARCH"
+    },
+    {
+      "gameCode": "NARUTO",
+      "displayName": "Naruto TCG",
+      "engineering": 0,
+      "operations": 3,
+      "market": 0,
+      "business": 0,
+      "overall": 1,
+      "health": "RESEARCH"
+    }
+  ]
+}

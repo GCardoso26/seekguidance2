@@ -1,0 +1,86 @@
+{
+  "generatedAt": "2026-07-20T03:18:24.688Z",
+  "note": "Consolidação R3 — North Star permanece fonte de liquidez em R1.",
+  "games": [
+    {
+      "gameCode": "LORCANA",
+      "displayName": "Disney Lorcana",
+      "engineering": 87,
+      "operations": 100,
+      "market": 25,
+      "business": 23,
+      "expansion": 68,
+      "overall": 61
+    },
+    {
+      "gameCode": "MTG",
+      "displayName": "Magic: The Gathering",
+      "engineering": 83,
+      "operations": 63,
+      "market": 0,
+      "business": 0,
+      "expansion": 76,
+      "overall": 44
+    },
+    {
+      "gameCode": "POKEMON",
+      "displayName": "Pokémon TCG",
+      "engineering": 75,
+      "operations": 69,
+      "market": 0,
+      "business": 0,
+      "expansion": 73,
+      "overall": 43
+    },
+    {
+      "gameCode": "ONEPIECE",
+      "displayName": "One Piece",
+      "engineering": 0,
+      "operations": 3,
+      "market": 0,
+      "business": 0,
+      "expansion": 45,
+      "overall": 10
+    },
+    {
+      "gameCode": "DRAGONBALL",
+      "displayName": "Dragon Ball FW",
+      "engineering": 25,
+      "operations": 3,
+      "market": 0,
+      "business": 0,
+      "expansion": 42,
+      "overall": 14
+    },
+    {
+      "gameCode": "DIGIMON",
+      "displayName": "Digimon",
+      "engineering": 25,
+      "operations": 3,
+      "market": 0,
+      "business": 0,
+      "expansion": 34,
+      "overall": 12
+    },
+    {
+      "gameCode": "RIFTBOUND",
+      "displayName": "Riftbound",
+      "engineering": 12,
+      "operations": 3,
+      "market": 0,
+      "business": 0,
+      "expansion": 23,
+      "overall": 8
+    },
+    {
+      "gameCode": "NARUTO",
+      "displayName": "Naruto TCG",
+      "engineering": 0,
+      "operations": 3,
+      "market": 0,
+      "business": 0,
+      "expansion": 25,
+      "overall": 6
+    }
+  ]
+}

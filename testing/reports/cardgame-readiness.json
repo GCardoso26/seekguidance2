@@ -1,0 +1,220 @@
+{
+  "generatedAt": "2026-07-20T03:18:24.687Z",
+  "games": [
+    {
+      "gameCode": "LORCANA",
+      "displayName": "Disney Lorcana",
+      "releaseTier": "R1",
+      "dimensions": [
+        {
+          "id": "provider",
+          "label": "Provider",
+          "percent": 97
+        },
+        {
+          "id": "capabilities",
+          "label": "Capabilities",
+          "percent": 50
+        },
+        {
+          "id": "search",
+          "label": "Search",
+          "percent": 98
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "percent": 80
+        },
+        {
+          "id": "seller",
+          "label": "Seller",
+          "percent": 94
+        },
+        {
+          "id": "buyer",
+          "label": "Buyer",
+          "percent": 93
+        },
+        {
+          "id": "checkout",
+          "label": "Checkout",
+          "percent": 100
+        }
+      ],
+      "overallPercent": 87
+    },
+    {
+      "gameCode": "MTG",
+      "displayName": "Magic: The Gathering",
+      "releaseTier": "R2",
+      "dimensions": [
+        {
+          "id": "provider",
+          "label": "Provider",
+          "percent": 96
+        },
+        {
+          "id": "capabilities",
+          "label": "Capabilities",
+          "percent": 70
+        },
+        {
+          "id": "search",
+          "label": "Search",
+          "percent": 88
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "percent": 80
+        },
+        {
+          "id": "seller",
+          "label": "Seller",
+          "percent": 85
+        },
+        {
+          "id": "buyer",
+          "label": "Buyer",
+          "percent": 80
+        },
+        {
+          "id": "checkout",
+          "label": "Checkout",
+          "percent": 85
+        }
+      ],
+      "overallPercent": 83
+    },
+    {
+      "gameCode": "POKEMON",
+      "displayName": "Pokémon TCG",
+      "releaseTier": "R2",
+      "dimensions": [
+        {
+          "id": "provider",
+          "label": "Provider",
+          "percent": 85
+        },
+        {
+          "id": "capabilities",
+          "label": "Capabilities",
+          "percent": 50
+        },
+        {
+          "id": "search",
+          "label": "Search",
+          "percent": 70
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "percent": 80
+        },
+        {
+          "id": "seller",
+          "label": "Seller",
+          "percent": 75
+        },
+        {
+          "id": "buyer",
+          "label": "Buyer",
+          "percent": 80
+        },
+        {
+          "id": "checkout",
+          "label": "Checkout",
+          "percent": 85
+        }
+      ],
+      "overallPercent": 75
+    },
+    {
+      "gameCode": "ONEPIECE",
+      "displayName": "One Piece",
+      "releaseTier": "R3",
+      "dimensions": [
+        {
+          "id": "provider",
+          "label": "Provider",
+          "percent": 0
+        },
+        {
+          "id": "capabilities",
+          "label": "Capabilities",
+          "percent": 0
+        },
+        {
+          "id": "search",
+          "label": "Search",
+          "percent": 0
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "percent": 0
+        },
+        {
+          "id": "seller",
+          "label": "Seller",
+          "percent": 0
+        },
+        {
+          "id": "buyer",
+          "label": "Buyer",
+          "percent": 0
+        },
+        {
+          "id": "checkout",
+          "label": "Checkout",
+          "percent": 0
+        }
+      ],
+      "overallPercent": 0
+    },
+    {
+      "gameCode": "NARUTO",
+      "displayName": "Naruto TCG",
+      "releaseTier": "R4",
+      "dimensions": [
+        {
+          "id": "provider",
+          "label": "Provider",
+          "percent": 0
+        },
+        {
+          "id": "capabilities",
+          "label": "Capabilities",
+          "percent": 0
+        },
+        {
+          "id": "search",
+          "label": "Search",
+          "percent": 0
+        },
+        {
+          "id": "filters",
+          "label": "Filters",
+          "percent": 0
+        },
+        {
+          "id": "seller",
+          "label": "Seller",
+          "percent": 0
+        },
+        {
+          "id": "buyer",
+          "label": "Buyer",
+          "percent": 0
+        },
+        {
+          "id": "checkout",
+          "label": "Checkout",
+          "percent": 0
+        }
+      ],
+      "overallPercent": 0
+    }
+  ]
+}

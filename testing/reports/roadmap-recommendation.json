@@ -1,0 +1,54 @@
+{
+  "generatedAt": "2026-07-20T03:18:24.685Z",
+  "note": "Ordem de rank segue allowlist ADR-013; score consolida lifecycle, risco, pressão, capabilities e market readiness.",
+  "rankings": [
+    {
+      "rank": 1,
+      "gameCode": "LORCANA",
+      "displayName": "Disney Lorcana",
+      "score": 237
+    },
+    {
+      "rank": 2,
+      "gameCode": "MTG",
+      "displayName": "Magic: The Gathering",
+      "score": 206
+    },
+    {
+      "rank": 3,
+      "gameCode": "POKEMON",
+      "displayName": "Pokémon TCG",
+      "score": 183
+    },
+    {
+      "rank": 4,
+      "gameCode": "ONEPIECE",
+      "displayName": "One Piece",
+      "score": 67
+    },
+    {
+      "rank": 5,
+      "gameCode": "DRAGONBALL",
+      "displayName": "Dragon Ball FW",
+      "score": 62
+    },
+    {
+      "rank": 6,
+      "gameCode": "DIGIMON",
+      "displayName": "Digimon",
+      "score": 52
+    },
+    {
+      "rank": 7,
+      "gameCode": "RIFTBOUND",
+      "displayName": "Riftbound",
+      "score": 3
+    },
+    {
+      "rank": 8,
+      "gameCode": "NARUTO",
+      "displayName": "Naruto TCG",
+      "score": 4
+    }
+  ]
+}

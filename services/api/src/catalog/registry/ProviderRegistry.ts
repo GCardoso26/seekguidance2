@@ -1,3 +1,5 @@
+import type { ProviderLifecycleStage } from "../providers/ProviderLifecycle.js";
+
 export interface ProviderCapabilities {
   cards: boolean;
   images: boolean;
@@ -54,6 +56,8 @@ export interface RegisteredProvider {
   kind: "catalog" | "pricing" | "currency" | "media";
   capabilities: ProviderCapabilities;
   mode: RolloutMode;
+  /** Ciclo de vida formal — Planned→…→Beachhead */
+  lifecycle: ProviderLifecycleStage;
   canaryPercent: number;
   health: ProviderHealth;
   statistics: ProviderStatistics;

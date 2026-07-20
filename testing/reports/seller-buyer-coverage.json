@@ -1,0 +1,28 @@
+{
+  "generatedAt": "2026-07-20T03:18:24.687Z",
+  "note": "Complementa SD (profundidade); atualizar no MRB/Founder Report com dados Beta.",
+  "sellers": [
+    {
+      "gameCode": "LORCANA",
+      "asOf": "1970-01-01T00:00:00.000Z",
+      "storesTotal": 7,
+      "specializedStores": 6,
+      "activeStores": 5,
+      "storesWith100PlusListings": 4,
+      "storesWithRepeatSales": 3,
+      "source": "placeholder"
+    }
+  ],
+  "buyers": [
+    {
+      "gameCode": "LORCANA",
+      "asOf": "1970-01-01T00:00:00.000Z",
+      "registered": 31,
+      "searchedCards": 24,
+      "openedPdp": 18,
+      "cart": 9,
+      "checkout": 4,
+      "source": "placeholder"
+    }
+  ]
+}

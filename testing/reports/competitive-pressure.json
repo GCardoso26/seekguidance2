@@ -1,0 +1,46 @@
+{
+  "generatedAt": "2026-07-20T03:18:24.688Z",
+  "note": "Indicador qualitativo para priorização de expansão — não usar receita nem GMV.",
+  "games": [
+    {
+      "gameCode": "LORCANA",
+      "displayName": "Disney Lorcana",
+      "pressureScore": 4
+    },
+    {
+      "gameCode": "MTG",
+      "displayName": "Magic: The Gathering",
+      "pressureScore": 10
+    },
+    {
+      "gameCode": "POKEMON",
+      "displayName": "Pokémon TCG",
+      "pressureScore": 9
+    },
+    {
+      "gameCode": "ONEPIECE",
+      "displayName": "One Piece",
+      "pressureScore": 7
+    },
+    {
+      "gameCode": "DRAGONBALL",
+      "displayName": "Dragon Ball FW",
+      "pressureScore": 6
+    },
+    {
+      "gameCode": "DIGIMON",
+      "displayName": "Digimon",
+      "pressureScore": 3
+    },
+    {
+      "gameCode": "RIFTBOUND",
+      "displayName": "Riftbound",
+      "pressureScore": 1
+    },
+    {
+      "gameCode": "NARUTO",
+      "displayName": "Naruto TCG",
+      "pressureScore": 2
+    }
+  ]
+}

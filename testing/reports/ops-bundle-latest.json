@@ -1,0 +1,1275 @@
+{
+  "generatedAt": "2026-07-20T03:18:24.683Z",
+  "providerCertificationDashboard": {
+    "generatedAt": "2026-07-20T03:18:24.687Z",
+    "providers": [
+      {
+        "gameCode": "LORCANA",
+        "displayName": "Disney Lorcana",
+        "lifecycle": "beachhead",
+        "rolloutMode": "LIVE",
+        "coveragePercent": 99.8,
+        "cardsSynced": 2389,
+        "imagesPercent": 100,
+        "variantsPercent": 100,
+        "syncStatus": "OK",
+        "searchProjectionStatus": "OK",
+        "certification": "PASS",
+        "pendingChecklist": []
+      },
+      {
+        "gameCode": "MTG",
+        "displayName": "Magic: The Gathering",
+        "lifecycle": "shadow",
+        "rolloutMode": "SHADOW",
+        "coveragePercent": 96,
+        "cardsSynced": 0,
+        "imagesPercent": 99,
+        "variantsPercent": 92,
+        "syncStatus": "OK",
+        "searchProjectionStatus": "DEGRADED",
+        "certification": "FAIL",
+        "pendingChecklist": [
+          "Collector Number mapping completo",
+          "Double-faced cards (DFC)",
+          "Etched finish em variants",
+          "SHADOW exit gate assinado"
+        ]
+      },
+      {
+        "gameCode": "POKEMON",
+        "displayName": "Pokémon TCG",
+        "lifecycle": "implemented",
+        "rolloutMode": "OFF",
+        "coveragePercent": 85,
+        "cardsSynced": 5,
+        "imagesPercent": 100,
+        "variantsPercent": 100,
+        "syncStatus": "OK",
+        "searchProjectionStatus": "N/A",
+        "certification": "PENDING",
+        "pendingChecklist": [
+          "Scryfall CANARY/LIVE estável (ADR-006)",
+          "Dataset além do seed shadow",
+          "Certification SHADOW completa"
+        ]
+      }
+    ]
+  },
+  "cardgameReadiness": {
+    "generatedAt": "2026-07-20T03:18:24.687Z",
+    "games": [
+      {
+        "gameCode": "LORCANA",
+        "displayName": "Disney Lorcana",
+        "releaseTier": "R1",
+        "dimensions": [
+          {
+            "id": "provider",
+            "label": "Provider",
+            "percent": 97
+          },
+          {
+            "id": "capabilities",
+            "label": "Capabilities",
+            "percent": 50
+          },
+          {
+            "id": "search",
+            "label": "Search",
+            "percent": 98
+          },
+          {
+            "id": "filters",
+            "label": "Filters",
+            "percent": 80
+          },
+          {
+            "id": "seller",
+            "label": "Seller",
+            "percent": 94
+          },
+          {
+            "id": "buyer",
+            "label": "Buyer",
+            "percent": 93
+          },
+          {
+            "id": "checkout",
+            "label": "Checkout",
+            "percent": 100
+          }
+        ],
+        "overallPercent": 87
+      },
+      {
+        "gameCode": "MTG",
+        "displayName": "Magic: The Gathering",
+        "releaseTier": "R2",
+        "dimensions": [
+          {
+            "id": "provider",
+            "label": "Provider",
+            "percent": 96
+          },
+          {
+            "id": "capabilities",
+            "label": "Capabilities",
+            "percent": 70
+          },
+          {
+            "id": "search",
+            "label": "Search",
+            "percent": 88
+          },
+          {
+            "id": "filters",
+            "label": "Filters",
+            "percent": 80
+          },
+          {
+            "id": "seller",
+            "label": "Seller",
+            "percent": 85
+          },
+          {
+            "id": "buyer",
+            "label": "Buyer",
+            "percent": 80
+          },
+          {
+            "id": "checkout",
+            "label": "Checkout",
+            "percent": 85
+          }
+        ],
+        "overallPercent": 83
+      },
+      {
+        "gameCode": "POKEMON",
+        "displayName": "Pokémon TCG",
+        "releaseTier": "R2",
+        "dimensions": [
+          {
+            "id": "provider",
+            "label": "Provider",
+            "percent": 85
+          },
+          {
+            "id": "capabilities",
+            "label": "Capabilities",
+            "percent": 50
+          },
+          {
+            "id": "search",
+            "label": "Search",
+            "percent": 70
+          },
+          {
+            "id": "filters",
+            "label": "Filters",
+            "percent": 80
+          },
+          {
+            "id": "seller",
+            "label": "Seller",
+            "percent": 75
+          },
+          {
+            "id": "buyer",
+            "label": "Buyer",
+            "percent": 80
+          },
+          {
+            "id": "checkout",
+            "label": "Checkout",
+            "percent": 85
+          }
+        ],
+        "overallPercent": 75
+      },
+      {
+        "gameCode": "ONEPIECE",
+        "displayName": "One Piece",
+        "releaseTier": "R3",
+        "dimensions": [
+          {
+            "id": "provider",
+            "label": "Provider",
+            "percent": 0
+          },
+          {
+            "id": "capabilities",
+            "label": "Capabilities",
+            "percent": 0
+          },
+          {
+            "id": "search",
+            "label": "Search",
+            "percent": 0
+          },
+          {
+            "id": "filters",
+            "label": "Filters",
+            "percent": 0
+          },
+          {
+            "id": "seller",
+            "label": "Seller",
+            "percent": 0
+          },
+          {
+            "id": "buyer",
+            "label": "Buyer",
+            "percent": 0
+          },
+          {
+            "id": "checkout",
+            "label": "Checkout",
+            "percent": 0
+          }
+        ],
+        "overallPercent": 0
+      },
+      {
+        "gameCode": "NARUTO",
+        "displayName": "Naruto TCG",
+        "releaseTier": "R4",
+        "dimensions": [
+          {
+            "id": "provider",
+            "label": "Provider",
+            "percent": 0
+          },
+          {
+            "id": "capabilities",
+            "label": "Capabilities",
+            "percent": 0
+          },
+          {
+            "id": "search",
+            "label": "Search",
+            "percent": 0
+          },
+          {
+            "id": "filters",
+            "label": "Filters",
+            "percent": 0
+          },
+          {
+            "id": "seller",
+            "label": "Seller",
+            "percent": 0
+          },
+          {
+            "id": "buyer",
+            "label": "Buyer",
+            "percent": 0
+          },
+          {
+            "id": "checkout",
+            "label": "Checkout",
+            "percent": 0
+          }
+        ],
+        "overallPercent": 0
+      }
+    ]
+  },
+  "capabilityMatrix": {
+    "games": [
+      "MTG",
+      "LORCANA",
+      "POKEMON",
+      "ONEPIECE"
+    ],
+    "rows": [
+      {
+        "label": "Foil",
+        "cells": {
+          "MTG": true,
+          "LORCANA": true,
+          "POKEMON": true,
+          "ONEPIECE": true
+        }
+      },
+      {
+        "label": "Etched",
+        "cells": {
+          "MTG": true,
+          "LORCANA": false,
+          "POKEMON": false,
+          "ONEPIECE": false
+        }
+      },
+      {
+        "label": "Serialized",
+        "cells": {
+          "MTG": true,
+          "LORCANA": false,
+          "POKEMON": false,
+          "ONEPIECE": false
+        }
+      },
+      {
+        "label": "Reverse Holo",
+        "cells": {
+          "MTG": false,
+          "LORCANA": false,
+          "POKEMON": true,
+          "ONEPIECE": false
+        }
+      },
+      {
+        "label": "Enchanted",
+        "cells": {
+          "MTG": false,
+          "LORCANA": true,
+          "POKEMON": false,
+          "ONEPIECE": false
+        }
+      },
+      {
+        "label": "Collector Number",
+        "cells": {
+          "MTG": true,
+          "LORCANA": true,
+          "POKEMON": true,
+          "ONEPIECE": true
+        }
+      },
+      {
+        "label": "Commander",
+        "cells": {
+          "MTG": true,
+          "LORCANA": false,
+          "POKEMON": false,
+          "ONEPIECE": false
+        }
+      },
+      {
+        "label": "Multi-language",
+        "cells": {
+          "MTG": true,
+          "LORCANA": true,
+          "POKEMON": true,
+          "ONEPIECE": true
+        }
+      },
+      {
+        "label": "Competitive formats",
+        "cells": {
+          "MTG": true,
+          "LORCANA": true,
+          "POKEMON": true,
+          "ONEPIECE": true
+        }
+      },
+      {
+        "label": "Sealed",
+        "cells": {
+          "MTG": false,
+          "LORCANA": false,
+          "POKEMON": false,
+          "ONEPIECE": false
+        }
+      }
+    ]
+  },
+  "marketplaceCoverage": {
+    "generatedAt": "2026-07-20T03:18:24.687Z",
+    "note": "Substituir placeholders por snapshot Beta/warehouse; não alimentar North Star com simulation.",
+    "snapshots": [
+      {
+        "gameCode": "LORCANA",
+        "asOf": "1970-01-01T00:00:00.000Z",
+        "catalogPercent": 100,
+        "cardsWithListingPercent": 31,
+        "cardsWithStockPercent": 28,
+        "cardsSearchedPercent": 17,
+        "cardsWithLiquidityPercent": 5,
+        "source": "placeholder"
+      }
+    ]
+  },
+  "sellerBuyerCoverage": {
+    "generatedAt": "2026-07-20T03:18:24.687Z",
+    "note": "Complementa SD (profundidade); atualizar no MRB/Founder Report com dados Beta.",
+    "sellers": [
+      {
+        "gameCode": "LORCANA",
+        "asOf": "1970-01-01T00:00:00.000Z",
+        "storesTotal": 7,
+        "specializedStores": 6,
+        "activeStores": 5,
+        "storesWith100PlusListings": 4,
+        "storesWithRepeatSales": 3,
+        "source": "placeholder"
+      }
+    ],
+    "buyers": [
+      {
+        "gameCode": "LORCANA",
+        "asOf": "1970-01-01T00:00:00.000Z",
+        "registered": 31,
+        "searchedCards": 24,
+        "openedPdp": 18,
+        "cart": 9,
+        "checkout": 4,
+        "source": "placeholder"
+      }
+    ]
+  },
+  "readinessMatrix": {
+    "generatedAt": "2026-07-20T03:18:24.688Z",
+    "rows": [
+      {
+        "gameCode": "LORCANA",
+        "displayName": "Disney Lorcana",
+        "releaseTier": "R1",
+        "providerStatus": "LIVE",
+        "certification": "PASS",
+        "northStar": "PASS",
+        "beachhead": "YES",
+        "expand": "YES"
+      },
+      {
+        "gameCode": "MTG",
+        "displayName": "Magic: The Gathering",
+        "releaseTier": "R2",
+        "providerStatus": "SHADOW",
+        "certification": "FAIL",
+        "northStar": "N/A",
+        "beachhead": "N/A",
+        "expand": "PENDING"
+      },
+      {
+        "gameCode": "POKEMON",
+        "displayName": "Pokémon TCG",
+        "releaseTier": "R2",
+        "providerStatus": "OFF",
+        "certification": "PENDING",
+        "northStar": "N/A",
+        "beachhead": "N/A",
+        "expand": "YES"
+      },
+      {
+        "gameCode": "ONEPIECE",
+        "displayName": "One Piece",
+        "releaseTier": "R3",
+        "providerStatus": "OFF",
+        "certification": "N/A",
+        "northStar": "N/A",
+        "beachhead": "N/A",
+        "expand": "NO"
+      },
+      {
+        "gameCode": "DIGIMON",
+        "displayName": "Digimon",
+        "releaseTier": "R3",
+        "providerStatus": "OFF",
+        "certification": "N/A",
+        "northStar": "N/A",
+        "beachhead": "N/A",
+        "expand": "NO"
+      },
+      {
+        "gameCode": "DRAGONBALL",
+        "displayName": "Dragon Ball FW",
+        "releaseTier": "R3",
+        "providerStatus": "OFF",
+        "certification": "N/A",
+        "northStar": "N/A",
+        "beachhead": "N/A",
+        "expand": "NO"
+      },
+      {
+        "gameCode": "RIFTBOUND",
+        "displayName": "Riftbound",
+        "releaseTier": "R4",
+        "providerStatus": "OFF",
+        "certification": "N/A",
+        "northStar": "N/A",
+        "beachhead": "N/A",
+        "expand": "NO"
+      },
+      {
+        "gameCode": "NARUTO",
+        "displayName": "Naruto TCG",
+        "releaseTier": "R4",
+        "providerStatus": "OFF",
+        "certification": "N/A",
+        "northStar": "N/A",
+        "beachhead": "N/A",
+        "expand": "NO"
+      }
+    ]
+  },
+  "ecosystemHealth": {
+    "generatedAt": "2026-07-20T03:18:24.688Z",
+    "note": "Camadas separadas (Engineering / Operations / Market / Business).",
+    "games": [
+      {
+        "gameCode": "LORCANA",
+        "displayName": "Disney Lorcana",
+        "engineering": 87,
+        "operations": 100,
+        "market": 25,
+        "business": 23,
+        "overall": 59,
+        "health": "GOOD"
+      },
+      {
+        "gameCode": "MTG",
+        "displayName": "Magic: The Gathering",
+        "engineering": 83,
+        "operations": 63,
+        "market": 0,
+        "business": 0,
+        "overall": 37,
+        "health": "NOT_STARTED"
+      },
+      {
+        "gameCode": "POKEMON",
+        "displayName": "Pokémon TCG",
+        "engineering": 75,
+        "operations": 69,
+        "market": 0,
+        "business": 0,
+        "overall": 36,
+        "health": "IMPLEMENTED"
+      },
+      {
+        "gameCode": "ONEPIECE",
+        "displayName": "One Piece",
+        "engineering": 0,
+        "operations": 3,
+        "market": 0,
+        "business": 0,
+        "overall": 1,
+        "health": "PLANNED"
+      },
+      {
+        "gameCode": "DRAGONBALL",
+        "displayName": "Dragon Ball FW",
+        "engineering": 25,
+        "operations": 3,
+        "market": 0,
+        "business": 0,
+        "overall": 7,
+        "health": "PLANNED"
+      },
+      {
+        "gameCode": "DIGIMON",
+        "displayName": "Digimon",
+        "engineering": 25,
+        "operations": 3,
+        "market": 0,
+        "business": 0,
+        "overall": 7,
+        "health": "PLANNED"
+      },
+      {
+        "gameCode": "RIFTBOUND",
+        "displayName": "Riftbound",
+        "engineering": 12,
+        "operations": 3,
+        "market": 0,
+        "business": 0,
+        "overall": 4,
+        "health": "RESEARCH"
+      },
+      {
+        "gameCode": "NARUTO",
+        "displayName": "Naruto TCG",
+        "engineering": 0,
+        "operations": 3,
+        "market": 0,
+        "business": 0,
+        "overall": 1,
+        "health": "RESEARCH"
+      }
+    ]
+  },
+  "marketReadiness": {
+    "generatedAt": "2026-07-20T03:18:24.688Z",
+    "note": "Bandas qualitativas para MRB — preencher com evidência de campo.",
+    "games": [
+      {
+        "gameCode": "LORCANA",
+        "displayName": "Disney Lorcana",
+        "releaseTier": "R1",
+        "storeCountBand": "MEDIUM",
+        "collectorInterestBand": "HIGH",
+        "competitiveSceneBand": "MEDIUM",
+        "supplyBand": "MEDIUM",
+        "demandBand": "MEDIUM",
+        "competitionBand": "MEDIUM",
+        "beachhead": true,
+        "liquidityHypothesis": "Beachhead BR — provar loop recorrente antes de escalar catálogo",
+        "readinessScore": 63
+      },
+      {
+        "gameCode": "MTG",
+        "displayName": "Magic: The Gathering",
+        "releaseTier": "R2",
+        "storeCountBand": "HIGH",
+        "collectorInterestBand": "HIGH",
+        "competitiveSceneBand": "HIGH",
+        "supplyBand": "HIGH",
+        "demandBand": "HIGH",
+        "competitionBand": "HIGH",
+        "beachhead": false,
+        "liquidityHypothesis": "Massa crítica BR; provider em SHADOW até certificação",
+        "readinessScore": 72
+      },
+      {
+        "gameCode": "POKEMON",
+        "displayName": "Pokémon TCG",
+        "releaseTier": "R2",
+        "storeCountBand": "HIGH",
+        "collectorInterestBand": "HIGH",
+        "competitiveSceneBand": "MEDIUM",
+        "supplyBand": "HIGH",
+        "demandBand": "HIGH",
+        "competitionBand": "HIGH",
+        "beachhead": false,
+        "liquidityHypothesis": "Demanda forte; dataset shadow até gate R2",
+        "readinessScore": 68
+      },
+      {
+        "gameCode": "ONEPIECE",
+        "displayName": "One Piece",
+        "releaseTier": "R3",
+        "storeCountBand": "MEDIUM",
+        "collectorInterestBand": "HIGH",
+        "competitiveSceneBand": "MEDIUM",
+        "supplyBand": "MEDIUM",
+        "demandBand": "MEDIUM",
+        "competitionBand": "MEDIUM",
+        "beachhead": false,
+        "liquidityHypothesis": "Nicho Bandai com crescimento LATAM",
+        "readinessScore": 55
+      },
+      {
+        "gameCode": "DRAGONBALL",
+        "displayName": "Dragon Ball FW",
+        "releaseTier": "R3",
+        "storeCountBand": "MEDIUM",
+        "collectorInterestBand": "MEDIUM",
+        "competitiveSceneBand": "LOW",
+        "supplyBand": "MEDIUM",
+        "demandBand": "MEDIUM",
+        "competitionBand": "LOW",
+        "beachhead": false,
+        "liquidityHypothesis": "Fusion World — acompanhar adoção BR",
+        "readinessScore": 48
+      },
+      {
+        "gameCode": "DIGIMON",
+        "displayName": "Digimon",
+        "releaseTier": "R3",
+        "storeCountBand": "LOW",
+        "collectorInterestBand": "MEDIUM",
+        "competitiveSceneBand": "LOW",
+        "supplyBand": "LOW",
+        "demandBand": "LOW",
+        "competitionBand": "LOW",
+        "beachhead": false,
+        "liquidityHypothesis": "Comunidade dedicada; oferta fragmentada",
+        "readinessScore": 40
+      },
+      {
+        "gameCode": "RIFTBOUND",
+        "displayName": "Riftbound",
+        "releaseTier": "R4",
+        "storeCountBand": "NONE",
+        "collectorInterestBand": "LOW",
+        "competitiveSceneBand": "NONE",
+        "supplyBand": "NONE",
+        "demandBand": "LOW",
+        "competitionBand": "LOW",
+        "beachhead": false,
+        "liquidityHypothesis": "R4 — aguardar lançamento oficial e evidência",
+        "readinessScore": 15
+      },
+      {
+        "gameCode": "NARUTO",
+        "displayName": "Naruto TCG",
+        "releaseTier": "R4",
+        "storeCountBand": "LOW",
+        "collectorInterestBand": "LOW",
+        "competitiveSceneBand": "LOW",
+        "supplyBand": "LOW",
+        "demandBand": "LOW",
+        "competitionBand": "LOW",
+        "beachhead": false,
+        "liquidityHypothesis": "R4 — validar mercado antes de provider",
+        "readinessScore": 12
+      }
+    ]
+  },
+  "competitivePressure": {
+    "generatedAt": "2026-07-20T03:18:24.688Z",
+    "note": "Indicador qualitativo para priorização de expansão — não usar receita nem GMV.",
+    "games": [
+      {
+        "gameCode": "LORCANA",
+        "displayName": "Disney Lorcana",
+        "pressureScore": 4
+      },
+      {
+        "gameCode": "MTG",
+        "displayName": "Magic: The Gathering",
+        "pressureScore": 10
+      },
+      {
+        "gameCode": "POKEMON",
+        "displayName": "Pokémon TCG",
+        "pressureScore": 9
+      },
+      {
+        "gameCode": "ONEPIECE",
+        "displayName": "One Piece",
+        "pressureScore": 7
+      },
+      {
+        "gameCode": "DRAGONBALL",
+        "displayName": "Dragon Ball FW",
+        "pressureScore": 6
+      },
+      {
+        "gameCode": "DIGIMON",
+        "displayName": "Digimon",
+        "pressureScore": 3
+      },
+      {
+        "gameCode": "RIFTBOUND",
+        "displayName": "Riftbound",
+        "pressureScore": 1
+      },
+      {
+        "gameCode": "NARUTO",
+        "displayName": "Naruto TCG",
+        "pressureScore": 2
+      }
+    ]
+  },
+  "expansionRisk": {
+    "generatedAt": "2026-07-20T03:18:24.688Z",
+    "games": [
+      {
+        "gameCode": "LORCANA",
+        "displayName": "Disney Lorcana",
+        "factors": {
+          "providerCoverage": 99.8,
+          "capabilities": 50,
+          "dataset": 85,
+          "marketBr": 63,
+          "documentation": 80,
+          "certification": 90,
+          "lifecycle": 90
+        },
+        "risk": "LOW"
+      },
+      {
+        "gameCode": "MTG",
+        "displayName": "Magic: The Gathering",
+        "factors": {
+          "providerCoverage": 96,
+          "capabilities": 70,
+          "dataset": 40,
+          "marketBr": 72,
+          "documentation": 80,
+          "certification": 35,
+          "lifecycle": 55
+        },
+        "risk": "MEDIUM"
+      },
+      {
+        "gameCode": "POKEMON",
+        "displayName": "Pokémon TCG",
+        "factors": {
+          "providerCoverage": 85,
+          "capabilities": 50,
+          "dataset": 40,
+          "marketBr": 68,
+          "documentation": 80,
+          "certification": 50,
+          "lifecycle": 45
+        },
+        "risk": "MEDIUM"
+      },
+      {
+        "gameCode": "ONEPIECE",
+        "displayName": "One Piece",
+        "factors": {
+          "providerCoverage": 5,
+          "capabilities": 5,
+          "dataset": 5,
+          "marketBr": 55,
+          "documentation": 40,
+          "certification": 15,
+          "lifecycle": 10
+        },
+        "risk": "VERY_HIGH"
+      },
+      {
+        "gameCode": "DRAGONBALL",
+        "displayName": "Dragon Ball FW",
+        "factors": {
+          "providerCoverage": 5,
+          "capabilities": 5,
+          "dataset": 5,
+          "marketBr": 48,
+          "documentation": 40,
+          "certification": 15,
+          "lifecycle": 10
+        },
+        "risk": "VERY_HIGH"
+      },
+      {
+        "gameCode": "DIGIMON",
+        "displayName": "Digimon",
+        "factors": {
+          "providerCoverage": 5,
+          "capabilities": 5,
+          "dataset": 5,
+          "marketBr": 40,
+          "documentation": 40,
+          "certification": 15,
+          "lifecycle": 10
+        },
+        "risk": "VERY_HIGH"
+      },
+      {
+        "gameCode": "RIFTBOUND",
+        "displayName": "Riftbound",
+        "factors": {
+          "providerCoverage": 5,
+          "capabilities": 5,
+          "dataset": 5,
+          "marketBr": 15,
+          "documentation": 25,
+          "certification": 15,
+          "lifecycle": 5
+        },
+        "risk": "VERY_HIGH"
+      },
+      {
+        "gameCode": "NARUTO",
+        "displayName": "Naruto TCG",
+        "factors": {
+          "providerCoverage": 5,
+          "capabilities": 5,
+          "dataset": 5,
+          "marketBr": 12,
+          "documentation": 25,
+          "certification": 15,
+          "lifecycle": 5
+        },
+        "risk": "VERY_HIGH"
+      }
+    ]
+  },
+  "expansionCost": {
+    "generatedAt": "2026-07-20T03:18:24.688Z",
+    "note": "Pesos relativos do Expansion Playbook — não são estimativas em horas.",
+    "games": [
+      {
+        "gameCode": "LORCANA",
+        "displayName": "Disney Lorcana",
+        "provider": "LOW",
+        "images": "LOW",
+        "metadata": "LOW",
+        "capabilities": "LOW",
+        "filters": "LOW",
+        "search": "LOW",
+        "testing": "LOW",
+        "certification": "LOW",
+        "total": "LOW"
+      },
+      {
+        "gameCode": "MTG",
+        "displayName": "Magic: The Gathering",
+        "provider": "LOW",
+        "images": "LOW",
+        "metadata": "MEDIUM",
+        "capabilities": "LOW",
+        "filters": "LOW",
+        "search": "LOW",
+        "testing": "LOW",
+        "certification": "LOW",
+        "total": "LOW"
+      },
+      {
+        "gameCode": "POKEMON",
+        "displayName": "Pokémon TCG",
+        "provider": "LOW",
+        "images": "LOW",
+        "metadata": "MEDIUM",
+        "capabilities": "LOW",
+        "filters": "MEDIUM",
+        "search": "LOW",
+        "testing": "LOW",
+        "certification": "LOW",
+        "total": "LOW"
+      },
+      {
+        "gameCode": "ONEPIECE",
+        "displayName": "One Piece",
+        "provider": "MEDIUM",
+        "images": "MEDIUM",
+        "metadata": "MEDIUM",
+        "capabilities": "MEDIUM",
+        "filters": "MEDIUM",
+        "search": "MEDIUM",
+        "testing": "MEDIUM",
+        "certification": "MEDIUM",
+        "total": "MEDIUM"
+      },
+      {
+        "gameCode": "DRAGONBALL",
+        "displayName": "Dragon Ball FW",
+        "provider": "MEDIUM",
+        "images": "MEDIUM",
+        "metadata": "MEDIUM",
+        "capabilities": "MEDIUM",
+        "filters": "MEDIUM",
+        "search": "MEDIUM",
+        "testing": "MEDIUM",
+        "certification": "MEDIUM",
+        "total": "MEDIUM"
+      },
+      {
+        "gameCode": "DIGIMON",
+        "displayName": "Digimon",
+        "provider": "MEDIUM",
+        "images": "MEDIUM",
+        "metadata": "MEDIUM",
+        "capabilities": "MEDIUM",
+        "filters": "MEDIUM",
+        "search": "MEDIUM",
+        "testing": "MEDIUM",
+        "certification": "MEDIUM",
+        "total": "MEDIUM"
+      },
+      {
+        "gameCode": "RIFTBOUND",
+        "displayName": "Riftbound",
+        "provider": "HIGH",
+        "images": "MEDIUM",
+        "metadata": "MEDIUM",
+        "capabilities": "MEDIUM",
+        "filters": "MEDIUM",
+        "search": "MEDIUM",
+        "testing": "MEDIUM",
+        "certification": "MEDIUM",
+        "total": "MEDIUM"
+      },
+      {
+        "gameCode": "NARUTO",
+        "displayName": "Naruto TCG",
+        "provider": "HIGH",
+        "images": "MEDIUM",
+        "metadata": "MEDIUM",
+        "capabilities": "MEDIUM",
+        "filters": "MEDIUM",
+        "search": "MEDIUM",
+        "testing": "MEDIUM",
+        "certification": "MEDIUM",
+        "total": "MEDIUM"
+      }
+    ]
+  },
+  "maturityIndex": {
+    "generatedAt": "2026-07-20T03:18:24.688Z",
+    "note": "Consolidação R3 — North Star permanece fonte de liquidez em R1.",
+    "games": [
+      {
+        "gameCode": "LORCANA",
+        "displayName": "Disney Lorcana",
+        "engineering": 87,
+        "operations": 100,
+        "market": 25,
+        "business": 23,
+        "expansion": 68,
+        "overall": 61
+      },
+      {
+        "gameCode": "MTG",
+        "displayName": "Magic: The Gathering",
+        "engineering": 83,
+        "operations": 63,
+        "market": 0,
+        "business": 0,
+        "expansion": 76,
+        "overall": 44
+      },
+      {
+        "gameCode": "POKEMON",
+        "displayName": "Pokémon TCG",
+        "engineering": 75,
+        "operations": 69,
+        "market": 0,
+        "business": 0,
+        "expansion": 73,
+        "overall": 43
+      },
+      {
+        "gameCode": "ONEPIECE",
+        "displayName": "One Piece",
+        "engineering": 0,
+        "operations": 3,
+        "market": 0,
+        "business": 0,
+        "expansion": 45,
+        "overall": 10
+      },
+      {
+        "gameCode": "DRAGONBALL",
+        "displayName": "Dragon Ball FW",
+        "engineering": 25,
+        "operations": 3,
+        "market": 0,
+        "business": 0,
+        "expansion": 42,
+        "overall": 14
+      },
+      {
+        "gameCode": "DIGIMON",
+        "displayName": "Digimon",
+        "engineering": 25,
+        "operations": 3,
+        "market": 0,
+        "business": 0,
+        "expansion": 34,
+        "overall": 12
+      },
+      {
+        "gameCode": "RIFTBOUND",
+        "displayName": "Riftbound",
+        "engineering": 12,
+        "operations": 3,
+        "market": 0,
+        "business": 0,
+        "expansion": 23,
+        "overall": 8
+      },
+      {
+        "gameCode": "NARUTO",
+        "displayName": "Naruto TCG",
+        "engineering": 0,
+        "operations": 3,
+        "market": 0,
+        "business": 0,
+        "expansion": 25,
+        "overall": 6
+      }
+    ]
+  },
+  "executivePortfolio": {
+    "generatedAt": "2026-07-20T03:18:24.687Z",
+    "games": [
+      {
+        "gameCode": "LORCANA",
+        "displayName": "Disney Lorcana",
+        "lifecycle": "beachhead",
+        "health": "GOOD",
+        "risk": "LOW",
+        "pressure": 4,
+        "expansionCost": "LOW",
+        "overall": 61,
+        "priority": 1
+      },
+      {
+        "gameCode": "MTG",
+        "displayName": "Magic: The Gathering",
+        "lifecycle": "shadow",
+        "health": "NOT_STARTED",
+        "risk": "MEDIUM",
+        "pressure": 10,
+        "expansionCost": "LOW",
+        "overall": 44,
+        "priority": 2
+      },
+      {
+        "gameCode": "POKEMON",
+        "displayName": "Pokémon TCG",
+        "lifecycle": "implemented",
+        "health": "IMPLEMENTED",
+        "risk": "MEDIUM",
+        "pressure": 9,
+        "expansionCost": "LOW",
+        "overall": 43,
+        "priority": 3
+      },
+      {
+        "gameCode": "ONEPIECE",
+        "displayName": "One Piece",
+        "lifecycle": "planned",
+        "health": "PLANNED",
+        "risk": "VERY_HIGH",
+        "pressure": 7,
+        "expansionCost": "MEDIUM",
+        "overall": 10,
+        "priority": 4
+      },
+      {
+        "gameCode": "DRAGONBALL",
+        "displayName": "Dragon Ball FW",
+        "lifecycle": "planned",
+        "health": "PLANNED",
+        "risk": "VERY_HIGH",
+        "pressure": 6,
+        "expansionCost": "MEDIUM",
+        "overall": 14,
+        "priority": 5
+      },
+      {
+        "gameCode": "DIGIMON",
+        "displayName": "Digimon",
+        "lifecycle": "planned",
+        "health": "PLANNED",
+        "risk": "VERY_HIGH",
+        "pressure": 3,
+        "expansionCost": "MEDIUM",
+        "overall": 12,
+        "priority": 6
+      },
+      {
+        "gameCode": "RIFTBOUND",
+        "displayName": "Riftbound",
+        "lifecycle": "research",
+        "health": "RESEARCH",
+        "risk": "VERY_HIGH",
+        "pressure": 1,
+        "expansionCost": "MEDIUM",
+        "overall": 8,
+        "priority": 7
+      },
+      {
+        "gameCode": "NARUTO",
+        "displayName": "Naruto TCG",
+        "lifecycle": "research",
+        "health": "RESEARCH",
+        "risk": "VERY_HIGH",
+        "pressure": 2,
+        "expansionCost": "MEDIUM",
+        "overall": 6,
+        "priority": 8
+      }
+    ]
+  },
+  "roadmapRecommendation": {
+    "generatedAt": "2026-07-20T03:18:24.685Z",
+    "note": "Ordem de rank segue allowlist ADR-013; score consolida lifecycle, risco, pressão, capabilities e market readiness.",
+    "rankings": [
+      {
+        "rank": 1,
+        "gameCode": "LORCANA",
+        "displayName": "Disney Lorcana",
+        "score": 237
+      },
+      {
+        "rank": 2,
+        "gameCode": "MTG",
+        "displayName": "Magic: The Gathering",
+        "score": 206
+      },
+      {
+        "rank": 3,
+        "gameCode": "POKEMON",
+        "displayName": "Pokémon TCG",
+        "score": 183
+      },
+      {
+        "rank": 4,
+        "gameCode": "ONEPIECE",
+        "displayName": "One Piece",
+        "score": 67
+      },
+      {
+        "rank": 5,
+        "gameCode": "DRAGONBALL",
+        "displayName": "Dragon Ball FW",
+        "score": 62
+      },
+      {
+        "rank": 6,
+        "gameCode": "DIGIMON",
+        "displayName": "Digimon",
+        "score": 52
+      },
+      {
+        "rank": 7,
+        "gameCode": "RIFTBOUND",
+        "displayName": "Riftbound",
+        "score": 3
+      },
+      {
+        "rank": 8,
+        "gameCode": "NARUTO",
+        "displayName": "Naruto TCG",
+        "score": 4
+      }
+    ]
+  },
+  "projectStatus": {
+    "generatedAt": "2026-07-20T03:18:24.688Z",
+    "platformStage": "Framework Complete",
+    "architecturePercent": 100,
+    "testingPercent": 100,
+    "providers": [
+      {
+        "gameCode": "LORCANA",
+        "displayName": "Disney Lorcana",
+        "lifecycle": "BEACHHEAD"
+      },
+      {
+        "gameCode": "MTG",
+        "displayName": "Magic: The Gathering",
+        "lifecycle": "SHADOW"
+      },
+      {
+        "gameCode": "POKEMON",
+        "displayName": "Pokémon TCG",
+        "lifecycle": "IMPLEMENTED"
+      },
+      {
+        "gameCode": "ONEPIECE",
+        "displayName": "One Piece",
+        "lifecycle": "PLANNED"
+      },
+      {
+        "gameCode": "DRAGONBALL",
+        "displayName": "Dragon Ball FW",
+        "lifecycle": "PLANNED"
+      },
+      {
+        "gameCode": "DIGIMON",
+        "displayName": "Digimon",
+        "lifecycle": "PLANNED"
+      },
+      {
+        "gameCode": "RIFTBOUND",
+        "displayName": "Riftbound",
+        "lifecycle": "RESEARCH"
+      },
+      {
+        "gameCode": "NARUTO",
+        "displayName": "Naruto TCG",
+        "lifecycle": "RESEARCH"
+      }
+    ],
+    "northStar": {
+      "lpc": 0,
+      "lcsPercent": 0,
+      "note": "Espelho do North Star R1 — não usar readiness ops como substituto."
+    },
+    "beta": {
+      "status": "Not started"
+    },
+    "nextPhase": "Evidence Release (R4) → Market Learning (R5)"
+  }
+}

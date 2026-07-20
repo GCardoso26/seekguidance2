@@ -1,0 +1,90 @@
+import type { GameConfiguration } from "../interfaces/GameConfiguration.js";
+
+export const lorcanaGameConfig: GameConfiguration = {
+  gameCode: "LORCANA",
+  displayName: "Disney Lorcana",
+  market: {
+    releaseTier: "R1",
+    primaryMarket: "BR",
+    liquidityHypothesis: "Lorcana BR gera LPC recorrente como beachhead",
+    watchlistTargetSize: 20,
+    catalogProviderId: "lorcana-dataset",
+  },
+  capabilities: {
+    foil: true,
+    etched: false,
+    serialized: false,
+    reverseHolo: false,
+    collectorNumber: true,
+    multiLanguageListings: true,
+    competitiveFormats: true,
+    commanderStyle: false,
+    enchantedStyleRarities: true,
+    sealedProduct: false,
+  },
+  rarities: [
+    { value: "common", label: "Common", color: "#9CA3AF" },
+    { value: "uncommon", label: "Uncommon", color: "#22C55E" },
+    { value: "rare", label: "Rare", color: "#3B82F6" },
+    { value: "super_rare", label: "Super Rare", color: "#8B5CF6" },
+    { value: "legendary", label: "Legendary", color: "#F59E0B" },
+    { value: "enchanted", label: "Enchanted", color: "#EC4899" },
+    { value: "promo", label: "Promo", color: "#EF4444" },
+  ],
+  languages: [
+    { value: "en", label: "English" },
+    { value: "pt", label: "Português" },
+    { value: "de", label: "Deutsch" },
+    { value: "fr", label: "Français" },
+  ],
+  conditions: [
+    { value: "NM", label: "Near Mint" },
+    { value: "LP", label: "Lightly Played" },
+    { value: "MP", label: "Moderately Played" },
+    { value: "HP", label: "Heavily Played" },
+    { value: "DM", label: "Damaged" },
+  ],
+  finishes: [
+    { value: "nonfoil", label: "Non-foil" },
+    { value: "foil", label: "Foil" },
+  ],
+  formats: [
+    { value: "core", label: "Core Constructed" },
+    { value: "infinity", label: "Infinity" },
+  ],
+  watchlistCardNames: [
+    "Rapunzel – Gifted with Healing",
+    "Be Prepared",
+    "Diablo – Loyal Henchman",
+    "Maui – Hero to All",
+    "Elsa – Snow Queen",
+  ],
+  searchSynonyms: {
+    rapunzel: ["rapunzel gifted", "gifted with healing"],
+    be: ["be prepared"],
+    prepared: ["be prepared"],
+    diablo: ["diablo loyal", "loyal henchman"],
+    maui: ["maui hero", "hero to all"],
+    elsa: ["elsa snow", "snow queen", "enchanted elsa"],
+  },
+  filterFacets: [
+    {
+      id: "ink",
+      label: "Ink",
+      options: [
+        { value: "amber", label: "Amber" },
+        { value: "amethyst", label: "Amethyst" },
+        { value: "emerald", label: "Emerald" },
+        { value: "ruby", label: "Ruby" },
+        { value: "sapphire", label: "Sapphire" },
+        { value: "steel", label: "Steel" },
+      ],
+    },
+  ],
+  sellerWizardCopy: {
+    searchPlaceholder: "Buscar carta Lorcana (ex.: Rapunzel)",
+    conditionHint: "Condição da single Lorcana",
+    finishHint: "Foil ou non-foil",
+    emptyInventoryHint: "Publique staples da watchlist Lorcana para ativar liquidez",
+  },
+};

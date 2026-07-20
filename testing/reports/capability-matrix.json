@@ -1,0 +1,100 @@
+{
+  "games": [
+    "MTG",
+    "LORCANA",
+    "POKEMON",
+    "ONEPIECE"
+  ],
+  "rows": [
+    {
+      "label": "Foil",
+      "cells": {
+        "MTG": true,
+        "LORCANA": true,
+        "POKEMON": true,
+        "ONEPIECE": true
+      }
+    },
+    {
+      "label": "Etched",
+      "cells": {
+        "MTG": true,
+        "LORCANA": false,
+        "POKEMON": false,
+        "ONEPIECE": false
+      }
+    },
+    {
+      "label": "Serialized",
+      "cells": {
+        "MTG": true,
+        "LORCANA": false,
+        "POKEMON": false,
+        "ONEPIECE": false
+      }
+    },
+    {
+      "label": "Reverse Holo",
+      "cells": {
+        "MTG": false,
+        "LORCANA": false,
+        "POKEMON": true,
+        "ONEPIECE": false
+      }
+    },
+    {
+      "label": "Enchanted",
+      "cells": {
+        "MTG": false,
+        "LORCANA": true,
+        "POKEMON": false,
+        "ONEPIECE": false
+      }
+    },
+    {
+      "label": "Collector Number",
+      "cells": {
+        "MTG": true,
+        "LORCANA": true,
+        "POKEMON": true,
+        "ONEPIECE": true
+      }
+    },
+    {
+      "label": "Commander",
+      "cells": {
+        "MTG": true,
+        "LORCANA": false,
+        "POKEMON": false,
+        "ONEPIECE": false
+      }
+    },
+    {
+      "label": "Multi-language",
+      "cells": {
+        "MTG": true,
+        "LORCANA": true,
+        "POKEMON": true,
+        "ONEPIECE": true
+      }
+    },
+    {
+      "label": "Competitive formats",
+      "cells": {
+        "MTG": true,
+        "LORCANA": true,
+        "POKEMON": true,
+        "ONEPIECE": true
+      }
+    },
+    {
+      "label": "Sealed",
+      "cells": {
+        "MTG": false,
+        "LORCANA": false,
+        "POKEMON": false,
+        "ONEPIECE": false
+      }
+    }
+  ]
+}

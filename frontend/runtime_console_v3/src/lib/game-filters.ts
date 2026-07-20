@@ -1,3 +1,5 @@
+import { getGameConfig } from "@/lib/game-config";
+
 export interface FilterOption {
   value: string;
   label: string;
@@ -11,28 +13,25 @@ export interface FilterConfig {
   attributes?: string[];
 }
 
+function fromGameConfig(slug: string): FilterConfig | undefined {
+  const cfg = getGameConfig(slug);
+  if (!cfg) return undefined;
+  return {
+    colors: cfg.colors,
+    types: cfg.types,
+    rarities: cfg.rarities.map((r) => r.value),
+  };
+}
+
+/** Filtros por jogo — R2 configs (lorcana/mtg/pokemon) via GameConfig; demais legado. */
 export const gameFilters: Record<string, FilterConfig> = {
-  mtg: {
-    colors: [
-      { value: "W", label: "White", color: "#F9FAFB" },
-      { value: "U", label: "Blue", color: "#3B82F6" },
-      { value: "B", label: "Black", color: "#1F2937" },
-      { value: "R", label: "Red", color: "#EF4444" },
-      { value: "G", label: "Green", color: "#22C55E" },
-    ],
-    types: ["Creature", "Instant", "Sorcery", "Enchantment", "Artifact", "Land", "Planeswalker"],
-    rarities: ["common", "uncommon", "rare", "mythic"],
-  },
-  pokemon: {
-    types: ["Grass", "Fire", "Water", "Lightning", "Psychic", "Fighting", "Darkness", "Metal", "Dragon", "Colorless"],
-    rarities: ["Common", "Uncommon", "Rare", "Rare Holo", "Rare Ultra", "Rare Secret"],
-  },
+  mtg: fromGameConfig("mtg")!,
+  magic: fromGameConfig("mtg")!,
+  pokemon: fromGameConfig("pokemon")!,
+  lorcana: fromGameConfig("lorcana")!,
   yugioh: {
     types: ["Normal", "Effect", "Ritual", "Fusion", "Synchro", "Xyz", "Pendulum", "Link", "Spell", "Trap"],
     attributes: ["DARK", "LIGHT", "EARTH", "WATER", "FIRE", "WIND", "DIVINE"],
-  },
-  lorcana: {
-    types: ["Character", "Action", "Item", "Song", "Location"],
   },
   onepiece: {
     types: ["Leader", "Character", "Event", "Stage"],
@@ -43,9 +42,6 @@ export const gameFilters: Record<string, FilterConfig> = {
   digimon: {
     types: ["Digimon", "Tamer", "Option", "Digi-Egg"],
   },
-  swu: {
-    types: ["Leader", "Base", "Unit", "Event", "Upgrade"],
-  },
   riftbound: {
     types: ["Unit", "Spell", "Gear", "Champion", "Battlefield"],
     rarities: ["common", "uncommon", "rare", "epic", "legendary"],
@@ -54,16 +50,9 @@ export const gameFilters: Record<string, FilterConfig> = {
     types: ["Minion", "Avatar", "Artifact", "Site", "Aura", "Magic"],
     rarities: ["Ordinary", "Exceptional", "Elite", "Unique"],
   },
-  "union-arena": {
-    types: ["Character", "Event", "Site"],
-  },
   dbfw: {
     types: ["Leader", "Battle", "Extra"],
     rarities: ["Common", "Uncommon", "Rare", "Super Rare", "Secret Rare"],
-  },
-  vanguard: {
-    types: ["Normal Unit", "Trigger Unit", "G Unit", "Order"],
-    rarities: ["C", "R", "RR", "RRR", "SP", "SCR"],
   },
 };
 
@@ -87,6 +76,11 @@ export const advancedFilters: Record<
     conditions: ["NM", "LP", "MP", "HP", "DMG"],
     priceRange: { min: 0, max: 10000 },
   },
+  lorcana: {
+    ...gameFilters.lorcana,
+    conditions: ["NM", "LP", "MP", "HP", "DMG"],
+    priceRange: { min: 0, max: 10000 },
+  },
   yugioh: {
     ...gameFilters.yugioh,
     conditions: ["NM", "LP", "MP", "HP", "DMG"],
@@ -102,18 +96,8 @@ export const advancedFilters: Record<
     conditions: ["NM", "LP", "MP", "HP", "DMG"],
     priceRange: { min: 0, max: 5000 },
   },
-  "union-arena": {
-    ...gameFilters["union-arena"],
-    conditions: ["NM", "LP", "MP", "HP", "DMG"],
-    priceRange: { min: 0, max: 5000 },
-  },
   dbfw: {
     ...gameFilters.dbfw,
-    conditions: ["NM", "LP", "MP", "HP", "DMG"],
-    priceRange: { min: 0, max: 5000 },
-  },
-  vanguard: {
-    ...gameFilters.vanguard,
     conditions: ["NM", "LP", "MP", "HP", "DMG"],
     priceRange: { min: 0, max: 5000 },
   },

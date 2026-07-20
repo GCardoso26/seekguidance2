@@ -2,7 +2,7 @@
 
 **Status:** Ritual operacional permanente  
 **Camada:** Operação / valor de mercado — **não** é QA de engenharia  
-**Relaciona:** [`NORTH_STAR_RELEASE_1.md`](../product/NORTH_STAR_RELEASE_1.md) · [`BETA_COMMAND_CENTER.md`](./BETA_COMMAND_CENTER.md) · [`FOUNDER_REPORT_TEMPLATE.md`](./FOUNDER_REPORT_TEMPLATE.md) · [ADR-014](../architecture/adr/ADR-014-testing-infrastructure-persona-composition.md)
+**Relaciona:** [`NORTH_STAR_RELEASE_1.md`](../product/NORTH_STAR_RELEASE_1.md) · [`BETA_COMMAND_CENTER.md`](./BETA_COMMAND_CENTER.md) · [`FOUNDER_REPORT_TEMPLATE.md`](./FOUNDER_REPORT_TEMPLATE.md) · [`OPS_REPORTS.md`](./OPS_REPORTS.md) · [`EVIDENCE_RELEASE_R4.md`](./EVIDENCE_RELEASE_R4.md) · [`PLATFORM_CONSTITUTION.md`](../architecture/PLATFORM_CONSTITUTION.md) · [ADR-014](../architecture/adr/ADR-014-testing-infrastructure-persona-composition.md)
 
 ## Separação obrigatória
 

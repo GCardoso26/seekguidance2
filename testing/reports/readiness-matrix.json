@@ -1,0 +1,85 @@
+{
+  "generatedAt": "2026-07-20T03:18:24.688Z",
+  "rows": [
+    {
+      "gameCode": "LORCANA",
+      "displayName": "Disney Lorcana",
+      "releaseTier": "R1",
+      "providerStatus": "LIVE",
+      "certification": "PASS",
+      "northStar": "PASS",
+      "beachhead": "YES",
+      "expand": "YES"
+    },
+    {
+      "gameCode": "MTG",
+      "displayName": "Magic: The Gathering",
+      "releaseTier": "R2",
+      "providerStatus": "SHADOW",
+      "certification": "FAIL",
+      "northStar": "N/A",
+      "beachhead": "N/A",
+      "expand": "PENDING"
+    },
+    {
+      "gameCode": "POKEMON",
+      "displayName": "Pokémon TCG",
+      "releaseTier": "R2",
+      "providerStatus": "OFF",
+      "certification": "PENDING",
+      "northStar": "N/A",
+      "beachhead": "N/A",
+      "expand": "YES"
+    },
+    {
+      "gameCode": "ONEPIECE",
+      "displayName": "One Piece",
+      "releaseTier": "R3",
+      "providerStatus": "OFF",
+      "certification": "N/A",
+      "northStar": "N/A",
+      "beachhead": "N/A",
+      "expand": "NO"
+    },
+    {
+      "gameCode": "DIGIMON",
+      "displayName": "Digimon",
+      "releaseTier": "R3",
+      "providerStatus": "OFF",
+      "certification": "N/A",
+      "northStar": "N/A",
+      "beachhead": "N/A",
+      "expand": "NO"
+    },
+    {
+      "gameCode": "DRAGONBALL",
+      "displayName": "Dragon Ball FW",
+      "releaseTier": "R3",
+      "providerStatus": "OFF",
+      "certification": "N/A",
+      "northStar": "N/A",
+      "beachhead": "N/A",
+      "expand": "NO"
+    },
+    {
+      "gameCode": "RIFTBOUND",
+      "displayName": "Riftbound",
+      "releaseTier": "R4",
+      "providerStatus": "OFF",
+      "certification": "N/A",
+      "northStar": "N/A",
+      "beachhead": "N/A",
+      "expand": "NO"
+    },
+    {
+      "gameCode": "NARUTO",
+      "displayName": "Naruto TCG",
+      "releaseTier": "R4",
+      "providerStatus": "OFF",
+      "certification": "N/A",
+      "northStar": "N/A",
+      "beachhead": "N/A",
+      "expand": "NO"
+    }
+  ]
+}

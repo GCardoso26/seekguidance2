@@ -1,0 +1,110 @@
+{
+  "generatedAt": "2026-07-20T03:18:24.688Z",
+  "note": "Pesos relativos do Expansion Playbook — não são estimativas em horas.",
+  "games": [
+    {
+      "gameCode": "LORCANA",
+      "displayName": "Disney Lorcana",
+      "provider": "LOW",
+      "images": "LOW",
+      "metadata": "LOW",
+      "capabilities": "LOW",
+      "filters": "LOW",
+      "search": "LOW",
+      "testing": "LOW",
+      "certification": "LOW",
+      "total": "LOW"
+    },
+    {
+      "gameCode": "MTG",
+      "displayName": "Magic: The Gathering",
+      "provider": "LOW",
+      "images": "LOW",
+      "metadata": "MEDIUM",
+      "capabilities": "LOW",
+      "filters": "LOW",
+      "search": "LOW",
+      "testing": "LOW",
+      "certification": "LOW",
+      "total": "LOW"
+    },
+    {
+      "gameCode": "POKEMON",
+      "displayName": "Pokémon TCG",
+      "provider": "LOW",
+      "images": "LOW",
+      "metadata": "MEDIUM",
+      "capabilities": "LOW",
+      "filters": "MEDIUM",
+      "search": "LOW",
+      "testing": "LOW",
+      "certification": "LOW",
+      "total": "LOW"
+    },
+    {
+      "gameCode": "ONEPIECE",
+      "displayName": "One Piece",
+      "provider": "MEDIUM",
+      "images": "MEDIUM",
+      "metadata": "MEDIUM",
+      "capabilities": "MEDIUM",
+      "filters": "MEDIUM",
+      "search": "MEDIUM",
+      "testing": "MEDIUM",
+      "certification": "MEDIUM",
+      "total": "MEDIUM"
+    },
+    {
+      "gameCode": "DRAGONBALL",
+      "displayName": "Dragon Ball FW",
+      "provider": "MEDIUM",
+      "images": "MEDIUM",
+      "metadata": "MEDIUM",
+      "capabilities": "MEDIUM",
+      "filters": "MEDIUM",
+      "search": "MEDIUM",
+      "testing": "MEDIUM",
+      "certification": "MEDIUM",
+      "total": "MEDIUM"
+    },
+    {
+      "gameCode": "DIGIMON",
+      "displayName": "Digimon",
+      "provider": "MEDIUM",
+      "images": "MEDIUM",
+      "metadata": "MEDIUM",
+      "capabilities": "MEDIUM",
+      "filters": "MEDIUM",
+      "search": "MEDIUM",
+      "testing": "MEDIUM",
+      "certification": "MEDIUM",
+      "total": "MEDIUM"
+    },
+    {
+      "gameCode": "RIFTBOUND",
+      "displayName": "Riftbound",
+      "provider": "HIGH",
+      "images": "MEDIUM",
+      "metadata": "MEDIUM",
+      "capabilities": "MEDIUM",
+      "filters": "MEDIUM",
+      "search": "MEDIUM",
+      "testing": "MEDIUM",
+      "certification": "MEDIUM",
+      "total": "MEDIUM"
+    },
+    {
+      "gameCode": "NARUTO",
+      "displayName": "Naruto TCG",
+      "provider": "HIGH",
+      "images": "MEDIUM",
+      "metadata": "MEDIUM",
+      "capabilities": "MEDIUM",
+      "filters": "MEDIUM",
+      "search": "MEDIUM",
+      "testing": "MEDIUM",
+      "certification": "MEDIUM",
+      "total": "MEDIUM"
+    }
+  ]
+}

@@ -1,7 +1,8 @@
 # Scryfall SHADOW — exit gate (CANARY)
 
-**Status:** Congelado — Sprint 2  
-**Pré-requisito:** Database Certification + Contracts PG verdes
+**Status:** Em progresso — provider modularizado (R2 Fase 1) · Sprint 2 gate operacional permanece  
+**Pré-requisito:** Database Certification + Contracts PG verdes  
+**Relaciona:** [`RELEASE_2_PROVIDER_PROGRESS.md`](./RELEASE_2_PROVIDER_PROGRESS.md)
 
 ## Fluxo obrigatório
 

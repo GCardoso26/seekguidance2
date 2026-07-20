@@ -1,0 +1,57 @@
+{
+  "generatedAt": "2026-07-20T03:18:24.688Z",
+  "platformStage": "Framework Complete",
+  "architecturePercent": 100,
+  "testingPercent": 100,
+  "providers": [
+    {
+      "gameCode": "LORCANA",
+      "displayName": "Disney Lorcana",
+      "lifecycle": "BEACHHEAD"
+    },
+    {
+      "gameCode": "MTG",
+      "displayName": "Magic: The Gathering",
+      "lifecycle": "SHADOW"
+    },
+    {
+      "gameCode": "POKEMON",
+      "displayName": "Pokémon TCG",
+      "lifecycle": "IMPLEMENTED"
+    },
+    {
+      "gameCode": "ONEPIECE",
+      "displayName": "One Piece",
+      "lifecycle": "PLANNED"
+    },
+    {
+      "gameCode": "DRAGONBALL",
+      "displayName": "Dragon Ball FW",
+      "lifecycle": "PLANNED"
+    },
+    {
+      "gameCode": "DIGIMON",
+      "displayName": "Digimon",
+      "lifecycle": "PLANNED"
+    },
+    {
+      "gameCode": "RIFTBOUND",
+      "displayName": "Riftbound",
+      "lifecycle": "RESEARCH"
+    },
+    {
+      "gameCode": "NARUTO",
+      "displayName": "Naruto TCG",
+      "lifecycle": "RESEARCH"
+    }
+  ],
+  "northStar": {
+    "lpc": 0,
+    "lcsPercent": 0,
+    "note": "Espelho do North Star R1 — não usar readiness ops como substituto."
+  },
+  "beta": {
+    "status": "Not started"
+  },
+  "nextPhase": "Evidence Release (R4) → Market Learning (R5)"
+}

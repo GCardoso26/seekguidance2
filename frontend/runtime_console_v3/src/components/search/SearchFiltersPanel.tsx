@@ -5,6 +5,7 @@ import { Filter, X } from "lucide-react";
 import { useMemo } from "react";
 import { ALL_GAME_IDS, GAME_TOKENS } from "@/lib/tcg-tokens";
 import { gameFilters } from "@/lib/game-filters";
+import { getGameConfigOrFallback } from "@/lib/game-config";
 import type { CatalogSetOption, SearchFilters } from "@/types/search";
 
 interface SearchFiltersPanelProps {
@@ -14,32 +15,6 @@ interface SearchFiltersPanelProps {
   availableSets: CatalogSetOption[];
   lockGame?: boolean;
 }
-
-const RARITY_OPTIONS = [
-  { value: "common", label: "Common", color: "#9CA3AF" },
-  { value: "uncommon", label: "Uncommon", color: "#22C55E" },
-  { value: "rare", label: "Rare", color: "#3B82F6" },
-  { value: "mythic", label: "Mythic", color: "#EF4444" },
-  { value: "special", label: "Special", color: "#F59E0B" },
-  { value: "legendary", label: "Legendary", color: "#8B5CF6" },
-];
-
-const CONDITION_OPTIONS = [
-  { value: "NM", label: "Near Mint" },
-  { value: "LP", label: "Lightly Played" },
-  { value: "MP", label: "Moderately Played" },
-  { value: "HP", label: "Heavily Played" },
-  { value: "DM", label: "Damaged" },
-];
-
-const LANGUAGE_OPTIONS = [
-  { value: "pt", label: "Português" },
-  { value: "en", label: "Inglês" },
-  { value: "ja", label: "Japonês" },
-  { value: "es", label: "Espanhol" },
-  { value: "fr", label: "Francês" },
-  { value: "de", label: "Alemão" },
-];
 
 function hasActiveFilters(filters: SearchFilters): boolean {
   return !!(
@@ -74,6 +49,12 @@ function FilterContent({
   availableSets,
   lockGame = false,
 }: SearchFiltersPanelProps) {
+  const gameCfg = getGameConfigOrFallback(filters.game);
+  const rarityOptions = gameCfg.rarities;
+  const conditionOptions = gameCfg.conditions;
+  const languageOptions = gameCfg.languages;
+  const colorOptions = gameCfg.colors ?? gameFilters.mtg?.colors;
+
   return (
     <div className="space-y-6">
       <div>
@@ -129,11 +110,11 @@ function FilterContent({
         </div>
       )}
 
-      {(filters.game === "mtg" || filters.game === "magic") && gameFilters.mtg?.colors && (
+      {colorOptions && colorOptions.length > 0 && (filters.game === "mtg" || filters.game === "magic" || !filters.game) && (
         <div>
           <h3 className="mb-2 text-sm font-semibold">Cores (Magic)</h3>
           <div className="flex flex-wrap gap-2">
-            {gameFilters.mtg.colors.map((color) => {
+            {colorOptions.map((color) => {
               const selected = filters.colors?.includes(color.value) ?? false;
               return (
                 <button
@@ -166,7 +147,7 @@ function FilterContent({
       <div>
         <h3 className="mb-2 text-sm font-semibold">Raridade</h3>
         <div className="space-y-1">
-          {RARITY_OPTIONS.map((rarity) => (
+          {rarityOptions.map((rarity) => (
             <label key={rarity.value} className="flex cursor-pointer items-center gap-2">
               <input
                 type="checkbox"
@@ -182,7 +163,7 @@ function FilterContent({
               />
               <span
                 className="inline-block h-2.5 w-2.5 shrink-0 rounded-full"
-                style={{ backgroundColor: rarity.color }}
+                style={{ backgroundColor: rarity.color ?? "#9CA3AF" }}
                 aria-hidden
               />
               <span className="text-sm font-medium text-foreground">{rarity.label}</span>
@@ -194,7 +175,7 @@ function FilterContent({
       <div>
         <h3 className="mb-2 text-sm font-semibold">Condição</h3>
         <div className="space-y-1">
-          {CONDITION_OPTIONS.map((condition) => (
+          {conditionOptions.map((condition) => (
             <label key={condition.value} className="flex cursor-pointer items-center gap-2">
               <input
                 type="checkbox"
@@ -250,7 +231,7 @@ function FilterContent({
           aria-label="Filtrar por idioma"
         >
           <option value="">Todos</option>
-          {LANGUAGE_OPTIONS.map((lang) => (
+          {languageOptions.map((lang) => (
             <option key={lang.value} value={lang.value}>
               {lang.label}
             </option>
@@ -258,13 +239,32 @@ function FilterContent({
         </select>
       </div>
 
+      {gameCfg.filterFacets.map((facet) => (
+        <div key={facet.id}>
+          <h3 className="mb-2 text-sm font-semibold">{facet.label}</h3>
+          <div className="space-y-1">
+            {facet.options.map((opt) => (
+              <label key={opt.value} className="flex cursor-pointer items-center gap-2 text-sm">
+                <input type="checkbox" className="h-4 w-4" disabled readOnly />
+                <span>{opt.label}</span>
+              </label>
+            ))}
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">Facetas por GameConfig ({gameCfg.gameCode})</p>
+        </div>
+      ))}
+
       <div>
         <h3 className="mb-2 text-sm font-semibold">Acabamento</h3>
         <div className="flex flex-wrap gap-4">
           {[
             { value: null, label: "Todos" },
-            { value: true, label: "Foil" },
-            { value: false, label: "Normal" },
+            ...(gameCfg.capabilities.foil || gameCfg.capabilities.reverseHolo
+              ? [
+                  { value: true as boolean | null, label: gameCfg.capabilities.reverseHolo ? "Holo / Foil" : "Foil" },
+                  { value: false as boolean | null, label: "Normal" },
+                ]
+              : []),
           ].map((opt) => (
             <label key={String(opt.value)} className="flex cursor-pointer items-center gap-2">
               <input
@@ -277,6 +277,13 @@ function FilterContent({
             </label>
           ))}
         </div>
+        {gameCfg.finishes.length > 0 && (
+          <p className="mt-2 text-xs text-muted-foreground">
+            Disponíveis: {gameCfg.finishes.map((f) => f.label).join(", ")}
+            {gameCfg.capabilities.etched ? " · etched" : ""}
+            {gameCfg.capabilities.serialized ? " · serialized" : ""}
+          </p>
+        )}
       </div>
 
       <button

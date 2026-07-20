@@ -18,8 +18,10 @@ A validação de mercado (LPC / LCS / Supply Depth / Beta Sprint 8) responde a o
 ## Hierarchy of Truth (respeitada)
 
 ```
-ADRs → North Star → MVP → Sprint → Ops → Código
+Platform Constitution → ADRs → North Star → MVP → Sprint → Ops → Código
 ```
+
+Ver [`PLATFORM_CONSTITUTION.md`](../architecture/PLATFORM_CONSTITUTION.md).
 
 Esta pasta `testing/` e `docs/testing/` **não** criam ADRs de produto, **não** alteram North Star R1, **não** tocam Sprint 8 congelada.
 

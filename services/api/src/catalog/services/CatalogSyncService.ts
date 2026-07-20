@@ -7,17 +7,20 @@ import {
   type RegisteredProvider,
 } from "../registry/ProviderRegistry.js";
 import { createCatalogProvider } from "../providers/factory.js";
+import { lifecycleFromRollout } from "../providers/ProviderLifecycle.js";
 import type { SyncContext } from "../providers/interfaces/CatalogProvider.js";
 
 const log = createLogger("catalog-sync");
 
 export function bootstrapScryfallRegistry(): RegisteredProvider {
+  const mode = (process.env.SCRYFALL_ROLLOUT_MODE as RegisteredProvider["mode"]) ?? "SHADOW";
   const registered: RegisteredProvider = {
     providerId: "scryfall",
     gameCode: "MTG",
     kind: "catalog",
     capabilities: { ...CATALOG_CAPABILITIES_NO_PRICES },
-    mode: (process.env.SCRYFALL_ROLLOUT_MODE as RegisteredProvider["mode"]) ?? "SHADOW",
+    mode,
+    lifecycle: lifecycleFromRollout(mode, { codeExists: true }),
     canaryPercent: Number(process.env.SCRYFALL_CANARY_PERCENT ?? 10),
     health: { status: "unknown" },
     statistics: {
@@ -33,13 +36,41 @@ export function bootstrapScryfallRegistry(): RegisteredProvider {
 
 /** Beachhead R1 — ADR-012 / beachhead.ts */
 export function bootstrapLorcanaRegistry(): RegisteredProvider {
+  const mode = (process.env.LORCANA_ROLLOUT_MODE as RegisteredProvider["mode"]) ?? "LIVE";
   const registered: RegisteredProvider = {
     providerId: "lorcana-dataset",
     gameCode: "LORCANA",
     kind: "catalog",
     capabilities: { ...CATALOG_CAPABILITIES_NO_PRICES, rulings: false },
-    mode: (process.env.LORCANA_ROLLOUT_MODE as RegisteredProvider["mode"]) ?? "LIVE",
+    mode,
+    lifecycle: lifecycleFromRollout(mode, { beachhead: true, codeExists: true }),
     canaryPercent: Number(process.env.LORCANA_CANARY_PERCENT ?? 100),
+    health: { status: "unknown" },
+    statistics: {
+      requestsToday: 0,
+      requestsTotal: 0,
+      syncCardsTotal: 0,
+      syncErrorsTotal: 0,
+    },
+  };
+  providerRegistry.register(registered);
+  return registered;
+}
+
+/**
+ * Pokémon R2 — ADR-013 / ADR-006.
+ * Default OFF (lifecycle=implemented) até Scryfall CANARY/LIVE estável.
+ */
+export function bootstrapPokemonRegistry(): RegisteredProvider {
+  const mode = (process.env.POKEMON_ROLLOUT_MODE as RegisteredProvider["mode"]) ?? "OFF";
+  const registered: RegisteredProvider = {
+    providerId: "pokemon-dataset",
+    gameCode: "POKEMON",
+    kind: "catalog",
+    capabilities: { ...CATALOG_CAPABILITIES_NO_PRICES, rulings: false },
+    mode,
+    lifecycle: lifecycleFromRollout(mode, { codeExists: true }),
+    canaryPercent: Number(process.env.POKEMON_CANARY_PERCENT ?? 0),
     health: { status: "unknown" },
     statistics: {
       requestsToday: 0,

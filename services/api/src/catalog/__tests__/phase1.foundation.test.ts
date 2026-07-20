@@ -59,6 +59,7 @@ describe("ProviderRegistry", () => {
       kind: "catalog",
       capabilities: { ...CATALOG_CAPABILITIES_NO_PRICES },
       mode: "OFF",
+      lifecycle: "implemented",
       canaryPercent: 0,
       health: { status: "unknown" },
       statistics: { requestsToday: 0, requestsTotal: 0, syncCardsTotal: 0, syncErrorsTotal: 0 },

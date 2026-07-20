@@ -1,0 +1,93 @@
+{
+  "generatedAt": "2026-07-20T03:18:24.687Z",
+  "games": [
+    {
+      "gameCode": "LORCANA",
+      "displayName": "Disney Lorcana",
+      "lifecycle": "beachhead",
+      "health": "GOOD",
+      "risk": "LOW",
+      "pressure": 4,
+      "expansionCost": "LOW",
+      "overall": 61,
+      "priority": 1
+    },
+    {
+      "gameCode": "MTG",
+      "displayName": "Magic: The Gathering",
+      "lifecycle": "shadow",
+      "health": "NOT_STARTED",
+      "risk": "MEDIUM",
+      "pressure": 10,
+      "expansionCost": "LOW",
+      "overall": 44,
+      "priority": 2
+    },
+    {
+      "gameCode": "POKEMON",
+      "displayName": "Pokémon TCG",
+      "lifecycle": "implemented",
+      "health": "IMPLEMENTED",
+      "risk": "MEDIUM",
+      "pressure": 9,
+      "expansionCost": "LOW",
+      "overall": 43,
+      "priority": 3
+    },
+    {
+      "gameCode": "ONEPIECE",
+      "displayName": "One Piece",
+      "lifecycle": "planned",
+      "health": "PLANNED",
+      "risk": "VERY_HIGH",
+      "pressure": 7,
+      "expansionCost": "MEDIUM",
+      "overall": 10,
+      "priority": 4
+    },
+    {
+      "gameCode": "DRAGONBALL",
+      "displayName": "Dragon Ball FW",
+      "lifecycle": "planned",
+      "health": "PLANNED",
+      "risk": "VERY_HIGH",
+      "pressure": 6,
+      "expansionCost": "MEDIUM",
+      "overall": 14,
+      "priority": 5
+    },
+    {
+      "gameCode": "DIGIMON",
+      "displayName": "Digimon",
+      "lifecycle": "planned",
+      "health": "PLANNED",
+      "risk": "VERY_HIGH",
+      "pressure": 3,
+      "expansionCost": "MEDIUM",
+      "overall": 12,
+      "priority": 6
+    },
+    {
+      "gameCode": "RIFTBOUND",
+      "displayName": "Riftbound",
+      "lifecycle": "research",
+      "health": "RESEARCH",
+      "risk": "VERY_HIGH",
+      "pressure": 1,
+      "expansionCost": "MEDIUM",
+      "overall": 8,
+      "priority": 7
+    },
+    {
+      "gameCode": "NARUTO",
+      "displayName": "Naruto TCG",
+      "lifecycle": "research",
+      "health": "RESEARCH",
+      "risk": "VERY_HIGH",
+      "pressure": 2,
+      "expansionCost": "MEDIUM",
+      "overall": 6,
+      "priority": 8
+    }
+  ]
+}

@@ -1,9 +1,12 @@
 # Provider Certification — checklist (pós-piloto Scryfall LIVE)
 
-**Status:** Rascunho de gate — **não** adicionar Pokémon / YGO / Bandai antes deste checklist.  
-**Pré-requisito:** Scryfall estável em LIVE + validação de consistência.
+**Status:** Gate ADR-006 — Scryfall completa SHADOW→CANARY→LIVE **antes** de Pokémon LIVE.  
+**Pré-requisito:** Scryfall estável em LIVE + validação de consistência.  
+**R2 progress:** [`RELEASE_2_PROVIDER_PROGRESS.md`](./RELEASE_2_PROVIDER_PROGRESS.md)
 
 Todo novo Catalog/Pricing provider deve passar por este documento antes de produção.
+
+**Pokémon (`POKEMON:pokemon-dataset`):** default registry **OFF**; habilitar SHADOW só após piloto Scryfall. Dataset versionado em `services/api/src/catalog/providers/pokemon/` — não usar sync Python legado como caminho Catalog.
 
 ## 1. Capabilities
 

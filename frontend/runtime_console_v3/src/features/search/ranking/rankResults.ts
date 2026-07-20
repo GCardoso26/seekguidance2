@@ -11,9 +11,9 @@ type RankOptions = {
 export function rankSearchResults(
   query: string,
   results: SearchResult[],
-  options: RankOptions = {},
+  options: RankOptions & { game?: string | null } = {},
 ): SearchResult[] {
-  const expansions = expandQueryTokens(query);
+  const expansions = expandQueryTokens(query, options.game);
   const { recentIds = new Set(), favoriteIds = new Set(), providerBoost = {} } = options;
 
   return [...results]

@@ -16,17 +16,10 @@ import {
   type AddListingFormValues,
 } from "@/lib/seller-catalog-listing-form";
 import { formatCurrency } from "@/lib/format-currency";
+import { getGameConfigOrFallback } from "@/lib/game-config";
 import { DEFAULT_CATALOG_GAME_SLUG } from "@/lib/seller-product-categories";
 import { GAME_TOKENS } from "@/lib/tcg-tokens";
 import type { GameId } from "@/types/card";
-
-const LANGUAGES = [
-  { value: "pt", label: "PT-BR" },
-  { value: "en", label: "EN" },
-  { value: "jp", label: "JP" },
-] as const;
-
-const CONDITIONS = ["NM", "LP", "MP", "HP", "DM"] as const;
 
 function gameSlugFromCard(game?: string | null): string {
   if (!game) return "mtg";
@@ -51,6 +44,15 @@ export function ListingPublishWizard() {
   }, [search]);
 
   const { data, isLoading } = useCatalogCards(game, debounced);
+  const gameCfg = getGameConfigOrFallback(game);
+  const CONDITIONS = gameCfg.conditions.map((c) => c.value) as Array<"NM" | "LP" | "MP" | "HP" | "DM">;
+  const LANGUAGES = gameCfg.languages.map((l) => {
+    const raw = l.value === "ja" ? "jp" : l.value;
+    return {
+      value: raw as "pt" | "en" | "jp" | "de" | "es" | "fr" | "it",
+      label: l.label,
+    };
+  });
 
   useEffect(() => {
     if (!prefillCardId || prefillDone) return;
@@ -178,7 +180,12 @@ export function ListingPublishWizard() {
           </p>
         )}
         <GameSelectorTabs activeSlug={game} onChange={setGame} />
-        <CardSearchInput value={search} onChange={setSearch} />
+        <CardSearchInput
+          value={search}
+          onChange={setSearch}
+          placeholder={gameCfg.sellerWizardCopy.searchPlaceholder}
+        />
+        <p className="text-xs text-muted-foreground">{gameCfg.sellerWizardCopy.emptyInventoryHint}</p>
         {isLoading ? (
           <p className="text-sm text-muted-foreground">Buscando…</p>
         ) : (
@@ -255,6 +262,7 @@ export function ListingPublishWizard() {
             </label>
 
             <div className="flex flex-wrap gap-2">
+              <p className="w-full text-xs text-muted-foreground">{gameCfg.sellerWizardCopy.conditionHint}</p>
               {CONDITIONS.map((c) => (
                 <button
                   key={c}
@@ -270,6 +278,7 @@ export function ListingPublishWizard() {
             </div>
 
             <div className="flex flex-wrap gap-2">
+              <p className="w-full text-xs text-muted-foreground">{gameCfg.sellerWizardCopy.finishHint}</p>
               {LANGUAGES.map((l) => (
                 <button
                   key={l.value}
