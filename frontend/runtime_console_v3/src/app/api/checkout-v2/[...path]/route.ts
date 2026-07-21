@@ -32,14 +32,34 @@ async function proxy(req: NextRequest, pathParts: string[]) {
     init.body = await req.text();
   }
 
-  const upstream = await fetch(target, init);
-  const body = await upstream.text();
-  return new NextResponse(body, {
-    status: upstream.status,
-    headers: {
-      "Content-Type": upstream.headers.get("content-type") || "application/json",
-    },
-  });
+  let apiHost = "unknown";
+  try {
+    apiHost = new URL(API_BASE).host;
+  } catch {
+    apiHost = "invalid_CHECKOUT_V2_API_URL";
+  }
+
+  try {
+    const upstream = await fetch(target, init);
+    const body = await upstream.text();
+    return new NextResponse(body, {
+      status: upstream.status,
+      headers: {
+        "Content-Type": upstream.headers.get("content-type") || "application/json",
+        "X-Checkout-V2-Upstream": apiHost,
+      },
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    return NextResponse.json(
+      {
+        error: "checkout_v2_upstream_unreachable",
+        upstreamHost: apiHost,
+        detail: message.slice(0, 300),
+      },
+      { status: 502 },
+    );
+  }
 }
 
 type Ctx = { params: Promise<{ path: string[] }> };

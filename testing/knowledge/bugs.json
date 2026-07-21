@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "nextBugNumber": 9,
+  "nextBugNumber": 11,
   "bugs": [
     {
       "id": "BUG-0001",
@@ -183,6 +183,52 @@
       "evidence": [
         "POST https://judgetcg.com.br/api/checkout-v2/cart → 401 unauthorized (2026-07-21)",
         "tunnel https://optical-son-interpretation-paid.trycloudflare.com health 200 + cart 201"
+      ],
+      "seenAgain": []
+    },
+    {
+      "id": "BUG-0009",
+      "fingerprint": "checkout-v2-psp-secrets-missing-on-node-api",
+      "title": "Stripe/MP/Melhor Envio secrets ausentes no processo api:checkout-v2 — gateway fica em stub",
+      "firstOccurrence": "2026-07-21",
+      "lastOccurrence": "2026-07-21",
+      "status": "OPEN",
+      "affects": "Checkout V2 / Payment / Shipping",
+      "responsible": "SRE",
+      "files": [
+        "services/api/.env",
+        "services/api/src/workers/checkout-v2-api.ts",
+        "services/api/src/checkout/createCheckoutV2ApiStack.ts"
+      ],
+      "personaId": "carlos-buyer",
+      "priority": "P0",
+      "evidence": [
+        "node testing/ops/_check-secrets.mjs → STRIPE/MP/MELHOR MISSING",
+        "npx tsx scripts/_probe-psp-secrets.ts → stripe_secret_key_missing, mercadopago_access_token_missing, melhor_envio_token_missing",
+        "CHECKOUT_PAYMENT_GATEWAY defaults to stub — live payment validation impossible"
+      ],
+      "seenAgain": []
+    },
+    {
+      "id": "BUG-0010",
+      "fingerprint": "vercel-bff-checkout-v2-500-stable-hostname-ok",
+      "title": "BFF Vercel /api/checkout-v2 retorna 500 enquanto checkout-v2-api.judgetcg.com.br responde 200/401",
+      "firstOccurrence": "2026-07-21",
+      "lastOccurrence": "2026-07-21",
+      "status": "OPEN",
+      "affects": "Checkout V2 / Deploy",
+      "responsible": "SRE",
+      "files": [
+        "frontend/runtime_console_v3/src/app/api/checkout-v2/[...path]/route.ts"
+      ],
+      "personaId": "ricardo-sre",
+      "priority": "P0",
+      "evidence": [
+        "GET https://checkout-v2-api.judgetcg.com.br/health → 200",
+        "POST https://checkout-v2-api.judgetcg.com.br/api/v1/checkout-v2/cart → 401",
+        "POST https://judgetcg.com.br/api/checkout-v2/cart → 500 (body vazio)",
+        "validate-checkout-v2-vercel.mjs: 6 PASS tunnel / 3 FAIL BFF",
+        "Hipótese: CHECKOUT_V2_API_URL no Vercel ainda aponta para trycloudflare morto ou 127.0.0.1 — deve ser https://checkout-v2-api.judgetcg.com.br"
       ],
       "seenAgain": []
     }
