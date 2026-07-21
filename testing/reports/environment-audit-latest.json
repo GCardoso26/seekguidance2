@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-20T20:22:59.095Z",
+  "generatedAt": "2026-07-21T14:47:49.228Z",
   "persona": "Ricardo Menezes (SRE)",
   "baseUrl": "http://localhost:3000",
   "apiUrl": "http://localhost:3000",
@@ -62,7 +62,7 @@
       "label": "PostgreSQL",
       "status": "pass",
       "blocking": true,
-      "detail": "DATABASE_URL set + TCP"
+      "detail": "default 127.0.0.1:5432"
     },
     {
       "id": "search",
@@ -104,7 +104,7 @@
       "label": "Migrations",
       "status": "warn",
       "blocking": false,
-      "detail": "DATABASE_URL presente — rode certify:db / migrate manualmente antes de campanha longa"
+      "detail": "DATABASE_URL ausente — não é possível verificar schema"
     },
     {
       "id": "provider_registry",

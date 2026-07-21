@@ -299,8 +299,17 @@ export async function handleCheckoutV2Api(
   } catch (err) {
     if (err instanceof AuthError) throw err;
     const message = err instanceof Error ? err.message : String(err);
+    // Surface unexpected errors in non-production for ops validation.
+    if (process.env.CHECKOUT_V2_DEBUG === "1" || process.env.NODE_ENV !== "production") {
+      console.error("[checkout-v2]", message);
+    }
     const mapped = mapCheckoutV2Error(message);
-    sendJson(res, mapped.status, { error: mapped.code });
+    sendJson(res, mapped.status, {
+      error: mapped.code,
+      ...(mapped.status === 500 && process.env.CHECKOUT_V2_DEBUG === "1"
+        ? { detail: message.slice(0, 500) }
+        : {}),
+    });
     return true;
   }
 }

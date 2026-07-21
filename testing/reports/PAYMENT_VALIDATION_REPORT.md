@@ -1,23 +1,62 @@
-# PAYMENT_VALIDATION_REPORT — Final Validation
+# PAYMENT_VALIDATION_REPORT — Final Validation Sprint
 
-**Status: BLOCKED (secrets)**
+**Gerado:** 2026-07-21T14:50:00Z  
+**Status:** **FAIL** (gateways reais não exercitados)
 
-## Ambiente
+## Ambiente (presença de secrets — sem valores)
 
-| Variável | Estado |
-|----------|--------|
-| STRIPE_SECRET_KEY | MISSING |
-| MERCADOPAGO_ACCESS_TOKEN | MISSING |
-| STRIPE/MP webhook secrets | MISSING |
+Script: `node testing/ops/_check-secrets.mjs` (2026-07-21)
 
-## Executado sem Stub? 
+| Variável | Local `services/api/.env` | Local `frontend/.../.env.local` |
+|----------|---------------------------|----------------------------------|
+| STRIPE_SECRET_KEY | **MISSING** | — |
+| MERCADOPAGO_ACCESS_TOKEN | **MISSING** | — |
+| MELHOR_ENVIO_TOKEN | **MISSING** | — |
+| CHECKOUT_PAYMENT_GATEWAY | **MISSING** | — |
+| CHECKOUT_V2_API_URL | — | **MISSING** |
+| NEXT_PUBLIC_CHECKOUT_V2 | — | **MISSING** (dev); Playwright process may set `1` |
 
-**NÃO** — impossível neste ambiente.
+**Nota:** Credenciais podem existir em Render/Vercel dashboard; **não** estão disponíveis neste runner → impossível provar Stripe Test / MP PIX Test live aqui.
 
-## Contrato Stub (regressão)
+## Executado
 
-Unit tests PaymentValidation / adapters: PASS (webhook dup, ×10, PIX shape) — **não** satisfaz critério “gateways reais”.
+### Regressão Stub / contrato (Vitest)
+
+```text
+PaymentValidation.final.test.ts — 5/5 PASS
+PaymentGateway.adapters.test.ts — 9/9 PASS
+```
+
+Cobertura: webhook duplicado (eventId), out-of-order stub, ConfirmPaymentIntent×10, PIX shape stub, Stripe adapter só constrói com key dummy.
+
+### Legacy order certification (in-memory — **não** Checkout BC V2)
+
+```text
+npm run certify:checkout → PASSED (create_cart … webhook_paid … outbox_events)
+```
+
+Prova pipeline **Order** legado; **não** substitui PSP real no BC V2.
+
+### Live Stripe / Mercado Pago
+
+| Cenário | Resultado |
+|---------|-----------|
+| Pagamento aprovado | **NOT RUN** |
+| Recusado + compensação | **NOT RUN** |
+| Cartão inválido | **NOT RUN** |
+| Timeout | **NOT RUN** |
+| Webhook / refund / idempotência live | **NOT RUN** |
+| PIX QR / copia-cola / expiração | **NOT RUN** |
 
 ## Outbox
 
-Eventos Checkout V2 via Outbox no código; fluxo live Stripe→webhook→Outbox **não evidenciado**.
+- Chaos light: outbox retry após Redis indisponível → **PASS** (`chaos.light.test.ts`)
+- Outbox pós-webhook Stripe/MP em produção de testes: **sem evidência**
+
+## Bugs
+
+- **BUG-0007** (P0): API Checkout V2 inacessível — pagamento V2 não alcançável via HTTP
+
+## Confidence
+
+**12%** (somente testes Stub/unit; critério sprint exige Stripe + MP PIX validados)

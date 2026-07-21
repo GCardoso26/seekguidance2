@@ -1,23 +1,56 @@
-# BUYER_E2E_REPORT — Final Validation
+# BUYER_E2E_REPORT — Final Validation Sprint
 
-**Persona:** Carlos · **Confidence: 72%** · **Meta: ≥95%** · **Status: NOT MET**
+**Persona:** Carlos · **Gerado:** 2026-07-21T14:50:00Z  
+**Confidence: 72%** · **Meta: ≥95%** · **Status: NOT MET**
 
-## Evidência campaign-010
+## Resposta parcial
 
-- Playwright buyer-lifecycle: **9 passed** (exit 0)
-- Artefatos: `testing/reports/persona-carlos/`
+Navegação comprador (search, marketplace, wishlist, carrinho, checkout **page**, pedidos, favoritos, sealed) **PASS** com Playwright.  
+**Compra completa Checkout V2 (pagamento + frete + pedido): NÃO comprovada.**
 
-## Coberto
+## Evidência
 
-Search, marketplace, wishlist, cart, checkout **page**, pedidos, favorites local, sealed browse
+```text
+cd frontend/runtime_console_v3
+npx playwright test e2e/specs/buyer-lifecycle.spec.ts --project=chromium
+→ 9 passed (53.3s)
 
-## Não coberto (obrigatório do sprint)
+cd testing/personas/runners
+BASE_URL=http://localhost:3000 node carlos-buyer-stub.mjs
+→ pass (confidence=72%)
+```
 
-- PIX Mercado Pago real / Cartão Stripe real / Webhook → OrderCreated
-- Frete Melhor Envio selecionado no checkout
-- Cancelar / recomprar / avaliar
-- Cadastro completo sem mock
+Artefatos: `testing/reports/persona-carlos/` (screenshots 01–08, `05-checkout-meta.json`).
 
-## Bloqueio
+## Infra (Ricardo)
 
-Secrets PSP ausentes + Checkout UI ainda legado (flag V2 client existe, island não validada E2E pagamento).
+```text
+BASE_URL=http://localhost:3000 npm run test:audit → PASS (100% Ready for Functional QA)
+npm run test:smoke → ✓ smoke read-only OK
+```
+
+FE: `next dev` localhost:3000, `API_PROXY_TARGET=https://seekguidance.onrender.com`.
+
+## Não coberto (obrigatório sprint)
+
+- Login/logout/refresh **ciclo completo** dedicado (auth.setup cobre login único)
+- Busca: filtros / paginação / ordenação sistemáticos
+- Favoritos: multi-lista, share, sync server
+- Carrinho V2 multi-vendedor, merge guest→user via API V2
+- Cupons (válido/inválido/expirado/mínimo/marketplace)
+- Frete Melhor Envio
+- Stripe / MP PIX ponta a ponta
+- Pós-pedido: cancelar, recomprar, avaliar vendedor
+
+## Bloqueios
+
+- **BUG-0007** — API Checkout V2 404
+- PSP tokens ausentes no runner local
+
+## Feature coverage (estimado)
+
+| Bloco | % |
+|-------|---|
+| Browse / pages | ~85% |
+| Cart/checkout payment | ~5% |
+| **Overall buyer sprint** | **72%** |

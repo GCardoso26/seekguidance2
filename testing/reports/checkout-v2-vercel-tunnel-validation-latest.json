@@ -1,0 +1,66 @@
+{
+  "at": "2026-07-21T16:21:54.065Z",
+  "tunnel": "https://optical-son-interpretation-paid.trycloudflare.com",
+  "fe": "https://judgetcg.com.br",
+  "email": "cv2v_1784650911658@example.com",
+  "cartId": "69913803-d991-4814-a6aa-ec80970213dd",
+  "passed": 9,
+  "failed": 0,
+  "steps": [
+    {
+      "step": "tunnel.health",
+      "ok": true,
+      "status": 200,
+      "detail": "ok"
+    },
+    {
+      "step": "tunnel.cart.unauth_401",
+      "ok": true,
+      "status": 401,
+      "detail": "{\"error\":\"unauthorized\"}"
+    },
+    {
+      "step": "tunnel.auth.register",
+      "ok": true,
+      "status": 201,
+      "detail": "userId=931e852c-d6ba-4f97-8a02-786488957cbd"
+    },
+    {
+      "step": "tunnel.auth.login",
+      "ok": true,
+      "status": 200,
+      "detail": "token_received"
+    },
+    {
+      "step": "tunnel.cart.create",
+      "ok": true,
+      "status": 201,
+      "detail": "cartId=69913803-d991-4814-a6aa-ec80970213dd"
+    },
+    {
+      "step": "tunnel.sessions.missing_cartId_400",
+      "ok": true,
+      "status": 400,
+      "detail": "{\"error\":\"cartId_required\"}"
+    },
+    {
+      "step": "vercel.bff.apex.cart_unauth",
+      "ok": true,
+      "status": 401,
+      "detail": "{\"error\":\"unauthorized\"}"
+    },
+    {
+      "step": "vercel.bff.www.cart_unauth",
+      "ok": true,
+      "status": 401,
+      "detail": "{\"error\":\"unauthorized\"}"
+    },
+    {
+      "step": "vercel.bff.apex.cart_with_bearer",
+      "ok": true,
+      "status": 401,
+      "detail": "{\"error\":\"unauthorized\"}"
+    }
+  ],
+  "verdict": "PASS"
+}

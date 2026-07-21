@@ -1,19 +1,19 @@
 
 Running 9 tests using 1 worker
 
-  ok 1 [setup] › e2e\auth.setup.ts:21:6 › authenticate test users (2.4s)
-  ok 2 [chromium] › e2e\specs\buyer-lifecycle.spec.ts:23:7 › Carlos Buyer lifecycle (Checkout V2 path) › 01 home → search → results (1.2s)
-  ok 3 [chromium] › e2e\specs\buyer-lifecycle.spec.ts:29:7 › Carlos Buyer lifecycle (Checkout V2 path) › 02 marketplace browse (6.3s)
-  ok 4 [chromium] › e2e\specs\buyer-lifecycle.spec.ts:35:7 › Carlos Buyer lifecycle (Checkout V2 path) › 03 wishlist page loads (6.6s)
-  ok 5 [chromium] › e2e\specs\buyer-lifecycle.spec.ts:41:7 › Carlos Buyer lifecycle (Checkout V2 path) › 04 cart page loads (4.4s)
-  ok 6 [chromium] › e2e\specs\buyer-lifecycle.spec.ts:47:7 › Carlos Buyer lifecycle (Checkout V2 path) › 05 checkout page loads (4.2s)
-  ok 7 [chromium] › e2e\specs\buyer-lifecycle.spec.ts:64:7 › Carlos Buyer lifecycle (Checkout V2 path) › 06 pedidos / histórico (6.5s)
-  ok 8 [chromium] › e2e\specs\buyer-lifecycle.spec.ts:70:7 › Carlos Buyer lifecycle (Checkout V2 path) › 07 favorites page / local favorites API surface (2.3s)
-  ok 9 [chromium] › e2e\specs\buyer-lifecycle.spec.ts:84:7 › Carlos Buyer lifecycle (Checkout V2 path) › 08 sealed products browse (3.8s)
+  ok 1 [setup] › e2e\auth.setup.ts:21:6 › authenticate test users (4.1s)
+  ok 2 [chromium] › e2e\specs\buyer-lifecycle.spec.ts:23:7 › Carlos Buyer lifecycle (Checkout V2 path) › 01 home → search → results (1.7s)
+  ok 3 [chromium] › e2e\specs\buyer-lifecycle.spec.ts:29:7 › Carlos Buyer lifecycle (Checkout V2 path) › 02 marketplace browse (8.7s)
+  ok 4 [chromium] › e2e\specs\buyer-lifecycle.spec.ts:35:7 › Carlos Buyer lifecycle (Checkout V2 path) › 03 wishlist page loads (8.4s)
+  ok 5 [chromium] › e2e\specs\buyer-lifecycle.spec.ts:41:7 › Carlos Buyer lifecycle (Checkout V2 path) › 04 cart page loads (5.9s)
+  ok 6 [chromium] › e2e\specs\buyer-lifecycle.spec.ts:47:7 › Carlos Buyer lifecycle (Checkout V2 path) › 05 checkout page loads (4.1s)
+  ok 7 [chromium] › e2e\specs\buyer-lifecycle.spec.ts:64:7 › Carlos Buyer lifecycle (Checkout V2 path) › 06 pedidos / histórico (8.2s)
+  ok 8 [chromium] › e2e\specs\buyer-lifecycle.spec.ts:70:7 › Carlos Buyer lifecycle (Checkout V2 path) › 07 favorites page / local favorites API surface (3.7s)
+  ok 9 [chromium] › e2e\specs\buyer-lifecycle.spec.ts:84:7 › Carlos Buyer lifecycle (Checkout V2 path) › 08 sealed products browse (4.3s)
 
-  9 passed (40.8s)
+  9 passed (53.3s)
 
-(node:6708) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(node:25904) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `node --trace-warnings ...` to show where the warning was created)
-(node:25076) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(node:16988) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `node --trace-warnings ...` to show where the warning was created)

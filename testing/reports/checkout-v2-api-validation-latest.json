@@ -1,0 +1,60 @@
+{
+  "at": "2026-07-21T15:55:54.729Z",
+  "api": "http://127.0.0.1:8791",
+  "fe": "http://localhost:3000",
+  "email": "cv2_1784649353977@example.com",
+  "cartId": "390af4b1-479e-4778-89b1-dd5446c5112b",
+  "passed": 8,
+  "failed": 0,
+  "steps": [
+    {
+      "step": "api.health",
+      "ok": true,
+      "status": 200,
+      "detail": "ok"
+    },
+    {
+      "step": "api.cart.unauth_401",
+      "ok": true,
+      "status": 401,
+      "detail": "{\"error\":\"unauthorized\"}"
+    },
+    {
+      "step": "api.auth.register",
+      "ok": true,
+      "status": 201,
+      "detail": "userId=b3ad21eb-d446-40d3-a8c4-dcd927790c79"
+    },
+    {
+      "step": "api.auth.login",
+      "ok": true,
+      "status": 200,
+      "detail": "token_received"
+    },
+    {
+      "step": "api.cart.create",
+      "ok": true,
+      "status": 201,
+      "detail": "cartId=390af4b1-479e-4778-89b1-dd5446c5112b"
+    },
+    {
+      "step": "api.sessions.missing_cartId_400",
+      "ok": true,
+      "status": 400,
+      "detail": "{\"error\":\"cartId_required\"}"
+    },
+    {
+      "step": "bff.proxy_to_checkout_v2",
+      "ok": true,
+      "status": 401,
+      "detail": "{\"error\":\"unauthorized\"}"
+    },
+    {
+      "step": "ops.vercel_localhost_warning",
+      "ok": true,
+      "status": 0,
+      "detail": "local_ok_or_not_applicable"
+    }
+  ],
+  "verdict": "PASS"
+}

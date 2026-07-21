@@ -18,9 +18,11 @@ async function proxy(req: NextRequest, pathParts: string[]) {
   const headers: Record<string, string> = {
     "Content-Type": req.headers.get("content-type") || "application/json",
   };
+  const incomingAuth = req.headers.get("authorization");
   const access = jar.get(ACCESS_COOKIE)?.value;
   const apiKey = jar.get(API_KEY_COOKIE)?.value;
-  if (access) headers.Authorization = `Bearer ${access}`;
+  if (incomingAuth) headers.Authorization = incomingAuth;
+  else if (access) headers.Authorization = `Bearer ${access}`;
   if (apiKey) headers["X-API-Key"] = apiKey;
   const idem = req.headers.get("idempotency-key");
   if (idem) headers["Idempotency-Key"] = idem;
