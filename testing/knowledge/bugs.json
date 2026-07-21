@@ -215,7 +215,10 @@
       "title": "BFF Vercel /api/checkout-v2 retorna 500 enquanto checkout-v2-api.judgetcg.com.br responde 200/401",
       "firstOccurrence": "2026-07-21",
       "lastOccurrence": "2026-07-21",
-      "status": "OPEN",
+      "status": "CLOSED",
+      "closedAt": "2026-07-21",
+      "closedInCampaign": "checkout-v2-final-validation",
+      "resolution": "CHECKOUT_V2_API_URL estável + deploy Vercel 59461a0b; POST judgetcg.com.br/api/checkout-v2/cart → 401 unauthorized",
       "affects": "Checkout V2 / Deploy",
       "responsible": "SRE",
       "files": [
@@ -224,11 +227,9 @@
       "personaId": "ricardo-sre",
       "priority": "P0",
       "evidence": [
-        "GET https://checkout-v2-api.judgetcg.com.br/health → 200",
-        "POST https://checkout-v2-api.judgetcg.com.br/api/v1/checkout-v2/cart → 401",
-        "POST https://judgetcg.com.br/api/checkout-v2/cart → 502 Cloudflare HTML (2026-07-21)",
-        "POST http://localhost:3000/api/checkout-v2/cart → 401 após CHECKOUT_V2_API_URL=https://checkout-v2-api.judgetcg.com.br",
-        "Causa raiz: Vercel env ainda aponta URL inválida (ex. trycloudflare morto / 127.0.0.1) — alinhar ao hostname estável e redeploy"
+        "Antes: 502 Cloudflare HTML",
+        "Após deploy 59461a0b (2026-07-21): POST https://judgetcg.com.br/api/checkout-v2/cart → 401 {\"error\":\"unauthorized\"}",
+        "API pública checkout-v2-api.judgetcg.com.br health 200"
       ],
       "seenAgain": []
     },
