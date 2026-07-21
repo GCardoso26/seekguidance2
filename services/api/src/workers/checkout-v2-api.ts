@@ -8,7 +8,7 @@
  * Env:
  *   DATABASE_URL              (required — loaded from services/api/.env if unset)
  *   JWT_SECRET                (optional)
- *   CHECKOUT_V2_API_PORT      (default 8791)
+ *   PORT | CHECKOUT_V2_API_PORT  (Render sets PORT; default 8791)
  *   CHECKOUT_PAYMENT_GATEWAY  stub|stripe|mercado_pago (default stub)
  *   CHECKOUT_V2_FORCE         1 (default) — force feature flag ON
  */
@@ -41,7 +41,10 @@ function loadDotEnv(): void {
 async function main(): Promise<void> {
   loadDotEnv();
   const port = Number(
-    process.env.CHECKOUT_V2_API_PORT ?? process.env.AUTH_API_PORT ?? "8791",
+    process.env.PORT ??
+      process.env.CHECKOUT_V2_API_PORT ??
+      process.env.AUTH_API_PORT ??
+      "8791",
   );
   const force = process.env.CHECKOUT_V2_FORCE !== "0";
 

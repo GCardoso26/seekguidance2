@@ -219,7 +219,8 @@ export async function listenAuthenticatedApi(
 ): Promise<{ server: Server; port: number }> {
   const p = port ?? Number(process.env.AUTH_API_PORT ?? "8789");
   const server = createAuthenticatedApiServer(deps);
-  await new Promise<void>((resolve) => server.listen(p, resolve));
+  const host = process.env.HOST ?? "0.0.0.0";
+  await new Promise<void>((resolve) => server.listen(p, host, resolve));
   return { server, port: p };
 }
 

@@ -61,3 +61,33 @@ services:
         sync: false
       - key: PLATFORM_CRON_SECRET
         sync: false
+
+  # Checkout BC V2 — Node HTTP (não é o FastAPI legado)
+  - type: web
+    name: tcg-judge-checkout-v2
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: CHECKOUT_V2_FORCE
+        value: "1"
+      - key: CHECKOUT_PAYMENT_GATEWAY
+        value: stripe
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: MERCADOPAGO_ACCESS_TOKEN
+        sync: false
+      - key: MELHOR_ENVIO_TOKEN
+        sync: false
+      - key: MELHOR_ENVIO_SANDBOX
+        value: "false"
