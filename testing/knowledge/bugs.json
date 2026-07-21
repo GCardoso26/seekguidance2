@@ -226,9 +226,9 @@
       "evidence": [
         "GET https://checkout-v2-api.judgetcg.com.br/health → 200",
         "POST https://checkout-v2-api.judgetcg.com.br/api/v1/checkout-v2/cart → 401",
-        "POST https://judgetcg.com.br/api/checkout-v2/cart → 500 (body vazio)",
-        "validate-checkout-v2-vercel.mjs: 6 PASS tunnel / 3 FAIL BFF",
-        "Hipótese: CHECKOUT_V2_API_URL no Vercel ainda aponta para trycloudflare morto ou 127.0.0.1 — deve ser https://checkout-v2-api.judgetcg.com.br"
+        "POST https://judgetcg.com.br/api/checkout-v2/cart → 502 Cloudflare HTML (2026-07-21)",
+        "POST http://localhost:3000/api/checkout-v2/cart → 401 após CHECKOUT_V2_API_URL=https://checkout-v2-api.judgetcg.com.br",
+        "Causa raiz: Vercel env ainda aponta URL inválida (ex. trycloudflare morto / 127.0.0.1) — alinhar ao hostname estável e redeploy"
       ],
       "seenAgain": []
     },
@@ -238,7 +238,9 @@
       "title": "Melhor Envio live quote retorna 401 Unauthenticated (sandbox e production)",
       "firstOccurrence": "2026-07-21",
       "lastOccurrence": "2026-07-21",
-      "status": "OPEN",
+      "status": "CLOSED",
+      "closedAt": "2026-07-21",
+      "resolution": "Access token OAuth válido no MELHOR_ENVIO_TOKEN; harness live me_quote PASS (production, 14 opções)",
       "affects": "Shipping / Checkout V2",
       "responsible": "SRE",
       "files": [
@@ -247,8 +249,8 @@
       "personaId": "carlos-buyer",
       "priority": "P1",
       "evidence": [
-        "validate-payment-shipping live/me_quote FAIL melhor_envio_api_error:401 Unauthenticated (sandbox+production fallback)",
-        "MELHOR_ENVIO_TOKEN SET (40 chars) but API rejects — token inválido/expirado ou não é access token OAuth"
+        "Antes: 401 Unauthenticated",
+        "2026-07-21 validate-payment-shipping: me_quote mode=production n=14 PAC 2477c PASS"
       ],
       "seenAgain": []
     },

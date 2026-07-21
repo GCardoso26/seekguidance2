@@ -1,28 +1,6 @@
-# RECOVERY_TEST_REPORT — Final Validation Sprint
+# RECOVERY_TEST_REPORT
 
-**Gerado:** 2026-07-21T14:50:00Z  
-**Status:** **FAIL** (recovery integrado não executado)
+**2026-07-21T18:36:00Z** · **FAIL** (não executado integrado)
 
-## Escopo sprint
-
-Reiniciar Frontend / API / Workers / BullMQ sem perder pedidos, reservas, eventos, checkout em andamento.
-
-## Executado nesta sessão
-
-- FE dev server iniciado após porta 3000 livre → **OK** (`curl /` 200)
-- Audit pós-UP: **PASS**
-- Smoke read-only: **PASS**
-
-## Não executado
-
-- Restart API Checkout V2 (API V2 não deployada)
-- Restart workers BullMQ com checkout ativo
-- Verificação de reservas/eventos após restart
-
-## Confidence
-
-**10%**
-
-## Critério sprint
-
-**Recovery PASS:** **NO**
+Reinícios FE/API nesta sessão sem prova de preservação de reservas/pedidos/outbox.  
+Critério Recovery PASS: **NO**

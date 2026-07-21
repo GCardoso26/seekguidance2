@@ -1,33 +1,58 @@
 # RELEASE_READINESS
 
-**Overall: NOT READY** (compra completa ainda sem evidência)
+**Overall: NOT READY**
 
-**Gerado:** 2026-07-21T16:20:00Z
+**Campanha:** Checkout V2 Final Validation Sprint · **INTERROMPIDA**  
+**Gerado:** 2026-07-21T18:36:00Z
 
 ## Pergunta central
 
 > Um comprador consegue concluir uma compra completa no Checkout V2 sem problemas críticos?
 
-**NÃO** — conectividade Vercel↔API Node **OK**; pagamento/pedido completo **não** evidenciado.
+**Resposta: NÃO**
 
-| Dimensão | Status | Confidence | Evidência |
-|----------|--------|------------|-----------|
-| Tunnel Cloudflare → API :8791 | PASS | 95% | health 200, cart 201 |
-| BFF Vercel → tunnel | PASS | 90% | apex+www `/api/checkout-v2/cart` → 401 |
-| Auth + cart (via tunnel) | PASS | 85% | register/login/cart |
-| Pagamento Stripe/MP | FAIL | &lt;15% | não executado |
-| Frete Melhor Envio | FAIL | — | não executado |
-| Compra completa | FAIL | — | não executado |
+### Bloqueio que interrompe READY
+
+| ID | Pri | Issue |
+|----|-----|--------|
+| **BUG-0010** | **P0** | BFF produção `judgetcg.com.br/api/checkout-v2` → **502**; API pública OK |
+| — | — | Sem listings `active`+qty>0 no DB → session/pay E2E bloqueado |
+| — | — | Concurrency 2 buyers **SKIPPED** |
+| — | — | Chaos/Recovery full **não** executados |
+
+## O que PASS nesta rodada
+
+| Item | Evidência |
+|------|-----------|
+| Ricardo audit | **100%** |
+| API Node + tunnel | health **200** |
+| Payment/Shipping live harness | **33/33 PASS** (Stripe PI, MP PIX QR, ME 14 cotações) |
+| BFF **local** após fix env | **401** (proxy correto) |
+| Carlos pages | confidence **72%** |
+| Vitest checkout+chaos light | **34/34 PASS** |
 
 ## Critérios READY
 
 | Critério | OK? |
 |----------|-----|
-| Checkout conectividade ≥ smoke | **YES** (tunnel+Vercel) |
-| Checkout ≥95% fluxo compra | **NO** |
-| Stripe / MP PIX | **NO** |
-| Sem P0 deploy | **WARN** — BUG-0008 mitigado; URL trycloudflare efêmera |
+| Buyer ≥95% | **NO** (72%) |
+| Checkout ≥95% | **NO** (~55% — gateways live, sem compra E2E) |
+| FCS ≥95% | **NO** |
+| Nenhum P0 | **NO** — BUG-0010 |
+| Nenhum P1 | ver KB |
+| Stripe / MP PIX / Melhor Envio live | **YES** (harness adapters) |
+| Concurrency / Chaos / Recovery PASS | **NO** |
 
-## Relatório desta rodada
+**Release Readiness ≠ READY**
 
-- [CHECKOUT_V2_VERCEL_TUNNEL_VALIDATION.md](./CHECKOUT_V2_VERCEL_TUNNEL_VALIDATION.md)
+## Ação imediata
+
+No **Vercel** (Production + Preview):
+
+```env
+CHECKOUT_V2_API_URL=https://checkout-v2-api.judgetcg.com.br
+NEXT_PUBLIC_CHECKOUT_V2=1
+```
+
+Redeploy → `curl -X POST https://judgetcg.com.br/api/checkout-v2/cart` deve retornar **401**.  
+(Local já validado com essa URL.)

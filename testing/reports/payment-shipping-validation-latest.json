@@ -1,0 +1,213 @@
+{
+  "at": "2026-07-21T18:32:34.489Z",
+  "secrets": {
+    "STRIPE_SECRET_KEY": "SET",
+    "MERCADOPAGO_ACCESS_TOKEN": "SET",
+    "MELHOR_ENVIO_TOKEN": "SET",
+    "CHECKOUT_PAYMENT_GATEWAY": "stripe"
+  },
+  "passed": 33,
+  "failed": 0,
+  "blocked": 0,
+  "verdict": "PASS",
+  "rows": [
+    {
+      "area": "unit",
+      "case": "payment_shipping_vitest",
+      "status": "PASS",
+      "detail": "PaymentValidation+adapters+Shipping+ConfirmPayment"
+    },
+    {
+      "area": "stub",
+      "case": "stub_payment_approved",
+      "status": "PASS",
+      "detail": "succeeded"
+    },
+    {
+      "area": "stub",
+      "case": "stub_payment_declined",
+      "status": "PASS",
+      "detail": "failed"
+    },
+    {
+      "area": "stub",
+      "case": "stub_invalid_card_path",
+      "status": "PASS",
+      "detail": "simulateSuccess=false"
+    },
+    {
+      "area": "stub",
+      "case": "stub_pix_qr",
+      "status": "PASS",
+      "detail": "qr"
+    },
+    {
+      "area": "stub",
+      "case": "stub_pix_copy_paste",
+      "status": "PASS",
+      "detail": "00020126580014br.gov.bcb.pix0136pi_stub_"
+    },
+    {
+      "area": "stub",
+      "case": "stub_pix_expires",
+      "status": "PASS",
+      "detail": "2026-07-21T18:47:28.685Z"
+    },
+    {
+      "area": "stub",
+      "case": "stub_webhook_duplicate",
+      "status": "PASS",
+      "detail": "same eventId"
+    },
+    {
+      "area": "stub",
+      "case": "stub_confirm_idempotent_after_wh",
+      "status": "PASS",
+      "detail": "same id"
+    },
+    {
+      "area": "stub",
+      "case": "stub_confirm_x10",
+      "status": "PASS",
+      "detail": "succeeded,succeeded,succeeded,succeeded,succeeded,succeeded,succeeded,succeeded,succeeded,succeeded"
+    },
+    {
+      "area": "stub",
+      "case": "stub_refund",
+      "status": "PASS",
+      "detail": "re_stub_962be5de"
+    },
+    {
+      "area": "stub",
+      "case": "stub_webhook_out_of_order",
+      "status": "PASS",
+      "detail": "succeeded"
+    },
+    {
+      "area": "stub",
+      "case": "stub_shipping_quote",
+      "status": "PASS",
+      "detail": "n=2 price=800"
+    },
+    {
+      "area": "stub",
+      "case": "stub_shipping_cep_change",
+      "status": "PASS",
+      "detail": "dest=30130010 n=2"
+    },
+    {
+      "area": "stub",
+      "case": "stub_shipping_modality_swap",
+      "status": "PASS",
+      "detail": "PAC Stub|SEDEX Stub"
+    },
+    {
+      "area": "stub",
+      "case": "stub_shipping_sla",
+      "status": "PASS",
+      "detail": "min=5 max=12"
+    },
+    {
+      "area": "live_gate",
+      "case": "live_construct_stripe",
+      "status": "PASS",
+      "detail": "constructed"
+    },
+    {
+      "area": "live_gate",
+      "case": "live_construct_mercado_pago",
+      "status": "PASS",
+      "detail": "constructed"
+    },
+    {
+      "area": "live_gate",
+      "case": "live_construct_melhor_envio",
+      "status": "PASS",
+      "detail": "constructed"
+    },
+    {
+      "area": "stub",
+      "case": "stub_pix_expired_metadata",
+      "status": "PASS",
+      "detail": "2026-07-21T18:31:28.686Z"
+    },
+    {
+      "area": "stub",
+      "case": "stub_pix_paid_after_expiry_policy",
+      "status": "PASS",
+      "detail": "stub last-write-wins; saga must ignore non-pending session"
+    },
+    {
+      "area": "live",
+      "case": "stripe_create_pi",
+      "status": "PASS",
+      "detail": "pi_3TviQNPOaBiXTc0j0B6wXqt9 status=requires_action"
+    },
+    {
+      "area": "live",
+      "case": "stripe_get_pi",
+      "status": "PASS",
+      "detail": "requires_action"
+    },
+    {
+      "area": "live",
+      "case": "stripe_confirm_without_pm",
+      "status": "PASS",
+      "detail": "requires_action"
+    },
+    {
+      "area": "live",
+      "case": "stripe_invalid_intent",
+      "status": "PASS",
+      "detail": "null_or_handled"
+    },
+    {
+      "area": "live",
+      "case": "mp_pix_create",
+      "status": "PASS",
+      "detail": "status=requires_action pixCopy=true qr=true"
+    },
+    {
+      "area": "live",
+      "case": "mp_pix_copy_paste",
+      "status": "PASS",
+      "detail": "00020126580014br.gov.bcb.pix0136b76aa9c2-2ec4-41"
+    },
+    {
+      "area": "live",
+      "case": "mp_pix_qr",
+      "status": "PASS",
+      "detail": "qr_or_copy"
+    },
+    {
+      "area": "live",
+      "case": "mp_pix_get",
+      "status": "PASS",
+      "detail": "requires_action"
+    },
+    {
+      "area": "live",
+      "case": "me_quote",
+      "status": "PASS",
+      "detail": "mode=production n=14 first=Correios PAC 2477c days=5-7"
+    },
+    {
+      "area": "live",
+      "case": "me_cep_change",
+      "status": "PASS",
+      "detail": "n=14"
+    },
+    {
+      "area": "live",
+      "case": "me_modality",
+      "status": "PASS",
+      "detail": "Correios PAC|Correios SEDEX|Jadlog .Package|Jadlog .Com"
+    },
+    {
+      "area": "live",
+      "case": "me_sla_value",
+      "status": "PASS",
+      "detail": "ok=14"
+    }
+  ]
+}

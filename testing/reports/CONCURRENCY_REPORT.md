@@ -1,33 +1,9 @@
-# CONCURRENCY_REPORT — Final Validation Sprint
+# CONCURRENCY_REPORT
 
-**Gerado:** 2026-07-21T14:50:00Z  
-**Status:** **FAIL** (caso obrigatório não executado)
-
-## Caso: dois compradores, última unidade
-
-**Esperado:** 1 pedido + 1 falha estoque insuficiente  
-**Resultado:** **SKIPPED**
+**2026-07-21T18:36:00Z** · **FAIL**
 
 ```text
-npx playwright test e2e/specs/checkout-concurrency.spec.ts --project=chromium
-→ 1 skipped, 1 passed (auth setup)
+checkout-concurrency.spec.ts → 1 skipped (caso 2 buyers)
 ```
 
-Motivo skip: `canRunCheckoutRace()` / legacy checkout API — não wired para Checkout V2 race.
-
-## Outros casos obrigatórios
-
-| Caso | Status |
-|------|--------|
-| Webhook duplicado | Stub unit PASS only |
-| Dois webhooks simultâneos | **NOT RUN** live |
-| ConfirmPayment ×10 | Stub unit PASS only |
-| Dois compradores última unidade | **SKIPPED** |
-
-## Confidence
-
-**0%** para critério sprint “Concurrency PASS”
-
-## Métricas
-
-N/A (teste não rodou)
+Critério Concurrency PASS: **NO** · Confidence **0%**

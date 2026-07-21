@@ -1,27 +1,27 @@
-# CHECKOUT_REPORT — pós Vercel + Cloudflare Tunnel
+# CHECKOUT_REPORT
 
-**Gerado:** 2026-07-21T16:20:00Z  
-**Compra completa?** **NÃO**  
-**Conectividade Vercel ↔ API Node?** **SIM**
+**Gerado:** 2026-07-21T18:36:00Z  
+**Compra completa?** **NÃO**
 
-## Evidência
+## Evidências
 
-Smoke `validate-checkout-v2-vercel.mjs` → **9/9 PASS**
+### Gateways live (PASS)
+`validate-payment-shipping.mjs` → **33/33**  
+Stripe PI · MP PIX QR/copia-cola · Melhor Envio 14 quotes production
 
-- Tunnel: health 200, register/login, cart **201**
-- `https://judgetcg.com.br/api/checkout-v2/cart` → **401** (antes era 500 com localhost)
-- `https://www.judgetcg.com.br/api/checkout-v2/cart` → **401**
+### HTTP Checkout V2
+| Path | Result |
+|------|--------|
+| `checkout-v2-api.judgetcg.com.br` health/cart/auth | PASS |
+| `localhost:3000/api/checkout-v2/cart` | **401** PASS (env corrigido) |
+| `judgetcg.com.br/api/checkout-v2/cart` | **502** FAIL BUG-0010 |
 
-Detalhe: [CHECKOUT_V2_VERCEL_TUNNEL_VALIDATION.md](./CHECKOUT_V2_VERCEL_TUNNEL_VALIDATION.md)
-
-## Patch BFF (local, aguarda deploy)
-
-`checkout-v2/[...path]/route.ts` agora encaminha header `Authorization` (além do cookie). Sem redeploy Vercel, bearer direto no BFF ainda cai em 401.
+### Session / Order E2E
+`marketplace.listings` active+qty>0 → **0 rows** — não há SKU para StartCheckout→OrderCreated nesta base.
 
 ## Confidence Checkout
+**~55%** (adapters+cart HTTP) · jornada FE produção **0%**
 
-~**45%** (conectividade + cart; sem pagamento/pedido)
-
-## Release
-
-**NOT READY** — falta Stripe/MP/frete/fluxo completo.
+## Bugs
+- BUG-0010 P0 OPEN (Vercel env)
+- BUG-0011/0012 CLOSED
