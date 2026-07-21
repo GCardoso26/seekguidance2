@@ -95,7 +95,7 @@ export class MercadoPagoPaymentGateway implements PaymentGateway {
         description: `JudgeTCG checkout ${input.sessionId}`,
         payment_method_id: "pix",
         payer: {
-          email: input.metadata?.email ?? "buyer@judgetcg.local",
+          email: input.metadata?.email ?? "buyer@judgetcg.com.br",
         },
         external_reference: input.sessionId,
         metadata: {
@@ -114,7 +114,7 @@ export class MercadoPagoPaymentGateway implements PaymentGateway {
       payment_method_id: "visa",
       capture: false,
       payer: {
-        email: input.metadata?.email ?? "buyer@judgetcg.local",
+        email: input.metadata?.email ?? "buyer@judgetcg.com.br",
       },
       external_reference: input.sessionId,
       metadata: {

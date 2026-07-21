@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "nextBugNumber": 11,
+  "nextBugNumber": 12,
   "bugs": [
     {
       "id": "BUG-0001",
@@ -229,6 +229,48 @@
         "POST https://judgetcg.com.br/api/checkout-v2/cart → 500 (body vazio)",
         "validate-checkout-v2-vercel.mjs: 6 PASS tunnel / 3 FAIL BFF",
         "Hipótese: CHECKOUT_V2_API_URL no Vercel ainda aponta para trycloudflare morto ou 127.0.0.1 — deve ser https://checkout-v2-api.judgetcg.com.br"
+      ],
+      "seenAgain": []
+    },
+    {
+      "id": "BUG-0011",
+      "fingerprint": "melhor-envio-token-401-unauthenticated",
+      "title": "Melhor Envio live quote retorna 401 Unauthenticated (sandbox e production)",
+      "firstOccurrence": "2026-07-21",
+      "lastOccurrence": "2026-07-21",
+      "status": "OPEN",
+      "affects": "Shipping / Checkout V2",
+      "responsible": "SRE",
+      "files": [
+        "services/api/src/checkout/application/shipping/MelhorEnvioShippingProvider.ts"
+      ],
+      "personaId": "carlos-buyer",
+      "priority": "P1",
+      "evidence": [
+        "validate-payment-shipping live/me_quote FAIL melhor_envio_api_error:401 Unauthenticated (sandbox+production fallback)",
+        "MELHOR_ENVIO_TOKEN SET (40 chars) but API rejects — token inválido/expirado ou não é access token OAuth"
+      ],
+      "seenAgain": []
+    },
+    {
+      "id": "BUG-0012",
+      "fingerprint": "stripe-pi-automatic-pm-with-types",
+      "title": "Stripe createPaymentIntent rejeitava automatic_payment_methods + payment_method_types",
+      "firstOccurrence": "2026-07-21",
+      "lastOccurrence": "2026-07-21",
+      "status": "CLOSED",
+      "closedAt": "2026-07-21",
+      "resolution": "Removido automatic_payment_methods; usa só payment_method_types[0]=card|pix. Live create PI PASS.",
+      "affects": "Payment / Checkout V2",
+      "responsible": "Platform",
+      "files": [
+        "services/api/src/checkout/application/payment/StripePaymentGateway.ts"
+      ],
+      "personaId": "carlos-buyer",
+      "priority": "P0",
+      "evidence": [
+        "stripe_api_error: You cannot enable automatic_payment_methods and specify payment_method_types",
+        "Após fix: pi_3TviAe... status=requires_action PASS"
       ],
       "seenAgain": []
     }

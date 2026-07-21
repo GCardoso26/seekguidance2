@@ -105,9 +105,8 @@ export class StripePaymentGateway implements PaymentGateway {
     if (method === "pix") {
       body["payment_method_types[0]"] = "pix";
     } else {
+      // Do not combine payment_method_types with automatic_payment_methods (Stripe API rejects).
       body["payment_method_types[0]"] = "card";
-      body["automatic_payment_methods[enabled]"] = "true";
-      body["automatic_payment_methods[allow_redirects]"] = "never";
     }
     const pi = await this.stripe("/payment_intents", "POST", body);
     return this.toResult(pi, method);
