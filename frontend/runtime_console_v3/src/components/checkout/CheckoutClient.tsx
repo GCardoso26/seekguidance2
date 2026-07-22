@@ -62,6 +62,28 @@ type PixData = {
   store_name: string;
 };
 
+function formatApiDetail(detail: unknown, fallback: string): string {
+  if (typeof detail === "string" && detail.trim()) return detail;
+  if (detail && typeof detail === "object") {
+    const rec = detail as Record<string, unknown>;
+    if (typeof rec.message === "string" && rec.message.trim()) return rec.message;
+    if (typeof rec.detail === "string" && rec.detail.trim()) return rec.detail;
+  }
+  if (Array.isArray(detail)) {
+    const parts = detail
+      .map((item) => {
+        if (typeof item === "string") return item;
+        if (item && typeof item === "object" && "msg" in item) {
+          return String((item as { msg: unknown }).msg);
+        }
+        return null;
+      })
+      .filter(Boolean);
+    if (parts.length) return parts.join("; ");
+  }
+  return fallback;
+}
+
 /** Island client do checkout — shell H1/RSC fica em app/checkout/page.tsx. */
 export function CheckoutClient() {
   const { user, loading: authLoading } = useJudgeAuth();
@@ -109,7 +131,7 @@ export function CheckoutClient() {
       const methodsRes = await fetch("/api/marketplace/shop/checkout/methods");
       if (!methodsRes.ok) {
         const body = await methodsRes.json().catch(() => ({}));
-        setInitError(String(body.detail ?? "Não foi possível iniciar checkout"));
+        setInitError(formatApiDetail(body.detail, "Não foi possível iniciar checkout"));
         setLoading(false);
         return;
       }
@@ -134,7 +156,7 @@ export function CheckoutClient() {
       }
       if (!initRes.ok) {
         const body = await initRes.json().catch(() => ({}));
-        setReservationError(String(body.detail ?? "Não foi possível reservar estoque"));
+        setReservationError(formatApiDetail(body.detail, "Não foi possível reservar estoque"));
         setLoading(false);
         return;
       }
@@ -172,7 +194,7 @@ export function CheckoutClient() {
     });
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
-      setInitError(String(body.detail ?? "Erro ao gerar PIX"));
+      setInitError(formatApiDetail(body.detail, "Erro ao gerar PIX"));
       setPixLoading(false);
       return;
     }
@@ -205,7 +227,7 @@ export function CheckoutClient() {
     });
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
-      setInitError(String(body.detail ?? "Erro ao iniciar pagamento"));
+      setInitError(formatApiDetail(body.detail, "Erro ao iniciar pagamento"));
       setLoading(false);
       return;
     }

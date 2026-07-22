@@ -6,7 +6,7 @@ export async function POST(req: NextRequest) {
     const body = await req.text();
     const res = await fetch(`${TOURNAMENT_API_BASE}/runtime/judge/marketplace/shop/checkout`, {
       method: "POST",
-      headers: await tournamentProxyHeaders(),
+      headers: await tournamentProxyHeaders(req),
       body,
       cache: "no-store",
     });

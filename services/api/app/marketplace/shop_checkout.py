@@ -74,9 +74,11 @@ async def create_checkout(
     except Exception as exc:
         await session.rollback()
         logger.exception("checkout_unexpected_error", user_id=user_id, error=str(exc))
+        # Propagar causa real (truncada) — o FE mostra `detail` no checkout.
+        cause = str(exc).strip() or type(exc).__name__
         raise HTTPException(
             400,
-            "Não foi possível concluir o checkout. Tente novamente em instantes.",
+            f"Não foi possível concluir o checkout: {cause[:240]}",
         ) from exc
 
 
@@ -139,6 +141,17 @@ async def _create_checkout_inner(
             session_id=session_id,
             shop_escrow=shop_escrow,
         )
+    except HTTPException:
+        if created_here:
+            try:
+                await checkout_atomic.cancel_checkout(session, session_id, user_id)
+            except Exception as release_exc:
+                logger.warning(
+                    "checkout_release_after_failure",
+                    session_id=session_id,
+                    error=str(release_exc),
+                )
+        raise
     except Exception:
         if created_here:
             try:
@@ -352,8 +365,26 @@ async def _build_stripe_checkout(
     try:
         intent = stripe.PaymentIntent.create(**pi_kwargs)
     except stripe.StripeError as exc:
-        logger.error("stripe_pi_create_error", error=str(exc))
-        raise HTTPException(400, str(exc)) from exc
+        logger.error("stripe_pi_create_error", error=str(exc), order_ids=pending_orders)
+        # Pedidos já commitados sem PI — cancelar para não orphanar pending.
+        if pending_orders:
+            await session.execute(
+                text(
+                    """
+                    UPDATE tcg_judge.shop_orders
+                    SET status = 'cancelled', updated_at = NOW()
+                    WHERE id = ANY(CAST(:ids AS uuid[]))
+                      AND status = 'pending'
+                      AND stripe_payment_intent_id IS NULL
+                    """
+                ),
+                {"ids": pending_orders},
+            )
+            await session.commit()
+        raise HTTPException(
+            400,
+            f"Falha no pagamento Stripe: {exc.user_message or str(exc)}"[:280],
+        ) from exc
 
     for order_id in pending_orders:
         await session.execute(
