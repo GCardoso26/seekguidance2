@@ -4,19 +4,58 @@ import { useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Bell, Heart, Layers, X } from "lucide-react";
+import { Bell, Heart, Layers, Share2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/format-currency";
 import { useCreatePriceAlert } from "@/hooks/usePriceAlerts";
+import { useJudgeAuth } from "@/features/auth/AuthProvider";
+import { AddToCollectionModal } from "@/components/collection/AddToCollectionModal";
+import { gameCardDetailPath } from "@/lib/game-routes";
+import { GAME_TOKENS } from "@/lib/tcg-tokens";
 import type { AlertPriceCondition } from "@/types/alert";
-import type { UnifiedCard } from "@/types/card";
+import type { GameId, UnifiedCard } from "@/types/card";
 
 interface CardActionsProps {
   card: UnifiedCard;
 }
 
 export function CardActions({ card }: CardActionsProps) {
+  const router = useRouter();
+  const { user } = useJudgeAuth();
   const [alertOpen, setAlertOpen] = useState(false);
+  const [collectionOpen, setCollectionOpen] = useState(false);
+  const [shareMsg, setShareMsg] = useState<string | null>(null);
+
+  const gameSlug = GAME_TOKENS[card.game as GameId]?.slug || String(card.game).toLowerCase();
+  const detailPath = gameCardDetailPath(gameSlug, card.id);
+
+  const openCollection = () => {
+    if (!user) {
+      router.push(`/entrar?next=${encodeURIComponent(detailPath)}`);
+      return;
+    }
+    setCollectionOpen(true);
+  };
+
+  const addToDeck = () => {
+    router.push(`/decks?add=${encodeURIComponent(card.id)}&game=${encodeURIComponent(String(card.game))}`);
+  };
+
+  const share = async () => {
+    const url =
+      typeof window !== "undefined" ? `${window.location.origin}${detailPath}` : detailPath;
+    try {
+      if (typeof navigator !== "undefined" && navigator.share) {
+        await navigator.share({ title: card.name, url });
+        return;
+      }
+      await navigator.clipboard.writeText(url);
+      setShareMsg("Link copiado");
+      setTimeout(() => setShareMsg(null), 1500);
+    } catch {
+      setShareMsg(null);
+    }
+  };
 
   return (
     <div className="flex flex-wrap gap-2">
@@ -38,29 +77,59 @@ export function CardActions({ card }: CardActionsProps) {
                 </button>
               </Dialog.Close>
             </div>
-            <PriceAlertForm card={card} onDone={() => setAlertOpen(false)} />
+            <PriceAlertForm card={card} detailPath={detailPath} onDone={() => setAlertOpen(false)} />
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog.Root>
 
-      <Button variant="outline" size="sm" type="button" aria-label="Adicionar à coleção">
+      <Button
+        variant="outline"
+        size="sm"
+        type="button"
+        aria-label="Adicionar à coleção"
+        onClick={openCollection}
+      >
         <Heart className="mr-1 h-4 w-4" />
         Coleção
       </Button>
 
-      <Button variant="outline" size="sm" type="button" aria-label="Adicionar ao deck">
+      <Button variant="outline" size="sm" type="button" aria-label="Adicionar ao deck" onClick={addToDeck}>
         <Layers className="mr-1 h-4 w-4" />
         Deck
+      </Button>
+
+      <Button variant="outline" size="sm" type="button" aria-label="Compartilhar carta" onClick={() => void share()}>
+        <Share2 className="mr-1 h-4 w-4" />
+        {shareMsg ?? "Compartilhar"}
+      </Button>
+
+      <Button variant="ghost" size="sm" type="button" asChild>
+        <Link href="/wishlist">Wishlist</Link>
       </Button>
 
       <Button variant="ghost" size="sm" type="button" asChild>
         <Link href="/alerts">Meus alertas</Link>
       </Button>
+
+      <AddToCollectionModal
+        open={collectionOpen}
+        cardId={card.id}
+        cardName={card.name}
+        onClose={() => setCollectionOpen(false)}
+      />
     </div>
   );
 }
 
-function PriceAlertForm({ card, onDone }: { card: UnifiedCard; onDone: () => void }) {
+function PriceAlertForm({
+  card,
+  detailPath,
+  onDone,
+}: {
+  card: UnifiedCard;
+  detailPath: string;
+  onDone: () => void;
+}) {
   const router = useRouter();
   const createAlert = useCreatePriceAlert();
   const currency = card.latestPrice?.currency || "BRL";
@@ -93,7 +162,7 @@ function PriceAlertForm({ card, onDone }: { card: UnifiedCard; onDone: () => voi
         },
         onError: (err) => {
           if (err instanceof Error && err.message === "login_required") {
-            router.push(`/entrar?next=${encodeURIComponent(`/loja/cartas/${card.id}`)}`);
+            router.push(`/entrar?next=${encodeURIComponent(detailPath)}`);
             return;
           }
           setError(err instanceof Error ? err.message : "Erro ao criar alerta");
@@ -146,24 +215,24 @@ function PriceAlertForm({ card, onDone }: { card: UnifiedCard; onDone: () => voi
           />
         </div>
       ) : (
-      <div>
-        <label htmlFor="target-price" className="text-sm font-medium">
-          Preço-alvo
-        </label>
-        <input
-          id="target-price"
-          type="number"
-          step="0.01"
-          min={0.01}
-          value={targetPrice}
-          onChange={(e) => setTargetPrice(Number(e.target.value))}
-          className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-          required
-        />
-        <p className="mt-1 text-xs text-muted-foreground">
-          Preço atual: {formatCurrency(card.lowestPrice || 0, currency)}
-        </p>
-      </div>
+        <div>
+          <label htmlFor="target-price" className="text-sm font-medium">
+            Preço-alvo
+          </label>
+          <input
+            id="target-price"
+            type="number"
+            step="0.01"
+            min={0.01}
+            value={targetPrice}
+            onChange={(e) => setTargetPrice(Number(e.target.value))}
+            className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            required
+          />
+          <p className="mt-1 text-xs text-muted-foreground">
+            Preço atual: {formatCurrency(card.lowestPrice || 0, currency)}
+          </p>
+        </div>
       )}
 
       <div>

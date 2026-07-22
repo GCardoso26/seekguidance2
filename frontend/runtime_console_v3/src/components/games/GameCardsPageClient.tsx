@@ -5,7 +5,6 @@ import { Suspense } from "react";
 import Image from "next/image";
 import { FacetedSearch } from "@/components/search/FacetedSearch";
 import { CatalogSearchSkeleton } from "@/components/search/CatalogSearchSkeleton";
-import { MobileLayout } from "@/components/layout/MobileLayout";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import {
   gameCardDetailPath,
@@ -22,19 +21,17 @@ function GameCardsContent({ slug }: { slug: string }) {
   const gameId = gameIdFromSlug(slug);
   if (!gameId || !isGameInImplementationWave(gameId)) {
     return (
-      <MobileLayout>
-        <div className="container mx-auto px-4 py-16 text-center">
-          <h1 className="text-2xl font-bold">
-            {!gameId ? "Jogo não encontrado" : "Jogo em breve"}
-          </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Este TCG ainda não está disponível nesta wave de implementação.
-          </p>
-          <Link href="/loja" className="mt-4 inline-block text-primary hover:underline">
-            Ver jogos disponíveis
-          </Link>
-        </div>
-      </MobileLayout>
+      <div className="container mx-auto px-4 py-16 text-center">
+        <h1 className="text-2xl font-bold">
+          {!gameId ? "Jogo não encontrado" : "Jogo em breve"}
+        </h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Este TCG ainda não está disponível nesta wave de implementação.
+        </p>
+        <Link href="/" className="mt-4 inline-block text-primary hover:underline">
+          Ver universos
+        </Link>
+      </div>
     );
   }
 
@@ -43,7 +40,7 @@ function GameCardsContent({ slug }: { slug: string }) {
   const cardsPath = gameCardsPath(slug);
 
   return (
-    <MobileLayout>
+    <>
       <section
         className="border-b border-border/40 py-8"
         style={{ backgroundColor: `${token.primary}10` }}
@@ -53,7 +50,6 @@ function GameCardsContent({ slug }: { slug: string }) {
             className="mb-3"
             items={[
               { label: "Início", href: "/" },
-              { label: "Loja", href: "/loja" },
               { label: token.name, href: gameLandingPath(slug) },
               { label: "Cartas" },
             ]}
@@ -92,7 +88,7 @@ function GameCardsContent({ slug }: { slug: string }) {
           Filtros: {config.filters.join(", ")}
         </p>
       </div>
-    </MobileLayout>
+    </>
   );
 }
 
@@ -104,5 +100,4 @@ export function GameCardsPageClient({ slug }: { slug: string }) {
   );
 }
 
-// re-export for card detail breadcrumb helper
 export { gameCardDetailPath };

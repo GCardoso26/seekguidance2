@@ -39,6 +39,15 @@ const CardJudgeInsights = dynamic(
   () => import("@/components/cards/CardJudgeInsights").then((m) => m.CardJudgeInsights),
   { ssr: false },
 );
+const CardDecksSection = dynamic(
+  () => import("@/components/cards/CardDecksSection").then((m) => m.CardDecksSection),
+  {
+    ssr: false,
+    loading: () => <div className="h-28 animate-pulse rounded-xl bg-muted/40" aria-hidden />,
+  },
+);
+import { CardAiAdvisorSlots } from "@/components/cards/CardAiAdvisorSlots";
+import { CardRelatedProductsSection } from "@/components/cards/CardRelatedProductsSection";
 import { formatRarityDisplay } from "@/lib/game-config/rarity";
 import { gameCardsPath, gameLandingPath } from "@/lib/game-routes";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
@@ -111,7 +120,8 @@ export function CardDetailPage({ cardId }: CardDetailPageProps) {
         onError: (err) => {
           const msg = err instanceof Error ? err.message : "Erro ao adicionar";
           if (msg === "login_required" || /401|não autenticado|login/i.test(msg)) {
-            router.push(entrarPath(`/loja/cartas/${data.card.id}`));
+            const slug = GAME_TOKENS[data.card.game as GameId]?.slug || String(data.card.game).toLowerCase();
+            router.push(entrarPath(`/${slug}/cards/${data.card.id}`));
             return;
           }
           setBuyError(msg);
@@ -141,8 +151,8 @@ export function CardDetailPage({ cardId }: CardDetailPageProps) {
           <Breadcrumbs
             items={[
               { label: "Início", href: "/" },
-              { label: "Loja", href: "/loja" },
               { label: gameToken?.name || card.game, href: gameLandingPath(gameSlug) },
+              { label: "Cartas", href: gameCardsPath(gameSlug) },
               {
                 label: card.set?.name ?? "Expansão",
                 href: `${gameCardsPath(gameSlug)}?set=${encodeURIComponent(card.set?.code || "")}`,
@@ -387,8 +397,11 @@ export function CardDetailPage({ cardId }: CardDetailPageProps) {
             </div>
           </div>
 
-          <div className="mt-12 border-t border-border pt-10">
+          <div className="mt-12 space-y-12 border-t border-border pt-10">
+            <CardDecksSection card={card} />
             <CardIntelligenceSection cardId={cardId} card={card} fallbackRelated={relatedCards} />
+            <CardRelatedProductsSection card={card} gameSlug={gameSlug} />
+            <CardAiAdvisorSlots cardId={cardId} />
           </div>
         </div>
 

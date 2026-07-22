@@ -1,4 +1,5 @@
 @import "./design-tokens.css";
+@import "./game-themes.css";
 
 @tailwind base;
 @tailwind components;

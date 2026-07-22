@@ -3,7 +3,10 @@ import { notFound } from "next/navigation";
 import { CardDetailJsonLd } from "@/components/cards/CardDetailJsonLd";
 import { CardDetailPage } from "@/components/cards/CardDetailPage";
 import { API_PROXY_BASE } from "@/lib/api-proxy-base";
-import type { CardDetailResponse } from "@/types/card";
+import { gameCardDetailPath } from "@/lib/game-routes";
+import { GAME_TOKENS } from "@/lib/tcg-tokens";
+import { withCanonical } from "@/lib/page-metadata";
+import type { CardDetailResponse, GameId } from "@/types/card";
 
 async function fetchCardDetail(cardId: string): Promise<CardDetailResponse | null> {
   try {
@@ -27,23 +30,25 @@ export async function generateMetadata({ params }: CardPageProps): Promise<Metad
   const detail = await fetchCardDetail(cardId);
 
   if (!detail) {
-    return { title: "Carta não encontrada | Judge-TCG" };
+    return withCanonical(`/cards/${cardId}`, { title: "Carta não encontrada" });
   }
 
   const { card } = detail;
+  const gameSlug = GAME_TOKENS[card.game as GameId]?.slug || String(card.game).toLowerCase();
   const lowestPrice = card.lowestPrice ?? card.latestPrice?.price;
   const currency = card.latestPrice?.currency || "USD";
   const priceText = lowestPrice
     ? `A partir de ${new Intl.NumberFormat("pt-BR", { style: "currency", currency }).format(lowestPrice)}`
     : "Consulte preços e disponibilidade";
 
-  return {
-    title: `${card.name} — ${card.set?.name} | Judge-TCG`,
-    description: `${card.name} de ${card.set?.name}. ${priceText}. Compre cartas de TCG com segurança.`,
+  // Canonical aponta para a rota do portal do jogo
+  return withCanonical(gameCardDetailPath(gameSlug, cardId), {
+    title: `${card.name} — ${card.set?.name ?? "JudgeTCG"}`,
+    description: `${card.name} de ${card.set?.name ?? "TCG"}. ${priceText}. Compre cartas com segurança.`,
     openGraph: {
       images: card.imageUris?.large ? [card.imageUris.large] : undefined,
     },
-  };
+  });
 }
 
 export default async function CardPage({ params }: CardPageProps) {

@@ -3,7 +3,6 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
-import { MobileLayout } from "@/components/layout/MobileLayout";
 import { Skeleton } from "@/components/ui/skeleton";
 import { gameCardsPath, gameLandingPath } from "@/lib/game-routes";
 import { gameIdFromSlug, GAME_TOKENS } from "@/lib/tcg-tokens";
@@ -30,16 +29,14 @@ export function GameExpansionsPageClient({ slug }: { slug: string }) {
 
   if (!gameId || !token) {
     return (
-      <MobileLayout>
-        <div className="container mx-auto px-4 py-16 text-center">
-          <h1 className="text-2xl font-bold">Jogo não encontrado</h1>
-        </div>
-      </MobileLayout>
+      <div className="container mx-auto px-4 py-16 text-center">
+        <h1 className="text-2xl font-bold">Jogo não encontrado</h1>
+      </div>
     );
   }
 
   return (
-    <MobileLayout>
+    <>
       <section
         className="border-b border-border/40 py-8"
         style={{ backgroundColor: `${token.primary}10` }}
@@ -89,6 +86,6 @@ export function GameExpansionsPageClient({ slug }: { slug: string }) {
           ))}
         </ul>
       </div>
-    </MobileLayout>
+    </>
   );
 }

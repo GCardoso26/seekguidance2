@@ -1,0 +1,86 @@
+/**
+ * Per-game portal themes — applied via [data-game="slug"] on portal shell.
+ * No glassmorphism / purple SaaS glow; identity comes from game tokens.
+ */
+
+.game-portal {
+  --game-primary: #1e3a5f;
+  --game-secondary: #0f172a;
+  --game-bg: #f8fafc;
+  --game-accent: #b45309;
+  --game-hero-glow: transparent;
+}
+
+.game-portal[data-game] {
+  background-color: color-mix(in srgb, var(--game-bg) 8%, hsl(var(--background)));
+}
+
+.game-portal .portal-nav {
+  border-bottom: 1px solid color-mix(in srgb, var(--game-primary) 22%, hsl(var(--border)));
+  background: color-mix(in srgb, var(--game-primary) 6%, hsl(var(--background)));
+}
+
+.game-portal .portal-nav a[data-active="true"] {
+  color: var(--game-primary);
+  border-bottom-color: var(--game-primary);
+}
+
+.game-portal .portal-hero {
+  background:
+    radial-gradient(ellipse 90% 70% at 15% 20%, var(--game-hero-glow), transparent 55%),
+    linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--game-primary) 14%, hsl(var(--background))) 0%,
+      hsl(var(--background)) 55%
+    );
+}
+
+.game-portal .portal-cta {
+  background-color: var(--game-primary);
+  color: #fff;
+}
+
+.game-portal .portal-cta:hover {
+  filter: brightness(1.06);
+}
+
+.game-portal .portal-link {
+  color: var(--game-primary);
+}
+
+/* Universe home — motion */
+@keyframes universe-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.universe-hero-animate {
+  animation: universe-fade-up 0.55s ease-out both;
+}
+
+.universe-card {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.universe-card:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--card-tint, #000) 18%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .universe-hero-animate {
+    animation: none;
+  }
+  .universe-card:hover {
+    transform: none;
+  }
+}

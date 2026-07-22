@@ -1,11 +1,13 @@
+import type { Metadata } from "next";
+import { gameIdFromSlug, GAME_TOKENS } from "@/lib/tcg-tokens";
+import { gameCardsPath } from "@/lib/game-routes";
+import { withCanonical } from "@/lib/page-metadata";
+import type { GameId } from "@/types/card";
+import { GameCardsPageClient } from "@/components/games/GameCardsPageClient";
+import { gameSearchMetadata } from "@/lib/seo-metadata";
+
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
-
-import type { Metadata } from "next";
-import { GameCardsPageClient } from "@/components/games/GameCardsPageClient";
-import { gameIdFromSlug, GAME_TOKENS } from "@/lib/tcg-tokens";
-import type { GameId } from "@/types/card";
-import { gameSearchMetadata } from "@/lib/seo-metadata";
 
 type Props = {
   params: Promise<{ gameSlug: string }>;
@@ -15,7 +17,13 @@ type Props = {
 export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
   const { gameSlug } = await params;
   const { q } = await searchParams;
-  return gameSearchMetadata(gameSlug, q);
+  const base = await gameSearchMetadata(gameSlug, q);
+  const gameId = gameIdFromSlug(gameSlug);
+  const name = gameId ? GAME_TOKENS[gameId as GameId].name : gameSlug;
+  return withCanonical(gameCardsPath(gameSlug), {
+    ...base,
+    title: base.title ?? `Cartas — ${name}`,
+  });
 }
 
 export default async function GameCardsPage({ params }: { params: Promise<{ gameSlug: string }> }) {
