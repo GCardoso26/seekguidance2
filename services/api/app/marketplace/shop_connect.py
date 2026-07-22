@@ -48,7 +48,16 @@ def _payments_return_urls(settings: Settings) -> tuple[str, str]:
 async def get_owner_store(session: AsyncSession, owner_id: str) -> dict[str, Any] | None:
     row = (
         await session.execute(
-            text("SELECT * FROM tcg_judge.stores WHERE owner_id = :oid ORDER BY created_at LIMIT 1"),
+            text(
+                """
+                SELECT * FROM tcg_judge.stores
+                WHERE owner_id = :oid
+                ORDER BY
+                  CASE WHEN shop_enabled THEN 0 ELSE 1 END,
+                  created_at DESC
+                LIMIT 1
+                """
+            ),
             {"oid": owner_id},
         )
     ).mappings().first()
@@ -482,9 +491,64 @@ async def sync_merchant_kyc_for_owner(session: AsyncSession, owner_id: str) -> d
     return await refresh_connect_status(session, str(store["id"]), owner_id)
 
 
+def _stripe_account_flag(account: Any, key: str) -> bool:
+    """Stripe SDK 15+ Account não expõe .get(); usa attr / indexação."""
+    if isinstance(account, dict):
+        return bool(account.get(key))
+    val = getattr(account, key, None)
+    if val is None:
+        try:
+            val = account[key]  # type: ignore[index]
+        except Exception:
+            val = None
+    return bool(val)
+
+
+def _stripe_account_as_dict(account: Any) -> dict[str, Any]:
+    if isinstance(account, dict):
+        return account
+    to_dict = getattr(account, "to_dict", None)
+    if callable(to_dict):
+        try:
+            return dict(to_dict())
+        except Exception:
+            pass
+    try:
+        return dict(account)
+    except Exception:
+        return {
+            "id": getattr(account, "id", None),
+            "charges_enabled": getattr(account, "charges_enabled", False),
+            "payouts_enabled": getattr(account, "payouts_enabled", False),
+            "details_submitted": getattr(account, "details_submitted", False),
+            "requirements": getattr(account, "requirements", None),
+        }
+
+
+def _v2_account_ready(v2_acct: Any) -> bool:
+    """Inferir onboarding completo via Accounts V2 (requirements + merchant)."""
+    req = getattr(v2_acct, "requirements", None)
+    entries = getattr(req, "entries", None) if req is not None else None
+    if entries:
+        return False
+    cfg = getattr(v2_acct, "configuration", None)
+    merchant = getattr(cfg, "merchant", None) if cfg is not None else None
+    if merchant is not None and getattr(merchant, "applied", None) is False:
+        return False
+    caps = getattr(merchant, "capabilities", None) if merchant is not None else None
+    card = getattr(caps, "card_payments", None) if caps is not None else None
+    status = getattr(card, "status", None) if card is not None else None
+    if status and str(status).lower() not in {"active", "pending"}:
+        # pending ainda pode cobrar em test; só bloqueia disabled/inactive
+        if str(status).lower() in {"inactive", "disabled", "unrequested"}:
+            return False
+    return True
+
+
 async def refresh_connect_status(session: AsyncSession, store_id: str, owner_id: str) -> dict[str, Any]:
     settings = get_settings()
     _init_stripe(settings)
+    client = _stripe_client(settings)
 
     store = (
         await session.execute(
@@ -499,32 +563,53 @@ async def refresh_connect_status(session: AsyncSession, store_id: str, owner_id:
     if not account_id:
         return {"complete": False, "shop_enabled": store.get("shop_enabled", False)}
 
-    try:
-        account = stripe.Account.retrieve(account_id)
-    except stripe.StripeError as exc:
-        # Contas só-V2 podem falhar no retrieve v1 — tentar requirements via V2.
+    account: Any = None
+    used_v2 = False
+    retrieve_errors: list[str] = []
+
+    # Preferir V2 quando a plataforma opera em Accounts V2 (evita AttributeError no SDK 15).
+    if _prefer_accounts_v2():
         try:
-            v2_acct = _stripe_client(settings).v2.core.accounts.retrieve(
+            v2_acct = client.v2.core.accounts.retrieve(
                 str(account_id),
-                {"include": ["configuration.merchant", "configuration.recipient", "identity"]},
+                {
+                    "include": [
+                        "configuration.merchant",
+                        "configuration.recipient",
+                        "requirements",
+                        "identity",
+                    ]
+                },
             )
+            ready = _v2_account_ready(v2_acct)
             account = {
                 "id": str(account_id),
-                "charges_enabled": True,
-                "payouts_enabled": True,
-                "details_submitted": True,
+                "charges_enabled": ready,
+                "payouts_enabled": ready,
+                "details_submitted": ready,
                 "_v2": True,
-                "raw": v2_acct,
             }
-            logger.info("stripe_v2_account_retrieve_ok", account=account_id)
+            used_v2 = True
+            logger.info("stripe_v2_account_retrieve_ok", account=account_id, ready=ready)
         except Exception as v2_exc:
-            logger.error("stripe_account_retrieve_failed", v1=str(exc), v2=str(v2_exc))
-            raise HTTPException(400, str(exc)) from exc
+            retrieve_errors.append(f"v2:{v2_exc}")
+            logger.warning("stripe_v2_account_retrieve_failed", error=str(v2_exc))
+
+    if account is None:
+        try:
+            account = stripe.Account.retrieve(str(account_id))
+        except Exception as v1_exc:
+            retrieve_errors.append(f"v1:{v1_exc}")
+            logger.error("stripe_account_retrieve_failed", errors=retrieve_errors)
+            raise HTTPException(
+                400,
+                f"Não foi possível ler a conta Stripe ({account_id}): {v1_exc}",
+            ) from v1_exc
 
     complete = bool(
-        account.get("charges_enabled")
-        and account.get("payouts_enabled")
-        and account.get("details_submitted")
+        _stripe_account_flag(account, "charges_enabled")
+        and _stripe_account_flag(account, "payouts_enabled")
+        and _stripe_account_flag(account, "details_submitted")
     )
     await session.execute(
         text(
@@ -541,19 +626,23 @@ async def refresh_connect_status(session: AsyncSession, store_id: str, owner_id:
     await session.commit()
     from app.kyc.merchant_kyc import stripe_account_to_kyc_status, update_merchant_kyc_from_stripe
 
-    if account.get("_v2"):
-        kyc_status, reason = ("pending", "awaiting_v2_requirements") if not complete else ("verified", None)
+    if used_v2 or (isinstance(account, dict) and account.get("_v2")):
+        kyc_status, reason = ("verified", None) if complete else ("pending", "awaiting_v2_requirements")
     else:
-        kyc_status, reason = stripe_account_to_kyc_status(dict(account))
-    await update_merchant_kyc_from_stripe(
-        session,
-        stripe_account_id=str(account_id),
-        kyc_status=kyc_status,
-        rejection_reason=reason,
-        metadata={"source": "refresh_connect_status"},
-    )
+        kyc_status, reason = stripe_account_to_kyc_status(_stripe_account_as_dict(account))
+    try:
+        await update_merchant_kyc_from_stripe(
+            session,
+            stripe_account_id=str(account_id),
+            kyc_status=kyc_status,
+            rejection_reason=reason,
+            metadata={"source": "refresh_connect_status"},
+        )
+    except Exception as kyc_exc:
+        logger.warning("refresh_connect_kyc_sync_failed", error=str(kyc_exc), account=account_id)
     return {
         "complete": complete,
         "shop_enabled": complete or store.get("shop_enabled"),
         "kyc_status": kyc_status,
+        "connect_api": "v2" if used_v2 else "v1",
     }

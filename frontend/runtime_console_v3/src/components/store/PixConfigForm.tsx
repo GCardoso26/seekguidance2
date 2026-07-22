@@ -39,8 +39,12 @@ export function PixConfigForm({ storeId, store, onSaved }: Props) {
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
-    if (store?.pix_key_type) setKeyType(String(store.pix_key_type));
-    if (store?.pix_key) setKey(String(store.pix_key));
+    if (store?.pix_key_type != null && store.pix_key_type !== "") {
+      setKeyType(String(store.pix_key_type));
+    }
+    if (store?.pix_key != null && String(store.pix_key).trim() !== "") {
+      setKey(String(store.pix_key));
+    }
   }, [store?.pix_key, store?.pix_key_type]);
 
   async function handleSave() {
@@ -57,8 +61,14 @@ export function PixConfigForm({ storeId, store, onSaved }: Props) {
           payment_method_preference: "pix",
         }),
       });
-      const data = (await res.json().catch(() => ({}))) as { detail?: string };
+      const data = (await res.json().catch(() => ({}))) as {
+        detail?: string;
+        pix_key?: string;
+        pix_key_type?: string;
+      };
       if (!res.ok) throw new Error(String(data.detail ?? "Falha ao salvar PIX"));
+      if (data.pix_key) setKey(String(data.pix_key));
+      if (data.pix_key_type) setKeyType(String(data.pix_key_type));
       setSuccess(true);
       onSaved?.();
     } catch (err) {

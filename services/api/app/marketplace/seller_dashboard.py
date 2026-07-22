@@ -44,7 +44,8 @@ async def resolve_owner_store(session: AsyncSession, owner_id: str) -> dict[str,
                     WHEN 'lojista' THEN 2
                     ELSE 3
                   END,
-                  created_at ASC
+                  -- Alinhar com /stores/mine (DESC): loja mais recente no mesmo tier
+                  created_at DESC
                 LIMIT 1
                 """
             ),

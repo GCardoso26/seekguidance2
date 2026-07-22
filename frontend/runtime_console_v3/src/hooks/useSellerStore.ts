@@ -25,8 +25,8 @@ export function useSellerStore() {
     retry: false,
   });
 
-  const store = storesQuery.data?.[0] ?? null;
-  const storeId = store?.id ?? null;
+  const stores = storesQuery.data ?? [];
+  const fallbackStore = stores[0] ?? null;
 
   const dashboardQuery = useQuery({
     queryKey: ["seller-dashboard"],
@@ -36,7 +36,7 @@ export function useSellerStore() {
       if (!res.ok) throw new Error("dashboard_failed");
       return res.json();
     },
-    enabled: Boolean(storeId) && Boolean(user) && !authLoading,
+    enabled: Boolean(fallbackStore?.id) && Boolean(user) && !authLoading,
     staleTime: 30_000,
     refetchInterval: 5 * 60 * 1000,
     retry: (failureCount, error) => {
@@ -45,9 +45,15 @@ export function useSellerStore() {
     },
   });
 
-  const plan = String(
-    (dashboardQuery.data?.store as Record<string, unknown> | undefined)?.subscription_plan ?? "free",
-  );
+  const dashboardStore = dashboardQuery.data?.store as Record<string, unknown> | undefined;
+  const dashboardStoreId = dashboardStore?.id ? String(dashboardStore.id) : null;
+  // Preferir a loja do dashboard (mesma regra do backend) para PIX/Stripe não “sumirem”
+  const store =
+    (dashboardStoreId ? stores.find((s) => s.id === dashboardStoreId) : undefined) ??
+    fallbackStore;
+  const storeId = store?.id ?? dashboardStoreId ?? null;
+
+  const plan = String(dashboardStore?.subscription_plan ?? "free");
 
   return {
     store,

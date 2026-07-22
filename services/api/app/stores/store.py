@@ -37,7 +37,9 @@ async def list_owner_stores(session: AsyncSession, owner_id: str) -> list[dict[s
                 """
                 SELECT * FROM tcg_judge.stores
                 WHERE owner_id = :oid
-                ORDER BY created_at DESC
+                ORDER BY
+                  CASE WHEN shop_enabled THEN 0 ELSE 1 END,
+                  created_at DESC
                 """
             ),
             {"oid": owner_id},
