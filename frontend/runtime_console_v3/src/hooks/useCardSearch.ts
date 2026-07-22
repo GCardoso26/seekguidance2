@@ -42,17 +42,9 @@ const fetchCardSearch = withPerformanceTracking(
     if (!res.ok) {
       throw new Error("Falha ao buscar cartas");
     }
-    const data = (await res.json()) as CatalogSearchResponse;
-    if (data.degraded) {
-      const err = new Error(data.error || "catalog_degraded") as Error & {
-        degraded?: boolean;
-        upstreamStatus?: number;
-      };
-      err.degraded = true;
-      err.upstreamStatus = data.upstream_status;
-      throw err;
-    }
-    return data;
+    // Soft-degrade do BFF (HTTP 200 + degraded): devolve payload vazio sem throw,
+    // para não spammar console/React Query retries quando o upstream está frio.
+    return (await res.json()) as CatalogSearchResponse;
   },
   "Meilisearch: Search cards",
 );
@@ -64,10 +56,14 @@ export function useCardSearch(filters: SearchFilters) {
     queryKey: ["cards", "search", rest],
     queryFn: ({ pageParam }) => fetchCardSearch(rest, pageParam),
     initialPageParam: 1,
-    getNextPageParam: (last) => (last.hasMore ? last.page + 1 : undefined),
+    getNextPageParam: (last) =>
+      last.degraded ? undefined : last.hasMore ? last.page + 1 : undefined,
     staleTime: 60_000,
     placeholderData: (prev) => prev,
-    retry: 3,
+    retry: (failureCount, error) => {
+      if ((error as Error & { degraded?: boolean })?.degraded) return false;
+      return failureCount < 2;
+    },
     retryDelay: (attempt) => Math.min(1_500 * 2 ** attempt, 8_000),
   });
 }

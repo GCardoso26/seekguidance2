@@ -62,12 +62,16 @@ export function FacetedSearch({
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [filters, setFilters] = useState<SearchFilters>(() => ({
-    ...filtersFromSearchParams(searchParams),
-    q: initialQuery || searchParams.get("q") || undefined,
-    game: initialGame || searchParams.get("game") || undefined,
-    sortBy: (searchParams.get("sort") as SearchFilters["sortBy"]) || "relevance",
-  }));
+  const [filters, setFilters] = useState<SearchFilters>(() => {
+    const fromUrl = filtersFromSearchParams(searchParams);
+    const scoped = lockGame || isGameScopedSearchPath(searchBasePath);
+    return {
+      ...fromUrl,
+      q: initialQuery || searchParams.get("q") || undefined,
+      game: scoped && initialGame ? initialGame : initialGame || fromUrl.game,
+      sortBy: (searchParams.get("sort") as SearchFilters["sortBy"]) || "relevance",
+    };
+  });
 
   const [debouncedQ, setDebouncedQ] = useState(filters.q ?? "");
   const [quickViewCardId, setQuickViewCardId] = useState<string | null>(null);
@@ -106,6 +110,7 @@ export function FacetedSearch({
 
   const cards = useMemo(() => data?.pages.flatMap((p) => p.cards) ?? [], [data]);
   const total = data?.pages[0]?.total ?? 0;
+  const isDegraded = Boolean(data?.pages[0]?.degraded);
 
   useEffect(() => {
     const q = debouncedQ.trim();
@@ -122,6 +127,10 @@ export function FacetedSearch({
   const syncURL = useCallback(
     (next: SearchFilters) => {
       const params = searchParamsFromFilters(next);
+      // Em `/{slug}/cards` o jogo vem do path — não poluir a URL com ?game=.
+      if (isGameScopedSearchPath(searchBasePath)) {
+        params.delete("game");
+      }
       const qs = params.toString();
       router.replace(qs ? `${searchBasePath}?${qs}` : searchBasePath, { scroll: false });
     },
@@ -164,14 +173,16 @@ export function FacetedSearch({
 
   useEffect(() => {
     const fromUrl = filtersFromSearchParams(searchParams);
+    const scoped = lockGame || isGameScopedSearchPath(searchBasePath);
     setFilters({
       ...fromUrl,
       q: initialQuery || fromUrl.q,
-      game: initialGame || fromUrl.game,
+      // Path do TCG / lockGame: nunca herdar ?game= de outra origem (ex.: ?game=MTG em /lorcana/cards).
+      game: scoped && initialGame ? initialGame : initialGame || fromUrl.game,
       sortBy: fromUrl.sortBy ?? "relevance",
     });
     setDebouncedQ(initialQuery || fromUrl.q || "");
-  }, [searchParams, initialGame, initialQuery]);
+  }, [searchParams, initialGame, initialQuery, lockGame, searchBasePath]);
 
   useEffect(() => {
     if (!filters.set || availableSets.length === 0) return;
@@ -265,7 +276,7 @@ export function FacetedSearch({
             </div>
           </div>
 
-          {isError && (
+          {(isError || isDegraded) && (
             <InlineAlert
               className="mb-4"
               message={
@@ -281,7 +292,7 @@ export function FacetedSearch({
             cards={cards}
             viewMode={viewMode}
             isLoading={isLoading || isFetchingNextPage}
-            isError={isError}
+            isError={isError || isDegraded}
             hasMore={Boolean(hasNextPage)}
             onLoadMore={() => fetchNextPage()}
             onViewDetail={(id) => {
