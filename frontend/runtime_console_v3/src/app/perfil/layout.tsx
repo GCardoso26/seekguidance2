@@ -1,21 +1,27 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ProfileNav } from "@/components/profile-v2/ProfileNav";
+import { MobileLayout } from "@/components/layout/MobileLayout";
+import { isFeatureEnabled } from "@/lib/feature-flags";
+import { withCanonical } from "@/lib/page-metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withCanonical("/perfil", {
   title: "Meu Perfil",
-  description: "Gerencie seu perfil, coleção, pedidos e preferências no Judge TCG.",
+  description:
+    "Sua identidade como jogador no JudgeTCG — coleção, decks, marketplace, conquistas e jornada.",
   robots: { index: false, follow: false },
-};
+});
 
-const NAV = [
-  { href: "/perfil", label: "Perfil" },
-  { href: "/colecao", label: "Coleção" },
-  { href: "/perfil/pedidos", label: "Pedidos" },
-  { href: "/perfil/seguidos", label: "Seguidos" },
-  { href: "/perfil/alertas", label: "Alertas" },
-];
+/** Layout legado (pré Profile V2). */
+function LegacyPerfilLayout({ children }: { children: React.ReactNode }) {
+  const NAV = [
+    { href: "/perfil", label: "Perfil" },
+    { href: "/colecao", label: "Coleção" },
+    { href: "/perfil/pedidos", label: "Pedidos" },
+    { href: "/perfil/seguidos", label: "Seguidos" },
+    { href: "/perfil/alertas", label: "Alertas" },
+  ];
 
-export default function PerfilLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
       <nav
@@ -36,5 +42,20 @@ export default function PerfilLayout({ children }: { children: React.ReactNode }
       </nav>
       {children}
     </>
+  );
+}
+
+export default function PerfilLayout({ children }: { children: React.ReactNode }) {
+  if (!isFeatureEnabled("PLAYER_PROFILE_V2")) {
+    return <LegacyPerfilLayout>{children}</LegacyPerfilLayout>;
+  }
+
+  return (
+    <MobileLayout>
+      <div className="page-container py-6 lg:py-8">
+        <ProfileNav />
+        <div className="mt-6">{children}</div>
+      </div>
+    </MobileLayout>
   );
 }
