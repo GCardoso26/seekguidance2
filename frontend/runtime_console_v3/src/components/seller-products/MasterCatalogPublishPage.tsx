@@ -1,12 +1,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { toast } from "sonner";
+import { CardImage } from "@/components/ui/CardImage";
 import { PageHeader, PageShell } from "@/components/seller-dashboard/PageShell";
 import { SellerHeader } from "@/components/seller-dashboard/SellerHeader";
 import { useMasterProductSearch, usePublishMasterListing } from "@/hooks/useMasterProductCatalog";
+import { mediaTypeFromCategory } from "@/lib/assets";
 import { cn } from "@/lib/utils";
 
 const CONDITIONS = [
@@ -124,14 +125,18 @@ export function MasterCatalogPublishPage() {
                       )}
                     >
                       {item.image_url ? (
-                        <Image
-                          src={item.image_url}
-                          alt=""
-                          width={48}
-                          height={48}
-                          className="h-12 w-12 rounded object-contain"
-                          unoptimized
-                        />
+                        <span className="relative h-12 w-12 shrink-0 overflow-hidden rounded bg-muted/40">
+                          <CardImage
+                            src={item.image_url}
+                            alt={item.title_pt}
+                            fallbackLabel={item.title_pt.slice(0, 8)}
+                            mediaType={mediaTypeFromCategory(item.category)}
+                            fill
+                            listQuality
+                            className="object-contain"
+                            sizes="48px"
+                          />
+                        </span>
                       ) : (
                         <span className="flex h-12 w-12 items-center justify-center rounded bg-muted text-xs">
                           —

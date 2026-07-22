@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { CardImage } from "@/components/ui/CardImage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { mediaTypeFromCategory, primaryProductImageUrl } from "@/lib/assets";
 import { formatShopPrice } from "@/lib/marketplace-shop";
 import type { PdvProduct } from "@/types/pdv";
+import { useState } from "react";
 
 type Props = {
   products: PdvProduct[];
@@ -44,30 +46,48 @@ export function PdvProductSearch({ products, isLoading, onAdd, onSearch }: Props
             Nenhum produto. Digite ao menos 2 caracteres.
           </li>
         )}
-        {products.map((p) => (
-          <li
-            key={p.id}
-            className="flex items-center justify-between gap-3 rounded-lg border border-border p-3"
-            data-testid={`pdv-search-result-${p.id}`}
-          >
-            <div className="min-w-0">
-              <p className="truncate font-medium">{p.name}</p>
-              <p className="text-xs text-muted-foreground">
-                {formatShopPrice(p.price_cents)}
-                {p.sku ? ` · SKU ${p.sku}` : ""} · estoque {p.stock}
-              </p>
-            </div>
-            <Button
-              type="button"
-              size="sm"
-              disabled={p.stock <= 0}
-              onClick={() => onAdd(p)}
-              data-testid={`pdv-add-product-${p.id}`}
+        {products.map((p) => {
+          const thumb = primaryProductImageUrl(p.images);
+          const mediaType = mediaTypeFromCategory(p.category);
+          return (
+            <li
+              key={p.id}
+              className="flex items-center justify-between gap-3 rounded-lg border border-border p-3"
+              data-testid={`pdv-search-result-${p.id}`}
             >
-              +
-            </Button>
-          </li>
-        ))}
+              <div className="flex min-w-0 flex-1 items-center gap-3">
+                <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-md bg-muted/40">
+                  <CardImage
+                    src={thumb}
+                    alt={p.name}
+                    fallbackLabel={p.name.slice(0, 12)}
+                    mediaType={mediaType}
+                    fill
+                    listQuality
+                    className="object-contain"
+                    sizes="48px"
+                  />
+                </div>
+                <div className="min-w-0">
+                  <p className="truncate font-medium">{p.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {formatShopPrice(p.price_cents)}
+                    {p.sku ? ` · SKU ${p.sku}` : ""} · estoque {p.stock}
+                  </p>
+                </div>
+              </div>
+              <Button
+                type="button"
+                size="sm"
+                disabled={p.stock <= 0}
+                onClick={() => onAdd(p)}
+                data-testid={`pdv-add-product-${p.id}`}
+              >
+                +
+              </Button>
+            </li>
+          );
+        })}
       </ul>
     </div>
   );

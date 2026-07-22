@@ -5,6 +5,7 @@ import Link from "next/link";
 import { CardImage } from "@/components/ui/CardImage";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { mediaTypeFromCategory, primaryProductImageUrl } from "@/lib/assets";
 import { formatShopPrice, type ShopProduct } from "@/lib/marketplace-shop";
 import { WishlistButton } from "@/components/marketplace/WishlistButton";
 import { PriceAlertButton } from "@/components/marketplace/PriceAlertButton";
@@ -31,7 +32,8 @@ export function ProductCard({ product, onAdd }: Props) {
   useEffect(() => {
     setMounted(true);
   }, []);
-  const image = product.images?.[0];
+  const image = primaryProductImageUrl(product.images);
+  const mediaType = mediaTypeFromCategory(product.category);
   const gameToken = product.tcg_id ? GAME_TOKENS[product.tcg_id as GameId] : null;
   const showNew = mounted && isNewProduct(product.created_at, Date.now());
   const outOfStock = product.stock !== undefined && product.stock <= 0;
@@ -48,6 +50,7 @@ export function ProductCard({ product, onAdd }: Props) {
             src={image}
             alt={product.name}
             fallbackLabel={product.name}
+            mediaType={mediaType}
             fill
             listQuality
             className={cn(

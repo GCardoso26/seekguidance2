@@ -30,37 +30,86 @@ function normalizeSorceryImageUrl(url: string): string {
 }
 
 type CardImageSource = {
-  imageUris?: { normal?: string; small?: string; large?: string } | null;
-  image_uris?: { normal?: string; small?: string; large?: string } | null;
+  imageUris?: {
+    normal?: string;
+    small?: string;
+    large?: string;
+    full?: string;
+    thumb?: string;
+  } | null;
+  image_uris?: {
+    normal?: string;
+    small?: string;
+    large?: string;
+    full?: string;
+    thumb?: string;
+  } | null;
   image_url?: string | null;
   imageUrl?: string | null;
 };
 
-function pickImageUrl(...candidates: (string | null | undefined)[]): string | null {
-  for (const value of candidates) {
-    const trimmed = value?.trim();
-    if (trimmed) return trimmed;
-  }
-  return null;
-}
-
 function normalizeUris(
-  uris?: { normal?: string; small?: string; large?: string } | null,
-): { normal?: string; small?: string; large?: string } | null {
+  uris?: {
+    normal?: string;
+    small?: string;
+    large?: string;
+    full?: string;
+    thumb?: string;
+  } | null,
+): {
+  normal?: string;
+  small?: string;
+  large?: string;
+  full?: string;
+  thumb?: string;
+} | null {
   if (!uris) return null;
   return {
     normal: uris.normal,
     small: uris.small,
     large: uris.large,
+    full: uris.full,
+    thumb: uris.thumb,
   };
 }
 
-/** Resolve URL de imagem de carta (API, catálogo ou marketplace) com fallback local. */
+import { resolveCardAsset, resolveHdCardAsset } from "@/lib/assets/resolve-asset";
+
+/**
+ * Resolve URL de imagem de carta (Asset Pipeline V2).
+ * Prefere HD via resolveHdCardAsset; fallback legado image_url.
+ */
 export function cardImageUrl(card: CardImageSource): string {
   const uris = normalizeUris(card.imageUris) ?? normalizeUris(card.image_uris);
-  const raw =
-    pickImageUrl(uris?.normal, uris?.large, uris?.small, card.image_url, card.imageUrl) ??
-    CARD_IMAGE_PLACEHOLDER;
+  const resolved = resolveHdCardAsset(
+    {
+      thumb: uris?.thumb,
+      small: uris?.small,
+      medium: uris?.normal,
+      large: uris?.large,
+      full: uris?.full,
+    },
+    [card.image_url, card.imageUrl],
+  );
+  const raw = resolved?.src ?? CARD_IMAGE_PLACEHOLDER;
+  return normalizeSorceryImageUrl(raw);
+}
+
+/** Lista / grid — medium preferido; evita full desnecessário. */
+export function cardImageUrlForList(card: CardImageSource): string {
+  const uris = normalizeUris(card.imageUris) ?? normalizeUris(card.image_uris);
+  const resolved = resolveCardAsset(
+    {
+      thumb: uris?.thumb,
+      small: uris?.small,
+      medium: uris?.normal,
+      large: uris?.large,
+      full: uris?.full,
+    },
+    "medium",
+    [card.image_url, card.imageUrl, uris?.small, uris?.thumb],
+  );
+  const raw = resolved?.src ?? CARD_IMAGE_PLACEHOLDER;
   return normalizeSorceryImageUrl(raw);
 }
 

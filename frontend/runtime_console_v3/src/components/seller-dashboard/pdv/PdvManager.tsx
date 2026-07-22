@@ -68,6 +68,8 @@ export function PdvManager({ storeId, storeName }: Props) {
           name: product.name,
           price_cents: product.price_cents,
           quantity: 1,
+          image_url: product.images?.find((u) => Boolean(u?.trim()))?.trim() ?? null,
+          category: product.category ?? null,
         },
       ];
     });

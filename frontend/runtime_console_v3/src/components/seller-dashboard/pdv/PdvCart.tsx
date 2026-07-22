@@ -1,6 +1,8 @@
 "use client";
 
+import { CardImage } from "@/components/ui/CardImage";
 import { Button } from "@/components/ui/button";
+import { mediaTypeFromCategory } from "@/lib/assets";
 import { formatShopPrice } from "@/lib/marketplace-shop";
 import { cartTotalCents } from "@/lib/pdv-sale-form";
 import type { PdvCartItem } from "@/types/pdv";
@@ -27,10 +29,7 @@ export function PdvCart({
   const total = cartTotalCents(items);
 
   return (
-    <div
-      className="flex flex-col surface-card p-4"
-      data-testid="pdv-cart"
-    >
+    <div className="flex flex-col surface-card p-4" data-testid="pdv-cart">
       <h3 className="text-sm font-semibold uppercase text-muted-foreground">Carrinho</h3>
 
       {items.length === 0 ? (
@@ -46,11 +45,25 @@ export function PdvCart({
               data-testid={`pdv-cart-item-${item.product_id}`}
             >
               <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0 flex-1">
-                  <p className="truncate font-medium">{item.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {formatShopPrice(item.price_cents)} × {item.quantity}
-                  </p>
+                <div className="flex min-w-0 flex-1 items-start gap-2">
+                  <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded bg-muted/40">
+                    <CardImage
+                      src={item.image_url}
+                      alt={item.name}
+                      fallbackLabel={item.name.slice(0, 8)}
+                      mediaType={mediaTypeFromCategory(item.category)}
+                      fill
+                      listQuality
+                      className="object-contain"
+                      sizes="40px"
+                    />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-medium">{item.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {formatShopPrice(item.price_cents)} × {item.quantity}
+                    </p>
+                  </div>
                 </div>
                 <p className="shrink-0 font-semibold text-primary">
                   {formatShopPrice(item.price_cents * item.quantity)}

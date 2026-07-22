@@ -13,6 +13,9 @@ export type PdvCartItem = {
   name: string;
   price_cents: number;
   quantity: number;
+  /** Thumb URL for cart line (from product.images via Asset/legacy CDN). */
+  image_url?: string | null;
+  category?: string | null;
 };
 
 export type PdvPaymentMethod = "cash" | "pix" | "card";
