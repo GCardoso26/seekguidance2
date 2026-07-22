@@ -80,10 +80,14 @@ export function parseStoreSettingsForm(data: unknown) {
 }
 
 export function paymentSettingsToApiPayload(values: SellerPaymentSettingsFormValues) {
+  const hasPix = values.accepted_methods.includes("pix");
+  const hasCard = values.accepted_methods.includes("credit_card");
+  const payment_method_preference =
+    hasPix && hasCard ? "both" : hasCard ? "stripe" : "pix";
   return {
     pix_key: values.pix_key?.trim() ?? "",
     pix_key_type: values.pix_key_type,
-    payment_method_preference: values.accepted_methods.includes("pix") ? "pix" : "card",
+    payment_method_preference,
     accepted_methods: values.accepted_methods,
   };
 }

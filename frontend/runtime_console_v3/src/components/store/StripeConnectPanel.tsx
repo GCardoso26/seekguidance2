@@ -13,7 +13,13 @@ export function StripeConnectPanel({ storeId, store, loading, variant = "panel" 
   const [connecting, setConnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const isComplete = store?.stripe_onboarding_complete === true;
+  // Backend/PostgREST às vezes devolve bool como string ("true"/"t").
+  const rawComplete = store?.stripe_onboarding_complete;
+  const isComplete =
+    rawComplete === true ||
+    rawComplete === "true" ||
+    rawComplete === "t" ||
+    rawComplete === 1;
   const hasAccount = Boolean(store?.stripe_account_id);
 
   async function handleConnect() {

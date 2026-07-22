@@ -38,10 +38,15 @@ def _prefer_accounts_v2() -> bool:
     return mode != "v1"
 
 
-def _payments_return_urls(settings: Settings) -> tuple[str, str]:
+def _payments_return_urls(
+    settings: Settings,
+    store_id: str | None = None,
+) -> tuple[str, str]:
+    """URLs de retorno do Account Link. Inclui store_id para multi-loja."""
     base_url = (settings.marketplace_app_url or "https://judgetcg.com.br").rstrip("/")
-    refresh = f"{base_url}/vendedor/painel/configuracoes/pagamentos?onboarding=refresh"
-    ret = f"{base_url}/vendedor/painel/configuracoes/pagamentos?onboarding=success"
+    qs_store = f"&store_id={store_id}" if store_id else ""
+    refresh = f"{base_url}/vendedor/painel/configuracoes/pagamentos?onboarding=refresh{qs_store}"
+    ret = f"{base_url}/vendedor/painel/configuracoes/pagamentos?onboarding=success{qs_store}"
     return refresh, ret
 
 
@@ -420,7 +425,9 @@ async def start_connect_onboarding(
     store = dict(store)
     account_id = store.get("stripe_account_id")
     connect_api = "v1"
-    default_refresh, default_return = _payments_return_urls(settings)
+    default_refresh, default_return = _payments_return_urls(
+        settings, store_id=str(store["id"])
+    )
     refresh = refresh_url or default_refresh
     ret = return_url or default_return
 
@@ -631,13 +638,18 @@ async def refresh_connect_status(session: AsyncSession, store_id: str, owner_id:
         {"complete": complete, "id": store_id},
     )
     await session.commit()
+    # Sync KYC é auxiliar: nunca deve virar 500 depois do commit do Connect.
     from app.kyc.merchant_kyc import stripe_account_to_kyc_status, update_merchant_kyc_from_stripe
 
-    if used_v2 or (isinstance(account, dict) and account.get("_v2")):
-        kyc_status, reason = ("verified", None) if complete else ("pending", "awaiting_v2_requirements")
-    else:
-        kyc_status, reason = stripe_account_to_kyc_status(_stripe_account_as_dict(account))
+    kyc_status: str = "verified" if complete else "pending"
+    reason: str | None = None
     try:
+        if used_v2 or (isinstance(account, dict) and account.get("_v2")):
+            kyc_status, reason = (
+                ("verified", None) if complete else ("pending", "awaiting_v2_requirements")
+            )
+        else:
+            kyc_status, reason = stripe_account_to_kyc_status(_stripe_account_as_dict(account))
         await update_merchant_kyc_from_stripe(
             session,
             stripe_account_id=str(account_id),
@@ -647,6 +659,7 @@ async def refresh_connect_status(session: AsyncSession, store_id: str, owner_id:
         )
     except Exception as kyc_exc:
         logger.warning("refresh_connect_kyc_sync_failed", error=str(kyc_exc), account=account_id)
+        kyc_status = "verified" if complete else "pending"
     return {
         "complete": complete,
         "shop_enabled": complete or store.get("shop_enabled"),

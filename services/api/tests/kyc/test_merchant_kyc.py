@@ -52,3 +52,17 @@ def test_pending_verification_is_pending():
         }
     )
     assert status == "pending"
+
+
+def test_requirements_non_dict_does_not_raise():
+    """Stripe/SDK às vezes devolve requirements em formato inesperado — nunca 500."""
+    status, reason = stripe_account_to_kyc_status(
+        {"charges_enabled": True, "payouts_enabled": True, "requirements": ["weird"]}
+    )
+    assert status == "verified"
+    assert reason is None
+
+    status2, _ = stripe_account_to_kyc_status(
+        {"charges_enabled": False, "payouts_enabled": False, "requirements": None}
+    )
+    assert status2 in ("pending", "rejected", "restricted")

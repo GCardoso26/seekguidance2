@@ -4,6 +4,7 @@ import {
   parsePaymentSettingsForm,
   parseShippingSettingsForm,
   parseStoreSettingsForm,
+  paymentSettingsToApiPayload,
 } from "@/lib/seller-settings-forms";
 
 describe("seller-settings-forms", () => {
@@ -14,6 +15,30 @@ describe("seller-settings-forms", () => {
       accepted_methods: ["pix", "credit_card"],
     });
     expect(result.success).toBe(true);
+  });
+
+  it("mapeia preferência de pagamento para pix|stripe|both", () => {
+    expect(
+      paymentSettingsToApiPayload({
+        pix_key: "a@b.com",
+        pix_key_type: "email",
+        accepted_methods: ["pix", "credit_card"],
+      }).payment_method_preference,
+    ).toBe("both");
+    expect(
+      paymentSettingsToApiPayload({
+        pix_key: "",
+        pix_key_type: "email",
+        accepted_methods: ["credit_card"],
+      }).payment_method_preference,
+    ).toBe("stripe");
+    expect(
+      paymentSettingsToApiPayload({
+        pix_key: "11987654321",
+        pix_key_type: "phone",
+        accepted_methods: ["pix"],
+      }).payment_method_preference,
+    ).toBe("pix");
   });
 
   it("aceita regra de frete válida", () => {

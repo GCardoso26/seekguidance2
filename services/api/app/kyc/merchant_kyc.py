@@ -276,7 +276,8 @@ def stripe_account_to_kyc_status(account: dict[str, Any]) -> tuple[str, str | No
     Verified exige charges_enabled E payouts_enabled — evita marcar como aprovado
     quando a conta bancária ainda está pendente.
     """
-    requirements = account.get("requirements") or {}
+    raw_requirements = account.get("requirements") or {}
+    requirements = raw_requirements if isinstance(raw_requirements, dict) else {}
     disabled_reason = requirements.get("disabled_reason")
     currently_due = requirements.get("currently_due") or []
     pending_verification = requirements.get("pending_verification") or []
