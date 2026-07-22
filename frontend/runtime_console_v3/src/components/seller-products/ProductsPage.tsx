@@ -5,6 +5,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { PageHeader, PageShell } from "@/components/seller-dashboard/PageShell";
 import { SellerHeader } from "@/components/seller-dashboard/SellerHeader";
+import { ImageUpload } from "@/components/ui/ImageUpload";
 import {
   useCreateProduct,
   useDeleteProduct,
@@ -12,6 +13,8 @@ import {
   useUpdateProduct,
   type SellerProduct,
 } from "@/hooks/useSellerProducts";
+import { ingestProductAsset } from "@/lib/assets/ingest-client";
+import { mediaTypeFromCategory } from "@/lib/assets/product-media-type";
 import { formatShopPrice } from "@/lib/marketplace-shop";
 import { SELLER_PRODUCT_CATEGORIES } from "@/lib/seller-product-categories";
 import { cn } from "@/lib/utils";
@@ -24,6 +27,7 @@ export function ProductsPage() {
   const [price, setPrice] = useState("");
   const [qty, setQty] = useState("1");
   const [formCategory, setFormCategory] = useState("sleeve");
+  const [pendingImageUrl, setPendingImageUrl] = useState<string | undefined>();
 
   const { data, isLoading } = useSellerProducts(category || undefined);
   const createProduct = useCreateProduct();
@@ -36,6 +40,7 @@ export function ProductsPage() {
     setPrice("");
     setQty("1");
     setFormCategory("sleeve");
+    setPendingImageUrl(undefined);
     setShowForm(true);
   }
 
@@ -45,6 +50,7 @@ export function ProductsPage() {
     setPrice((p.price_cents / 100).toFixed(2));
     setQty(String(p.stock));
     setFormCategory(p.category || "sleeve");
+    setPendingImageUrl(undefined);
     setShowForm(true);
   }
 
@@ -77,21 +83,34 @@ export function ProductsPage() {
           category: formCategory,
           price: priceNum,
           quantity: qtyNum,
+          ...(pendingImageUrl ? { images: [pendingImageUrl] } : {}),
         });
         toast.success("Produto atualizado");
       } else {
-        await createProduct.mutateAsync({
+        const created = (await createProduct.mutateAsync({
           name: trimmed,
           category: formCategory,
           price: priceNum,
           quantity: qtyNum,
-        });
+        })) as { id?: string; product?: { id?: string } };
+        const productId = created?.product?.id ?? created?.id;
+        if (pendingImageUrl && productId) {
+          await ingestProductAsset({
+            sourceUrl: pendingImageUrl,
+            entityType: "store_product",
+            entityId: productId,
+            role: "front",
+            mediaType: mediaTypeFromCategory(formCategory),
+            alt: trimmed,
+          });
+        }
         toast.success("Cadastrado com sucesso");
       }
       setShowForm(false);
       setEditing(null);
       setName("");
       setPrice("");
+      setPendingImageUrl(undefined);
     } catch {
       toast.error(editing ? "Erro ao cadastrar" : "Erro ao cadastrar");
     }
@@ -206,6 +225,17 @@ export function ProductsPage() {
                 className="w-24 rounded-lg surface-card px-3 py-2 text-sm"
               />
             </div>
+            <ImageUpload
+              label="Imagem do produto"
+              previewUrl={pendingImageUrl}
+              entityType={editing ? "store_product" : undefined}
+              entityId={editing?.id}
+              role="front"
+              mediaType={mediaTypeFromCategory(formCategory)}
+              alt={name || "Produto"}
+              onUpload={(url) => setPendingImageUrl(url)}
+              onRemove={() => setPendingImageUrl(undefined)}
+            />
             <div className="flex gap-2">
               <button
                 type="submit"
@@ -219,6 +249,7 @@ export function ProductsPage() {
                 onClick={() => {
                   setShowForm(false);
                   setEditing(null);
+                  setPendingImageUrl(undefined);
                 }}
                 className="text-sm text-muted-foreground"
               >

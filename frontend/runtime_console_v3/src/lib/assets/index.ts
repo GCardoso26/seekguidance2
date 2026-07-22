@@ -37,3 +37,10 @@ export {
   mediaTypeFromCategory,
   primaryProductImageUrl,
 } from "./product-media-type";
+
+export {
+  ingestProductAsset,
+  unlinkProductAsset,
+  type AssetIngestInput,
+  type AssetIngestResult,
+} from "./ingest-client";

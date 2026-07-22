@@ -43,6 +43,7 @@ from app.api.v1.tournament_system import router as tournament_system_router
 from app.catalog.catalog_api import router as catalog_api_router
 from app.catalog.games_api import router as catalog_games_api_router
 from app.product_catalog.product_catalog_api import router as product_catalog_api_router
+from app.assets.assets_api import router as assets_api_router
 from app.pricing_platform.api import router as pricing_platform_api_router
 from app.marketplace_orchestrator.api import router as marketplace_orchestrator_api_router
 from app.config.sentry import init_sentry
@@ -359,6 +360,7 @@ app.include_router(carrier_api_router)
 app.include_router(catalog_api_router)
 app.include_router(catalog_games_api_router)
 app.include_router(product_catalog_api_router)
+app.include_router(assets_api_router)
 app.include_router(pricing_platform_api_router)
 app.include_router(marketplace_orchestrator_api_router)
 app.include_router(alerts_api_router)

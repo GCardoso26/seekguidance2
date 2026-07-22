@@ -106,7 +106,7 @@ export class PostgresAssetRepository {
       FROM media.asset_links l
       JOIN media.assets a ON a.id = l.asset_id
       WHERE l.entity_type = $1 AND l.entity_id = $2
-      ORDER BY CASE l.role WHEN 'primary' THEN 0 ELSE 1 END, l.sort_order
+      ORDER BY CASE l.role WHEN 'front' THEN 0 WHEN 'primary' THEN 0 ELSE 1 END, l.sort_order
       LIMIT 1
       `,
       [entityType, entityId],
@@ -116,6 +116,11 @@ export class PostgresAssetRepository {
 }
 
 function mapRow(row: Record<string, unknown>): AssetRecord {
+  const derivatives = (row.derivatives as Record<string, unknown>) ?? {};
+  const metaFromDeriv =
+    derivatives._meta && typeof derivatives._meta === "object"
+      ? (derivatives._meta as AssetRecord["metadata"])
+      : null;
   return {
     id: String(row.id),
     sha256: String(row.sha256),
@@ -126,7 +131,8 @@ function mapRow(row: Record<string, unknown>): AssetRecord {
     sizeBytes: row.size_bytes != null ? Number(row.size_bytes) : null,
     blurhash: row.blurhash as string | null,
     cdnUrl: row.cdn_url as string | null,
-    derivatives: (row.derivatives as Record<string, unknown>) ?? {},
+    derivatives,
+    metadata: metaFromDeriv,
   };
 }
 
@@ -139,6 +145,8 @@ export class AssetService {
       sourceUrl: input.sourceUrl,
       requestId: input.requestId,
       providerId: input.providerId,
+      mediaType: input.mediaType,
+      metadata: input.metadata,
     });
 
     const existing = await this.repo.findBySha256(processed.sha256);
@@ -153,6 +161,7 @@ export class AssetService {
       blurhash: processed.blurhash,
       cdnUrl: processed.cdnUrl,
       derivatives: processed.derivatives,
+      metadata: processed.metadata,
     });
 
     const linkCreated = await this.repo.linkAsset({
