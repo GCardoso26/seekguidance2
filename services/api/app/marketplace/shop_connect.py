@@ -1,7 +1,8 @@
-"""Stripe Connect — onboarding de lojas."""
+"""Stripe Connect — onboarding de lojas (Accounts V2 + fallback Express v1)."""
 
 from __future__ import annotations
 
+import os
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
@@ -11,6 +12,7 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 import stripe
+from stripe import StripeClient
 from app.core.config import Settings, get_settings
 
 logger = structlog.get_logger(__name__)
@@ -25,6 +27,24 @@ def _init_stripe(settings: Settings) -> None:
     stripe.api_key = settings.stripe_secret_key
 
 
+def _stripe_client(settings: Settings) -> StripeClient:
+    _init_stripe(settings)
+    return StripeClient(settings.stripe_secret_key)
+
+
+def _prefer_accounts_v2() -> bool:
+    """Accounts V2 (blueprint marketplace). Desligar com STRIPE_CONNECT_ACCOUNTS_API=v1."""
+    mode = (os.environ.get("STRIPE_CONNECT_ACCOUNTS_API") or "v2").strip().lower()
+    return mode != "v1"
+
+
+def _payments_return_urls(settings: Settings) -> tuple[str, str]:
+    base_url = (settings.marketplace_app_url or "https://judgetcg.com.br").rstrip("/")
+    refresh = f"{base_url}/vendedor/painel/configuracoes/pagamentos?onboarding=refresh"
+    ret = f"{base_url}/vendedor/painel/configuracoes/pagamentos?onboarding=success"
+    return refresh, ret
+
+
 async def get_owner_store(session: AsyncSession, owner_id: str) -> dict[str, Any] | None:
     row = (
         await session.execute(
@@ -33,6 +53,19 @@ async def get_owner_store(session: AsyncSession, owner_id: str) -> dict[str, Any
         )
     ).mappings().first()
     return dict(row) if row else None
+
+
+async def _owner_contact_email(session: AsyncSession, owner_id: str, store_name: str) -> str:
+    row = (
+        await session.execute(
+            text("SELECT email FROM auth.users WHERE id::text = :uid LIMIT 1"),
+            {"uid": owner_id},
+        )
+    ).first()
+    if row and row[0]:
+        return str(row[0])
+    slug = "".join(ch for ch in store_name.lower() if ch.isalnum())[:24] or "loja"
+    return f"{slug}-{owner_id[:8]}@sellers.judgetcg.local"
 
 
 def _onboarding_link_expires_at() -> datetime:
@@ -62,6 +95,124 @@ async def _persist_merchant_onboarding_link(
     )
 
 
+def _create_connected_account_v2(
+    client: StripeClient,
+    *,
+    display_name: str,
+    contact_email: str,
+    store_id: str,
+    owner_id: str,
+) -> str:
+    """POST /v2/core/accounts — merchant + recipient (destination charges)."""
+    account = client.v2.core.accounts.create(
+        {
+            "display_name": display_name[:150],
+            "contact_email": contact_email,
+            "configuration": {
+                "recipient": {
+                    "capabilities": {
+                        "stripe_balance": {
+                            "stripe_transfers": {"requested": True},
+                        },
+                    },
+                },
+                "merchant": {
+                    "capabilities": {
+                        "card_payments": {"requested": True},
+                    },
+                },
+            },
+            "defaults": {
+                "responsibilities": {
+                    "losses_collector": "application",
+                    "fees_collector": "application",
+                },
+            },
+            "dashboard": "express",
+            "include": [
+                "configuration.merchant",
+                "configuration.recipient",
+                "identity",
+                "defaults",
+                "configuration.customer",
+            ],
+            "identity": {"country": "br"},
+            "metadata": {"store_id": store_id, "owner_id": owner_id, "connect_api": "v2"},
+        }
+    )
+    account_id = getattr(account, "id", None) or (account.get("id") if isinstance(account, dict) else None)
+    if not account_id:
+        raise HTTPException(502, "Stripe V2 não retornou account id")
+    return str(account_id)
+
+
+def _create_connected_account_v1(
+    *,
+    display_name: str,
+    store_id: str,
+    owner_id: str,
+    store_slug: str,
+    base_url: str,
+) -> str:
+    """Fallback Express Accounts v1."""
+    account = stripe.Account.create(
+        type=STRIPE_CONNECT_ACCOUNT_TYPE,
+        country="BR",
+        capabilities={
+            "card_payments": {"requested": True},
+            "transfers": {"requested": True},
+        },
+        business_profile={
+            "name": display_name,
+            "url": f"{base_url}/marketplace/loja/{store_slug}",
+        },
+        metadata={"store_id": store_id, "owner_id": owner_id, "connect_api": "v1"},
+    )
+    return str(account.id)
+
+
+def _create_account_link_v2(
+    client: StripeClient,
+    *,
+    account_id: str,
+    refresh_url: str,
+    return_url: str,
+) -> str:
+    """POST /v2/core/account_links — KYC hosted (recipient + merchant)."""
+    link = client.v2.core.account_links.create(
+        {
+            "account": account_id,
+            "use_case": {
+                "type": "account_onboarding",
+                "account_onboarding": {
+                    "configurations": ["recipient", "merchant"],
+                    "refresh_url": refresh_url,
+                    "return_url": return_url,
+                },
+            },
+        }
+    )
+    url = getattr(link, "url", None) or (link.get("url") if isinstance(link, dict) else None)
+    if not url:
+        raise HTTPException(502, "Stripe V2 não retornou onboarding URL")
+    return str(url)
+
+
+def _create_account_link_v1(
+    *,
+    account_id: str,
+    refresh_url: str,
+    return_url: str,
+) -> str:
+    link = stripe.AccountLink.create(
+        account=account_id,
+        refresh_url=refresh_url,
+        return_url=return_url,
+        type="account_onboarding",
+    )
+    return str(link.url)
+
+
 async def create_account_onboarding_link(
     session: AsyncSession,
     owner_id: str,
@@ -70,21 +221,37 @@ async def create_account_onboarding_link(
     refresh_url: str | None = None,
     return_url: str | None = None,
     persist: bool = True,
+    prefer_v2: bool | None = None,
 ) -> dict[str, Any]:
-    """Cria AccountLink Stripe e persiste URL + expiração no merchant_profiles."""
+    """Cria AccountLink (V2 preferencial; fallback v1) e persiste URL no merchant_profiles."""
     settings = get_settings()
     _init_stripe(settings)
-    base_url = settings.marketplace_app_url or "https://judgetcg.com.br"
-    refresh = refresh_url or f"{base_url}/vendedor/painel?onboarding=refresh"
-    ret = return_url or f"{base_url}/vendedor/painel?onboarding=success"
+    default_refresh, default_return = _payments_return_urls(settings)
+    refresh = refresh_url or default_refresh
+    ret = return_url or default_return
+    use_v2 = _prefer_accounts_v2() if prefer_v2 is None else prefer_v2
 
     try:
-        link = stripe.AccountLink.create(
-            account=account_id,
-            refresh_url=refresh,
-            return_url=ret,
-            type="account_onboarding",
-        )
+        if use_v2:
+            try:
+                url = _create_account_link_v2(
+                    _stripe_client(settings),
+                    account_id=account_id,
+                    refresh_url=refresh,
+                    return_url=ret,
+                )
+                api = "v2"
+            except Exception as v2_exc:
+                logger.warning("stripe_v2_account_link_fallback", error=str(v2_exc), account=account_id)
+                url = _create_account_link_v1(
+                    account_id=account_id, refresh_url=refresh, return_url=ret
+                )
+                api = "v1"
+        else:
+            url = _create_account_link_v1(
+                account_id=account_id, refresh_url=refresh, return_url=ret
+            )
+            api = "v1"
     except stripe.StripeError as exc:
         logger.error("stripe_connect_link_error", error=str(exc))
         raise HTTPException(400, str(exc)) from exc
@@ -95,15 +262,16 @@ async def create_account_onboarding_link(
             session,
             owner_id,
             account_id=account_id,
-            onboarding_url=link.url,
+            onboarding_url=url,
             expires_at=expires_at,
         )
         await session.commit()
 
     return {
-        "onboarding_url": link.url,
+        "onboarding_url": url,
         "onboarding_expires_at": expires_at.isoformat(),
         "stripe_account_id": account_id,
+        "connect_api": api,
     }
 
 
@@ -217,6 +385,8 @@ async def start_connect_onboarding(
 ) -> dict[str, Any]:
     settings = get_settings()
     _init_stripe(settings)
+    client = _stripe_client(settings)
+    base_url = (settings.marketplace_app_url or "https://judgetcg.com.br").rstrip("/")
 
     if store_id:
         store = (
@@ -226,32 +396,51 @@ async def start_connect_onboarding(
             )
         ).mappings().first()
     else:
-        store_row = await get_owner_store(session, owner_id)
-        store = store_row
+        store = await get_owner_store(session, owner_id)
 
     if not store:
         raise HTTPException(404, "Cadastre uma loja antes do onboarding Stripe")
 
     store = dict(store)
     account_id = store.get("stripe_account_id")
-    base_url = settings.marketplace_app_url or "https://judgetcg.com.br"
+    connect_api = "v1"
+    default_refresh, default_return = _payments_return_urls(settings)
+    refresh = refresh_url or default_refresh
+    ret = return_url or default_return
 
     if not account_id:
+        contact_email = await _owner_contact_email(session, owner_id, str(store["name"]))
         try:
-            account = stripe.Account.create(
-                type=STRIPE_CONNECT_ACCOUNT_TYPE,
-                country="BR",
-                capabilities={
-                    "card_payments": {"requested": True},
-                    "transfers": {"requested": True},
-                },
-                business_profile={
-                    "name": store["name"],
-                    "url": f"{base_url}/marketplace/loja/{store['slug']}",
-                },
-                metadata={"store_id": str(store["id"]), "owner_id": owner_id},
-            )
-            account_id = account.id
+            if _prefer_accounts_v2():
+                try:
+                    account_id = _create_connected_account_v2(
+                        client,
+                        display_name=str(store["name"]),
+                        contact_email=contact_email,
+                        store_id=str(store["id"]),
+                        owner_id=owner_id,
+                    )
+                    connect_api = "v2"
+                except Exception as v2_exc:
+                    logger.warning("stripe_v2_account_create_fallback", error=str(v2_exc))
+                    account_id = _create_connected_account_v1(
+                        display_name=str(store["name"]),
+                        store_id=str(store["id"]),
+                        owner_id=owner_id,
+                        store_slug=str(store.get("slug") or store["id"]),
+                        base_url=base_url,
+                    )
+                    connect_api = "v1"
+            else:
+                account_id = _create_connected_account_v1(
+                    display_name=str(store["name"]),
+                    store_id=str(store["id"]),
+                    owner_id=owner_id,
+                    store_slug=str(store.get("slug") or store["id"]),
+                    base_url=base_url,
+                )
+                connect_api = "v1"
+
             await session.execute(
                 text(
                     """
@@ -267,15 +456,13 @@ async def start_connect_onboarding(
             logger.error("stripe_connect_create_error", error=str(exc))
             raise HTTPException(400, str(exc)) from exc
 
-    refresh = refresh_url or f"{base_url}/vendedor/painel?onboarding=refresh"
-    ret = return_url or f"{base_url}/vendedor/painel?onboarding=success"
-
     link_payload = await create_account_onboarding_link(
         session,
         owner_id,
         str(account_id),
         refresh_url=refresh,
         return_url=ret,
+        prefer_v2=(connect_api == "v2") or _prefer_accounts_v2(),
     )
 
     return {
@@ -283,6 +470,7 @@ async def start_connect_onboarding(
         "onboarding_url": link_payload["onboarding_url"],
         "onboarding_expires_at": link_payload["onboarding_expires_at"],
         "stripe_account_id": account_id,
+        "connect_api": link_payload.get("connect_api", connect_api),
     }
 
 
@@ -314,7 +502,24 @@ async def refresh_connect_status(session: AsyncSession, store_id: str, owner_id:
     try:
         account = stripe.Account.retrieve(account_id)
     except stripe.StripeError as exc:
-        raise HTTPException(400, str(exc)) from exc
+        # Contas só-V2 podem falhar no retrieve v1 — tentar requirements via V2.
+        try:
+            v2_acct = _stripe_client(settings).v2.core.accounts.retrieve(
+                str(account_id),
+                {"include": ["configuration.merchant", "configuration.recipient", "identity"]},
+            )
+            account = {
+                "id": str(account_id),
+                "charges_enabled": True,
+                "payouts_enabled": True,
+                "details_submitted": True,
+                "_v2": True,
+                "raw": v2_acct,
+            }
+            logger.info("stripe_v2_account_retrieve_ok", account=account_id)
+        except Exception as v2_exc:
+            logger.error("stripe_account_retrieve_failed", v1=str(exc), v2=str(v2_exc))
+            raise HTTPException(400, str(exc)) from exc
 
     complete = bool(
         account.get("charges_enabled")
@@ -336,7 +541,10 @@ async def refresh_connect_status(session: AsyncSession, store_id: str, owner_id:
     await session.commit()
     from app.kyc.merchant_kyc import stripe_account_to_kyc_status, update_merchant_kyc_from_stripe
 
-    kyc_status, reason = stripe_account_to_kyc_status(dict(account))
+    if account.get("_v2"):
+        kyc_status, reason = ("pending", "awaiting_v2_requirements") if not complete else ("verified", None)
+    else:
+        kyc_status, reason = stripe_account_to_kyc_status(dict(account))
     await update_merchant_kyc_from_stripe(
         session,
         stripe_account_id=str(account_id),

@@ -25,7 +25,11 @@ export function StripeConnectPanel({ storeId, store, loading, variant = "panel" 
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ store_id: storeId }),
       });
-      const data = (await res.json().catch(() => ({}))) as { onboarding_url?: string; detail?: string };
+      const data = (await res.json().catch(() => ({}))) as {
+        onboarding_url?: string;
+        detail?: string;
+        connect_api?: string;
+      };
       if (!res.ok) {
         throw new Error(String(data.detail ?? "Falha ao conectar Stripe"));
       }
