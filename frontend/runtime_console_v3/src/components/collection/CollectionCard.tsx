@@ -1,10 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import { Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CardImage } from "@/components/ui/CardImage";
 import { cardImageUrl } from "@/lib/format-currency";
-import type { CollectionItem } from "@/hooks/useDeck";
+import { useMyDecks, type CollectionItem } from "@/hooks/useDeck";
 import type { UnifiedCard } from "@/types/card";
 
 interface CollectionCardProps {
@@ -34,6 +35,20 @@ function toUnifiedCard(item: CollectionItem): UnifiedCard {
 
 export function CollectionCard({ item, onEdit, onRemove, busy }: CollectionCardProps) {
   const card = toUnifiedCard(item);
+  const { data: decks = [] } = useMyDecks();
+  const usedIn = decks.filter((d) =>
+    [...(d.main_deck ?? []), ...(d.sideboard ?? []), ...(d.commander ?? [])].some(
+      (c) => c.card_id === item.card_id,
+    ),
+  );
+  const usedQty = usedIn.reduce((sum, d) => {
+    const entries = [...(d.main_deck ?? []), ...(d.sideboard ?? []), ...(d.commander ?? [])];
+    return (
+      sum +
+      entries.filter((c) => c.card_id === item.card_id).reduce((s, c) => s + c.quantity, 0)
+    );
+  }, 0);
+  const available = Math.max(0, item.quantity - usedQty);
 
   return (
     <li className="flex items-center gap-4 surface-card p-4">
@@ -55,6 +70,29 @@ export function CollectionCard({ item, onEdit, onRemove, busy }: CollectionCardP
           {item.is_foil ? " · Foil" : ""}
         </p>
         <p className="text-xs text-primary">Quantidade: {item.quantity}</p>
+        <p className="mt-1 text-xs text-muted-foreground" data-testid="collection-used-in">
+          Usada em:{" "}
+          {usedIn.length === 0 ? (
+            "nenhum deck"
+          ) : (
+            <>
+              {usedIn.slice(0, 3).map((d, i) => (
+                <span key={d.id}>
+                  {i > 0 ? ", " : ""}
+                  <Link href={`/decks/${d.id}`} className="text-primary hover:underline">
+                    {d.name}
+                  </Link>
+                </span>
+              ))}
+              {usedIn.length > 3 ? ` +${usedIn.length - 3}` : ""}
+              {` · ${usedQty} em decks · ${available} disponíveis`}
+            </>
+          )}
+          {" · "}
+          <Link href="/colecao/faltantes" className="text-primary hover:underline">
+            Comprar faltantes
+          </Link>
+        </p>
       </div>
       <div className="flex gap-2">
         <Button type="button" size="sm" variant="outline" onClick={() => onEdit(item)} disabled={busy}>

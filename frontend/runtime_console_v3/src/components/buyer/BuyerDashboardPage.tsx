@@ -128,7 +128,7 @@ export function BuyerDashboardPage() {
         <StatCard
           label="Coleção"
           value={`${data.collection.unique_cards} cartas`}
-          href="/perfil/colecao"
+          href="/colecao"
           icon={Layers}
         />
         <StatCard

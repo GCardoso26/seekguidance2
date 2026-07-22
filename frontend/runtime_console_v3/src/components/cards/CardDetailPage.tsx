@@ -48,6 +48,8 @@ const CardDecksSection = dynamic(
 );
 import { CardAiAdvisorSlots } from "@/components/cards/CardAiAdvisorSlots";
 import { CardRelatedProductsSection } from "@/components/cards/CardRelatedProductsSection";
+import { CardCollectionStatus } from "@/components/cards/CardCollectionStatus";
+import { CardDeckUsage } from "@/components/cards/CardDeckUsage";
 import { formatRarityDisplay } from "@/lib/game-config/rarity";
 import { gameCardsPath, gameLandingPath } from "@/lib/game-routes";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
@@ -225,6 +227,13 @@ export function CardDetailPage({ cardId }: CardDetailPageProps) {
                   <CardActions card={card} />
                   <AnnounceCardCta card={card} />
                 </div>
+
+                <CardCollectionStatus
+                  cardId={card.id}
+                  cardName={card.name}
+                  productId={card.productId}
+                />
+                <CardDeckUsage card={card} />
               </div>
 
               <CardJudgeInsights card={card} cardId={cardId} className="lg:hidden" />

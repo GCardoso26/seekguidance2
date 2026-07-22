@@ -13,7 +13,7 @@ import {
 
 const LINKS = [
   {
-    href: "/perfil/colecao",
+    href: "/colecao",
     label: "Continue sua coleção",
     hint: "Progresso e inventário",
     icon: BookMarked,

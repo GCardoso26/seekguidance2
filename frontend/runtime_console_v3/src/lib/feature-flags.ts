@@ -9,6 +9,9 @@ export const FEATURES = {
   FINANCE_DASHBOARD: process.env.NEXT_PUBLIC_FEATURE_FINANCE_DASHBOARD !== "false",
   WISHLIST_V2: process.env.NEXT_PUBLIC_FEATURE_WISHLIST_V2 !== "false",
   SHIPPING_V2: process.env.NEXT_PUBLIC_FEATURE_SHIPPING_V2 !== "false",
+  COLLECTION_V2: process.env.NEXT_PUBLIC_FEATURE_COLLECTION_V2 !== "false",
+  COLLECTION_ALERTS: process.env.NEXT_PUBLIC_FEATURE_COLLECTION_ALERTS !== "false",
+  DECK_V2: process.env.NEXT_PUBLIC_FEATURE_DECK_V2 !== "false",
 } as const;
 
 export type FeatureKey = keyof typeof FEATURES;

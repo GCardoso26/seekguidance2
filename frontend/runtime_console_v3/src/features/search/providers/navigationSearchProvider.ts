@@ -25,7 +25,7 @@ const NAV_ITEMS: NavItem[] = [
   { title: "Painel do comprador", href: "/comprador", keywords: ["comprador", "buyer", "dashboard", "painel"], surfaces: ["marketplace", "public"] },
   { title: "Wishlist", href: "/wishlist", keywords: ["wishlist", "desejos", "favoritos"], surfaces: ["marketplace", "public"] },
   { title: "Carrinho", href: "/carrinho", keywords: ["carrinho", "cart", "checkout"], surfaces: ["marketplace", "public"] },
-  { title: "Minha coleção", href: "/perfil/colecao", keywords: ["colecao", "collection"], surfaces: ["marketplace", "public"] },
+  { title: "Minha coleção", href: "/colecao", keywords: ["colecao", "collection"], surfaces: ["marketplace", "public"] },
   { title: "Decks", href: "/decks", keywords: ["deck", "deckbuilder"], surfaces: ["marketplace", "public"] },
   { title: "Judge IA", href: "/judge", keywords: ["judge", "regras", "ia"], surfaces: ["judge", "public"] },
   { title: "Regras", href: "/regras", keywords: ["regras", "rules"], surfaces: ["judge", "public"] },

@@ -101,7 +101,7 @@ export function UserMenu({ onHistoryClick }: Props = {}) {
             </Link>
           </DropdownMenu.Item>
           <DropdownMenu.Item asChild>
-            <Link href="/perfil/colecao" className={itemClass}>
+            <Link href="/colecao" className={itemClass}>
               <Heart className="h-4 w-4" aria-hidden />
               Coleção
             </Link>

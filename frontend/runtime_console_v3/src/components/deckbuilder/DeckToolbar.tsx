@@ -63,7 +63,7 @@ export function DeckToolbar({ deck, format, onImport, onSaved, showBuy = false }
         )}
 
         <Button type="button" variant="outline" size="sm" onClick={() => router.push(`/decks/${deck.id}`)}>
-          Ver deck
+          Workspace
         </Button>
 
         {showBuy && <BuyDeckButton deck={deck} />}

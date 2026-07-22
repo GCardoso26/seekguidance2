@@ -10,9 +10,52 @@ export function exportToMTGO(main: DeckCardEntry[], sideboard: DeckCardEntry[]):
   return [mainText, sbText].filter(Boolean).join("\n\n");
 }
 
-export function exportDeckFull(deck: Deck, format: "text" | "mtgo" = "text"): string {
+export function exportDeckFull(
+  deck: Deck,
+  format: "text" | "mtgo" | "json" | "csv" | "judgetcg" = "text",
+): string {
   if (format === "mtgo") {
     return exportToMTGO(deck.main_deck, deck.sideboard);
+  }
+  if (format === "csv") {
+    const rows = ["zone,quantity,name,card_id"];
+    const push = (zone: string, entries: DeckCardEntry[]) => {
+      for (const e of entries) {
+        rows.push(
+          `${zone},${e.quantity},"${(e.card.name || "").replace(/"/g, '""')}",${e.card_id}`,
+        );
+      }
+    };
+    push("main", deck.main_deck);
+    push("sideboard", deck.sideboard);
+    push("commander", deck.commander);
+    return rows.join("\n");
+  }
+  if (format === "json" || format === "judgetcg") {
+    return JSON.stringify(
+      {
+        name: deck.name,
+        game: deck.game,
+        format: deck.format,
+        main: deck.main_deck.map((e) => ({
+          name: e.card.name,
+          quantity: e.quantity,
+          card_id: e.card_id,
+        })),
+        sideboard: deck.sideboard.map((e) => ({
+          name: e.card.name,
+          quantity: e.quantity,
+          card_id: e.card_id,
+        })),
+        commander: deck.commander.map((e) => ({
+          name: e.card.name,
+          quantity: e.quantity,
+          card_id: e.card_id,
+        })),
+      },
+      null,
+      2,
+    );
   }
   const sections: string[] = [];
   if (deck.commander.length > 0) {

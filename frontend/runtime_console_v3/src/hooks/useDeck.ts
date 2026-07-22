@@ -225,6 +225,7 @@ export function useAddToCollection() {
     },
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ["user-collection"] });
+      void qc.invalidateQueries({ queryKey: ["user-collection-insights"] });
     },
   });
 }
@@ -251,6 +252,7 @@ export function useUpdateCollectionItem() {
     },
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ["user-collection"] });
+      void qc.invalidateQueries({ queryKey: ["user-collection-insights"] });
     },
   });
 }
@@ -265,6 +267,7 @@ export function useRemoveCollectionItem() {
     },
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ["user-collection"] });
+      void qc.invalidateQueries({ queryKey: ["user-collection-insights"] });
     },
   });
 }

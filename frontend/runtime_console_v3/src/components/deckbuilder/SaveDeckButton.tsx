@@ -5,6 +5,7 @@ import { Loader2, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DeckValidationModal } from "./DeckValidationModal";
 import { useValidateDeck } from "@/hooks/useDeck";
+import { useDeckRevisions } from "@/hooks/useDeckRevisions";
 import type { Deck, DeckFormat } from "@/types/deck";
 import type { ValidationResult } from "@/lib/deck-validation";
 
@@ -16,6 +17,7 @@ interface SaveDeckButtonProps {
 
 export function SaveDeckButton({ deck, format, onSaved }: SaveDeckButtonProps) {
   const validateDeck = useValidateDeck(deck.id);
+  const { record } = useDeckRevisions(deck.id);
   const [showModal, setShowModal] = useState(false);
   const [lastValidation, setLastValidation] = useState<ValidationResult | null>(null);
   const [toast, setToast] = useState<string | null>(null);
@@ -26,6 +28,7 @@ export function SaveDeckButton({ deck, format, onSaved }: SaveDeckButtonProps) {
     try {
       const validation = await validateDeck.mutateAsync();
       setLastValidation(validation);
+      record(deck, validation.isValid ? "Salvar (válido)" : "Salvar (rascunho)");
       onSaved?.(validation);
 
       if (validation.isValid) {
@@ -43,6 +46,7 @@ export function SaveDeckButton({ deck, format, onSaved }: SaveDeckButtonProps) {
 
   const handleSaveDraft = () => {
     setShowModal(false);
+    record(deck, "Salvar como rascunho");
     setToast("Deck salvo como rascunho");
     setTimeout(() => setToast(null), 4000);
   };

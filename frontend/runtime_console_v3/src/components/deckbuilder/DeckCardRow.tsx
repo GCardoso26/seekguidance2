@@ -1,10 +1,11 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import type { DeckCardEntry } from "@/types/deck";
-import { cardImageUrl } from "@/lib/format-currency";
-import { formatCurrency } from "@/lib/format-currency";
+import { cardImageUrl, formatCurrency } from "@/lib/format-currency";
+import { useUserCollection } from "@/hooks/useDeck";
 
 interface DeckCardRowProps {
   deckCard: DeckCardEntry;
@@ -20,6 +21,11 @@ export function DeckCardRow({
   disabled,
 }: DeckCardRowProps) {
   const imageSrc = cardImageUrl(deckCard.card);
+  const { data: collection = [] } = useUserCollection();
+  const have = collection
+    .filter((c) => c.card_id === deckCard.card_id)
+    .reduce((s, c) => s + c.quantity, 0);
+  const need = Math.max(0, deckCard.quantity - have);
 
   return (
     <div className="flex items-center gap-3 surface-card rounded-lg p-2 hover:bg-muted">
@@ -40,6 +46,23 @@ export function DeckCardRow({
           {deckCard.card.lowestPrice !== null && deckCard.card.lowestPrice !== undefined
             ? ` · ${formatCurrency(deckCard.card.lowestPrice)}`
             : " · preço indisponível"}
+        </p>
+        <p className="truncate text-xs" data-testid="deck-card-collection-status">
+          {need === 0 ? (
+            <span className="text-success">Tenho ✓</span>
+          ) : (
+            <span className="text-amber-600 dark:text-amber-400">Preciso de {need}</span>
+          )}
+          {have > deckCard.quantity ? (
+            <span className="text-muted-foreground"> · Duplicada</span>
+          ) : null}
+          {" · "}
+          <Link
+            href={`/loja/busca?q=${encodeURIComponent(deckCard.card.name)}`}
+            className="text-primary hover:underline"
+          >
+            Comprar
+          </Link>
         </p>
       </div>
 

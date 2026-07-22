@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { parseDeckList, resolveCards, type ParsedCard } from "@/lib/deck-parser";
+import { resolveCards, type ParsedCard } from "@/lib/deck-parser";
+import { DECK_IMPORTERS, runImporter, type DeckImportFormat } from "@/lib/deck-importers";
 import type { DeckFormatRules } from "@/lib/deck-validation";
 import type { DeckBuilderZoneId } from "@/types/deck";
 import { ImportPreview } from "./ImportPreview";
@@ -26,6 +27,7 @@ export function ImportDeckModal({
   busy,
 }: ImportDeckModalProps) {
   const [input, setInput] = useState("");
+  const [format, setFormat] = useState<DeckImportFormat>("txt");
   const [preview, setPreview] = useState<ParsedCard[]>([]);
   const [resolving, setResolving] = useState(false);
 
@@ -33,11 +35,12 @@ export function ImportDeckModal({
     if (!open) {
       setInput("");
       setPreview([]);
+      setFormat("txt");
     }
   }, [open]);
 
   const handlePreview = async () => {
-    const parsed = parseDeckList(input);
+    const parsed = runImporter(format, input);
     setResolving(true);
     try {
       const resolved = await resolveCards(parsed, gameCode, formatRules);
@@ -69,7 +72,22 @@ export function ImportDeckModal({
 
         <div className="flex-1 space-y-4 overflow-y-auto p-4">
           <label className="block text-sm text-muted-foreground">
-            Cole sua lista (ex: 4 Lightning Bolt ou SB: 3 Pyroblast)
+            Formato
+            <select
+              className="mt-2 w-full rounded-md border border-border bg-card px-3 py-2 text-sm text-foreground"
+              value={format}
+              onChange={(e) => setFormat(e.target.value as DeckImportFormat)}
+            >
+              {DECK_IMPORTERS.map((imp) => (
+                <option key={imp.id} value={imp.id}>
+                  {imp.label} — {imp.description}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="block text-sm text-muted-foreground">
+            Cole a lista (Importer → Normalizer → Catalog IDs)
             <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -79,27 +97,21 @@ export function ImportDeckModal({
             />
           </label>
 
-          <Button type="button" variant="outline" size="sm" onClick={() => void handlePreview()} disabled={resolving || !input.trim()}>
-            {resolving ? "Resolvendo..." : "Atualizar preview"}
-          </Button>
-
-          <div>
-            <h3 className="mb-2 text-sm font-medium text-foreground">Preview</h3>
-            <ImportPreview items={preview} />
+          <div className="flex gap-2">
+            <Button type="button" onClick={() => void handlePreview()} disabled={!input.trim() || resolving}>
+              {resolving ? "Resolvendo…" : "Pré-visualizar"}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={importable.length === 0 || busy}
+              onClick={() => void handleImport()}
+            >
+              Importar {importable.length > 0 ? `(${importable.length})` : ""}
+            </Button>
           </div>
-        </div>
 
-        <div className="flex justify-end gap-2 border-t border-border p-4">
-          <Button type="button" variant="outline" onClick={onClose}>
-            Cancelar
-          </Button>
-          <Button
-            type="button"
-            onClick={() => void handleImport()}
-            disabled={busy || importable.length === 0}
-          >
-            Importar ({importable.length})
-          </Button>
+          {preview.length > 0 && <ImportPreview items={preview} />}
         </div>
       </div>
     </div>

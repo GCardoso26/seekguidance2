@@ -90,6 +90,8 @@ export interface UnifiedCard {
   colors?: string[] | string | null;
   power?: string | null;
   toughness?: string | null;
+  /** Marketplace product link when available */
+  productId?: string;
 }
 
 export interface CardMarketSummary {
