@@ -39,6 +39,12 @@ async def list_owner_stores(session: AsyncSession, owner_id: str) -> list[dict[s
                 WHERE owner_id = :oid
                 ORDER BY
                   CASE WHEN shop_enabled THEN 0 ELSE 1 END,
+                  CASE lower(COALESCE(subscription_plan, 'free'))
+                    WHEN 'enterprise' THEN 0
+                    WHEN 'pro' THEN 1
+                    WHEN 'lojista' THEN 2
+                    ELSE 3
+                  END,
                   created_at DESC
                 """
             ),

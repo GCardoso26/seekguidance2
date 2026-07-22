@@ -46,6 +46,34 @@ async function runBatch(label, urls) {
   return { label, ...stats(latencies), sample: latencies.slice(0, 5) };
 }
 
+async function resolvePdpCardIds() {
+  // PDP exige UUID de catálogo — slugs tipo "rapunzel" geram 404 (PDV-BUG-002).
+  const queries = ["lightning", "charizard", "pikachu", "Rapunzel", "sol ring"];
+  const ids = [];
+  for (const q of queries) {
+    try {
+      const res = await fetch(
+        `${BASE}/api/catalog/cards/search?q=${encodeURIComponent(q)}&limit=3`,
+        { signal: AbortSignal.timeout(12_000) },
+      );
+      if (!res.ok) continue;
+      const data = await res.json();
+      const cards = Array.isArray(data?.cards) ? data.cards : [];
+      for (const c of cards) {
+        if (c?.id && !ids.includes(c.id)) ids.push(String(c.id));
+      }
+    } catch {
+      /* try next query */
+    }
+    if (ids.length >= 5) break;
+  }
+  // Fallback conhecido (evidência UNIVERSAL_CARD_PAGE_REPORT) se search falhar offline.
+  if (ids.length === 0) {
+    ids.push("e814cff3-496c-4849-88da-a0594d48af64");
+  }
+  return ids;
+}
+
 async function main() {
   const scale = Number(process.env.RENATO_SCALE || "1");
   const nSearch = Math.max(1, Math.round(100 * scale));
@@ -57,8 +85,10 @@ async function main() {
   const searchUrls = Array.from({ length: nSearch }, (_, i) =>
     `${BASE}/search?q=${encodeURIComponent(queries[i % queries.length])}`,
   );
+  const cardIds = await resolvePdpCardIds();
+  // Mantém estrutura /loja/cartas/{cardId} — corrige apenas o seed (UUID real).
   const pdpUrls = Array.from({ length: nPdp }, (_, i) =>
-    `${BASE}/loja/cartas/${encodeURIComponent(["rapunzel", "charizard", "pikachu"][i % 3])}`,
+    `${BASE}/loja/cartas/${encodeURIComponent(cardIds[i % cardIds.length])}`,
   );
   const filterUrls = Array.from({ length: nFilter }, (_, i) =>
     `${BASE}/search?q=charizard&game=${encodeURIComponent(["lorcana", "pokemon", "magic"][i % 3])}`,

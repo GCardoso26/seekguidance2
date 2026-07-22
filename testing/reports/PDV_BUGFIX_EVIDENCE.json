@@ -1,0 +1,83 @@
+{
+  "sprint": "STABILIZATION_PDV_BUGFIX",
+  "generatedAt": "2026-07-22T21:52:00.000Z",
+  "adrs": ["ADR-008", "ADR-009", "ADR-010", "ADR-011", "ADR-015"],
+  "architectureChanges": false,
+  "domainRuleChanges": false,
+  "bugs": [
+    {
+      "id": "PDV-BUG-003",
+      "priority": "P0",
+      "title": "Stripe Connect refresh 500 / checkout 400 / multi-loja PIX",
+      "status": "FIXED_IN_CODE",
+      "liveAuthValidation": "NÃO COMPROVADO",
+      "rootCause": "Stripe SDK15 Account.get + store selection mismatch",
+      "filesModified": [
+        "services/api/app/marketplace/shop_connect.py",
+        "services/api/app/stores/store.py",
+        "services/api/tests/marketplace/test_stripe_connect_sdk15.py"
+      ],
+      "priorFixCommit": "d173feb1",
+      "tests": {
+        "pytest_sdk15": "6 passed",
+        "connect_refresh_unauth": "401"
+      }
+    },
+    {
+      "id": "PDV-BUG-001",
+      "priority": "P1",
+      "title": "Playwright skipIfPdvUnavailable race with dynamic PdvManager",
+      "status": "FIXED_VERIFIED",
+      "rootCause": "isVisible() before dynamic chunk load",
+      "filesModified": [
+        "frontend/runtime_console_v3/e2e/specs/seller-pdv.spec.ts"
+      ],
+      "tests": {
+        "playwright_seller_pdv": "5 passed",
+        "log": "testing/reports/_bugfix_playwright_pdv.log"
+      }
+    },
+    {
+      "id": "PDV-BUG-002",
+      "priority": "P2",
+      "title": "Renato PDP workload 25x404",
+      "status": "FIXED_VERIFIED",
+      "rootCause": "slug seed instead of catalog card UUID; route /loja/cartas/{id} OK",
+      "filesModified": [
+        "testing/personas/runners/renato-performance-audit.mjs"
+      ],
+      "tests": {
+        "renato_pdp": "25/25 HTTP 200",
+        "report": "testing/reports/persona-renato-performance-latest.json"
+      }
+    }
+  ],
+  "regression": {
+    "typecheck_fe": "PASS",
+    "vitest_pdv": "10/10 PASS",
+    "playwright_pdv": "5/5 PASS",
+    "campaign_gates": "PASS",
+    "smoke_local": "PASS",
+    "qa_orchestrator": "campaign-012 exit 0",
+    "new_p0": [],
+    "new_p1": [],
+    "regressions_found": [],
+    "regressions_none": true
+  },
+  "personas": {
+    "campaignId": "campaign-012",
+    "marina": "pass",
+    "carlos": "pass",
+    "fernanda": "pending_manual",
+    "juliana": "partial",
+    "eduardo": "pass",
+    "daniela": "pass",
+    "renato": "pass"
+  },
+  "releaseReadiness": {
+    "orchestratorOverall": "NOT READY",
+    "stabilizationBugsP1P2": "DONE",
+    "stabilizationBugP0Live": "NÃO COMPROVADO"
+  },
+  "conclusion": "P1 e P2 comprovados corrigidos com testes. P0 corrigido em código com testes unitários; checkout/PIX/Connect autenticados em produção NÃO COMPROVADO nesta execução."
+}

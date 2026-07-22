@@ -2,15 +2,24 @@ import { test as authTest, expect as authExpect } from "../fixtures/auth";
 import { waitForSellerPanelReady } from "../helpers/wait-panel";
 
 async function skipIfPdvUnavailable(page: import("@playwright/test").Page) {
-  const manager = page.getByTestId("pdv-manager");
-  if (await manager.isVisible().catch(() => false)) return false;
+  // PdvManager é dynamic(); o shell (heading PDV) pode pintar antes do chunk.
+  const available = page
+    .getByTestId("pdv-manager")
+    .or(page.getByTestId("pdv-cart"))
+    .or(page.getByTestId("pdv-barcode-input"));
+  try {
+    await available.first().waitFor({ state: "visible", timeout: 20_000 });
+    return false;
+  } catch {
+    /* unavailable path below */
+  }
   await authExpect(
     page
       .getByRole("link", { name: /cadastre sua loja/i })
       .or(page.getByText(/pdv disponível no plano pro/i))
       .or(page.getByTestId("pdv-upsell"))
       .first(),
-  ).toBeVisible({ timeout: 15_000 });
+  ).toBeVisible({ timeout: 5_000 });
   return true;
 }
 

@@ -46,6 +46,7 @@ def _payments_return_urls(settings: Settings) -> tuple[str, str]:
 
 
 async def get_owner_store(session: AsyncSession, owner_id: str) -> dict[str, Any] | None:
+    """Mesma ordem que seller_dashboard.resolve_owner_store (multi-loja / PIX / Stripe)."""
     row = (
         await session.execute(
             text(
@@ -54,6 +55,12 @@ async def get_owner_store(session: AsyncSession, owner_id: str) -> dict[str, Any
                 WHERE owner_id = :oid
                 ORDER BY
                   CASE WHEN shop_enabled THEN 0 ELSE 1 END,
+                  CASE lower(COALESCE(subscription_plan, 'free'))
+                    WHEN 'enterprise' THEN 0
+                    WHEN 'pro' THEN 1
+                    WHEN 'lojista' THEN 2
+                    ELSE 3
+                  END,
                   created_at DESC
                 LIMIT 1
                 """
