@@ -1,10 +1,17 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { PortalHero } from "@/components/experience/PortalHero";
+import { GameHero } from "@/components/experience/PortalHero";
 import { useGamePortal } from "@/components/experience/GameProvider";
+import {
+  DeckShowcaseCard,
+  EventCard,
+  ExpansionCardHero,
+  LargeMarketplaceCard,
+  LargeSealedCard,
+  NewsCard,
+} from "@/components/experience/cards/LargeVisualCards";
 import { ProductCategoryIcon } from "@/components/games/ProductCategoryIcon";
 import {
   GAME_FEATURED_CATEGORY,
@@ -13,14 +20,29 @@ import {
   singlesSearchHref,
   type ProductCategoryId,
 } from "@/lib/tcg-product-categories";
-import { gameCardsPath, gameExpansionsPath } from "@/lib/game-routes";
+import {
+  gameCardsPath,
+  gameCollectionPath,
+  gameExpansionsPath,
+  gameMarketplacePath,
+  gameSetPath,
+  gameWishlistPath,
+} from "@/lib/game-routes";
+import { setCanonicalSlug } from "@/lib/set-slug";
 import { cn } from "@/lib/utils";
 
-type SetRow = { code: string; name: string; id?: string };
-type PublicDeck = { id: string; name?: string; title?: string };
+type SetRow = { code: string; name: string; id?: string; cardCount?: number };
+type PublicDeck = { id: string; name?: string; title?: string; coverUrl?: string };
+type PopularCard = {
+  id: string;
+  name: string;
+  imageUris?: { normal?: string; large?: string; small?: string };
+  lowestPrice?: number;
+  priceCurrency?: string;
+};
 
 async function fetchRecentSets(gameId: string): Promise<SetRow[]> {
-  const res = await fetch(`/api/catalog/sets?game=${encodeURIComponent(gameId)}&limit=10`);
+  const res = await fetch(`/api/catalog/sets?game=${encodeURIComponent(gameId)}&limit=12`);
   if (!res.ok) return [];
   const data = (await res.json()) as { sets?: SetRow[] };
   return (data.sets ?? []).slice(0, 8);
@@ -35,19 +57,54 @@ async function fetchPublicDecks(gameId: string): Promise<PublicDeck[]> {
   return (data.decks ?? data.items ?? []).slice(0, 6);
 }
 
+async function fetchPopularCards(gameId: string): Promise<PopularCard[]> {
+  const params = new URLSearchParams({
+    game: gameId,
+    limit: "8",
+    sortBy: "relevance",
+  });
+  const res = await fetch(`/api/catalog/cards/search?${params}`);
+  if (!res.ok) return [];
+  const data = (await res.json()) as { cards?: PopularCard[]; items?: PopularCard[] };
+  return (data.cards ?? data.items ?? []).slice(0, 8);
+}
+
 type Props = {
   cardCount?: number;
   healthLoading?: boolean;
 };
 
+function SectionHeader({
+  title,
+  href,
+  linkLabel = "Ver todos",
+}: {
+  title: string;
+  href?: string;
+  linkLabel?: string;
+}) {
+  return (
+    <div className="mb-5 flex items-baseline justify-between gap-3">
+      <h2 className="portal-section-title text-xl md:text-2xl">{title}</h2>
+      {href ? (
+        <Link href={href} className="portal-link text-xs font-medium hover:underline">
+          {linkLabel}
+        </Link>
+      ) : null}
+    </div>
+  );
+}
+
 /**
- * Same section tree for every TCG — content from existing APIs only.
+ * Game Landing — same section tree for every TCG; Theme Engine skins the experience.
+ * Data only from Catalog / Decks / Marketplace public BFF routes.
  */
 export function PortalSections({ cardCount = 0, healthLoading }: Props) {
   const { gameId, slug, theme } = useGamePortal();
   const categories = getCategoriesForGame(gameId);
   const featuredCat = GAME_FEATURED_CATEGORY[gameId] ?? "booster_box";
   const featuredMeta = categories.find((c) => c.id === featuredCat) ?? categories[0];
+  const sealedCats = categories.filter((c) => c.id !== "single").slice(0, 4);
 
   const { data: sets = [], isLoading: setsLoading } = useQuery({
     queryKey: ["portal-sets", gameId],
@@ -61,149 +118,270 @@ export function PortalSections({ cardCount = 0, healthLoading }: Props) {
     staleTime: 120_000,
   });
 
+  const { data: popular = [], isLoading: popularLoading } = useQuery({
+    queryKey: ["portal-popular-cards", gameId],
+    queryFn: () => fetchPopularCards(gameId),
+    staleTime: 120_000,
+  });
+
+  const latest = sets[0];
+  const latestHref = latest
+    ? gameSetPath(slug, setCanonicalSlug(latest))
+    : gameExpansionsPath(slug);
+
   function categoryHref(catId: ProductCategoryId): string {
     if (catId === "single") return singlesSearchHref(slug);
     return marketplaceCategoryHref(slug, catId);
   }
 
   return (
-    <div className="space-y-0">
-      <PortalHero cardCount={cardCount} healthLoading={healthLoading} />
+    <div className="marketplace-skin">
+      <GameHero
+        cardCount={cardCount}
+        healthLoading={healthLoading}
+        latestSetHref={latestHref}
+        latestSetLabel={latest ? latest.name : undefined}
+      />
 
-      <section className="container mx-auto max-w-6xl px-4 py-10">
-        <div className="grid gap-10 lg:grid-cols-3">
-          {/* Expansões */}
-          <div>
-            <div className="flex items-baseline justify-between gap-2">
-              <h2 className="text-lg font-semibold text-foreground">Últimas expansões</h2>
-              <Link href={gameExpansionsPath(slug)} className="portal-link text-xs hover:underline">
-                Ver todas
-              </Link>
-            </div>
-            <ul className="mt-4 space-y-2">
-              {setsLoading && (
-                <li className="text-sm text-muted-foreground">Carregando…</li>
-              )}
-              {!setsLoading && sets.length === 0 && (
-                <li className="text-sm text-muted-foreground">Sets em sincronização</li>
-              )}
-              {sets.map((set) => (
-                <li key={set.code ?? set.name}>
-                  <Link
-                    href={`${singlesSearchHref(slug)}?set=${encodeURIComponent(set.code ?? set.name)}`}
-                    className="block truncate text-sm text-foreground hover:text-[color:var(--game-primary)]"
-                  >
-                    {set.code && (
-                      <span className="mr-2 font-mono text-xs text-muted-foreground">
-                        {set.code}
-                      </span>
-                    )}
-                    {set.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+      {/* Últimas expansões */}
+      <section className="portal-section container mx-auto max-w-6xl px-4 py-12">
+        <SectionHeader title="Últimas expansões" href={gameExpansionsPath(slug)} />
+        {setsLoading && (
+          <p className="text-sm text-[color:var(--game-text-muted)]">Carregando expansões…</p>
+        )}
+        {!setsLoading && sets.length === 0 && (
+          <p className="text-sm text-[color:var(--game-text-muted)]">Sets em sincronização</p>
+        )}
+        <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {sets.slice(0, 4).map((set) => (
+            <li key={set.code ?? set.name}>
+              <ExpansionCardHero
+                href={gameSetPath(slug, setCanonicalSlug(set))}
+                title={set.name}
+                code={set.code}
+                subtitle={
+                  set.cardCount
+                    ? `${set.cardCount} cartas`
+                    : "Abrir landing da expansão"
+                }
+                imageUrl={theme.logo}
+              />
+            </li>
+          ))}
+        </ul>
+      </section>
 
-          {/* Decks */}
-          <div>
-            <div className="flex items-baseline justify-between gap-2">
-              <h2 className="text-lg font-semibold text-foreground">Decks públicos</h2>
-              <Link
-                href={`/decks?game=${encodeURIComponent(gameId)}`}
-                className="portal-link text-xs hover:underline"
-              >
-                Explorar
-              </Link>
-            </div>
-            <ul className="mt-4 space-y-2">
-              {decksLoading && (
-                <li className="text-sm text-muted-foreground">Carregando…</li>
-              )}
-              {!decksLoading && decks.length === 0 && (
-                <li className="text-sm text-muted-foreground">
-                  Ainda sem decks públicos —{" "}
-                  <Link href="/decks/novo" className="portal-link hover:underline">
-                    crie o seu
-                  </Link>
-                </li>
-              )}
-              {decks.map((deck) => (
-                <li key={deck.id}>
-                  <Link
-                    href={`/decks/${deck.id}`}
-                    className="block truncate text-sm text-foreground hover:text-[color:var(--game-primary)]"
-                  >
-                    {deck.name || deck.title || "Deck"}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+      {/* Decks em destaque */}
+      <section className="portal-section container mx-auto max-w-6xl px-4 py-12">
+        <SectionHeader
+          title="Decks em destaque"
+          href={`/decks?game=${encodeURIComponent(gameId)}`}
+        />
+        {decksLoading && (
+          <p className="text-sm text-[color:var(--game-text-muted)]">Carregando decks…</p>
+        )}
+        {!decksLoading && decks.length === 0 && (
+          <p className="text-sm text-[color:var(--game-text-muted)]">
+            Ainda sem decks públicos —{" "}
+            <Link href="/decks/novo" className="portal-link hover:underline">
+              crie o seu
+            </Link>
+          </p>
+        )}
+        <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {decks.map((deck) => (
+            <li key={deck.id}>
+              <DeckShowcaseCard
+                href={`/decks/${deck.id}`}
+                title={deck.name || deck.title || "Deck"}
+                imageUrl={deck.coverUrl ?? theme.logo}
+                subtitle={theme.name}
+              />
+            </li>
+          ))}
+        </ul>
+      </section>
 
-          {/* Marketplace / selados */}
-          <div>
-            <h2 className="text-lg font-semibold text-foreground">Marketplace</h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Singles e produtos selados de lojas neste universo.
-            </p>
-            {featuredMeta && (
-              <Link
-                href={categoryHref(featuredMeta.id)}
-                className="mt-4 flex flex-col items-center rounded-xl border border-border bg-card/60 p-5 transition hover:border-[color:var(--game-primary)]"
-              >
-                <Image
-                  src={featuredMeta.imageUrl}
-                  alt=""
-                  width={120}
-                  height={120}
-                  className="max-h-28 w-auto object-contain"
+      {/* Cartas populares */}
+      <section className="portal-section container mx-auto max-w-6xl px-4 py-12">
+        <SectionHeader title="Cartas populares" href={gameCardsPath(slug)} />
+        {popularLoading && (
+          <p className="text-sm text-[color:var(--game-text-muted)]">Carregando cartas…</p>
+        )}
+        <ul className="grid gap-5 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          {popular.map((card) => {
+            const img =
+              card.imageUris?.large ?? card.imageUris?.normal ?? card.imageUris?.small;
+            const price =
+              card.lowestPrice != null
+                ? new Intl.NumberFormat("pt-BR", {
+                    style: "currency",
+                    currency: card.priceCurrency || "BRL",
+                  }).format(card.lowestPrice)
+                : undefined;
+            return (
+              <li key={card.id}>
+                <LargeMarketplaceCard
+                  href={`${gameCardsPath(slug)}/${encodeURIComponent(card.id)}`}
+                  title={card.name}
+                  imageUrl={img}
+                  priceLabel={price}
                 />
-                <span className="mt-3 text-sm font-medium text-foreground">
-                  {featuredMeta.label}
-                </span>
-              </Link>
-            )}
-            <div className="mt-4 flex flex-wrap gap-2">
-              <Link
-                href={gameCardsPath(slug)}
-                className="portal-cta inline-flex min-h-10 items-center rounded-md px-4 text-sm font-semibold"
-              >
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+
+      {/* Produtos selados */}
+      <section className="portal-section container mx-auto max-w-6xl px-4 py-12">
+        <SectionHeader
+          title="Produtos selados"
+          href={gameMarketplacePath(slug, gameId)}
+          linkLabel="Loja"
+        />
+        <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {(sealedCats.length ? sealedCats : featuredMeta ? [featuredMeta] : []).map((cat) => (
+            <li key={cat.id}>
+              <LargeSealedCard
+                href={categoryHref(cat.id)}
+                title={cat.label}
+                imageUrl={cat.imageUrl}
+                subtitle={`Selados · ${theme.name}`}
+              />
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      {/* Marketplace CTA */}
+      <section className="portal-section container mx-auto max-w-6xl px-4 py-12">
+        <SectionHeader title="Marketplace" href={gameMarketplacePath(slug, gameId)} />
+        <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
+          <div className="large-visual-card p-6 md:p-8">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[color:var(--game-accent)]">
+              Loja {theme.name}
+            </p>
+            <h3 className="portal-section-title mt-2 text-2xl md:text-3xl">
+              Mesmo marketplace. Outro universo.
+            </h3>
+            <p className="mt-3 max-w-lg text-sm text-[color:var(--game-text-muted)]">
+              Ofertas de singles e selados com a identidade visual de {theme.name} — backend
+              compartilhado, experiência própria.
+            </p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Link href={gameCardsPath(slug)} className="game-cta inline-flex min-h-11 items-center px-5 text-sm font-semibold">
                 Singles
               </Link>
               <Link
-                href={`/loja/busca?game=${encodeURIComponent(gameId)}`}
-                className="inline-flex min-h-10 items-center rounded-md border border-border px-4 text-sm font-medium"
+                href={gameMarketplacePath(slug, gameId)}
+                className="inline-flex min-h-11 items-center rounded-[var(--game-button-radius)] border border-[color:var(--game-border)] px-5 text-sm font-medium"
               >
-                Ofertas
+                Todas as ofertas
               </Link>
             </div>
           </div>
-        </div>
-
-        {/* Categories strip */}
-        <div className="mt-12">
-          <h2 className="text-lg font-semibold text-foreground">Categorias</h2>
-          <ul className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
-            {categories.map((cat) => (
+          <ul className="grid grid-cols-2 gap-2 content-start">
+            {categories.slice(0, 6).map((cat) => (
               <li key={cat.id}>
                 <Link
                   href={categoryHref(cat.id)}
                   className={cn(
-                    "flex items-center gap-2 rounded-lg border border-border bg-card/40 px-3 py-2.5 text-sm",
-                    "transition hover:border-[color:var(--game-primary)]",
+                    "flex items-center gap-2 rounded-[var(--game-card-radius)] border border-[color:var(--game-border)] bg-[color:var(--game-bg-elevated)]/60 px-3 py-2.5 text-sm",
+                    "transition hover:border-[color:var(--game-accent)]",
                   )}
                 >
                   <ProductCategoryIcon categoryId={cat.id} size={22} />
-                  <span>{cat.label}</span>
+                  <span className="truncate">{cat.label}</span>
                 </Link>
               </li>
             ))}
           </ul>
         </div>
+      </section>
 
-        <p className="mt-10 text-center text-xs text-muted-foreground">
-          Universo {theme.name} · mesma estrutura de portal para todos os TCGs
+      {/* Eventos + Ranking (estrutura — conteúdo pós-Beta) */}
+      <section className="portal-section container mx-auto max-w-6xl px-4 py-12">
+        <div className="grid gap-10 lg:grid-cols-2">
+          <div>
+            <SectionHeader title="Eventos" href="/torneio" />
+            <ul className="grid gap-4 sm:grid-cols-2">
+              <li>
+                <EventCard
+                  href="/torneio"
+                  title={`Torneios ${theme.name}`}
+                  subtitle="Calendário e inscrição — em evolução"
+                  when="Em breve"
+                  imageUrl={theme.logo}
+                />
+              </li>
+              <li>
+                <NewsCard
+                  href="/comunidade"
+                  title="Comunidade"
+                  subtitle="Notícias e meta do universo"
+                  imageUrl={theme.logo}
+                />
+              </li>
+            </ul>
+          </div>
+          <div>
+            <SectionHeader title="Ranking" href="/leaderboard" />
+            <div className="large-visual-card p-6">
+              <p className="text-sm text-[color:var(--game-text-muted)]">
+                Rankings por jogo chegam no épico Social / Rankings — a âncora de navegação já
+                existe neste portal.
+              </p>
+              <Link
+                href="/leaderboard"
+                className="portal-link mt-4 inline-flex text-sm font-medium hover:underline"
+              >
+                Ver leaderboard →
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Coleção / Deck Builder / Favoritos / Wishlist */}
+      <section className="portal-section container mx-auto max-w-6xl px-4 py-12 pb-16">
+        <SectionHeader title="Sua jornada neste universo" />
+        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            {
+              href: gameCollectionPath(slug),
+              title: "Coleção",
+              subtitle: "Dashboard Steam-like",
+            },
+            {
+              href: `/decks?game=${encodeURIComponent(gameId)}`,
+              title: "Deck Builder",
+              subtitle: "Workspace completo",
+            },
+            {
+              href: "/perfil",
+              title: "Favoritos",
+              subtitle: "No seu perfil",
+            },
+            {
+              href: gameWishlistPath(),
+              title: "Wishlist",
+              subtitle: "Faltantes e alertas",
+            },
+          ].map((item) => (
+            <li key={item.title}>
+              <Link
+                href={item.href}
+                className="large-visual-card block p-5 transition"
+              >
+                <h3 className="font-semibold text-[color:var(--game-text)]">{item.title}</h3>
+                <p className="mt-1 text-sm text-[color:var(--game-text-muted)]">{item.subtitle}</p>
+              </Link>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-10 text-center text-xs text-[color:var(--game-text-muted)]">
+          Universo {theme.name} · Theme Engine V2 · identidade própria, plataforma única
         </p>
       </section>
     </div>

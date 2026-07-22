@@ -27,8 +27,30 @@ export function gameExpansionsPath(slug: string): string {
   return `/${slug}/expansions`;
 }
 
+/** Canonical expansion landing — Epic 6 (`/{game}/sets/{setSlug}`). */
+export function gameSetPath(slug: string, setSlug: string): string {
+  return `/${slug}/sets/${encodeURIComponent(setSlug)}`;
+}
+
+/** Alias under /expansions/[setSlug] — same landing. */
+export function gameExpansionDetailPath(slug: string, setSlug: string): string {
+  return `/${slug}/expansions/${encodeURIComponent(setSlug)}`;
+}
+
 export function gameSellersPath(slug: string): string {
   return `/${slug}/sellers`;
+}
+
+export function gameMarketplacePath(slug: string, gameId: GameId): string {
+  return `/loja/busca?game=${encodeURIComponent(gameId)}`;
+}
+
+export function gameCollectionPath(slug: string): string {
+  return `/colecao?game=${encodeURIComponent(slug)}`;
+}
+
+export function gameWishlistPath(): string {
+  return `/wishlist`;
 }
 
 /** Paths legados `/loja/*` — mantidos para compatibilidade. */

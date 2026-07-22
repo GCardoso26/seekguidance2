@@ -3,10 +3,12 @@ import { Suspense } from "react";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import { CatalogSearchSkeleton } from "@/components/search/CatalogSearchSkeleton";
 import { LojaBuscaClient } from "@/app/loja/busca/LojaBuscaClient";
+import { MarketplaceGameSkin } from "@/components/experience/MarketplaceGameSkin";
 
 /**
  * Shell RSC (H1/copy estáticos) + island FacetedSearch.
  * Alinha `/loja/busca` ao padrão do hub `/loja` para LCP.
+ * Epic 6: Theme Engine V2 skin when `?game=` is present.
  */
 export default function LojaBuscaPage() {
   return (
@@ -21,7 +23,9 @@ export default function LojaBuscaPage() {
         </p>
         <div className="mt-8">
           <Suspense fallback={<CatalogSearchSkeleton />}>
-            <LojaBuscaClient />
+            <MarketplaceGameSkin>
+              <LojaBuscaClient />
+            </MarketplaceGameSkin>
           </Suspense>
         </div>
       </div>

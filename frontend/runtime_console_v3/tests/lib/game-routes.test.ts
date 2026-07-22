@@ -11,6 +11,7 @@ describe("game-routes", () => {
   it("reconhece slugs de TCG conhecidos", () => {
     expect(isKnownGameSlug("mtg")).toBe(true);
     expect(isKnownGameSlug("pokemon")).toBe(true);
+    expect(isKnownGameSlug("magic")).toBe(true);
     expect(isKnownGameSlug("not-a-game")).toBe(false);
   });
 

@@ -24,7 +24,8 @@ export function PortalNav() {
     {
       href: gameExpansionsPath(slug),
       label: "Expansões",
-      match: (p: string) => p.startsWith(`/${slug}/expansions`),
+      match: (p: string) =>
+        p.startsWith(`/${slug}/expansions`) || p.startsWith(`/${slug}/sets`),
     },
     {
       href: `/decks?game=${encodeURIComponent(theme.gameId)}`,

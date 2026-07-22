@@ -1,54 +1,361 @@
 /**
- * Per-game portal themes — applied via [data-game="slug"] on portal shell.
- * No glassmorphism / purple SaaS glow; identity comes from game tokens.
+ * Per-game portal themes V2 — identity system via [data-game] + [data-mood] + [data-texture].
+ * Performance-first CSS (no heavy JS particles). Respects prefers-reduced-motion.
  */
 
 .game-portal {
   --game-primary: #1e3a5f;
   --game-secondary: #0f172a;
   --game-bg: #f8fafc;
+  --game-bg-elevated: #ffffff;
   --game-accent: #b45309;
+  --game-accent-muted: #d6d3d1;
   --game-hero-glow: transparent;
+  --game-border: hsl(var(--border));
+  --game-text: hsl(var(--foreground));
+  --game-text-muted: hsl(var(--muted-foreground));
+  --game-gradient-from: #0f172a;
+  --game-gradient-via: #1e293b;
+  --game-gradient-to: #020617;
+  --game-card-radius: 0.75rem;
+  --game-button-radius: 0.5rem;
+  --game-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+  --game-font-display: var(--font-display-family), Georgia, serif;
+  --game-font-body: var(--font-sans-family), system-ui, sans-serif;
+  --game-tracking: 0.02em;
+  --game-display-weight: 600;
+  --game-hover-lift: translateY(-4px) scale(1.01);
+  --game-hover-glow: 0 12px 28px rgba(0, 0, 0, 0.18);
+  --game-card-transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+  color: var(--game-text);
+  font-family: var(--game-font-body);
+  background-color: var(--game-bg);
 }
 
-.game-portal[data-game] {
-  background-color: color-mix(in srgb, var(--game-bg) 8%, hsl(var(--background)));
+.game-portal[data-mood="light"] {
+  color-scheme: light;
+}
+
+.game-portal[data-mood="dark"] {
+  color-scheme: dark;
 }
 
 .game-portal .portal-nav {
-  border-bottom: 1px solid color-mix(in srgb, var(--game-primary) 22%, hsl(var(--border)));
-  background: color-mix(in srgb, var(--game-primary) 6%, hsl(var(--background)));
+  border-bottom: 1px solid color-mix(in srgb, var(--game-primary) 28%, var(--game-border));
+  background: color-mix(in srgb, var(--game-bg-elevated) 88%, transparent);
+  backdrop-filter: blur(10px);
 }
 
 .game-portal .portal-nav a[data-active="true"] {
-  color: var(--game-primary);
-  border-bottom-color: var(--game-primary);
+  color: var(--game-accent);
+  border-bottom-color: var(--game-accent);
 }
 
-.game-portal .portal-hero {
+/* ——— Hero System ——— */
+.game-portal .portal-hero,
+.game-portal .game-hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: min(72vh, 640px);
+  color: var(--game-text);
   background:
     radial-gradient(ellipse 90% 70% at 15% 20%, var(--game-hero-glow), transparent 55%),
     linear-gradient(
-      160deg,
-      color-mix(in srgb, var(--game-primary) 14%, hsl(var(--background))) 0%,
-      hsl(var(--background)) 55%
+      155deg,
+      var(--game-gradient-from) 0%,
+      var(--game-gradient-via) 42%,
+      var(--game-gradient-to) 100%
     );
 }
 
-.game-portal .portal-cta {
-  background-color: var(--game-primary);
-  color: #fff;
+.game-portal .game-hero__media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
 }
 
-.game-portal .portal-cta:hover {
-  filter: brightness(1.06);
+.game-portal .game-hero__media img,
+.game-portal .game-hero__media video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.game-portal .game-hero__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.game-portal .game-hero__overlay[data-overlay="gradient-dark"] {
+  background: linear-gradient(
+    105deg,
+    color-mix(in srgb, var(--game-bg) 88%, transparent) 0%,
+    color-mix(in srgb, var(--game-bg) 35%, transparent) 55%,
+    transparent 100%
+  );
+}
+
+.game-portal .game-hero__overlay[data-overlay="gradient-light"] {
+  background: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0.92) 0%,
+    rgba(255, 255, 255, 0.55) 45%,
+    rgba(255, 255, 255, 0.15) 100%
+  );
+}
+
+.game-portal .game-hero__overlay[data-overlay="vignette"] {
+  background: radial-gradient(ellipse at center, transparent 30%, rgba(0, 0, 0, 0.65) 100%);
+}
+
+.game-portal .game-hero__overlay[data-overlay="neon"] {
+  background:
+    radial-gradient(circle at 80% 20%, var(--game-hero-glow), transparent 40%),
+    linear-gradient(160deg, color-mix(in srgb, var(--game-bg) 75%, transparent), transparent 60%);
+}
+
+.game-portal .game-hero__overlay[data-overlay="parchment"] {
+  background:
+    linear-gradient(135deg, rgba(28, 16, 8, 0.85), rgba(12, 8, 4, 0.55)),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(250, 204, 21, 0.03) 3px
+    );
+}
+
+.game-portal .game-hero__fx {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.55;
+}
+
+.game-portal .game-hero__content {
+  position: relative;
+  z-index: 3;
+  animation: var(--game-hero-entrance);
+}
+
+.game-portal .game-hero__title {
+  font-family: var(--game-font-display);
+  font-weight: var(--game-display-weight);
+  letter-spacing: var(--game-tracking);
+  line-height: 1.05;
+}
+
+.game-portal .portal-cta,
+.game-portal .game-cta {
+  background-color: var(--game-primary);
+  color: #fff;
+  border-radius: var(--game-button-radius);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--game-accent) 40%, transparent);
+  transition: filter 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.game-portal .portal-cta:hover,
+.game-portal .game-cta:hover {
+  filter: brightness(1.08);
+  box-shadow: var(--game-hover-glow);
 }
 
 .game-portal .portal-link {
-  color: var(--game-primary);
+  color: var(--game-accent);
 }
 
-/* Universe home — motion */
+/* ——— Large visual cards ——— */
+.game-portal .large-visual-card {
+  border-radius: var(--game-card-radius);
+  border: 1px solid color-mix(in srgb, var(--game-primary) 25%, var(--game-border));
+  background: color-mix(in srgb, var(--game-bg-elevated) 92%, transparent);
+  box-shadow: var(--game-shadow);
+  transition: var(--game-card-transition);
+  overflow: hidden;
+}
+
+.game-portal .large-visual-card:hover {
+  transform: var(--game-hover-lift);
+  box-shadow: var(--game-hover-glow);
+  border-color: color-mix(in srgb, var(--game-accent) 55%, var(--game-border));
+}
+
+.game-portal .large-visual-card__art {
+  aspect-ratio: 400 / 500;
+  width: 100%;
+  object-fit: cover;
+  background: color-mix(in srgb, var(--game-primary) 12%, var(--game-bg));
+}
+
+.game-portal .large-visual-card__art--contain {
+  object-fit: contain;
+  padding: 1rem;
+}
+
+/* Marketplace skin shell */
+.game-portal .marketplace-skin {
+  background: color-mix(in srgb, var(--game-bg) 94%, var(--game-primary));
+}
+
+.game-portal[data-marketplace-skin="energy"] .marketplace-skin {
+  background: linear-gradient(180deg, #ffffff 0%, #fef9c3 40%, #eff6ff 100%);
+}
+
+.game-portal[data-marketplace-skin="hyperspace"] .marketplace-skin,
+.game-portal[data-marketplace-skin="digital"] .marketplace-skin {
+  background:
+    radial-gradient(ellipse at top, var(--game-hero-glow), transparent 50%),
+    var(--game-bg);
+}
+
+.game-portal[data-marketplace-skin="grimorio"] .marketplace-skin,
+.game-portal[data-marketplace-skin="temple"] .marketplace-skin {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--game-bg-elevated) 80%, #000) 0%, var(--game-bg) 100%);
+}
+
+/* Textures (CSS-only, cheap) */
+.game-portal[data-texture="hex"] .game-hero__fx {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='49' viewBox='0 0 28 49'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%2338bdf8' fill-opacity='0.12'%3E%3Cpath d='M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM3 17.9v12.7l10.99 6.34 11-6.35V17.9l-11-6.34L3 17.9z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+.game-portal[data-texture="stars"] .game-hero__fx,
+.game-portal .game-hero__fx[data-anim="stars"] {
+  background-image: radial-gradient(1px 1px at 20% 30%, #fff 50%, transparent),
+    radial-gradient(1px 1px at 60% 70%, #fff 50%, transparent),
+    radial-gradient(1.5px 1.5px at 80% 20%, #bae6fd 50%, transparent),
+    radial-gradient(1px 1px at 40% 80%, #fff 50%, transparent);
+  background-size: 100% 100%;
+  animation: game-stars-drift 40s linear infinite;
+}
+
+.game-portal .game-hero__fx[data-anim="fog"] {
+  background: radial-gradient(ellipse at 30% 80%, rgba(255, 255, 255, 0.08), transparent 50%),
+    radial-gradient(ellipse at 70% 60%, rgba(148, 163, 184, 0.1), transparent 45%);
+  animation: game-fog 12s ease-in-out infinite alternate;
+}
+
+.game-portal .game-hero__fx[data-anim="glow"] {
+  background: radial-gradient(circle at 70% 30%, var(--game-hero-glow), transparent 45%);
+  animation: game-glow-pulse 5s ease-in-out infinite;
+}
+
+.game-portal .game-hero__fx[data-anim="scanlines"] {
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(56, 189, 248, 0.06) 3px,
+    rgba(56, 189, 248, 0.06) 4px
+  );
+  animation: game-scan 6s linear infinite;
+}
+
+.game-portal .game-hero__fx[data-anim="waves"] {
+  background: linear-gradient(
+    180deg,
+    transparent 40%,
+    rgba(14, 165, 233, 0.12) 70%,
+    rgba(14, 165, 233, 0.2) 100%
+  );
+  animation: game-waves 8s ease-in-out infinite alternate;
+}
+
+.game-portal .game-hero__fx[data-anim="aura"] {
+  background: radial-gradient(circle at 50% 60%, var(--game-hero-glow), transparent 55%);
+  animation: game-glow-pulse 2.8s ease-in-out infinite;
+}
+
+.game-portal .game-hero__fx[data-anim="energy"] {
+  background: radial-gradient(circle at 20% 30%, var(--game-hero-glow), transparent 40%),
+    radial-gradient(circle at 80% 70%, color-mix(in srgb, var(--game-accent) 35%, transparent), transparent 35%);
+  animation: game-glow-pulse 4s ease-in-out infinite;
+}
+
+.game-portal .game-hero__fx[data-anim="runes"] {
+  background-image: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 40px,
+    rgba(250, 204, 21, 0.05) 41px,
+    rgba(250, 204, 21, 0.05) 42px
+  );
+}
+
+/* Section rhythm */
+.game-portal .portal-section-title {
+  font-family: var(--game-font-display);
+  letter-spacing: var(--game-tracking);
+  font-weight: var(--game-display-weight);
+  color: var(--game-text);
+}
+
+.game-portal .portal-section {
+  border-bottom: 1px solid color-mix(in srgb, var(--game-primary) 12%, transparent);
+}
+
+/* Motion keyframes */
+@keyframes portal-hero-enter {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes game-glow-pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.75;
+  }
+}
+
+@keyframes game-fog {
+  from {
+    transform: translateX(-2%) scale(1);
+  }
+  to {
+    transform: translateX(2%) scale(1.04);
+  }
+}
+
+@keyframes game-stars-drift {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 40px 20px;
+  }
+}
+
+@keyframes game-scan {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 0 40px;
+  }
+}
+
+@keyframes game-waves {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-8px);
+  }
+}
+
 @keyframes universe-fade-up {
   from {
     opacity: 0;
@@ -77,10 +384,13 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .universe-hero-animate {
-    animation: none;
+  .universe-hero-animate,
+  .game-portal .game-hero__content,
+  .game-portal .game-hero__fx {
+    animation: none !important;
   }
-  .universe-card:hover {
+  .universe-card:hover,
+  .game-portal .large-visual-card:hover {
     transform: none;
   }
 }

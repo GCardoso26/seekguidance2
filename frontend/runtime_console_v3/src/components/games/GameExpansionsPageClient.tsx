@@ -4,7 +4,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
-import { gameCardsPath, gameLandingPath } from "@/lib/game-routes";
+import { ExpansionCardHero } from "@/components/experience/cards/LargeVisualCards";
+import { gameLandingPath, gameSetPath } from "@/lib/game-routes";
+import { setCanonicalSlug } from "@/lib/set-slug";
 import { gameIdFromSlug, GAME_TOKENS } from "@/lib/tcg-tokens";
 import type { GameId } from "@/types/card";
 import type { CatalogSetOption } from "@/types/search";
@@ -37,53 +39,59 @@ export function GameExpansionsPageClient({ slug }: { slug: string }) {
 
   return (
     <>
-      <section
-        className="border-b border-border/40 py-8"
-        style={{ backgroundColor: `${token.primary}10` }}
-      >
-        <div className="container mx-auto px-4">
-          <Link href={gameLandingPath(slug)} className="text-sm text-muted-foreground hover:text-foreground">
+      <section className="game-hero border-b border-[color:var(--game-border)]">
+        <div className="game-hero__overlay" data-overlay="gradient-dark" />
+        <div className="game-hero__content container mx-auto max-w-6xl px-4 py-10">
+          <Link
+            href={gameLandingPath(slug)}
+            className="text-sm text-[color:var(--game-text-muted)] hover:text-[color:var(--game-text)]"
+          >
             ← {token.name}
           </Link>
           <div className="mt-4 flex items-center gap-4">
-            <Image src={token.logo} alt="" width={56} height={56} className="h-14 w-14 object-contain" />
+            <Image src={token.logo} alt="" width={64} height={64} className="h-16 w-16 object-contain" />
             <div>
-              <h1 className="text-2xl font-bold" style={{ color: token.primary }}>
+              <h1 className="game-hero__title text-3xl text-[color:var(--game-text)]">
                 Expansões — {token.name}
               </h1>
-              <p className="text-sm text-muted-foreground">
-                {isLoading ? "Carregando…" : `${sets.length} sets no catálogo`}
+              <p className="text-sm text-[color:var(--game-text-muted)]">
+                {isLoading ? "Carregando…" : `${sets.length} sets · landings dedicadas`}
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto max-w-6xl px-4 py-10">
         {isLoading && (
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {Array.from({ length: 9 }).map((_, i) => (
-              <Skeleton key={i} className="h-16 rounded-lg" />
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <Skeleton key={i} className="aspect-[400/500] rounded-[var(--game-card-radius)]" />
             ))}
           </div>
         )}
         {!isLoading && sets.length === 0 && (
-          <p className="text-muted-foreground">Sets em sincronização para {token.name}.</p>
+          <p className="text-[color:var(--game-text-muted)]">
+            Sets em sincronização para {token.name}.
+          </p>
         )}
-        <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {sets.map((set) => (
-            <li key={set.code ?? set.name}>
-              <Link
-                href={`${gameCardsPath(slug)}?set=${encodeURIComponent(set.code ?? set.name)}`}
-                className="flex items-center gap-3 rounded-lg border border-border/60 px-4 py-3 transition hover:border-primary/40 hover:bg-muted/30"
-              >
-                {set.code && (
-                  <span className="shrink-0 font-mono text-xs text-muted-foreground">{set.code}</span>
-                )}
-                <span className="truncate text-sm font-medium">{set.name}</span>
-              </Link>
-            </li>
-          ))}
+        <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {sets.map((set) => {
+            const setSlug = setCanonicalSlug(set);
+            return (
+              <li key={set.code ?? set.name}>
+                <ExpansionCardHero
+                  href={gameSetPath(slug, setSlug)}
+                  title={set.name}
+                  code={set.code}
+                  subtitle={
+                    set.cardCount != null ? `${set.cardCount} cartas` : "Abrir expansão"
+                  }
+                  imageUrl={token.logo}
+                />
+              </li>
+            );
+          })}
         </ul>
       </div>
     </>

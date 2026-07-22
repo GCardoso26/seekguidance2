@@ -16,8 +16,8 @@ type Props = {
 };
 
 /**
- * Portal shell — Theme + GameProvider + nav.
- * Same layout for every TCG; only theme/config changes.
+ * Portal shell — Theme Engine V2 + GameProvider + nav.
+ * Same layout tree for every TCG; identity comes from theme tokens.
  */
 export function PortalLayout({
   gameId,
@@ -30,6 +30,10 @@ export function PortalLayout({
     <div
       className="game-portal min-h-[50vh]"
       data-game={slug}
+      data-mood={theme.surfaces.mood}
+      data-texture={theme.surfaces.texture ?? "none"}
+      data-marketplace-skin={theme.marketplace.skin}
+      data-density={theme.marketplace.density}
       style={gameThemeCssVars(theme)}
     >
       <GameProvider gameId={gameId} slug={slug}>

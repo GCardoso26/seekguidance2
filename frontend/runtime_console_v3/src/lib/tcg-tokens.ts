@@ -104,8 +104,38 @@ export const GAME_TOKENS: Record<GameId, GameToken> = {
 
 export const ALL_GAME_IDS = Object.keys(GAME_TOKENS) as GameId[];
 
+/** Human-friendly aliases → GameId (Epic 6 Game Identity). */
+const SLUG_ALIASES: Record<string, GameId> = {
+  magic: "MTG",
+  magicthegathering: "MTG",
+  mtg: "MTG",
+  pokemon: "POKEMON",
+  pokémon: "POKEMON",
+  yugioh: "YGO",
+  ygo: "YGO",
+  lorcana: "LORCANA",
+  disneylorcana: "LORCANA",
+  onepiece: "ONEPIECE",
+  swu: "SWU",
+  starwars: "SWU",
+  starwarsunlimited: "SWU",
+  digimon: "DIGIMON",
+  riftbound: "RIFTBOUND",
+  dbfw: "DBFW",
+  dragonball: "DBFW",
+  dragonballfusionworld: "DBFW",
+  fab: "FAB",
+  fleshandblood: "FAB",
+  sorcery: "SORCERY",
+  unionarena: "UARENA",
+  vanguard: "VANGUARD",
+  cardfightvanguard: "VANGUARD",
+};
+
 export function gameIdFromSlug(slug: string): GameId | null {
-  const normalized = slug.toLowerCase().replace(/-/g, "");
+  const raw = slug.toLowerCase().trim();
+  const normalized = raw.replace(/-/g, "");
+  if (SLUG_ALIASES[normalized]) return SLUG_ALIASES[normalized];
   const entry = ALL_GAME_IDS.find(
     (id) => GAME_TOKENS[id].slug.replace(/-/g, "") === normalized,
   );
