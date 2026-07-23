@@ -1,0 +1,101 @@
+{
+  "campaign": "QA_PLATFORM_V5_FULL_CERTIFICATION",
+  "date": "2026-07-23",
+  "project": "rjgzaakhzuzdzcooywva",
+  "verdict": "NOT_READY_FOR_PRODUCTION",
+  "policy": "PASS only with reproducible evidence; no inference",
+  "evidence": {
+    "tsc_api": "PASS",
+    "tsc_frontend": "PASS",
+    "vitest_core": {
+      "suites": ["product-catalog", "checkout", "order", "payment", "architecture", "productionReadiness"],
+      "passed": 120,
+      "failed": 0,
+      "skipped": 24,
+      "total": 144,
+      "result": "PASS_WITH_SKIPS",
+      "artifact": "testing/reports/_qa_v5_vitest.json"
+    },
+    "e2e_playwright_chromium_subset": {
+      "specs": [
+        "product-knowledge-panel",
+        "buyer-lifecycle",
+        "seller-lifecycle",
+        "search",
+        "auth-flow",
+        "global-search",
+        "marketplace-filters"
+      ],
+      "passed": 18,
+      "failed": 2,
+      "skipped": 8,
+      "result": "FAIL",
+      "failures": [
+        "marketplace-filters: max_price URL not applied",
+        "marketplace-filters: mobile apply timeout"
+      ],
+      "skips_reason": "seller-lifecycle requires e2e/.auth/seller.json + seed:test; buyer auth may be partial"
+    },
+    "db_snapshot": {
+      "products": 260,
+      "variants": 260,
+      "collections": 0,
+      "publishers": 8,
+      "manufacturers": 13,
+      "contents": 1,
+      "specs": 1,
+      "metadata": 3,
+      "packages": 0,
+      "relationships": 0,
+      "providers": 89,
+      "sync_runs": 79,
+      "sync_runs_failed": 79,
+      "sync_runs_success": 0,
+      "media_assets": 1,
+      "store_products": 14878,
+      "master_variant": 1,
+      "product_catalog_rls_on": 28,
+      "product_catalog_rls_off": 0,
+      "marketplace_listings": 1,
+      "cart_carts": 0,
+      "outbox_events": 27
+    },
+    "psp_probe": {
+      "stripe": "BLOCKED stripe_secret_key_missing",
+      "mercado_pago": "BLOCKED mercadopago_access_token_missing",
+      "melhor_envio": "BLOCKED melhor_envio_token_missing",
+      "CHECKOUT_PAYMENT_GATEWAY": "stub(default)"
+    },
+    "commerce_rls": {
+      "marketplace_tables_rls": false,
+      "payment_tables_rls": false,
+      "cart_tables_rls": false,
+      "reservation_tables_rls": false,
+      "platform_tables_rls": false,
+      "anon_usage_marketplace": false,
+      "anon_usage_payment": false,
+      "anon_usage_order": false
+    },
+    "lighthouse": "NOT_EXECUTED",
+    "load_100_250_500_1000": "NOT_EXECUTED",
+    "browsers_matrix": "ONLY_CHROMIUM_SUBSET",
+    "mobile_native": "NOT_EXECUTED",
+    "dark_light_mode": "NOT_EXECUTED",
+    "bullmq_live_queues": "NOT_EXECUTED",
+    "qdrant_redis_r2_cdn": "NOT_EXECUTED"
+  },
+  "personas": {
+    "Marina": "FAIL_NOT_EXECUTED_FULL (seller-lifecycle skipped: missing auth/seed)",
+    "Carlos": "PARTIAL (search/marketplace pages smoke; checkout PSP blocked)",
+    "Juliana": "PARTIAL (KG panel e2e mock PASS; collections=0 live)",
+    "Eduardo": "FAIL (scheduler 79/79 failed; BullMQ live NOT_EXECUTED)",
+    "Fernanda": "FAIL (taxonomy/collections/relationships empty / sparse)",
+    "Renato": "FAIL (ops health: sync image fetch failures; load/LH NOT_EXECUTED)"
+  },
+  "open_bugs": {
+    "P0": ["BUG-V5-001", "BUG-V5-002", "BUG-V5-003"],
+    "P1": ["BUG-V5-004", "BUG-V5-005", "BUG-V5-006", "BUG-V5-007"],
+    "P2": ["BUG-V5-008", "BUG-V5-009", "BUG-V5-010"],
+    "P3": ["BUG-V5-011"]
+  }
+}
