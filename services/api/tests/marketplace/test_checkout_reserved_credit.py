@@ -70,3 +70,15 @@ def test_stripe_checkout_uses_global_active_locked_credit():
     src = inspect.getsource(shop_checkout._build_stripe_checkout)
     assert "user_active_locked_qty_credit" in src
     assert "_locked_qty_credit(checkout_data)" in src
+def test_shop_order_insert_uses_cast_jsonb_not_colon_cast():
+    """asyncpg/SQLAlchemy quebram em :addr::jsonb — exige CAST(:addr AS jsonb)."""
+    import inspect
+
+    from app.marketplace import shop_checkout, shop_pix
+
+    stripe_src = inspect.getsource(shop_checkout._build_stripe_checkout)
+    pix_src = inspect.getsource(shop_pix._finish_pix_checkout)
+    assert "CAST(:addr AS jsonb)" in stripe_src
+    assert ":addr::jsonb" not in stripe_src
+    assert "CAST(:addr AS jsonb)" in pix_src
+    assert ":addr::jsonb" not in pix_src

@@ -415,7 +415,7 @@ async def _finish_pix_checkout(
                       use_escrow
                     ) VALUES (
                       :buyer, :store, 'pending', :total,
-                      :fee, :store_recv, :addr::jsonb, :pm, :txid,
+                      :fee, :store_recv, CAST(:addr AS jsonb), :pm, :txid,
                       :disc, :cid, :ccode, :subtotal,
                       :use_escrow
                     )

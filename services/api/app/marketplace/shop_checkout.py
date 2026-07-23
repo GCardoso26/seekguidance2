@@ -289,7 +289,7 @@ async def _build_stripe_checkout(
                       use_escrow
                     ) VALUES (
                       :buyer, :store, 'pending', :total,
-                      :fee, :store_recv, :addr::jsonb, :tg, :pm,
+                      :fee, :store_recv, CAST(:addr AS jsonb), :tg, :pm,
                       :use_escrow
                     )
                     RETURNING id
