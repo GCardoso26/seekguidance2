@@ -2,7 +2,17 @@
 
 from __future__ import annotations
 
+import inspect
+
+from app.decks import decks as decks_mod
 from app.decks.decks import _group_cards, _max_copies, normalize_deck
+
+
+def test_add_card_uses_cast_zone_not_colon_cast():
+    """asyncpg/SQLAlchemy quebram em :zone::tipo — exige CAST(:zone AS ...)."""
+    src = inspect.getsource(decks_mod.add_card_to_deck)
+    assert "CAST(:zone AS tcg_judge.deck_zone)" in src
+    assert ":zone::tcg_judge.deck_zone" not in src
 
 
 def test_max_copies_commander():

@@ -466,7 +466,8 @@ async def add_card_to_deck(
             text(
                 """
                 SELECT id, quantity FROM tcg_judge.deck_cards
-                WHERE deck_id = :did AND card_id = :cid AND zone = :zone::tcg_judge.deck_zone
+                WHERE deck_id = :did AND card_id = :cid
+                  AND zone = CAST(:zone AS tcg_judge.deck_zone)
                   AND is_foil = :foil
                 """
             ),
@@ -481,7 +482,8 @@ async def add_card_to_deck(
                 """
                 SELECT COALESCE(SUM(quantity), 0) AS qty
                 FROM tcg_judge.deck_cards
-                WHERE deck_id = :did AND card_id = :cid AND zone = :zone::tcg_judge.deck_zone
+                WHERE deck_id = :did AND card_id = :cid
+                  AND zone = CAST(:zone AS tcg_judge.deck_zone)
                 """
             ),
             {"did": uid, "cid": card_uuid, "zone": zone},
@@ -501,7 +503,7 @@ async def add_card_to_deck(
             text(
                 """
                 INSERT INTO tcg_judge.deck_cards (deck_id, card_id, quantity, zone, is_foil)
-                VALUES (:did, :cid, :qty, :zone::tcg_judge.deck_zone, :foil)
+                VALUES (:did, :cid, :qty, CAST(:zone AS tcg_judge.deck_zone), :foil)
                 """
             ),
             {"did": uid, "cid": card_uuid, "qty": quantity, "zone": zone, "foil": is_foil},
