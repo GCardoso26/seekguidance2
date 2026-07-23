@@ -46,7 +46,8 @@ export class AssetMediaPipeline {
     const cdnUrl = publicBase
       ? `${publicBase}/${storageKey}.webp`
       : downloaded.fromFixture
-        ? `fixture://assets/${sha256}.png`
+        ? // Prefer real source URL over opaque fixture:// (Next/Image rejects fixture scheme).
+          downloaded.finalUrl || `fixture://assets/${sha256}.png`
         : downloaded.finalUrl;
 
     const { buildFormatDerivativeMap, buildDerivativeSet } = await import(

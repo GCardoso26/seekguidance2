@@ -41,7 +41,11 @@ export function MasterCatalogPublishPage() {
   function selectVariant(variantId: string) {
     setSelectedVariantId(variantId);
     const item = data?.items.find((i) => i.variant_id === variantId);
-    setImageMode(item?.image_url ? "official" : "custom");
+    const hasOfficial =
+      !!item?.image_url &&
+      !item.image_url.startsWith("fixture:") &&
+      /^https?:\/\//i.test(item.image_url);
+    setImageMode(hasOfficial ? "official" : "custom");
     setCustomImageUrl(undefined);
   }
 
@@ -149,7 +153,7 @@ export function MasterCatalogPublishPage() {
                           : "border-border hover:bg-muted/40",
                       )}
                     >
-                      {item.image_url ? (
+                      {item.image_url && !item.image_url.startsWith("fixture:") ? (
                         <span className="relative h-12 w-12 shrink-0 overflow-hidden rounded bg-muted/40">
                           <CardImage
                             src={item.image_url}

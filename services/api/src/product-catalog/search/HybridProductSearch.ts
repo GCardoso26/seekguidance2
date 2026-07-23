@@ -53,10 +53,11 @@ export class HybridProductSearch {
       `
       SELECT p.id AS product_id, p.title_pt,
         ts_rank(p.search_vector, plainto_tsquery('portuguese', $1))
-          + similarity(p.title_pt, $1) AS rank
+          + CASE WHEN p.title_pt ILIKE '%' || $1 || '%' THEN 0.2 ELSE 0 END AS rank
       FROM product_catalog.products p
       WHERE p.search_vector @@ plainto_tsquery('portuguese', $1)
-         OR p.title_pt % $1
+         OR p.title_pt ILIKE '%' || $1 || '%'
+         OR COALESCE(p.normalized_title, '') ILIKE '%' || $1 || '%'
       ORDER BY rank DESC
       LIMIT $2
       `,

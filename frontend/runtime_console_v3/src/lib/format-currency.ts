@@ -124,6 +124,14 @@ export function isExternalCardImageUrl(url: string): boolean {
   return /^https?:\/\//i.test(trimmed);
 }
 
+/** Schemes that next/image cannot fetch (fixture sync placeholders, etc.). */
+export function isUnusableImageSrc(url: string | null | undefined): boolean {
+  const trimmed = url?.trim() ?? "";
+  if (!trimmed) return true;
+  if (/^(fixture|blob|file|chrome-extension):/i.test(trimmed)) return true;
+  return false;
+}
+
 export function shouldBypassImageOptimizer(url: string): boolean {
   return isSvgImageUrl(url) || isExternalCardImageUrl(url);
 }

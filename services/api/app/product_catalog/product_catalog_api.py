@@ -42,9 +42,9 @@ async def search_master_products(
         where.append(
             """(
               p.search_vector @@ plainto_tsquery('portuguese', :q_plain)
-              OR p.title_pt % :q_plain
-              OR p.normalized_title ILIKE :q_norm
-              OR p.sku ILIKE :q
+              OR p.title_pt ILIKE :q_norm
+              OR COALESCE(p.normalized_title, '') ILIKE :q_norm
+              OR COALESCE(p.sku, '') ILIKE :q
               OR EXISTS (
                 SELECT 1 FROM product_catalog.product_games pg
                 JOIN product_catalog.games g ON g.id = pg.game_id
@@ -53,7 +53,7 @@ async def search_master_products(
             )"""
         )
         params["q_plain"] = q.strip()
-        params["q_norm"] = f"%{q.strip().lower()}%"
+        params["q_norm"] = f"%{q.strip()}%"
         params["q"] = f"%{q.strip()}%"
         params["q_game"] = f"%{q.strip().upper()}%"
     if category:
@@ -80,7 +80,12 @@ async def search_master_products(
           v.id AS variant_id,
           v.variant_name,
           (
-            SELECT a.cdn_url FROM media.asset_links l
+            SELECT CASE
+              WHEN a.cdn_url LIKE 'fixture:%' THEN NULL
+              WHEN a.cdn_url LIKE 'http%' THEN a.cdn_url
+              ELSE NULL
+            END
+            FROM media.asset_links l
             JOIN media.assets a ON a.id = l.asset_id
             WHERE l.entity_type = 'product_variant' AND l.entity_id = v.id
             ORDER BY CASE l.role WHEN 'primary' THEN 0 ELSE 1 END, l.sort_order

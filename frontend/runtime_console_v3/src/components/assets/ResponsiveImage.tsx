@@ -2,7 +2,7 @@
 
 import Image, { type ImageProps } from "next/image";
 import { useCallback, useMemo, useState } from "react";
-import { shouldBypassImageOptimizer } from "@/lib/format-currency";
+import { shouldBypassImageOptimizer, isUnusableImageSrc } from "@/lib/format-currency";
 import { trackEvent } from "@/lib/analytics";
 import {
   DEFAULT_SIZES_ATTR,
@@ -48,21 +48,22 @@ export function ResponsiveImage({
 }: ResponsiveImageProps) {
   const [error, setError] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const usableSrc = isUnusableImageSrc(src) ? null : src;
 
   const resolvedAlt = alt || meta?.alt || fallbackLabel || mediaType;
   const blurDataURL = useMemo(
     () => meta?.lqip || lqipForMedia(mediaType, resolvedAlt),
     [meta?.lqip, mediaType, resolvedAlt],
   );
-  const unoptimized = unoptimizedProp ?? shouldBypassImageOptimizer(src ?? "");
+  const unoptimized = unoptimizedProp ?? shouldBypassImageOptimizer(usableSrc ?? "");
   const sizesAttr = sizes ?? DEFAULT_SIZES_ATTR[mediaType] ?? DEFAULT_SIZES_ATTR.default;
 
   const handleError = useCallback(() => {
     setError(true);
-    if (src) {
+    if (usableSrc) {
       try {
         const host = new URL(
-          src,
+          usableSrc,
           typeof window !== "undefined" ? window.location.origin : "https://judgetcg.com",
         ).host;
         void trackEvent("image_failure", { url_host: host, media_type: mediaType });
@@ -70,9 +71,9 @@ export function ResponsiveImage({
         void trackEvent("image_failure", { url_host: "unknown", media_type: mediaType });
       }
     }
-  }, [src, mediaType]);
+  }, [usableSrc, mediaType]);
 
-  if (error || !src) {
+  if (error || !usableSrc) {
     return (
       <div
         className={cn(
@@ -105,7 +106,7 @@ export function ResponsiveImage({
         />
       )}
       <Image
-        src={src}
+        src={usableSrc}
         alt={resolvedAlt}
         className={cn(
           className,
