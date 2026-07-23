@@ -63,24 +63,36 @@ export class ProductCatalogSyncService {
           errors.push(...products.errors);
         }
         const lookups = await this.repo.loadDeduplicationLookups();
-        let dup = 0;
+        // Per-provider counters for finishSyncRun (global seen/upserted still accumulate).
+        const providerSeen = products.count;
+        let providerUpserted = 0;
+        let providerDup = 0;
         for (const dto of products.items ?? []) {
           const n = await this.persistOne(provider, dto, lookups, ctx, errors);
-          if (n === 0 && !ctx.dryRun) dup++;
+          if (n === 0 && !ctx.dryRun) {
+            providerDup++;
+          }
           upserted += n;
+          providerUpserted += n;
         }
-        await this.repo.finishSyncRun(runId, errors.length ? "failed" : "completed", {
-          itemsSeen: seen,
-          itemsUpserted: upserted,
-          itemsDuplicate: dup,
+        // Image/knowledge soft warnings must not fail the run (BUG-V6-002).
+        const hardErrors = errors.filter(
+          (e) => !e.startsWith("image:") && !e.startsWith("knowledge:"),
+        );
+        const softOnly = hardErrors.length === 0 && errors.length > 0;
+        const finalStatus = hardErrors.length > 0 ? "failed" : "completed";
+        await this.repo.finishSyncRun(runId, finalStatus, {
+          itemsSeen: providerSeen,
+          itemsUpserted: providerUpserted,
+          itemsDuplicate: providerDup,
           durationMs: Date.now() - started,
           errors,
         });
         await this.repo.touchProviderRegistry(
           provider.providerId,
           provider.category,
-          errors.length ? "failed" : "completed",
-          errors[0],
+          finalStatus,
+          hardErrors[0] ?? (softOnly ? `soft_warnings:${errors.length}` : undefined),
         );
         productCatalogProviderRegistry.markSuccess(provider.providerId);
       } catch (e) {
@@ -99,7 +111,10 @@ export class ProductCatalogSyncService {
       }
     }
 
-    return { ok: errors.length === 0, upserted, errors };
+    const hardErrors = errors.filter(
+      (e) => !e.startsWith("image:") && !e.startsWith("knowledge:"),
+    );
+    return { ok: hardErrors.length === 0, upserted, errors };
   }
 
   private async persistOne(

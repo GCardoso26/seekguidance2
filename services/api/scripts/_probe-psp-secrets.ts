@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { createPaymentGateway } from "../src/checkout/application/payment/createPaymentGateway.js";
 import { createShippingProvider } from "../src/checkout/application/shipping/createShippingProvider.js";
 

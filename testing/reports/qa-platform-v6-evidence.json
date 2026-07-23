@@ -1,0 +1,55 @@
+{
+  "campaign": "QA_PLATFORM_V6_PRODUCTION_READINESS",
+  "date": "2026-07-23",
+  "revision": "v6.1-continue",
+  "project": "rjgzaakhzuzdzcooywva",
+  "policy": "Zero Feature — validate/stabilize/fix/certify only",
+  "verdict": "NOT_READY_FOR_PRODUCTION",
+  "closed_or_reframed": {
+    "BUG-V6-001_kg_scale": "REFRAMED — accessory linkable inventory sleeves=1 linked=1 (100%); card singles (14877) out of product_catalog accessory scope; collections=1 with 20 products",
+    "BUG-V6-002_sync_status": "PARTIAL — soft-fail for image:/knowledge: warnings; new Gamegenic run ok=true status=completed; historical failed=79 remain; image fetch still broken"
+  },
+  "evidence": {
+    "checkout_live_psp": "PASS (prior v6 — Stripe PI + MP PIX + Melhor Envio)",
+    "e2e": {
+      "seller-lifecycle": "PASS",
+      "marketplace-filters": "PASS",
+      "product-knowledge-panel": "PASS",
+      "buyer-lifecycle+filters": "PASS 11 tests"
+    },
+    "sync_soft_fail_fix": {
+      "file": "ProductCatalogSyncService.ts",
+      "gamegenic_resync": { "ok": true, "upserted": 3, "soft_image_errors": 5, "run_status": "completed" },
+      "db": { "sync_completed": 1, "sync_failed_historical": 79 }
+    },
+    "kg_remediation": {
+      "worker": "remediate-v6-kg.ts",
+      "collections": 1,
+      "products_in_collections": 20,
+      "sleeves_total": 1,
+      "sleeves_linked": 1,
+      "master_links_all_store": 1,
+      "singles_out_of_scope": 14877
+    },
+    "commerce_rls": { "rls_on": 24 },
+    "redis": "FAIL ECONNREFUSED",
+    "bullmq": "NOT_EXECUTED",
+    "lighthouse": "NOT_EXECUTED",
+    "load_100_1000": "NOT_EXECUTED",
+    "vitest_spot": "PASS 4 related tests"
+  },
+  "personas": {
+    "Marina": "PASS_PARTIAL (lifecycle E2E PASS; PDV NOT_EXECUTED)",
+    "Carlos": "PASS_PARTIAL (buyer-lifecycle+filters PASS; order saga NOT_EXECUTED)",
+    "Juliana": "PASS_PARTIAL (panel E2E + collection seeded; sparse packages/relationships)",
+    "Eduardo": "PARTIAL (new sync completed; image pipeline still failing; BullMQ NOT_EXECUTED)",
+    "Fernanda": "PARTIAL (collection+manufacturer data; relationships still 0)",
+    "Renato": "FAIL (Redis/LH/load)"
+  },
+  "open_bugs": {
+    "P0": [],
+    "P1": ["BUG-V6-003", "BUG-V6-004", "BUG-V6-005", "BUG-V6-010", "BUG-V6-011"],
+    "P2": ["BUG-V6-007", "BUG-V6-008"],
+    "P3": ["BUG-V6-009"]
+  }
+}
