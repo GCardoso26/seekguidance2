@@ -184,6 +184,424 @@ async def product_catalog_admin_stats(session: DbSession) -> dict[str, Any]:
     }
 
 
+@router.get("/runtime/judge/product-catalog/admin/asset-ingestion-coverage")
+async def product_catalog_asset_ingestion_coverage(session: DbSession) -> dict[str, Any]:
+    """Métricas de cobertura de imagens oficiais (acessórios + selados)."""
+    has_image = """
+      EXISTS (
+        SELECT 1 FROM product_catalog.variants v
+        JOIN media.asset_links l ON l.entity_id = v.id AND l.entity_type = 'product_variant'
+        WHERE v.product_id = p.id
+      )
+    """
+    try:
+        domain = await session.execute(
+            text(
+                f"""
+                SELECT
+                  CASE WHEN p.category = 'SEALED_PRODUCT' THEN 'sealed' ELSE 'accessories' END AS domain,
+                  count(*) AS total,
+                  count(*) FILTER (WHERE {has_image}) AS with_image
+                FROM product_catalog.products p
+                GROUP BY 1
+                """
+            )
+        )
+        without = await session.execute(
+            text(f"SELECT count(*) AS c FROM product_catalog.products p WHERE NOT ({has_image})")
+        )
+        by_cat = await session.execute(
+            text(
+                f"""
+                SELECT p.category, count(*) AS total,
+                       count(*) FILTER (WHERE {has_image}) AS with_image
+                FROM product_catalog.products p
+                GROUP BY p.category ORDER BY count(*) DESC
+                """
+            )
+        )
+        by_mfr = await session.execute(
+            text(
+                f"""
+                SELECT coalesce(m.name, 'unknown') AS name, count(p.id) AS total,
+                       count(p.id) FILTER (WHERE {has_image}) AS with_image
+                FROM product_catalog.products p
+                LEFT JOIN product_catalog.manufacturers m ON m.id = p.manufacturer_id
+                WHERE p.category <> 'SEALED_PRODUCT'
+                GROUP BY 1 ORDER BY count(p.id) DESC LIMIT 50
+                """
+            )
+        )
+        by_pub = await session.execute(
+            text(
+                f"""
+                SELECT coalesce(m.name, 'unknown') AS name, count(p.id) AS total,
+                       count(p.id) FILTER (WHERE {has_image}) AS with_image
+                FROM product_catalog.products p
+                LEFT JOIN product_catalog.manufacturers m ON m.id = p.manufacturer_id
+                WHERE p.category = 'SEALED_PRODUCT'
+                GROUP BY 1 ORDER BY count(p.id) DESC LIMIT 50
+                """
+            )
+        )
+        by_game = await session.execute(
+            text(
+                f"""
+                SELECT coalesce(g.code, coalesce(p.game, 'NONE')) AS code,
+                       count(DISTINCT p.id) AS total,
+                       count(DISTINCT p.id) FILTER (WHERE {has_image}) AS with_image
+                FROM product_catalog.products p
+                LEFT JOIN product_catalog.product_games pg ON pg.product_id = p.id
+                LEFT JOIN product_catalog.games g ON g.id = pg.game_id
+                WHERE p.category = 'SEALED_PRODUCT'
+                GROUP BY 1 ORDER BY count(DISTINCT p.id) DESC LIMIT 50
+                """
+            )
+        )
+        by_exp = await session.execute(
+            text(
+                f"""
+                SELECT coalesce(c.name, 'unknown') AS name, count(p.id) AS total,
+                       count(p.id) FILTER (WHERE {has_image}) AS with_image
+                FROM product_catalog.products p
+                LEFT JOIN product_catalog.collections c ON c.id = p.collection_id
+                WHERE p.category = 'SEALED_PRODUCT'
+                GROUP BY 1 ORDER BY count(p.id) DESC LIMIT 50
+                """
+            )
+        )
+        dups = await session.execute(
+            text(
+                """
+                SELECT count(*) AS c FROM (
+                  SELECT a.sha256 FROM media.assets a
+                  JOIN media.asset_links l ON l.asset_id = a.id
+                  GROUP BY a.sha256 HAVING count(l.id) > 1
+                ) d
+                """
+            )
+        )
+        orphans = await session.execute(
+            text(
+                """
+                SELECT count(*) AS c FROM media.assets a
+                WHERE NOT EXISTS (SELECT 1 FROM media.asset_links l WHERE l.asset_id = a.id)
+                """
+            )
+        )
+        quality = await session.execute(
+            text("SELECT avg(quality_score) AS avg FROM product_catalog.products WHERE quality_score IS NOT NULL")
+        )
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail=f"product_catalog_unavailable:{exc}") from exc
+
+    def cov_rows(rows: Any, key: str) -> list[dict[str, Any]]:
+        out: list[dict[str, Any]] = []
+        for r in rows:
+            d = dict(r._mapping)
+            total = int(d.get("total") or 0)
+            with_image = int(d.get("with_image") or 0)
+            out.append(
+                {
+                    key: d.get(key),
+                    "total": total,
+                    "withImage": with_image,
+                    "coveragePct": round((with_image / total) * 100, 1) if total else 0,
+                }
+            )
+        return out
+
+    accessories = {"total": 0, "withImage": 0, "coveragePct": 0.0}
+    sealed = {"total": 0, "withImage": 0, "coveragePct": 0.0}
+    for r in domain.fetchall():
+        d = dict(r._mapping)
+        bucket = sealed if d["domain"] == "sealed" else accessories
+        total = int(d["total"] or 0)
+        with_image = int(d["with_image"] or 0)
+        bucket["total"] = total
+        bucket["withImage"] = with_image
+        bucket["coveragePct"] = round((with_image / total) * 100, 1) if total else 0
+
+    avg_q = quality.scalar()
+    by_mfr_rows = cov_rows(by_mfr.fetchall(), "name")
+    by_pub_rows = cov_rows(by_pub.fetchall(), "name")
+    return {
+        "accessories": accessories,
+        "sealed": sealed,
+        "productsWithoutImage": int(without.scalar() or 0),
+        "byManufacturer": by_mfr_rows,
+        "byPublisher": by_pub_rows,
+        "byGame": cov_rows(by_game.fetchall(), "code"),
+        "byExpansion": cov_rows(by_exp.fetchall(), "name"),
+        "byCategory": cov_rows(by_cat.fetchall(), "category"),
+        "duplicateAssets": int(dups.scalar() or 0),
+        "orphanAssets": int(orphans.scalar() or 0),
+        "averageImageQuality": float(avg_q or 0),
+        "averageAssetScore": 0.0,
+        "topManufacturers": by_mfr_rows[:10],
+        "topPublishers": by_pub_rows[:10],
+        "assetsReplaced": 0,
+        "assetsUpdated": 0,
+        "coverageHistory": [],
+        "generated_at": datetime.now(UTC).isoformat(),
+    }
+
+
+@router.get("/runtime/judge/product-catalog/admin/asset-health")
+async def product_catalog_asset_health(session: DbSession) -> dict[str, Any]:
+    """Asset Health admin report — DTO only for Runtime Console (no full dashboard)."""
+    has_image = """
+      EXISTS (
+        SELECT 1 FROM product_catalog.variants v
+        JOIN media.asset_links l ON l.entity_id = v.id AND l.entity_type = 'product_variant'
+        WHERE v.product_id = p.id
+      )
+    """
+    try:
+        total_assets = await session.execute(text("SELECT count(*) AS c FROM media.assets"))
+        healthy = await session.execute(
+            text(
+                """
+                SELECT count(*) AS c FROM media.assets
+                WHERE cdn_url IS NOT NULL AND sha256 IS NOT NULL
+                  AND derivatives IS NOT NULL AND derivatives <> '{}'::jsonb
+                """
+            )
+        )
+        orphans = await session.execute(
+            text(
+                """
+                SELECT count(*) AS c FROM media.assets a
+                WHERE NOT EXISTS (SELECT 1 FROM media.asset_links l WHERE l.asset_id = a.id)
+                """
+            )
+        )
+        dups = await session.execute(
+            text(
+                """
+                SELECT count(*) AS c FROM (
+                  SELECT sha256 FROM media.assets GROUP BY sha256 HAVING count(*) > 1
+                ) d
+                """
+            )
+        )
+        missing_hero = await session.execute(
+            text(
+                f"""
+                SELECT count(*) AS c FROM product_catalog.products p
+                WHERE p.category = 'SEALED_PRODUCT' AND NOT ({has_image})
+                """
+            )
+        )
+        missing_gallery = await session.execute(
+            text(
+                """
+                SELECT count(*) AS c FROM product_catalog.products p
+                WHERE NOT EXISTS (
+                  SELECT 1 FROM product_catalog.variants v
+                  JOIN media.asset_links l ON l.entity_id = v.id AND l.entity_type = 'product_variant'
+                  WHERE v.product_id = p.id AND l.role = 'gallery'
+                )
+                """
+            )
+        )
+        missing_deriv = await session.execute(
+            text(
+                "SELECT count(*) AS c FROM media.assets WHERE derivatives IS NULL OR derivatives = '{}'::jsonb"
+            )
+        )
+        missing_meta = await session.execute(
+            text("SELECT count(*) AS c FROM media.assets WHERE derivatives->'_meta' IS NULL")
+        )
+        by_game = await session.execute(
+            text(
+                """
+                SELECT coalesce(g.code, coalesce(p.game, 'NONE')) AS code, count(DISTINCT a.id) AS assets
+                FROM product_catalog.products p
+                LEFT JOIN product_catalog.product_games pg ON pg.product_id = p.id
+                LEFT JOIN product_catalog.games g ON g.id = pg.game_id
+                JOIN product_catalog.variants v ON v.product_id = p.id
+                JOIN media.asset_links l ON l.entity_id = v.id AND l.entity_type = 'product_variant'
+                JOIN media.assets a ON a.id = l.asset_id
+                GROUP BY 1 ORDER BY count(DISTINCT a.id) DESC LIMIT 30
+                """
+            )
+        )
+        by_mfr = await session.execute(
+            text(
+                """
+                SELECT coalesce(m.name, 'unknown') AS name, count(DISTINCT a.id) AS assets
+                FROM product_catalog.products p
+                LEFT JOIN product_catalog.manufacturers m ON m.id = p.manufacturer_id
+                JOIN product_catalog.variants v ON v.product_id = p.id
+                JOIN media.asset_links l ON l.entity_id = v.id AND l.entity_type = 'product_variant'
+                JOIN media.assets a ON a.id = l.asset_id
+                WHERE p.category <> 'SEALED_PRODUCT'
+                GROUP BY 1 ORDER BY count(DISTINCT a.id) DESC LIMIT 30
+                """
+            )
+        )
+        by_pub = await session.execute(
+            text(
+                """
+                SELECT coalesce(m.name, 'unknown') AS name, count(DISTINCT a.id) AS assets
+                FROM product_catalog.products p
+                LEFT JOIN product_catalog.manufacturers m ON m.id = p.manufacturer_id
+                JOIN product_catalog.variants v ON v.product_id = p.id
+                JOIN media.asset_links l ON l.entity_id = v.id AND l.entity_type = 'product_variant'
+                JOIN media.assets a ON a.id = l.asset_id
+                WHERE p.category = 'SEALED_PRODUCT'
+                GROUP BY 1 ORDER BY count(DISTINCT a.id) DESC LIMIT 30
+                """
+            )
+        )
+        by_type = await session.execute(
+            text(
+                """
+                SELECT coalesce(l.role, 'unknown') AS type, count(*) AS assets
+                FROM media.asset_links l
+                GROUP BY 1 ORDER BY count(*) DESC LIMIT 30
+                """
+            )
+        )
+        by_exp = await session.execute(
+            text(
+                """
+                SELECT coalesce(c.name, 'unknown') AS name, count(DISTINCT a.id) AS assets
+                FROM product_catalog.products p
+                LEFT JOIN product_catalog.collections c ON c.id = p.collection_id
+                JOIN product_catalog.variants v ON v.product_id = p.id
+                JOIN media.asset_links l ON l.entity_id = v.id AND l.entity_type = 'product_variant'
+                JOIN media.assets a ON a.id = l.asset_id
+                WHERE p.category = 'SEALED_PRODUCT'
+                GROUP BY 1 ORDER BY count(DISTINCT a.id) DESC LIMIT 30
+                """
+            )
+        )
+        quality_dist = await session.execute(
+            text(
+                """
+                SELECT CASE
+                  WHEN qs >= 90 THEN '90-100'
+                  WHEN qs >= 70 THEN '70-89'
+                  WHEN qs >= 50 THEN '50-69'
+                  ELSE '0-49'
+                END AS bucket, count(*) AS count
+                FROM (
+                  SELECT coalesce((derivatives->'_meta'->>'assetQualityScore')::int, 0) AS qs
+                  FROM media.assets
+                ) q GROUP BY 1 ORDER BY 1
+                """
+            )
+        )
+        trust_dist = await session.execute(
+            text(
+                """
+                SELECT coalesce((derivatives->'_meta'->>'sourcePriority')::int, 0) AS trust,
+                       count(*) AS count
+                FROM media.assets
+                GROUP BY 1 ORDER BY 1 DESC LIMIT 20
+                """
+            )
+        )
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail=f"product_catalog_unavailable:{exc}") from exc
+
+    total = int(total_assets.scalar() or 0)
+    healthy_n = int(healthy.scalar() or 0)
+    overall = round((healthy_n / total) * 100, 1) if total else 0.0
+
+    def bucket_rows(rows: Any, key: str) -> list[dict[str, Any]]:
+        out = []
+        for r in rows:
+            d = dict(r._mapping)
+            out.append({key: d.get(key), "healthPct": overall, "assets": int(d.get("assets") or 0)})
+        return out
+
+    return {
+        "overall": overall,
+        "perPublisher": bucket_rows(by_pub.fetchall(), "name"),
+        "perManufacturer": bucket_rows(by_mfr.fetchall(), "name"),
+        "perGame": bucket_rows(by_game.fetchall(), "code"),
+        "perExpansion": bucket_rows(by_exp.fetchall(), "name"),
+        "perAssetType": bucket_rows(by_type.fetchall(), "type"),
+        "orphans": int(orphans.scalar() or 0),
+        "duplicates": int(dups.scalar() or 0),
+        "missingHero": int(missing_hero.scalar() or 0),
+        "missingGallery": int(missing_gallery.scalar() or 0),
+        "missingDerivatives": int(missing_deriv.scalar() or 0),
+        "missingMetadata": int(missing_meta.scalar() or 0),
+        "qualityDistribution": [dict(r._mapping) for r in quality_dist.fetchall()],
+        "trustDistribution": [dict(r._mapping) for r in trust_dist.fetchall()],
+        "generated_at": datetime.now(UTC).isoformat(),
+    }
+
+
+@router.get("/runtime/judge/product-catalog/products/{product_id}/relationships")
+async def product_catalog_product_relationships(
+    session: DbSession,
+    product_id: str,
+    limit: int = Query(default=24, ge=1, le=100),
+) -> dict[str, Any]:
+    """Official related products for Marketplace PDP (no AI)."""
+    try:
+        res = await session.execute(
+            text(
+                """
+                SELECT
+                  p.id AS product_id,
+                  p.title_pt,
+                  p.category,
+                  p.subcategory,
+                  r.relation_type,
+                  r.confidence,
+                  (
+                    SELECT a.cdn_url
+                    FROM product_catalog.variants v
+                    JOIN media.asset_links l ON l.entity_id = v.id AND l.entity_type = 'product_variant'
+                    JOIN media.assets a ON a.id = l.asset_id
+                    WHERE v.product_id = p.id
+                    ORDER BY CASE l.role WHEN 'primary' THEN 0 ELSE 1 END, l.sort_order
+                    LIMIT 1
+                  ) AS image_url
+                FROM product_catalog.product_relationships r
+                JOIN product_catalog.products p ON p.id = r.to_product_id
+                WHERE r.from_product_id = CAST(:pid AS uuid) AND r.official = true
+                ORDER BY r.confidence DESC, p.title_pt ASC
+                LIMIT :limit
+                """
+            ),
+            {"pid": product_id, "limit": limit},
+        )
+        items = [dict(r._mapping) for r in res.fetchall()]
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail=f"product_catalog_unavailable:{exc}") from exc
+    return {"product_id": product_id, "items": items, "generated_at": datetime.now(UTC).isoformat()}
+
+
+@router.get("/runtime/judge/product-catalog/assets/{asset_id}/versions")
+async def product_catalog_asset_versions(session: DbSession, asset_id: str) -> dict[str, Any]:
+    """Asset version history (Product Catalog extension — no Asset BC API change)."""
+    try:
+        res = await session.execute(
+            text(
+                """
+                SELECT id, asset_id, entity_type, entity_id, version_number, source, source_trust,
+                       quality_score, sha256, width, height, format, size_bytes, cdn_url,
+                       pipeline_version, created_by, created_at, is_current
+                FROM product_catalog.asset_version_history
+                WHERE asset_id = CAST(:aid AS uuid)
+                ORDER BY version_number DESC
+                """
+            ),
+            {"aid": asset_id},
+        )
+        items = [dict(r._mapping) for r in res.fetchall()]
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail=f"product_catalog_unavailable:{exc}") from exc
+    return {"asset_id": asset_id, "versions": items}
+
+
 @router.get("/runtime/judge/catalog/products")
 async def public_catalog_products(
     session: DbSession,

@@ -1,4 +1,7 @@
 import type { Pool, PoolClient } from "pg";
+import { appendDomainEvent } from "../platform/events/DomainEventStore.js";
+import { eventBus } from "../platform/event-bus/EventBus.js";
+import { createDomainEvent } from "../shared/events/types.js";
 import { getIdGenerator } from "../shared/ids/IdGenerator.js";
 import type { AssetLinkInput, AssetRecord, IngestAssetInput, IngestAssetResult } from "./domain/types.js";
 import { assetMediaPipeline } from "./media/AssetMediaPipeline.js";
@@ -138,7 +141,10 @@ function mapRow(row: Record<string, unknown>): AssetRecord {
 
 /** Facade — ingestão deduplicada por SHA256 + vínculo polimórfico. */
 export class AssetService {
-  constructor(private readonly repo: PostgresAssetRepository) {}
+  constructor(
+    private readonly repo: PostgresAssetRepository,
+    private readonly db: Q,
+  ) {}
 
   async ingest(input: IngestAssetInput): Promise<IngestAssetResult> {
     const processed = await assetMediaPipeline.process({
@@ -172,7 +178,46 @@ export class AssetService {
       sortOrder: input.sortOrder,
     });
 
-    return { asset, reused: Boolean(existing), linkCreated };
+    const reused = Boolean(existing);
+    if (!reused) {
+      await appendDomainEvent(this.db, {
+        eventType: "AssetCreated",
+        aggregateType: "asset",
+        aggregateId: asset.id,
+        payload: {
+          sha256: asset.sha256,
+          entityType: input.entityType,
+          entityId: input.entityId,
+          role: input.role ?? "primary",
+          mediaType: input.mediaType ?? null,
+          providerId: input.providerId ?? null,
+          cdnUrl: asset.cdnUrl ?? null,
+        },
+        metadata: { requestId: input.requestId, correlationId: input.requestId },
+      });
+    } else if (linkCreated) {
+      await eventBus.publish(
+        createDomainEvent(
+          "MediaUpdated",
+          input.entityId,
+          {
+            ownerType: input.entityType,
+            reused: true,
+            sha256: asset.sha256,
+            assetId: asset.id,
+            role: input.role ?? "primary",
+          },
+          {
+            requestId: input.requestId,
+            aggregateType: "media_asset",
+            correlationId: input.requestId,
+            producer: "assets",
+          },
+        ),
+      );
+    }
+
+    return { asset, reused, linkCreated };
   }
 
   listForEntity(entityType: string, entityId: string) {
@@ -185,5 +230,5 @@ export class AssetService {
 }
 
 export function createAssetService(db: Pool | PoolClient): AssetService {
-  return new AssetService(new PostgresAssetRepository(db));
+  return new AssetService(new PostgresAssetRepository(db), db);
 }

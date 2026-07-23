@@ -97,11 +97,13 @@ export class ProviderScheduler {
     return { enqueued };
   }
 
-  /** Bootstrap schedules from in-memory registry. */
+  /** Bootstrap schedules from in-memory registry — manufacturers daily (24h), sealed hourly detection. */
   async syncFromMemoryRegistry(defaults: Partial<Record<string, ScheduleKind>> = {}): Promise<void> {
     for (const job of productCatalogProviderRegistry.listJobs()) {
       for (const p of productCatalogProviderRegistry.getProvidersForJob(job)) {
-        const kind = defaults[p.providerId] ?? "daily";
+        const kind =
+          defaults[p.providerId] ??
+          (p.category === "SEALED_PRODUCT" ? "hourly" : "daily");
         await this.registerSchedule(p.providerId, p.category, kind);
       }
     }

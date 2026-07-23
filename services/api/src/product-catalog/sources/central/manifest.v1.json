@@ -1,0 +1,111 @@
+{
+  "version": 1,
+  "manufacturer": "Central",
+  "brand": "Central",
+  "source": "official_lojista_materials",
+  "folderId": "1BB8Sywy2XPOFoUI03Fx8BsRdgoj4Rih8",
+  "items": [
+    {
+      "sku": "CEN-SLV-BASICO-STD",
+      "titlePt": "Sleeves Básico Standard",
+      "titleEn": "Basic Standard Sleeves",
+      "category": "SLEEVES",
+      "subcategory": "STANDARD_MATTE",
+      "accessoryType": "sleeves",
+      "images": [
+        {
+          "role": "packshot",
+          "sourceUrl": "https://via.placeholder.com/800x800.png?text=Central+Sleeves+Packshot",
+          "isPrimary": true
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://via.placeholder.com/1920x700.png?text=Central+Sleeves+Hero"
+        },
+        {
+          "role": "logo",
+          "sourceUrl": "https://via.placeholder.com/512x512.png?text=Central+Logo"
+        }
+      ]
+    },
+    {
+      "sku": "CEN-OUTER-STD",
+      "titlePt": "Outer Sleeve Standard",
+      "titleEn": "Outer Sleeve Standard",
+      "category": "SLEEVES",
+      "subcategory": "OUTER_SLEEVES",
+      "accessoryType": "outer_sleeves",
+      "images": [
+        {
+          "role": "packshot",
+          "sourceUrl": "https://via.placeholder.com/800x800.png?text=Central+Outer+Sleeve",
+          "isPrimary": true
+        }
+      ]
+    },
+    {
+      "sku": "CEN-DECK-BOX-STD",
+      "titlePt": "Deck Box Standard",
+      "category": "DECK_BOX",
+      "subcategory": "PLASTIC",
+      "accessoryType": "deck_box",
+      "images": [
+        {
+          "role": "packshot",
+          "sourceUrl": "https://via.placeholder.com/800x800.png?text=Central+Deck+Box",
+          "isPrimary": true
+        },
+        {
+          "role": "marketing",
+          "sourceUrl": "https://via.placeholder.com/1200x800.png?text=Central+Deck+Box+Marketing"
+        }
+      ]
+    },
+    {
+      "sku": "CEN-BINDER-ALBUM",
+      "titlePt": "Álbum Pocket",
+      "category": "BINDER",
+      "subcategory": "POCKET_ALBUM",
+      "accessoryType": "binder",
+      "images": [
+        {
+          "role": "packshot",
+          "sourceUrl": "https://via.placeholder.com/800x800.png?text=Central+Album",
+          "isPrimary": true
+        },
+        {
+          "role": "banner",
+          "sourceUrl": "https://via.placeholder.com/1920x400.png?text=Central+Album+Banner"
+        }
+      ]
+    },
+    {
+      "sku": "CEN-PLAYMAT-STD",
+      "titlePt": "Playmat Standard",
+      "category": "PLAYMAT",
+      "subcategory": "STANDARD",
+      "accessoryType": "playmat",
+      "images": [
+        {
+          "role": "packshot",
+          "sourceUrl": "https://via.placeholder.com/1200x800.png?text=Central+Playmat",
+          "isPrimary": true
+        }
+      ]
+    },
+    {
+      "sku": "CEN-TOPLOADER-STD",
+      "titlePt": "Toploader Standard",
+      "category": "COUNTERS",
+      "subcategory": "TOP_LOADER",
+      "accessoryType": "top_loader",
+      "images": [
+        {
+          "role": "packshot",
+          "sourceUrl": "https://via.placeholder.com/600x800.png?text=Central+Toploader",
+          "isPrimary": true
+        }
+      ]
+    }
+  ]
+}

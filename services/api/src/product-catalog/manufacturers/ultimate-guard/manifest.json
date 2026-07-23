@@ -1,0 +1,534 @@
+{
+  "version": 1,
+  "website": "https://ultimateguard.com",
+  "brand": "Ultimate Guard",
+  "items": [
+    {
+      "accessoryType": "sleeves",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/sleeves-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/sleeves-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/sleeves-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultimate Guard sleeves",
+      "sku": "ULTIMATEGUARD-SLEEVES-001",
+      "titlePt": "Ultimate Guard sleeves",
+      "aliases": [
+        "Ultimate Guard",
+        "sleeves"
+      ]
+    },
+    {
+      "accessoryType": "perfect_fit",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/perfect_fit-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/perfect_fit-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/perfect_fit-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultimate Guard perfect fit",
+      "sku": "ULTIMATEGUARD-PERFECT-FIT-002",
+      "titlePt": "Ultimate Guard perfect fit",
+      "aliases": [
+        "Ultimate Guard",
+        "perfect_fit"
+      ]
+    },
+    {
+      "accessoryType": "outer_sleeves",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/outer_sleeves-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/outer_sleeves-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/outer_sleeves-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultimate Guard outer sleeves",
+      "sku": "ULTIMATEGUARD-OUTER-SLEEVES-003",
+      "titlePt": "Ultimate Guard outer sleeves",
+      "aliases": [
+        "Ultimate Guard",
+        "outer_sleeves"
+      ]
+    },
+    {
+      "accessoryType": "deck_box",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/deck_box-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/deck_box-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/deck_box-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultimate Guard deck box",
+      "sku": "ULTIMATEGUARD-DECK-BOX-004",
+      "titlePt": "Ultimate Guard deck box",
+      "aliases": [
+        "Ultimate Guard",
+        "deck_box"
+      ]
+    },
+    {
+      "accessoryType": "deck_case",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/deck_case-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/deck_case-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/deck_case-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultimate Guard deck case",
+      "sku": "ULTIMATEGUARD-DECK-CASE-005",
+      "titlePt": "Ultimate Guard deck case",
+      "aliases": [
+        "Ultimate Guard",
+        "deck_case"
+      ]
+    },
+    {
+      "accessoryType": "storage_box",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/storage_box-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/storage_box-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/storage_box-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultimate Guard storage box",
+      "sku": "ULTIMATEGUARD-STORAGE-BOX-006",
+      "titlePt": "Ultimate Guard storage box",
+      "aliases": [
+        "Ultimate Guard",
+        "storage_box"
+      ]
+    },
+    {
+      "accessoryType": "binder",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/binder-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/binder-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/binder-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultimate Guard binder",
+      "sku": "ULTIMATEGUARD-BINDER-007",
+      "titlePt": "Ultimate Guard binder",
+      "aliases": [
+        "Ultimate Guard",
+        "binder"
+      ]
+    },
+    {
+      "accessoryType": "portfolio",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/portfolio-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/portfolio-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/portfolio-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultimate Guard portfolio",
+      "sku": "ULTIMATEGUARD-PORTFOLIO-008",
+      "titlePt": "Ultimate Guard portfolio",
+      "aliases": [
+        "Ultimate Guard",
+        "portfolio"
+      ]
+    },
+    {
+      "accessoryType": "playmat",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/playmat-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/playmat-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/playmat-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultimate Guard playmat",
+      "sku": "ULTIMATEGUARD-PLAYMAT-009",
+      "titlePt": "Ultimate Guard playmat",
+      "aliases": [
+        "Ultimate Guard",
+        "playmat"
+      ]
+    },
+    {
+      "accessoryType": "playmat_tube",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/playmat_tube-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/playmat_tube-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/playmat_tube-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultimate Guard playmat tube",
+      "sku": "ULTIMATEGUARD-PLAYMAT-TUBE-010",
+      "titlePt": "Ultimate Guard playmat tube",
+      "aliases": [
+        "Ultimate Guard",
+        "playmat_tube"
+      ]
+    },
+    {
+      "accessoryType": "dice",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/dice-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/dice-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/dice-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultimate Guard dice",
+      "sku": "ULTIMATEGUARD-DICE-011",
+      "titlePt": "Ultimate Guard dice",
+      "aliases": [
+        "Ultimate Guard",
+        "dice"
+      ]
+    },
+    {
+      "accessoryType": "dice_tray",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/dice_tray-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/dice_tray-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/dice_tray-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultimate Guard dice tray",
+      "sku": "ULTIMATEGUARD-DICE-TRAY-012",
+      "titlePt": "Ultimate Guard dice tray",
+      "aliases": [
+        "Ultimate Guard",
+        "dice_tray"
+      ]
+    },
+    {
+      "accessoryType": "life_counter",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/life_counter-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/life_counter-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/life_counter-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultimate Guard life counter",
+      "sku": "ULTIMATEGUARD-LIFE-COUNTER-013",
+      "titlePt": "Ultimate Guard life counter",
+      "aliases": [
+        "Ultimate Guard",
+        "life_counter"
+      ]
+    },
+    {
+      "accessoryType": "counters",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/counters-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/counters-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/counters-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultimate Guard counters",
+      "sku": "ULTIMATEGUARD-COUNTERS-014",
+      "titlePt": "Ultimate Guard counters",
+      "aliases": [
+        "Ultimate Guard",
+        "counters"
+      ]
+    },
+    {
+      "accessoryType": "tokens",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/tokens-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/tokens-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/tokens-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultimate Guard tokens",
+      "sku": "ULTIMATEGUARD-TOKENS-015",
+      "titlePt": "Ultimate Guard tokens",
+      "aliases": [
+        "Ultimate Guard",
+        "tokens"
+      ]
+    },
+    {
+      "accessoryType": "divider",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/divider-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/divider-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/divider-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultimate Guard divider",
+      "sku": "ULTIMATEGUARD-DIVIDER-016",
+      "titlePt": "Ultimate Guard divider",
+      "aliases": [
+        "Ultimate Guard",
+        "divider"
+      ]
+    },
+    {
+      "accessoryType": "top_loader",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/top_loader-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/top_loader-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/top_loader-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultimate Guard top loader",
+      "sku": "ULTIMATEGUARD-TOP-LOADER-017",
+      "titlePt": "Ultimate Guard top loader",
+      "aliases": [
+        "Ultimate Guard",
+        "top_loader"
+      ]
+    },
+    {
+      "accessoryType": "magnetic_case",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/magnetic_case-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/magnetic_case-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/magnetic_case-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultimate Guard magnetic case",
+      "sku": "ULTIMATEGUARD-MAGNETIC-CASE-018",
+      "titlePt": "Ultimate Guard magnetic case",
+      "aliases": [
+        "Ultimate Guard",
+        "magnetic_case"
+      ]
+    },
+    {
+      "accessoryType": "storage",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/storage-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/storage-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/storage-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultimate Guard storage",
+      "sku": "ULTIMATEGUARD-STORAGE-019",
+      "titlePt": "Ultimate Guard storage",
+      "aliases": [
+        "Ultimate Guard",
+        "storage"
+      ]
+    },
+    {
+      "accessoryType": "acrylic",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/acrylic-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/acrylic-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/acrylic-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultimate Guard acrylic",
+      "sku": "ULTIMATEGUARD-ACRYLIC-020",
+      "titlePt": "Ultimate Guard acrylic",
+      "aliases": [
+        "Ultimate Guard",
+        "acrylic"
+      ]
+    },
+    {
+      "accessoryType": "accessories",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/accessories-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/accessories-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-guard/accessories-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultimate Guard accessories",
+      "sku": "ULTIMATEGUARD-ACCESSORIES-021",
+      "titlePt": "Ultimate Guard accessories",
+      "aliases": [
+        "Ultimate Guard",
+        "accessories"
+      ]
+    }
+  ],
+  "manufacturer": "Ultimate Guard",
+  "manufacturerId": "ultimate-guard"
+}

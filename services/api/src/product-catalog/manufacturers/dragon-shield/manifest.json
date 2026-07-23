@@ -1,0 +1,534 @@
+{
+  "version": 1,
+  "website": "https://www.dragonshield.com",
+  "brand": "Dragon Shield",
+  "items": [
+    {
+      "accessoryType": "sleeves",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/sleeves-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/sleeves-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/sleeves-gallery.webp"
+        }
+      ],
+      "titleEn": "Dragon Shield sleeves",
+      "sku": "DRAGONSHIELD-SLEEVES-001",
+      "titlePt": "Dragon Shield sleeves",
+      "aliases": [
+        "Dragon Shield",
+        "sleeves"
+      ]
+    },
+    {
+      "accessoryType": "perfect_fit",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/perfect_fit-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/perfect_fit-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/perfect_fit-gallery.webp"
+        }
+      ],
+      "titleEn": "Dragon Shield perfect fit",
+      "sku": "DRAGONSHIELD-PERFECT-FIT-002",
+      "titlePt": "Dragon Shield perfect fit",
+      "aliases": [
+        "Dragon Shield",
+        "perfect_fit"
+      ]
+    },
+    {
+      "accessoryType": "outer_sleeves",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/outer_sleeves-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/outer_sleeves-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/outer_sleeves-gallery.webp"
+        }
+      ],
+      "titleEn": "Dragon Shield outer sleeves",
+      "sku": "DRAGONSHIELD-OUTER-SLEEVES-003",
+      "titlePt": "Dragon Shield outer sleeves",
+      "aliases": [
+        "Dragon Shield",
+        "outer_sleeves"
+      ]
+    },
+    {
+      "accessoryType": "deck_box",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/deck_box-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/deck_box-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/deck_box-gallery.webp"
+        }
+      ],
+      "titleEn": "Dragon Shield deck box",
+      "sku": "DRAGONSHIELD-DECK-BOX-004",
+      "titlePt": "Dragon Shield deck box",
+      "aliases": [
+        "Dragon Shield",
+        "deck_box"
+      ]
+    },
+    {
+      "accessoryType": "deck_case",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/deck_case-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/deck_case-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/deck_case-gallery.webp"
+        }
+      ],
+      "titleEn": "Dragon Shield deck case",
+      "sku": "DRAGONSHIELD-DECK-CASE-005",
+      "titlePt": "Dragon Shield deck case",
+      "aliases": [
+        "Dragon Shield",
+        "deck_case"
+      ]
+    },
+    {
+      "accessoryType": "storage_box",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/storage_box-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/storage_box-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/storage_box-gallery.webp"
+        }
+      ],
+      "titleEn": "Dragon Shield storage box",
+      "sku": "DRAGONSHIELD-STORAGE-BOX-006",
+      "titlePt": "Dragon Shield storage box",
+      "aliases": [
+        "Dragon Shield",
+        "storage_box"
+      ]
+    },
+    {
+      "accessoryType": "binder",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/binder-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/binder-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/binder-gallery.webp"
+        }
+      ],
+      "titleEn": "Dragon Shield binder",
+      "sku": "DRAGONSHIELD-BINDER-007",
+      "titlePt": "Dragon Shield binder",
+      "aliases": [
+        "Dragon Shield",
+        "binder"
+      ]
+    },
+    {
+      "accessoryType": "portfolio",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/portfolio-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/portfolio-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/portfolio-gallery.webp"
+        }
+      ],
+      "titleEn": "Dragon Shield portfolio",
+      "sku": "DRAGONSHIELD-PORTFOLIO-008",
+      "titlePt": "Dragon Shield portfolio",
+      "aliases": [
+        "Dragon Shield",
+        "portfolio"
+      ]
+    },
+    {
+      "accessoryType": "playmat",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/playmat-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/playmat-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/playmat-gallery.webp"
+        }
+      ],
+      "titleEn": "Dragon Shield playmat",
+      "sku": "DRAGONSHIELD-PLAYMAT-009",
+      "titlePt": "Dragon Shield playmat",
+      "aliases": [
+        "Dragon Shield",
+        "playmat"
+      ]
+    },
+    {
+      "accessoryType": "playmat_tube",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/playmat_tube-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/playmat_tube-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/playmat_tube-gallery.webp"
+        }
+      ],
+      "titleEn": "Dragon Shield playmat tube",
+      "sku": "DRAGONSHIELD-PLAYMAT-TUBE-010",
+      "titlePt": "Dragon Shield playmat tube",
+      "aliases": [
+        "Dragon Shield",
+        "playmat_tube"
+      ]
+    },
+    {
+      "accessoryType": "dice",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/dice-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/dice-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/dice-gallery.webp"
+        }
+      ],
+      "titleEn": "Dragon Shield dice",
+      "sku": "DRAGONSHIELD-DICE-011",
+      "titlePt": "Dragon Shield dice",
+      "aliases": [
+        "Dragon Shield",
+        "dice"
+      ]
+    },
+    {
+      "accessoryType": "dice_tray",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/dice_tray-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/dice_tray-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/dice_tray-gallery.webp"
+        }
+      ],
+      "titleEn": "Dragon Shield dice tray",
+      "sku": "DRAGONSHIELD-DICE-TRAY-012",
+      "titlePt": "Dragon Shield dice tray",
+      "aliases": [
+        "Dragon Shield",
+        "dice_tray"
+      ]
+    },
+    {
+      "accessoryType": "life_counter",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/life_counter-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/life_counter-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/life_counter-gallery.webp"
+        }
+      ],
+      "titleEn": "Dragon Shield life counter",
+      "sku": "DRAGONSHIELD-LIFE-COUNTER-013",
+      "titlePt": "Dragon Shield life counter",
+      "aliases": [
+        "Dragon Shield",
+        "life_counter"
+      ]
+    },
+    {
+      "accessoryType": "counters",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/counters-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/counters-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/counters-gallery.webp"
+        }
+      ],
+      "titleEn": "Dragon Shield counters",
+      "sku": "DRAGONSHIELD-COUNTERS-014",
+      "titlePt": "Dragon Shield counters",
+      "aliases": [
+        "Dragon Shield",
+        "counters"
+      ]
+    },
+    {
+      "accessoryType": "tokens",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/tokens-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/tokens-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/tokens-gallery.webp"
+        }
+      ],
+      "titleEn": "Dragon Shield tokens",
+      "sku": "DRAGONSHIELD-TOKENS-015",
+      "titlePt": "Dragon Shield tokens",
+      "aliases": [
+        "Dragon Shield",
+        "tokens"
+      ]
+    },
+    {
+      "accessoryType": "divider",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/divider-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/divider-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/divider-gallery.webp"
+        }
+      ],
+      "titleEn": "Dragon Shield divider",
+      "sku": "DRAGONSHIELD-DIVIDER-016",
+      "titlePt": "Dragon Shield divider",
+      "aliases": [
+        "Dragon Shield",
+        "divider"
+      ]
+    },
+    {
+      "accessoryType": "top_loader",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/top_loader-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/top_loader-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/top_loader-gallery.webp"
+        }
+      ],
+      "titleEn": "Dragon Shield top loader",
+      "sku": "DRAGONSHIELD-TOP-LOADER-017",
+      "titlePt": "Dragon Shield top loader",
+      "aliases": [
+        "Dragon Shield",
+        "top_loader"
+      ]
+    },
+    {
+      "accessoryType": "magnetic_case",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/magnetic_case-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/magnetic_case-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/magnetic_case-gallery.webp"
+        }
+      ],
+      "titleEn": "Dragon Shield magnetic case",
+      "sku": "DRAGONSHIELD-MAGNETIC-CASE-018",
+      "titlePt": "Dragon Shield magnetic case",
+      "aliases": [
+        "Dragon Shield",
+        "magnetic_case"
+      ]
+    },
+    {
+      "accessoryType": "storage",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/storage-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/storage-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/storage-gallery.webp"
+        }
+      ],
+      "titleEn": "Dragon Shield storage",
+      "sku": "DRAGONSHIELD-STORAGE-019",
+      "titlePt": "Dragon Shield storage",
+      "aliases": [
+        "Dragon Shield",
+        "storage"
+      ]
+    },
+    {
+      "accessoryType": "acrylic",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/acrylic-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/acrylic-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/acrylic-gallery.webp"
+        }
+      ],
+      "titleEn": "Dragon Shield acrylic",
+      "sku": "DRAGONSHIELD-ACRYLIC-020",
+      "titlePt": "Dragon Shield acrylic",
+      "aliases": [
+        "Dragon Shield",
+        "acrylic"
+      ]
+    },
+    {
+      "accessoryType": "accessories",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/accessories-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/accessories-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dragon-shield/accessories-gallery.webp"
+        }
+      ],
+      "titleEn": "Dragon Shield accessories",
+      "sku": "DRAGONSHIELD-ACCESSORIES-021",
+      "titlePt": "Dragon Shield accessories",
+      "aliases": [
+        "Dragon Shield",
+        "accessories"
+      ]
+    }
+  ],
+  "manufacturer": "Dragon Shield",
+  "manufacturerId": "dragon-shield"
+}

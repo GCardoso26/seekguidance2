@@ -9,16 +9,11 @@ function brandProvider(providerId: string, category: ProductCategory, brandName:
   };
 }
 
-/** Registro de providers por job — cada um independente; implementação incremental. */
+/** Registro de providers por job — stubs incrementais (manifestes oficiais quando disponíveis). */
 export const DragonShieldSleevesProvider = brandProvider(
   "dragon-shield-sleeves",
   ProductCategory.SLEEVES,
   "Dragon Shield",
-);
-export const GamegenicSleevesProvider = brandProvider(
-  "gamegenic-sleeves",
-  ProductCategory.SLEEVES,
-  "Gamegenic",
 );
 export const UltimateGuardSleevesProvider = brandProvider(
   "ultimate-guard-sleeves",
@@ -55,15 +50,4 @@ export const UltraProPlaymatProvider = brandProvider(
   "ultra-pro-playmat",
   ProductCategory.PLAYMAT,
   "Ultra PRO",
-);
-
-export const PokemonTcgSealedProvider = brandProvider(
-  "pokemon-tcg-sealed",
-  ProductCategory.SEALED_PRODUCT,
-  "Pokémon",
-);
-export const LorcanaJsonSealedProvider = brandProvider(
-  "lorcana-json-sealed",
-  ProductCategory.SEALED_PRODUCT,
-  "Lorcana",
 );

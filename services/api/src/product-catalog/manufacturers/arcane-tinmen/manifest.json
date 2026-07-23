@@ -1,0 +1,534 @@
+{
+  "version": 1,
+  "website": "https://www.arcanetinmen.com",
+  "brand": "Arcane Tinmen",
+  "items": [
+    {
+      "accessoryType": "sleeves",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/sleeves-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/sleeves-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/sleeves-gallery.webp"
+        }
+      ],
+      "titleEn": "Arcane Tinmen sleeves",
+      "sku": "ARCANETINMEN-SLEEVES-001",
+      "titlePt": "Arcane Tinmen sleeves",
+      "aliases": [
+        "Arcane Tinmen",
+        "sleeves"
+      ]
+    },
+    {
+      "accessoryType": "perfect_fit",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/perfect_fit-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/perfect_fit-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/perfect_fit-gallery.webp"
+        }
+      ],
+      "titleEn": "Arcane Tinmen perfect fit",
+      "sku": "ARCANETINMEN-PERFECT-FIT-002",
+      "titlePt": "Arcane Tinmen perfect fit",
+      "aliases": [
+        "Arcane Tinmen",
+        "perfect_fit"
+      ]
+    },
+    {
+      "accessoryType": "outer_sleeves",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/outer_sleeves-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/outer_sleeves-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/outer_sleeves-gallery.webp"
+        }
+      ],
+      "titleEn": "Arcane Tinmen outer sleeves",
+      "sku": "ARCANETINMEN-OUTER-SLEEVES-003",
+      "titlePt": "Arcane Tinmen outer sleeves",
+      "aliases": [
+        "Arcane Tinmen",
+        "outer_sleeves"
+      ]
+    },
+    {
+      "accessoryType": "deck_box",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/deck_box-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/deck_box-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/deck_box-gallery.webp"
+        }
+      ],
+      "titleEn": "Arcane Tinmen deck box",
+      "sku": "ARCANETINMEN-DECK-BOX-004",
+      "titlePt": "Arcane Tinmen deck box",
+      "aliases": [
+        "Arcane Tinmen",
+        "deck_box"
+      ]
+    },
+    {
+      "accessoryType": "deck_case",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/deck_case-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/deck_case-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/deck_case-gallery.webp"
+        }
+      ],
+      "titleEn": "Arcane Tinmen deck case",
+      "sku": "ARCANETINMEN-DECK-CASE-005",
+      "titlePt": "Arcane Tinmen deck case",
+      "aliases": [
+        "Arcane Tinmen",
+        "deck_case"
+      ]
+    },
+    {
+      "accessoryType": "storage_box",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/storage_box-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/storage_box-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/storage_box-gallery.webp"
+        }
+      ],
+      "titleEn": "Arcane Tinmen storage box",
+      "sku": "ARCANETINMEN-STORAGE-BOX-006",
+      "titlePt": "Arcane Tinmen storage box",
+      "aliases": [
+        "Arcane Tinmen",
+        "storage_box"
+      ]
+    },
+    {
+      "accessoryType": "binder",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/binder-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/binder-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/binder-gallery.webp"
+        }
+      ],
+      "titleEn": "Arcane Tinmen binder",
+      "sku": "ARCANETINMEN-BINDER-007",
+      "titlePt": "Arcane Tinmen binder",
+      "aliases": [
+        "Arcane Tinmen",
+        "binder"
+      ]
+    },
+    {
+      "accessoryType": "portfolio",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/portfolio-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/portfolio-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/portfolio-gallery.webp"
+        }
+      ],
+      "titleEn": "Arcane Tinmen portfolio",
+      "sku": "ARCANETINMEN-PORTFOLIO-008",
+      "titlePt": "Arcane Tinmen portfolio",
+      "aliases": [
+        "Arcane Tinmen",
+        "portfolio"
+      ]
+    },
+    {
+      "accessoryType": "playmat",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/playmat-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/playmat-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/playmat-gallery.webp"
+        }
+      ],
+      "titleEn": "Arcane Tinmen playmat",
+      "sku": "ARCANETINMEN-PLAYMAT-009",
+      "titlePt": "Arcane Tinmen playmat",
+      "aliases": [
+        "Arcane Tinmen",
+        "playmat"
+      ]
+    },
+    {
+      "accessoryType": "playmat_tube",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/playmat_tube-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/playmat_tube-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/playmat_tube-gallery.webp"
+        }
+      ],
+      "titleEn": "Arcane Tinmen playmat tube",
+      "sku": "ARCANETINMEN-PLAYMAT-TUBE-010",
+      "titlePt": "Arcane Tinmen playmat tube",
+      "aliases": [
+        "Arcane Tinmen",
+        "playmat_tube"
+      ]
+    },
+    {
+      "accessoryType": "dice",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/dice-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/dice-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/dice-gallery.webp"
+        }
+      ],
+      "titleEn": "Arcane Tinmen dice",
+      "sku": "ARCANETINMEN-DICE-011",
+      "titlePt": "Arcane Tinmen dice",
+      "aliases": [
+        "Arcane Tinmen",
+        "dice"
+      ]
+    },
+    {
+      "accessoryType": "dice_tray",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/dice_tray-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/dice_tray-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/dice_tray-gallery.webp"
+        }
+      ],
+      "titleEn": "Arcane Tinmen dice tray",
+      "sku": "ARCANETINMEN-DICE-TRAY-012",
+      "titlePt": "Arcane Tinmen dice tray",
+      "aliases": [
+        "Arcane Tinmen",
+        "dice_tray"
+      ]
+    },
+    {
+      "accessoryType": "life_counter",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/life_counter-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/life_counter-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/life_counter-gallery.webp"
+        }
+      ],
+      "titleEn": "Arcane Tinmen life counter",
+      "sku": "ARCANETINMEN-LIFE-COUNTER-013",
+      "titlePt": "Arcane Tinmen life counter",
+      "aliases": [
+        "Arcane Tinmen",
+        "life_counter"
+      ]
+    },
+    {
+      "accessoryType": "counters",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/counters-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/counters-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/counters-gallery.webp"
+        }
+      ],
+      "titleEn": "Arcane Tinmen counters",
+      "sku": "ARCANETINMEN-COUNTERS-014",
+      "titlePt": "Arcane Tinmen counters",
+      "aliases": [
+        "Arcane Tinmen",
+        "counters"
+      ]
+    },
+    {
+      "accessoryType": "tokens",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/tokens-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/tokens-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/tokens-gallery.webp"
+        }
+      ],
+      "titleEn": "Arcane Tinmen tokens",
+      "sku": "ARCANETINMEN-TOKENS-015",
+      "titlePt": "Arcane Tinmen tokens",
+      "aliases": [
+        "Arcane Tinmen",
+        "tokens"
+      ]
+    },
+    {
+      "accessoryType": "divider",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/divider-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/divider-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/divider-gallery.webp"
+        }
+      ],
+      "titleEn": "Arcane Tinmen divider",
+      "sku": "ARCANETINMEN-DIVIDER-016",
+      "titlePt": "Arcane Tinmen divider",
+      "aliases": [
+        "Arcane Tinmen",
+        "divider"
+      ]
+    },
+    {
+      "accessoryType": "top_loader",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/top_loader-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/top_loader-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/top_loader-gallery.webp"
+        }
+      ],
+      "titleEn": "Arcane Tinmen top loader",
+      "sku": "ARCANETINMEN-TOP-LOADER-017",
+      "titlePt": "Arcane Tinmen top loader",
+      "aliases": [
+        "Arcane Tinmen",
+        "top_loader"
+      ]
+    },
+    {
+      "accessoryType": "magnetic_case",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/magnetic_case-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/magnetic_case-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/magnetic_case-gallery.webp"
+        }
+      ],
+      "titleEn": "Arcane Tinmen magnetic case",
+      "sku": "ARCANETINMEN-MAGNETIC-CASE-018",
+      "titlePt": "Arcane Tinmen magnetic case",
+      "aliases": [
+        "Arcane Tinmen",
+        "magnetic_case"
+      ]
+    },
+    {
+      "accessoryType": "storage",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/storage-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/storage-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/storage-gallery.webp"
+        }
+      ],
+      "titleEn": "Arcane Tinmen storage",
+      "sku": "ARCANETINMEN-STORAGE-019",
+      "titlePt": "Arcane Tinmen storage",
+      "aliases": [
+        "Arcane Tinmen",
+        "storage"
+      ]
+    },
+    {
+      "accessoryType": "acrylic",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/acrylic-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/acrylic-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/acrylic-gallery.webp"
+        }
+      ],
+      "titleEn": "Arcane Tinmen acrylic",
+      "sku": "ARCANETINMEN-ACRYLIC-020",
+      "titlePt": "Arcane Tinmen acrylic",
+      "aliases": [
+        "Arcane Tinmen",
+        "acrylic"
+      ]
+    },
+    {
+      "accessoryType": "accessories",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/accessories-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/accessories-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/arcane-tinmen/accessories-gallery.webp"
+        }
+      ],
+      "titleEn": "Arcane Tinmen accessories",
+      "sku": "ARCANETINMEN-ACCESSORIES-021",
+      "titlePt": "Arcane Tinmen accessories",
+      "aliases": [
+        "Arcane Tinmen",
+        "accessories"
+      ]
+    }
+  ],
+  "manufacturer": "Arcane Tinmen",
+  "manufacturerId": "arcane-tinmen"
+}

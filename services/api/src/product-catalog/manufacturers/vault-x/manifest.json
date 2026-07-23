@@ -1,0 +1,534 @@
+{
+  "version": 1,
+  "website": "https://vaultx.com",
+  "brand": "Vault X",
+  "items": [
+    {
+      "accessoryType": "sleeves",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/sleeves-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/sleeves-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/sleeves-gallery.webp"
+        }
+      ],
+      "titleEn": "Vault X sleeves",
+      "sku": "VAULTX-SLEEVES-001",
+      "titlePt": "Vault X sleeves",
+      "aliases": [
+        "Vault X",
+        "sleeves"
+      ]
+    },
+    {
+      "accessoryType": "perfect_fit",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/perfect_fit-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/perfect_fit-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/perfect_fit-gallery.webp"
+        }
+      ],
+      "titleEn": "Vault X perfect fit",
+      "sku": "VAULTX-PERFECT-FIT-002",
+      "titlePt": "Vault X perfect fit",
+      "aliases": [
+        "Vault X",
+        "perfect_fit"
+      ]
+    },
+    {
+      "accessoryType": "outer_sleeves",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/outer_sleeves-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/outer_sleeves-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/outer_sleeves-gallery.webp"
+        }
+      ],
+      "titleEn": "Vault X outer sleeves",
+      "sku": "VAULTX-OUTER-SLEEVES-003",
+      "titlePt": "Vault X outer sleeves",
+      "aliases": [
+        "Vault X",
+        "outer_sleeves"
+      ]
+    },
+    {
+      "accessoryType": "deck_box",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/deck_box-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/deck_box-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/deck_box-gallery.webp"
+        }
+      ],
+      "titleEn": "Vault X deck box",
+      "sku": "VAULTX-DECK-BOX-004",
+      "titlePt": "Vault X deck box",
+      "aliases": [
+        "Vault X",
+        "deck_box"
+      ]
+    },
+    {
+      "accessoryType": "deck_case",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/deck_case-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/deck_case-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/deck_case-gallery.webp"
+        }
+      ],
+      "titleEn": "Vault X deck case",
+      "sku": "VAULTX-DECK-CASE-005",
+      "titlePt": "Vault X deck case",
+      "aliases": [
+        "Vault X",
+        "deck_case"
+      ]
+    },
+    {
+      "accessoryType": "storage_box",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/storage_box-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/storage_box-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/storage_box-gallery.webp"
+        }
+      ],
+      "titleEn": "Vault X storage box",
+      "sku": "VAULTX-STORAGE-BOX-006",
+      "titlePt": "Vault X storage box",
+      "aliases": [
+        "Vault X",
+        "storage_box"
+      ]
+    },
+    {
+      "accessoryType": "binder",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/binder-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/binder-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/binder-gallery.webp"
+        }
+      ],
+      "titleEn": "Vault X binder",
+      "sku": "VAULTX-BINDER-007",
+      "titlePt": "Vault X binder",
+      "aliases": [
+        "Vault X",
+        "binder"
+      ]
+    },
+    {
+      "accessoryType": "portfolio",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/portfolio-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/portfolio-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/portfolio-gallery.webp"
+        }
+      ],
+      "titleEn": "Vault X portfolio",
+      "sku": "VAULTX-PORTFOLIO-008",
+      "titlePt": "Vault X portfolio",
+      "aliases": [
+        "Vault X",
+        "portfolio"
+      ]
+    },
+    {
+      "accessoryType": "playmat",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/playmat-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/playmat-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/playmat-gallery.webp"
+        }
+      ],
+      "titleEn": "Vault X playmat",
+      "sku": "VAULTX-PLAYMAT-009",
+      "titlePt": "Vault X playmat",
+      "aliases": [
+        "Vault X",
+        "playmat"
+      ]
+    },
+    {
+      "accessoryType": "playmat_tube",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/playmat_tube-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/playmat_tube-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/playmat_tube-gallery.webp"
+        }
+      ],
+      "titleEn": "Vault X playmat tube",
+      "sku": "VAULTX-PLAYMAT-TUBE-010",
+      "titlePt": "Vault X playmat tube",
+      "aliases": [
+        "Vault X",
+        "playmat_tube"
+      ]
+    },
+    {
+      "accessoryType": "dice",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/dice-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/dice-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/dice-gallery.webp"
+        }
+      ],
+      "titleEn": "Vault X dice",
+      "sku": "VAULTX-DICE-011",
+      "titlePt": "Vault X dice",
+      "aliases": [
+        "Vault X",
+        "dice"
+      ]
+    },
+    {
+      "accessoryType": "dice_tray",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/dice_tray-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/dice_tray-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/dice_tray-gallery.webp"
+        }
+      ],
+      "titleEn": "Vault X dice tray",
+      "sku": "VAULTX-DICE-TRAY-012",
+      "titlePt": "Vault X dice tray",
+      "aliases": [
+        "Vault X",
+        "dice_tray"
+      ]
+    },
+    {
+      "accessoryType": "life_counter",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/life_counter-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/life_counter-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/life_counter-gallery.webp"
+        }
+      ],
+      "titleEn": "Vault X life counter",
+      "sku": "VAULTX-LIFE-COUNTER-013",
+      "titlePt": "Vault X life counter",
+      "aliases": [
+        "Vault X",
+        "life_counter"
+      ]
+    },
+    {
+      "accessoryType": "counters",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/counters-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/counters-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/counters-gallery.webp"
+        }
+      ],
+      "titleEn": "Vault X counters",
+      "sku": "VAULTX-COUNTERS-014",
+      "titlePt": "Vault X counters",
+      "aliases": [
+        "Vault X",
+        "counters"
+      ]
+    },
+    {
+      "accessoryType": "tokens",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/tokens-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/tokens-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/tokens-gallery.webp"
+        }
+      ],
+      "titleEn": "Vault X tokens",
+      "sku": "VAULTX-TOKENS-015",
+      "titlePt": "Vault X tokens",
+      "aliases": [
+        "Vault X",
+        "tokens"
+      ]
+    },
+    {
+      "accessoryType": "divider",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/divider-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/divider-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/divider-gallery.webp"
+        }
+      ],
+      "titleEn": "Vault X divider",
+      "sku": "VAULTX-DIVIDER-016",
+      "titlePt": "Vault X divider",
+      "aliases": [
+        "Vault X",
+        "divider"
+      ]
+    },
+    {
+      "accessoryType": "top_loader",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/top_loader-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/top_loader-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/top_loader-gallery.webp"
+        }
+      ],
+      "titleEn": "Vault X top loader",
+      "sku": "VAULTX-TOP-LOADER-017",
+      "titlePt": "Vault X top loader",
+      "aliases": [
+        "Vault X",
+        "top_loader"
+      ]
+    },
+    {
+      "accessoryType": "magnetic_case",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/magnetic_case-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/magnetic_case-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/magnetic_case-gallery.webp"
+        }
+      ],
+      "titleEn": "Vault X magnetic case",
+      "sku": "VAULTX-MAGNETIC-CASE-018",
+      "titlePt": "Vault X magnetic case",
+      "aliases": [
+        "Vault X",
+        "magnetic_case"
+      ]
+    },
+    {
+      "accessoryType": "storage",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/storage-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/storage-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/storage-gallery.webp"
+        }
+      ],
+      "titleEn": "Vault X storage",
+      "sku": "VAULTX-STORAGE-019",
+      "titlePt": "Vault X storage",
+      "aliases": [
+        "Vault X",
+        "storage"
+      ]
+    },
+    {
+      "accessoryType": "acrylic",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/acrylic-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/acrylic-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/acrylic-gallery.webp"
+        }
+      ],
+      "titleEn": "Vault X acrylic",
+      "sku": "VAULTX-ACRYLIC-020",
+      "titlePt": "Vault X acrylic",
+      "aliases": [
+        "Vault X",
+        "acrylic"
+      ]
+    },
+    {
+      "accessoryType": "accessories",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/accessories-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/accessories-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/vault-x/accessories-gallery.webp"
+        }
+      ],
+      "titleEn": "Vault X accessories",
+      "sku": "VAULTX-ACCESSORIES-021",
+      "titlePt": "Vault X accessories",
+      "aliases": [
+        "Vault X",
+        "accessories"
+      ]
+    }
+  ],
+  "manufacturer": "Vault X",
+  "manufacturerId": "vault-x"
+}

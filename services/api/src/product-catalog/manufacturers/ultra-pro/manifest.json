@@ -1,0 +1,534 @@
+{
+  "version": 1,
+  "website": "https://ultrapro.com",
+  "brand": "Ultra PRO",
+  "items": [
+    {
+      "accessoryType": "sleeves",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/sleeves-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/sleeves-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/sleeves-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultra PRO sleeves",
+      "sku": "ULTRAPRO-SLEEVES-001",
+      "titlePt": "Ultra PRO sleeves",
+      "aliases": [
+        "Ultra PRO",
+        "sleeves"
+      ]
+    },
+    {
+      "accessoryType": "perfect_fit",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/perfect_fit-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/perfect_fit-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/perfect_fit-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultra PRO perfect fit",
+      "sku": "ULTRAPRO-PERFECT-FIT-002",
+      "titlePt": "Ultra PRO perfect fit",
+      "aliases": [
+        "Ultra PRO",
+        "perfect_fit"
+      ]
+    },
+    {
+      "accessoryType": "outer_sleeves",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/outer_sleeves-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/outer_sleeves-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/outer_sleeves-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultra PRO outer sleeves",
+      "sku": "ULTRAPRO-OUTER-SLEEVES-003",
+      "titlePt": "Ultra PRO outer sleeves",
+      "aliases": [
+        "Ultra PRO",
+        "outer_sleeves"
+      ]
+    },
+    {
+      "accessoryType": "deck_box",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/deck_box-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/deck_box-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/deck_box-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultra PRO deck box",
+      "sku": "ULTRAPRO-DECK-BOX-004",
+      "titlePt": "Ultra PRO deck box",
+      "aliases": [
+        "Ultra PRO",
+        "deck_box"
+      ]
+    },
+    {
+      "accessoryType": "deck_case",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/deck_case-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/deck_case-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/deck_case-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultra PRO deck case",
+      "sku": "ULTRAPRO-DECK-CASE-005",
+      "titlePt": "Ultra PRO deck case",
+      "aliases": [
+        "Ultra PRO",
+        "deck_case"
+      ]
+    },
+    {
+      "accessoryType": "storage_box",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/storage_box-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/storage_box-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/storage_box-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultra PRO storage box",
+      "sku": "ULTRAPRO-STORAGE-BOX-006",
+      "titlePt": "Ultra PRO storage box",
+      "aliases": [
+        "Ultra PRO",
+        "storage_box"
+      ]
+    },
+    {
+      "accessoryType": "binder",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/binder-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/binder-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/binder-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultra PRO binder",
+      "sku": "ULTRAPRO-BINDER-007",
+      "titlePt": "Ultra PRO binder",
+      "aliases": [
+        "Ultra PRO",
+        "binder"
+      ]
+    },
+    {
+      "accessoryType": "portfolio",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/portfolio-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/portfolio-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/portfolio-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultra PRO portfolio",
+      "sku": "ULTRAPRO-PORTFOLIO-008",
+      "titlePt": "Ultra PRO portfolio",
+      "aliases": [
+        "Ultra PRO",
+        "portfolio"
+      ]
+    },
+    {
+      "accessoryType": "playmat",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/playmat-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/playmat-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/playmat-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultra PRO playmat",
+      "sku": "ULTRAPRO-PLAYMAT-009",
+      "titlePt": "Ultra PRO playmat",
+      "aliases": [
+        "Ultra PRO",
+        "playmat"
+      ]
+    },
+    {
+      "accessoryType": "playmat_tube",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/playmat_tube-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/playmat_tube-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/playmat_tube-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultra PRO playmat tube",
+      "sku": "ULTRAPRO-PLAYMAT-TUBE-010",
+      "titlePt": "Ultra PRO playmat tube",
+      "aliases": [
+        "Ultra PRO",
+        "playmat_tube"
+      ]
+    },
+    {
+      "accessoryType": "dice",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/dice-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/dice-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/dice-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultra PRO dice",
+      "sku": "ULTRAPRO-DICE-011",
+      "titlePt": "Ultra PRO dice",
+      "aliases": [
+        "Ultra PRO",
+        "dice"
+      ]
+    },
+    {
+      "accessoryType": "dice_tray",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/dice_tray-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/dice_tray-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/dice_tray-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultra PRO dice tray",
+      "sku": "ULTRAPRO-DICE-TRAY-012",
+      "titlePt": "Ultra PRO dice tray",
+      "aliases": [
+        "Ultra PRO",
+        "dice_tray"
+      ]
+    },
+    {
+      "accessoryType": "life_counter",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/life_counter-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/life_counter-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/life_counter-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultra PRO life counter",
+      "sku": "ULTRAPRO-LIFE-COUNTER-013",
+      "titlePt": "Ultra PRO life counter",
+      "aliases": [
+        "Ultra PRO",
+        "life_counter"
+      ]
+    },
+    {
+      "accessoryType": "counters",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/counters-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/counters-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/counters-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultra PRO counters",
+      "sku": "ULTRAPRO-COUNTERS-014",
+      "titlePt": "Ultra PRO counters",
+      "aliases": [
+        "Ultra PRO",
+        "counters"
+      ]
+    },
+    {
+      "accessoryType": "tokens",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/tokens-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/tokens-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/tokens-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultra PRO tokens",
+      "sku": "ULTRAPRO-TOKENS-015",
+      "titlePt": "Ultra PRO tokens",
+      "aliases": [
+        "Ultra PRO",
+        "tokens"
+      ]
+    },
+    {
+      "accessoryType": "divider",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/divider-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/divider-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/divider-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultra PRO divider",
+      "sku": "ULTRAPRO-DIVIDER-016",
+      "titlePt": "Ultra PRO divider",
+      "aliases": [
+        "Ultra PRO",
+        "divider"
+      ]
+    },
+    {
+      "accessoryType": "top_loader",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/top_loader-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/top_loader-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/top_loader-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultra PRO top loader",
+      "sku": "ULTRAPRO-TOP-LOADER-017",
+      "titlePt": "Ultra PRO top loader",
+      "aliases": [
+        "Ultra PRO",
+        "top_loader"
+      ]
+    },
+    {
+      "accessoryType": "magnetic_case",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/magnetic_case-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/magnetic_case-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/magnetic_case-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultra PRO magnetic case",
+      "sku": "ULTRAPRO-MAGNETIC-CASE-018",
+      "titlePt": "Ultra PRO magnetic case",
+      "aliases": [
+        "Ultra PRO",
+        "magnetic_case"
+      ]
+    },
+    {
+      "accessoryType": "storage",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/storage-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/storage-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/storage-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultra PRO storage",
+      "sku": "ULTRAPRO-STORAGE-019",
+      "titlePt": "Ultra PRO storage",
+      "aliases": [
+        "Ultra PRO",
+        "storage"
+      ]
+    },
+    {
+      "accessoryType": "acrylic",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/acrylic-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/acrylic-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/acrylic-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultra PRO acrylic",
+      "sku": "ULTRAPRO-ACRYLIC-020",
+      "titlePt": "Ultra PRO acrylic",
+      "aliases": [
+        "Ultra PRO",
+        "acrylic"
+      ]
+    },
+    {
+      "accessoryType": "accessories",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/accessories-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/accessories-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultra-pro/accessories-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultra PRO accessories",
+      "sku": "ULTRAPRO-ACCESSORIES-021",
+      "titlePt": "Ultra PRO accessories",
+      "aliases": [
+        "Ultra PRO",
+        "accessories"
+      ]
+    }
+  ],
+  "manufacturer": "Ultra PRO",
+  "manufacturerId": "ultra-pro"
+}

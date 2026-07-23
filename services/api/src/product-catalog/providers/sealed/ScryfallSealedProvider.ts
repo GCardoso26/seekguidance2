@@ -27,6 +27,7 @@ export class ScryfallSealedProvider extends BaseProductCatalogProvider {
       const name = String(set.name ?? "");
       if (!code || !name) continue;
       const titlePt = `Booster Box — ${name} (Magic)`;
+      const icon = set.icon_svg_uri ? String(set.icon_svg_uri) : undefined;
       items.push({
         providerRef: `scryfall-set-${code}-box`,
         manufacturerName: "Wizards of the Coast",
@@ -39,12 +40,36 @@ export class ScryfallSealedProvider extends BaseProductCatalogProvider {
         description: `Produto selado Magic — set ${code}.`,
         game: "MTG",
         gameCodes: ["MTG"],
+        collectionName: name,
         releaseDate: set.released_at ? String(set.released_at) : undefined,
         variants: [
           {
             providerRef: `scryfall-set-${code}-box-default`,
             variantName: "Padrão",
-            images: set.icon_svg_uri ? [{ sourceUrl: String(set.icon_svg_uri), isPrimary: true }] : [],
+            sku: `MTG-BOX-${code.toUpperCase()}`,
+            images: icon ? [{ sourceUrl: icon, isPrimary: true }] : [],
+          },
+        ],
+      });
+      items.push({
+        providerRef: `scryfall-set-${code}-bundle`,
+        manufacturerName: "Wizards of the Coast",
+        brandName: "Magic: The Gathering",
+        category: ProductCategory.SEALED_PRODUCT,
+        subcategory: "BUNDLE",
+        sku: `MTG-BUNDLE-${code.toUpperCase()}`,
+        titlePt: `Bundle — ${name} (Magic)`,
+        titleEn: `Bundle — ${name}`,
+        game: "MTG",
+        gameCodes: ["MTG"],
+        collectionName: name,
+        releaseDate: set.released_at ? String(set.released_at) : undefined,
+        variants: [
+          {
+            providerRef: `scryfall-set-${code}-bundle-default`,
+            variantName: "Padrão",
+            sku: `MTG-BUNDLE-${code.toUpperCase()}`,
+            images: icon ? [{ sourceUrl: icon, isPrimary: true }] : [],
           },
         ],
       });

@@ -1,0 +1,534 @@
+{
+  "version": 1,
+  "website": "https://ultimatesleeve.com",
+  "brand": "Ultimate Sleeve",
+  "items": [
+    {
+      "accessoryType": "sleeves",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/sleeves-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/sleeves-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/sleeves-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultimate Sleeve sleeves",
+      "sku": "ULTIMATESLEEVE-SLEEVES-001",
+      "titlePt": "Ultimate Sleeve sleeves",
+      "aliases": [
+        "Ultimate Sleeve",
+        "sleeves"
+      ]
+    },
+    {
+      "accessoryType": "perfect_fit",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/perfect_fit-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/perfect_fit-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/perfect_fit-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultimate Sleeve perfect fit",
+      "sku": "ULTIMATESLEEVE-PERFECT-FIT-002",
+      "titlePt": "Ultimate Sleeve perfect fit",
+      "aliases": [
+        "Ultimate Sleeve",
+        "perfect_fit"
+      ]
+    },
+    {
+      "accessoryType": "outer_sleeves",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/outer_sleeves-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/outer_sleeves-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/outer_sleeves-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultimate Sleeve outer sleeves",
+      "sku": "ULTIMATESLEEVE-OUTER-SLEEVES-003",
+      "titlePt": "Ultimate Sleeve outer sleeves",
+      "aliases": [
+        "Ultimate Sleeve",
+        "outer_sleeves"
+      ]
+    },
+    {
+      "accessoryType": "deck_box",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/deck_box-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/deck_box-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/deck_box-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultimate Sleeve deck box",
+      "sku": "ULTIMATESLEEVE-DECK-BOX-004",
+      "titlePt": "Ultimate Sleeve deck box",
+      "aliases": [
+        "Ultimate Sleeve",
+        "deck_box"
+      ]
+    },
+    {
+      "accessoryType": "deck_case",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/deck_case-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/deck_case-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/deck_case-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultimate Sleeve deck case",
+      "sku": "ULTIMATESLEEVE-DECK-CASE-005",
+      "titlePt": "Ultimate Sleeve deck case",
+      "aliases": [
+        "Ultimate Sleeve",
+        "deck_case"
+      ]
+    },
+    {
+      "accessoryType": "storage_box",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/storage_box-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/storage_box-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/storage_box-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultimate Sleeve storage box",
+      "sku": "ULTIMATESLEEVE-STORAGE-BOX-006",
+      "titlePt": "Ultimate Sleeve storage box",
+      "aliases": [
+        "Ultimate Sleeve",
+        "storage_box"
+      ]
+    },
+    {
+      "accessoryType": "binder",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/binder-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/binder-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/binder-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultimate Sleeve binder",
+      "sku": "ULTIMATESLEEVE-BINDER-007",
+      "titlePt": "Ultimate Sleeve binder",
+      "aliases": [
+        "Ultimate Sleeve",
+        "binder"
+      ]
+    },
+    {
+      "accessoryType": "portfolio",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/portfolio-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/portfolio-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/portfolio-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultimate Sleeve portfolio",
+      "sku": "ULTIMATESLEEVE-PORTFOLIO-008",
+      "titlePt": "Ultimate Sleeve portfolio",
+      "aliases": [
+        "Ultimate Sleeve",
+        "portfolio"
+      ]
+    },
+    {
+      "accessoryType": "playmat",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/playmat-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/playmat-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/playmat-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultimate Sleeve playmat",
+      "sku": "ULTIMATESLEEVE-PLAYMAT-009",
+      "titlePt": "Ultimate Sleeve playmat",
+      "aliases": [
+        "Ultimate Sleeve",
+        "playmat"
+      ]
+    },
+    {
+      "accessoryType": "playmat_tube",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/playmat_tube-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/playmat_tube-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/playmat_tube-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultimate Sleeve playmat tube",
+      "sku": "ULTIMATESLEEVE-PLAYMAT-TUBE-010",
+      "titlePt": "Ultimate Sleeve playmat tube",
+      "aliases": [
+        "Ultimate Sleeve",
+        "playmat_tube"
+      ]
+    },
+    {
+      "accessoryType": "dice",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/dice-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/dice-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/dice-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultimate Sleeve dice",
+      "sku": "ULTIMATESLEEVE-DICE-011",
+      "titlePt": "Ultimate Sleeve dice",
+      "aliases": [
+        "Ultimate Sleeve",
+        "dice"
+      ]
+    },
+    {
+      "accessoryType": "dice_tray",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/dice_tray-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/dice_tray-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/dice_tray-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultimate Sleeve dice tray",
+      "sku": "ULTIMATESLEEVE-DICE-TRAY-012",
+      "titlePt": "Ultimate Sleeve dice tray",
+      "aliases": [
+        "Ultimate Sleeve",
+        "dice_tray"
+      ]
+    },
+    {
+      "accessoryType": "life_counter",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/life_counter-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/life_counter-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/life_counter-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultimate Sleeve life counter",
+      "sku": "ULTIMATESLEEVE-LIFE-COUNTER-013",
+      "titlePt": "Ultimate Sleeve life counter",
+      "aliases": [
+        "Ultimate Sleeve",
+        "life_counter"
+      ]
+    },
+    {
+      "accessoryType": "counters",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/counters-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/counters-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/counters-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultimate Sleeve counters",
+      "sku": "ULTIMATESLEEVE-COUNTERS-014",
+      "titlePt": "Ultimate Sleeve counters",
+      "aliases": [
+        "Ultimate Sleeve",
+        "counters"
+      ]
+    },
+    {
+      "accessoryType": "tokens",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/tokens-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/tokens-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/tokens-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultimate Sleeve tokens",
+      "sku": "ULTIMATESLEEVE-TOKENS-015",
+      "titlePt": "Ultimate Sleeve tokens",
+      "aliases": [
+        "Ultimate Sleeve",
+        "tokens"
+      ]
+    },
+    {
+      "accessoryType": "divider",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/divider-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/divider-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/divider-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultimate Sleeve divider",
+      "sku": "ULTIMATESLEEVE-DIVIDER-016",
+      "titlePt": "Ultimate Sleeve divider",
+      "aliases": [
+        "Ultimate Sleeve",
+        "divider"
+      ]
+    },
+    {
+      "accessoryType": "top_loader",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/top_loader-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/top_loader-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/top_loader-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultimate Sleeve top loader",
+      "sku": "ULTIMATESLEEVE-TOP-LOADER-017",
+      "titlePt": "Ultimate Sleeve top loader",
+      "aliases": [
+        "Ultimate Sleeve",
+        "top_loader"
+      ]
+    },
+    {
+      "accessoryType": "magnetic_case",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/magnetic_case-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/magnetic_case-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/magnetic_case-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultimate Sleeve magnetic case",
+      "sku": "ULTIMATESLEEVE-MAGNETIC-CASE-018",
+      "titlePt": "Ultimate Sleeve magnetic case",
+      "aliases": [
+        "Ultimate Sleeve",
+        "magnetic_case"
+      ]
+    },
+    {
+      "accessoryType": "storage",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/storage-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/storage-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/storage-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultimate Sleeve storage",
+      "sku": "ULTIMATESLEEVE-STORAGE-019",
+      "titlePt": "Ultimate Sleeve storage",
+      "aliases": [
+        "Ultimate Sleeve",
+        "storage"
+      ]
+    },
+    {
+      "accessoryType": "acrylic",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/acrylic-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/acrylic-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/acrylic-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultimate Sleeve acrylic",
+      "sku": "ULTIMATESLEEVE-ACRYLIC-020",
+      "titlePt": "Ultimate Sleeve acrylic",
+      "aliases": [
+        "Ultimate Sleeve",
+        "acrylic"
+      ]
+    },
+    {
+      "accessoryType": "accessories",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/accessories-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/accessories-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/ultimate-sleeve/accessories-gallery.webp"
+        }
+      ],
+      "titleEn": "Ultimate Sleeve accessories",
+      "sku": "ULTIMATESLEEVE-ACCESSORIES-021",
+      "titlePt": "Ultimate Sleeve accessories",
+      "aliases": [
+        "Ultimate Sleeve",
+        "accessories"
+      ]
+    }
+  ],
+  "manufacturer": "Ultimate Sleeve",
+  "manufacturerId": "ultimate-sleeve"
+}

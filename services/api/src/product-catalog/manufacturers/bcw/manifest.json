@@ -1,0 +1,534 @@
+{
+  "version": 1,
+  "website": "https://www.bcwsupplies.com",
+  "brand": "BCW",
+  "items": [
+    {
+      "accessoryType": "sleeves",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/sleeves-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/sleeves-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/sleeves-gallery.webp"
+        }
+      ],
+      "titleEn": "BCW sleeves",
+      "sku": "BCW-SLEEVES-001",
+      "titlePt": "BCW sleeves",
+      "aliases": [
+        "BCW",
+        "sleeves"
+      ]
+    },
+    {
+      "accessoryType": "perfect_fit",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/perfect_fit-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/perfect_fit-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/perfect_fit-gallery.webp"
+        }
+      ],
+      "titleEn": "BCW perfect fit",
+      "sku": "BCW-PERFECT-FIT-002",
+      "titlePt": "BCW perfect fit",
+      "aliases": [
+        "BCW",
+        "perfect_fit"
+      ]
+    },
+    {
+      "accessoryType": "outer_sleeves",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/outer_sleeves-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/outer_sleeves-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/outer_sleeves-gallery.webp"
+        }
+      ],
+      "titleEn": "BCW outer sleeves",
+      "sku": "BCW-OUTER-SLEEVES-003",
+      "titlePt": "BCW outer sleeves",
+      "aliases": [
+        "BCW",
+        "outer_sleeves"
+      ]
+    },
+    {
+      "accessoryType": "deck_box",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/deck_box-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/deck_box-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/deck_box-gallery.webp"
+        }
+      ],
+      "titleEn": "BCW deck box",
+      "sku": "BCW-DECK-BOX-004",
+      "titlePt": "BCW deck box",
+      "aliases": [
+        "BCW",
+        "deck_box"
+      ]
+    },
+    {
+      "accessoryType": "deck_case",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/deck_case-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/deck_case-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/deck_case-gallery.webp"
+        }
+      ],
+      "titleEn": "BCW deck case",
+      "sku": "BCW-DECK-CASE-005",
+      "titlePt": "BCW deck case",
+      "aliases": [
+        "BCW",
+        "deck_case"
+      ]
+    },
+    {
+      "accessoryType": "storage_box",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/storage_box-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/storage_box-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/storage_box-gallery.webp"
+        }
+      ],
+      "titleEn": "BCW storage box",
+      "sku": "BCW-STORAGE-BOX-006",
+      "titlePt": "BCW storage box",
+      "aliases": [
+        "BCW",
+        "storage_box"
+      ]
+    },
+    {
+      "accessoryType": "binder",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/binder-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/binder-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/binder-gallery.webp"
+        }
+      ],
+      "titleEn": "BCW binder",
+      "sku": "BCW-BINDER-007",
+      "titlePt": "BCW binder",
+      "aliases": [
+        "BCW",
+        "binder"
+      ]
+    },
+    {
+      "accessoryType": "portfolio",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/portfolio-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/portfolio-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/portfolio-gallery.webp"
+        }
+      ],
+      "titleEn": "BCW portfolio",
+      "sku": "BCW-PORTFOLIO-008",
+      "titlePt": "BCW portfolio",
+      "aliases": [
+        "BCW",
+        "portfolio"
+      ]
+    },
+    {
+      "accessoryType": "playmat",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/playmat-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/playmat-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/playmat-gallery.webp"
+        }
+      ],
+      "titleEn": "BCW playmat",
+      "sku": "BCW-PLAYMAT-009",
+      "titlePt": "BCW playmat",
+      "aliases": [
+        "BCW",
+        "playmat"
+      ]
+    },
+    {
+      "accessoryType": "playmat_tube",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/playmat_tube-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/playmat_tube-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/playmat_tube-gallery.webp"
+        }
+      ],
+      "titleEn": "BCW playmat tube",
+      "sku": "BCW-PLAYMAT-TUBE-010",
+      "titlePt": "BCW playmat tube",
+      "aliases": [
+        "BCW",
+        "playmat_tube"
+      ]
+    },
+    {
+      "accessoryType": "dice",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/dice-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/dice-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/dice-gallery.webp"
+        }
+      ],
+      "titleEn": "BCW dice",
+      "sku": "BCW-DICE-011",
+      "titlePt": "BCW dice",
+      "aliases": [
+        "BCW",
+        "dice"
+      ]
+    },
+    {
+      "accessoryType": "dice_tray",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/dice_tray-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/dice_tray-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/dice_tray-gallery.webp"
+        }
+      ],
+      "titleEn": "BCW dice tray",
+      "sku": "BCW-DICE-TRAY-012",
+      "titlePt": "BCW dice tray",
+      "aliases": [
+        "BCW",
+        "dice_tray"
+      ]
+    },
+    {
+      "accessoryType": "life_counter",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/life_counter-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/life_counter-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/life_counter-gallery.webp"
+        }
+      ],
+      "titleEn": "BCW life counter",
+      "sku": "BCW-LIFE-COUNTER-013",
+      "titlePt": "BCW life counter",
+      "aliases": [
+        "BCW",
+        "life_counter"
+      ]
+    },
+    {
+      "accessoryType": "counters",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/counters-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/counters-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/counters-gallery.webp"
+        }
+      ],
+      "titleEn": "BCW counters",
+      "sku": "BCW-COUNTERS-014",
+      "titlePt": "BCW counters",
+      "aliases": [
+        "BCW",
+        "counters"
+      ]
+    },
+    {
+      "accessoryType": "tokens",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/tokens-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/tokens-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/tokens-gallery.webp"
+        }
+      ],
+      "titleEn": "BCW tokens",
+      "sku": "BCW-TOKENS-015",
+      "titlePt": "BCW tokens",
+      "aliases": [
+        "BCW",
+        "tokens"
+      ]
+    },
+    {
+      "accessoryType": "divider",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/divider-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/divider-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/divider-gallery.webp"
+        }
+      ],
+      "titleEn": "BCW divider",
+      "sku": "BCW-DIVIDER-016",
+      "titlePt": "BCW divider",
+      "aliases": [
+        "BCW",
+        "divider"
+      ]
+    },
+    {
+      "accessoryType": "top_loader",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/top_loader-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/top_loader-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/top_loader-gallery.webp"
+        }
+      ],
+      "titleEn": "BCW top loader",
+      "sku": "BCW-TOP-LOADER-017",
+      "titlePt": "BCW top loader",
+      "aliases": [
+        "BCW",
+        "top_loader"
+      ]
+    },
+    {
+      "accessoryType": "magnetic_case",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/magnetic_case-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/magnetic_case-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/magnetic_case-gallery.webp"
+        }
+      ],
+      "titleEn": "BCW magnetic case",
+      "sku": "BCW-MAGNETIC-CASE-018",
+      "titlePt": "BCW magnetic case",
+      "aliases": [
+        "BCW",
+        "magnetic_case"
+      ]
+    },
+    {
+      "accessoryType": "storage",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/storage-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/storage-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/storage-gallery.webp"
+        }
+      ],
+      "titleEn": "BCW storage",
+      "sku": "BCW-STORAGE-019",
+      "titlePt": "BCW storage",
+      "aliases": [
+        "BCW",
+        "storage"
+      ]
+    },
+    {
+      "accessoryType": "acrylic",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/acrylic-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/acrylic-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/acrylic-gallery.webp"
+        }
+      ],
+      "titleEn": "BCW acrylic",
+      "sku": "BCW-ACRYLIC-020",
+      "titlePt": "BCW acrylic",
+      "aliases": [
+        "BCW",
+        "acrylic"
+      ]
+    },
+    {
+      "accessoryType": "accessories",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/accessories-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/accessories-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bcw/accessories-gallery.webp"
+        }
+      ],
+      "titleEn": "BCW accessories",
+      "sku": "BCW-ACCESSORIES-021",
+      "titlePt": "BCW accessories",
+      "aliases": [
+        "BCW",
+        "accessories"
+      ]
+    }
+  ],
+  "manufacturer": "BCW",
+  "manufacturerId": "bcw"
+}

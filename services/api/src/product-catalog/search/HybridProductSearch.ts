@@ -1,11 +1,12 @@
 import type { Pool } from "pg";
 import { createLogger } from "../../platform/logging/logger.js";
+import { createProductRelationshipService } from "../application/ProductRelationshipService.js";
 
 const log = createLogger("product-catalog.embeddings");
 
 /**
- * Hybrid search foundation: lexical (tsvector/trgm) + semantic (embedding).
- * Embedding via OpenAI quando OPENAI_API_KEY presente; senão só lexical.
+ * Hybrid search foundation: lexical (tsvector/trgm) + optional semantic.
+ * Relationship boost is secondary only — never replaces ranking.
  */
 export class HybridProductSearch {
   constructor(private readonly pool: Pool) {}
@@ -44,7 +45,6 @@ export class HybridProductSearch {
   }
 
   async search(query: string, limit = 24): Promise<Array<{ product_id: string; score: number; title_pt: string }>> {
-    // Lexical first
     const lexical = await this.pool.query<{ product_id: string; title_pt: string; rank: number }>(
       `
       SELECT p.id AS product_id, p.title_pt,
@@ -56,15 +56,28 @@ export class HybridProductSearch {
       ORDER BY rank DESC
       LIMIT $2
       `,
-      [query, limit],
+      [query, Math.max(limit * 2, 48)],
     );
 
-    // Semantic rerank when embeddings exist (cosine via jsonb — approximate)
-    // Full pgvector <=> when column `embedding` available
-    return lexical.rows.map((r) => ({
+    const base = lexical.rows.map((r) => ({
       product_id: r.product_id,
       title_pt: r.title_pt,
       score: Number(r.rank),
     }));
+
+    try {
+      const topIds = base.slice(0, Math.min(5, base.length)).map((b) => b.product_id);
+      const candidateIds = base.map((b) => b.product_id);
+      const rel = createProductRelationshipService(this.pool);
+      const boosts = await rel.relationshipBoostScores(topIds, candidateIds);
+      for (const row of base) {
+        row.score += boosts.get(row.product_id) ?? 0;
+      }
+      base.sort((a, b) => b.score - a.score);
+    } catch (e) {
+      log.warn({ err: String(e) }, "relationship_boost_skipped");
+    }
+
+    return base.slice(0, limit);
   }
 }

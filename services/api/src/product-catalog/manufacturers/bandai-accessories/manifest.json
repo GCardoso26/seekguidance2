@@ -1,0 +1,534 @@
+{
+  "version": 1,
+  "website": "https://www.bandai.com",
+  "brand": "Bandai Accessories",
+  "items": [
+    {
+      "accessoryType": "sleeves",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/sleeves-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/sleeves-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/sleeves-gallery.webp"
+        }
+      ],
+      "titleEn": "Bandai Accessories sleeves",
+      "sku": "BANDAIACCESSORIES-SLEEVES-001",
+      "titlePt": "Bandai Accessories sleeves",
+      "aliases": [
+        "Bandai Accessories",
+        "sleeves"
+      ]
+    },
+    {
+      "accessoryType": "perfect_fit",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/perfect_fit-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/perfect_fit-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/perfect_fit-gallery.webp"
+        }
+      ],
+      "titleEn": "Bandai Accessories perfect fit",
+      "sku": "BANDAIACCESSORIES-PERFECT-FIT-002",
+      "titlePt": "Bandai Accessories perfect fit",
+      "aliases": [
+        "Bandai Accessories",
+        "perfect_fit"
+      ]
+    },
+    {
+      "accessoryType": "outer_sleeves",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/outer_sleeves-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/outer_sleeves-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/outer_sleeves-gallery.webp"
+        }
+      ],
+      "titleEn": "Bandai Accessories outer sleeves",
+      "sku": "BANDAIACCESSORIES-OUTER-SLEEVES-003",
+      "titlePt": "Bandai Accessories outer sleeves",
+      "aliases": [
+        "Bandai Accessories",
+        "outer_sleeves"
+      ]
+    },
+    {
+      "accessoryType": "deck_box",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/deck_box-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/deck_box-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/deck_box-gallery.webp"
+        }
+      ],
+      "titleEn": "Bandai Accessories deck box",
+      "sku": "BANDAIACCESSORIES-DECK-BOX-004",
+      "titlePt": "Bandai Accessories deck box",
+      "aliases": [
+        "Bandai Accessories",
+        "deck_box"
+      ]
+    },
+    {
+      "accessoryType": "deck_case",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/deck_case-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/deck_case-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/deck_case-gallery.webp"
+        }
+      ],
+      "titleEn": "Bandai Accessories deck case",
+      "sku": "BANDAIACCESSORIES-DECK-CASE-005",
+      "titlePt": "Bandai Accessories deck case",
+      "aliases": [
+        "Bandai Accessories",
+        "deck_case"
+      ]
+    },
+    {
+      "accessoryType": "storage_box",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/storage_box-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/storage_box-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/storage_box-gallery.webp"
+        }
+      ],
+      "titleEn": "Bandai Accessories storage box",
+      "sku": "BANDAIACCESSORIES-STORAGE-BOX-006",
+      "titlePt": "Bandai Accessories storage box",
+      "aliases": [
+        "Bandai Accessories",
+        "storage_box"
+      ]
+    },
+    {
+      "accessoryType": "binder",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/binder-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/binder-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/binder-gallery.webp"
+        }
+      ],
+      "titleEn": "Bandai Accessories binder",
+      "sku": "BANDAIACCESSORIES-BINDER-007",
+      "titlePt": "Bandai Accessories binder",
+      "aliases": [
+        "Bandai Accessories",
+        "binder"
+      ]
+    },
+    {
+      "accessoryType": "portfolio",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/portfolio-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/portfolio-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/portfolio-gallery.webp"
+        }
+      ],
+      "titleEn": "Bandai Accessories portfolio",
+      "sku": "BANDAIACCESSORIES-PORTFOLIO-008",
+      "titlePt": "Bandai Accessories portfolio",
+      "aliases": [
+        "Bandai Accessories",
+        "portfolio"
+      ]
+    },
+    {
+      "accessoryType": "playmat",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/playmat-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/playmat-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/playmat-gallery.webp"
+        }
+      ],
+      "titleEn": "Bandai Accessories playmat",
+      "sku": "BANDAIACCESSORIES-PLAYMAT-009",
+      "titlePt": "Bandai Accessories playmat",
+      "aliases": [
+        "Bandai Accessories",
+        "playmat"
+      ]
+    },
+    {
+      "accessoryType": "playmat_tube",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/playmat_tube-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/playmat_tube-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/playmat_tube-gallery.webp"
+        }
+      ],
+      "titleEn": "Bandai Accessories playmat tube",
+      "sku": "BANDAIACCESSORIES-PLAYMAT-TUBE-010",
+      "titlePt": "Bandai Accessories playmat tube",
+      "aliases": [
+        "Bandai Accessories",
+        "playmat_tube"
+      ]
+    },
+    {
+      "accessoryType": "dice",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/dice-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/dice-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/dice-gallery.webp"
+        }
+      ],
+      "titleEn": "Bandai Accessories dice",
+      "sku": "BANDAIACCESSORIES-DICE-011",
+      "titlePt": "Bandai Accessories dice",
+      "aliases": [
+        "Bandai Accessories",
+        "dice"
+      ]
+    },
+    {
+      "accessoryType": "dice_tray",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/dice_tray-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/dice_tray-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/dice_tray-gallery.webp"
+        }
+      ],
+      "titleEn": "Bandai Accessories dice tray",
+      "sku": "BANDAIACCESSORIES-DICE-TRAY-012",
+      "titlePt": "Bandai Accessories dice tray",
+      "aliases": [
+        "Bandai Accessories",
+        "dice_tray"
+      ]
+    },
+    {
+      "accessoryType": "life_counter",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/life_counter-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/life_counter-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/life_counter-gallery.webp"
+        }
+      ],
+      "titleEn": "Bandai Accessories life counter",
+      "sku": "BANDAIACCESSORIES-LIFE-COUNTER-013",
+      "titlePt": "Bandai Accessories life counter",
+      "aliases": [
+        "Bandai Accessories",
+        "life_counter"
+      ]
+    },
+    {
+      "accessoryType": "counters",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/counters-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/counters-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/counters-gallery.webp"
+        }
+      ],
+      "titleEn": "Bandai Accessories counters",
+      "sku": "BANDAIACCESSORIES-COUNTERS-014",
+      "titlePt": "Bandai Accessories counters",
+      "aliases": [
+        "Bandai Accessories",
+        "counters"
+      ]
+    },
+    {
+      "accessoryType": "tokens",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/tokens-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/tokens-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/tokens-gallery.webp"
+        }
+      ],
+      "titleEn": "Bandai Accessories tokens",
+      "sku": "BANDAIACCESSORIES-TOKENS-015",
+      "titlePt": "Bandai Accessories tokens",
+      "aliases": [
+        "Bandai Accessories",
+        "tokens"
+      ]
+    },
+    {
+      "accessoryType": "divider",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/divider-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/divider-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/divider-gallery.webp"
+        }
+      ],
+      "titleEn": "Bandai Accessories divider",
+      "sku": "BANDAIACCESSORIES-DIVIDER-016",
+      "titlePt": "Bandai Accessories divider",
+      "aliases": [
+        "Bandai Accessories",
+        "divider"
+      ]
+    },
+    {
+      "accessoryType": "top_loader",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/top_loader-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/top_loader-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/top_loader-gallery.webp"
+        }
+      ],
+      "titleEn": "Bandai Accessories top loader",
+      "sku": "BANDAIACCESSORIES-TOP-LOADER-017",
+      "titlePt": "Bandai Accessories top loader",
+      "aliases": [
+        "Bandai Accessories",
+        "top_loader"
+      ]
+    },
+    {
+      "accessoryType": "magnetic_case",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/magnetic_case-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/magnetic_case-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/magnetic_case-gallery.webp"
+        }
+      ],
+      "titleEn": "Bandai Accessories magnetic case",
+      "sku": "BANDAIACCESSORIES-MAGNETIC-CASE-018",
+      "titlePt": "Bandai Accessories magnetic case",
+      "aliases": [
+        "Bandai Accessories",
+        "magnetic_case"
+      ]
+    },
+    {
+      "accessoryType": "storage",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/storage-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/storage-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/storage-gallery.webp"
+        }
+      ],
+      "titleEn": "Bandai Accessories storage",
+      "sku": "BANDAIACCESSORIES-STORAGE-019",
+      "titlePt": "Bandai Accessories storage",
+      "aliases": [
+        "Bandai Accessories",
+        "storage"
+      ]
+    },
+    {
+      "accessoryType": "acrylic",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/acrylic-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/acrylic-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/acrylic-gallery.webp"
+        }
+      ],
+      "titleEn": "Bandai Accessories acrylic",
+      "sku": "BANDAIACCESSORIES-ACRYLIC-020",
+      "titlePt": "Bandai Accessories acrylic",
+      "aliases": [
+        "Bandai Accessories",
+        "acrylic"
+      ]
+    },
+    {
+      "accessoryType": "accessories",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/accessories-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/accessories-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bandai-accessories/accessories-gallery.webp"
+        }
+      ],
+      "titleEn": "Bandai Accessories accessories",
+      "sku": "BANDAIACCESSORIES-ACCESSORIES-021",
+      "titlePt": "Bandai Accessories accessories",
+      "aliases": [
+        "Bandai Accessories",
+        "accessories"
+      ]
+    }
+  ],
+  "manufacturer": "Bandai",
+  "manufacturerId": "bandai-accessories"
+}

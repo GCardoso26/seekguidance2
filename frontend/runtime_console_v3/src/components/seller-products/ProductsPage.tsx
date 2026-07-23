@@ -236,6 +236,10 @@ export function ProductsPage() {
               onUpload={(url) => setPendingImageUrl(url)}
               onRemove={() => setPendingImageUrl(undefined)}
             />
+            <p className="text-xs text-muted-foreground" data-testid="official-or-existing-image-hint">
+              Se o produto vier do catálogo mestre com imagem oficial, ela aparece no anúncio. Você
+              pode enviar uma imagem personalizada a qualquer momento.
+            </p>
             <div className="flex gap-2">
               <button
                 type="submit"

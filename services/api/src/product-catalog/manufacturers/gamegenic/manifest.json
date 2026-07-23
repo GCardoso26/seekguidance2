@@ -1,0 +1,534 @@
+{
+  "version": 1,
+  "website": "https://www.gamegenic.com",
+  "brand": "Gamegenic",
+  "items": [
+    {
+      "accessoryType": "sleeves",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/sleeves-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/sleeves-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/sleeves-gallery.webp"
+        }
+      ],
+      "titleEn": "Gamegenic sleeves",
+      "sku": "GAMEGENIC-SLEEVES-001",
+      "titlePt": "Gamegenic sleeves",
+      "aliases": [
+        "Gamegenic",
+        "sleeves"
+      ]
+    },
+    {
+      "accessoryType": "perfect_fit",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/perfect_fit-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/perfect_fit-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/perfect_fit-gallery.webp"
+        }
+      ],
+      "titleEn": "Gamegenic perfect fit",
+      "sku": "GAMEGENIC-PERFECT-FIT-002",
+      "titlePt": "Gamegenic perfect fit",
+      "aliases": [
+        "Gamegenic",
+        "perfect_fit"
+      ]
+    },
+    {
+      "accessoryType": "outer_sleeves",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/outer_sleeves-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/outer_sleeves-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/outer_sleeves-gallery.webp"
+        }
+      ],
+      "titleEn": "Gamegenic outer sleeves",
+      "sku": "GAMEGENIC-OUTER-SLEEVES-003",
+      "titlePt": "Gamegenic outer sleeves",
+      "aliases": [
+        "Gamegenic",
+        "outer_sleeves"
+      ]
+    },
+    {
+      "accessoryType": "deck_box",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/deck_box-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/deck_box-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/deck_box-gallery.webp"
+        }
+      ],
+      "titleEn": "Gamegenic deck box",
+      "sku": "GAMEGENIC-DECK-BOX-004",
+      "titlePt": "Gamegenic deck box",
+      "aliases": [
+        "Gamegenic",
+        "deck_box"
+      ]
+    },
+    {
+      "accessoryType": "deck_case",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/deck_case-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/deck_case-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/deck_case-gallery.webp"
+        }
+      ],
+      "titleEn": "Gamegenic deck case",
+      "sku": "GAMEGENIC-DECK-CASE-005",
+      "titlePt": "Gamegenic deck case",
+      "aliases": [
+        "Gamegenic",
+        "deck_case"
+      ]
+    },
+    {
+      "accessoryType": "storage_box",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/storage_box-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/storage_box-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/storage_box-gallery.webp"
+        }
+      ],
+      "titleEn": "Gamegenic storage box",
+      "sku": "GAMEGENIC-STORAGE-BOX-006",
+      "titlePt": "Gamegenic storage box",
+      "aliases": [
+        "Gamegenic",
+        "storage_box"
+      ]
+    },
+    {
+      "accessoryType": "binder",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/binder-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/binder-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/binder-gallery.webp"
+        }
+      ],
+      "titleEn": "Gamegenic binder",
+      "sku": "GAMEGENIC-BINDER-007",
+      "titlePt": "Gamegenic binder",
+      "aliases": [
+        "Gamegenic",
+        "binder"
+      ]
+    },
+    {
+      "accessoryType": "portfolio",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/portfolio-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/portfolio-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/portfolio-gallery.webp"
+        }
+      ],
+      "titleEn": "Gamegenic portfolio",
+      "sku": "GAMEGENIC-PORTFOLIO-008",
+      "titlePt": "Gamegenic portfolio",
+      "aliases": [
+        "Gamegenic",
+        "portfolio"
+      ]
+    },
+    {
+      "accessoryType": "playmat",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/playmat-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/playmat-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/playmat-gallery.webp"
+        }
+      ],
+      "titleEn": "Gamegenic playmat",
+      "sku": "GAMEGENIC-PLAYMAT-009",
+      "titlePt": "Gamegenic playmat",
+      "aliases": [
+        "Gamegenic",
+        "playmat"
+      ]
+    },
+    {
+      "accessoryType": "playmat_tube",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/playmat_tube-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/playmat_tube-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/playmat_tube-gallery.webp"
+        }
+      ],
+      "titleEn": "Gamegenic playmat tube",
+      "sku": "GAMEGENIC-PLAYMAT-TUBE-010",
+      "titlePt": "Gamegenic playmat tube",
+      "aliases": [
+        "Gamegenic",
+        "playmat_tube"
+      ]
+    },
+    {
+      "accessoryType": "dice",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/dice-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/dice-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/dice-gallery.webp"
+        }
+      ],
+      "titleEn": "Gamegenic dice",
+      "sku": "GAMEGENIC-DICE-011",
+      "titlePt": "Gamegenic dice",
+      "aliases": [
+        "Gamegenic",
+        "dice"
+      ]
+    },
+    {
+      "accessoryType": "dice_tray",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/dice_tray-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/dice_tray-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/dice_tray-gallery.webp"
+        }
+      ],
+      "titleEn": "Gamegenic dice tray",
+      "sku": "GAMEGENIC-DICE-TRAY-012",
+      "titlePt": "Gamegenic dice tray",
+      "aliases": [
+        "Gamegenic",
+        "dice_tray"
+      ]
+    },
+    {
+      "accessoryType": "life_counter",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/life_counter-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/life_counter-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/life_counter-gallery.webp"
+        }
+      ],
+      "titleEn": "Gamegenic life counter",
+      "sku": "GAMEGENIC-LIFE-COUNTER-013",
+      "titlePt": "Gamegenic life counter",
+      "aliases": [
+        "Gamegenic",
+        "life_counter"
+      ]
+    },
+    {
+      "accessoryType": "counters",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/counters-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/counters-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/counters-gallery.webp"
+        }
+      ],
+      "titleEn": "Gamegenic counters",
+      "sku": "GAMEGENIC-COUNTERS-014",
+      "titlePt": "Gamegenic counters",
+      "aliases": [
+        "Gamegenic",
+        "counters"
+      ]
+    },
+    {
+      "accessoryType": "tokens",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/tokens-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/tokens-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/tokens-gallery.webp"
+        }
+      ],
+      "titleEn": "Gamegenic tokens",
+      "sku": "GAMEGENIC-TOKENS-015",
+      "titlePt": "Gamegenic tokens",
+      "aliases": [
+        "Gamegenic",
+        "tokens"
+      ]
+    },
+    {
+      "accessoryType": "divider",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/divider-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/divider-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/divider-gallery.webp"
+        }
+      ],
+      "titleEn": "Gamegenic divider",
+      "sku": "GAMEGENIC-DIVIDER-016",
+      "titlePt": "Gamegenic divider",
+      "aliases": [
+        "Gamegenic",
+        "divider"
+      ]
+    },
+    {
+      "accessoryType": "top_loader",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/top_loader-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/top_loader-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/top_loader-gallery.webp"
+        }
+      ],
+      "titleEn": "Gamegenic top loader",
+      "sku": "GAMEGENIC-TOP-LOADER-017",
+      "titlePt": "Gamegenic top loader",
+      "aliases": [
+        "Gamegenic",
+        "top_loader"
+      ]
+    },
+    {
+      "accessoryType": "magnetic_case",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/magnetic_case-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/magnetic_case-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/magnetic_case-gallery.webp"
+        }
+      ],
+      "titleEn": "Gamegenic magnetic case",
+      "sku": "GAMEGENIC-MAGNETIC-CASE-018",
+      "titlePt": "Gamegenic magnetic case",
+      "aliases": [
+        "Gamegenic",
+        "magnetic_case"
+      ]
+    },
+    {
+      "accessoryType": "storage",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/storage-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/storage-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/storage-gallery.webp"
+        }
+      ],
+      "titleEn": "Gamegenic storage",
+      "sku": "GAMEGENIC-STORAGE-019",
+      "titlePt": "Gamegenic storage",
+      "aliases": [
+        "Gamegenic",
+        "storage"
+      ]
+    },
+    {
+      "accessoryType": "acrylic",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/acrylic-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/acrylic-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/acrylic-gallery.webp"
+        }
+      ],
+      "titleEn": "Gamegenic acrylic",
+      "sku": "GAMEGENIC-ACRYLIC-020",
+      "titlePt": "Gamegenic acrylic",
+      "aliases": [
+        "Gamegenic",
+        "acrylic"
+      ]
+    },
+    {
+      "accessoryType": "accessories",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/accessories-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/accessories-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/accessories-gallery.webp"
+        }
+      ],
+      "titleEn": "Gamegenic accessories",
+      "sku": "GAMEGENIC-ACCESSORIES-021",
+      "titlePt": "Gamegenic accessories",
+      "aliases": [
+        "Gamegenic",
+        "accessories"
+      ]
+    }
+  ],
+  "manufacturer": "Gamegenic",
+  "manufacturerId": "gamegenic"
+}

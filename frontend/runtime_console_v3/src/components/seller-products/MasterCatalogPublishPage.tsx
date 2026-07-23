@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { CardImage } from "@/components/ui/CardImage";
+import { ImageUpload } from "@/components/ui/ImageUpload";
 import { PageHeader, PageShell } from "@/components/seller-dashboard/PageShell";
 import { SellerHeader } from "@/components/seller-dashboard/SellerHeader";
 import { useMasterProductSearch, usePublishMasterListing } from "@/hooks/useMasterProductCatalog";
@@ -26,6 +27,8 @@ export function MasterCatalogPublishPage() {
   const [price, setPrice] = useState("");
   const [stock, setStock] = useState("1");
   const [condition, setCondition] = useState<(typeof CONDITIONS)[number]["id"]>("NEW");
+  const [imageMode, setImageMode] = useState<"official" | "custom">("official");
+  const [customImageUrl, setCustomImageUrl] = useState<string | undefined>();
 
   const { data, isLoading } = useMasterProductSearch({ q, category: category || undefined });
   const publish = usePublishMasterListing();
@@ -34,6 +37,13 @@ export function MasterCatalogPublishPage() {
     () => data?.items.find((i) => i.variant_id === selectedVariantId),
     [data?.items, selectedVariantId],
   );
+
+  function selectVariant(variantId: string) {
+    setSelectedVariantId(variantId);
+    const item = data?.items.find((i) => i.variant_id === variantId);
+    setImageMode(item?.image_url ? "official" : "custom");
+    setCustomImageUrl(undefined);
+  }
 
   async function handlePublish(e: React.FormEvent) {
     e.preventDefault();
@@ -52,13 +62,28 @@ export function MasterCatalogPublishPage() {
       return;
     }
     try {
-      await publish.mutateAsync({
+      const result = (await publish.mutateAsync({
         variant_id: selectedVariantId,
         price_cents: Math.round(priceNum * 100),
         stock: stockNum,
         condition,
-      });
-      toast.success("Publicado no catálogo da loja");
+      })) as { store_product_id?: string };
+      if (imageMode === "custom" && customImageUrl && result?.store_product_id) {
+        const { ingestProductAsset } = await import("@/lib/assets/ingest-client");
+        await ingestProductAsset({
+          sourceUrl: customImageUrl,
+          entityType: "store_product",
+          entityId: result.store_product_id,
+          role: "front",
+          mediaType: mediaTypeFromCategory(selected?.category),
+          alt: selected?.title_pt ?? "Produto",
+        });
+      }
+      toast.success(
+        imageMode === "official" && selected?.image_url
+          ? "Publicado com imagem oficial"
+          : "Publicado no catálogo da loja",
+      );
     } catch {
       toast.error("Erro ao publicar");
     }
@@ -116,7 +141,7 @@ export function MasterCatalogPublishPage() {
                   <li key={item.variant_id}>
                     <button
                       type="button"
-                      onClick={() => setSelectedVariantId(item.variant_id)}
+                      onClick={() => selectVariant(item.variant_id)}
                       className={cn(
                         "flex w-full gap-3 rounded-lg border p-2 text-left text-sm",
                         selectedVariantId === item.variant_id
@@ -158,11 +183,79 @@ export function MasterCatalogPublishPage() {
           <form onSubmit={handlePublish} className="space-y-4 rounded-xl border border-border p-4">
             <h2 className="text-sm font-semibold">Publicar oferta</h2>
             {selected ? (
-              <div className="rounded-lg bg-muted/30 p-3 text-sm">
-                <p className="font-medium">{selected.title_pt}</p>
-                <p className="text-muted-foreground">{selected.variant_name}</p>
-                <p className="mt-2 text-xs text-muted-foreground">
-                  Nome, imagem, marca e categoria vêm do catálogo central — não editáveis.
+              <div className="space-y-3 rounded-lg bg-muted/30 p-3 text-sm">
+                <div>
+                  <p className="font-medium">{selected.title_pt}</p>
+                  <p className="text-muted-foreground">{selected.variant_name}</p>
+                </div>
+                {selected.image_url ? (
+                  <div className="relative mx-auto h-28 w-28 overflow-hidden rounded bg-muted/40">
+                    <CardImage
+                      src={
+                        imageMode === "custom" && customImageUrl
+                          ? customImageUrl
+                          : selected.image_url
+                      }
+                      alt={selected.title_pt}
+                      fallbackLabel={selected.title_pt.slice(0, 8)}
+                      mediaType={mediaTypeFromCategory(selected.category)}
+                      fill
+                      className="object-contain"
+                      sizes="112px"
+                    />
+                  </div>
+                ) : (
+                  <p className="text-xs text-muted-foreground">Sem imagem oficial no catálogo.</p>
+                )}
+                {selected.image_url ? (
+                  <p
+                    className="rounded-md border border-primary/30 bg-primary/5 px-2 py-1.5 text-xs text-primary"
+                    data-testid="official-image-autoselect"
+                  >
+                    Imagem oficial encontrada — pré-selecionada automaticamente. Você pode enviar uma
+                    personalizada a qualquer momento.
+                  </p>
+                ) : null}
+                <fieldset className="space-y-2" data-testid="master-image-mode">
+                  <legend className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    Imagem do anúncio
+                  </legend>
+                  <label className="flex items-center gap-2 text-sm">
+                    <input
+                      type="radio"
+                      name="image-mode"
+                      checked={imageMode === "official"}
+                      disabled={!selected.image_url}
+                      onChange={() => setImageMode("official")}
+                      data-testid="image-mode-official"
+                    />
+                    Usar imagem oficial
+                  </label>
+                  <label className="flex items-center gap-2 text-sm">
+                    <input
+                      type="radio"
+                      name="image-mode"
+                      checked={imageMode === "custom"}
+                      onChange={() => setImageMode("custom")}
+                      data-testid="image-mode-custom"
+                    />
+                    Enviar imagem personalizada
+                  </label>
+                </fieldset>
+                {imageMode === "custom" ? (
+                  <ImageUpload
+                    label="Imagem personalizada"
+                    previewUrl={customImageUrl}
+                    role="front"
+                    mediaType={mediaTypeFromCategory(selected.category)}
+                    alt={selected.title_pt}
+                    onUpload={(url) => setCustomImageUrl(url)}
+                    onRemove={() => setCustomImageUrl(undefined)}
+                  />
+                ) : null}
+                <p className="text-xs text-muted-foreground">
+                  Nome, marca e categoria vêm do catálogo mestre. A imagem oficial pode ser
+                  substituída por uma personalizada sem perder o vínculo.
                 </p>
               </div>
             ) : (

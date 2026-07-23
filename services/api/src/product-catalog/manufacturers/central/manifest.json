@@ -1,0 +1,534 @@
+{
+  "version": 1,
+  "website": "https://centralacessorios.com.br",
+  "brand": "Central",
+  "items": [
+    {
+      "accessoryType": "sleeves",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/sleeves-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/sleeves-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/sleeves-gallery.webp"
+        }
+      ],
+      "titleEn": "Central sleeves",
+      "sku": "CENTRAL-SLEEVES-001",
+      "titlePt": "Central sleeves",
+      "aliases": [
+        "Central",
+        "sleeves"
+      ]
+    },
+    {
+      "accessoryType": "perfect_fit",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/perfect_fit-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/perfect_fit-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/perfect_fit-gallery.webp"
+        }
+      ],
+      "titleEn": "Central perfect fit",
+      "sku": "CENTRAL-PERFECT-FIT-002",
+      "titlePt": "Central perfect fit",
+      "aliases": [
+        "Central",
+        "perfect_fit"
+      ]
+    },
+    {
+      "accessoryType": "outer_sleeves",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/outer_sleeves-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/outer_sleeves-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/outer_sleeves-gallery.webp"
+        }
+      ],
+      "titleEn": "Central outer sleeves",
+      "sku": "CENTRAL-OUTER-SLEEVES-003",
+      "titlePt": "Central outer sleeves",
+      "aliases": [
+        "Central",
+        "outer_sleeves"
+      ]
+    },
+    {
+      "accessoryType": "deck_box",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/deck_box-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/deck_box-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/deck_box-gallery.webp"
+        }
+      ],
+      "titleEn": "Central deck box",
+      "sku": "CENTRAL-DECK-BOX-004",
+      "titlePt": "Central deck box",
+      "aliases": [
+        "Central",
+        "deck_box"
+      ]
+    },
+    {
+      "accessoryType": "deck_case",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/deck_case-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/deck_case-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/deck_case-gallery.webp"
+        }
+      ],
+      "titleEn": "Central deck case",
+      "sku": "CENTRAL-DECK-CASE-005",
+      "titlePt": "Central deck case",
+      "aliases": [
+        "Central",
+        "deck_case"
+      ]
+    },
+    {
+      "accessoryType": "storage_box",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/storage_box-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/storage_box-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/storage_box-gallery.webp"
+        }
+      ],
+      "titleEn": "Central storage box",
+      "sku": "CENTRAL-STORAGE-BOX-006",
+      "titlePt": "Central storage box",
+      "aliases": [
+        "Central",
+        "storage_box"
+      ]
+    },
+    {
+      "accessoryType": "binder",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/binder-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/binder-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/binder-gallery.webp"
+        }
+      ],
+      "titleEn": "Central binder",
+      "sku": "CENTRAL-BINDER-007",
+      "titlePt": "Central binder",
+      "aliases": [
+        "Central",
+        "binder"
+      ]
+    },
+    {
+      "accessoryType": "portfolio",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/portfolio-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/portfolio-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/portfolio-gallery.webp"
+        }
+      ],
+      "titleEn": "Central portfolio",
+      "sku": "CENTRAL-PORTFOLIO-008",
+      "titlePt": "Central portfolio",
+      "aliases": [
+        "Central",
+        "portfolio"
+      ]
+    },
+    {
+      "accessoryType": "playmat",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/playmat-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/playmat-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/playmat-gallery.webp"
+        }
+      ],
+      "titleEn": "Central playmat",
+      "sku": "CENTRAL-PLAYMAT-009",
+      "titlePt": "Central playmat",
+      "aliases": [
+        "Central",
+        "playmat"
+      ]
+    },
+    {
+      "accessoryType": "playmat_tube",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/playmat_tube-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/playmat_tube-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/playmat_tube-gallery.webp"
+        }
+      ],
+      "titleEn": "Central playmat tube",
+      "sku": "CENTRAL-PLAYMAT-TUBE-010",
+      "titlePt": "Central playmat tube",
+      "aliases": [
+        "Central",
+        "playmat_tube"
+      ]
+    },
+    {
+      "accessoryType": "dice",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/dice-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/dice-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/dice-gallery.webp"
+        }
+      ],
+      "titleEn": "Central dice",
+      "sku": "CENTRAL-DICE-011",
+      "titlePt": "Central dice",
+      "aliases": [
+        "Central",
+        "dice"
+      ]
+    },
+    {
+      "accessoryType": "dice_tray",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/dice_tray-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/dice_tray-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/dice_tray-gallery.webp"
+        }
+      ],
+      "titleEn": "Central dice tray",
+      "sku": "CENTRAL-DICE-TRAY-012",
+      "titlePt": "Central dice tray",
+      "aliases": [
+        "Central",
+        "dice_tray"
+      ]
+    },
+    {
+      "accessoryType": "life_counter",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/life_counter-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/life_counter-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/life_counter-gallery.webp"
+        }
+      ],
+      "titleEn": "Central life counter",
+      "sku": "CENTRAL-LIFE-COUNTER-013",
+      "titlePt": "Central life counter",
+      "aliases": [
+        "Central",
+        "life_counter"
+      ]
+    },
+    {
+      "accessoryType": "counters",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/counters-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/counters-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/counters-gallery.webp"
+        }
+      ],
+      "titleEn": "Central counters",
+      "sku": "CENTRAL-COUNTERS-014",
+      "titlePt": "Central counters",
+      "aliases": [
+        "Central",
+        "counters"
+      ]
+    },
+    {
+      "accessoryType": "tokens",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/tokens-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/tokens-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/tokens-gallery.webp"
+        }
+      ],
+      "titleEn": "Central tokens",
+      "sku": "CENTRAL-TOKENS-015",
+      "titlePt": "Central tokens",
+      "aliases": [
+        "Central",
+        "tokens"
+      ]
+    },
+    {
+      "accessoryType": "divider",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/divider-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/divider-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/divider-gallery.webp"
+        }
+      ],
+      "titleEn": "Central divider",
+      "sku": "CENTRAL-DIVIDER-016",
+      "titlePt": "Central divider",
+      "aliases": [
+        "Central",
+        "divider"
+      ]
+    },
+    {
+      "accessoryType": "top_loader",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/top_loader-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/top_loader-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/top_loader-gallery.webp"
+        }
+      ],
+      "titleEn": "Central top loader",
+      "sku": "CENTRAL-TOP-LOADER-017",
+      "titlePt": "Central top loader",
+      "aliases": [
+        "Central",
+        "top_loader"
+      ]
+    },
+    {
+      "accessoryType": "magnetic_case",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/magnetic_case-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/magnetic_case-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/magnetic_case-gallery.webp"
+        }
+      ],
+      "titleEn": "Central magnetic case",
+      "sku": "CENTRAL-MAGNETIC-CASE-018",
+      "titlePt": "Central magnetic case",
+      "aliases": [
+        "Central",
+        "magnetic_case"
+      ]
+    },
+    {
+      "accessoryType": "storage",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/storage-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/storage-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/storage-gallery.webp"
+        }
+      ],
+      "titleEn": "Central storage",
+      "sku": "CENTRAL-STORAGE-019",
+      "titlePt": "Central storage",
+      "aliases": [
+        "Central",
+        "storage"
+      ]
+    },
+    {
+      "accessoryType": "acrylic",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/acrylic-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/acrylic-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/acrylic-gallery.webp"
+        }
+      ],
+      "titleEn": "Central acrylic",
+      "sku": "CENTRAL-ACRYLIC-020",
+      "titlePt": "Central acrylic",
+      "aliases": [
+        "Central",
+        "acrylic"
+      ]
+    },
+    {
+      "accessoryType": "accessories",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/accessories-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/accessories-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/central/accessories-gallery.webp"
+        }
+      ],
+      "titleEn": "Central accessories",
+      "sku": "CENTRAL-ACCESSORIES-021",
+      "titlePt": "Central accessories",
+      "aliases": [
+        "Central",
+        "accessories"
+      ]
+    }
+  ],
+  "manufacturer": "Central",
+  "manufacturerId": "central"
+}

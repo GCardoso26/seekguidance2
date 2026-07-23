@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "manufacturer": "Gamegenic",
+  "brand": "Gamegenic",
+  "resourcesUrl": "https://www.gamegenic.com/resources/",
+  "items": [
+    {
+      "sku": "GG-SLV-PRIME",
+      "titlePt": "Prime Sleeves",
+      "titleEn": "Prime Sleeves",
+      "category": "SLEEVES",
+      "subcategory": "STANDARD_MATTE",
+      "accessoryType": "sleeves",
+      "images": [
+        {
+          "role": "packshot",
+          "sourceUrl": "https://www.gamegenic.com/wp-content/uploads/gamegenic-prime-sleeves-packshot.png",
+          "isPrimary": true
+        },
+        {
+          "role": "lifestyle",
+          "sourceUrl": "https://www.gamegenic.com/wp-content/uploads/gamegenic-prime-sleeves-lifestyle.png"
+        },
+        {
+          "role": "logo",
+          "sourceUrl": "https://www.gamegenic.com/wp-content/uploads/gamegenic-logo.png"
+        }
+      ]
+    },
+    {
+      "sku": "GG-DECK-WATCHTOWER",
+      "titlePt": "Watchtower Deck Box",
+      "category": "DECK_BOX",
+      "subcategory": "CONVERTIBLE",
+      "accessoryType": "deck_box",
+      "images": [
+        {
+          "role": "packshot",
+          "sourceUrl": "https://www.gamegenic.com/wp-content/uploads/gamegenic-watchtower-packshot.png",
+          "isPrimary": true
+        },
+        {
+          "role": "packaging",
+          "sourceUrl": "https://www.gamegenic.com/wp-content/uploads/gamegenic-watchtower-packaging.png"
+        }
+      ]
+    }
+  ]
+}

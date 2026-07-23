@@ -7,6 +7,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import { WishlistButton } from "@/components/marketplace/WishlistButton";
 import { PriceAlertButton } from "@/components/marketplace/PriceAlertButton";
+import { OfficialRelatedProducts } from "@/components/marketplace/OfficialRelatedProducts";
 import { formatShopPrice, addProductToCart, type ShopProduct } from "@/lib/marketplace-shop";
 import { showToast } from "@/lib/toast";
 
@@ -20,13 +21,16 @@ export default function ProductDetailPage() {
     queryFn: async () => {
       const res = await fetch(`/api/marketplace/shop/products/${encodeURIComponent(id)}`);
       if (!res.ok) throw new Error("Produto não encontrado");
-      return res.json() as Promise<{ product: ShopProduct }>;
+      return res.json() as Promise<{ product: ShopProduct & { master_product_id?: string | null; master_variant_id?: string | null } }>;
     },
     enabled: Boolean(id),
   });
 
   const product = data?.product;
   const image = product?.images?.[0];
+  const relatedCatalogId =
+    (product as { master_product_id?: string | null } | undefined)?.master_product_id ??
+    undefined;
 
   async function buyNow() {
     if (!product) return;
@@ -52,6 +56,7 @@ export default function ProductDetailPage() {
         </Link>
         {isLoading && <p className="mt-6 text-muted-foreground">Carregando…</p>}
         {product && (
+          <>
           <div className="mt-6 grid gap-8 lg:grid-cols-2">
             <div className="relative aspect-square overflow-hidden rounded-xl border border-border bg-foreground/30">
               {image ? (
@@ -79,6 +84,8 @@ export default function ProductDetailPage() {
               </button>
             </div>
           </div>
+          {relatedCatalogId ? <OfficialRelatedProducts productId={relatedCatalogId} /> : null}
+          </>
         )}
       </div>
     </MobileLayout>

@@ -1,0 +1,534 @@
+{
+  "version": 1,
+  "website": "https://www.kamikacards.com",
+  "brand": "KMC",
+  "items": [
+    {
+      "accessoryType": "sleeves",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/sleeves-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/sleeves-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/sleeves-gallery.webp"
+        }
+      ],
+      "titleEn": "KMC sleeves",
+      "sku": "KMC-SLEEVES-001",
+      "titlePt": "KMC sleeves",
+      "aliases": [
+        "KMC",
+        "sleeves"
+      ]
+    },
+    {
+      "accessoryType": "perfect_fit",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/perfect_fit-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/perfect_fit-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/perfect_fit-gallery.webp"
+        }
+      ],
+      "titleEn": "KMC perfect fit",
+      "sku": "KMC-PERFECT-FIT-002",
+      "titlePt": "KMC perfect fit",
+      "aliases": [
+        "KMC",
+        "perfect_fit"
+      ]
+    },
+    {
+      "accessoryType": "outer_sleeves",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/outer_sleeves-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/outer_sleeves-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/outer_sleeves-gallery.webp"
+        }
+      ],
+      "titleEn": "KMC outer sleeves",
+      "sku": "KMC-OUTER-SLEEVES-003",
+      "titlePt": "KMC outer sleeves",
+      "aliases": [
+        "KMC",
+        "outer_sleeves"
+      ]
+    },
+    {
+      "accessoryType": "deck_box",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/deck_box-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/deck_box-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/deck_box-gallery.webp"
+        }
+      ],
+      "titleEn": "KMC deck box",
+      "sku": "KMC-DECK-BOX-004",
+      "titlePt": "KMC deck box",
+      "aliases": [
+        "KMC",
+        "deck_box"
+      ]
+    },
+    {
+      "accessoryType": "deck_case",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/deck_case-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/deck_case-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/deck_case-gallery.webp"
+        }
+      ],
+      "titleEn": "KMC deck case",
+      "sku": "KMC-DECK-CASE-005",
+      "titlePt": "KMC deck case",
+      "aliases": [
+        "KMC",
+        "deck_case"
+      ]
+    },
+    {
+      "accessoryType": "storage_box",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/storage_box-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/storage_box-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/storage_box-gallery.webp"
+        }
+      ],
+      "titleEn": "KMC storage box",
+      "sku": "KMC-STORAGE-BOX-006",
+      "titlePt": "KMC storage box",
+      "aliases": [
+        "KMC",
+        "storage_box"
+      ]
+    },
+    {
+      "accessoryType": "binder",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/binder-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/binder-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/binder-gallery.webp"
+        }
+      ],
+      "titleEn": "KMC binder",
+      "sku": "KMC-BINDER-007",
+      "titlePt": "KMC binder",
+      "aliases": [
+        "KMC",
+        "binder"
+      ]
+    },
+    {
+      "accessoryType": "portfolio",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/portfolio-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/portfolio-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/portfolio-gallery.webp"
+        }
+      ],
+      "titleEn": "KMC portfolio",
+      "sku": "KMC-PORTFOLIO-008",
+      "titlePt": "KMC portfolio",
+      "aliases": [
+        "KMC",
+        "portfolio"
+      ]
+    },
+    {
+      "accessoryType": "playmat",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/playmat-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/playmat-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/playmat-gallery.webp"
+        }
+      ],
+      "titleEn": "KMC playmat",
+      "sku": "KMC-PLAYMAT-009",
+      "titlePt": "KMC playmat",
+      "aliases": [
+        "KMC",
+        "playmat"
+      ]
+    },
+    {
+      "accessoryType": "playmat_tube",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/playmat_tube-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/playmat_tube-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/playmat_tube-gallery.webp"
+        }
+      ],
+      "titleEn": "KMC playmat tube",
+      "sku": "KMC-PLAYMAT-TUBE-010",
+      "titlePt": "KMC playmat tube",
+      "aliases": [
+        "KMC",
+        "playmat_tube"
+      ]
+    },
+    {
+      "accessoryType": "dice",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/dice-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/dice-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/dice-gallery.webp"
+        }
+      ],
+      "titleEn": "KMC dice",
+      "sku": "KMC-DICE-011",
+      "titlePt": "KMC dice",
+      "aliases": [
+        "KMC",
+        "dice"
+      ]
+    },
+    {
+      "accessoryType": "dice_tray",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/dice_tray-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/dice_tray-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/dice_tray-gallery.webp"
+        }
+      ],
+      "titleEn": "KMC dice tray",
+      "sku": "KMC-DICE-TRAY-012",
+      "titlePt": "KMC dice tray",
+      "aliases": [
+        "KMC",
+        "dice_tray"
+      ]
+    },
+    {
+      "accessoryType": "life_counter",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/life_counter-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/life_counter-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/life_counter-gallery.webp"
+        }
+      ],
+      "titleEn": "KMC life counter",
+      "sku": "KMC-LIFE-COUNTER-013",
+      "titlePt": "KMC life counter",
+      "aliases": [
+        "KMC",
+        "life_counter"
+      ]
+    },
+    {
+      "accessoryType": "counters",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/counters-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/counters-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/counters-gallery.webp"
+        }
+      ],
+      "titleEn": "KMC counters",
+      "sku": "KMC-COUNTERS-014",
+      "titlePt": "KMC counters",
+      "aliases": [
+        "KMC",
+        "counters"
+      ]
+    },
+    {
+      "accessoryType": "tokens",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/tokens-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/tokens-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/tokens-gallery.webp"
+        }
+      ],
+      "titleEn": "KMC tokens",
+      "sku": "KMC-TOKENS-015",
+      "titlePt": "KMC tokens",
+      "aliases": [
+        "KMC",
+        "tokens"
+      ]
+    },
+    {
+      "accessoryType": "divider",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/divider-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/divider-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/divider-gallery.webp"
+        }
+      ],
+      "titleEn": "KMC divider",
+      "sku": "KMC-DIVIDER-016",
+      "titlePt": "KMC divider",
+      "aliases": [
+        "KMC",
+        "divider"
+      ]
+    },
+    {
+      "accessoryType": "top_loader",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/top_loader-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/top_loader-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/top_loader-gallery.webp"
+        }
+      ],
+      "titleEn": "KMC top loader",
+      "sku": "KMC-TOP-LOADER-017",
+      "titlePt": "KMC top loader",
+      "aliases": [
+        "KMC",
+        "top_loader"
+      ]
+    },
+    {
+      "accessoryType": "magnetic_case",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/magnetic_case-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/magnetic_case-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/magnetic_case-gallery.webp"
+        }
+      ],
+      "titleEn": "KMC magnetic case",
+      "sku": "KMC-MAGNETIC-CASE-018",
+      "titlePt": "KMC magnetic case",
+      "aliases": [
+        "KMC",
+        "magnetic_case"
+      ]
+    },
+    {
+      "accessoryType": "storage",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/storage-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/storage-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/storage-gallery.webp"
+        }
+      ],
+      "titleEn": "KMC storage",
+      "sku": "KMC-STORAGE-019",
+      "titlePt": "KMC storage",
+      "aliases": [
+        "KMC",
+        "storage"
+      ]
+    },
+    {
+      "accessoryType": "acrylic",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/acrylic-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/acrylic-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/acrylic-gallery.webp"
+        }
+      ],
+      "titleEn": "KMC acrylic",
+      "sku": "KMC-ACRYLIC-020",
+      "titlePt": "KMC acrylic",
+      "aliases": [
+        "KMC",
+        "acrylic"
+      ]
+    },
+    {
+      "accessoryType": "accessories",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/accessories-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/accessories-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/kmc/accessories-gallery.webp"
+        }
+      ],
+      "titleEn": "KMC accessories",
+      "sku": "KMC-ACCESSORIES-021",
+      "titlePt": "KMC accessories",
+      "aliases": [
+        "KMC",
+        "accessories"
+      ]
+    }
+  ],
+  "manufacturer": "KMC",
+  "manufacturerId": "kmc"
+}

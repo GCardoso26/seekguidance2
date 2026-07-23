@@ -1,0 +1,534 @@
+{
+  "version": 1,
+  "website": "https://dexprotection.com",
+  "brand": "Dex Protection",
+  "items": [
+    {
+      "accessoryType": "sleeves",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/sleeves-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/sleeves-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/sleeves-gallery.webp"
+        }
+      ],
+      "titleEn": "Dex Protection sleeves",
+      "sku": "DEXPROTECTION-SLEEVES-001",
+      "titlePt": "Dex Protection sleeves",
+      "aliases": [
+        "Dex Protection",
+        "sleeves"
+      ]
+    },
+    {
+      "accessoryType": "perfect_fit",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/perfect_fit-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/perfect_fit-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/perfect_fit-gallery.webp"
+        }
+      ],
+      "titleEn": "Dex Protection perfect fit",
+      "sku": "DEXPROTECTION-PERFECT-FIT-002",
+      "titlePt": "Dex Protection perfect fit",
+      "aliases": [
+        "Dex Protection",
+        "perfect_fit"
+      ]
+    },
+    {
+      "accessoryType": "outer_sleeves",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/outer_sleeves-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/outer_sleeves-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/outer_sleeves-gallery.webp"
+        }
+      ],
+      "titleEn": "Dex Protection outer sleeves",
+      "sku": "DEXPROTECTION-OUTER-SLEEVES-003",
+      "titlePt": "Dex Protection outer sleeves",
+      "aliases": [
+        "Dex Protection",
+        "outer_sleeves"
+      ]
+    },
+    {
+      "accessoryType": "deck_box",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/deck_box-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/deck_box-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/deck_box-gallery.webp"
+        }
+      ],
+      "titleEn": "Dex Protection deck box",
+      "sku": "DEXPROTECTION-DECK-BOX-004",
+      "titlePt": "Dex Protection deck box",
+      "aliases": [
+        "Dex Protection",
+        "deck_box"
+      ]
+    },
+    {
+      "accessoryType": "deck_case",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/deck_case-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/deck_case-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/deck_case-gallery.webp"
+        }
+      ],
+      "titleEn": "Dex Protection deck case",
+      "sku": "DEXPROTECTION-DECK-CASE-005",
+      "titlePt": "Dex Protection deck case",
+      "aliases": [
+        "Dex Protection",
+        "deck_case"
+      ]
+    },
+    {
+      "accessoryType": "storage_box",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/storage_box-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/storage_box-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/storage_box-gallery.webp"
+        }
+      ],
+      "titleEn": "Dex Protection storage box",
+      "sku": "DEXPROTECTION-STORAGE-BOX-006",
+      "titlePt": "Dex Protection storage box",
+      "aliases": [
+        "Dex Protection",
+        "storage_box"
+      ]
+    },
+    {
+      "accessoryType": "binder",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/binder-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/binder-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/binder-gallery.webp"
+        }
+      ],
+      "titleEn": "Dex Protection binder",
+      "sku": "DEXPROTECTION-BINDER-007",
+      "titlePt": "Dex Protection binder",
+      "aliases": [
+        "Dex Protection",
+        "binder"
+      ]
+    },
+    {
+      "accessoryType": "portfolio",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/portfolio-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/portfolio-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/portfolio-gallery.webp"
+        }
+      ],
+      "titleEn": "Dex Protection portfolio",
+      "sku": "DEXPROTECTION-PORTFOLIO-008",
+      "titlePt": "Dex Protection portfolio",
+      "aliases": [
+        "Dex Protection",
+        "portfolio"
+      ]
+    },
+    {
+      "accessoryType": "playmat",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/playmat-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/playmat-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/playmat-gallery.webp"
+        }
+      ],
+      "titleEn": "Dex Protection playmat",
+      "sku": "DEXPROTECTION-PLAYMAT-009",
+      "titlePt": "Dex Protection playmat",
+      "aliases": [
+        "Dex Protection",
+        "playmat"
+      ]
+    },
+    {
+      "accessoryType": "playmat_tube",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/playmat_tube-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/playmat_tube-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/playmat_tube-gallery.webp"
+        }
+      ],
+      "titleEn": "Dex Protection playmat tube",
+      "sku": "DEXPROTECTION-PLAYMAT-TUBE-010",
+      "titlePt": "Dex Protection playmat tube",
+      "aliases": [
+        "Dex Protection",
+        "playmat_tube"
+      ]
+    },
+    {
+      "accessoryType": "dice",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/dice-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/dice-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/dice-gallery.webp"
+        }
+      ],
+      "titleEn": "Dex Protection dice",
+      "sku": "DEXPROTECTION-DICE-011",
+      "titlePt": "Dex Protection dice",
+      "aliases": [
+        "Dex Protection",
+        "dice"
+      ]
+    },
+    {
+      "accessoryType": "dice_tray",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/dice_tray-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/dice_tray-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/dice_tray-gallery.webp"
+        }
+      ],
+      "titleEn": "Dex Protection dice tray",
+      "sku": "DEXPROTECTION-DICE-TRAY-012",
+      "titlePt": "Dex Protection dice tray",
+      "aliases": [
+        "Dex Protection",
+        "dice_tray"
+      ]
+    },
+    {
+      "accessoryType": "life_counter",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/life_counter-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/life_counter-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/life_counter-gallery.webp"
+        }
+      ],
+      "titleEn": "Dex Protection life counter",
+      "sku": "DEXPROTECTION-LIFE-COUNTER-013",
+      "titlePt": "Dex Protection life counter",
+      "aliases": [
+        "Dex Protection",
+        "life_counter"
+      ]
+    },
+    {
+      "accessoryType": "counters",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/counters-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/counters-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/counters-gallery.webp"
+        }
+      ],
+      "titleEn": "Dex Protection counters",
+      "sku": "DEXPROTECTION-COUNTERS-014",
+      "titlePt": "Dex Protection counters",
+      "aliases": [
+        "Dex Protection",
+        "counters"
+      ]
+    },
+    {
+      "accessoryType": "tokens",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/tokens-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/tokens-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/tokens-gallery.webp"
+        }
+      ],
+      "titleEn": "Dex Protection tokens",
+      "sku": "DEXPROTECTION-TOKENS-015",
+      "titlePt": "Dex Protection tokens",
+      "aliases": [
+        "Dex Protection",
+        "tokens"
+      ]
+    },
+    {
+      "accessoryType": "divider",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/divider-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/divider-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/divider-gallery.webp"
+        }
+      ],
+      "titleEn": "Dex Protection divider",
+      "sku": "DEXPROTECTION-DIVIDER-016",
+      "titlePt": "Dex Protection divider",
+      "aliases": [
+        "Dex Protection",
+        "divider"
+      ]
+    },
+    {
+      "accessoryType": "top_loader",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/top_loader-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/top_loader-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/top_loader-gallery.webp"
+        }
+      ],
+      "titleEn": "Dex Protection top loader",
+      "sku": "DEXPROTECTION-TOP-LOADER-017",
+      "titlePt": "Dex Protection top loader",
+      "aliases": [
+        "Dex Protection",
+        "top_loader"
+      ]
+    },
+    {
+      "accessoryType": "magnetic_case",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/magnetic_case-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/magnetic_case-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/magnetic_case-gallery.webp"
+        }
+      ],
+      "titleEn": "Dex Protection magnetic case",
+      "sku": "DEXPROTECTION-MAGNETIC-CASE-018",
+      "titlePt": "Dex Protection magnetic case",
+      "aliases": [
+        "Dex Protection",
+        "magnetic_case"
+      ]
+    },
+    {
+      "accessoryType": "storage",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/storage-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/storage-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/storage-gallery.webp"
+        }
+      ],
+      "titleEn": "Dex Protection storage",
+      "sku": "DEXPROTECTION-STORAGE-019",
+      "titlePt": "Dex Protection storage",
+      "aliases": [
+        "Dex Protection",
+        "storage"
+      ]
+    },
+    {
+      "accessoryType": "acrylic",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/acrylic-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/acrylic-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/acrylic-gallery.webp"
+        }
+      ],
+      "titleEn": "Dex Protection acrylic",
+      "sku": "DEXPROTECTION-ACRYLIC-020",
+      "titlePt": "Dex Protection acrylic",
+      "aliases": [
+        "Dex Protection",
+        "acrylic"
+      ]
+    },
+    {
+      "accessoryType": "accessories",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/accessories-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/accessories-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/dex-protection/accessories-gallery.webp"
+        }
+      ],
+      "titleEn": "Dex Protection accessories",
+      "sku": "DEXPROTECTION-ACCESSORIES-021",
+      "titlePt": "Dex Protection accessories",
+      "aliases": [
+        "Dex Protection",
+        "accessories"
+      ]
+    }
+  ],
+  "manufacturer": "Dex Protection",
+  "manufacturerId": "dex-protection"
+}

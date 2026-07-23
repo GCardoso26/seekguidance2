@@ -1,0 +1,534 @@
+{
+  "version": 1,
+  "website": "https://en.bushiroad.com",
+  "brand": "Bushiroad",
+  "items": [
+    {
+      "accessoryType": "sleeves",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/sleeves-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/sleeves-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/sleeves-gallery.webp"
+        }
+      ],
+      "titleEn": "Bushiroad sleeves",
+      "sku": "BUSHIROAD-SLEEVES-001",
+      "titlePt": "Bushiroad sleeves",
+      "aliases": [
+        "Bushiroad",
+        "sleeves"
+      ]
+    },
+    {
+      "accessoryType": "perfect_fit",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/perfect_fit-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/perfect_fit-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/perfect_fit-gallery.webp"
+        }
+      ],
+      "titleEn": "Bushiroad perfect fit",
+      "sku": "BUSHIROAD-PERFECT-FIT-002",
+      "titlePt": "Bushiroad perfect fit",
+      "aliases": [
+        "Bushiroad",
+        "perfect_fit"
+      ]
+    },
+    {
+      "accessoryType": "outer_sleeves",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/outer_sleeves-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/outer_sleeves-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/outer_sleeves-gallery.webp"
+        }
+      ],
+      "titleEn": "Bushiroad outer sleeves",
+      "sku": "BUSHIROAD-OUTER-SLEEVES-003",
+      "titlePt": "Bushiroad outer sleeves",
+      "aliases": [
+        "Bushiroad",
+        "outer_sleeves"
+      ]
+    },
+    {
+      "accessoryType": "deck_box",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/deck_box-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/deck_box-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/deck_box-gallery.webp"
+        }
+      ],
+      "titleEn": "Bushiroad deck box",
+      "sku": "BUSHIROAD-DECK-BOX-004",
+      "titlePt": "Bushiroad deck box",
+      "aliases": [
+        "Bushiroad",
+        "deck_box"
+      ]
+    },
+    {
+      "accessoryType": "deck_case",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/deck_case-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/deck_case-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/deck_case-gallery.webp"
+        }
+      ],
+      "titleEn": "Bushiroad deck case",
+      "sku": "BUSHIROAD-DECK-CASE-005",
+      "titlePt": "Bushiroad deck case",
+      "aliases": [
+        "Bushiroad",
+        "deck_case"
+      ]
+    },
+    {
+      "accessoryType": "storage_box",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/storage_box-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/storage_box-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/storage_box-gallery.webp"
+        }
+      ],
+      "titleEn": "Bushiroad storage box",
+      "sku": "BUSHIROAD-STORAGE-BOX-006",
+      "titlePt": "Bushiroad storage box",
+      "aliases": [
+        "Bushiroad",
+        "storage_box"
+      ]
+    },
+    {
+      "accessoryType": "binder",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/binder-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/binder-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/binder-gallery.webp"
+        }
+      ],
+      "titleEn": "Bushiroad binder",
+      "sku": "BUSHIROAD-BINDER-007",
+      "titlePt": "Bushiroad binder",
+      "aliases": [
+        "Bushiroad",
+        "binder"
+      ]
+    },
+    {
+      "accessoryType": "portfolio",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/portfolio-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/portfolio-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/portfolio-gallery.webp"
+        }
+      ],
+      "titleEn": "Bushiroad portfolio",
+      "sku": "BUSHIROAD-PORTFOLIO-008",
+      "titlePt": "Bushiroad portfolio",
+      "aliases": [
+        "Bushiroad",
+        "portfolio"
+      ]
+    },
+    {
+      "accessoryType": "playmat",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/playmat-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/playmat-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/playmat-gallery.webp"
+        }
+      ],
+      "titleEn": "Bushiroad playmat",
+      "sku": "BUSHIROAD-PLAYMAT-009",
+      "titlePt": "Bushiroad playmat",
+      "aliases": [
+        "Bushiroad",
+        "playmat"
+      ]
+    },
+    {
+      "accessoryType": "playmat_tube",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/playmat_tube-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/playmat_tube-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/playmat_tube-gallery.webp"
+        }
+      ],
+      "titleEn": "Bushiroad playmat tube",
+      "sku": "BUSHIROAD-PLAYMAT-TUBE-010",
+      "titlePt": "Bushiroad playmat tube",
+      "aliases": [
+        "Bushiroad",
+        "playmat_tube"
+      ]
+    },
+    {
+      "accessoryType": "dice",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/dice-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/dice-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/dice-gallery.webp"
+        }
+      ],
+      "titleEn": "Bushiroad dice",
+      "sku": "BUSHIROAD-DICE-011",
+      "titlePt": "Bushiroad dice",
+      "aliases": [
+        "Bushiroad",
+        "dice"
+      ]
+    },
+    {
+      "accessoryType": "dice_tray",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/dice_tray-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/dice_tray-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/dice_tray-gallery.webp"
+        }
+      ],
+      "titleEn": "Bushiroad dice tray",
+      "sku": "BUSHIROAD-DICE-TRAY-012",
+      "titlePt": "Bushiroad dice tray",
+      "aliases": [
+        "Bushiroad",
+        "dice_tray"
+      ]
+    },
+    {
+      "accessoryType": "life_counter",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/life_counter-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/life_counter-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/life_counter-gallery.webp"
+        }
+      ],
+      "titleEn": "Bushiroad life counter",
+      "sku": "BUSHIROAD-LIFE-COUNTER-013",
+      "titlePt": "Bushiroad life counter",
+      "aliases": [
+        "Bushiroad",
+        "life_counter"
+      ]
+    },
+    {
+      "accessoryType": "counters",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/counters-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/counters-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/counters-gallery.webp"
+        }
+      ],
+      "titleEn": "Bushiroad counters",
+      "sku": "BUSHIROAD-COUNTERS-014",
+      "titlePt": "Bushiroad counters",
+      "aliases": [
+        "Bushiroad",
+        "counters"
+      ]
+    },
+    {
+      "accessoryType": "tokens",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/tokens-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/tokens-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/tokens-gallery.webp"
+        }
+      ],
+      "titleEn": "Bushiroad tokens",
+      "sku": "BUSHIROAD-TOKENS-015",
+      "titlePt": "Bushiroad tokens",
+      "aliases": [
+        "Bushiroad",
+        "tokens"
+      ]
+    },
+    {
+      "accessoryType": "divider",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/divider-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/divider-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/divider-gallery.webp"
+        }
+      ],
+      "titleEn": "Bushiroad divider",
+      "sku": "BUSHIROAD-DIVIDER-016",
+      "titlePt": "Bushiroad divider",
+      "aliases": [
+        "Bushiroad",
+        "divider"
+      ]
+    },
+    {
+      "accessoryType": "top_loader",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/top_loader-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/top_loader-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/top_loader-gallery.webp"
+        }
+      ],
+      "titleEn": "Bushiroad top loader",
+      "sku": "BUSHIROAD-TOP-LOADER-017",
+      "titlePt": "Bushiroad top loader",
+      "aliases": [
+        "Bushiroad",
+        "top_loader"
+      ]
+    },
+    {
+      "accessoryType": "magnetic_case",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/magnetic_case-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/magnetic_case-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/magnetic_case-gallery.webp"
+        }
+      ],
+      "titleEn": "Bushiroad magnetic case",
+      "sku": "BUSHIROAD-MAGNETIC-CASE-018",
+      "titlePt": "Bushiroad magnetic case",
+      "aliases": [
+        "Bushiroad",
+        "magnetic_case"
+      ]
+    },
+    {
+      "accessoryType": "storage",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/storage-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/storage-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/storage-gallery.webp"
+        }
+      ],
+      "titleEn": "Bushiroad storage",
+      "sku": "BUSHIROAD-STORAGE-019",
+      "titlePt": "Bushiroad storage",
+      "aliases": [
+        "Bushiroad",
+        "storage"
+      ]
+    },
+    {
+      "accessoryType": "acrylic",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/acrylic-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/acrylic-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/acrylic-gallery.webp"
+        }
+      ],
+      "titleEn": "Bushiroad acrylic",
+      "sku": "BUSHIROAD-ACRYLIC-020",
+      "titlePt": "Bushiroad acrylic",
+      "aliases": [
+        "Bushiroad",
+        "acrylic"
+      ]
+    },
+    {
+      "accessoryType": "accessories",
+      "images": [
+        {
+          "role": "packshot",
+          "isPrimary": true,
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/accessories-packshot.webp"
+        },
+        {
+          "role": "hero",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/accessories-hero.webp"
+        },
+        {
+          "role": "gallery",
+          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/bushiroad/accessories-gallery.webp"
+        }
+      ],
+      "titleEn": "Bushiroad accessories",
+      "sku": "BUSHIROAD-ACCESSORIES-021",
+      "titlePt": "Bushiroad accessories",
+      "aliases": [
+        "Bushiroad",
+        "accessories"
+      ]
+    }
+  ],
+  "manufacturer": "Bushiroad",
+  "manufacturerId": "bushiroad"
+}

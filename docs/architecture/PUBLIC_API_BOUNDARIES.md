@@ -30,13 +30,16 @@ Tudo que não está listado é **interno** e não pode ser importado por outro B
 
 | Tipo | Símbolo |
 |------|---------|
-| Service | `AssetService` / `createAssetService` |
-| DTOs | `IngestAssetInput`, `AssetRecord` |
+| Service | `AssetService` / `createAssetService` via `assets/public.ts` |
+| DTOs | `IngestAssetInput`, `AssetRecord`, `AssetMetadata` |
+| Catalog | `MEDIA_TYPES`, `CARD_IMAGE_SIZES`, `PRODUCT_IMAGE_SIZES`, `HERO_IMAGE_SIZES` |
+| CDN | `buildDerivativeSet`, `buildFormatDerivativeMap`, `pickSafeDerivativeSize` |
 | Events | `AssetCreated.v1` / `MediaUpdated.v1` |
 
 **Never**
 
 - `media.assets` SQL de outros BCs
+- Imports internos fora de `assets/public.ts`
 
 ---
 
