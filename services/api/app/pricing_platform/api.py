@@ -79,6 +79,11 @@ async def import_monitor(session: DbSession) -> dict[str, Any]:
                 """
             )
         )
+    except Exception as exc:
+        raise HTTPException(503, detail=f"import_monitor_unavailable:{exc}") from exc
+
+    import_runs: list[dict[str, Any]] = []
+    try:
         runs = await session.execute(
             text(
                 """
@@ -90,7 +95,12 @@ async def import_monitor(session: DbSession) -> dict[str, Any]:
                 """
             )
         )
-        # Fallback: sync_runs if import_runs empty
+        import_runs = [dict(r._mapping) for r in runs.fetchall()]
+    except Exception:
+        import_runs = []
+
+    sync_runs_fallback: list[dict[str, Any]] = []
+    try:
         sync_fallback = await session.execute(
             text(
                 """
@@ -102,13 +112,14 @@ async def import_monitor(session: DbSession) -> dict[str, Any]:
                 """
             )
         )
+        sync_runs_fallback = [dict(r._mapping) for r in sync_fallback.fetchall()]
     except Exception as exc:
         raise HTTPException(503, detail=f"import_monitor_unavailable:{exc}") from exc
 
     return {
         "providers": [dict(r._mapping) for r in providers.fetchall()],
-        "import_runs": [dict(r._mapping) for r in runs.fetchall()],
-        "sync_runs_fallback": [dict(r._mapping) for r in sync_fallback.fetchall()],
+        "import_runs": import_runs,
+        "sync_runs_fallback": sync_runs_fallback,
         "generated_at": datetime.now(UTC).isoformat(),
     }
 
