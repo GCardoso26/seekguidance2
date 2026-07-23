@@ -3,7 +3,19 @@ import type { ImportedProductDTO } from "../../domain/models.js";
 import { BaseProductCatalogProvider } from "../BaseProductCatalogProvider.js";
 import type { ProductCatalogSyncContext, ProductCatalogSyncResult } from "../ProductCatalogProvider.js";
 
-/** Scryfall — produtos selados MTG (sets tipo booster/box). */
+const SCRYFALL_UA = "JudgeTCG/product-catalog (https://judgetcg.com.br; ops@judgetcg.com.br)";
+
+async function fetchScryfallSets(): Promise<Response> {
+  return fetch("https://api.scryfall.com/sets", {
+    headers: {
+      Accept: "application/json",
+      // Scryfall requires a descriptive User-Agent; bare fetch often yields HTTP 400.
+      "User-Agent": SCRYFALL_UA,
+    },
+  });
+}
+
+/** Scryfall — produtos selados MTG (sets tipo booster/box). Imagem = icon_svg_uri (símbolo), não packshot. */
 export class ScryfallSealedProvider extends BaseProductCatalogProvider {
   readonly providerId = "scryfall-sealed";
   readonly category = ProductCategory.SEALED_PRODUCT;
@@ -12,7 +24,11 @@ export class ScryfallSealedProvider extends BaseProductCatalogProvider {
     ctx: ProductCatalogSyncContext,
   ): Promise<ProductCatalogSyncResult<ImportedProductDTO>> {
     void ctx;
-    const res = await fetch("https://api.scryfall.com/sets");
+    let res = await fetchScryfallSets();
+    if (!res.ok && (res.status === 400 || res.status === 429 || res.status >= 500)) {
+      await new Promise((r) => setTimeout(r, 250));
+      res = await fetchScryfallSets();
+    }
     if (!res.ok) {
       return { ok: false, count: 0, errors: [`scryfall_http_${res.status}`] };
     }

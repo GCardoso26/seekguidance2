@@ -47,10 +47,13 @@ export class ProductCatalogSyncService {
     for (const provider of providers) {
       const started = Date.now();
       const runId = await this.repo.startSyncRun(jobKey, provider.providerId, ctx.mode);
+      // Isolate per-provider errors — shared accumulation previously marked later providers
+      // as failed when Scryfall/Pokémon failed earlier in the same job (BUG).
+      const providerErrors: string[] = [];
       try {
         if (provider.healthCheck) {
           const health = await provider.healthCheck();
-          if (!health.ok) errors.push(`${provider.providerId}:health:${health.message}`);
+          if (!health.ok) providerErrors.push(`${provider.providerId}:health:${health.message}`);
         }
 
         const products =
@@ -60,7 +63,7 @@ export class ProductCatalogSyncService {
 
         seen += products.count;
         if (!products.ok && products.errors?.length) {
-          errors.push(...products.errors);
+          providerErrors.push(...products.errors);
         }
         const lookups = await this.repo.loadDeduplicationLookups();
         // Per-provider counters for finishSyncRun (global seen/upserted still accumulate).
@@ -68,7 +71,7 @@ export class ProductCatalogSyncService {
         let providerUpserted = 0;
         let providerDup = 0;
         for (const dto of products.items ?? []) {
-          const n = await this.persistOne(provider, dto, lookups, ctx, errors);
+          const n = await this.persistOne(provider, dto, lookups, ctx, providerErrors);
           if (n === 0 && !ctx.dryRun) {
             providerDup++;
           }
@@ -76,33 +79,39 @@ export class ProductCatalogSyncService {
           providerUpserted += n;
         }
         // Image/knowledge soft warnings must not fail the run (BUG-V6-002).
-        const hardErrors = errors.filter(
+        const hardErrors = providerErrors.filter(
           (e) => !e.startsWith("image:") && !e.startsWith("knowledge:"),
         );
-        const softOnly = hardErrors.length === 0 && errors.length > 0;
+        const softOnly = hardErrors.length === 0 && providerErrors.length > 0;
         const finalStatus = hardErrors.length > 0 ? "failed" : "completed";
         await this.repo.finishSyncRun(runId, finalStatus, {
           itemsSeen: providerSeen,
           itemsUpserted: providerUpserted,
           itemsDuplicate: providerDup,
           durationMs: Date.now() - started,
-          errors,
+          errors: providerErrors,
         });
         await this.repo.touchProviderRegistry(
           provider.providerId,
           provider.category,
           finalStatus,
-          hardErrors[0] ?? (softOnly ? `soft_warnings:${errors.length}` : undefined),
+          hardErrors[0] ?? (softOnly ? `soft_warnings:${providerErrors.length}` : undefined),
         );
-        productCatalogProviderRegistry.markSuccess(provider.providerId);
+        errors.push(...providerErrors);
+        if (hardErrors.length === 0) {
+          productCatalogProviderRegistry.markSuccess(provider.providerId);
+        } else {
+          productCatalogProviderRegistry.markFailure(provider.providerId, hardErrors[0]!);
+        }
       } catch (e) {
         const msg = e instanceof Error ? e.message : String(e);
-        errors.push(`${provider.providerId}:${msg}`);
+        providerErrors.push(`${provider.providerId}:${msg}`);
+        errors.push(...providerErrors);
         await this.repo.finishSyncRun(runId, "failed", {
-          itemsSeen: seen,
-          itemsUpserted: upserted,
+          itemsSeen: 0,
+          itemsUpserted: 0,
           durationMs: Date.now() - started,
-          errors,
+          errors: providerErrors,
         });
         await this.repo.touchProviderRegistry(provider.providerId, provider.category, "failed", msg);
         productCatalogProviderRegistry.markFailure(provider.providerId, msg);

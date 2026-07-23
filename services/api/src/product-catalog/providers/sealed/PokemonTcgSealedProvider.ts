@@ -24,12 +24,18 @@ export class PokemonTcgSealedProvider extends BaseProductCatalogProvider {
   ): Promise<ProductCatalogSyncResult<ImportedProductDTO>> {
     void ctx;
     const apiKey = process.env.POKEMONTCG_API_KEY?.trim();
-    const headers: Record<string, string> = { Accept: "application/json" };
+    const headers: Record<string, string> = {
+      Accept: "application/json",
+      "User-Agent": "JudgeTCG/product-catalog (https://judgetcg.com.br)",
+    };
     if (apiKey) headers["X-Api-Key"] = apiKey;
 
-    const res = await fetch("https://api.pokemontcg.io/v2/sets?pageSize=50&orderBy=-releaseDate", {
-      headers,
-    });
+    const url = "https://api.pokemontcg.io/v2/sets?pageSize=50&orderBy=-releaseDate";
+    let res = await fetch(url, { headers });
+    if (!res.ok && (res.status === 429 || res.status >= 500)) {
+      await new Promise((r) => setTimeout(r, 400));
+      res = await fetch(url, { headers });
+    }
     if (!res.ok) {
       return { ok: false, count: 0, errors: [`pokemon_tcg_http_${res.status}`] };
     }

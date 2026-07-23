@@ -3,6 +3,10 @@ import {
   type ExpansionAssetDTO,
   type ExpansionAssetProvider,
 } from "../_shared/expansionAssets.js";
+import {
+  extractLorcanaSetsPayload,
+  normalizeLorcanaSetRow,
+} from "../../providers/sealed/lorcanaSetNormalize.js";
 
 export class LorcanaExpansionAssetsProvider implements ExpansionAssetProvider {
   readonly providerId = "lorcana-expansion-assets";
@@ -11,24 +15,27 @@ export class LorcanaExpansionAssetsProvider implements ExpansionAssetProvider {
   async syncExpansionAssets(): Promise<ExpansionAssetDTO[]> {
     const url = process.env.LORCANA_SETS_URL?.trim() || "https://api.lorcana-api.com/bulk/sets";
     try {
-      const res = await fetch(url);
+      const res = await fetch(url, {
+        headers: {
+          Accept: "application/json",
+          "User-Agent": "JudgeTCG/product-catalog (https://judgetcg.com.br)",
+        },
+      });
       if (!res.ok) return [];
       const body = (await res.json()) as unknown;
-      const rows = Array.isArray(body) ? body : (body as { data?: unknown[] }).data ?? [];
-      return (rows as Array<Record<string, unknown>>).flatMap((s) => {
-        const code = String(s.code ?? s.id ?? "");
-        const name = String(s.name ?? "");
-        const image = (s.icon as string) || (s.logo as string) || undefined;
-        if (!code || !name) return [];
+      const rows = extractLorcanaSetsPayload(body);
+      return rows.flatMap((s) => {
+        const norm = normalizeLorcanaSetRow(s);
+        if (!norm) return [];
         return mapSetImagesToExpansionAssets({
           game: "LORCANA",
           providerId: this.providerId,
-          code,
-          name,
-          logo: image,
-          icon: image,
-          hero: image,
-          banner: image,
+          code: norm.code,
+          name: norm.name,
+          logo: norm.image,
+          icon: norm.image,
+          hero: norm.image,
+          banner: norm.image,
         });
       });
     } catch {

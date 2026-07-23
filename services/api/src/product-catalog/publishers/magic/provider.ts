@@ -9,7 +9,12 @@ export class MagicExpansionAssetsProvider implements ExpansionAssetProvider {
   readonly game = "MTG";
 
   async syncExpansionAssets(): Promise<ExpansionAssetDTO[]> {
-    const res = await fetch("https://api.scryfall.com/sets");
+    const res = await fetch("https://api.scryfall.com/sets", {
+      headers: {
+        Accept: "application/json",
+        "User-Agent": "JudgeTCG/product-catalog (https://judgetcg.com.br; ops@judgetcg.com.br)",
+      },
+    });
     if (!res.ok) return [];
     const body = (await res.json()) as { data?: Array<Record<string, unknown>> };
     return (body.data ?? []).slice(0, 100).flatMap((s) => {

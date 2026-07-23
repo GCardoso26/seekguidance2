@@ -2,10 +2,11 @@ import { ProductCategory } from "../../domain/enums.js";
 import type { ImportedProductDTO } from "../../domain/models.js";
 import { BaseProductCatalogProvider } from "../BaseProductCatalogProvider.js";
 import type { ProductCatalogSyncContext, ProductCatalogSyncResult } from "../ProductCatalogProvider.js";
+import { extractLorcanaSetsPayload, normalizeLorcanaSetRow } from "./lorcanaSetNormalize.js";
 
 /**
- * Lorcana sealed — Priority 1: public lorcana-api / cards.json set metadata when available.
- * Falls back to empty set list gracefully.
+ * Lorcana sealed — Priority 1: public lorcana-api set metadata.
+ * Note: lorcana-api bulk/sets has no packshot URLs (Set_ID/Name only); products still upsert.
  */
 export class LorcanaJsonSealedProvider extends BaseProductCatalogProvider {
   readonly providerId = "lorcana-json-sealed";
@@ -18,26 +19,27 @@ export class LorcanaJsonSealedProvider extends BaseProductCatalogProvider {
     const urls = [
       process.env.LORCANA_SETS_URL?.trim(),
       "https://api.lorcana-api.com/bulk/sets",
-      "https://lorcanajson.org/sets.json",
+      "https://api.lorcana-api.com/sets/all",
     ].filter(Boolean) as string[];
 
     let sets: Array<Record<string, unknown>> = [];
     const errors: string[] = [];
     for (const url of urls) {
       try {
-        const res = await fetch(url);
+        const res = await fetch(url, {
+          headers: {
+            Accept: "application/json",
+            "User-Agent": "JudgeTCG/product-catalog (https://judgetcg.com.br)",
+          },
+        });
         if (!res.ok) {
           errors.push(`lorcana_http_${res.status}:${url}`);
           continue;
         }
         const body = (await res.json()) as unknown;
-        if (Array.isArray(body)) sets = body as Array<Record<string, unknown>>;
-        else if (body && typeof body === "object" && Array.isArray((body as { data?: unknown }).data)) {
-          sets = (body as { data: Array<Record<string, unknown>> }).data;
-        } else if (body && typeof body === "object" && Array.isArray((body as { sets?: unknown }).sets)) {
-          sets = (body as { sets: Array<Record<string, unknown>> }).sets;
-        }
+        sets = extractLorcanaSetsPayload(body);
         if (sets.length) break;
+        errors.push(`lorcana_empty_payload:${url}`);
       } catch (e) {
         errors.push(`lorcana_fetch:${e instanceof Error ? e.message : String(e)}`);
       }
@@ -45,14 +47,9 @@ export class LorcanaJsonSealedProvider extends BaseProductCatalogProvider {
 
     const items: ImportedProductDTO[] = [];
     for (const set of sets) {
-      const code = String(set.code ?? set.id ?? set.setCode ?? "");
-      const name = String(set.name ?? set.setName ?? "");
-      if (!code || !name) continue;
-      const image =
-        (set.icon as string | undefined) ||
-        (set.logo as string | undefined) ||
-        (set.image as string | undefined) ||
-        (set.images as { logo?: string } | undefined)?.logo;
+      const norm = normalizeLorcanaSetRow(set);
+      if (!norm) continue;
+      const { code, name, releaseDate, image } = norm;
       const sku = `LOR-BOX-${code.toUpperCase()}`;
       items.push({
         providerRef: `lorcana-set-${code}-box`,
@@ -66,7 +63,7 @@ export class LorcanaJsonSealedProvider extends BaseProductCatalogProvider {
         game: "LORCANA",
         gameCodes: ["LORCANA"],
         collectionName: name,
-        releaseDate: set.releaseDate ? String(set.releaseDate) : undefined,
+        releaseDate,
         variants: [
           {
             providerRef: `lorcana-set-${code}-box-default`,
@@ -88,6 +85,7 @@ export class LorcanaJsonSealedProvider extends BaseProductCatalogProvider {
         game: "LORCANA",
         gameCodes: ["LORCANA"],
         collectionName: name,
+        releaseDate,
         variants: [
           {
             providerRef: `lorcana-set-${code}-trove-default`,
@@ -97,6 +95,10 @@ export class LorcanaJsonSealedProvider extends BaseProductCatalogProvider {
           },
         ],
       });
+    }
+
+    if (!items.length && errors.length) {
+      return { ok: false, count: 0, items: [], errors };
     }
 
     return { ok: true, count: items.length, items, errors: errors.length ? errors : undefined };
