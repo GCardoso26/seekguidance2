@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import { WishlistButton } from "@/components/marketplace/WishlistButton";
@@ -11,6 +12,7 @@ import { OfficialRelatedProducts } from "@/components/marketplace/OfficialRelate
 import { ProductKnowledgePanel } from "@/components/marketplace/ProductKnowledgePanel";
 import { formatShopPrice, addProductToCart, type ShopProduct } from "@/lib/marketplace-shop";
 import { showToast } from "@/lib/toast";
+import { isUnusableImageSrc } from "@/lib/format-currency";
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -28,7 +30,15 @@ export default function ProductDetailPage() {
   });
 
   const product = data?.product;
-  const image = product?.images?.[0];
+  const gallery = useMemo(
+    () =>
+      (product?.images ?? []).filter(
+        (src): src is string => Boolean(src) && !isUnusableImageSrc(src),
+      ),
+    [product?.images],
+  );
+  const [activeIdx, setActiveIdx] = useState(0);
+  const image = gallery[Math.min(activeIdx, Math.max(gallery.length - 1, 0))] ?? null;
   const relatedCatalogId =
     (product as { master_product_id?: string | null } | undefined)?.master_product_id ??
     undefined;
@@ -53,25 +63,45 @@ export default function ProductDetailPage() {
     <MobileLayout>
       <div className="container mx-auto px-4 py-8">
         <Link href="/marketplace/produtos" className="text-sm text-muted-foreground hover:text-primary">
-          ← Produtos selados
+          ← Marketplace
         </Link>
         {isLoading && <p className="mt-6 text-muted-foreground">Carregando…</p>}
         {product && (
           <>
           <div className="mt-6 grid gap-8 lg:grid-cols-2">
-            <div className="relative aspect-square overflow-hidden rounded-xl border border-border bg-foreground/30">
-              {image ? (
-                <Image src={image} alt={product.name} fill className="object-cover" unoptimized />
-              ) : (
-                <div className="flex h-full items-center justify-center text-muted-foreground">Sem imagem</div>
-              )}
-              <div className="absolute right-3 top-3 flex gap-2">
-                <PriceAlertButton productId={product.id} product={product} />
-                <WishlistButton productId={product.id} product={product} />
+            <div>
+              <div className="relative aspect-square overflow-hidden rounded-xl border border-border bg-foreground/30">
+                {image ? (
+                  <Image src={image} alt={product.name} fill className="object-contain bg-black/20" unoptimized />
+                ) : (
+                  <div className="flex h-full items-center justify-center text-muted-foreground">Sem imagem</div>
+                )}
+                <div className="absolute right-3 top-3 flex gap-2">
+                  <PriceAlertButton productId={product.id} product={product} />
+                  <WishlistButton productId={product.id} product={product} />
+                </div>
               </div>
+              {gallery.length > 1 && (
+                <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+                  {gallery.map((src, idx) => (
+                    <button
+                      key={`${src}-${idx}`}
+                      type="button"
+                      onClick={() => setActiveIdx(idx)}
+                      className={`relative h-16 w-16 shrink-0 overflow-hidden rounded-md border ${
+                        idx === activeIdx ? "border-primary ring-1 ring-primary" : "border-border"
+                      }`}
+                      aria-label={`Foto ${idx + 1}`}
+                    >
+                      <Image src={src} alt="" fill className="object-cover" unoptimized />
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
             <div>
-              <h1 className="text-3xl font-bold">{product.name}</h1>
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">{product.category}</p>
+              <h1 className="mt-1 text-3xl font-bold">{product.name}</h1>
               {product.store_slug && (
                 <Link href={`/marketplace/loja/${product.store_slug}`} className="mt-2 inline-block text-sm text-muted-foreground hover:underline">
                   {product.store_name}
@@ -79,9 +109,17 @@ export default function ProductDetailPage() {
               )}
               <p className="mt-4 font-mono text-2xl text-primary">{formatShopPrice(product.price_cents)}</p>
               {product.description && <p className="mt-4 text-muted-foreground">{product.description}</p>}
-              <p className="mt-2 text-sm text-muted-foreground">Estoque: {product.stock ?? 0}</p>
-              <button type="button" onClick={buyNow} className="mt-6 rounded-lg bg-primary px-6 py-3 font-semibold text-primary-foreground">
-                Comprar agora
+              <p className="mt-2 text-sm text-muted-foreground">
+                Estoque: {product.stock ?? 0}
+                {(product.stock ?? 0) > 0 ? " · pronto para envio" : ""}
+              </p>
+              <button
+                type="button"
+                onClick={buyNow}
+                disabled={(product.stock ?? 0) <= 0}
+                className="mt-6 rounded-lg bg-primary px-6 py-3 font-semibold text-primary-foreground disabled:opacity-50"
+              >
+                {(product.stock ?? 0) > 0 ? "Comprar agora" : "Sem estoque"}
               </button>
             </div>
           </div>

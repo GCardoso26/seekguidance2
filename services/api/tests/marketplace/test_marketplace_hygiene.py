@@ -13,25 +13,26 @@ from app.marketplace.marketplace_hygiene import (
 def test_rejects_fixture_image():
     assert not is_valid_public_image_url("fixture://card.png")
     assert not is_valid_public_image_url("/local/path.png")
-    assert is_valid_public_image_url("https://cdn.example.com/card.jpg")
+    assert is_valid_public_image_url("https://images.pokemontcg.io/swsh3/logo.png")
 
 
-def test_rejects_amazon_search_url():
-    assert not is_valid_public_image_url(
-        "https://www.amazon.com/s?k=pokemon+sleeves"
-    )
+def test_rejects_example_and_placeholder_hosts():
+    assert not is_valid_public_image_url("https://cdn.judgetcg.example/x.webp")
+    assert not is_valid_public_image_url("https://via.placeholder.com/800.png?text=x")
+    assert not is_valid_public_image_url("https://cdn.example.com/card.jpg")
 
 
 def test_sanitize_drops_junk():
     clean = sanitize_public_images(
         [
             "fixture://x",
-            "https://ok.example/a.jpg",
+            "https://images.pokemontcg.io/swsh3/logo.png",
             "not-a-url",
             "https://www.amazon.com/s?k=sleeves",
+            "https://cdn.judgetcg.example/x.webp",
         ]
     )
-    assert clean == ["https://ok.example/a.jpg"]
+    assert clean == ["https://images.pokemontcg.io/swsh3/logo.png"]
 
 
 def test_assert_rejects_test_name():
@@ -40,7 +41,7 @@ def test_assert_rejects_test_name():
             name="Sleeve teste",
             description=None,
             sku=None,
-            images=["https://cdn.example.com/a.jpg"],
+            images=["https://images.pokemontcg.io/swsh3/logo.png"],
             price_cents=1000,
         )
     assert exc.value.status_code == 400
@@ -52,7 +53,7 @@ def test_assert_rejects_persona_sku():
             name="Carta real",
             description=None,
             sku="PERSONA-ABC",
-            images=["https://cdn.example.com/a.jpg"],
+            images=["https://images.pokemontcg.io/swsh3/logo.png"],
             price_cents=1000,
         )
     assert exc.value.status_code == 400
@@ -76,7 +77,7 @@ def test_assert_rejects_outlier_price_without_catalog():
             name="Carta rara",
             description=None,
             sku=None,
-            images=["https://cdn.example.com/a.jpg"],
+            images=["https://images.pokemontcg.io/swsh3/logo.png"],
             price_cents=1_500_000,
             catalog_card_id=None,
         )
@@ -88,7 +89,20 @@ def test_assert_ok_payload():
         name="Booster Box Scarlet & Violet",
         description="Lacrado",
         sku="SV-BB-01",
-        images=["https://cdn.example.com/box.jpg", "fixture://skip"],
+        images=["https://images.pokemontcg.io/swsh3/logo.png", "fixture://skip"],
         price_cents=45_000,
     )
-    assert clean == ["https://cdn.example.com/box.jpg"]
+    assert clean == ["https://images.pokemontcg.io/swsh3/logo.png"]
+
+
+def test_resolve_listing_images_prefers_stored_then_fallbacks():
+    from app.marketplace.marketplace_hygiene import resolve_listing_images
+
+    assert resolve_listing_images(
+        stored=["https://images.pokemontcg.io/swsh3/logo.png"],
+        asset_cdn_url="https://other.example/x.png",
+    ) == ["https://images.pokemontcg.io/swsh3/logo.png"]
+    assert resolve_listing_images(
+        stored=["fixture://x"],
+        asset_cdn_url="https://www.gamegenic.com/wp-content/uploads/fb-prime_sleeves.jpg",
+    ) == ["https://www.gamegenic.com/wp-content/uploads/fb-prime_sleeves.jpg"]

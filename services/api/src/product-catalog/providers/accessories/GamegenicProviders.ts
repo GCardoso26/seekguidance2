@@ -79,3 +79,15 @@ export class GamegenicDeckBoxProvider extends BaseProductCatalogProvider {
     return this.ok(toDto(loadManifest(), ProductCategory.DECK_BOX));
   }
 }
+
+export class GamegenicPlaymatProvider extends BaseProductCatalogProvider {
+  readonly providerId = "gamegenic-playmats";
+  readonly category = ProductCategory.PLAYMAT;
+
+  override async syncProducts(
+    ctx: ProductCatalogSyncContext,
+  ): Promise<ProductCatalogSyncResult<ImportedProductDTO>> {
+    void ctx;
+    return this.ok(toDto(loadManifest(), ProductCategory.PLAYMAT));
+  }
+}

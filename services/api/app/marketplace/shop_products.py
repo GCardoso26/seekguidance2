@@ -11,6 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.marketplace.marketplace_hygiene import (
     PUBLIC_LISTING_SQL,
     assert_public_listing_payload,
+    resolve_listing_images,
 )
 from app.marketplace.shop_store import STORE_SELLABLE_SQL, effective_plan, product_limit_for_plan
 
@@ -157,7 +158,17 @@ async def list_products(
                s.name AS store_name,
                s.slug AS store_slug,
                s.logo_url AS store_logo_url,
-               COALESCE(NULLIF(p.images[1], ''), cc.image_url) AS search_image_url
+               (
+                 SELECT a.cdn_url
+                 FROM media.asset_links l
+                 JOIN media.assets a ON a.id = l.asset_id
+                 WHERE l.entity_type = 'product_variant'
+                   AND l.entity_id = p.master_variant_id
+                   AND a.cdn_url ILIKE 'https://%'
+                 ORDER BY CASE l.role WHEN 'primary' THEN 0 ELSE 1 END, l.sort_order
+                 LIMIT 1
+               ) AS asset_cdn_url,
+               cc.image_url AS catalog_image_url
         {from_sql}
         WHERE {where_sql}
         ORDER BY {order}
@@ -171,8 +182,17 @@ async def list_products(
     rows = (await session.execute(text(sql), params)).mappings().all()
     total_row = (await session.execute(text(count_sql), params)).mappings().first()
     total = int(total_row["total"]) if total_row else 0
+    products: list[dict[str, Any]] = []
+    for r in rows:
+        item = dict(r)
+        item["images"] = resolve_listing_images(
+            stored=list(item.get("images") or []),
+            asset_cdn_url=item.pop("asset_cdn_url", None),
+            catalog_image_url=item.pop("catalog_image_url", None),
+        )
+        products.append(item)
     return {
-        "products": [dict(r) for r in rows],
+        "products": products,
         "page": page,
         "limit": limit,
         "total": total,
@@ -191,10 +211,22 @@ async def get_product(session: AsyncSession, product_id: str) -> dict[str, Any] 
                        s.logo_url AS store_logo_url,
                        s.id AS store_id_ref,
                        p.master_variant_id,
-                       v.product_id AS master_product_id
+                       v.product_id AS master_product_id,
+                       (
+                         SELECT a.cdn_url
+                         FROM media.asset_links l
+                         JOIN media.assets a ON a.id = l.asset_id
+                         WHERE l.entity_type = 'product_variant'
+                           AND l.entity_id = p.master_variant_id
+                           AND a.cdn_url ILIKE 'https://%'
+                         ORDER BY CASE l.role WHEN 'primary' THEN 0 ELSE 1 END, l.sort_order
+                         LIMIT 1
+                       ) AS asset_cdn_url,
+                       cc.image_url AS catalog_image_url
                 FROM tcg_judge.store_products p
                 JOIN tcg_judge.stores s ON s.id = p.store_id
                 LEFT JOIN product_catalog.variants v ON v.id = p.master_variant_id
+                LEFT JOIN tcg_judge.card_catalog cc ON cc.id = p.catalog_card_id
                 WHERE p.id = CAST(:id AS uuid)
                   AND p.is_active = true
                   AND {STORE_SELLABLE_SQL.strip()}
@@ -204,7 +236,15 @@ async def get_product(session: AsyncSession, product_id: str) -> dict[str, Any] 
             {"id": product_id},
         )
     ).mappings().first()
-    return dict(row) if row else None
+    if not row:
+        return None
+    item = dict(row)
+    item["images"] = resolve_listing_images(
+        stored=list(item.get("images") or []),
+        asset_cdn_url=item.pop("asset_cdn_url", None),
+        catalog_image_url=item.pop("catalog_image_url", None),
+    )
+    return item
 
 
 async def create_product(

@@ -48,7 +48,30 @@ def is_valid_public_image_url(url: str | None) -> bool:
     # Search result pages are not product images.
     if "amazon." in low and ("/s?" in low or "/s/" in low or "k=" in low):
         return False
+    # Placeholder / non-routable demo hosts (Sprint 2).
+    if "via.placeholder.com" in low or "placeholder.com/" in low:
+        return False
+    if ".example/" in low or low.endswith(".example") or ".example." in low:
+        return False
+    if "judgetcg.example" in low:
+        return False
     return True
+
+
+def resolve_listing_images(
+    *,
+    stored: list[str] | None,
+    asset_cdn_url: str | None = None,
+    catalog_image_url: str | None = None,
+) -> list[str]:
+    """Prioriza images do anúncio; senão asset do catálogo mestre; senão carta."""
+    clean = sanitize_public_images(stored)
+    if clean:
+        return clean
+    for candidate in (asset_cdn_url, catalog_image_url):
+        if is_valid_public_image_url(candidate):
+            return [str(candidate).strip()]
+    return []
 
 
 def sanitize_public_images(images: list[str] | None) -> list[str]:

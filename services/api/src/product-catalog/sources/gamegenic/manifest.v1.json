@@ -6,7 +6,7 @@
   "items": [
     {
       "sku": "GG-SLV-PRIME",
-      "titlePt": "Prime Sleeves",
+      "titlePt": "Gamegenic Prime Sleeves",
       "titleEn": "Prime Sleeves",
       "category": "SLEEVES",
       "subcategory": "STANDARD_MATTE",
@@ -14,34 +14,42 @@
       "images": [
         {
           "role": "packshot",
-          "sourceUrl": "https://www.gamegenic.com/wp-content/uploads/gamegenic-prime-sleeves-packshot.png",
+          "sourceUrl": "https://www.gamegenic.com/wp-content/uploads/2019/11/GG-Prime-Sleeves-Packaging_clear-Blue-0002_fb1ztcD8v-700x700.jpg",
           "isPrimary": true
         },
         {
-          "role": "lifestyle",
-          "sourceUrl": "https://www.gamegenic.com/wp-content/uploads/gamegenic-prime-sleeves-lifestyle.png"
-        },
-        {
-          "role": "logo",
-          "sourceUrl": "https://www.gamegenic.com/wp-content/uploads/gamegenic-logo.png"
+          "role": "marketing",
+          "sourceUrl": "https://www.gamegenic.com/wp-content/uploads/fb-prime_sleeves.jpg"
         }
       ]
     },
     {
-      "sku": "GG-DECK-WATCHTOWER",
-      "titlePt": "Watchtower Deck Box",
+      "sku": "GG-DECK-SQUIRE-100XL",
+      "titlePt": "Gamegenic Squire 100+ XL Deck Box",
+      "titleEn": "Squire 100+ XL",
       "category": "DECK_BOX",
       "subcategory": "CONVERTIBLE",
       "accessoryType": "deck_box",
       "images": [
         {
           "role": "packshot",
-          "sourceUrl": "https://www.gamegenic.com/wp-content/uploads/gamegenic-watchtower-packshot.png",
+          "sourceUrl": "https://www.gamegenic.com/wp-content/uploads/2026/05/GG-MTG-MSH-Squire-100XL-Doom-Titelseite-0000_n9qPx47w0.jpg",
           "isPrimary": true
-        },
+        }
+      ]
+    },
+    {
+      "sku": "GG-MAT-PRIME",
+      "titlePt": "Gamegenic Prime Playmat",
+      "titleEn": "Prime Playmat",
+      "category": "PLAYMAT",
+      "subcategory": "STANDARD",
+      "accessoryType": "playmat",
+      "images": [
         {
-          "role": "packaging",
-          "sourceUrl": "https://www.gamegenic.com/wp-content/uploads/gamegenic-watchtower-packaging.png"
+          "role": "packshot",
+          "sourceUrl": "https://www.gamegenic.com/wp-content/uploads/2025/02/GG_Prime_Playmat-Group_2NoIMZUeV.jpg",
+          "isPrimary": true
         }
       ]
     }

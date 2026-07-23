@@ -1014,7 +1014,14 @@ async def publish_seller_master_listing(
         "PLAYMAT": "playmat",
     }
     legacy_category = category_map.get(meta_row[1], "accessory")
-    image_url = meta_row[4]
+    from app.marketplace.marketplace_hygiene import sanitize_public_images
+
+    images = sanitize_public_images([meta_row[4]] if meta_row[4] else [])
+    if not images:
+        raise HTTPException(
+            status_code=400,
+            detail="variant_missing_public_image",
+        )
 
     await session.execute(
         text(
@@ -1037,7 +1044,6 @@ async def publish_seller_master_listing(
         },
     )
 
-    images = [image_url] if image_url else []
     product = await shop_products_svc.create_product(
         session,
         store_id,

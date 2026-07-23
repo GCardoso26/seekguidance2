@@ -9,11 +9,11 @@
         {
           "role": "packshot",
           "isPrimary": true,
-          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/sleeves-packshot.webp"
+          "sourceUrl": "https://www.gamegenic.com/wp-content/uploads/2019/11/GG-Prime-Sleeves-Packaging_clear-Blue-0002_fb1ztcD8v-700x700.jpg"
         },
         {
           "role": "hero",
-          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/sleeves-hero.webp"
+          "sourceUrl": "https://www.gamegenic.com/wp-content/uploads/fb-prime_sleeves.jpg"
         },
         {
           "role": "gallery",
@@ -107,7 +107,7 @@
         {
           "role": "packshot",
           "isPrimary": true,
-          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/deck_box-packshot.webp"
+          "sourceUrl": "https://www.gamegenic.com/wp-content/uploads/2026/05/GG-MTG-MSH-Squire-100XL-Doom-Titelseite-0000_n9qPx47w0.jpg"
         },
         {
           "role": "hero",
@@ -232,7 +232,7 @@
         {
           "role": "packshot",
           "isPrimary": true,
-          "sourceUrl": "https://cdn.judgetcg.example/manufacturers/gamegenic/playmat-packshot.webp"
+          "sourceUrl": "https://www.gamegenic.com/wp-content/uploads/2025/02/GG_Prime_Playmat-Group_2NoIMZUeV.jpg"
         },
         {
           "role": "hero",
@@ -555,3 +555,4 @@
   "manufacturer": "Gamegenic",
   "manufacturerId": "gamegenic"
 }
+

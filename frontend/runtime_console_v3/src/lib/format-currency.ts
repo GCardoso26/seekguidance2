@@ -124,11 +124,18 @@ export function isExternalCardImageUrl(url: string): boolean {
   return /^https?:\/\//i.test(trimmed);
 }
 
-/** Schemes that next/image cannot fetch (fixture sync placeholders, etc.). */
+/** Schemes / hosts that next/image cannot fetch or that are not real product media. */
 export function isUnusableImageSrc(url: string | null | undefined): boolean {
   const trimmed = url?.trim() ?? "";
   if (!trimmed) return true;
   if (/^(fixture|blob|file|chrome-extension):/i.test(trimmed)) return true;
+  const low = trimmed.toLowerCase();
+  if (low.includes("judgetcg.example") || low.includes(".example/") || low.endsWith(".example")) {
+    return true;
+  }
+  if (low.includes("via.placeholder.com") || low.includes("placeholder.com/")) {
+    return true;
+  }
   return false;
 }
 
