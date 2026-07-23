@@ -1,0 +1,51 @@
+{
+  "campaign": "QA_PLATFORM_V6_2",
+  "date": "2026-07-23",
+  "verdict": "NOT_READY_FOR_PRODUCTION",
+  "p0": 0,
+  "p1_open": ["BUG-V6-004", "BUG-V6-011"],
+  "closed": ["BUG-V6-010", "BUG-V6-003", "BUG-V6-005"],
+  "evidence": {
+    "image_pipeline": {
+      "root_cause": "cdn.judgetcg.example ENOTFOUND",
+      "fix": "downloadAssetBytes fixture+retry+UA",
+      "vitest": "8/8 PASS",
+      "gamegenic_sync": { "ok": true, "errors": [], "upserted": 3 },
+      "media_assets": 10
+    },
+    "bullmq": {
+      "redis": "5.0.14.1@127.0.0.1:6380",
+      "certify_bullmq": true,
+      "checks": ["redis_ping", "enqueue", "consume", "delayed", "dlq", "priority"]
+    },
+    "checkout": {
+      "certify_checkout_prod": true,
+      "live_stripe_mp_me": true,
+      "vitest_checkout": "30/30",
+      "concurrency_no_oversell": true,
+      "webhook_idempotent": true
+    },
+    "load": {
+      "base": "https://judgetcg.com.br",
+      "stages": {
+        "100": { "fail": 0, "p95": 539 },
+        "250": { "fail": 0, "p95": 561 },
+        "500": { "fail": 0, "p95": 131 },
+        "1000": { "fail": 0, "p95": 361 }
+      },
+      "ok": true
+    },
+    "lighthouse_desktop_prod": {
+      "ok_all_ge_95": false,
+      "samples": {
+        "/loja": { "P": 98, "A": 100, "BP": 100, "SEO": 100 },
+        "/checkout": { "P": 98, "A": 100, "BP": 100, "SEO": 100 },
+        "/": { "P": 88, "A": 100, "BP": 96, "SEO": 100 },
+        "/decks": { "P": 83, "A": 96, "BP": 100, "SEO": 100 }
+      }
+    },
+    "personas_chromium": {
+      "buyer_seller_filters_knowledge": "21 PASS"
+    }
+  }
+}

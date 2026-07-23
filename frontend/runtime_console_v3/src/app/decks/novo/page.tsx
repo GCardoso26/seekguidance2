@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { useJudgeAuth } from "@/features/auth/AuthProvider";
 import { useCreateDeck, useDeckFormats } from "@/hooks/useDeck";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
-import { TOURNAMENT_GAMES } from "@/lib/tcg-adapters";
+import { TOURNAMENT_GAMES } from "@/lib/tcg-adapters/tournament-games";
 import type { DeckFormat } from "@/types/deck";
 
 type CatalogGame = {

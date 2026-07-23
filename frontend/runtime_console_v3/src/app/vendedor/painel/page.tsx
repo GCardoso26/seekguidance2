@@ -5,6 +5,7 @@
 import Link from "next/link";
 
 import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 
 import { MerchantKycCard } from "@/components/kyc/MerchantKycCard";
 
@@ -34,17 +35,21 @@ import { DashboardWorkspace } from "@/components/seller-dashboard/overview/Dashb
 
 import { WorkspaceSettingsButton } from "@/components/seller-dashboard/overview/WorkspaceSettings";
 
-import { SellerOpsDashboardV2 } from "@/components/seller-dashboard/SellerOpsDashboardV2";
-
-import dynamic from "next/dynamic";
-
+const SellerOpsDashboardV2 = dynamic(
+  () =>
+    import("@/components/seller-dashboard/SellerOpsDashboardV2").then(
+      (m) => m.SellerOpsDashboardV2,
+    ),
+  { ssr: false, loading: () => <div className="min-h-[12rem] rounded-lg bg-muted/40" aria-hidden /> },
+);
 const SellerAiAssistantWidget = dynamic(
   () =>
     import("@/components/seller-ai/SellerAiAssistantWidget").then((m) => m.SellerAiAssistantWidget),
   { ssr: false, loading: () => null },
 );
 const OrderDetailDrawer = dynamic(
-  () => import("@/components/seller-orders").then((m) => m.OrderDetailDrawer),
+  () =>
+    import("@/components/seller-orders/OrderDetailDrawer").then((m) => m.OrderDetailDrawer),
   { ssr: false },
 );
 const ReputationOverviewWidget = dynamic(

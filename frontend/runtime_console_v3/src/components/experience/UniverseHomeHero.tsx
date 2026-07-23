@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import Image from "next/image";
 import type { CSSProperties } from "react";
@@ -15,6 +13,7 @@ type Props = {
   health: CatalogHealthReport;
 };
 
+/** Server Component — LCP is the H1 (system/sans, preloaded). */
 export function UniverseHomeHero({ health }: Props) {
   const themes = listAllGameThemes();
   const total = health.total_cards ?? 0;
@@ -33,40 +32,27 @@ export function UniverseHomeHero({ health }: Props) {
         aria-hidden
       />
       <div className="container relative mx-auto max-w-6xl px-4 pb-10 pt-12 md:pb-14 md:pt-16">
-        <p className="universe-hero-animate text-xs font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-muted-foreground">
           {brand.shortName}
         </p>
-        <h1
-          className="universe-hero-animate mt-3 max-w-3xl text-4xl font-semibold tracking-tight text-foreground md:text-5xl lg:text-6xl"
-          style={{
-            fontFamily: "var(--font-display-family), Georgia, serif",
-            animationDelay: "60ms",
-          }}
-        >
+        <h1 className="mt-3 max-w-3xl text-4xl font-semibold tracking-tight text-foreground md:text-5xl lg:text-6xl">
           Escolha seu universo
         </h1>
-        <p
-          className="universe-hero-animate mt-4 max-w-xl text-base text-muted-foreground md:text-lg"
-          style={{ animationDelay: "120ms" }}
-        >
+        <p className="mt-4 max-w-xl text-base text-muted-foreground md:text-lg">
           O ecossistema definitivo para Trading Card Games — colecione, monte decks,
           descubra preços e compre em um só lugar.
         </p>
         {total > 0 && (
-          <p
-            className="universe-hero-animate mt-3 text-sm text-muted-foreground"
-            style={{ animationDelay: "160ms" }}
-          >
+          <p className="mt-3 text-sm text-muted-foreground">
             {total.toLocaleString("pt-BR")} cartas indexadas em {themes.length} universos
           </p>
         )}
 
         <div
-          className="universe-hero-animate mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5"
+          className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5"
           data-testid="universe-grid"
-          style={{ animationDelay: "200ms" }}
         >
-          {themes.map((theme) => {
+          {themes.map((theme, idx) => {
             const count = health.by_game?.[theme.gameId as GameId] ?? 0;
             const available = isGameInImplementationWave(theme.gameId);
             return (
@@ -94,6 +80,8 @@ export function UniverseHomeHero({ health }: Props) {
                   height={56}
                   quality={70}
                   sizes="56px"
+                  priority={idx < 2}
+                  loading={idx < 2 ? "eager" : "lazy"}
                   unoptimized={shouldBypassImageOptimizer(theme.logo)}
                   className="relative h-12 w-12 object-contain drop-shadow-sm md:h-14 md:w-14"
                 />

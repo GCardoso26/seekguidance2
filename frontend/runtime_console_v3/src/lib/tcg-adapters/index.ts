@@ -6,6 +6,7 @@ import type { GameAdapter, GameCode } from "@/lib/tcg-adapters/types";
 
 export * from "@/lib/tcg-adapters/types";
 export * from "@/lib/tcg-adapters/parse-decklist";
+export { TOURNAMENT_GAMES } from "@/lib/tcg-adapters/tournament-games";
 
 const ADAPTERS: Record<GameCode, GameAdapter> = {
   POKEMON: pokemonAdapter,
@@ -13,13 +14,6 @@ const ADAPTERS: Record<GameCode, GameAdapter> = {
   MTG: mtgAdapter,
   SWU: swuAdapter,
 };
-
-export const TOURNAMENT_GAMES = [
-  { code: "POKEMON" as const, slug: "pokemon", name: "Pokémon TCG", icon: "pokemon" },
-  { code: "LORCANA" as const, slug: "lorcana", name: "Disney Lorcana", icon: "lorcana" },
-  { code: "MTG" as const, slug: "mtg", name: "Magic: The Gathering", icon: "mtg" },
-  { code: "SWU" as const, slug: "swu", name: "Star Wars Unlimited", icon: "swu" },
-];
 
 export function getGameAdapter(code: string): GameAdapter {
   const upper = code.toUpperCase() as GameCode;

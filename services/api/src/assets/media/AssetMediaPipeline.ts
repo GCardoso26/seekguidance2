@@ -2,6 +2,7 @@ import { createLogger } from "../../platform/logging/logger.js";
 import { getHashPort } from "../../shared/hash/HashPort.js";
 import type { AssetMetadata } from "../domain/types.js";
 import type { MediaType } from "../domain/mediaTypes.js";
+import { downloadAssetBytes } from "./downloadAssetBytes.js";
 
 const log = createLogger("assets.pipeline");
 
@@ -35,13 +36,18 @@ export interface AssetPipelineOutput {
 export class AssetMediaPipeline {
   async process(input: AssetPipelineInput): Promise<AssetPipelineOutput> {
     await this.virusScan(input.sourceUrl);
-    const bytes = await this.download(input.sourceUrl);
+    const downloaded = await downloadAssetBytes(input.sourceUrl);
+    const bytes = downloaded.bytes;
     const sha256 = getHashPort().sha256(bytes);
     const mime = sniffMime(bytes);
 
     const publicBase = process.env.PRODUCT_CATALOG_R2_PUBLIC_BASE?.replace(/\/$/, "");
     const storageKey = `assets/${sha256.slice(0, 2)}/${sha256}`;
-    const cdnUrl = publicBase ? `${publicBase}/${storageKey}.webp` : input.sourceUrl;
+    const cdnUrl = publicBase
+      ? `${publicBase}/${storageKey}.webp`
+      : downloaded.fromFixture
+        ? `fixture://assets/${sha256}.png`
+        : downloaded.finalUrl;
 
     const { buildFormatDerivativeMap, buildDerivativeSet } = await import(
       "../cdn/derivativeUrls.js"
@@ -90,7 +96,14 @@ export class AssetMediaPipeline {
     };
 
     log.info(
-      { requestId: input.requestId, sha256, providerId: input.providerId, mediaType: metadata.mediaType },
+      {
+        requestId: input.requestId,
+        sha256,
+        providerId: input.providerId,
+        mediaType: metadata.mediaType,
+        fromFixture: downloaded.fromFixture,
+        attempts: downloaded.attempts,
+      },
       "asset_pipeline_v2_ok",
     );
 
@@ -117,12 +130,6 @@ export class AssetMediaPipeline {
       });
       if (!res.ok) throw new Error(`virus_scan_failed:${res.status}`);
     }
-  }
-
-  private async download(url: string): Promise<Buffer> {
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`asset_download_${res.status}`);
-    return Buffer.from(await res.arrayBuffer());
   }
 }
 

@@ -45,6 +45,9 @@ const PREFIX_EXCLUDE = [
   "/onboarding",
   "/comunidade",
   "/notifications",
+  "/comprador",
+  "/colecao",
+  "/portal",
 ];
 
 export type LuxuryShellVariant = "full" | "minimal" | "none";

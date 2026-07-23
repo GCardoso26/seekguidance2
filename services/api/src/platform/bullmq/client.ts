@@ -19,6 +19,23 @@ export function redisConnectionFromEnv(): Redis {
   return sharedConnection;
 }
 
+/** Test/cert helper — drop singleton so a new REDIS_URL takes effect. */
+export async function resetRedisConnection(): Promise<void> {
+  if (sharedConnection) {
+    try {
+      await sharedConnection.quit();
+    } catch {
+      try {
+        sharedConnection.disconnect();
+      } catch {
+        /* ignore */
+      }
+    }
+    sharedConnection = null;
+  }
+  queues.clear();
+}
+
 const queues = new Map<string, Queue>();
 
 export function getQueue(name: QueueName | string): Queue {

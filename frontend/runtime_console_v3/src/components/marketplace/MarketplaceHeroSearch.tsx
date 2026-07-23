@@ -1,10 +1,20 @@
 "use client";
 
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { ShoppingBag } from "lucide-react";
-import { GlobalSearchBar } from "@/components/home/GlobalSearchBar";
 import { Button } from "@/components/ui/button";
 import { formatCountStable } from "@/lib/format-count";
+
+const GlobalSearchBar = dynamic(
+  () => import("@/components/home/GlobalSearchBar").then((m) => m.GlobalSearchBar),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="mx-auto h-12 w-full max-w-2xl rounded-md bg-muted/50" aria-hidden />
+    ),
+  },
+);
 
 type Props = {
   totalCards: number;

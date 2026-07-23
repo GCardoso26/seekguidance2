@@ -1,8 +1,20 @@
 "use client";
 
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
-import { UpgradeModal } from "@/components/premium/UpgradeModal";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
+import dynamic from "next/dynamic";
 import type { PlanFeature } from "@/lib/plan-limits/constants";
+
+const UpgradeModal = dynamic(
+  () => import("@/components/premium/UpgradeModal").then((m) => m.UpgradeModal),
+  { ssr: false },
+);
 
 type UpgradeState = {
   open: boolean;
@@ -32,7 +44,9 @@ export function UpgradeModalProvider({ children }: { children: ReactNode }) {
   return (
     <UpgradeModalContext.Provider value={value}>
       {children}
-      <UpgradeModal open={state.open} feature={state.feature} onClose={hideUpgrade} />
+      {state.open ? (
+        <UpgradeModal open={state.open} feature={state.feature} onClose={hideUpgrade} />
+      ) : null}
     </UpgradeModalContext.Provider>
   );
 }

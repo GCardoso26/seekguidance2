@@ -1,0 +1,37 @@
+{
+  "campaign": "QA_PLATFORM_V6_3",
+  "date": "2026-07-23",
+  "verdict": "READY_FOR_PRODUCTION",
+  "p0": 0,
+  "p1_open": [],
+  "closed": ["BUG-V6-004", "BUG-V6-011", "BUG-V6-010", "BUG-V6-003", "BUG-V6-005"],
+  "deploy": {
+    "platform": "vercel",
+    "alias": "https://judgetcg.com.br",
+    "note": "browserslist chrome>=111 removes next-devtools (~212KiB) from prod chunks; home LCP static hero"
+  },
+  "lighthouse_desktop_prod": {
+    "ok_all_ge_95": true,
+    "threshold": 95,
+    "scores": {
+      "/": { "P": 99, "A": 100, "BP": 96, "SEO": 100 },
+      "/loja": { "P": 99, "A": 100, "BP": 96, "SEO": 100 },
+      "/loja/mtg": { "P": 97, "A": 97, "BP": 96, "SEO": 100 },
+      "/loja/busca": { "P": 97, "A": 100, "BP": 100, "SEO": 100 },
+      "/marketplace/cart": { "P": 100, "A": 100, "BP": 100, "SEO": 100 },
+      "/checkout": { "P": 99, "A": 100, "BP": 100, "SEO": 100 },
+      "/comprador": { "P": 99, "A": 100, "BP": 100, "SEO": 100 },
+      "/vendedor/painel": { "P": 99, "A": 96, "BP": 100, "SEO": 100 },
+      "/vendedor/painel/estoque": { "P": 99, "A": 96, "BP": 100, "SEO": 100 },
+      "/decks": { "P": 99, "A": 96, "BP": 100, "SEO": 100 }
+    }
+  },
+  "personas": {
+    "Marina_Carlos_Juliana_chromium": "21 PASS (buyer+seller+filters+knowledge @ prod)",
+    "Eduardo_Fernanda_Renato": { "ok": true, "certify_personas_ops": true }
+  },
+  "regression_spot": {
+    "bullmq": true,
+    "next_devtools_in_prod_chunks": false
+  }
+}

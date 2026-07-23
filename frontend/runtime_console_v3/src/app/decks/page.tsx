@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { useCreateDeck, useMyDecks } from "@/hooks/useDeck";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { DeckStatusBadge } from "@/components/deckbuilder/DeckStatusBadge";
-import { TOURNAMENT_GAMES } from "@/lib/tcg-adapters";
+import { TOURNAMENT_GAMES } from "@/lib/tcg-adapters/tournament-games";
 import { DecksSkeleton } from "@/components/ui/skeletons";
 import { formatCurrency } from "@/lib/format-currency";
 

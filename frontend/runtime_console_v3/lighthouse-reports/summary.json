@@ -1,71 +1,71 @@
 [
   {
-    "url": "http://localhost:3000/",
+    "url": "https://judgetcg.com.br/",
+    "performance": 99,
+    "accessibility": 100,
+    "bestPractices": 96,
+    "seo": 100
+  },
+  {
+    "url": "https://judgetcg.com.br/loja",
+    "performance": 99,
+    "accessibility": 100,
+    "bestPractices": 96,
+    "seo": 100
+  },
+  {
+    "url": "https://judgetcg.com.br/loja/mtg",
+    "performance": 97,
+    "accessibility": 97,
+    "bestPractices": 96,
+    "seo": 100
+  },
+  {
+    "url": "https://judgetcg.com.br/loja/busca",
+    "performance": 97,
+    "accessibility": 100,
+    "bestPractices": 100,
+    "seo": 100
+  },
+  {
+    "url": "https://judgetcg.com.br/marketplace/cart",
     "performance": 100,
     "accessibility": 100,
     "bestPractices": 100,
     "seo": 100
   },
   {
-    "url": "http://localhost:3000/loja",
-    "performance": 97,
-    "accessibility": 100,
-    "bestPractices": 100,
-    "seo": 100
-  },
-  {
-    "url": "http://localhost:3000/loja/mtg",
-    "performance": 97,
-    "accessibility": 100,
-    "bestPractices": 100,
-    "seo": 100
-  },
-  {
-    "url": "http://localhost:3000/loja/busca",
-    "performance": 86,
-    "accessibility": 100,
-    "bestPractices": 100,
-    "seo": 100
-  },
-  {
-    "url": "http://localhost:3000/marketplace/cart",
-    "performance": 96,
-    "accessibility": 100,
-    "bestPractices": 100,
-    "seo": 100
-  },
-  {
-    "url": "http://localhost:3000/checkout",
-    "performance": 95,
-    "accessibility": 100,
-    "bestPractices": 100,
-    "seo": 100
-  },
-  {
-    "url": "http://localhost:3000/comprador",
-    "performance": 97,
-    "accessibility": 100,
-    "bestPractices": 100,
-    "seo": 100
-  },
-  {
-    "url": "http://localhost:3000/vendedor/painel",
+    "url": "https://judgetcg.com.br/checkout",
     "performance": 99,
     "accessibility": 100,
     "bestPractices": 100,
     "seo": 100
   },
   {
-    "url": "http://localhost:3000/vendedor/painel/estoque",
+    "url": "https://judgetcg.com.br/comprador",
     "performance": 99,
     "accessibility": 100,
     "bestPractices": 100,
     "seo": 100
   },
   {
-    "url": "http://localhost:3000/decks",
-    "performance": 97,
-    "accessibility": 100,
+    "url": "https://judgetcg.com.br/vendedor/painel",
+    "performance": 99,
+    "accessibility": 96,
+    "bestPractices": 100,
+    "seo": 100
+  },
+  {
+    "url": "https://judgetcg.com.br/vendedor/painel/estoque",
+    "performance": 99,
+    "accessibility": 96,
+    "bestPractices": 100,
+    "seo": 100
+  },
+  {
+    "url": "https://judgetcg.com.br/decks",
+    "performance": 99,
+    "accessibility": 96,
     "bestPractices": 100,
     "seo": 100
   }

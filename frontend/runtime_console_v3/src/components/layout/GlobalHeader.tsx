@@ -7,11 +7,7 @@ import type { ReactNode } from "react";
 import { HeaderNavActions } from "@/components/layout/HeaderNavActions";
 import { HeaderGamePicker } from "@/components/layout/HeaderGamePicker";
 import { SandboxModeBadge } from "@/components/sandbox/SandboxModeBadge";
-import { GlobalNotificationBell } from "@/components/notifications/GlobalNotificationBell";
 import { CartHeaderButton } from "@/components/cart/CartHeaderButton";
-import { WishlistBadge } from "@/components/marketplace/WishlistBadge";
-import { CpfRequiredBanner } from "@/components/kyc/CpfRequiredBanner";
-import { UserMenu } from "@/features/auth/UserMenu";
 import { useJudgeAuth } from "@/features/auth/AuthProvider";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -37,6 +33,29 @@ const GameMegaMenu = dynamic(
       <div className="hidden h-9 w-28 rounded-md bg-muted/50 md:block" aria-hidden />
     ),
   },
+);
+
+const GlobalNotificationBell = dynamic(
+  () =>
+    import("@/components/notifications/GlobalNotificationBell").then(
+      (m) => m.GlobalNotificationBell,
+    ),
+  { ssr: false, loading: () => <div className="h-9 w-9 rounded-md bg-muted/50" aria-hidden /> },
+);
+
+const WishlistBadge = dynamic(
+  () => import("@/components/marketplace/WishlistBadge").then((m) => m.WishlistBadge),
+  { ssr: false, loading: () => <div className="h-9 w-9 rounded-md bg-muted/50" aria-hidden /> },
+);
+
+const UserMenu = dynamic(
+  () => import("@/features/auth/UserMenu").then((m) => m.UserMenu),
+  { ssr: false, loading: () => <div className="h-9 w-9 rounded-md bg-muted/50" aria-hidden /> },
+);
+
+const CpfRequiredBanner = dynamic(
+  () => import("@/components/kyc/CpfRequiredBanner").then((m) => m.CpfRequiredBanner),
+  { ssr: false },
 );
 
 /** BP 5.1 — One goal no header de compra: Loja. Resto no menu da conta. */

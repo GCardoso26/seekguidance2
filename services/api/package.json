@@ -28,7 +28,10 @@
     "certify:db": "tsx src/platform/db/runDatabaseCertification.ts",
     "certify:order": "tsx src/order/runOrderCertification.ts",
     "certify:checkout": "tsx src/order/runCheckoutCertification.ts",
+    "certify:checkout:prod": "tsx scripts/certify-checkout-production.ts",
     "certify:payment": "tsx src/payment/runPaymentCertification.ts",
+    "certify:bullmq": "tsx scripts/certify-bullmq.ts",
+    "load:probe": "tsx scripts/load-probe-v6.ts",
     "test:order:contracts": "vitest run src/order/persistence/__contracts__",
     "test:order:reservation": "vitest run src/order/reservation/__tests__",
     "test:checkout:e2e": "vitest run src/order/__tests__/checkout.api.e2e.test.ts",
@@ -68,6 +71,7 @@
     "@types/node": "^22.10.5",
     "@types/pg": "^8.11.10",
     "@types/uuid": "^10.0.0",
+    "redis-memory-server": "^0.12.1",
     "tsx": "^4.19.2",
     "typescript": "^5.7.3",
     "vitest": "^2.1.8"

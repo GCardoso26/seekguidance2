@@ -1,31 +1,11 @@
 import Link from "next/link";
-import { Suspense } from "react";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import { MarketplaceHeroSearch } from "@/components/marketplace/MarketplaceHeroSearch";
-import { MarketplaceHomeInteractiveSections } from "@/components/marketplace/MarketplaceHomeInteractiveSections";
+import { MarketplaceHomeBelowFold } from "@/components/marketplace/MarketplaceHomeBelowFold";
 import { TrustFooterStrip } from "@/components/layout/TrustFooterStrip";
 import { UniverseHomeHero } from "@/components/experience/UniverseHomeHero";
-import { PersonalizedHomeStrip } from "@/components/experience/PersonalizedHomeStrip";
 import { Button } from "@/components/ui/button";
-import { fetchCatalogHealth } from "@/lib/seo-metadata";
 import { getMegaMenuGames, MOCK_CATALOG_HEALTH } from "@/lib/catalog-games";
-import type { CatalogHealthReport } from "@/types/card";
-
-function asHealth(
-  raw: { total_cards?: number; by_game?: Record<string, number> } | null,
-): CatalogHealthReport {
-  if (!raw) return MOCK_CATALOG_HEALTH;
-  return {
-    ...MOCK_CATALOG_HEALTH,
-    total_cards: raw.total_cards ?? MOCK_CATALOG_HEALTH.total_cards,
-    by_game: raw.by_game ?? MOCK_CATALOG_HEALTH.by_game,
-  };
-}
-
-async function UniverseHeroStream() {
-  const raw = await fetchCatalogHealth();
-  return <UniverseHomeHero health={asHealth(raw)} />;
-}
 
 function DiscoveryCta() {
   return (
@@ -54,7 +34,10 @@ function DiscoveryCta() {
   );
 }
 
-/** Home — portal multi-TCG (Experience Layer). */
+/**
+ * Home — LCP is static UniverseHomeHero (no Suspense/data race).
+ * Live catalog counts hydrate below the fold.
+ */
 export function MarketplaceHomeRsc() {
   const bootstrap = MOCK_CATALOG_HEALTH;
   const totalCards = bootstrap.total_cards ?? 50_000;
@@ -62,18 +45,11 @@ export function MarketplaceHomeRsc() {
 
   return (
     <MobileLayout>
-      <Suspense fallback={<UniverseHomeHero health={bootstrap} />}>
-        <UniverseHeroStream />
-      </Suspense>
-      <PersonalizedHomeStrip />
+      <UniverseHomeHero health={bootstrap} />
       <div className="border-t border-border">
         <MarketplaceHeroSearch totalCards={totalCards} gameCount={gameCount} />
       </div>
-      <Suspense
-        fallback={<div className="h-96 bg-muted/30" aria-hidden data-testid="home-stream-fallback" />}
-      >
-        <MarketplaceHomeInteractiveSections />
-      </Suspense>
+      <MarketplaceHomeBelowFold />
       <DiscoveryCta />
       <TrustFooterStrip />
     </MobileLayout>

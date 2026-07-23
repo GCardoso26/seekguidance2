@@ -89,11 +89,34 @@ const nextConfig = {
       "cmdk",
     ],
   },
+  /**
+   * Belt-and-suspenders: Next 15 + aggressive browserslist can pull next-devtools into
+   * production client chunks (~200KiB+ unused JS). Replace with empty modules.
+   */
+  webpack: (config, { dev, isServer, webpack }) => {
+    if (!dev && !isServer) {
+      const empty = new URL("./scripts/empty-module.js", import.meta.url).pathname;
+      // Windows: URL pathname may start with /S:/ — normalize
+      const emptyPath = process.platform === "win32" && empty.startsWith("/") ? empty.slice(1) : empty;
+      config.plugins.push(
+        new webpack.NormalModuleReplacementPlugin(
+          /[\\/]next[\\/]dist[\\/].*[\\/]next-devtools[\\/]/,
+          emptyPath,
+        ),
+        new webpack.NormalModuleReplacementPlugin(
+          /[\\/]next[\\/].*[\\/]dev-overlay[\\/]/,
+          emptyPath,
+        ),
+      );
+    }
+    return config;
+  },
   images: {
     dangerouslyAllowSVG: true,
     contentDispositionType: "attachment",
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     formats: ["image/avif", "image/webp"],
+    qualities: [70, 75, 80, 85, 90, 100],
     minimumCacheTTL: 86400,
     deviceSizes: [640, 750, 828, 1080, 1200, 1920],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],

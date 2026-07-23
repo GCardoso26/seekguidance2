@@ -48,19 +48,23 @@ export default defineConfig({
       testIgnore: [/.*\.setup\.ts/, /visual-regression\.spec\.ts/],
     },
   ],
-  webServer: process.env.CI
-    ? {
-        command: "npm run start",
-        url: "http://localhost:3000",
-        reuseExistingServer: false,
-        timeout: 120_000,
-        env: webServerEnv,
-      }
-    : {
-        command: "npm run dev",
-        url: "http://localhost:3000",
-        reuseExistingServer: !process.env.E2E_FRESH_SERVER,
-        timeout: 120_000,
-        env: webServerEnv,
-      },
+  webServer:
+    process.env.PLAYWRIGHT_NO_WEBSERVER === "1" ||
+    (process.env.BASE_URL && !/localhost|127\.0\.0\.1/.test(process.env.BASE_URL))
+      ? undefined
+      : process.env.CI
+        ? {
+            command: "npm run start",
+            url: "http://localhost:3000",
+            reuseExistingServer: false,
+            timeout: 120_000,
+            env: webServerEnv,
+          }
+        : {
+            command: "npm run dev",
+            url: "http://localhost:3000",
+            reuseExistingServer: !process.env.E2E_FRESH_SERVER,
+            timeout: 120_000,
+            env: webServerEnv,
+          },
 });

@@ -1,25 +1,22 @@
 # PERFORMANCE_REPORT
 
-**Date:** 2026-07-22  
-**Veredito:** **NOT MEASURED** (pós-deploy / carga)
+**Date:** 2026-07-23
 
-## Metas obrigatórias
+## Summary
 
-| Ambiente | Meta | Status |
-|----------|------|--------|
-| Desktop Lighthouse | ≥95 | ⏳ pós-deploy |
-| Mobile Lighthouse | ≥90 | ⏳ pós-deploy |
-| Carga 25% / 50% / 100% (Renato) | sem falhas críticas | ❌ não executado |
+| Area | Result |
+|------|--------|
+| HTTP load 100–1000 | **PASS** (see LOAD_TEST_REPORT) |
+| Lighthouse Perf ≥95 all surfaces | **FAIL** (see LIGHTHOUSE_REPORT) |
+| Redis 5 / BullMQ consume | PASS (~87ms job) |
+| Checkout certify latency | cart create ~5ms (in-memory stack) |
 
-## O que existe
+## Infra notes
 
-- Presets Performance V2 (`lib/performance/presets.ts`)
-- Asset Pipeline V2 (LQIP, derivatives)
-- Relatórios históricos em `testing/reports/PERFORMANCE_REPORT.md` / live-data — **não** substituem medição atual pós-freeze
+- Redis Windows 3.x on :6379 is **not** production-grade for BullMQ.
+- Cert Redis: 5.0.14.1 on :6380.
+- Supabase / R2 / Qdrant under load: not instrumented in this probe (HTTP edge only).
 
-## Gaps
+## Verdict
 
-- Sem Lighthouse CI gate verde documentado nesta sprint  
-- Sem k6/carga reexecutada sob Feature Freeze  
-
-**Critério performance = FALSE.**
+**PARTIAL** — load PASS; Lighthouse Perf gate FAIL.

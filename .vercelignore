@@ -1,0 +1,25 @@
+.tmp
+node_modules
+**/node_modules
+**/.next
+.git
+test-results
+Imagens
+Busca *
+Kimi_Agent*
+tcghub-luxury
+tcghub.ai
+.cursor
+.cursor-backup
+.pytest_cache
+services/api/node_modules
+frontend/runtime_console_v3/node_modules
+frontend/runtime_console_v3/.next
+frontend/runtime_console_v3/lighthouse-reports
+frontend/runtime_console_v3/lighthouse-*.json
+frontend/runtime_console_v3/test-results
+**/*.zip
+**/*.mp4
+**/*.webm
+9_export*.csv
+*.html
