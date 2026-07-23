@@ -46,6 +46,7 @@ export class ProductRelationshipService {
     await this.repo.upsert({
       fromProductId,
       toProductId,
+      toEntityType: "product",
       relationType: forward,
       official: true,
       source: meta.source ?? "official",
@@ -56,6 +57,7 @@ export class ProductRelationshipService {
     await this.repo.upsert({
       fromProductId: toProductId,
       toProductId: fromProductId,
+      toEntityType: "product",
       relationType: reverse,
       official: true,
       source: meta.source ?? "official",
@@ -64,6 +66,29 @@ export class ProductRelationshipService {
       manufacturer: meta.manufacturer,
     });
     log.info({ fromProductId, toProductId, forward, reverse }, "official_relationship_upserted");
+  }
+
+  /** Cross-publisher / cross-game official link (e.g. sleeve → compatible_with → MTG). */
+  async upsertCompatibleWithGame(
+    fromProductId: string,
+    gameCode: string,
+    meta?: { manufacturer?: string; relationType?: ProductRelationType; source?: string },
+  ) {
+    return this.repo.upsert({
+      fromProductId,
+      toProductId: null,
+      toGameCode: gameCode,
+      toEntityType: "game",
+      toEntityRef: gameCode,
+      relationType: meta?.relationType ?? "compatible_with",
+      official: true,
+      source: meta?.source ?? "official",
+      manufacturer: meta?.manufacturer,
+    });
+  }
+
+  listEntityTargets(productId: string) {
+    return this.repo.listEntityTargets(productId);
   }
 
   /** Secondary search boost: +small score if candidate is related to a matched product. */

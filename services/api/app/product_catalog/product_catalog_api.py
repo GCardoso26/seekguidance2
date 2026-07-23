@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from datetime import UTC, datetime
 from typing import Any
 
@@ -600,6 +601,261 @@ async def product_catalog_asset_versions(session: DbSession, asset_id: str) -> d
     except Exception as exc:
         raise HTTPException(status_code=503, detail=f"product_catalog_unavailable:{exc}") from exc
     return {"asset_id": asset_id, "versions": items}
+
+
+@router.get("/runtime/judge/product-catalog/products/{product_id}/knowledge")
+async def product_catalog_product_knowledge(session: DbSession, product_id: str) -> dict[str, Any]:
+    """Product Knowledge Graph aggregate for Marketplace PDP / Portal (official only, no AI)."""
+    try:
+        prod = await session.execute(
+            text(
+                """
+                SELECT p.id, p.title_pt, p.category, p.subcategory, p.game, p.lifecycle,
+                       p.product_family, p.collection_id, p.knowledge_completeness,
+                       c.name AS collection_name, c.slug AS collection_slug,
+                       pub.code AS publisher_code, pub.name AS publisher_name
+                FROM product_catalog.products p
+                LEFT JOIN product_catalog.collections c ON c.id = p.collection_id
+                LEFT JOIN product_catalog.publishers pub ON pub.id = p.publisher_id
+                WHERE p.id = CAST(:pid AS uuid)
+                """
+            ),
+            {"pid": product_id},
+        )
+        prow = prod.fetchone()
+        if not prow:
+            raise HTTPException(status_code=404, detail="product_not_found")
+        p = dict(prow._mapping)
+
+        contents_h = await session.execute(
+            text("SELECT * FROM product_catalog.official_product_contents WHERE product_id = CAST(:pid AS uuid)"),
+            {"pid": product_id},
+        )
+        ch = contents_h.fetchone()
+        official_contents = None
+        if ch:
+            items = await session.execute(
+                text(
+                    """
+                    SELECT id, content_type, label, quantity, unit, sku_ref, sort_order
+                    FROM product_catalog.product_content_items
+                    WHERE contents_id = :cid ORDER BY sort_order, label
+                    """
+                ),
+                {"cid": ch.id},
+            )
+            official_contents = {**dict(ch._mapping), "items": [dict(r._mapping) for r in items.fetchall()]}
+
+        specs = await session.execute(
+            text(
+                """
+                SELECT * FROM product_catalog.product_specifications
+                WHERE product_id = CAST(:pid AS uuid) ORDER BY spec_schema
+                """
+            ),
+            {"pid": product_id},
+        )
+        meta = await session.execute(
+            text("SELECT * FROM product_catalog.product_official_metadata WHERE product_id = CAST(:pid AS uuid)"),
+            {"pid": product_id},
+        )
+        pkgs = await session.execute(
+            text(
+                """
+                SELECT * FROM product_catalog.product_asset_packages
+                WHERE product_id = CAST(:pid AS uuid) ORDER BY package_kind
+                """
+            ),
+            {"pid": product_id},
+        )
+        entity_rels = await session.execute(
+            text(
+                """
+                SELECT relation_type, to_entity_type, to_entity_ref, to_game_code, confidence
+                FROM product_catalog.product_relationships
+                WHERE from_product_id = CAST(:pid AS uuid) AND official = true AND to_product_id IS NULL
+                ORDER BY confidence DESC
+                """
+            ),
+            {"pid": product_id},
+        )
+        collection_products: list[dict[str, Any]] = []
+        if p.get("collection_id"):
+            cp = await session.execute(
+                text(
+                    """
+                    SELECT id, title_pt, category, subcategory, lifecycle, product_family, sku
+                    FROM product_catalog.products
+                    WHERE collection_id = CAST(:cid AS uuid)
+                    ORDER BY title_pt LIMIT 48
+                    """
+                ),
+                {"cid": p["collection_id"]},
+            )
+            collection_products = [dict(r._mapping) for r in cp.fetchall()]
+
+        specs_rows = [dict(r._mapping) for r in specs.fetchall()]
+        pkgs_rows = [dict(r._mapping) for r in pkgs.fetchall()]
+        entity_rows = [dict(r._mapping) for r in entity_rels.fetchall()]
+        asset_packages = pkgs_rows
+        downloads = [a for a in asset_packages if a.get("package_kind") in (
+            "pdf", "rules", "decklist", "marketing_kit", "release_notes", "press_kit",
+        )]
+        marketing = [a for a in asset_packages if a.get("package_kind") in (
+            "marketing_kit", "banners", "social", "editorial", "press_kit",
+        )]
+        meta_row = meta.fetchone()
+        metadata = dict(meta_row._mapping) if meta_row else None
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail=f"product_catalog_unavailable:{exc}") from exc
+
+    return {
+        "product_id": product_id,
+        "title_pt": p.get("title_pt"),
+        "taxonomy": {
+            "publisher": p.get("publisher_code"),
+            "game": p.get("game"),
+            "category": p.get("category"),
+            "subcategory": p.get("subcategory"),
+            "product_family": p.get("product_family"),
+            "lifecycle": p.get("lifecycle"),
+        },
+        "lifecycle": p.get("lifecycle"),
+        "collection": (
+            {
+                "id": str(p["collection_id"]),
+                "name": p.get("collection_name"),
+                "slug": p.get("collection_slug"),
+                "products": collection_products,
+            }
+            if p.get("collection_id")
+            else None
+        ),
+        "official_contents": official_contents,
+        "specifications": specs_rows,
+        "metadata": metadata,
+        "entity_relationships": entity_rows,
+        "asset_packages": asset_packages,
+        "downloads": downloads,
+        "marketing_files": marketing,
+        "release_information": {
+            "release_date": (metadata or {}).get("release_date"),
+            "msrp_cents": (metadata or {}).get("msrp_cents") or (official_contents or {}).get("msrp_cents"),
+            "language": (metadata or {}).get("language"),
+            "country": (metadata or {}).get("country"),
+            "expansion": (metadata or {}).get("expansion"),
+            "series": (metadata or {}).get("series"),
+        },
+        "knowledge_completeness": float(p.get("knowledge_completeness") or 0),
+        "generated_at": datetime.now(UTC).isoformat(),
+    }
+
+
+@router.get("/runtime/judge/product-catalog/collections/{slug}")
+async def product_catalog_collection_by_slug(session: DbSession, slug: str) -> dict[str, Any]:
+    """Portal — official collection graph node."""
+    try:
+        col = await session.execute(
+            text("SELECT * FROM product_catalog.collections WHERE slug = :slug LIMIT 1"),
+            {"slug": slug},
+        )
+        crow = col.fetchone()
+        if not crow:
+            raise HTTPException(status_code=404, detail="collection_not_found")
+        c = dict(crow._mapping)
+        products = await session.execute(
+            text(
+                """
+                SELECT id, title_pt, category, subcategory, lifecycle, product_family, sku
+                FROM product_catalog.products
+                WHERE collection_id = CAST(:cid AS uuid)
+                ORDER BY title_pt
+                """
+            ),
+            {"cid": c["id"]},
+        )
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail=f"product_catalog_unavailable:{exc}") from exc
+    return {
+        "collection": c,
+        "products": [dict(r._mapping) for r in products.fetchall()],
+        "generated_at": datetime.now(UTC).isoformat(),
+    }
+
+
+@router.get("/runtime/judge/product-catalog/admin/knowledge-coverage")
+async def product_catalog_knowledge_coverage(session: DbSession) -> dict[str, Any]:
+    """Knowledge coverage analytics — admin only, no Analytics BC."""
+    try:
+        totals = await session.execute(
+            text(
+                """
+                SELECT
+                  (SELECT count(*) FROM product_catalog.products) AS products,
+                  (SELECT count(*) FROM product_catalog.official_product_contents) AS with_contents,
+                  (SELECT count(DISTINCT product_id) FROM product_catalog.product_specifications) AS with_specs,
+                  (SELECT count(*) FROM product_catalog.product_official_metadata) AS with_metadata,
+                  (SELECT count(*) FROM product_catalog.products
+                     WHERE lifecycle IS NOT NULL AND lifecycle <> 'AVAILABLE') AS with_lifecycle,
+                  (SELECT count(*) FROM product_catalog.products WHERE collection_id IS NOT NULL) AS with_collection,
+                  (SELECT count(DISTINCT product_id) FROM product_catalog.product_asset_packages) AS with_asset_pkg,
+                  (SELECT coalesce(avg(knowledge_completeness), 0) FROM product_catalog.products) AS avg_completeness
+                """
+            )
+        )
+        t = dict(totals.fetchone()._mapping)
+
+        def _pct(n: float, d: float) -> float:
+            return round((n / d) * 100, 1) if d else 0.0
+
+        products = float(t["products"] or 0)
+        oc = _pct(float(t["with_contents"] or 0), products)
+        sc = _pct(float(t["with_specs"] or 0), products)
+        mc = _pct(float(t["with_metadata"] or 0), products)
+        lc = _pct(float(t["with_lifecycle"] or 0) + float(t["with_metadata"] or 0), products * 2)
+        cc = _pct(float(t["with_collection"] or 0), products)
+        ac = _pct(float(t["with_asset_pkg"] or 0), products)
+        kc = round(float(t["avg_completeness"] or 0), 1)
+        slices = [oc, sc, mc, lc, cc, ac, kc]
+        overall = round(sum(slices) / len(slices), 1) if slices else 0.0
+        report = {
+            "overallPct": overall,
+            "productKnowledgeCoverage": overall,
+            "officialContentCoverage": oc,
+            "specificationCoverage": sc,
+            "metadataCoverage": mc,
+            "lifecycleCoverage": lc,
+            "collectionCoverage": cc,
+            "assetPackageCoverage": ac,
+            "knowledgeCompletenessScore": kc,
+            "totals": {
+                "products": int(products),
+                "withContents": int(t["with_contents"] or 0),
+                "withSpecs": int(t["with_specs"] or 0),
+                "withMetadata": int(t["with_metadata"] or 0),
+                "withLifecycleNonDefault": int(t["with_lifecycle"] or 0),
+                "withCollection": int(t["with_collection"] or 0),
+                "withAssetPackage": int(t["with_asset_pkg"] or 0),
+            },
+            "generated_at": datetime.now(UTC).isoformat(),
+        }
+        await session.execute(
+            text(
+                """
+                INSERT INTO product_catalog.knowledge_coverage_snapshots (overall_pct, report)
+                VALUES (:pct, CAST(:report AS jsonb))
+                """
+            ),
+            {"pct": overall, "report": json.dumps(report)},
+        )
+        await session.commit()
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail=f"product_catalog_unavailable:{exc}") from exc
+    return report
 
 
 @router.get("/runtime/judge/catalog/products")

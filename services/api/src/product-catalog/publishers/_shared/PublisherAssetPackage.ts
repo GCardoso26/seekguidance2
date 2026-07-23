@@ -23,9 +23,11 @@ export interface PublisherAssetPackage {
   publisher: string;
   game?: string;
   expansion?: string;
+  collection?: string;
   releaseDate?: string;
   language?: string;
   region?: string;
+  lifecycle?: string;
   assets: {
     cards?: PublisherAssetRef[];
     sealed?: PublisherAssetRef[];
@@ -36,12 +38,34 @@ export interface PublisherAssetPackage {
     tournament?: PublisherAssetRef[];
     brand?: PublisherAssetRef[];
     expansion?: PublisherAssetRef[];
+    /** V4 universal package slots */
+    images?: PublisherAssetRef[];
+    pdf?: PublisherAssetRef[];
+    rules?: PublisherAssetRef[];
+    decklist?: PublisherAssetRef[];
+    marketingKit?: PublisherAssetRef[];
+    releaseNotes?: PublisherAssetRef[];
+    pressKit?: PublisherAssetRef[];
+    videos?: PublisherAssetRef[];
+    icons?: PublisherAssetRef[];
+    logos?: PublisherAssetRef[];
+    banners?: PublisherAssetRef[];
+    social?: PublisherAssetRef[];
   };
   relationships?: PublisherRelationshipRef[];
   marketingAssets?: PublisherAssetRef[];
   editorialAssets?: PublisherAssetRef[];
   storeAssets?: PublisherAssetRef[];
   tournamentAssets?: PublisherAssetRef[];
+  /** Structured official metadata mapped to UniversalProductMetadata */
+  officialMetadata?: Record<string, unknown>;
+  officialContents?: Array<{
+    contentType: string;
+    label: string;
+    quantity: number;
+    unit?: string;
+  }>;
+  specifications?: Record<string, unknown>;
   metadata?: Record<string, unknown>;
 }
 

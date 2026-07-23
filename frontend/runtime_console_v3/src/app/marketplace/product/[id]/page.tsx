@@ -8,6 +8,7 @@ import { MobileLayout } from "@/components/layout/MobileLayout";
 import { WishlistButton } from "@/components/marketplace/WishlistButton";
 import { PriceAlertButton } from "@/components/marketplace/PriceAlertButton";
 import { OfficialRelatedProducts } from "@/components/marketplace/OfficialRelatedProducts";
+import { ProductKnowledgePanel } from "@/components/marketplace/ProductKnowledgePanel";
 import { formatShopPrice, addProductToCart, type ShopProduct } from "@/lib/marketplace-shop";
 import { showToast } from "@/lib/toast";
 
@@ -84,7 +85,12 @@ export default function ProductDetailPage() {
               </button>
             </div>
           </div>
-          {relatedCatalogId ? <OfficialRelatedProducts productId={relatedCatalogId} /> : null}
+          {relatedCatalogId ? (
+            <>
+              <ProductKnowledgePanel productId={relatedCatalogId} />
+              <OfficialRelatedProducts productId={relatedCatalogId} />
+            </>
+          ) : null}
           </>
         )}
       </div>

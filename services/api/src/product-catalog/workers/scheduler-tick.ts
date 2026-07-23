@@ -2,12 +2,13 @@ import { Pool } from "pg";
 import { getIdGenerator } from "../../shared/ids/IdGenerator.js";
 import { ExpansionAssetSyncService } from "../application/ExpansionAssetSyncService.js";
 import { createAssetHealthService } from "../application/AssetHealthService.js";
+import { createKnowledgeCoverageService } from "../application/KnowledgeCoverageService.js";
 import { listExpansionAssetProviders } from "../providers/registry.js";
 import { createProviderScheduler } from "../scheduler/ProviderScheduler.js";
 
 /**
  * Incremental scheduler tick — BullMQ enqueue only.
- * Flags: --bootstrap, --expansion, --health, --relationships (noop marker for workers)
+ * Flags: --bootstrap, --expansion, --health, --knowledge
  */
 async function main() {
   const databaseUrl = process.env.DATABASE_URL;
@@ -36,11 +37,21 @@ async function main() {
     health = { overall: report.overall };
   }
 
+  let knowledge: { overallPct: number } | undefined;
+  if (
+    process.argv.includes("--knowledge") ||
+    process.env.PRODUCT_CATALOG_KNOWLEDGE_COVERAGE_REFRESH === "1"
+  ) {
+    const report = await createKnowledgeCoverageService(pool).computeReport();
+    knowledge = { overallPct: report.overallPct };
+  }
+
   console.log(
     JSON.stringify({
       ...result,
       expansion,
       health,
+      knowledge,
       jobs: [
         "daily accessories",
         "daily manufacturers",
@@ -49,6 +60,13 @@ async function main() {
         "asset refresh",
         "relationship refresh",
         "asset health refresh",
+        "knowledge coverage",
+        "official contents sync",
+        "specifications sync",
+        "collections sync",
+        "lifecycle sync",
+        "metadata sync",
+        "marketing assets / PDFs / decklists",
       ],
     }),
   );
