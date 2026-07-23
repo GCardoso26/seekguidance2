@@ -40,10 +40,19 @@ const CatalogMarketplaceSection = dynamic(
   },
 );
 
+const LiveHomeFeed = dynamic(
+  () => import("@/components/live-data/LiveHomeFeed").then((m) => m.LiveHomeFeed),
+  {
+    loading: () => <div className="h-96 animate-pulse bg-muted/30" aria-hidden />,
+    ssr: false,
+  },
+);
+
 export function MarketplaceHomeInteractiveSections() {
   return (
     <>
       <CatalogMarketplaceSection showHero={false} showGames={false} />
+      <LiveHomeFeed />
       <section className="border-t border-border py-8">
         <div className="container mx-auto px-4">
           <div className="mb-4 flex items-center justify-between">

@@ -1,6 +1,6 @@
 # Environment Audit — Ricardo Menezes (SRE)
 
-_Gerado em 2026-07-21T14:47:49.228Z_
+_Gerado em 2026-07-22T21:47:22.894Z_
 
 | Métrica | Valor |
 | --- | --- |
@@ -16,7 +16,7 @@ _Gerado em 2026-07-21T14:47:49.228Z_
 | Environment Guard (not beta/production) | PASS | yes | resolved env=local |
 | JUDGE_TEST_ENV / TEST_ENV | PASS | yes | inferred=local |
 | APP_MODE | PASS | yes | APP_MODE=(unset) |
-| BASE_URL | PASS | yes | http://localhost:3000 |
+| BASE_URL | PASS | yes | http://127.0.0.1:3000 |
 | Runtime Console (FE) | PASS | yes | ok status=200 |
 | API health | PASS | no | ok |
 | Redis | PASS | yes | 127.0.0.1:6379 |

@@ -4,8 +4,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useJudgeAuth } from "@/features/auth/AuthProvider";
 import type { CreateDeckInput, Deck, DeckFormat, DeckValidation } from "@/types/deck";
 import { normalizeValidationResult } from "@/lib/deck-validation";
+import { invalidateAfterCollectionMutation } from "@/lib/player-journey";
+import { DECKS_KEY } from "@/lib/query-keys/player";
 
-export const DECKS_QUERY_KEY = ["decks"] as const;
+export const DECKS_QUERY_KEY = DECKS_KEY;
 
 async function parseDeckResponse(res: Response): Promise<Deck> {
   const data = (await res.json()) as { deck?: Deck; detail?: string };
@@ -224,8 +226,7 @@ export function useAddToCollection() {
       return res.json();
     },
     onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: ["user-collection"] });
-      void qc.invalidateQueries({ queryKey: ["user-collection-insights"] });
+      invalidateAfterCollectionMutation(qc);
     },
   });
 }
@@ -251,8 +252,7 @@ export function useUpdateCollectionItem() {
       return res.json();
     },
     onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: ["user-collection"] });
-      void qc.invalidateQueries({ queryKey: ["user-collection-insights"] });
+      invalidateAfterCollectionMutation(qc);
     },
   });
 }
@@ -266,8 +266,7 @@ export function useRemoveCollectionItem() {
       return res.json();
     },
     onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: ["user-collection"] });
-      void qc.invalidateQueries({ queryKey: ["user-collection-insights"] });
+      invalidateAfterCollectionMutation(qc);
     },
   });
 }

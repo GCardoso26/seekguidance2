@@ -1,6 +1,10 @@
 import type { Pool } from "pg";
 import { createLogger } from "../../platform/logging/logger.js";
 import { createProductRelationshipService } from "../application/ProductRelationshipService.js";
+import {
+  computeKnowledgeAffinityBoosts,
+  type KnowledgeAffinityRow,
+} from "./knowledgeAffinityBoosts.js";
 
 const log = createLogger("product-catalog.embeddings");
 
@@ -85,25 +89,13 @@ export class HybridProductSearch {
     return base.slice(0, limit);
   }
 
-  /**
-   * Secondary boosts: same collection / publisher / expansion / lifecycle.
-   * Max ~0.08 combined — never dominates lexical rank.
-   */
   private async knowledgeAffinityBoosts(
     matchedProductIds: string[],
     candidateProductIds: string[],
   ): Promise<Map<string, number>> {
-    const boost = new Map<string, number>();
-    if (!matchedProductIds.length || !candidateProductIds.length) return boost;
+    if (!matchedProductIds.length || !candidateProductIds.length) return new Map();
 
-    const res = await this.pool.query<{
-      id: string;
-      collection_id: string | null;
-      publisher_id: string | null;
-      game: string | null;
-      lifecycle: string | null;
-      expansion: string | null;
-    }>(
+    const res = await this.pool.query<KnowledgeAffinityRow>(
       `
       SELECT p.id, p.collection_id, p.publisher_id, p.game, p.lifecycle,
              m.expansion
@@ -114,26 +106,6 @@ export class HybridProductSearch {
       [[...matchedProductIds, ...candidateProductIds]],
     );
 
-    const byId = new Map(res.rows.map((r) => [String(r.id), r]));
-    const seeds = matchedProductIds.map((id) => byId.get(id)).filter(Boolean);
-    const collections = new Set(seeds.map((s) => s!.collection_id).filter(Boolean));
-    const publishers = new Set(seeds.map((s) => s!.publisher_id).filter(Boolean));
-    const games = new Set(seeds.map((s) => s!.game).filter(Boolean));
-    const lifecycles = new Set(seeds.map((s) => s!.lifecycle).filter(Boolean));
-    const expansions = new Set(seeds.map((s) => s!.expansion).filter(Boolean));
-
-    for (const id of candidateProductIds) {
-      if (matchedProductIds.includes(id)) continue;
-      const c = byId.get(id);
-      if (!c) continue;
-      let add = 0;
-      if (c.collection_id && collections.has(c.collection_id)) add += 0.03;
-      if (c.publisher_id && publishers.has(c.publisher_id)) add += 0.02;
-      if (c.game && games.has(c.game)) add += 0.015;
-      if (c.expansion && expansions.has(c.expansion)) add += 0.02;
-      if (c.lifecycle && lifecycles.has(c.lifecycle)) add += 0.01;
-      if (add > 0) boost.set(id, add);
-    }
-    return boost;
+    return computeKnowledgeAffinityBoosts(matchedProductIds, res.rows);
   }
 }

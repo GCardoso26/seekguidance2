@@ -1,5 +1,6 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { CardGridSkeleton } from "@/components/cards/CardGridSkeleton";
+import { HeroAssetSkeleton } from "@/components/assets/AssetSkeletons";
 
 export function ProfileSkeleton() {
   return (
@@ -63,25 +64,26 @@ export function SearchPageSkeleton() {
 
 export function GameHubSkeleton() {
   return (
-    <div className="container mx-auto px-4 py-12" data-testid="game-hub-skeleton">
-      <Skeleton className="h-4 w-32 skeleton-shimmer" />
-      <div className="mt-6 flex flex-col gap-6 sm:flex-row sm:items-center">
-        <Skeleton className="h-20 w-20 rounded-lg skeleton-shimmer" />
-        <div className="flex-1 space-y-3">
-          <Skeleton className="h-8 w-48 skeleton-shimmer" />
-          <Skeleton className="h-4 w-64 skeleton-shimmer" />
+    <div data-testid="game-hub-skeleton">
+      <HeroAssetSkeleton />
+      <div className="container mx-auto px-4 py-12">
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="aspect-[420/560] rounded-xl skeleton-shimmer" />
+          ))}
         </div>
-      </div>
-      <div className="mt-8 flex gap-3">
-        <Skeleton className="h-11 w-36 skeleton-shimmer" />
-        <Skeleton className="h-11 w-36 skeleton-shimmer" />
-      </div>
-      <div className="mt-10 grid gap-3 sm:grid-cols-2">
-        <Skeleton className="h-24 rounded-xl skeleton-shimmer" />
-        <Skeleton className="h-24 rounded-xl skeleton-shimmer" />
       </div>
     </div>
   );
 }
 
 export { CardGridSkeleton };
+export {
+  CardAssetSkeleton,
+  BoosterAssetSkeleton,
+  MarketplaceAssetSkeleton,
+  HeroAssetSkeleton,
+  CollectionAssetSkeleton,
+  DeckAssetSkeleton,
+  ProfileAssetSkeleton,
+} from "@/components/assets/AssetSkeletons";

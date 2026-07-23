@@ -17,6 +17,7 @@ import {
 import { mediaTypeForCategory } from "../application/mediaTypeForCategory.js";
 import { notifySyncFailure } from "../application/SyncFailureNotifier.js";
 import { createAssetVersioningService } from "../application/AssetVersioningService.js";
+import { applyOfficialKnowledgeFromImport } from "./applyOfficialKnowledgeFromImport.js";
 import type { ImportedProductDTO } from "../domain/models.js";
 import { PostgresProductCatalogRepository } from "../persistence/PostgresProductCatalogRepository.js";
 import { productCatalogProviderRegistry } from "../providers/registry.js";
@@ -309,6 +310,13 @@ export class ProductCatalogSyncService {
         { productId, variantIds, imageCount, lowConfidenceSkip, replacedByHigherTrust },
         "product_catalog_persisted",
       );
+      try {
+        await applyOfficialKnowledgeFromImport(this.pool, productId, dto);
+      } catch (knowErr) {
+        errors.push(
+          `knowledge:${dto.providerRef}:${knowErr instanceof Error ? knowErr.message : String(knowErr)}`,
+        );
+      }
       return 1;
     } catch (e) {
       errors.push(`product:${dto.providerRef}:${e instanceof Error ? e.message : String(e)}`);

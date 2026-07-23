@@ -28,6 +28,15 @@ export function mapManufacturerManifest(
       titleEn: item.titleEn,
       game: undefined,
       gameCodes: [],
+      officialContents: item.officialContents,
+      specifications: item.specifications,
+      officialMetadata: {
+        manufacturer: manifest.manufacturer,
+        sku: item.sku,
+        ean: item.ean ?? item.upc,
+        upc: item.upc,
+        ...item.officialMetadata,
+      },
       variants: [
         {
           providerRef: `${manifest.manufacturerId}:${item.sku}:default`,

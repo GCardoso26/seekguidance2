@@ -1,10 +1,21 @@
 # CHAOS_TEST_REPORT
 
-**2026-07-21T18:36:00Z** · Partial
+**Gerado:** 2026-07-22T02:56:30Z  
+**Verdict:** LIGHT ONLY · **NOT PASS** para critério READY
 
-```text
-chaos.light.test.ts → 4/4 PASS
-```
+## Executado
+| Case | Result |
+|------|--------|
+| Vitest `chaos.light.test.ts` (4) | PASS — Redis unavailable outbox accumulate + catch-up 0 losses (unit) |
 
-Chaos integrado (derrubar Redis/Worker/Gateway/Search em checkout live): **NOT RUN**  
-Critério Chaos PASS: **NO** · Confidence **35%**
+## Não executado (obrigatório)
+| Desligar | Status |
+|----------|--------|
+| Redis (runtime) | SKIPPED |
+| Worker | SKIPPED |
+| Gateway (Stripe/MP/ME) | SKIPPED |
+| Search | SKIPPED |
+
+Sem evidência de recuperação em ambiente real com processos mortos.
+
+**READY chaos = NO**

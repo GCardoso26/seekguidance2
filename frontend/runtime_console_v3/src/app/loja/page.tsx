@@ -18,10 +18,9 @@ export default function LojaPage() {
           <Suspense fallback={null}>
             <LojaMarketplaceAlert />
           </Suspense>
-          <h1 className="text-3xl font-bold text-foreground">Marketplace TCG</h1>
+          <h1 className="text-3xl font-bold text-foreground">Biblioteca de TCGs</h1>
           <p className="mt-2 max-w-2xl text-muted-foreground">
-            Singles, boosters, decks e acessórios — navegue por jogo e categoria como no CardTrader,
-            com a identidade Judge TCG.
+            Entre no portal de cada universo — singles, expansões, decks e marketplace no mesmo ecossistema.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90">
@@ -38,7 +37,7 @@ export default function LojaPage() {
         </div>
       </div>
       <div className="container mx-auto max-w-6xl px-4 py-8">
-        <h2 className="mb-4 text-lg font-semibold text-foreground">Escolha seu jogo</h2>
+        <h2 className="mb-4 text-lg font-semibold text-foreground">Escolha seu universo</h2>
         <Suspense fallback={<GameGridBootstrap />}>
           <GameGridStream />
         </Suspense>

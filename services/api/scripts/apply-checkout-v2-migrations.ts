@@ -42,17 +42,21 @@ try {
     }
   }
 
-  // idempotency table if missing
+  // idempotency table if missing (must match IdempotentCommandHandler)
   await pool.query(`
     CREATE SCHEMA IF NOT EXISTS platform;
     CREATE TABLE IF NOT EXISTS platform.idempotency_keys (
-      command_name text NOT NULL,
-      idempotency_key text NOT NULL,
-      status text NOT NULL DEFAULT 'started',
-      request_hash text,
-      response_json jsonb,
-      created_at timestamptz NOT NULL DEFAULT now(),
-      PRIMARY KEY (command_name, idempotency_key)
+      id               uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+      command_name     text NOT NULL,
+      idempotency_key  text NOT NULL,
+      status           text NOT NULL CHECK (status IN ('processing', 'completed', 'failed')),
+      request_hash     text,
+      response_hash    text,
+      response_body    jsonb,
+      error            text,
+      created_at       timestamptz NOT NULL DEFAULT now(),
+      updated_at       timestamptz NOT NULL DEFAULT now(),
+      UNIQUE (command_name, idempotency_key)
     );
   `);
   console.log("ENSURE platform.idempotency_keys OK");

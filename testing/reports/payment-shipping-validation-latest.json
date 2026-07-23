@@ -1,5 +1,5 @@
 {
-  "at": "2026-07-21T18:32:34.489Z",
+  "at": "2026-07-22T02:56:42.427Z",
   "secrets": {
     "STRIPE_SECRET_KEY": "SET",
     "MERCADOPAGO_ACCESS_TOKEN": "SET",
@@ -51,7 +51,7 @@
       "area": "stub",
       "case": "stub_pix_expires",
       "status": "PASS",
-      "detail": "2026-07-21T18:47:28.685Z"
+      "detail": "2026-07-22T03:11:36.025Z"
     },
     {
       "area": "stub",
@@ -75,7 +75,7 @@
       "area": "stub",
       "case": "stub_refund",
       "status": "PASS",
-      "detail": "re_stub_962be5de"
+      "detail": "re_stub_9afc5fb0"
     },
     {
       "area": "stub",
@@ -129,7 +129,7 @@
       "area": "stub",
       "case": "stub_pix_expired_metadata",
       "status": "PASS",
-      "detail": "2026-07-21T18:31:28.686Z"
+      "detail": "2026-07-22T02:55:36.026Z"
     },
     {
       "area": "stub",
@@ -141,7 +141,7 @@
       "area": "live",
       "case": "stripe_create_pi",
       "status": "PASS",
-      "detail": "pi_3TviQNPOaBiXTc0j0B6wXqt9 status=requires_action"
+      "detail": "pi_3TvqIFPOaBiXTc0j1ceDLi4t status=requires_action"
     },
     {
       "area": "live",

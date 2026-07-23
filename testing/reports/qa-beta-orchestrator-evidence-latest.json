@@ -1,0 +1,37 @@
+{
+  "generatedAt": "2026-07-22T06:52:00.000Z",
+  "campaign": "QA_BETA_READINESS_ORCHESTRATOR",
+  "upstream": "https://seekguidance2-66dz.onrender.com",
+  "frontend": "https://judgetcg.com.br",
+  "idempotencyConfirmX10": {
+    "sessionId": "5febb466-4c94-4b70-ad48-a4aa46dd1f79",
+    "simulateSuccess": true,
+    "confirmCalls": 10,
+    "completedCount": 10,
+    "uniqueStatuses": ["completed"],
+    "note": "Status idempotente sob simulateSuccess. Contagem única OrderCreated/outbox NÃO auditada em SQL nesta rodada."
+  },
+  "concurrencyTwoBuyers": {
+    "listingId": "76ba13ac-6ef5-4ea0-a842-4858cb6c3a6c",
+    "bothSessionsReachedPaymentPending": true,
+    "bothConfirmsFailed": true,
+    "expectedPatternProven": false,
+    "note": "Esperado 1 completed + 1 insufficient stock. Observado: ambos failed. NÃO PASS."
+  },
+  "health": {
+    "status": "ok",
+    "postgres": "in_memory",
+    "redis": "in_memory",
+    "meilisearch": "in_memory",
+    "severityRisk": "P0 — health reporta in_memory para postgres/redis/search"
+  },
+  "pix": {
+    "status": "FAIL",
+    "error": "stripe_api_error: payment method type pix is invalid — activate in Stripe dashboard"
+  },
+  "card": {
+    "status": "PASS_UNTIL_CLIENT_SECRET",
+    "paymentIntentCreated": true,
+    "confirmWithoutPay": "payment_not_succeeded:requires_action"
+  }
+}

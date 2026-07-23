@@ -1,0 +1,73 @@
+{
+  "campaign": "QA_CERTIFICATION_PLATFORM_V4_RECERT",
+  "date": "2026-07-23",
+  "project": "rjgzaakhzuzdzcooywva",
+  "verdict": "V4_REMEDIATION_PASS_FULL_PRODUCTION_NOT_READY",
+  "evidence": {
+    "tsc_api": "PASS",
+    "tsc_frontend": "PASS",
+    "vitest_product_catalog_checkout_architecture": {
+      "files": 21,
+      "tests": 73,
+      "result": "PASS"
+    },
+    "vitest_certification": "PlatformV4Certification.test.ts PASS",
+    "vitest_p1_fixes": "PlatformV4P1Fixes.test.ts PASS",
+    "vitest_p2_fixes": "PlatformV4P2Fixes.test.ts PASS",
+    "db_product_catalog": {
+      "products": 260,
+      "variants": 260,
+      "collections": 0,
+      "publishers": 8,
+      "games": 12,
+      "manufacturers": 13,
+      "brands": 13,
+      "official_product_contents": 1,
+      "product_specifications": 1,
+      "product_official_metadata": 3,
+      "product_asset_packages": 0,
+      "product_relationships": 0,
+      "provider_registry": 89,
+      "sync_runs": 79,
+      "media_assets": 1,
+      "asset_links": 1,
+      "with_lifecycle": 260,
+      "avg_knowledge_completeness": 0.2
+    },
+    "db_marketplace": {
+      "store_products": 14878,
+      "with_master_variant_id": 1
+    },
+    "db_security": {
+      "product_catalog_rls_on": 28,
+      "product_catalog_rls_off": 0,
+      "anon_schema_usage": false,
+      "authenticated_schema_usage": false,
+      "client_policies": 0,
+      "p2_indexes": [
+        "uq_product_asset_packages_identity",
+        "uq_collections_code"
+      ]
+    },
+    "e2e_playwright_knowledge_graph": {
+      "spec": "e2e/specs/product-knowledge-panel.spec.ts",
+      "project": "chromium",
+      "result": "PASS",
+      "tests": 2
+    },
+    "lighthouse": "NOT_EXECUTED",
+    "concurrency_100_users": "NOT_EXECUTED",
+    "live_checkout_pix_stripe": "NOT_REVALIDATED_THIS_CAMPAIGN"
+  },
+  "open_bugs": {
+    "P0": [],
+    "P1": [],
+    "P2": [],
+    "P3": []
+  },
+  "residuals": [
+    "master_variant_id coverage 1/14878 (path exists; bulk singles out of accessory catalog scope)",
+    "knowledge data sparse (contents/specs/metadata samples only; collections=0; asset_packages=0)",
+    "Checkout/PIX/Stripe/PDV/Lighthouse/personas full matrix not revalidated in this recert"
+  ]
+}

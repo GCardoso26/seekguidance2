@@ -1,0 +1,63 @@
+{
+  "at": "2026-07-22T02:58:29.820Z",
+  "sessionId": "6d311d68-537f-493a-a4a9-007fd07a8267",
+  "startHttp": 201,
+  "startStatus": "payment_pending",
+  "confirmCalls": 10,
+  "completedCount": 10,
+  "uniqueStatuses": [
+    "completed"
+  ],
+  "statuses": [
+    {
+      "http": 200,
+      "status": "completed",
+      "error": null
+    },
+    {
+      "http": 200,
+      "status": "completed",
+      "error": null
+    },
+    {
+      "http": 200,
+      "status": "completed",
+      "error": null
+    },
+    {
+      "http": 200,
+      "status": "completed",
+      "error": null
+    },
+    {
+      "http": 200,
+      "status": "completed",
+      "error": null
+    },
+    {
+      "http": 200,
+      "status": "completed",
+      "error": null
+    },
+    {
+      "http": 200,
+      "status": "completed",
+      "error": null
+    },
+    {
+      "http": 200,
+      "status": "completed",
+      "error": null
+    },
+    {
+      "http": 200,
+      "status": "completed",
+      "error": null
+    },
+    {
+      "http": 200,
+      "status": "completed",
+      "error": null
+    }
+  ]
+}

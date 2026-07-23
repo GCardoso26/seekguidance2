@@ -14,6 +14,12 @@ import { CollectionGameProgress } from "@/components/collection-v2/CollectionGam
 import { CollectionSummaryCard } from "@/components/collection-v2/CollectionSummaryCard";
 import { CollectionTimeline } from "@/components/collection-v2/CollectionTimeline";
 import { CollectionValueChart } from "@/components/collection-v2/CollectionValueChart";
+import { CollectionLiveStrip } from "@/components/live-data/CollectionLiveStrip";
+import { CollectionIntelligencePanel } from "@/components/intelligence/IntelligencePanels";
+import { CollectionRecommendationPanel } from "@/components/recommendations/RecommendationPanels";
+import { ContextualAssistantStrip } from "@/components/ai-assistants/ContextualAssistantStrip";
+import { SharePlayerArtifactButton } from "@/components/social/SharePlayerArtifactButton";
+import { stubCollectionAssistant } from "@/lib/ai-assistants/interfaces";
 import { useCollectionInsights } from "@/hooks/useCollectionInsights";
 import { useWishlist } from "@/hooks/useWishlist";
 import { formatCurrency } from "@/lib/format-currency";
@@ -74,6 +80,21 @@ export function CollectionDashboard() {
 
   return (
     <div className="space-y-10" data-testid="collection-dashboard">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <CollectionLiveStrip />
+      </div>
+      <CollectionIntelligencePanel />
+      <ContextualAssistantStrip
+        surface="collection"
+        load={() => stubCollectionAssistant.completeSetBudget({})}
+      />
+      <div className="flex flex-wrap gap-2">
+        <SharePlayerArtifactButton kind="collection" />
+        <SharePlayerArtifactButton kind="wishlist" />
+        <SharePlayerArtifactButton kind="progress" />
+        <SharePlayerArtifactButton kind="achievements" />
+      </div>
+      <CollectionRecommendationPanel />
       <header className="space-y-2">
         <h1 className="text-display text-foreground sm:text-3xl">Minha Coleção</h1>
         <p className="text-small text-muted-foreground">

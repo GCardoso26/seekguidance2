@@ -93,6 +93,55 @@ export interface ImportedProductDTO {
   releaseDate?: string;
   discontinued?: boolean;
   variants: ImportedVariantDTO[];
+  /** Official Knowledge Graph fields — only when provider supplies them. */
+  officialContents?: Array<{
+    contentType: string;
+    label: string;
+    quantity: number;
+    unit?: string;
+  }>;
+  specifications?: {
+    specSchema: string;
+    widthMm?: number;
+    heightMm?: number;
+    depthMm?: number;
+    thicknessMm?: number;
+    weightGrams?: number;
+    capacity?: number;
+    pieces?: number;
+    microns?: number;
+    material?: string;
+    finish?: string;
+    color?: string;
+    pvcFree?: boolean;
+    acidFree?: boolean;
+    waterResistant?: boolean;
+    cardsCount?: number;
+    foilsCount?: number;
+    language?: string;
+    region?: string;
+    msrpCents?: number;
+    extra?: Record<string, unknown>;
+  };
+  officialMetadata?: {
+    publisher?: string;
+    manufacturer?: string;
+    game?: string;
+    expansion?: string;
+    collection?: string;
+    series?: string;
+    releaseDate?: string;
+    language?: string;
+    country?: string;
+    msrpCents?: number;
+    sku?: string;
+    upc?: string;
+    ean?: string;
+    productFamily?: string;
+    productLine?: string;
+    edition?: string;
+    lifecycle?: string;
+  };
 }
 
 export interface ImportedVariantDTO {

@@ -1,0 +1,17 @@
+{
+  "at": "2026-07-21T20:04:32.004Z",
+  "sellerId": "6a5220ed-acf2-45a6-8efa-cf3db51ab617",
+  "listingId": "76ba13ac-6ef5-4ea0-a842-4858cb6c3a6c",
+  "stockUnitId": "136154b4-da81-4d63-8edc-cef39dd0d0d9",
+  "priceCents": 1000,
+  "quantity": 30,
+  "catalogCardId": "2a887bdd-2cde-4c17-9a2d-9ac1106cf6ea",
+  "sellableActive": 1,
+  "listing": {
+    "id": "76ba13ac-6ef5-4ea0-a842-4858cb6c3a6c",
+    "status": "active",
+    "quantity": 30,
+    "price_cents": "1000",
+    "stock": "136154b4-da81-4d63-8edc-cef39dd0d0d9"
+  }
+}

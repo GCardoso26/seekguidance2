@@ -3,17 +3,27 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
-import { Home, Layers, ShoppingBag, User } from "lucide-react";
+import { Bell, Home, Layers, Library, ShoppingBag, User } from "lucide-react";
 import { GlobalHeader } from "@/components/layout/GlobalHeader";
+import { isFeatureEnabled } from "@/lib/feature-flags";
 import { cn } from "@/lib/utils";
 
 type NavItem = { href: string; label: string; icon: typeof Home };
 
-const MOBILE_NAV: NavItem[] = [
+const MOBILE_NAV_DEFAULT: NavItem[] = [
   { href: "/", label: "Início", icon: Home },
   { href: "/loja", label: "Loja", icon: ShoppingBag },
   { href: "/comprador", label: "Conta", icon: User },
   { href: "/decks", label: "Baralhos", icon: Layers },
+];
+
+/** Epic 16 — thumb-first: Collection + Notifications in bottom nav. */
+const MOBILE_NAV_V2: NavItem[] = [
+  { href: "/", label: "Início", icon: Home },
+  { href: "/loja", label: "Loja", icon: ShoppingBag },
+  { href: "/colecao", label: "Coleção", icon: Library },
+  { href: "/decks", label: "Decks", icon: Layers },
+  { href: "/notifications", label: "Alertas", icon: Bell },
 ];
 
 function MobileNavItem({ href, label, icon: Icon }: NavItem) {
@@ -25,16 +35,16 @@ function MobileNavItem({ href, label, icon: Icon }: NavItem) {
   return (
     <Link
       href={href}
-      data-testid={`mobile-nav-${href === "/" ? "home" : href.slice(1)}`}
+      data-testid={`mobile-nav-${href === "/" ? "home" : href.slice(1).replace(/\//g, "-")}`}
       className={cn(
-        "flex min-h-[44px] min-w-[44px] flex-col items-center justify-center gap-0.5 text-small font-medium transition-colors",
+        "flex min-h-[48px] min-w-[48px] flex-col items-center justify-center gap-0.5 px-1 text-small font-medium transition-colors touch-manipulation",
         active ? "text-primary" : "text-muted-foreground",
       )}
       aria-label={label}
       aria-current={active ? "page" : undefined}
     >
       <Icon className="h-5 w-5" strokeWidth={active ? 2 : 1.5} aria-hidden />
-      <span>{label}</span>
+      <span className="max-w-[4.5rem] truncate text-[10px] leading-tight">{label}</span>
     </Link>
   );
 }
@@ -47,6 +57,7 @@ export function MobileLayout({ children }: { children: ReactNode }) {
     pathname?.startsWith("/checkout/") ||
     pathname === "/marketplace/checkout" ||
     pathname?.startsWith("/marketplace/checkout/");
+  const nav = isFeatureEnabled("MOBILE_FIRST_V2") ? MOBILE_NAV_V2 : MOBILE_NAV_DEFAULT;
 
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
@@ -70,13 +81,13 @@ export function MobileLayout({ children }: { children: ReactNode }) {
       </main>
       {!hideNav && !isCheckout && (
         <nav
-          className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card px-2 pt-1.5 md:hidden"
+          className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card px-1 pt-1.5 md:hidden"
           style={{ paddingBottom: "max(0.375rem, env(safe-area-inset-bottom))" }}
           aria-label="Navegação mobile"
           data-testid="bottom-nav"
         >
           <div className="flex justify-around">
-            {MOBILE_NAV.map((item) => (
+            {nav.map((item) => (
               <MobileNavItem key={item.href} {...item} />
             ))}
           </div>

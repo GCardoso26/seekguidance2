@@ -29,6 +29,9 @@ import { defaultBadgesProvider } from "@/lib/profile-badges";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import { formatCurrency } from "@/lib/format-currency";
 import { CollectionValueChart } from "@/components/collection-v2/CollectionValueChart";
+import { ProfileRecommendationPanel } from "@/components/recommendations/RecommendationPanels";
+import { ContextualAssistantStrip } from "@/components/ai-assistants/ContextualAssistantStrip";
+import { stubPlayerValueAssistant } from "@/lib/ai-assistants/interfaces";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export function ProfileDashboard() {
@@ -260,6 +263,11 @@ export function ProfileDashboard() {
             enabled={isFeatureEnabled("PLAYER_ACTIVITY")}
           />
         </section>
+        <ContextualAssistantStrip
+          surface="player"
+          load={() => stubPlayerValueAssistant.collectionDelta({})}
+        />
+        <ProfileRecommendationPanel />
         <ProfileAiSlots />
       </div>
     </div>

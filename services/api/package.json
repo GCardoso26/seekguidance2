@@ -47,6 +47,7 @@
     "sync:playmats": "tsx src/product-catalog/workers/sync-runner.ts catalog.sync.playmats",
     "pricing:sync": "tsx src/pricing/workers/pricing-sync.ts",
     "scheduler:tick": "tsx src/product-catalog/workers/scheduler-tick.ts",
+    "catalog:remediate-p0": "tsx src/product-catalog/workers/remediate-p0-catalog.ts",
     "marketplace:publish-product": "tsx src/marketplace/workers/publish-product-listing.ts",
     "checkout:start": "tsx src/checkout/workers/start-checkout.ts",
     "smoke:rapunzel": "tsx src/workers/smoke-rapunzel.ts",

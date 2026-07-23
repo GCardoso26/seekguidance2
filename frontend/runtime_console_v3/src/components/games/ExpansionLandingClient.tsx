@@ -9,6 +9,8 @@ import {
   LargeMarketplaceCard,
   LargeSealedCard,
 } from "@/components/experience/cards/LargeVisualCards";
+import { AssetGallery, buildSealedGallery } from "@/components/assets/AssetGallery";
+import { resolveExpansionAssets } from "@/lib/assets";
 import { useGamePortal } from "@/components/experience/GameProvider";
 import {
   gameCardsPath,
@@ -119,6 +121,10 @@ export function ExpansionLandingClient({ setSlug }: Props) {
 
   const title = set?.name ?? setSlug.replace(/-/g, " ");
   const canonicalSetSlug = set ? setCanonicalSlug(set) : setSlug;
+  const setVisuals = resolveExpansionAssets({
+    gameLogo: theme.logo,
+    heroFallback: theme.hero.imageFallback || theme.hero.image,
+  });
 
   if (!setsLoading && sets.length > 0 && !set) {
     return (
@@ -151,12 +157,12 @@ export function ExpansionLandingClient({ setSlug }: Props) {
           />
           <div className="mt-8 flex flex-wrap items-end gap-6">
             <Image
-              src={theme.logo}
+              src={setVisuals.logo || theme.logo}
               alt=""
               width={96}
               height={96}
               className="h-20 w-20 object-contain md:h-24 md:w-24"
-              unoptimized={shouldBypassImageOptimizer(theme.logo)}
+              unoptimized={shouldBypassImageOptimizer(setVisuals.logo || theme.logo)}
             />
             <div className="min-w-0 flex-1">
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--game-accent)]">
@@ -303,12 +309,17 @@ export function ExpansionLandingClient({ setSlug }: Props) {
       <section className="portal-section container mx-auto max-w-6xl px-4 py-10">
         <h2 className="portal-section-title mb-5 text-xl md:text-2xl">Produtos selados</h2>
         {sealed ? (
-          <div className="max-w-xs">
+          <div className="grid gap-8 lg:grid-cols-[320px_1fr]">
             <LargeSealedCard
               href={marketplaceCategoryHref(slug, sealed.id)}
               title={sealed.label}
               imageUrl={sealed.imageUrl}
               subtitle={`${title} · ${theme.name}`}
+            />
+            <AssetGallery
+              title={`Galeria · ${sealed.label}`}
+              mediaType="SEALED_GALLERY"
+              items={buildSealedGallery(sealed.imageUrl)}
             />
           </div>
         ) : null}

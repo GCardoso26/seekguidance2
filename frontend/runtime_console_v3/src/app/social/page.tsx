@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider, useMutation, useQuery } from "@tansta
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import { ChatDrawer } from "@/components/social/ChatDrawer";
 import { CommunityCard } from "@/components/social/CommunityCard";
+import { SocialActivityFeed } from "@/components/social/SocialActivityFeed";
 
 const qc = new QueryClient();
 
@@ -48,7 +49,11 @@ function SocialPage() {
           </Link>
         </div>
         <h1 className="mt-2 text-2xl font-bold">Comunidade</h1>
-        <div className="mt-6 grid gap-4 sm:grid-cols-2">
+        <div className="mt-6">
+          <SocialActivityFeed />
+        </div>
+        <h2 className="mt-10 text-lg font-semibold">Comunidades</h2>
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
           {communities.map((c: Record<string, unknown>) => (
             <CommunityCard
               key={String(c.id)}

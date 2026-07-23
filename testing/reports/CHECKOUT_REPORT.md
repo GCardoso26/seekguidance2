@@ -1,27 +1,28 @@
 # CHECKOUT_REPORT
 
-**Gerado:** 2026-07-21T18:36:00Z  
-**Compra completa?** **NÃO**
+**Gerado:** 2026-07-22T06:55:00Z  
+**Upstream:** `https://seekguidance2-66dz.onrender.com`  
+**FE BFF:** `https://judgetcg.com.br/api/checkout-v2/*`  
+**Status:** **FAIL** para Beta · Confidence **55%**
 
-## Evidências
+## Matriz
 
-### Gateways live (PASS)
-`validate-payment-shipping.mjs` → **33/33**  
-Stripe PI · MP PIX QR/copia-cola · Melhor Envio 14 quotes production
+| Check | Resultado | Evidência |
+|-------|-----------|-----------|
+| Health | 200 ok | Mas `postgres/redis/meilisearch: **in_memory**` → **P0** |
+| BFF prod → Render | 401 cart | Upstream header/wiring OK |
+| Auth | PASS | register/login |
+| Cart + add listing | PASS | listing seed |
+| Session card | PASS | `payment_pending` + Stripe `pi_` + `clientSecret` |
+| Confirm sem pagar | Esperado | `payment_not_succeeded:requires_action` |
+| Session PIX | **FAIL** | Stripe PIX não ativado |
+| Confirm ×10 simulateSuccess | PASS status | 10× `completed` |
+| UI Elements / QR / timeout / expiração | **NÃO** | Sem browser E2E |
+| Webhook pago real | **NÃO** | Só liveness parse fail |
+| OrderCreated / CheckoutCompleted | **NÃO** | Sem prova durável |
+| Collection invalidation | **NÃO** | |
+| Profile refresh | **NÃO** | |
 
-### HTTP Checkout V2
-| Path | Result |
-|------|--------|
-| `checkout-v2-api.judgetcg.com.br` health/cart/auth | PASS |
-| `localhost:3000/api/checkout-v2/cart` | **401** PASS (env corrigido) |
-| `judgetcg.com.br/api/checkout-v2/cart` | **502** FAIL BUG-0010 |
+## Veredito
 
-### Session / Order E2E
-`marketplace.listings` active+qty>0 → **0 rows** — não há SKU para StartCheckout→OrderCreated nesta base.
-
-## Confidence Checkout
-**~55%** (adapters+cart HTTP) · jornada FE produção **0%**
-
-## Bugs
-- BUG-0010 P0 OPEN (Vercel env)
-- BUG-0011/0012 CLOSED
+Checkout V2 **conectado** e card **até clientSecret**, mas **não READY** (persistência in_memory + PIX + E2E incompleto).

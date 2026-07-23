@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { GameHero } from "@/components/experience/PortalHero";
+import { PortalLiveBlocks } from "@/components/live-data/PortalLiveBlocks";
 import { useGamePortal } from "@/components/experience/GameProvider";
 import {
   DeckShowcaseCard,
@@ -342,6 +343,9 @@ export function PortalSections({ cardCount = 0, healthLoading }: Props) {
           </div>
         </div>
       </section>
+
+      {/* Live Data — portal por jogo */}
+      <PortalLiveBlocks />
 
       {/* Coleção / Deck Builder / Favoritos / Wishlist */}
       <section className="portal-section container mx-auto max-w-6xl px-4 py-12 pb-16">

@@ -4,32 +4,43 @@ import { useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Bell, Heart, Layers, Share2, X } from "lucide-react";
+import { Bell, Heart, Layers, Share2, Star, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/format-currency";
 import { useCreatePriceAlert } from "@/hooks/usePriceAlerts";
+import { useToggleWishlist, useWishlistProductIds } from "@/hooks/useWishlist";
 import { useJudgeAuth } from "@/features/auth/AuthProvider";
 import { AddToCollectionModal } from "@/components/collection/AddToCollectionModal";
 import { gameCardDetailPath } from "@/lib/game-routes";
 import { GAME_TOKENS } from "@/lib/tcg-tokens";
+import { saveJourneyContext } from "@/lib/journey-context";
 import type { AlertPriceCondition } from "@/types/alert";
 import type { GameId, UnifiedCard } from "@/types/card";
 
 interface CardActionsProps {
   card: UnifiedCard;
+  productId?: string | null;
 }
 
-export function CardActions({ card }: CardActionsProps) {
+export function CardActions({ card, productId }: CardActionsProps) {
   const router = useRouter();
   const { user } = useJudgeAuth();
   const [alertOpen, setAlertOpen] = useState(false);
   const [collectionOpen, setCollectionOpen] = useState(false);
   const [shareMsg, setShareMsg] = useState<string | null>(null);
+  const toggleWish = useToggleWishlist();
+  const wishIds = useWishlistProductIds();
 
   const gameSlug = GAME_TOKENS[card.game as GameId]?.slug || String(card.game).toLowerCase();
   const detailPath = gameCardDetailPath(gameSlug, card.id);
+  const wishKey = productId || card.productId || card.id;
+  const isSaved = wishIds.has(wishKey);
+
+  const remember = () =>
+    saveJourneyContext({ gameSlug, cardId: card.id, returnPath: detailPath, source: "card" });
 
   const openCollection = () => {
+    remember();
     if (!user) {
       router.push(`/entrar?next=${encodeURIComponent(detailPath)}`);
       return;
@@ -37,8 +48,20 @@ export function CardActions({ card }: CardActionsProps) {
     setCollectionOpen(true);
   };
 
+  const toggleWishlist = () => {
+    remember();
+    if (!user) {
+      router.push(`/entrar?next=${encodeURIComponent(detailPath)}`);
+      return;
+    }
+    toggleWish.mutate({ productId: wishKey, isSaved });
+  };
+
   const addToDeck = () => {
-    router.push(`/decks?add=${encodeURIComponent(card.id)}&game=${encodeURIComponent(String(card.game))}`);
+    remember();
+    router.push(
+      `/decks?add=${encodeURIComponent(card.id)}&game=${encodeURIComponent(String(card.game))}`,
+    );
   };
 
   const share = async () => {
@@ -93,6 +116,19 @@ export function CardActions({ card }: CardActionsProps) {
         Coleção
       </Button>
 
+      <Button
+        variant={isSaved ? "default" : "outline"}
+        size="sm"
+        type="button"
+        aria-label={isSaved ? "Remover da wishlist" : "Adicionar à wishlist"}
+        aria-pressed={isSaved}
+        disabled={toggleWish.isPending}
+        onClick={toggleWishlist}
+      >
+        <Star className="mr-1 h-4 w-4" />
+        {isSaved ? "Na wishlist" : "Wishlist"}
+      </Button>
+
       <Button variant="outline" size="sm" type="button" aria-label="Adicionar ao deck" onClick={addToDeck}>
         <Layers className="mr-1 h-4 w-4" />
         Deck
@@ -101,10 +137,6 @@ export function CardActions({ card }: CardActionsProps) {
       <Button variant="outline" size="sm" type="button" aria-label="Compartilhar carta" onClick={() => void share()}>
         <Share2 className="mr-1 h-4 w-4" />
         {shareMsg ?? "Compartilhar"}
-      </Button>
-
-      <Button variant="ghost" size="sm" type="button" asChild>
-        <Link href="/wishlist">Wishlist</Link>
       </Button>
 
       <Button variant="ghost" size="sm" type="button" asChild>
@@ -175,7 +207,8 @@ function PriceAlertForm({
     <form onSubmit={handleSubmit} className="space-y-4">
       {success && (
         <p className="rounded-md bg-green-500/10 px-3 py-2 text-sm text-green-600">
-          Alerta criado! Você será notificado quando o preço {priceCondition === "below" ? "baixar" : "subir"}.
+          Alerta criado! Você será notificado quando o preço{" "}
+          {priceCondition === "below" ? "baixar" : "subir"}.
         </p>
       )}
       {error && <p className="text-sm text-danger">{error}</p>}

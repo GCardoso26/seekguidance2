@@ -10,6 +10,7 @@ import {
 import { InMemoryFeatureFlagService } from "../platform/feature-flags/FeatureFlagService.js";
 import { createCheckoutService } from "./application/CheckoutService.js";
 import { createPaymentGateway } from "./application/payment/createPaymentGateway.js";
+import { postgresCheckoutHealthDeps } from "../observability/http/health.js";
 
 /**
  * Normalize SQLAlchemy-style URLs (postgresql+asyncpg://) for node-pg.
@@ -76,6 +77,26 @@ export function createCheckoutV2ApiStack(opts: CheckoutV2ApiStackOpts = {}) {
     publishListing: marketplace.publishListing,
     adjustInventory: marketplace.adjustInventory,
     checkoutV2: { auth: identity.auth, checkout },
+    /** BUG-QA-001 — never advertise in_memory when Checkout V2 uses Postgres. */
+    health: postgresCheckoutHealthDeps({
+      query: async (sql) => {
+        await pool.query(sql);
+      },
+      checkOutbox: async () => {
+        try {
+          await pool.query(
+            `SELECT 1 FROM platform.outbox_events LIMIT 1`,
+          );
+          return { name: "outbox", ok: true, detail: "postgres_accessible" };
+        } catch (err) {
+          return {
+            name: "outbox",
+            ok: false,
+            detail: err instanceof Error ? err.message : String(err),
+          };
+        }
+      },
+    }),
   };
 
   return {

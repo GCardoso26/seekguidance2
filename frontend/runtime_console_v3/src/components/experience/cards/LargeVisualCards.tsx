@@ -1,10 +1,10 @@
 "use client";
 
 import type { ReactNode } from "react";
-import Image from "next/image";
 import Link from "next/link";
+import { ResponsiveImage } from "@/components/assets/ResponsiveImage";
 import { cn } from "@/lib/utils";
-import { shouldBypassImageOptimizer } from "@/lib/format-currency";
+import type { MediaType } from "@/lib/assets";
 
 const LARGE_W = 420;
 const LARGE_H = 560;
@@ -17,6 +17,7 @@ type BaseProps = {
   meta?: string;
   className?: string;
   priority?: boolean;
+  mediaType?: MediaType;
 };
 
 function LargeArt({
@@ -24,11 +25,13 @@ function LargeArt({
   title,
   contain,
   priority,
+  mediaType = "MARKETPLACE_CARD",
 }: {
   imageUrl?: string | null;
   title: string;
   contain?: boolean;
   priority?: boolean;
+  mediaType?: MediaType;
 }) {
   if (!imageUrl) {
     return (
@@ -42,14 +45,15 @@ function LargeArt({
     );
   }
   return (
-    <Image
+    <ResponsiveImage
       src={imageUrl}
-      alt=""
+      alt={title}
+      mediaType={mediaType}
       width={LARGE_W}
       height={LARGE_H}
       priority={priority}
-      sizes="(max-width: 640px) 90vw, (max-width: 1024px) 40vw, 420px"
-      unoptimized={shouldBypassImageOptimizer(imageUrl)}
+      zoomOnHover
+      listQuality={!priority}
       className={cn(
         "large-visual-card__art",
         contain && "large-visual-card__art--contain",
@@ -68,17 +72,26 @@ function CardShell({
   priority,
   contain,
   footer,
+  mediaType,
 }: BaseProps & { contain?: boolean; footer?: ReactNode }) {
   return (
     <Link href={href} className={cn("large-visual-card group block", className)}>
-      <LargeArt imageUrl={imageUrl} title={title} contain={contain} priority={priority} />
+      <LargeArt
+        imageUrl={imageUrl}
+        title={title}
+        contain={contain}
+        priority={priority}
+        mediaType={mediaType}
+      />
       <div className="space-y-1 p-4">
         {meta ? (
           <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[color:var(--game-accent)]">
             {meta}
           </p>
         ) : null}
-        <h3 className="line-clamp-2 text-base font-semibold text-[color:var(--game-text)]">{title}</h3>
+        <h3 className="line-clamp-2 text-base font-semibold text-[color:var(--game-text)]">
+          {title}
+        </h3>
         {subtitle ? (
           <p className="line-clamp-2 text-sm text-[color:var(--game-text-muted)]">{subtitle}</p>
         ) : null}
@@ -88,29 +101,26 @@ function CardShell({
   );
 }
 
-/** Expansão em destaque (~400×500). */
 export function ExpansionCardHero(props: BaseProps & { code?: string }) {
   return (
     <CardShell
       {...props}
+      mediaType="SET_KEY_ART"
       meta={props.code ? `Set · ${props.code}` : props.meta ?? "Expansão"}
       contain
     />
   );
 }
 
-/** Card herói do jogo / featured art. */
 export function GameHeroCard(props: BaseProps) {
-  return <CardShell {...props} meta={props.meta ?? "Destaque"} />;
+  return <CardShell {...props} mediaType="CARD_FULL" meta={props.meta ?? "Destaque"} />;
 }
 
-/** Listing marketplace visual grande. */
-export function LargeMarketplaceCard(
-  props: BaseProps & { priceLabel?: string },
-) {
+export function LargeMarketplaceCard(props: BaseProps & { priceLabel?: string }) {
   return (
     <CardShell
       {...props}
+      mediaType="MARKETPLACE_CARD"
       meta={props.meta ?? "Marketplace"}
       footer={
         props.priceLabel ? (
@@ -123,37 +133,38 @@ export function LargeMarketplaceCard(
   );
 }
 
-/** Produto selado grande. */
 export function LargeSealedCard(props: BaseProps) {
-  return <CardShell {...props} meta={props.meta ?? "Selado"} contain />;
+  return (
+    <CardShell {...props} mediaType="SEALED_PRODUCT" meta={props.meta ?? "Selado"} contain />
+  );
 }
 
-/** Deck em showcase. */
 export function DeckShowcaseCard(props: BaseProps & { format?: string }) {
   return (
     <CardShell
       {...props}
+      mediaType="DECK_COVER"
       meta={props.format ? `Deck · ${props.format}` : props.meta ?? "Deck"}
     />
   );
 }
 
-/** Notícia / editorial (estrutura para Social Layer futuro). */
 export function NewsCard(props: BaseProps & { dateLabel?: string }) {
   return (
     <CardShell
       {...props}
+      mediaType="NEWS_IMAGE"
       meta={props.dateLabel ?? props.meta ?? "Novidade"}
       contain
     />
   );
 }
 
-/** Evento / torneio (estrutura — Ranking/Eventos pós-Beta). */
 export function EventCard(props: BaseProps & { when?: string }) {
   return (
     <CardShell
       {...props}
+      mediaType="EVENT_IMAGE"
       meta={props.when ?? props.meta ?? "Evento"}
       contain
     />

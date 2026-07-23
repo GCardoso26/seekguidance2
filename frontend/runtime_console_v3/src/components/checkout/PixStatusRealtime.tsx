@@ -2,7 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import confetti from "canvas-confetti";
+import { awardXpFireAndForget } from "@/lib/award-xp-client";
+import { invalidateAfterPurchase } from "@/lib/player-journey";
 
 type Props = {
   txid: string;
@@ -10,6 +13,7 @@ type Props = {
 
 export function PixStatusRealtime({ txid }: Props) {
   const router = useRouter();
+  const qc = useQueryClient();
   const [status, setStatus] = useState<"pending" | "paid" | "expired">("pending");
 
   useEffect(() => {
@@ -22,20 +26,24 @@ export function PixStatusRealtime({ txid }: Props) {
         setStatus("paid");
         confetti({ particleCount: 80, spread: 60, origin: { y: 0.7 } });
         clearInterval(id);
-        setTimeout(() => router.push("/marketplace/orders"), 2000);
+        invalidateAfterPurchase(qc);
+        awardXpFireAndForget("marketplace_purchase", qc);
+        setTimeout(() => router.push("/marketplace/checkout/success?payment_method=pix"), 2000);
       } else if (data.status === "expired") {
         setStatus("expired");
         clearInterval(id);
       }
     }, 5000);
     return () => clearInterval(id);
-  }, [txid, router]);
+  }, [txid, router, qc]);
 
   if (status === "paid") {
     return (
       <div className="rounded-lg border border-emerald-500/40 bg-emerald-950/30 p-4 text-center">
         <p className="text-lg font-semibold text-success">Pagamento confirmado!</p>
-        <p className="mt-1 text-sm text-muted-foreground">Redirecionando…</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Atualizando coleção, pedidos e XP… redirecionando.
+        </p>
       </div>
     );
   }

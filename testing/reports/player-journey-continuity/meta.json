@@ -1,0 +1,14 @@
+{
+  "at": "2026-07-22T18:02:54.742Z",
+  "flow": [
+    "marketplace_product",
+    "checkout_success",
+    "colecao",
+    "deck",
+    "perfil"
+  ],
+  "productId": "e2e-journey-product",
+  "deckId": "e2e-journey-deck",
+  "evidenceDir": "testing/reports/player-journey-continuity/",
+  "status": "executed"
+}

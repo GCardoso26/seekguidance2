@@ -9,6 +9,7 @@ import { EscrowTimeline } from "@/components/escrow/EscrowTimeline";
 import { DisputeForm } from "@/components/escrow/DisputeForm";
 import { formatShopPrice } from "@/lib/marketplace-shop";
 import type { EscrowStatus } from "@/lib/escrow/types";
+import { invalidateAfterPurchase } from "@/lib/player-journey";
 import { Loader2 } from "lucide-react";
 
 interface OrderDetail {
@@ -51,6 +52,7 @@ export default function OrderDetailPage() {
     if (!escrow) return;
     const res = await fetch(`/api/marketplace/shop/escrow/${escrow.id}/confirm`, { method: "POST" });
     if (res.ok) {
+      invalidateAfterPurchase(queryClient);
       await queryClient.invalidateQueries({ queryKey: ["shop-order", orderId] });
     }
   }

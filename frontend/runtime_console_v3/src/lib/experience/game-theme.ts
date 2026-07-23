@@ -37,6 +37,14 @@ export type MotionPreset = {
 export type GameHeroConfig = {
   /** Optional cinematic still — CSS atmosphere used when absent */
   image?: string;
+  /** Hero desktop (Asset Pipeline V2) */
+  imageDesktop?: string;
+  /** Hero mobile */
+  imageMobile?: string;
+  /** Overlay layer */
+  imageOverlay?: string;
+  /** Fallback when primary missing */
+  imageFallback?: string;
   /** Structure only — video hero wiring for future assets */
   video?: string;
   animation: HeroAnimation;

@@ -1,0 +1,156 @@
+{
+  "campaign": "PDV_DAY_OPERATIONS_QA",
+  "generatedAt": "2026-07-22T21:20:00.000Z",
+  "timezone": "America/Sao_Paulo",
+  "adrsRespected": ["ADR-008", "ADR-009", "ADR-010", "ADR-011", "ADR-015"],
+  "architectureChanges": false,
+  "domainRuleChanges": false,
+  "environment": {
+    "localConsole": "http://127.0.0.1:3000",
+    "productionWeb": "https://judgetcg.com.br",
+    "productionApi": "https://seekguidance.onrender.com",
+    "orchestratorCampaignId": "campaign-011"
+  },
+  "commandsExecuted": [
+    {
+      "id": "gates",
+      "command": "npm run test:campaign:gates",
+      "result": "PASS",
+      "artifact": "testing/reports/_pdv_campaign_gates_20260722_181004.log"
+    },
+    {
+      "id": "typecheck_fe",
+      "command": "npx tsc --noEmit (frontend/runtime_console_v3)",
+      "result": "PASS",
+      "artifact": "testing/reports/_pdv_typecheck_20260722.log"
+    },
+    {
+      "id": "vitest_pdv",
+      "command": "vitest pdv-sale-form / pdv-pix-payment / PdvCart",
+      "result": "PASS 10/10",
+      "artifact": "testing/reports/_pdv_vitest_20260722_181006.json"
+    },
+    {
+      "id": "prod_smoke",
+      "command": "smoke production (health + search)",
+      "result": "PASS (partial; /cards 404 esperado pelo smoke)",
+      "artifact": "testing/reports/_pdv_prod_smoke_20260722_181006.log"
+    },
+    {
+      "id": "orchestrator",
+      "command": "npm run test:qa:orchestrator",
+      "result": "campaign-011 completed; release NOT READY",
+      "artifact": "testing/reports/qa-campaign-consolidated.json"
+    },
+    {
+      "id": "playwright_pdv",
+      "command": "npx playwright test e2e/specs/seller-pdv.spec.ts --project=chromium",
+      "result": "FAIL 3 failed / 2 passed",
+      "artifact": "testing/reports/_pdv_playwright_20260722.log",
+      "notes": "PDV UI carregou (heading PDV, carrinho, barcode) mas skipIfPdvUnavailable falhou por ausência de data-testid=pdv-manager; fluxos dinheiro/PIX/mobile NÃO executados até o fim."
+    }
+  ],
+  "personaEvidence": {
+    "marina": {
+      "source": "testing/reports/persona-marina-seller-latest.json",
+      "status": "pass",
+      "confidence": 78,
+      "lifecycle": "9/9 PASS",
+      "pdvCovered": false,
+      "coverageNote": "Não cobre cadastro/KYC/PIX/avatar/banner/financeiro completo — só lifecycle serial com mocks."
+    },
+    "carlos": {
+      "source": "testing/reports/persona-carlos-buyer-latest.json",
+      "status": "pass",
+      "confidence": 72,
+      "lifecycle": "9/9 PASS",
+      "pspReal": false
+    },
+    "fernanda": {
+      "source": "testing/reports/persona-fernanda-marketplace-latest.json",
+      "status": "pending_manual",
+      "confidence": 45,
+      "threeStoresCompared": false
+    },
+    "juliana": {
+      "source": "testing/reports/persona-juliana-ux-latest.json",
+      "status": "partial",
+      "uxScore": 6.5,
+      "confidence": 62
+    },
+    "eduardo": {
+      "source": "testing/reports/persona-eduardo-search-latest.json",
+      "status": "pass",
+      "searchScore": 85,
+      "confidence": 98,
+      "panelSkuOrderClientSearch": "Não comprovado"
+    },
+    "daniela": {
+      "source": "testing/reports/persona-daniela-catalog-latest.json",
+      "status": "pass",
+      "catalogScore": 100,
+      "confidence": 65,
+      "note": "Suites unitárias; E2E deep catalog Não comprovado"
+    },
+    "renato": {
+      "source": "testing/reports/persona-renato-performance-latest.json",
+      "status": "pass",
+      "lightLoadOnly": true,
+      "confidence": 98,
+      "pdpWorkload": "25/25 HTTP 404",
+      "dashboardPdvMemoryFps": "Não comprovado"
+    }
+  },
+  "acceptanceCriteria": {
+    "loginFuncional": { "status": "PASS_PARTIAL", "evidence": "Marina lifecycle login→dashboard" },
+    "cadastroLojaCompleto": { "status": "NÃO COMPROVADO", "evidence": null },
+    "painelSemP0P1": { "status": "NÃO COMPROVADO", "evidence": "PDV E2E incompleto; pagamentos prod com histórico P0" },
+    "cadastroProdutosFuncional": { "status": "PASS_PARTIAL", "evidence": "Marina lifecycle cadastrar/editar/excluir" },
+    "uploadImagensFuncional": { "status": "NÃO COMPROVADO", "evidence": null },
+    "estoqueConsistente": { "status": "PASS_PARTIAL", "evidence": "Marina atualizar estoque (lifecycle)" },
+    "marketplaceOperacional": { "status": "NÃO COMPROVADO", "evidence": "Fernanda pending_manual" },
+    "pdvCompleto": { "status": "FAIL_INCOMPLETE", "evidence": "Playwright 3 failed; venda não fechada" },
+    "financeiroConsistente": { "status": "NÃO COMPROVADO", "evidence": null },
+    "analyticsFuncionando": { "status": "NÃO COMPROVADO", "evidence": null },
+    "relatoriosFuncionando": { "status": "PASS_PARTIAL", "evidence": "Marina 08 gerar relatório" },
+    "checkoutPedidoEstoqueFinanceiro": { "status": "NÃO COMPROVADO", "evidence": null },
+    "typecheckSemErros": { "status": "PASS", "evidence": "testing/reports/_pdv_typecheck_20260722.log" },
+    "nenhumaRegressao": { "status": "PASS_AUTOMATED", "evidence": "qa-cursor-handoff: nenhuma regressão detectada automaticamente" },
+    "evidenciasReaisGeradas": { "status": "PASS", "evidence": "este arquivo + PDV_* reports" }
+  },
+  "bugsRegisteredThisCampaign": [
+    {
+      "id": "PDV-BUG-001",
+      "priority": "P1",
+      "title": "E2E PDV não avança: data-testid pdv-manager ausente apesar da UI PDV visível",
+      "evidence": [
+        "testing/reports/_pdv_playwright_20260722.log",
+        "frontend/runtime_console_v3/test-results/specs-seller-pdv-Vendedor--c1dde--busca-e-finalizar-dinheiro-chromium/error-context.md"
+      ]
+    },
+    {
+      "id": "PDV-BUG-002",
+      "priority": "P2",
+      "title": "Workload PDP Renato: 25/25 respostas 404 em carga leve",
+      "evidence": ["testing/reports/persona-renato-performance-latest.json"]
+    },
+    {
+      "id": "PDV-BUG-003",
+      "priority": "P0",
+      "title": "Produção (sessão anterior): POST /checkout 400 e connect/refresh 500 bloqueiam venda cartão loja",
+      "evidence": "Sessão QA anterior + commit d173feb1 (mitigação API); FE Vercel deploy falhou (npm ci). Validação pós-fix completa: Não comprovado nesta campanha PDV.",
+      "scope": "Marketplace checkout / Stripe Connect — não é fluxo PDV balcão"
+    }
+  ],
+  "verdict": {
+    "question": "Um lojista consegue operar o JudgeTCG durante um dia inteiro utilizando o Painel do Lojista e o PDV sem encontrar problemas críticos (P0/P1)?",
+    "answer": "NÃO COMPROVADO",
+    "rationale": [
+      "PDV E2E completo (abrir caixa → venda → estoque → financeiro) não foi executado até o fim",
+      "Marina lifecycle explicitamente não cobre PDV/KYC/PIX/financeiro completo",
+      "Fernanda marketplace 3 lojas: pending_manual",
+      "Integração Checkout→Pedido→Estoque→Financeiro: não executada com evidência E2E nesta campanha",
+      "Release readiness campaign-011: NOT READY"
+    ]
+  }
+}

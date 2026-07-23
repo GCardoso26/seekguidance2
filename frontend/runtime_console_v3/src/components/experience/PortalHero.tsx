@@ -1,28 +1,27 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useGamePortal } from "@/components/experience/GameProvider";
+import { HeroAssetFrame } from "@/components/assets/HeroAssetFrame";
+import { ResponsiveImage } from "@/components/assets/ResponsiveImage";
 import {
   gameCardsPath,
   gameExpansionsPath,
   gameMarketplacePath,
 } from "@/lib/game-routes";
-import { shouldBypassImageOptimizer } from "@/lib/format-currency";
 import { cn } from "@/lib/utils";
 
 type Props = {
   cardCount?: number;
   healthLoading?: boolean;
-  /** Optional override for latest expansion CTA */
   latestSetHref?: string;
   latestSetLabel?: string;
   className?: string;
 };
 
 /**
- * Hero System — cinematic portal entrance (Theme Engine V2).
- * Supports image / video structure / CSS animation / overlay.
+ * Hero System — cinematic portal entrance (Theme Engine V2 + Asset Pipeline V2).
+ * Desktop / mobile / overlay / fallback / video structure.
  */
 export function GameHero({
   cardCount = 0,
@@ -34,6 +33,9 @@ export function GameHero({
   const { theme, slug, gameId } = useGamePortal();
   const hero = theme.hero;
   const expansionsHref = latestSetHref ?? gameExpansionsPath(slug);
+  const hasStill = Boolean(
+    hero.imageDesktop || hero.image || hero.imageMobile || hero.imageFallback,
+  );
 
   return (
     <section
@@ -41,15 +43,14 @@ export function GameHero({
       aria-label={`Hero ${theme.name}`}
     >
       <div className="game-hero__media" aria-hidden>
-        {hero.image ? (
-          <Image
-            src={hero.image}
-            alt=""
-            fill
+        {hasStill ? (
+          <HeroAssetFrame
+            desktopSrc={hero.imageDesktop || hero.image}
+            mobileSrc={hero.imageMobile}
+            fallbackSrc={hero.imageFallback || theme.logo}
+            overlaySrc={hero.imageOverlay}
+            alt={theme.name}
             priority
-            sizes="100vw"
-            className="object-cover"
-            unoptimized={shouldBypassImageOptimizer(hero.image)}
           />
         ) : null}
         {hero.video ? (
@@ -59,7 +60,7 @@ export function GameHero({
             muted
             loop
             playsInline
-            poster={hero.image}
+            poster={hero.imageDesktop || hero.image || undefined}
             aria-hidden
           >
             <source src={hero.video} />
@@ -79,13 +80,13 @@ export function GameHero({
         </Link>
 
         <div className="flex flex-wrap items-end gap-6 md:gap-10">
-          <Image
+          <ResponsiveImage
             src={theme.logo}
-            alt=""
+            alt={`Logo ${theme.name}`}
+            mediaType="SET_LOGO"
             width={112}
             height={112}
             priority
-            unoptimized={shouldBypassImageOptimizer(theme.logo)}
             className="h-24 w-24 object-contain drop-shadow-lg md:h-28 md:w-28"
           />
           <div className="min-w-0 max-w-2xl flex-1">

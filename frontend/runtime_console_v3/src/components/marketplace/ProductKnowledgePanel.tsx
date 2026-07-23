@@ -65,23 +65,53 @@ function SpecRows({ spec }: { spec: Record<string, unknown> }) {
  * Product Knowledge Graph panel — official contents, specs, collection, assets.
  * No AI. Marketplace PDP only.
  */
-export function ProductKnowledgePanel({ productId }: { productId: string }) {
+export function ProductKnowledgePanel({
+  productId,
+  unbound = false,
+}: {
+  productId?: string | null;
+  /** Listing sem vínculo ao catálogo mestre (BUG-V4-012). */
+  unbound?: boolean;
+}) {
   const { data, isLoading } = useQuery({
     queryKey: ["product-knowledge", productId],
     queryFn: async () => {
       const res = await fetch(
-        `/api/product-catalog/products/${encodeURIComponent(productId)}/knowledge`,
+        `/api/product-catalog/products/${encodeURIComponent(productId!)}/knowledge`,
       );
       if (!res.ok) return null;
       return res.json() as Promise<KnowledgePayload>;
     },
-    enabled: Boolean(productId),
+    enabled: Boolean(productId) && !unbound,
   });
+
+  if (unbound || !productId) {
+    return (
+      <section className="mt-10" data-testid="product-knowledge-unbound">
+        <h2 className="text-lg font-semibold tracking-tight">Conhecimento oficial do produto</h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Este anúncio ainda não está vinculado ao catálogo mestre. Conteúdos oficiais,
+          especificações e coleções aparecem quando o lojista publica a partir de uma variante
+          oficial.
+        </p>
+      </section>
+    );
+  }
 
   if (isLoading) {
     return <p className="mt-8 text-sm text-muted-foreground">Carregando conhecimento oficial…</p>;
   }
-  if (!data) return null;
+  if (!data) {
+    return (
+      <section className="mt-10" data-testid="product-knowledge-empty">
+        <h2 className="text-lg font-semibold tracking-tight">Conhecimento oficial do produto</h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Ainda não há conteúdos oficiais, especificações ou assets publicados para este produto no
+          Knowledge Graph.
+        </p>
+      </section>
+    );
+  }
 
   const items = data.official_contents?.items ?? [];
   const specs = data.specifications ?? [];
@@ -99,7 +129,16 @@ export function ProductKnowledgePanel({ productId }: { productId: string }) {
     data.collection ||
     data.release_information?.release_date;
 
-  if (!hasAnything) return null;
+  if (!hasAnything) {
+    return (
+      <section className="mt-10" data-testid="product-knowledge-empty">
+        <h2 className="text-lg font-semibold tracking-tight">Conhecimento oficial do produto</h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Produto vinculado ao catálogo, mas ainda sem contents/specs/assets oficiais preenchidos.
+        </p>
+      </section>
+    );
+  }
 
   return (
     <section className="mt-10 space-y-8" data-testid="product-knowledge-panel">

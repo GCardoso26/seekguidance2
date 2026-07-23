@@ -1,9 +1,13 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { TOURNAMENT_API_BASE, tournamentProxyHeaders } from "@/lib/tournament-api";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const headers = await tournamentProxyHeaders(req);
+  if (!headers["X-Judge-User-Id"]) {
+    return NextResponse.json({ detail: "Autenticação necessária" }, { status: 401 });
+  }
   const res = await fetch(`${TOURNAMENT_API_BASE}/runtime/judge/product-catalog/admin/stats`, {
-    headers: await tournamentProxyHeaders(),
+    headers,
     cache: "no-store",
   });
   const text = await res.text();

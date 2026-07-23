@@ -1,0 +1,74 @@
+{
+  "at": "2026-07-22T02:56:44.618Z",
+  "api": "http://127.0.0.1:8791",
+  "fe": "https://judgetcg.com.br",
+  "email": "e2e_1784688985114@judgetcg.com.br",
+  "listingId": "76ba13ac-6ef5-4ea0-a842-4858cb6c3a6c",
+  "cartId": "155594bc-9ede-474a-b36b-a4c3f4015361",
+  "sessionId": "86489705-e621-4344-9996-315fa8c99760",
+  "sessionStatus": "payment_pending",
+  "hasClientSecret": true,
+  "confirmStatus": "completed",
+  "purchaseComplete": true,
+  "sessionStarted": true,
+  "passed": 9,
+  "failed": 0,
+  "steps": [
+    {
+      "step": "seed.listing_id_present",
+      "ok": true,
+      "status": 1,
+      "detail": "76ba13ac-6ef5-4ea0-a842-4858cb6c3a6c"
+    },
+    {
+      "step": "api.health",
+      "ok": true,
+      "status": 200,
+      "detail": "{\"status\":\"ok\",\"live\":true,\"ready\":true,\"checks\":[{\"name\":\"postgres\",\"ok\":true,\"detail\":\"in_memory\"},{\"name\":\"redis\",\"ok\":true,\"detail\":\"in_memory\"},{\"name\":\"meilisearch\",\"ok\":true,\"detail\":\"in_memory"
+    },
+    {
+      "step": "api.auth.register",
+      "ok": true,
+      "status": 201,
+      "detail": "{\"id\":\"f3117259-bcab-4eb8-b09c-32ad693030b2\",\"email\":\"e2e_1784688985114@judgetcg.com.br\",\"displayName\":\"Checkout V2 E2E\"}"
+    },
+    {
+      "step": "api.auth.login",
+      "ok": true,
+      "status": 200,
+      "detail": "token_received"
+    },
+    {
+      "step": "api.cart.create",
+      "ok": true,
+      "status": 201,
+      "detail": "cartId=155594bc-9ede-474a-b36b-a4c3f4015361"
+    },
+    {
+      "step": "api.cart.add_item",
+      "ok": true,
+      "status": 200,
+      "detail": "{\"id\":\"155594bc-9ede-474a-b36b-a4c3f4015361\",\"buyerId\":\"f3117259-bcab-4eb8-b09c-32ad693030b2\",\"status\":\"open\",\"items\":[{\"id\":\"227d54e8-2e3a-4588-8dc9-946a664de02f\",\"listingId\":\"76ba13ac-6ef5-4ea0-a842-4858cb6c3a6c\",\"productVariantId\":null,\"catalogVariantId\":\"2a887bdd-2cde-4c17-9a2d-9ac1106cf6ea\",\"quantity\":1,\"priceSnapshotCents\":1000,\"currency\":\"BR"
+    },
+    {
+      "step": "api.sessions.start",
+      "ok": true,
+      "status": 201,
+      "detail": "{\"id\":\"86489705-e621-4344-9996-315fa8c99760\",\"status\":\"payment_pending\",\"hasClientSecret\":true,\"error\":null,\"sagaId\":\"b3200c92-4e6a-431b-95d1-7243aa28dac6\",\"totalCents\":1000,\"validationIssues\":[]}"
+    },
+    {
+      "step": "api.sessions.confirm_payment",
+      "ok": true,
+      "status": 200,
+      "detail": "{\"status\":\"completed\",\"error\":null,\"sagaId\":\"6a56386c-3d6d-468d-b0b4-a14a532baa52\",\"sessionStatus\":\"completed\"}"
+    },
+    {
+      "step": "bff.prod.cart_401",
+      "ok": true,
+      "status": 401,
+      "detail": "{\"error\":\"unauthorized\"}"
+    }
+  ],
+  "verdict": "PASS",
+  "readinessNote": "Full session→confirm completed on API (not full browser FE purchase)"
+}

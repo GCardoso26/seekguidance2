@@ -164,9 +164,12 @@ async def get_product(session: AsyncSession, product_id: str) -> dict[str, Any] 
                        s.name AS store_name,
                        s.slug AS store_slug,
                        s.logo_url AS store_logo_url,
-                       s.id AS store_id_ref
+                       s.id AS store_id_ref,
+                       p.master_variant_id,
+                       v.product_id AS master_product_id
                 FROM tcg_judge.store_products p
                 JOIN tcg_judge.stores s ON s.id = p.store_id
+                LEFT JOIN product_catalog.variants v ON v.id = p.master_variant_id
                 WHERE p.id = CAST(:id AS uuid) AND p.is_active = true AND {STORE_SELLABLE_SQL.strip()}
                 """
             ),

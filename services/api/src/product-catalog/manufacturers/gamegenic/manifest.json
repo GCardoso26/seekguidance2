@@ -26,7 +26,30 @@
       "aliases": [
         "Gamegenic",
         "sleeves"
-      ]
+      ],
+      "officialContents": [
+        {
+          "contentType": "sleeve",
+          "label": "Sleeves",
+          "quantity": 100,
+          "unit": "pcs"
+        }
+      ],
+      "specifications": {
+        "specSchema": "sleeve",
+        "widthMm": 66,
+        "heightMm": 91,
+        "pieces": 100,
+        "material": "polypropylene",
+        "pvcFree": true,
+        "finish": "matte"
+      },
+      "officialMetadata": {
+        "productFamily": "Sleeves",
+        "productLine": "Gamegenic Sleeves",
+        "lifecycle": "AVAILABLE",
+        "manufacturer": "Gamegenic"
+      }
     },
     {
       "accessoryType": "perfect_fit",

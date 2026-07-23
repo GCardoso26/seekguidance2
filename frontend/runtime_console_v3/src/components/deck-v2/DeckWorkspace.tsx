@@ -9,6 +9,12 @@ import { ExportDeckButton } from "@/components/deckbuilder/ExportDeckButton";
 import { DeckAnalysisPanel } from "@/components/deck-v2/DeckAnalysisPanel";
 import { DeckCollectionPanel } from "@/components/deck-v2/DeckCollectionPanel";
 import { DeckCommentsScaffold } from "@/components/deck-v2/DeckCommentsScaffold";
+import { DeckLivePanels } from "@/components/live-data/DeckLivePanels";
+import { DeckIntelligencePanel } from "@/components/intelligence/IntelligencePanels";
+import { DeckRecommendationPanel } from "@/components/recommendations/RecommendationPanels";
+import { ContextualAssistantStrip } from "@/components/ai-assistants/ContextualAssistantStrip";
+import { stubDeckAssistant } from "@/lib/ai-assistants/interfaces";
+import { DeckSocialActions } from "@/components/social/DeckSocialActions";
 import { DeckHistoryPanel } from "@/components/deck-v2/DeckHistoryPanel";
 import { DeckSettingsPanel } from "@/components/deck-v2/DeckSettingsPanel";
 import { DeckSharePanel } from "@/components/deck-v2/DeckSharePanel";
@@ -109,6 +115,15 @@ function DeckWorkspaceInner({ deckId }: { deckId: string }) {
       {shareOpen && (
         <DeckSharePanel deck={deck} onClose={() => setShareOpen(false)} />
       )}
+
+      <DeckSocialActions deck={deck} />
+      <DeckLivePanels deckId={deck.id} gameId={deck.game} deckName={deck.name} />
+      <DeckIntelligencePanel deckId={deck.id} />
+      <ContextualAssistantStrip
+        surface="deck"
+        load={() => stubDeckAssistant.substituteForSavings({ deckId: deck.id })}
+      />
+      <DeckRecommendationPanel deckId={deck.id} />
 
       <DeckWorkspaceTabs active={active} onChange={setTab} />
 

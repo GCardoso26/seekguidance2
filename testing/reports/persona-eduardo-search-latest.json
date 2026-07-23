@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-20T20:24:50.173Z",
+  "generatedAt": "2026-07-22T21:49:36.125Z",
   "personaId": "eduardo-search",
   "displayName": "Eduardo Lima",
   "role": "Search Specialist",
@@ -14,79 +14,79 @@
       "query": "Rapunzel",
       "ok": true,
       "status": 200,
-      "latencyMs": 273
+      "latencyMs": 276
     },
     {
       "query": "Rap",
       "ok": true,
       "status": 200,
-      "latencyMs": 186
+      "latencyMs": 250
     },
     {
       "query": "RaPun",
       "ok": true,
       "status": 200,
-      "latencyMs": 204
+      "latencyMs": 229
     },
     {
       "query": "Rapunzel Gifted",
       "ok": true,
       "status": 200,
-      "latencyMs": 182
+      "latencyMs": 256
     },
     {
       "query": "gifted",
       "ok": true,
       "status": 200,
-      "latencyMs": 201
+      "latencyMs": 258
     },
     {
       "query": "Merlin",
       "ok": true,
       "status": 200,
-      "latencyMs": 204
+      "latencyMs": 229
     },
     {
       "query": "dragon",
       "ok": true,
       "status": 200,
-      "latencyMs": 184
+      "latencyMs": 249
     },
     {
       "query": "charizard",
       "ok": true,
       "status": 200,
-      "latencyMs": 202
+      "latencyMs": 230
     },
     {
       "query": "pikachu",
       "ok": true,
       "status": 200,
-      "latencyMs": 181
+      "latencyMs": 246
     },
     {
       "query": "black lotus",
       "ok": true,
       "status": 200,
-      "latencyMs": 197
+      "latencyMs": 221
     },
     {
       "query": "sol ring",
       "ok": true,
       "status": 200,
-      "latencyMs": 181
+      "latencyMs": 247
     },
     {
       "query": "be prepared",
       "ok": true,
       "status": 200,
-      "latencyMs": 200
+      "latencyMs": 244
     },
     {
       "query": "diablo",
       "ok": true,
       "status": 200,
-      "latencyMs": 205
+      "latencyMs": 255
     }
   ],
   "facets": {

@@ -113,3 +113,35 @@ export function inMemoryHealthDeps(opts?: {
     checkWorkers: async () => ({ name: "workers", ok: true, detail: "connected" }),
   };
 }
+
+/**
+ * BUG-QA-001 — Checkout V2 readiness must probe real Postgres, not report `in_memory`.
+ * Redis/Meili optional until wired; absent probes must not fake green as durable.
+ */
+export function postgresCheckoutHealthDeps(opts: {
+  query: (sql: string) => Promise<unknown>;
+  checkRedis?: () => Promise<HealthCheck>;
+  checkOutbox?: () => Promise<HealthCheck>;
+}): HealthDeps {
+  return {
+    checkPostgres: async () => {
+      try {
+        await opts.query("SELECT 1");
+        return { name: "postgres", ok: true, detail: "checkout_sessions_durable" };
+      } catch (err) {
+        return {
+          name: "postgres",
+          ok: false,
+          detail: err instanceof Error ? err.message : String(err),
+        };
+      }
+    },
+    checkRedis: opts.checkRedis,
+    checkOutbox: opts.checkOutbox,
+    checkWorkers: async () => ({
+      name: "workers",
+      ok: true,
+      detail: "checkout_v2_api_process",
+    }),
+  };
+}

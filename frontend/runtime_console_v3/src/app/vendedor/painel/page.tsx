@@ -34,6 +34,8 @@ import { DashboardWorkspace } from "@/components/seller-dashboard/overview/Dashb
 
 import { WorkspaceSettingsButton } from "@/components/seller-dashboard/overview/WorkspaceSettings";
 
+import { SellerOpsDashboardV2 } from "@/components/seller-dashboard/SellerOpsDashboardV2";
+
 import dynamic from "next/dynamic";
 
 const SellerAiAssistantWidget = dynamic(
@@ -229,7 +231,7 @@ export default function VendedorPainelDashboardPage() {
 
         )}
 
-
+        <SellerOpsDashboardV2 />
 
         <DashboardWorkspace
 

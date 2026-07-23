@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "nextBugNumber": 12,
+  "nextBugNumber": 13,
   "bugs": [
     {
       "id": "BUG-0001",
@@ -275,6 +275,65 @@
         "stripe_api_error: You cannot enable automatic_payment_methods and specify payment_method_types",
         "Após fix: pi_3TviAe... status=requires_action PASS"
       ],
+      "seenAgain": []
+    },
+    {
+      "id": "BUG-0013",
+      "fingerprint": "checkout-v2-render-private-service-no-public-url",
+      "title": "Checkout V2 no Render foi criado como Private Service — sem URL pública *.onrender.com",
+      "firstOccurrence": "2026-07-21",
+      "lastOccurrence": "2026-07-22",
+      "status": "OPEN",
+      "affects": "Checkout V2 / Deploy / Buyer produção",
+      "responsible": "SRE",
+      "files": [
+        "render.yaml",
+        "Dockerfile"
+      ],
+      "personaId": "ricardo-sre",
+      "priority": "P0",
+      "evidence": [
+        "Dashboard: service seekguidance2 type=PRIVATE SERVICE address=seekguidance2:10000",
+        "Sem link https://….onrender.com no topo do serviço",
+        "Dependência de Cloudflare tunnel → PC local; com local DOWN → checkout-v2-api.judgetcg.com.br e BFF 502",
+        "Campanha 2026-07-22: interrompida — comprador produção não tem host Checkout V2 durável"
+      ],
+      "seenAgain": []
+    },
+    {
+      "id": "BUG-0014",
+      "fingerprint": "checkout-v2-buyer-fe-full-purchase-unproven",
+      "title": "Compra completa no browser FE (Stripe Elements / PIX UI / pedido) não comprovada",
+      "firstOccurrence": "2026-07-22",
+      "lastOccurrence": "2026-07-22",
+      "status": "OPEN",
+      "affects": "Checkout V2 / Buyer E2E",
+      "responsible": "QA",
+      "files": [
+        "testing/personas/runners/carlos-buyer-stub.mjs",
+        "testing/ops/validate-checkout-v2-e2e.mjs"
+      ],
+      "personaId": "carlos-buyer",
+      "priority": "P0",
+      "evidence": [
+        "E2E API local cart→session→confirm PASS com simulateSuccess (não Payment Element)",
+        "Carlos buyer FE full lifecycle não reexecutado nesta sprint (blocker host público)",
+        "Pergunta central comprador produção: NÃO — sem evidência de compra UI completa"
+      ],
+      "seenAgain": []
+    },
+    {
+      "id": "BUG-0012",
+      "fingerprint": "13eabd62a2fe09b31ea47d8e",
+      "title": "pdp P95>2970ms",
+      "firstOccurrence": "2026-07-22",
+      "lastOccurrence": "2026-07-22",
+      "status": "OPEN",
+      "affects": "Performance",
+      "responsible": "Platform",
+      "files": [],
+      "personaId": "renato-performance",
+      "priority": "P2",
       "seenAgain": []
     }
   ]

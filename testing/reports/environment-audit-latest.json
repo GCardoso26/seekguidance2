@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-07-21T14:47:49.228Z",
+  "generatedAt": "2026-07-22T21:47:22.894Z",
   "persona": "Ricardo Menezes (SRE)",
-  "baseUrl": "http://localhost:3000",
-  "apiUrl": "http://localhost:3000",
+  "baseUrl": "http://127.0.0.1:3000",
+  "apiUrl": "http://127.0.0.1:3000",
   "environmentScore": 100,
   "blockingIssues": 0,
   "warnings": 4,
@@ -34,7 +34,7 @@
       "label": "BASE_URL",
       "status": "pass",
       "blocking": true,
-      "detail": "http://localhost:3000"
+      "detail": "http://127.0.0.1:3000"
     },
     {
       "id": "runtime_console",

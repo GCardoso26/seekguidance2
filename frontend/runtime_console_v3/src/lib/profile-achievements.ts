@@ -14,13 +14,21 @@ export type AchievementId =
   | "first-sale"
   | "deck-champion"
   | "set-complete"
-  | "promo-hunter";
+  | "promo-hunter"
+  | "top-seller"
+  | "top-buyer"
+  | "top-player"
+  | "marketplace-legend"
+  | "rare-badge-pioneer";
 
 export type AchievementDef = {
   id: AchievementId;
   title: string;
   description: string;
   category: "collection" | "deck" | "marketplace" | "social" | "milestone";
+  /** Epic 18 — rare badges + XP weight */
+  rarity?: "common" | "rare" | "epic" | "legendary";
+  xp?: number;
 };
 
 export const ACHIEVEMENT_CATALOG: AchievementDef[] = [
@@ -89,8 +97,72 @@ export const ACHIEVEMENT_CATALOG: AchievementDef[] = [
     title: "Caçador de promoções",
     description: "Comprou com alerta de preço ou economia registrada.",
     category: "marketplace",
+    rarity: "rare",
+    xp: 150,
+  },
+  {
+    id: "top-seller",
+    title: "Top vendedor",
+    description: "Entre os vendedores com melhor performance no período.",
+    category: "marketplace",
+    rarity: "epic",
+    xp: 400,
+  },
+  {
+    id: "top-buyer",
+    title: "Top comprador",
+    description: "Volume de compras destacado no Marketplace.",
+    category: "marketplace",
+    rarity: "epic",
+    xp: 350,
+  },
+  {
+    id: "top-player",
+    title: "Top jogador",
+    description: "Presença competitiva e decks públicos em destaque.",
+    category: "social",
+    rarity: "epic",
+    xp: 350,
+  },
+  {
+    id: "marketplace-legend",
+    title: "Lenda do Marketplace",
+    description: "Vendas + reputação + liquidez sustentadas.",
+    category: "marketplace",
+    rarity: "legendary",
+    xp: 1000,
+  },
+  {
+    id: "rare-badge-pioneer",
+    title: "Pioneiro",
+    description: "Badge rara — early adopter da plataforma.",
+    category: "milestone",
+    rarity: "legendary",
+    xp: 500,
   },
 ];
+
+export type XpLevel = {
+  level: number;
+  xpRequired: number;
+  title: string;
+};
+
+export const XP_LEVELS: readonly XpLevel[] = [
+  { level: 1, xpRequired: 0, title: "Iniciante" },
+  { level: 2, xpRequired: 100, title: "Colecionador" },
+  { level: 3, xpRequired: 300, title: "Jogador" },
+  { level: 4, xpRequired: 700, title: "Veterano" },
+  { level: 5, xpRequired: 1500, title: "Lenda" },
+];
+
+export function levelForXp(xp: number): XpLevel {
+  let current: XpLevel = XP_LEVELS[0];
+  for (const tier of XP_LEVELS) {
+    if (xp >= tier.xpRequired) current = tier;
+  }
+  return current;
+}
 
 export type PlayerAchievement = AchievementDef & {
   unlocked: boolean;

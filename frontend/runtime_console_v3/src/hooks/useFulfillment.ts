@@ -5,6 +5,8 @@ import type {
   FulfillmentCommand,
   SellerFulfillmentProjection,
 } from "@/types/seller-fulfillment";
+import { invalidateAfterSellerSale } from "@/lib/player-journey";
+import { awardXpFireAndForget } from "@/lib/award-xp-client";
 
 async function fetchFulfillment(orderId: string): Promise<SellerFulfillmentProjection | null> {
   const res = await fetch(`/api/seller/orders/${encodeURIComponent(orderId)}/fulfillment`);
@@ -44,9 +46,10 @@ export function useFulfillment(orderId: string | null, enabled: boolean) {
     mutationFn: (body: { command: FulfillmentCommand; carrier?: string; tracking_code?: string }) =>
       postCommand(orderId!, body),
     onSuccess: () => {
+      invalidateAfterSellerSale(queryClient);
       void queryClient.invalidateQueries({ queryKey: ["seller-fulfillment", orderId] });
       void queryClient.invalidateQueries({ queryKey: ["seller-order", orderId] });
-      void queryClient.invalidateQueries({ queryKey: ["seller-orders"] });
+      awardXpFireAndForget("seller_sale", queryClient);
     },
   });
 

@@ -1,0 +1,20 @@
+{
+  "dns": [
+    "104.21.15.54",
+    "172.67.161.184"
+  ],
+  "cf_hostname_health": "502 Bad Gateway",
+  "at": "2026-07-21T20:39:44.2227845Z",
+  "evidence": [
+    "checkout-v2-api.judgetcg.com.br resolves to Cloudflare IPs, not *.onrender.com",
+    "With local API down, CF hostname returns 502 — origin was tunnel/local, not Render",
+    "Vercel production CHECKOUT_V2_API_URL still = checkout-v2-api.judgetcg.com.br",
+    "No discoverable *.onrender.com Checkout V2 service URL responding /health"
+  ],
+  "seekguidance_legacy": "https://seekguidance.onrender.com/health = 200 (FastAPI, NOT checkout-v2)",
+  "vercel_CHECKOUT_V2_API_URL": "https://checkout-v2-api.judgetcg.com.br",
+  "local_fe_CHECKOUT_V2_API_URL": "https://checkout-v2-api.judgetcg.com.br",
+  "local_8791": "DOWN",
+  "guessed_onrender_urls": "all 404 / not found",
+  "verdict": "FAIL_NOT_RENDER"
+}

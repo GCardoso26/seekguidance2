@@ -1,7 +1,20 @@
-# CONTINUOUS_8H_REPORT — Final Validation
+# CONTINUOUS_8H_REPORT
 
-**CONTINUOUS_HOURS=8: NÃO EXECUTADO.**
+**Date:** 2026-07-22 (atualização Stabilization Sprint)  
+**Status:** **NÃO EXECUTADO**
 
-Smokes curtos anteriores falharam por FE down; após Ricardo audit 100%, a campanha 8h ainda **não** foi disparada (requer supervisão overnight + secrets PSP).
+## Pré-requisitos ainda não satisfeitos
 
-Harness: `testing/ops/continuous-8h-campaign.mjs`
+1. Environment Audit Ready for Functional QA  
+2. Secrets PSP sandbox (Stripe + Mercado Pago + PIX)  
+3. Health Checkout V2 com Postgres real (✅ código corrigido — validar em deploy)  
+4. Supervisão overnight sem restart/reset/limpeza DB  
+5. Projection pipeline + BullMQ processors em runtime  
+
+## Harness
+
+`testing/ops/continuous-8h-campaign.mjs`
+
+## Impacto
+
+Critério “8 horas sem P0/P1” = **FALSE** → bloqueia READY FOR PUBLIC BETA.

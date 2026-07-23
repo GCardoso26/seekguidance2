@@ -27,4 +27,31 @@ describe("Sprint 6 — production readiness + health", () => {
     expect(ready).toBe(false);
     expect(checks.some((c) => c.name === "outbox" && !c.ok)).toBe(true);
   });
+
+  it("BUG-QA-001: postgresCheckoutHealthDeps reports durable postgres, never in_memory", async () => {
+    const { postgresCheckoutHealthDeps } = await import("../../observability/http/health.js");
+    const { ready, checks } = await evaluateReadiness(
+      postgresCheckoutHealthDeps({
+        query: async () => undefined,
+      }),
+    );
+    expect(ready).toBe(true);
+    const pg = checks.find((c) => c.name === "postgres");
+    expect(pg?.ok).toBe(true);
+    expect(pg?.detail).toBe("checkout_sessions_durable");
+    expect(pg?.detail).not.toContain("in_memory");
+  });
+
+  it("BUG-QA-001: postgresCheckoutHealthDeps fails when SELECT 1 fails", async () => {
+    const { postgresCheckoutHealthDeps } = await import("../../observability/http/health.js");
+    const { ready, checks } = await evaluateReadiness(
+      postgresCheckoutHealthDeps({
+        query: async () => {
+          throw new Error("connection refused");
+        },
+      }),
+    );
+    expect(ready).toBe(false);
+    expect(checks.some((c) => c.name === "postgres" && !c.ok)).toBe(true);
+  });
 });

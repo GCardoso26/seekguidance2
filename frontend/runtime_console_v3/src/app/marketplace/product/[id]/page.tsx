@@ -90,7 +90,9 @@ export default function ProductDetailPage() {
               <ProductKnowledgePanel productId={relatedCatalogId} />
               <OfficialRelatedProducts productId={relatedCatalogId} />
             </>
-          ) : null}
+          ) : (
+            <ProductKnowledgePanel unbound />
+          )}
           </>
         )}
       </div>

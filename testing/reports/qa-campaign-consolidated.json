@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-07-20T20:25:20.751Z",
+  "generatedAt": "2026-07-22T21:50:30.140Z",
   "source": "QA Orchestrator R4",
-  "campaignId": "campaign-010",
+  "campaignId": "campaign-012",
   "environment": {
     "score": 100,
     "readyForFunctionalQA": true,
@@ -150,7 +150,7 @@
     ]
   },
   "releaseReadiness": {
-    "generatedAt": "2026-07-20T20:25:20.757Z",
+    "generatedAt": "2026-07-22T21:50:30.147Z",
     "dimensions": {
       "Infrastructure": {
         "status": "PASS",
@@ -190,34 +190,44 @@
         "confidence": 62
       }
     },
-    "overall": "READY WITH WARNINGS",
+    "overall": "NOT READY",
     "engineeringNote": "Responde se a plataforma está tecnicamente pronta para a próxima etapa de validação — não é Go/No-Go de mercado."
   },
   "operationalMemory": {
     "counts": {
       "p0": 0,
       "p1": 0,
-      "p2": 0,
+      "p2": 1,
       "p3": 0,
       "seenAgain": 0,
-      "new": 0
+      "new": 1
     },
     "seenAgain": [],
     "bugKnowledge": {
-      "newBugs": 0,
+      "newBugs": 1,
       "seenAgain": 0,
-      "openP0": 0
+      "openP0": 3
     },
     "archive": {
-      "id": "campaign-010",
-      "campaignNumber": 10,
-      "file": "history\\campaign-010.json"
+      "id": "campaign-012",
+      "campaignNumber": 12,
+      "file": "history\\campaign-012.json"
     }
   },
   "cursorHandoff": {
     "bugsP0": [],
     "bugsP1": [],
-    "bugsP2": [],
+    "bugsP2": [
+      {
+        "priority": "P2",
+        "text": "pdp P95>2970ms",
+        "personaId": "renato-performance",
+        "persona": "Renato Oliveira",
+        "files": [],
+        "bugId": "BUG-0012",
+        "deduplicated": false
+      }
+    ],
     "seenAgain": [],
     "regressions": [],
     "affectedFiles": [],

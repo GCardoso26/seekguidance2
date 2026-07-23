@@ -1,9 +1,9 @@
 # QA Cursor Handoff
 
-Campanha: **campaign-010** · Gerado: 2026-07-20T20:25:20.751Z
+Campanha: **campaign-012** · Gerado: 2026-07-22T21:50:30.140Z
 
 ## Release Readiness
-**READY WITH WARNINGS** — ver `testing/reports/release-readiness.md`
+**NOT READY** — ver `testing/reports/release-readiness.md`
 
 ## Environment
 - Score: **100** | Ready for Functional QA: **YES**
@@ -59,6 +59,6 @@ Corrigir apenas itens com evidência nos relatórios persona-* e environment-aud
 - Relatórios persona-*-latest.json presentes
 - MRB revisou consolidação antes de handoff ao Cursor
 
-Histórico imutável: `testing/history/history\campaign-010.json`
+Histórico imutável: `testing/history/history\campaign-012.json`
 
 → **Market Review Board** consolida decisão antes de engenharia.

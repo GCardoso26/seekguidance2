@@ -42,7 +42,7 @@ async function main() {
     process.argv.includes("--knowledge") ||
     process.env.PRODUCT_CATALOG_KNOWLEDGE_COVERAGE_REFRESH === "1"
   ) {
-    const report = await createKnowledgeCoverageService(pool).computeReport();
+    const report = await createKnowledgeCoverageService(pool).refreshAndPersist();
     knowledge = { overallPct: report.overallPct };
   }
 

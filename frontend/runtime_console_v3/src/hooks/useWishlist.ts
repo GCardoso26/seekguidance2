@@ -5,11 +5,11 @@ import { useRouter } from "next/navigation";
 import { useJudgeAuth } from "@/features/auth/AuthProvider";
 import type { ShopProduct } from "@/lib/marketplace-shop";
 import {
-  invalidateWishlistQueryKeys,
   normalizeWishlistResponse,
   wishlistIdSet,
   WISHLIST_QUERY_KEY,
 } from "@/lib/wishlist";
+import { invalidateAfterWishlistSignal } from "@/lib/player-journey";
 import type { WishlistResponse } from "@/types/wishlist";
 
 const STALE_TIME = 5 * 60 * 1000;
@@ -81,7 +81,7 @@ export function useToggleWishlist() {
     },
     onSuccess: (result) => {
       if (result && "skipped" in result) return;
-      void queryClient.invalidateQueries({ queryKey: invalidateWishlistQueryKeys()[0] });
+      invalidateAfterWishlistSignal(queryClient);
     },
   });
 }
@@ -98,7 +98,7 @@ export function useRemoveFromWishlist() {
       return productId;
     },
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: invalidateWishlistQueryKeys()[0] });
+      invalidateAfterWishlistSignal(queryClient);
     },
   });
 }

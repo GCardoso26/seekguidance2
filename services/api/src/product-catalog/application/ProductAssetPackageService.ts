@@ -21,17 +21,40 @@ export interface UpsertAssetPackageItemInput {
   metadata?: Record<string, unknown>;
 }
 
+export function buildAssetPackageIdentityKey(input: {
+  productId: string;
+  packageKind: string;
+  sourceUrl?: string | null;
+  role?: string | null;
+}): string {
+  return `${input.productId}|${input.packageKind}|${input.sourceUrl ?? ""}|${input.role ?? ""}`;
+}
+
 export class ProductAssetPackageService {
   constructor(private readonly db: Q) {}
 
   async upsertItem(input: UpsertAssetPackageItemInput) {
     const id = getIdGenerator().generate();
+    const identityKey = buildAssetPackageIdentityKey({
+      productId: input.productId,
+      packageKind: input.packageKind,
+      sourceUrl: input.sourceUrl,
+      role: input.role,
+    });
     const res = await this.db.query(
       `
       INSERT INTO product_catalog.product_asset_packages (
         id, product_id, package_kind, title, source_url, asset_id, role,
-        language, source_trust, official, metadata
-      ) VALUES ($1,$2,$3,$4,$5,$6::uuid,$7,$8,$9,$10,$11::jsonb)
+        language, source_trust, official, metadata, identity_key
+      ) VALUES ($1,$2,$3,$4,$5,$6::uuid,$7,$8,$9,$10,$11::jsonb,$12)
+      ON CONFLICT (identity_key) DO UPDATE SET
+        title = COALESCE(EXCLUDED.title, product_catalog.product_asset_packages.title),
+        asset_id = COALESCE(EXCLUDED.asset_id, product_catalog.product_asset_packages.asset_id),
+        language = COALESCE(EXCLUDED.language, product_catalog.product_asset_packages.language),
+        source_trust = EXCLUDED.source_trust,
+        official = EXCLUDED.official,
+        metadata = product_catalog.product_asset_packages.metadata || EXCLUDED.metadata,
+        updated_at = now()
       RETURNING *
       `,
       [
@@ -46,6 +69,7 @@ export class ProductAssetPackageService {
         input.sourceTrust ?? 80,
         input.official ?? true,
         JSON.stringify(input.metadata ?? {}),
+        identityKey,
       ],
     );
     return mapPkg(res.rows[0]);

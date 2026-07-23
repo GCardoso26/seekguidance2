@@ -1,11 +1,11 @@
 {
-  "at": "2026-07-21T16:21:54.065Z",
-  "tunnel": "https://optical-son-interpretation-paid.trycloudflare.com",
+  "at": "2026-07-21T18:32:36.910Z",
+  "tunnel": "https://checkout-v2-api.judgetcg.com.br",
   "fe": "https://judgetcg.com.br",
-  "email": "cv2v_1784650911658@example.com",
-  "cartId": "69913803-d991-4814-a6aa-ec80970213dd",
-  "passed": 9,
-  "failed": 0,
+  "email": "cv2v_1784658754567@example.com",
+  "cartId": "0ad401aa-6a53-40d8-9688-b0a23ebe8cc7",
+  "passed": 6,
+  "failed": 3,
   "steps": [
     {
       "step": "tunnel.health",
@@ -23,7 +23,7 @@
       "step": "tunnel.auth.register",
       "ok": true,
       "status": 201,
-      "detail": "userId=931e852c-d6ba-4f97-8a02-786488957cbd"
+      "detail": "userId=f4a9af09-bd1b-417f-a5d7-17788edd1fe1"
     },
     {
       "step": "tunnel.auth.login",
@@ -35,7 +35,7 @@
       "step": "tunnel.cart.create",
       "ok": true,
       "status": 201,
-      "detail": "cartId=69913803-d991-4814-a6aa-ec80970213dd"
+      "detail": "cartId=0ad401aa-6a53-40d8-9688-b0a23ebe8cc7"
     },
     {
       "step": "tunnel.sessions.missing_cartId_400",
@@ -45,22 +45,22 @@
     },
     {
       "step": "vercel.bff.apex.cart_unauth",
-      "ok": true,
-      "status": 401,
-      "detail": "{\"error\":\"unauthorized\"}"
+      "ok": false,
+      "status": 502,
+      "detail": "\"<!DOCTYPE html>\\n<!--[if lt IE 7]> <html class=\\\"no-js ie6 oldie\\\" lang=\\\"en-US\\\"> <![endif]-->\\n<!--[if IE 7]>    <html class=\\\"no-js ie7 oldie\\\" lang=\\\"en-US\\\"> <![endif]-->\\n<!--[if IE 8]>    <html class=\\\"no-js ie8 oldie\\\" lang=\\\"en-US\\\"> <![endif]-->\""
     },
     {
       "step": "vercel.bff.www.cart_unauth",
-      "ok": true,
-      "status": 401,
-      "detail": "{\"error\":\"unauthorized\"}"
+      "ok": false,
+      "status": 502,
+      "detail": "\"<!DOCTYPE html>\\n<!--[if lt IE 7]> <html class=\\\"no-js ie6 oldie\\\" lang=\\\"en-US\\\"> <![endif]-->\\n<!--[if IE 7]>    <html class=\\\"no-js ie7 oldie\\\" lang=\\\"en-US\\\"> <![endif]-->\\n<!--[if IE 8]>    <html class=\\\"no-js ie8 oldie\\\" lang=\\\"en-US\\\"> <![endif]-->\""
     },
     {
       "step": "vercel.bff.apex.cart_with_bearer",
-      "ok": true,
-      "status": 401,
-      "detail": "{\"error\":\"unauthorized\"}"
+      "ok": false,
+      "status": 502,
+      "detail": "note=bff_cookie_auth_only_until_redeploy \"<!DOCTYPE html>\\n<!--[if lt IE 7]> <html class=\\\"no-js ie6 oldie\\\" lang=\\\"en-US\\\"> <![endif]-->\\n<!--[if IE 7]>    <htm"
     }
   ],
-  "verdict": "PASS"
+  "verdict": "FAIL"
 }

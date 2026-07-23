@@ -9,6 +9,8 @@ import { useRouter } from "next/navigation";
 import { AlertCircle, X } from "lucide-react";
 import { entrarPath } from "@/lib/auth/entrar-path";
 import { CardActions } from "@/components/cards/CardActions";
+import { ContinuityNextSteps } from "@/components/experience/ContinuityNextSteps";
+import { saveJourneyContext } from "@/lib/journey-context";
 import { AddToCollectionButton } from "@/components/cards/AddToCollectionButton";
 import { AnnounceCardCta } from "@/components/cards/AnnounceCardCta";
 import { CardBuyPanel } from "@/components/cards/CardBuyPanel";
@@ -47,6 +49,8 @@ const CardDecksSection = dynamic(
   },
 );
 import { CardAiAdvisorSlots } from "@/components/cards/CardAiAdvisorSlots";
+import { CardLivePanels } from "@/components/live-data/CardLivePanels";
+import { CardRecommendationPanel } from "@/components/recommendations/RecommendationPanels";
 import { CardRelatedProductsSection } from "@/components/cards/CardRelatedProductsSection";
 import { CardCollectionStatus } from "@/components/cards/CardCollectionStatus";
 import { CardDeckUsage } from "@/components/cards/CardDeckUsage";
@@ -108,9 +112,29 @@ export function CardDetailPage({ cardId }: CardDetailPageProps) {
     };
   }, [data?.card, track]);
 
+  useEffect(() => {
+    if (!data?.card) return;
+    const slug =
+      GAME_TOKENS[data.card.game as GameId]?.slug || String(data.card.game).toLowerCase();
+    saveJourneyContext({
+      gameSlug: slug,
+      cardId: data.card.id,
+      returnPath: `/${slug}/cards/${data.card.id}`,
+      source: "universal_card_page",
+    });
+  }, [data?.card]);
+
   const handleBuy = (listing: CardListing) => {
     if (!data) return;
     setBuyError(null);
+    const slug =
+      GAME_TOKENS[data.card.game as GameId]?.slug || String(data.card.game).toLowerCase();
+    saveJourneyContext({
+      gameSlug: slug,
+      cardId: data.card.id,
+      returnPath: `/${slug}/cards/${data.card.id}`,
+      source: "buy",
+    });
     track("card_buy_click", { card_id: data.card.id, listing_id: listing.id });
     addToCart.mutate(
       { listing, card: data.card },
@@ -122,7 +146,6 @@ export function CardDetailPage({ cardId }: CardDetailPageProps) {
         onError: (err) => {
           const msg = err instanceof Error ? err.message : "Erro ao adicionar";
           if (msg === "login_required" || /401|não autenticado|login/i.test(msg)) {
-            const slug = GAME_TOKENS[data.card.game as GameId]?.slug || String(data.card.game).toLowerCase();
             router.push(entrarPath(`/${slug}/cards/${data.card.id}`));
             return;
           }
@@ -224,9 +247,10 @@ export function CardDetailPage({ cardId }: CardDetailPageProps) {
 
                 <div className="flex flex-wrap gap-2">
                   <AddToCollectionButton cardId={card.id} cardName={card.name} />
-                  <CardActions card={card} />
+                  <CardActions card={card} productId={card.productId} />
                   <AnnounceCardCta card={card} />
                 </div>
+                <ContinuityNextSteps variant="card" className="mt-2" />
 
                 <CardCollectionStatus
                   cardId={card.id}
@@ -407,6 +431,14 @@ export function CardDetailPage({ cardId }: CardDetailPageProps) {
           </div>
 
           <div className="mt-12 space-y-12 border-t border-border pt-10">
+            <CardLivePanels
+              cardId={cardId}
+              cardName={card.name}
+              gameId={typeof card.game === "string" ? card.game : undefined}
+              popularity={(card as { popularity?: number }).popularity}
+              priceTrend7d={card.priceTrend7d}
+            />
+            <CardRecommendationPanel cardId={cardId} />
             <CardDecksSection card={card} />
             <CardIntelligenceSection cardId={cardId} card={card} fallbackRelated={relatedCards} />
             <CardRelatedProductsSection card={card} gameSlug={gameSlug} />

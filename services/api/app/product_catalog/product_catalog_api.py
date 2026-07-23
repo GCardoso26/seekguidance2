@@ -6,10 +6,11 @@ import json
 from datetime import UTC, datetime
 from typing import Any
 
-from fastapi import APIRouter, HTTPException, Header, Query
+from fastapi import APIRouter, Depends, HTTPException, Header, Query
 from sqlalchemy import text
 
 from app.api.deps import DbSession
+from app.api.deps_admin import require_admin
 from app.api.v1.tournament_system import _require_user
 from app.marketplace import seller_dashboard as seller_dash
 from app.marketplace import shop_products as shop_products_svc
@@ -100,7 +101,10 @@ async def search_master_products(
 
 
 @router.get("/runtime/judge/product-catalog/admin/stats")
-async def product_catalog_admin_stats(session: DbSession) -> dict[str, Any]:
+async def product_catalog_admin_stats(
+    session: DbSession,
+    _admin_id: str = Depends(require_admin),
+) -> dict[str, Any]:
     try:
         counts = await session.execute(
             text(
@@ -186,7 +190,10 @@ async def product_catalog_admin_stats(session: DbSession) -> dict[str, Any]:
 
 
 @router.get("/runtime/judge/product-catalog/admin/asset-ingestion-coverage")
-async def product_catalog_asset_ingestion_coverage(session: DbSession) -> dict[str, Any]:
+async def product_catalog_asset_ingestion_coverage(
+    session: DbSession,
+    _admin_id: str = Depends(require_admin),
+) -> dict[str, Any]:
     """Métricas de cobertura de imagens oficiais (acessórios + selados)."""
     has_image = """
       EXISTS (
@@ -349,7 +356,10 @@ async def product_catalog_asset_ingestion_coverage(session: DbSession) -> dict[s
 
 
 @router.get("/runtime/judge/product-catalog/admin/asset-health")
-async def product_catalog_asset_health(session: DbSession) -> dict[str, Any]:
+async def product_catalog_asset_health(
+    session: DbSession,
+    _admin_id: str = Depends(require_admin),
+) -> dict[str, Any]:
     """Asset Health admin report — DTO only for Runtime Console (no full dashboard)."""
     has_image = """
       EXISTS (
@@ -788,61 +798,26 @@ async def product_catalog_collection_by_slug(session: DbSession, slug: str) -> d
 
 
 @router.get("/runtime/judge/product-catalog/admin/knowledge-coverage")
-async def product_catalog_knowledge_coverage(session: DbSession) -> dict[str, Any]:
-    """Knowledge coverage analytics — admin only, no Analytics BC."""
+async def product_catalog_knowledge_coverage(
+    session: DbSession,
+    _admin_id: str = Depends(require_admin),
+) -> dict[str, Any]:
+    """Knowledge coverage analytics — admin only, read-only (no snapshot write)."""
     try:
-        totals = await session.execute(
-            text(
-                """
-                SELECT
-                  (SELECT count(*) FROM product_catalog.products) AS products,
-                  (SELECT count(*) FROM product_catalog.official_product_contents) AS with_contents,
-                  (SELECT count(DISTINCT product_id) FROM product_catalog.product_specifications) AS with_specs,
-                  (SELECT count(*) FROM product_catalog.product_official_metadata) AS with_metadata,
-                  (SELECT count(*) FROM product_catalog.products
-                     WHERE lifecycle IS NOT NULL AND lifecycle <> 'AVAILABLE') AS with_lifecycle,
-                  (SELECT count(*) FROM product_catalog.products WHERE collection_id IS NOT NULL) AS with_collection,
-                  (SELECT count(DISTINCT product_id) FROM product_catalog.product_asset_packages) AS with_asset_pkg,
-                  (SELECT coalesce(avg(knowledge_completeness), 0) FROM product_catalog.products) AS avg_completeness
-                """
-            )
-        )
-        t = dict(totals.fetchone()._mapping)
+        report = await _compute_knowledge_coverage(session)
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail=f"product_catalog_unavailable:{exc}") from exc
+    return report
 
-        def _pct(n: float, d: float) -> float:
-            return round((n / d) * 100, 1) if d else 0.0
 
-        products = float(t["products"] or 0)
-        oc = _pct(float(t["with_contents"] or 0), products)
-        sc = _pct(float(t["with_specs"] or 0), products)
-        mc = _pct(float(t["with_metadata"] or 0), products)
-        lc = _pct(float(t["with_lifecycle"] or 0) + float(t["with_metadata"] or 0), products * 2)
-        cc = _pct(float(t["with_collection"] or 0), products)
-        ac = _pct(float(t["with_asset_pkg"] or 0), products)
-        kc = round(float(t["avg_completeness"] or 0), 1)
-        slices = [oc, sc, mc, lc, cc, ac, kc]
-        overall = round(sum(slices) / len(slices), 1) if slices else 0.0
-        report = {
-            "overallPct": overall,
-            "productKnowledgeCoverage": overall,
-            "officialContentCoverage": oc,
-            "specificationCoverage": sc,
-            "metadataCoverage": mc,
-            "lifecycleCoverage": lc,
-            "collectionCoverage": cc,
-            "assetPackageCoverage": ac,
-            "knowledgeCompletenessScore": kc,
-            "totals": {
-                "products": int(products),
-                "withContents": int(t["with_contents"] or 0),
-                "withSpecs": int(t["with_specs"] or 0),
-                "withMetadata": int(t["with_metadata"] or 0),
-                "withLifecycleNonDefault": int(t["with_lifecycle"] or 0),
-                "withCollection": int(t["with_collection"] or 0),
-                "withAssetPackage": int(t["with_asset_pkg"] or 0),
-            },
-            "generated_at": datetime.now(UTC).isoformat(),
-        }
+@router.post("/runtime/judge/product-catalog/admin/knowledge-coverage/refresh")
+async def product_catalog_knowledge_coverage_refresh(
+    session: DbSession,
+    _admin_id: str = Depends(require_admin),
+) -> dict[str, Any]:
+    """Persist a knowledge coverage snapshot (admin + scheduler only)."""
+    try:
+        report = await _compute_knowledge_coverage(session)
         await session.execute(
             text(
                 """
@@ -850,12 +825,72 @@ async def product_catalog_knowledge_coverage(session: DbSession) -> dict[str, An
                 VALUES (:pct, CAST(:report AS jsonb))
                 """
             ),
-            {"pct": overall, "report": json.dumps(report)},
+            {"pct": report["overallPct"], "report": json.dumps(report)},
         )
         await session.commit()
     except Exception as exc:
         raise HTTPException(status_code=503, detail=f"product_catalog_unavailable:{exc}") from exc
     return report
+
+
+async def _compute_knowledge_coverage(session: DbSession) -> dict[str, Any]:
+    totals = await session.execute(
+        text(
+            """
+            SELECT
+              (SELECT count(*) FROM product_catalog.products) AS products,
+              (SELECT count(*) FROM product_catalog.official_product_contents) AS with_contents,
+              (SELECT count(DISTINCT product_id) FROM product_catalog.product_specifications) AS with_specs,
+              (SELECT count(*) FROM product_catalog.product_official_metadata) AS with_metadata,
+              (SELECT count(*) FROM product_catalog.products WHERE lifecycle IS NOT NULL) AS with_lifecycle,
+              (SELECT count(*) FROM product_catalog.products
+                 WHERE lifecycle IS NOT NULL AND lifecycle <> 'AVAILABLE') AS with_lifecycle_non_default,
+              (SELECT count(*) FROM product_catalog.product_official_metadata
+                 WHERE lifecycle IS NOT NULL AND lifecycle <> '') AS with_lifecycle_metadata,
+              (SELECT count(*) FROM product_catalog.products WHERE collection_id IS NOT NULL) AS with_collection,
+              (SELECT count(DISTINCT product_id) FROM product_catalog.product_asset_packages) AS with_asset_pkg,
+              (SELECT coalesce(avg(knowledge_completeness), 0) FROM product_catalog.products) AS avg_completeness
+            """
+        )
+    )
+    t = dict(totals.fetchone()._mapping)
+
+    def _pct(n: float, d: float) -> float:
+        return round((n / d) * 100, 1) if d else 0.0
+
+    products = float(t["products"] or 0)
+    oc = _pct(float(t["with_contents"] or 0), products)
+    sc = _pct(float(t["with_specs"] or 0), products)
+    mc = _pct(float(t["with_metadata"] or 0), products)
+    # AVAILABLE is a valid lifecycle — do not exclude (BUG-V4-007)
+    lc = _pct(float(t["with_lifecycle"] or 0), products)
+    cc = _pct(float(t["with_collection"] or 0), products)
+    ac = _pct(float(t["with_asset_pkg"] or 0), products)
+    kc = round(float(t["avg_completeness"] or 0), 1)
+    slices = [oc, sc, mc, lc, cc, ac, kc]
+    overall = round(sum(slices) / len(slices), 1) if slices else 0.0
+    return {
+        "overallPct": overall,
+        "productKnowledgeCoverage": overall,
+        "officialContentCoverage": oc,
+        "specificationCoverage": sc,
+        "metadataCoverage": mc,
+        "lifecycleCoverage": lc,
+        "collectionCoverage": cc,
+        "assetPackageCoverage": ac,
+        "knowledgeCompletenessScore": kc,
+        "totals": {
+            "products": int(products),
+            "withContents": int(t["with_contents"] or 0),
+            "withSpecs": int(t["with_specs"] or 0),
+            "withMetadata": int(t["with_metadata"] or 0),
+            "withLifecycleNonDefault": int(t["with_lifecycle_non_default"] or 0),
+            "withLifecycleFromMetadata": int(t["with_lifecycle_metadata"] or 0),
+            "withCollection": int(t["with_collection"] or 0),
+            "withAssetPackage": int(t["with_asset_pkg"] or 0),
+        },
+        "generated_at": datetime.now(UTC).isoformat(),
+    }
 
 
 @router.get("/runtime/judge/catalog/products")

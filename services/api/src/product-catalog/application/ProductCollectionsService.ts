@@ -34,43 +34,47 @@ export class ProductCollectionsService {
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/^-|-$/g, "");
 
+    const id = getIdGenerator().generate();
+
     if (input.code) {
-      const existing = await this.db.query(
-        `SELECT id FROM product_catalog.collections WHERE code = $1 LIMIT 1`,
-        [input.code],
+      const res = await this.db.query(
+        `
+        INSERT INTO product_catalog.collections (
+          id, name, game, code, slug, description, expansion_code, language, region,
+          release_date, publisher_id, official
+        ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10::date,$11::uuid,$12)
+        ON CONFLICT (code) WHERE code IS NOT NULL AND code <> '' DO UPDATE SET
+          name = EXCLUDED.name,
+          game = COALESCE(EXCLUDED.game, product_catalog.collections.game),
+          slug = COALESCE(EXCLUDED.slug, product_catalog.collections.slug),
+          description = COALESCE(EXCLUDED.description, product_catalog.collections.description),
+          expansion_code = COALESCE(EXCLUDED.expansion_code, product_catalog.collections.expansion_code),
+          language = COALESCE(EXCLUDED.language, product_catalog.collections.language),
+          region = COALESCE(EXCLUDED.region, product_catalog.collections.region),
+          release_date = COALESCE(EXCLUDED.release_date, product_catalog.collections.release_date),
+          publisher_id = COALESCE(EXCLUDED.publisher_id, product_catalog.collections.publisher_id),
+          official = COALESCE(EXCLUDED.official, product_catalog.collections.official),
+          updated_at = now()
+        RETURNING id
+        `,
+        [
+          id,
+          input.name,
+          input.game ?? null,
+          input.code,
+          slug,
+          input.description ?? null,
+          input.expansionCode ?? null,
+          input.language ?? null,
+          input.region ?? null,
+          input.releaseDate ?? null,
+          input.publisherId ?? null,
+          input.official ?? true,
+        ],
       );
-      if (existing.rows[0]) {
-        await this.db.query(
-          `
-          UPDATE product_catalog.collections SET
-            name = $2, game = COALESCE($3, game), slug = COALESCE($4, slug),
-            description = COALESCE($5, description), expansion_code = COALESCE($6, expansion_code),
-            language = COALESCE($7, language), region = COALESCE($8, region),
-            release_date = COALESCE($9::date, release_date),
-            publisher_id = COALESCE($10::uuid, publisher_id),
-            official = COALESCE($11, official),
-            updated_at = now()
-          WHERE id = $1
-          `,
-          [
-            existing.rows[0].id,
-            input.name,
-            input.game ?? null,
-            slug,
-            input.description ?? null,
-            input.expansionCode ?? null,
-            input.language ?? null,
-            input.region ?? null,
-            input.releaseDate ?? null,
-            input.publisherId ?? null,
-            input.official ?? true,
-          ],
-        );
-        return String(existing.rows[0].id);
-      }
+      return String(res.rows[0].id);
     }
 
-    const id = getIdGenerator().generate();
     await this.db.query(
       `
       INSERT INTO product_catalog.collections (
@@ -82,7 +86,7 @@ export class ProductCollectionsService {
         id,
         input.name,
         input.game ?? null,
-        input.code ?? null,
+        null,
         slug,
         input.description ?? null,
         input.expansionCode ?? null,
