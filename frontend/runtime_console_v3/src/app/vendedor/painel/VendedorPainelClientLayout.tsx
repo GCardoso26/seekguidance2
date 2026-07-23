@@ -61,7 +61,9 @@ function VendedorPainelLayoutInner({ children }: { children: React.ReactNode }) 
   const syncBlocking = onboardingSyncing && !guardsTimedOut;
   const guardsPending =
     authBlocking || kycBlocking || (!user && !guardsTimedOut) || kycGateActive || syncBlocking;
-  const isPdvRoute = pathname?.includes("/vendedor/painel/pdv");
+  const isPdvCaixaRoute =
+    pathname === "/vendedor/painel/pdv" || Boolean(pathname?.match(/^\/vendedor\/painel\/pdv\/?$/));
+  const isPdvRoute = Boolean(pathname?.includes("/vendedor/painel/pdv"));
 
   if (guardsPending) {
     const guardMessage = syncBlocking
@@ -91,7 +93,7 @@ function VendedorPainelLayoutInner({ children }: { children: React.ReactNode }) 
     <PanelShell
       variant="seller"
       theme={theme}
-      hideSidebar={isPdvRoute}
+      hideSidebar={isPdvCaixaRoute}
       mobileOpen={mobileOpen}
       onCloseMobile={() => setMobileOpen(false)}
       sidebar={
@@ -104,9 +106,9 @@ function VendedorPainelLayoutInner({ children }: { children: React.ReactNode }) 
         />
       }
       topBar={
-        !isPdvRoute ? (
+        !isPdvCaixaRoute ? (
           <SellerPanelTopBar
-            title={isPdvRoute ? "PDV — Balcão" : "Painel do Vendedor"}
+            title={isPdvRoute ? "PDV" : "Painel do Vendedor"}
             showMenuButton
             onMenuClick={() => setMobileOpen(true)}
           />

@@ -23,6 +23,7 @@ from app.marketplace import (
     shop_reviews,
 )
 from app.marketplace import shop_checkout as shop_checkout_svc
+from app.pdv import local_products as pdv_local_products
 from app.stores import store as store_svc
 from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from fastapi.responses import PlainTextResponse
@@ -193,6 +194,8 @@ class BuylistSubmissionStatusBody(BaseModel):
 
 class PdvItemBody(BaseModel):
     product_id: str | None = None
+    local_product_id: str | None = None
+    source: str | None = Field(default=None, pattern="^(official|local)$")
     name: str | None = None
     quantity: int = Field(default=1, ge=1)
     price_cents: int = Field(ge=0)
@@ -210,6 +213,32 @@ class PdvPixBody(BaseModel):
 
 class PdvSalePatchBody(BaseModel):
     status: str = Field(default="paid", pattern="^paid$")
+
+
+class PdvLocalProductBody(BaseModel):
+    name: str = Field(min_length=1, max_length=200)
+    category: str
+    price_cents: int = Field(ge=0)
+    cost_cents: int | None = Field(default=None, ge=0)
+    sku: str | None = None
+    barcode: str | None = None
+    stock: int | None = Field(default=None, ge=0)
+    minimum_stock: int | None = Field(default=None, ge=0)
+    active: bool = True
+    item_kind: str = Field(default="goods", pattern="^(goods|consumable|service|fee)$")
+
+
+class PdvLocalProductUpdateBody(BaseModel):
+    name: str | None = Field(default=None, min_length=1, max_length=200)
+    category: str | None = None
+    price_cents: int | None = Field(default=None, ge=0)
+    cost_cents: int | None = Field(default=None, ge=0)
+    sku: str | None = None
+    barcode: str | None = None
+    stock: int | None = Field(default=None, ge=0)
+    minimum_stock: int | None = Field(default=None, ge=0)
+    active: bool | None = None
+    item_kind: str | None = Field(default=None, pattern="^(goods|consumable|service|fee)$")
 
 
 class CrmNotesBody(BaseModel):
@@ -1137,3 +1166,94 @@ async def patch_pdv_sale(
 ) -> dict[str, Any]:
     user_id = _require_user(x_judge_user_id)
     return await shop_pdv.patch_pdv_sale(session, store_id, user_id, sale_id, status=body.status)
+
+
+@router.get("/runtime/judge/marketplace/shop/stores/{store_id}/pdv/local-products")
+async def list_pdv_local_products(
+    session: DbSession,
+    store_id: str,
+    category: str | None = None,
+    active: bool | None = None,
+    low_stock: bool = False,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    products = await pdv_local_products.list_local_products(
+        session,
+        store_id,
+        user_id,
+        category=category,
+        active=active,
+        low_stock=low_stock,
+    )
+    return {"products": products}
+
+
+@router.post("/runtime/judge/marketplace/shop/stores/{store_id}/pdv/local-products")
+async def create_pdv_local_product(
+    session: DbSession,
+    store_id: str,
+    body: PdvLocalProductBody,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    product = await pdv_local_products.create_local_product(
+        session, store_id, user_id, body.model_dump()
+    )
+    return {"product": product}
+
+
+@router.get("/runtime/judge/marketplace/shop/stores/{store_id}/pdv/local-products/search")
+async def search_pdv_local_products(
+    session: DbSession,
+    store_id: str,
+    q: str,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    products = await pdv_local_products.search_local_products(session, store_id, user_id, q)
+    return {"products": products}
+
+
+@router.get("/runtime/judge/marketplace/shop/stores/{store_id}/pdv/local-products/reports")
+async def reports_pdv_local_products(
+    session: DbSession,
+    store_id: str,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    report = await pdv_local_products.reports_local_products(session, store_id, user_id)
+    return {"report": report}
+
+
+@router.put("/runtime/judge/marketplace/shop/stores/{store_id}/pdv/local-products/{product_id}")
+async def update_pdv_local_product(
+    session: DbSession,
+    store_id: str,
+    product_id: str,
+    body: PdvLocalProductUpdateBody,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    product = await pdv_local_products.update_local_product(
+        session,
+        store_id,
+        user_id,
+        product_id,
+        body.model_dump(exclude_unset=True),
+    )
+    return {"product": product}
+
+
+@router.delete("/runtime/judge/marketplace/shop/stores/{store_id}/pdv/local-products/{product_id}")
+async def delete_pdv_local_product(
+    session: DbSession,
+    store_id: str,
+    product_id: str,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    product = await pdv_local_products.delete_local_product(
+        session, store_id, user_id, product_id
+    )
+    return {"product": product}

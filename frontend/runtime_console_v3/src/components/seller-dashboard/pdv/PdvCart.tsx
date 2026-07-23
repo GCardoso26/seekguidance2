@@ -4,14 +4,14 @@ import { CardImage } from "@/components/ui/CardImage";
 import { Button } from "@/components/ui/button";
 import { mediaTypeFromCategory } from "@/lib/assets";
 import { formatShopPrice } from "@/lib/marketplace-shop";
-import { cartTotalCents } from "@/lib/pdv-sale-form";
+import { cartLineKey, cartTotalCents } from "@/lib/pdv-sale-form";
 import type { PdvCartItem } from "@/types/pdv";
 
 type Props = {
   items: PdvCartItem[];
-  onIncrement: (productId: string) => void;
-  onDecrement: (productId: string) => void;
-  onRemove: (productId: string) => void;
+  onIncrement: (lineKey: string) => void;
+  onDecrement: (lineKey: string) => void;
+  onRemove: (lineKey: string) => void;
   onFinalize: () => void;
   isFinalizing?: boolean;
   disabled?: boolean;
@@ -38,88 +38,95 @@ export function PdvCart({
         </p>
       ) : (
         <ul className="mt-3 max-h-64 space-y-2 overflow-y-auto text-sm">
-          {items.map((item) => (
-            <li
-              key={item.product_id}
-              className="rounded-lg border border-border bg-muted/50 p-3"
-              data-testid={`pdv-cart-item-${item.product_id}`}
-            >
-              <div className="flex items-start justify-between gap-2">
-                <div className="flex min-w-0 flex-1 items-start gap-2">
-                  <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded bg-muted/40">
-                    <CardImage
-                      src={item.image_url}
-                      alt={item.name}
-                      fallbackLabel={item.name.slice(0, 8)}
-                      mediaType={mediaTypeFromCategory(item.category)}
-                      fill
-                      listQuality
-                      className="object-contain"
-                      sizes="40px"
-                    />
+          {items.map((item) => {
+            const key = cartLineKey(item);
+            return (
+              <li
+                key={key}
+                className="rounded-lg border border-border bg-muted/50 p-3"
+                data-testid={`pdv-cart-item-${item.product_id}`}
+                data-source={item.source}
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex min-w-0 flex-1 items-start gap-2">
+                    <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded bg-muted/40">
+                      <CardImage
+                        src={item.image_url}
+                        alt={item.name}
+                        fallbackLabel={item.name.slice(0, 8)}
+                        mediaType={mediaTypeFromCategory(item.category)}
+                        fill
+                        listQuality
+                        className="object-contain"
+                        sizes="40px"
+                      />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-medium">{item.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {item.source === "local" ? "LOCAL · " : ""}
+                        {formatShopPrice(item.price_cents)} × {item.quantity}
+                      </p>
+                    </div>
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate font-medium">{item.name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {formatShopPrice(item.price_cents)} × {item.quantity}
-                    </p>
-                  </div>
+                  <p className="shrink-0 font-semibold text-primary">
+                    {formatShopPrice(item.price_cents * item.quantity)}
+                  </p>
                 </div>
-                <p className="shrink-0 font-semibold text-primary">
-                  {formatShopPrice(item.price_cents * item.quantity)}
-                </p>
-              </div>
-              <div className="mt-2 flex flex-wrap gap-1">
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="outline"
-                  className="h-7 px-2"
-                  onClick={() => onDecrement(item.product_id)}
-                  aria-label={`Diminuir ${item.name}`}
-                >
-                  −
-                </Button>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="outline"
-                  className="h-7 px-2"
-                  onClick={() => onIncrement(item.product_id)}
-                  aria-label={`Aumentar ${item.name}`}
-                >
-                  +
-                </Button>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="ghost"
-                  className="h-7 px-2 text-danger"
-                  onClick={() => onRemove(item.product_id)}
-                >
-                  Remover
-                </Button>
-              </div>
-            </li>
-          ))}
+                <div className="mt-2 flex flex-wrap gap-1">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="h-7 px-2"
+                    onClick={() => onDecrement(key)}
+                    aria-label={`Diminuir ${item.name}`}
+                  >
+                    −
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="h-7 px-2"
+                    onClick={() => onIncrement(key)}
+                    aria-label={`Aumentar ${item.name}`}
+                  >
+                    +
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    className="h-7 px-2 text-destructive"
+                    onClick={() => onRemove(key)}
+                    aria-label={`Remover ${item.name}`}
+                  >
+                    Remover
+                  </Button>
+                </div>
+              </li>
+            );
+          })}
         </ul>
       )}
 
-      <div className="mt-4 border-t border-border pt-3">
-        <div className="flex justify-between text-base font-bold">
-          <span>Total</span>
-          <span data-testid="pdv-cart-total">{formatShopPrice(total)}</span>
-        </div>
-        <Button
-          type="button"
-          className="mt-3 w-full"
-          disabled={!items.length || disabled || isFinalizing}
-          onClick={onFinalize}
-          data-testid="pdv-finalize-btn"
-        >
-          {isFinalizing ? "Finalizando…" : "Finalizar venda"}
-        </Button>
+      <div className="mt-4 flex items-center justify-between border-t border-border pt-3">
+        <span className="text-sm text-muted-foreground">Total</span>
+        <span className="text-lg font-bold" data-testid="pdv-cart-total">
+          {formatShopPrice(total)}
+        </span>
       </div>
+
+      <Button
+        type="button"
+        className="mt-3 w-full"
+        disabled={disabled || isFinalizing || items.length === 0}
+        onClick={onFinalize}
+        data-testid="pdv-finalize-btn"
+      >
+        {isFinalizing ? "Processando…" : "Finalizar venda"}
+      </Button>
     </div>
   );
 }

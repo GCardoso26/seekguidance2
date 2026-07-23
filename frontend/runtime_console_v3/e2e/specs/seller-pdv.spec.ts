@@ -132,4 +132,45 @@ authTest.describe("Vendedor — PDV", () => {
       ).toBeVisible({ timeout: 30_000 });
     }
   });
+
+  authTest("pdv produtos locais — cadastro e badge LOCAL na busca", async ({ sellerPage: page }) => {
+    await page.goto("/vendedor/painel/pdv/produtos-locais");
+
+    await authExpect(page).toHaveURL(
+      /\/(vendedor\/painel\/pdv\/produtos-locais|vendedor\/painel\/pdv|vendedor\/painel\/planos|stores\/create)/,
+      { timeout: 30_000 },
+    );
+
+    if (!page.url().includes("/produtos-locais")) return;
+    if (await page.getByTestId("pdv-upsell").isVisible().catch(() => false)) return;
+
+    await waitForSellerPanelReady(page);
+
+    const newBtn = page.getByTestId("pdv-local-new");
+    if (!(await newBtn.isVisible().catch(() => false))) return;
+
+    const unique = `E2E Snack ${Date.now()}`;
+    await newBtn.click();
+    await authExpect(page.getByTestId("pdv-local-product-modal")).toBeVisible();
+    await page.getByTestId("pdv-local-name").fill(unique);
+    await page.getByTestId("pdv-local-category").selectOption("Snack");
+    await page.getByTestId("pdv-local-price").fill("7.50");
+    await page.getByTestId("pdv-local-stock").fill("5");
+    await page.getByTestId("pdv-local-save").click();
+
+    await authExpect(page.getByText(unique).first()).toBeVisible({ timeout: 20_000 });
+
+    await page.goto("/vendedor/painel/pdv");
+    if (await skipIfPdvUnavailable(page)) return;
+
+    await page.getByTestId("pdv-text-search-input").fill(unique.slice(0, 12));
+    await page.getByRole("button", { name: /^buscar$/i }).click();
+
+    const localBadge = page.getByTestId("pdv-badge-local").first();
+    if (await localBadge.isVisible().catch(() => false)) {
+      await authExpect(localBadge).toBeVisible();
+      await page.getByTestId(/pdv-add-product-/).first().click();
+      await authExpect(page.getByTestId("pdv-cart-total")).not.toHaveText(/R\$\s*0,00/);
+    }
+  });
 });

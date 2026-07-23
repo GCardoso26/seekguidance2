@@ -7,8 +7,8 @@ import { PdvCart } from "@/components/seller-dashboard/pdv/PdvCart";
 import type { PdvCartItem } from "@/types/pdv";
 
 const items: PdvCartItem[] = [
-  { product_id: "a", name: "Charizard", price_cents: 5000, quantity: 1 },
-  { product_id: "b", name: "Pikachu", price_cents: 1200, quantity: 2 },
+  { product_id: "a", source: "official", name: "Charizard", price_cents: 5000, quantity: 1 },
+  { product_id: "b", source: "official", name: "Pikachu", price_cents: 1200, quantity: 2 },
 ];
 
 describe("PdvCart", () => {
@@ -46,7 +46,7 @@ describe("PdvCart", () => {
     expect(screen.getByTestId("pdv-cart-total").textContent).toMatch(/R\$\s*74,00/);
 
     fireEvent.click(screen.getByLabelText("Aumentar Charizard"));
-    expect(onIncrement).toHaveBeenCalledWith("a");
+    expect(onIncrement).toHaveBeenCalledWith("official:a");
 
     fireEvent.click(screen.getAllByText("Remover")[0]!);
     expect(onRemove).toHaveBeenCalled();

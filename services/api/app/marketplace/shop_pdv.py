@@ -69,7 +69,53 @@ async def _normalize_pdv_items(
         price = max(0, int(item.get("price_cents") or 0))
         line_total = price * qty
         total += line_total
+
+        source = str(item.get("source") or "").strip().lower()
+        local_product_id = item.get("local_product_id")
         product_id = item.get("product_id")
+        if not source:
+            if local_product_id:
+                source = "local"
+            elif product_id:
+                source = "official"
+
+        if source == "local":
+            lid = local_product_id or product_id
+            if not lid:
+                raise HTTPException(400, "Produto local sem id")
+            prod = (
+                await session.execute(
+                    text(
+                        """
+                        SELECT id, stock, name, category, cost_cents, active
+                        FROM pdv.local_products
+                        WHERE id = :id AND store_id = :sid
+                        """
+                    ),
+                    {"id": lid, "sid": store_id},
+                )
+            ).mappings().first()
+            if not prod or not prod.get("active"):
+                raise HTTPException(400, f"Produto local não encontrado: {lid}")
+            stock = prod.get("stock")
+            if stock is not None and int(stock) < qty:
+                raise HTTPException(400, f"Estoque insuficiente: {prod['name']}")
+            cost = prod.get("cost_cents")
+            normalized.append(
+                {
+                    "source": "local",
+                    "local_product_id": str(prod["id"]),
+                    "product_id": None,
+                    "name": item.get("name") or prod["name"],
+                    "category": prod.get("category"),
+                    "quantity": qty,
+                    "price_cents": price,
+                    "cost_cents": int(cost) if cost is not None else None,
+                    "line_total_cents": line_total,
+                }
+            )
+            continue
+
         if product_id:
             prod = (
                 await session.execute(
@@ -88,7 +134,9 @@ async def _normalize_pdv_items(
                 raise HTTPException(400, f"Estoque insuficiente: {prod['name']}")
         normalized.append(
             {
+                "source": "official",
                 "product_id": product_id,
+                "local_product_id": None,
                 "name": item.get("name") or "Item",
                 "quantity": qty,
                 "price_cents": price,
@@ -100,10 +148,50 @@ async def _normalize_pdv_items(
 
 async def _commit_pdv_stock(session: AsyncSession, store_id: str, normalized: list[dict[str, Any]]) -> None:
     for item in normalized:
+        qty = int(item["quantity"])
+        source = str(item.get("source") or "official")
+
+        if source == "local":
+            local_id = item.get("local_product_id")
+            if not local_id:
+                continue
+            # NULL stock = infinite — skip debit
+            current = (
+                await session.execute(
+                    text(
+                        """
+                        SELECT stock, name FROM pdv.local_products
+                        WHERE id = :id AND store_id = :sid
+                        """
+                    ),
+                    {"id": local_id, "sid": store_id},
+                )
+            ).mappings().first()
+            if not current:
+                raise HTTPException(400, f"Produto local não encontrado: {item.get('name')}")
+            if current.get("stock") is None:
+                continue
+            updated = (
+                await session.execute(
+                    text(
+                        """
+                        UPDATE pdv.local_products
+                        SET stock = stock - :qty, updated_at = NOW()
+                        WHERE id = :id AND store_id = :sid
+                          AND stock IS NOT NULL AND stock >= :qty
+                        RETURNING id
+                        """
+                    ),
+                    {"qty": qty, "id": local_id, "sid": store_id},
+                )
+            ).mappings().first()
+            if not updated:
+                raise HTTPException(400, f"Estoque insuficiente: {item.get('name')}")
+            continue
+
         product_id = item.get("product_id")
         if not product_id:
             continue
-        qty = int(item["quantity"])
         updated = (
             await session.execute(
                 text(
@@ -137,21 +225,7 @@ async def create_pdv_sale(
         raise HTTPException(400, "Método de pagamento inválido")
 
     normalized, total = await _normalize_pdv_items(session, store_id, items)
-
-    for item in normalized:
-        product_id = item.get("product_id")
-        if not product_id:
-            continue
-        await session.execute(
-            text(
-                """
-                UPDATE tcg_judge.store_products
-                SET stock = stock - :qty, updated_at = NOW()
-                WHERE id = :id
-                """
-            ),
-            {"qty": int(item["quantity"]), "id": product_id},
-        )
+    await _commit_pdv_stock(session, store_id, normalized)
 
     row = (
         await session.execute(
@@ -466,11 +540,16 @@ async def search_pdv_products(
     session: AsyncSession, store_id: str, owner_id: str, q: str, *, limit: int = 20
 ) -> list[dict[str, Any]]:
     await _assert_store_owner(session, store_id, owner_id)
-    rows = (
+    term = q.strip()
+    if not term:
+        return []
+
+    half = max(1, min(limit, 50) // 2)
+    official_rows = (
         await session.execute(
             text(
                 """
-                SELECT id, name, price_cents, stock, sku, category, images
+                SELECT id, name, price_cents, stock, sku, category, images, NULL::text AS barcode
                 FROM tcg_judge.store_products
                 WHERE store_id = :sid AND is_active
                   AND (name ILIKE :q OR sku ILIKE :q)
@@ -478,7 +557,41 @@ async def search_pdv_products(
                 LIMIT :lim
                 """
             ),
-            {"sid": store_id, "q": f"%{q.strip()}%", "lim": min(limit, 50)},
+            {"sid": store_id, "q": f"%{term}%", "lim": half},
         )
     ).mappings().all()
-    return [dict(r) for r in rows]
+
+    local_rows = (
+        await session.execute(
+            text(
+                """
+                SELECT id, name, price_cents, stock, sku, category,
+                       NULL::jsonb AS images, barcode
+                FROM pdv.local_products
+                WHERE store_id = :sid AND active
+                  AND (
+                    name ILIKE :q
+                    OR sku ILIKE :q
+                    OR barcode ILIKE :q
+                    OR lower(coalesce(sku, '')) = lower(:exact)
+                    OR lower(coalesce(barcode, '')) = lower(:exact)
+                  )
+                ORDER BY name
+                LIMIT :lim
+                """
+            ),
+            {"sid": store_id, "q": f"%{term}%", "exact": term, "lim": half},
+        )
+    ).mappings().all()
+
+    results: list[dict[str, Any]] = []
+    for r in local_rows:
+        row = dict(r)
+        row["source"] = "local"
+        row["local_product_id"] = str(row["id"])
+        results.append(row)
+    for r in official_rows:
+        row = dict(r)
+        row["source"] = "official"
+        results.append(row)
+    return results

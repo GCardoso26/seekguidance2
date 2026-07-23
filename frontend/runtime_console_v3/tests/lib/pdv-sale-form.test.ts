@@ -6,11 +6,12 @@ import {
   pdvSaleToApiPayload,
   pdvSaleFormSchema,
 } from "@/lib/pdv-sale-form";
+import type { PdvCartItem } from "@/types/pdv";
 
 describe("pdv-sale-form", () => {
-  const items = [
-    { product_id: "p1", name: "Booster", price_cents: 1990, quantity: 2 },
-    { product_id: "p2", name: "Sleeve", price_cents: 3500, quantity: 1 },
+  const items: PdvCartItem[] = [
+    { product_id: "p1", source: "official", name: "Booster", price_cents: 1990, quantity: 2 },
+    { product_id: "p2", source: "official", name: "Sleeve", price_cents: 3500, quantity: 1 },
   ];
 
   it("calcula total do carrinho", () => {
@@ -23,9 +24,33 @@ describe("pdv-sale-form", () => {
     expect(payload.items).toHaveLength(2);
     expect(payload.items[0]).toEqual({
       product_id: "p1",
+      local_product_id: null,
+      source: "official",
       name: "Booster",
       quantity: 2,
       price_cents: 1990,
+    });
+  });
+
+  it("monta payload de produto local", () => {
+    const localItems: PdvCartItem[] = [
+      {
+        product_id: "loc-1",
+        local_product_id: "loc-1",
+        source: "local",
+        name: "Chocolate",
+        price_cents: 750,
+        quantity: 1,
+      },
+    ];
+    const payload = pdvSaleToApiPayload(localItems, "cash");
+    expect(payload.items[0]).toEqual({
+      product_id: null,
+      local_product_id: "loc-1",
+      source: "local",
+      name: "Chocolate",
+      quantity: 1,
+      price_cents: 750,
     });
   });
 

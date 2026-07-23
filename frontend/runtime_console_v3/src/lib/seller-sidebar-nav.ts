@@ -467,7 +467,22 @@ export const SIDEBAR_ITEMS: SidebarItem[] = [
 
   { id: "settings", label: "Configurações", icon: Settings, href: "/vendedor/painel/configuracoes" },
 
-  { id: "pdv", label: "PDV", icon: ShoppingCart, href: "/vendedor/painel/pdv", feature: "pdv" },
+  {
+    id: "pdv",
+    label: "PDV",
+    icon: ShoppingCart,
+    href: "/vendedor/painel/pdv",
+    feature: "pdv",
+    children: [
+      {
+        id: "pdv-local-products",
+        label: "Produtos Locais",
+        icon: Package,
+        href: "/vendedor/painel/pdv/produtos-locais",
+        feature: "pdv",
+      },
+    ],
+  },
 
 ];
 
