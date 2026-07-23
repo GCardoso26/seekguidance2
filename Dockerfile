@@ -3,8 +3,10 @@
 # Build context: monorepo root
 FROM node:20-slim AS build
 WORKDIR /app
+# redis-memory-server (devDep) tenta baixar/compilar Redis no postinstall — sem make no slim.
+ENV REDISMS_DISABLE_POSTINSTALL=1
 COPY services/api/package.json services/api/package-lock.json* ./
-RUN npm install --omit=dev=false
+RUN npm install --ignore-scripts
 COPY services/api/tsconfig.json services/api/vitest.config.ts ./
 COPY services/api/src ./src
 RUN npm run build && npm prune --omit=dev
