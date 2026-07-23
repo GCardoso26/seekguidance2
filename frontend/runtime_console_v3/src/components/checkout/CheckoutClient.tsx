@@ -105,6 +105,7 @@ export function CheckoutClient() {
   const [pixLoading, setPixLoading] = useState(false);
   const [useEscrow, setUseEscrow] = useState(false);
   const bootStarted = useRef(false);
+  const stripeStarted = useRef(false);
 
   useEffect(() => {
     if (authLoading) return;
@@ -215,6 +216,8 @@ export function CheckoutClient() {
       setInitError("Stripe não configurado");
       return;
     }
+    if (stripeStarted.current) return;
+    stripeStarted.current = true;
     setLoading(true);
     setInitError(null);
     const res = await fetch("/api/marketplace/shop/checkout", {
@@ -229,6 +232,7 @@ export function CheckoutClient() {
       const body = await res.json().catch(() => ({}));
       setInitError(formatApiDetail(body.detail, "Erro ao iniciar pagamento"));
       setLoading(false);
+      stripeStarted.current = false; // permite retry manual
       return;
     }
     const data = await res.json();
@@ -238,10 +242,10 @@ export function CheckoutClient() {
   }
 
   useEffect(() => {
-    if (!methods || !checkoutSession || pixData || clientSecret || reservationError) return;
+    if (!methods || !checkoutSession || pixData || clientSecret || reservationError || initError || loading) return;
     if (method === "stripe" && methods.methods.stripe) void startStripe();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [method, methods, checkoutSession, reservationError]);
+  }, [method, methods, checkoutSession, reservationError, initError, loading]);
 
   function handleCouponApplied(discount: number, code: string) {
     setDiscountCents(discount);

@@ -175,8 +175,14 @@ async def _build_stripe_checkout(
     session_id: str,
     shop_escrow,
 ) -> dict[str, Any]:
+    from app.marketplace.checkout_atomic import user_active_locked_qty_credit
+
     cart, items = await _load_cart_items(session, user_id)
-    locked_credit = _locked_qty_credit(checkout_data)
+    # Alinha com get_checkout_methods (PIX): crédito de TODAS as sessões active do user.
+    # Merge com locked_items da sessão atual (defesa se JSON da sessão ainda não refletir no crédito global).
+    locked_credit = await user_active_locked_qty_credit(session, user_id)
+    for pid, qty in _locked_qty_credit(checkout_data).items():
+        locked_credit[pid] = max(locked_credit.get(pid, 0), qty)
 
     store_splits: dict[str, dict[str, Any]] = {}
     total_cents = 0
@@ -211,6 +217,17 @@ async def _build_stripe_checkout(
         # initiate_checkout already reserved this session's qty — credit it back
         available = int(product["stock"]) - reserved + locked_credit.get(str(product["id"]), 0)
         if qty < 1 or qty > available:
+            logger.warning(
+                "stripe_checkout_insufficient_stock",
+                product_id=str(product["id"]),
+                product_name=product["name"],
+                qty=qty,
+                stock=int(product["stock"]),
+                reserved=reserved,
+                credit=locked_credit.get(str(product["id"]), 0),
+                available=available,
+                session_id=session_id,
+            )
             raise HTTPException(400, f"Estoque insuficiente: {product['name']}")
 
         line_total = int(product["price_cents"]) * qty

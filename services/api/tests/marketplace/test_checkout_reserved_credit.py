@@ -59,3 +59,14 @@ def test_checkout_sessions_update_sql_has_no_updated_at():
     block = src[src.find("UPDATE tcg_judge.checkout_sessions") :]
     block = block[: block.find('"""', 10) + 3]
     assert "updated_at" not in block
+
+
+def test_stripe_checkout_uses_global_active_locked_credit():
+    """Stripe deve creditar reserved de sessões active (igual PIX/methods)."""
+    import inspect
+
+    from app.marketplace import shop_checkout
+
+    src = inspect.getsource(shop_checkout._build_stripe_checkout)
+    assert "user_active_locked_qty_credit" in src
+    assert "_locked_qty_credit(checkout_data)" in src
