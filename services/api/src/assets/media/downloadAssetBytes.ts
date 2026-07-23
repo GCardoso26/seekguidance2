@@ -65,14 +65,6 @@ export function buildFixturePng(seed: string): Buffer {
   const r = hash & 0xff;
   const g = (hash >>> 8) & 0xff;
   const b = (hash >>> 16) & 0xff;
-  // Prebuilt 1x1 PNG template (68 bytes) with IHDR + IDAT + IEND; patch RGB in IDAT payload.
-  const png = Buffer.from(
-    "89504e470d0a1a0a0000000d4948445200000001000000010802000000907753de0000000c4944415408d763f8ffff3f0005fe02fe" +
-      "a75d4a800000000049454e44ae426082",
-    "hex",
-  );
-  // IDAT zlib payload starts after 8(sig)+8(len+IHDR)+13(ihdr)+4(crc)+8(len+IDAT) = 41; compressed stream varies.
-  // Safer: build uncompressed-style tiny PNG via known structure with unique tEXt chunk.
   return buildPngWithTextChunk(r, g, b, seed.slice(0, 48));
 }
 
