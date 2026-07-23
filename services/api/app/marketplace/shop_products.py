@@ -158,6 +158,11 @@ async def list_products(
                s.name AS store_name,
                s.slug AS store_slug,
                s.logo_url AS store_logo_url,
+               s.average_rating AS store_average_rating,
+               s.review_count AS store_review_count,
+               s.verification_status AS store_verification_status,
+               (COALESCE(s.pix_key, '') <> '') AS store_accepts_pix,
+               (s.stripe_account_id IS NOT NULL AND s.stripe_onboarding_complete = true) AS store_accepts_card,
                (
                  SELECT a.cdn_url
                  FROM media.asset_links l
@@ -210,6 +215,11 @@ async def get_product(session: AsyncSession, product_id: str) -> dict[str, Any] 
                        s.slug AS store_slug,
                        s.logo_url AS store_logo_url,
                        s.id AS store_id_ref,
+                       s.average_rating AS store_average_rating,
+                       s.review_count AS store_review_count,
+                       s.verification_status AS store_verification_status,
+                       (COALESCE(s.pix_key, '') <> '') AS store_accepts_pix,
+                       (s.stripe_account_id IS NOT NULL AND s.stripe_onboarding_complete = true) AS store_accepts_card,
                        p.master_variant_id,
                        v.product_id AS master_product_id,
                        (

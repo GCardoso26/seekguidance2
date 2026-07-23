@@ -421,7 +421,7 @@ async def get_card_detail(session: AsyncSession, card_id: str) -> dict[str, Any]
                     "storeName": store_name,
                     # FE CardListing contract (avatar initial uses sellerName.charAt)
                     "sellerName": store_name,
-                    "sellerReputation": float(store.get("trust_score") or 4.5),
+                    "sellerReputation": float(store.get("trust_score") or store.get("average_rating") or 0),
                     "sellerAvatar": store.get("logo_url") or store.get("avatar_url"),
                     "price": round(int(dto["price_cents"]) / 100, 2),
                     "condition": str(dto.get("condition") or "NM"),

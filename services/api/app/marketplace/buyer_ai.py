@@ -54,15 +54,20 @@ async def _trusted_listings(session: AsyncSession, limit: int = 4) -> list[dict[
             text(
                 f"""
                 SELECT p.id, p.name, p.price_cents, s.name AS store_name, s.slug,
-                       COALESCE(ss.trust_score, 75.0) AS trust_score
+                       s.verification_status,
+                       COALESCE(s.average_rating, 0) AS average_rating,
+                       COALESCE(s.review_count, 0) AS review_count,
+                       (COALESCE(s.pix_key, '') <> '') AS accepts_pix,
+                       (s.stripe_account_id IS NOT NULL AND s.stripe_onboarding_complete = true) AS accepts_card
                 FROM tcg_judge.store_products p
                 JOIN tcg_judge.stores s ON s.id = p.store_id
-                LEFT JOIN tcg_judge.seller_scores ss ON ss.store_id = s.id
                 WHERE p.is_active AND p.stock > 0
-                  AND COALESCE(ss.trust_score, 75.0) >= 80
+                  AND s.verification_status = 'verified'
                   AND {STORE_SELLABLE_SQL.strip()}
                   AND {PUBLIC_LISTING_SQL.strip()}
-                ORDER BY ss.trust_score DESC NULLS LAST, p.price_cents ASC
+                ORDER BY
+                  CASE WHEN COALESCE(s.review_count, 0) > 0 THEN s.average_rating ELSE 0 END DESC,
+                  p.price_cents ASC
                 LIMIT :lim
                 """
             ),
@@ -74,12 +79,24 @@ async def _trusted_listings(session: AsyncSession, limit: int = 4) -> list[dict[
             "type": "trusted_deal",
             "priority": "medium",
             "title": str(r["name"]),
-            "description": f"Loja confiável ({float(r['trust_score']):.0f} trust) · {int(r['price_cents']) / 100:.2f}",
+            "description": (
+                f"Loja verificada"
+                + (
+                    f" · ★ {float(r['average_rating']):.1f} ({int(r['review_count'])})"
+                    if int(r["review_count"] or 0) > 0
+                    else " · sem avaliações ainda"
+                )
+                + f" · R$ {int(r['price_cents']) / 100:.2f}"
+            ),
             "cta": {"label": "Ver oferta", "href": f"/marketplace/product/{r['id']}"},
             "meta": {
                 "product_id": str(r["id"]),
                 "store_slug": r.get("slug"),
-                "trust_score": float(r["trust_score"]),
+                "verification_status": r.get("verification_status"),
+                "average_rating": float(r.get("average_rating") or 0),
+                "review_count": int(r.get("review_count") or 0),
+                "accepts_pix": bool(r.get("accepts_pix")),
+                "accepts_card": bool(r.get("accepts_card")),
             },
         }
         for r in rows

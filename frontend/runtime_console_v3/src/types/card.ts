@@ -180,6 +180,11 @@ export interface CardListing {
   sellerId: string;
   sellerName: string;
   sellerReputation: number;
+  sellerReviewCount?: number;
+  storeVerificationStatus?: string | null;
+  storeAcceptsPix?: boolean;
+  storeAcceptsCard?: boolean;
+  storeSlug?: string | null;
   sellerAvatar?: string;
   condition: "NM" | "LP" | "MP" | "HP" | "DM";
   price: number;

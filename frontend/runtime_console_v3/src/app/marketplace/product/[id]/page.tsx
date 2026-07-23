@@ -13,6 +13,12 @@ import { ProductKnowledgePanel } from "@/components/marketplace/ProductKnowledge
 import { formatShopPrice, addProductToCart, type ShopProduct } from "@/lib/marketplace-shop";
 import { showToast } from "@/lib/toast";
 import { isUnusableImageSrc } from "@/lib/format-currency";
+import { StoreTrustChips } from "@/components/marketplace/StoreTrustChips";
+import {
+  PdpLegalAtfLine,
+  PdpPurchaseAssurance,
+  PdpShippingCepField,
+} from "@/components/cards/PdpTrustExtras";
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -103,16 +109,30 @@ export default function ProductDetailPage() {
               <p className="text-xs uppercase tracking-wide text-muted-foreground">{product.category}</p>
               <h1 className="mt-1 text-3xl font-bold">{product.name}</h1>
               {product.store_slug && (
-                <Link href={`/marketplace/loja/${product.store_slug}`} className="mt-2 inline-block text-sm text-muted-foreground hover:underline">
-                  {product.store_name}
-                </Link>
+                <div className="mt-2 space-y-1.5">
+                  <Link href={`/marketplace/loja/${product.store_slug}`} className="inline-block text-sm text-muted-foreground hover:underline">
+                    {product.store_name}
+                  </Link>
+                  <StoreTrustChips
+                    verificationStatus={product.store_verification_status}
+                    averageRating={product.store_average_rating}
+                    reviewCount={product.store_review_count}
+                    acceptsPix={product.store_accepts_pix}
+                    acceptsCard={product.store_accepts_card}
+                  />
+                </div>
               )}
               <p className="mt-4 font-mono text-2xl text-primary">{formatShopPrice(product.price_cents)}</p>
+              <PdpLegalAtfLine className="mt-2" />
               {product.description && <p className="mt-4 text-muted-foreground">{product.description}</p>}
               <p className="mt-2 text-sm text-muted-foreground">
                 Estoque: {product.stock ?? 0}
                 {(product.stock ?? 0) > 0 ? " · pronto para envio" : ""}
               </p>
+              <div className="mt-4 space-y-3">
+                <PdpShippingCepField />
+                <PdpPurchaseAssurance />
+              </div>
               <button
                 type="button"
                 onClick={buyNow}

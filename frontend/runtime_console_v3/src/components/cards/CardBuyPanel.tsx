@@ -19,6 +19,7 @@ import {
 import { formatCurrency } from "@/lib/format-currency";
 import { isListingPurchasable } from "@/lib/listing-utils";
 import { sellerInitial } from "@/lib/normalize-card-listing";
+import { StoreTrustChips } from "@/components/marketplace/StoreTrustChips";
 import type { CardListing, CardMarketSummary, UnifiedCard } from "@/types/card";
 import { cn } from "@/lib/utils";
 
@@ -33,8 +34,16 @@ type Props = {
   className?: string;
 };
 
-function TrustScore({ score }: { score: number }) {
-  const label = score >= 4.5 ? "Excelente" : score >= 4 ? "Boa" : score >= 3 ? "Regular" : "Nova";
+function TrustScore({ score, reviewCount = 0 }: { score: number; reviewCount?: number }) {
+  if (!reviewCount || score <= 0) {
+    return (
+      <div className="rounded-lg border border-border bg-muted/30 px-2.5 py-2">
+        <p className="text-caption font-semibold text-foreground">Nova loja</p>
+        <p className="text-caption text-muted-foreground">Ainda sem avaliações de compradores</p>
+      </div>
+    );
+  }
+  const label = score >= 4.5 ? "Excelente" : score >= 4 ? "Boa" : score >= 3 ? "Regular" : "Em construção";
   const tone =
     score >= 4.5 ? "text-success" : score >= 4 ? "text-primary" : "text-muted-foreground";
 
@@ -48,7 +57,7 @@ function TrustScore({ score }: { score: number }) {
       </div>
       <div className="min-w-0">
         <p className="text-caption font-semibold text-foreground">Nota da loja · {label}</p>
-        <p className="text-caption text-muted-foreground">Média de avaliações nesta plataforma</p>
+        <p className="text-caption text-muted-foreground">{reviewCount} avaliações</p>
       </div>
     </div>
   );
@@ -172,12 +181,20 @@ export function CardBuyPanel({
                   <span className="text-caption text-muted-foreground">{best.language?.toUpperCase()}</span>
                 </div>
               </div>
-              {best.sellerReputation >= 4.5 && (
+              {best.sellerReputation >= 4.5 && (best.sellerReviewCount ?? 0) > 0 && (
                 <ShieldCheck className="h-5 w-5 shrink-0 text-success" aria-label="Nota alta" />
               )}
             </div>
 
-            <TrustScore score={best.sellerReputation} />
+            <TrustScore score={best.sellerReputation} reviewCount={best.sellerReviewCount ?? 0} />
+
+            <StoreTrustChips
+              verificationStatus={best.storeVerificationStatus}
+              averageRating={best.sellerReputation}
+              reviewCount={best.sellerReviewCount}
+              acceptsPix={best.storeAcceptsPix}
+              acceptsCard={best.storeAcceptsCard}
+            />
 
             <PdpShippingCepField />
 

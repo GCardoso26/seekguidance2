@@ -21,7 +21,8 @@ describe("normalizeCardListing", () => {
     );
 
     expect(listing.sellerName).toBe("Lojinha 1");
-    expect(listing.sellerReputation).toBe(4.5);
+    expect(listing.sellerReputation).toBe(0);
+    expect(listing.sellerReviewCount).toBe(0);
     expect(listing.productId).toBe("aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee");
     expect(sellerInitial(listing.sellerName)).toBe("L");
   });

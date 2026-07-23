@@ -15,10 +15,13 @@ export function StoreRatingBadge({ className = "" }: Props) {
 }
 
 export function StoreRatingInline({ rating, count }: Props) {
-  if (!rating && !count) return null;
+  const reviews = Number(count ?? 0);
+  if (reviews <= 0) {
+    return <span className="text-sm text-muted-foreground">Nova loja</span>;
+  }
   return (
     <span className="text-sm text-muted-foreground">
-      ★ {Number(rating ?? 0).toFixed(1)} ({count ?? 0})
+      ★ {Number(rating ?? 0).toFixed(1)} ({reviews})
     </span>
   );
 }

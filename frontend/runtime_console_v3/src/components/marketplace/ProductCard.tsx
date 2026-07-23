@@ -9,6 +9,7 @@ import { mediaTypeFromCategory, primaryProductImageUrl } from "@/lib/assets";
 import { formatShopPrice, type ShopProduct } from "@/lib/marketplace-shop";
 import { WishlistButton } from "@/components/marketplace/WishlistButton";
 import { PriceAlertButton } from "@/components/marketplace/PriceAlertButton";
+import { StoreTrustChips } from "@/components/marketplace/StoreTrustChips";
 import { GAME_TOKENS } from "@/lib/tcg-tokens";
 import type { GameId } from "@/types/card";
 import { cn } from "@/lib/utils";
@@ -93,12 +94,22 @@ export function ProductCard({ product, onAdd }: Props) {
         </div>
 
         {product.store_name && product.store_slug && (
-          <Link
-            href={`/marketplace/loja/${product.store_slug}`}
-            className="text-small text-muted-foreground transition-colors hover:text-primary"
-          >
-            {product.store_name}
-          </Link>
+          <div className="space-y-1">
+            <Link
+              href={`/marketplace/loja/${product.store_slug}`}
+              className="text-small text-muted-foreground transition-colors hover:text-primary"
+            >
+              {product.store_name}
+            </Link>
+            <StoreTrustChips
+              compact
+              verificationStatus={product.store_verification_status}
+              averageRating={product.store_average_rating}
+              reviewCount={product.store_review_count}
+              acceptsPix={product.store_accepts_pix}
+              acceptsCard={product.store_accepts_card}
+            />
+          </div>
         )}
 
         <div className="flex flex-wrap items-center gap-2">

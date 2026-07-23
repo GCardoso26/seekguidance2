@@ -16,6 +16,11 @@ export type ShopProduct = {
   store_name?: string;
   store_slug?: string;
   store_logo_url?: string | null;
+  store_average_rating?: number | null;
+  store_review_count?: number | null;
+  store_verification_status?: string | null;
+  store_accepts_pix?: boolean | null;
+  store_accepts_card?: boolean | null;
   images?: string[];
   stock?: number;
   created_at?: string | null;

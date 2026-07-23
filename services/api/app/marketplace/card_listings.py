@@ -80,10 +80,13 @@ def _listing_payload(row: dict[str, Any]) -> dict[str, Any]:
         ]
 
     reputation_raw = row.get("seller_trust_score") or row.get("seller_reputation") or row.get("average_rating")
-    if row.get("seller_trust_score"):
+    review_count = int(row.get("store_review_count") or row.get("review_count") or 0)
+    if row.get("seller_trust_score") is not None:
         reputation = float(row["seller_trust_score"]) / 20.0
+    elif reputation_raw is not None and review_count > 0:
+        reputation = float(reputation_raw)
     else:
-        reputation = float(reputation_raw or 4.5)
+        reputation = 0.0
     product_id = row.get("store_product_id")
     qty = int(row.get("quantity") or 0)
     status = str(row.get("status") or "active")
@@ -94,6 +97,11 @@ def _listing_payload(row: dict[str, Any]) -> dict[str, Any]:
         "sellerId": str(row["seller_id"]),
         "sellerName": str(row.get("seller_name") or row.get("store_name") or "Vendedor"),
         "sellerReputation": round(reputation, 1),
+        "sellerReviewCount": review_count,
+        "storeVerificationStatus": row.get("store_verification_status") or row.get("verification_status"),
+        "storeAcceptsPix": bool(row.get("store_accepts_pix")),
+        "storeAcceptsCard": bool(row.get("store_accepts_card")),
+        "storeSlug": row.get("store_slug"),
         "sellerAvatar": row.get("seller_avatar") or row.get("store_logo"),
         "condition": str(row["condition"]),
         "price": round(int(row["price_cents"]) / 100, 2),
@@ -366,8 +374,13 @@ async def list_listings_by_card(
                pp.display_name AS seller_name,
                pp.avatar_url AS seller_avatar,
                s.name AS store_name,
+               s.slug AS store_slug,
                s.logo_url AS store_logo,
-               COALESCE(s.average_rating, 4.5) AS seller_reputation,
+               s.average_rating AS seller_reputation,
+               s.review_count AS store_review_count,
+               s.verification_status AS store_verification_status,
+               (COALESCE(s.pix_key, '') <> '') AS store_accepts_pix,
+               (s.stripe_account_id IS NOT NULL AND s.stripe_onboarding_complete = true) AS store_accepts_card,
                cc.name AS card_name,
                cc.set_name,
                cc.image_url AS card_image_url,
@@ -403,8 +416,13 @@ async def list_my_listings(
                pp.display_name AS seller_name,
                pp.avatar_url AS seller_avatar,
                s.name AS store_name,
+               s.slug AS store_slug,
                s.logo_url AS store_logo,
-               COALESCE(s.average_rating, 4.5) AS seller_reputation,
+               s.average_rating AS seller_reputation,
+               s.review_count AS store_review_count,
+               s.verification_status AS store_verification_status,
+               (COALESCE(s.pix_key, '') <> '') AS store_accepts_pix,
+               (s.stripe_account_id IS NOT NULL AND s.stripe_onboarding_complete = true) AS store_accepts_card,
                cc.name AS card_name,
                cc.set_name,
                cc.image_url AS card_image_url,
