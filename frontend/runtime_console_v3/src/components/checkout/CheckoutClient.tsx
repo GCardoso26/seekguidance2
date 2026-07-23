@@ -230,7 +230,9 @@ export function CheckoutClient() {
     });
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
-      setInitError(formatApiDetail(body.detail, "Erro ao iniciar pagamento"));
+      const message = formatApiDetail(body.detail, "Erro ao iniciar pagamento");
+      console.error("checkout_stripe_failed", { status: res.status, detail: body.detail });
+      setInitError(message);
       setLoading(false);
       stripeStarted.current = false; // permite retry manual
       return;
