@@ -19,7 +19,11 @@ async function main(): Promise<void> {
   searchSyncWorker.start();
   analyticsIngestor.start();
 
-  const attachBullmq = process.env.WORKER_IDLE === "0" || process.env.BULLMQ_WORKERS === "1";
+  // Default ON in production so sealed/accessory queues actually sync (ACK-only was the prior bug).
+  const attachBullmq =
+    process.env.BULLMQ_WORKERS === "1" ||
+    process.env.WORKER_IDLE === "0" ||
+    (process.env.NODE_ENV === "production" && process.env.BULLMQ_WORKERS !== "0");
   if (attachBullmq) {
     const registered = await registerProductCatalogBullmqWorkers();
     log.info({ bullmqQueues: registered.queues.length }, "bullmq_workers_attached");

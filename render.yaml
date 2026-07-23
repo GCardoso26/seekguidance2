@@ -91,3 +91,76 @@ services:
         sync: false
       - key: MELHOR_ENVIO_SANDBOX
         value: "false"
+
+  # Product-catalog BullMQ workers — processa sealed/accessories de verdade
+  - type: worker
+    name: tcg-judge-pc-workers
+    runtime: docker
+    plan: starter
+    region: oregon
+    dockerfilePath: services/api/Dockerfile.workers
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: BULLMQ_WORKERS
+        value: "1"
+      - key: BULLMQ_CONCURRENCY
+        value: "1"
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: tcg-judge-redis
+          property: connectionString
+
+  # Sealed sync horário (bypass fila — garante dados mesmo se worker/Redis falhar)
+  - type: cron
+    name: tcg-judge-pc-sealed-hourly
+    runtime: docker
+    plan: starter
+    region: oregon
+    schedule: "20 * * * *"
+    dockerfilePath: services/api/Dockerfile.workers
+    dockerCommand: node dist/product-catalog/workers/cron-entrypoint.js sealed
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+
+  # Accessories diário
+  - type: cron
+    name: tcg-judge-pc-accessories-daily
+    runtime: docker
+    plan: starter
+    region: oregon
+    schedule: "30 8 * * *"
+    dockerfilePath: services/api/Dockerfile.workers
+    dockerCommand: node dist/product-catalog/workers/cron-entrypoint.js accessories
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+
+  # Scheduler tick — enfileira providers due no Redis
+  - type: cron
+    name: tcg-judge-pc-scheduler-tick
+    runtime: docker
+    plan: starter
+    region: oregon
+    schedule: "5 * * * *"
+    dockerfilePath: services/api/Dockerfile.workers
+    dockerCommand: node dist/product-catalog/workers/cron-entrypoint.js tick
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: tcg-judge-redis
+          property: connectionString
+

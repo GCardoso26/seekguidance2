@@ -1,11 +1,18 @@
 /**
  * Registers BullMQ Workers for product-catalog sync queues.
- * Moves exhausted jobs to matching *.dlq. Stabilization wiring only.
+ * Moves exhausted jobs to matching *.dlq.
+ * Processors run ProductCatalogSyncService for real (not ACK-only).
  */
 import { Worker, type Job } from "bullmq";
+import type { Pool } from "pg";
+import { Pool as PgPool } from "pg";
 import { createLogger } from "../logging/logger.js";
 import { ensureDlq, redisConnectionFromEnv } from "./client.js";
 import { QUEUE_NAMES, type QueueName } from "./queues.js";
+import { executeProductCatalogSyncJob } from "../../product-catalog/cli/runProductCatalogSync.js";
+import type { ProductCatalogJobKey } from "../../product-catalog/providers/ProductCatalogProvider.js";
+import { listProductCatalogJobs } from "../../product-catalog/providers/registry.js";
+import type { ProductCatalogSyncCommandPayload } from "../../product-catalog/commands/ProductCatalogSyncCommand.js";
 
 const log = createLogger("bullmq.workers");
 
@@ -20,28 +27,85 @@ const PRODUCT_CATALOG_QUEUES: QueueName[] = [
   QUEUE_NAMES.productCatalogPlaymats,
 ];
 
+const VALID_JOBS = new Set(listProductCatalogJobs());
+
 export interface RegisteredWorkers {
   workers: Worker[];
   queues: string[];
 }
 
+function resolveJobKey(job: Job): ProductCatalogJobKey {
+  const data = job.data as {
+    payload?: ProductCatalogSyncCommandPayload;
+    jobKey?: string;
+  };
+  const fromPayload = data?.payload?.jobKey ?? data?.jobKey;
+  if (fromPayload && VALID_JOBS.has(fromPayload as ProductCatalogJobKey)) {
+    return fromPayload as ProductCatalogJobKey;
+  }
+  if (VALID_JOBS.has(job.queueName as ProductCatalogJobKey)) {
+    return job.queueName as ProductCatalogJobKey;
+  }
+  throw new Error(`unknown_product_catalog_job:${job.queueName}`);
+}
+
+function resolveMode(job: Job): "full" | "incremental" {
+  const data = job.data as { payload?: ProductCatalogSyncCommandPayload; mode?: string };
+  const mode = data?.payload?.mode ?? data?.mode;
+  return mode === "full" ? "full" : "incremental";
+}
+
+function resolveDryRun(job: Job): boolean {
+  const data = job.data as { payload?: ProductCatalogSyncCommandPayload; dryRun?: boolean };
+  return data?.payload?.dryRun === true || data?.dryRun === true;
+}
+
+function pgUrl(raw: string): string {
+  return raw.replace(/^postgresql\+asyncpg:/, "postgresql:");
+}
+
 export async function registerProductCatalogBullmqWorkers(
   processor?: (job: Job) => Promise<unknown>,
+  opts?: { pool?: Pool },
 ): Promise<RegisteredWorkers> {
   const connection = redisConnectionFromEnv();
   const workers: Worker[] = [];
 
+  const ownPool = !opts?.pool;
+  const databaseUrl = process.env.DATABASE_URL;
+  if (!opts?.pool && !databaseUrl) {
+    throw new Error("DATABASE_URL required for product catalog BullMQ workers");
+  }
+  const pool = opts?.pool ?? new PgPool({ connectionString: pgUrl(databaseUrl!) });
+
   const defaultProcessor = async (job: Job) => {
+    const jobKey = resolveJobKey(job);
+    const dryRun = resolveDryRun(job);
+    const mode = resolveMode(job);
+
     log.info(
-      { queue: job.queueName, jobId: job.id, name: job.name, attempt: job.attemptsMade },
+      { queue: job.queueName, jobId: job.id, jobKey, mode, dryRun, attempt: job.attemptsMade },
       "product_catalog_job_received",
     );
-    // Inline sync is orchestrated by sync-runner / scheduler scripts.
-    // Worker acknowledges the command envelope for queue health certification.
-    if (job.data?.dryRun === true || job.data?.payload?.dryRun === true) {
-      return { ok: true, dryRun: true, jobId: job.id };
+
+    if (dryRun) {
+      return { ok: true, dryRun: true, jobId: job.id, jobKey };
     }
-    return { ok: true, acknowledged: true, jobId: job.id, queue: job.queueName };
+
+    const result = await executeProductCatalogSyncJob(jobKey, { mode, dryRun: false, pool });
+    if (!result.ok) {
+      const hard = result.errors.filter((e) => !e.startsWith("image:") && !e.startsWith("knowledge:"));
+      if (hard.length) {
+        throw new Error(`product_catalog_sync_failed:${jobKey}:${hard.slice(0, 3).join("|")}`);
+      }
+    }
+    return {
+      ok: result.ok,
+      jobId: job.id,
+      jobKey,
+      upserted: result.upserted,
+      errorCount: result.errors.length,
+    };
   };
 
   const run = processor ?? defaultProcessor;
@@ -50,7 +114,7 @@ export async function registerProductCatalogBullmqWorkers(
     ensureDlq(queueName);
     const worker = new Worker(queueName, run, {
       connection,
-      concurrency: Number(process.env.BULLMQ_CONCURRENCY ?? 2),
+      concurrency: Number(process.env.BULLMQ_CONCURRENCY ?? 1),
     });
 
     worker.on("failed", async (job, err) => {
@@ -77,6 +141,15 @@ export async function registerProductCatalogBullmqWorkers(
     });
 
     workers.push(worker);
+  }
+
+  if (ownPool) {
+    const shutdown = async () => {
+      await closeWorkers(workers);
+      await pool.end();
+    };
+    process.once("SIGINT", () => void shutdown());
+    process.once("SIGTERM", () => void shutdown());
   }
 
   log.info({ queues: PRODUCT_CATALOG_QUEUES.length }, "product_catalog_bullmq_workers_registered");

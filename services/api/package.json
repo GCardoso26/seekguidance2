@@ -51,6 +51,8 @@
     "pricing:sync": "tsx src/pricing/workers/pricing-sync.ts",
     "scheduler:tick": "tsx src/product-catalog/workers/scheduler-tick.ts",
     "catalog:remediate-p0": "tsx src/product-catalog/workers/remediate-p0-catalog.ts",
+    "catalog:seed-listings": "tsx src/product-catalog/workers/seed-store-listings.ts",
+    "catalog:cron": "tsx src/product-catalog/workers/cron-entrypoint.ts",
     "marketplace:publish-product": "tsx src/marketplace/workers/publish-product-listing.ts",
     "checkout:start": "tsx src/checkout/workers/start-checkout.ts",
     "smoke:rapunzel": "tsx src/workers/smoke-rapunzel.ts",

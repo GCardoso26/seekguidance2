@@ -69,7 +69,21 @@ Comandos `ProductCatalogSyncCommand` — ADR-002.
 ```bash
 npm run sync:sealed
 npm run sync:sleeves -- --since 2026-01-01T00:00:00Z
+npm run catalog:remediate-p0 -- --sealed-only   # bootstrap + sealed only
+npm run catalog:remediate-p0                   # sealed first, then accessories
 ```
+
+## Operação (MVP)
+
+| Peça | Onde |
+|------|------|
+| Sync inline sealed | `cron-entrypoint sealed` / GH `product-catalog-sync.yml` hourly |
+| Accessories | `cron-entrypoint accessories` / GH daily 08:30 UTC |
+| Scheduler tick | `cron-entrypoint tick` → BullMQ enqueue |
+| Workers | `Dockerfile.workers` + `BULLMQ_WORKERS=1` (processa sync de verdade) |
+| Render | `tcg-judge-pc-workers` + crons sealed/accessories/tick em `render.yaml` |
+
+Import Monitor: `/admin/import-monitor` — providers `SEALED_PRODUCT` devem sair de `bootstrapped` após o primeiro sync.
 
 ## Busca
 

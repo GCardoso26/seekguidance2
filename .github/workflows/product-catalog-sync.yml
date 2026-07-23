@@ -1,0 +1,109 @@
+# Product Catalog sync (sealed + accessories + scheduler tick)
+#
+# Secrets (GitHub → Settings → Secrets → Actions):
+#   PRODUCT_CATALOG_DATABASE_URL — Postgres (Supabase) connection string
+#   REDIS_URL                    — opcional; só necessário para `tick` (enqueue BullMQ)
+#
+# Manual:
+#   gh workflow run product-catalog-sync.yml -f job=sealed -f full=true
+
+name: Product Catalog Sync
+
+on:
+  schedule:
+    # Sealed incremental — hourly at :20 UTC
+    - cron: "20 * * * *"
+    # Accessories — daily 08:30 UTC
+    - cron: "30 8 * * *"
+    # Scheduler tick — hourly at :05 UTC (enfileira due no Redis se REDIS_URL set)
+    - cron: "5 * * * *"
+  workflow_dispatch:
+    inputs:
+      job:
+        description: "sealed | accessories | tick | remediate-sealed"
+        type: choice
+        options:
+          - sealed
+          - accessories
+          - tick
+          - remediate-sealed
+        default: sealed
+      full:
+        description: "Sync completo (full=true)"
+        type: boolean
+        default: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: services/api/package-lock.json
+
+      - name: Install
+        working-directory: services/api
+        run: npm ci --ignore-scripts
+
+      - name: Resolve job
+        id: job
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "name=${{ github.event.inputs.job }}" >> "$GITHUB_OUTPUT"
+            echo "full=${{ github.event.inputs.full }}" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.schedule }}" = "30 8 * * *" ]; then
+            echo "name=accessories" >> "$GITHUB_OUTPUT"
+            echo "full=false" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.schedule }}" = "5 * * * *" ]; then
+            echo "name=tick" >> "$GITHUB_OUTPUT"
+            echo "full=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "name=sealed" >> "$GITHUB_OUTPUT"
+            echo "full=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run product-catalog job
+        working-directory: services/api
+        env:
+          DATABASE_URL: ${{ secrets.PRODUCT_CATALOG_DATABASE_URL || secrets.DATABASE_URL }}
+          REDIS_URL: ${{ secrets.REDIS_URL }}
+          SEED_STORE_ID: ${{ secrets.PRODUCT_CATALOG_SEED_STORE_ID }}
+        run: |
+          set -euo pipefail
+          if [ -z "${DATABASE_URL:-}" ]; then
+            echo "::error::PRODUCT_CATALOG_DATABASE_URL (ou DATABASE_URL) não configurado"
+            exit 1
+          fi
+
+          JOB="${{ steps.job.outputs.name }}"
+          FULL="${{ steps.job.outputs.full }}"
+          EXTRA=""
+          if [ "$FULL" = "true" ]; then EXTRA="--full"; fi
+
+          case "$JOB" in
+            sealed)
+              npx tsx src/product-catalog/workers/cron-entrypoint.ts sealed $EXTRA
+              ;;
+            accessories)
+              npx tsx src/product-catalog/workers/cron-entrypoint.ts accessories $EXTRA
+              ;;
+            tick)
+              if [ -z "${REDIS_URL:-}" ]; then
+                echo "::warning::REDIS_URL ausente — tick enfileira via BullMQ; pulando"
+                exit 0
+              fi
+              npx tsx src/product-catalog/workers/cron-entrypoint.ts tick
+              ;;
+            remediate-sealed)
+              npx tsx src/product-catalog/workers/remediate-p0-catalog.ts --sealed-only
+              ;;
+            *)
+              echo "::error::job desconhecido: $JOB"
+              exit 1
+              ;;
+          esac

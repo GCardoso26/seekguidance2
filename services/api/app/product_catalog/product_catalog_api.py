@@ -1002,10 +1002,10 @@ async def publish_seller_master_listing(
 
     title_pt = meta_row[0]
     category_map = {
-        "SEALED_PRODUCT": "booster_box",
+        "SEALED_PRODUCT": "booster",
         "SLEEVES": "sleeve",
         "DECK_BOX": "deck_box",
-        "BINDER": "album",
+        "BINDER": "accessory",
         "PLAYMAT": "playmat",
     }
     legacy_category = category_map.get(meta_row[1], "accessory")
