@@ -144,7 +144,19 @@ class SearchSyntaxParser:
             idx += 1
 
             if f.field == "name":
-                clauses.append(f"p.name ILIKE :{key}")
+                clauses.append(
+                    f"(p.name ILIKE :{key} OR COALESCE(cc.name, '') ILIKE :{key}"
+                    f" OR COALESCE(cc.normalized_name, '') ILIKE :{key})"
+                )
+                params[key] = f"%{f.value}%"
+            elif f.field == "set":
+                clauses.append(
+                    f"(LOWER(COALESCE(cc.set_code, '')) LIKE LOWER(:{key})"
+                    f" OR LOWER(COALESCE(cc.set_name, '')) LIKE LOWER(:{key}))"
+                )
+                params[key] = f"%{f.value}%"
+            elif f.field == "rarity":
+                clauses.append(f"LOWER(COALESCE(cc.rarity, '')) LIKE LOWER(:{key})")
                 params[key] = f"%{f.value}%"
             elif f.field == "foil":
                 clauses.append(
@@ -161,6 +173,12 @@ class SearchSyntaxParser:
                     pass
             elif f.field in ("signed", "altered"):
                 pass
+            elif f.field in ("type", "types"):
+                clauses.append(f"COALESCE(cc.game_data->>'type_line', '') ILIKE :{key}")
+                params[key] = f"%{f.value}%"
+            elif f.field in ("lang", "language"):
+                clauses.append(f"COALESCE(cc.language, p.language, '') = :{key}")
+                params[key] = str(f.value).lower()
 
         return clauses, params
 

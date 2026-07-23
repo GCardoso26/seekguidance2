@@ -102,7 +102,18 @@ async def list_products(
             search if not parsed["filters"] else ""
         )
         if text_q:
-            clauses.append("p.name ILIKE :q")
+            # Match listing name OR linked card catalog OR master product title.
+            clauses.append(
+                """
+                (
+                  p.name ILIKE :q
+                  OR COALESCE(cc.name, '') ILIKE :q
+                  OR COALESCE(cc.normalized_name, '') ILIKE :q
+                  OR COALESCE(mp.title_pt, '') ILIKE :q
+                  OR COALESCE(mp.title, '') ILIKE :q
+                )
+                """
+            )
             params["q"] = f"%{text_q.strip()}%"
     if min_price_cents is not None:
         clauses.append("p.price_cents >= :minp")
@@ -134,21 +145,27 @@ async def list_products(
         order = "p.name ASC"
 
     where_sql = " AND ".join(clauses)
+    from_sql = """
+        FROM tcg_judge.store_products p
+        JOIN tcg_judge.stores s ON s.id = p.store_id
+        LEFT JOIN tcg_judge.card_catalog cc ON cc.id = p.catalog_card_id
+        LEFT JOIN product_catalog.variants mv ON mv.id = p.master_variant_id
+        LEFT JOIN product_catalog.products mp ON mp.id = mv.product_id
+    """
     sql = f"""
         SELECT p.*,
                s.name AS store_name,
                s.slug AS store_slug,
-               s.logo_url AS store_logo_url
-        FROM tcg_judge.store_products p
-        JOIN tcg_judge.stores s ON s.id = p.store_id
+               s.logo_url AS store_logo_url,
+               COALESCE(NULLIF(p.images[1], ''), cc.image_url) AS search_image_url
+        {from_sql}
         WHERE {where_sql}
         ORDER BY {order}
         LIMIT :lim OFFSET :off
     """
     count_sql = f"""
         SELECT COUNT(*)::int AS total
-        FROM tcg_judge.store_products p
-        JOIN tcg_judge.stores s ON s.id = p.store_id
+        {from_sql}
         WHERE {where_sql}
     """
     rows = (await session.execute(text(sql), params)).mappings().all()
