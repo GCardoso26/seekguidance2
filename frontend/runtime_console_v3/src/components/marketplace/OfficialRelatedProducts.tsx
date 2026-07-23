@@ -49,7 +49,7 @@ export function OfficialRelatedProducts({ productId }: { productId: string }) {
         {items.map((item) => (
           <li key={`${item.product_id}-${item.relation_type}`}>
             <Link
-              href={`/marketplace?q=${encodeURIComponent(item.title_pt)}`}
+              href={`/marketplace/produtos?q=${encodeURIComponent(item.title_pt)}`}
               className="block rounded-lg border border-border p-2 transition hover:bg-muted/40"
             >
               <span className="relative mb-2 block aspect-square overflow-hidden rounded bg-muted/30">

@@ -30,7 +30,7 @@ export function FilterFields({ filters, onChange, onClear, stores }: FilterField
             onChange={(e) =>
               onChange({ minPrice: e.target.value ? Number(e.target.value) : undefined, page: 1 })
             }
-            className="h-9 w-full rounded-lg border border-input bg-card px-3 text-small focus-ring"
+            className="h-9 w-full rounded-lg border border-input bg-card px-3 text-small text-foreground focus-ring"
             aria-label="Preço mínimo"
           />
           <span className="text-muted-foreground">—</span>
@@ -43,7 +43,7 @@ export function FilterFields({ filters, onChange, onClear, stores }: FilterField
             onChange={(e) =>
               onChange({ maxPrice: e.target.value ? Number(e.target.value) : undefined, page: 1 })
             }
-            className="h-9 w-full rounded-lg border border-input bg-card px-3 text-small focus-ring"
+            className="h-9 w-full rounded-lg border border-input bg-card px-3 text-small text-foreground focus-ring"
             aria-label="Preço máximo"
           />
         </div>
@@ -64,9 +64,9 @@ export function FilterFields({ filters, onChange, onClear, stores }: FilterField
                     : current.filter((v) => v !== c.value);
                   onChange({ condition: next.length ? next : undefined, page: 1 });
                 }}
-                className="h-4 w-4"
+                className="h-4 w-4 accent-primary"
               />
-              <span className="text-sm text-muted-foreground">{c.label}</span>
+              <span className="text-sm text-foreground">{c.label}</span>
             </label>
           ))}
         </div>
@@ -77,7 +77,7 @@ export function FilterFields({ filters, onChange, onClear, stores }: FilterField
         <select
           value={filters.gameId ?? ""}
           onChange={(e) => onChange({ gameId: e.target.value || undefined, page: 1 })}
-          className="h-9 w-full rounded-lg border border-input bg-card px-3 text-small focus-ring"
+          className="h-9 w-full rounded-lg border border-input bg-card px-3 text-small text-foreground focus-ring"
           aria-label="Filtrar por jogo"
         >
           <option value="">Todos</option>
@@ -94,7 +94,7 @@ export function FilterFields({ filters, onChange, onClear, stores }: FilterField
         <select
           value={filters.category ?? ""}
           onChange={(e) => onChange({ category: e.target.value || undefined, page: 1 })}
-          className="h-9 w-full rounded-lg border border-input bg-card px-3 text-small focus-ring"
+          className="h-9 w-full rounded-lg border border-input bg-card px-3 text-small text-foreground focus-ring"
           aria-label="Filtrar por categoria de produto"
         >
           <option value="">Todas</option>
@@ -118,7 +118,7 @@ export function FilterFields({ filters, onChange, onClear, stores }: FilterField
           <select
             value={filters.storeId ?? ""}
             onChange={(e) => onChange({ storeId: e.target.value || undefined, page: 1 })}
-            className="h-9 w-full rounded-lg border border-input bg-card px-3 text-small focus-ring"
+            className="h-9 w-full rounded-lg border border-input bg-card px-3 text-small text-foreground focus-ring"
             aria-label="Filtrar por loja"
           >
             <option value="">Todas</option>
@@ -136,10 +136,10 @@ export function FilterFields({ filters, onChange, onClear, stores }: FilterField
           type="checkbox"
           checked={Boolean(filters.inStock)}
           onChange={(e) => onChange({ inStock: e.target.checked || undefined, page: 1 })}
-          className="h-4 w-4"
+          className="h-4 w-4 accent-primary"
           aria-label="Só produtos em estoque"
         />
-        <span className="text-sm text-muted-foreground">Só produtos em estoque</span>
+        <span className="text-sm text-foreground">Só produtos em estoque</span>
       </label>
 
       <MarketplaceFiltersAdvanced filters={filters} onChange={onChange} />

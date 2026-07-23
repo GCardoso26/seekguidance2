@@ -14,6 +14,7 @@
   --game-border: hsl(var(--border));
   --game-text: hsl(var(--foreground));
   --game-text-muted: hsl(var(--muted-foreground));
+  --game-cta-fg: #ffffff;
   --game-gradient-from: #0f172a;
   --game-gradient-via: #1e293b;
   --game-gradient-to: #020617;
@@ -152,7 +153,7 @@
 .game-portal .portal-cta,
 .game-portal .game-cta {
   background-color: var(--game-primary);
-  color: #fff;
+  color: var(--game-cta-fg);
   border-radius: var(--game-button-radius);
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--game-accent) 40%, transparent);
   transition: filter 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;

@@ -116,7 +116,8 @@ const nextConfig = {
     contentDispositionType: "attachment",
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     formats: ["image/avif", "image/webp"],
-    qualities: [70, 75, 80, 85, 90, 100],
+    // ResponsiveImage defaults (list=60, hero=78) + common Image quality props must be allowlisted (Next 15).
+    qualities: [60, 70, 75, 78, 80, 85, 90, 100],
     minimumCacheTTL: 86400,
     deviceSizes: [640, 750, 828, 1080, 1200, 1920],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],

@@ -28,7 +28,7 @@ function CardVersionItem({
 }) {
   const href = version.card_id
     ? gameCardDetailPath(gameSlug, version.card_id)
-    : `/marketplace?expansion=${version.expansion_code}`;
+    : `/marketplace/produtos?q=${encodeURIComponent(version.expansion_code)}`;
 
   return (
     <div className="flex items-center gap-4 rounded-lg border p-4 transition-colors hover:bg-muted/40">

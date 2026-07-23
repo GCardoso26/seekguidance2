@@ -39,6 +39,18 @@ describe("Theme Engine V2", () => {
     expect(vars["--game-card-radius"]).toBeTruthy();
   });
 
+  it("picks CTA foreground with WCAG AA against primary (Pokemon yellow)", () => {
+    const pokemon = getGameTheme("POKEMON");
+    const vars = gameThemeCssVars(pokemon) as Record<string, string>;
+    expect(vars["--game-cta-fg"]).toBe("#0f172a");
+    expect(vars["--foreground"]).toMatch(/^\d+ \d+% \d+%$/);
+  });
+
+  it("keeps white CTA on dark primaries (MTG)", () => {
+    const vars = gameThemeCssVars(getGameTheme("MTG")) as Record<string, string>;
+    expect(vars["--game-cta-fg"]).toBe("#ffffff");
+  });
+
   it("resolves Epic 6 slug aliases", () => {
     expect(gameIdFromSlug("magic")).toBe("MTG");
     expect(gameIdFromSlug("star-wars")).toBe("SWU");

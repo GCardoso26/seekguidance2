@@ -671,9 +671,71 @@ export function getGameThemeBySlug(slug: string): GameTheme | null {
   return getGameTheme(id);
 }
 
+/** Relative luminance (sRGB) for WCAG contrast. */
+function relativeLuminance(hex: string): number {
+  const raw = hex.replace("#", "").slice(0, 6);
+  if (raw.length < 6) return 0;
+  const channels = [0, 2, 4].map((i) => {
+    const c = parseInt(raw.slice(i, i + 2), 16) / 255;
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * channels[0]! + 0.7152 * channels[1]! + 0.0722 * channels[2]!;
+}
+
+function contrastRatio(a: string, b: string): number {
+  const L1 = relativeLuminance(a);
+  const L2 = relativeLuminance(b);
+  const lighter = Math.max(L1, L2);
+  const darker = Math.min(L1, L2);
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
+/** CTA foreground that meets WCAG AA against game primary (token, not hardcoded in CSS). */
+export function ctaForegroundForPrimary(primary: string): string {
+  const onWhite = contrastRatio("#ffffff", primary);
+  const onInk = contrastRatio("#0f172a", primary);
+  return onWhite >= 4.5 || onWhite >= onInk ? "#ffffff" : "#0f172a";
+}
+
+/** Convert #RRGGBB[AA] → "H S% L%" channels for hsl(var(--token)). */
+export function hexToHslChannels(hex: string): string {
+  const raw = hex.replace("#", "").slice(0, 6);
+  if (raw.length < 6) return "0 0% 50%";
+  const r = parseInt(raw.slice(0, 2), 16) / 255;
+  const g = parseInt(raw.slice(2, 4), 16) / 255;
+  const b = parseInt(raw.slice(4, 6), 16) / 255;
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const l = (max + min) / 2;
+  if (max === min) {
+    return `0 0% ${Math.round(l * 100)}%`;
+  }
+  const d = max - min;
+  const s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+  let h = 0;
+  switch (max) {
+    case r:
+      h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
+      break;
+    case g:
+      h = ((b - r) / d + 2) / 6;
+      break;
+    default:
+      h = ((r - g) / d + 4) / 6;
+  }
+  return `${Math.round(h * 360)} ${Math.round(s * 100)}% ${Math.round(l * 100)}%`;
+}
+
 /** Inline CSS variables for portal shell (SSR-safe) — Theme Engine V2. */
 export function gameThemeCssVars(theme: GameTheme): CSSProperties {
   const s = theme.surfaces;
+  const ctaFg = ctaForegroundForPrimary(theme.primary);
+  const fg = hexToHslChannels(s.text);
+  const mutedFg = hexToHslChannels(s.textMuted);
+  const bg = hexToHslChannels(s.bg);
+  const elevated = hexToHslChannels(s.bgElevated);
+  const border = hexToHslChannels(s.border);
+  const accent = hexToHslChannels(s.accent);
   return {
     ["--game-primary" as string]: theme.primary,
     ["--game-secondary" as string]: theme.secondary,
@@ -685,6 +747,7 @@ export function gameThemeCssVars(theme: GameTheme): CSSProperties {
     ["--game-border" as string]: s.border,
     ["--game-text" as string]: s.text,
     ["--game-text-muted" as string]: s.textMuted,
+    ["--game-cta-fg" as string]: ctaFg,
     ["--game-gradient-from" as string]: s.gradientFrom,
     ["--game-gradient-via" as string]: s.gradientVia,
     ["--game-gradient-to" as string]: s.gradientTo,
@@ -702,6 +765,18 @@ export function gameThemeCssVars(theme: GameTheme): CSSProperties {
     ["--game-collection-tint" as string]: theme.collection.panelTint,
     ["--game-deck-tint" as string]: theme.deckBuilder.workspaceTint,
     ["--game-marketplace-skin" as string]: theme.marketplace.skin,
+    // Sync Tailwind semantic tokens inside portal so text-foreground / muted stay legible (V6.4-001).
+    ["--foreground" as string]: fg,
+    ["--muted-foreground" as string]: mutedFg,
+    ["--background" as string]: bg,
+    ["--card" as string]: elevated,
+    ["--card-foreground" as string]: fg,
+    ["--popover" as string]: elevated,
+    ["--popover-foreground" as string]: fg,
+    ["--border" as string]: border,
+    ["--input" as string]: border,
+    ["--primary" as string]: accent,
+    ["--primary-foreground" as string]: hexToHslChannels(ctaFg),
   };
 }
 

@@ -1,0 +1,91 @@
+{
+  "campaign": "QA_PLATFORM_V6_4",
+  "date": "2026-07-23",
+  "verdict": "NOT_READY_FOR_PRODUCTION",
+  "ready_for_production": false,
+  "mode": "ZERO_FEATURE",
+  "bugs": [
+    {
+      "id": "V6.4-001",
+      "title": "Portal contrast / CTA illegible",
+      "status": "fixed_code",
+      "root_cause": "Hardcoded #fff on .game-cta; portal did not sync Tailwind semantic tokens to game surfaces",
+      "files": [
+        "frontend/runtime_console_v3/src/lib/experience/game-theme.ts",
+        "frontend/runtime_console_v3/src/styles/game-themes.css"
+      ],
+      "evidence": {
+        "pokemon_cta_before": { "fg": "#ffffff", "bg": "#FFCB05", "ratio": 1.52 },
+        "pokemon_cta_after": { "fg": "#0f172a", "bg": "#FFCB05", "ratio": 11.73 }
+      }
+    },
+    {
+      "id": "V6.4-002",
+      "title": "Marketplace filter illegible",
+      "status": "fixed_code",
+      "root_cause": "Filter controls missing explicit text-foreground",
+      "files": [
+        "frontend/runtime_console_v3/src/components/marketplace/product-filters/FilterFields.tsx",
+        "frontend/runtime_console_v3/src/components/marketplace/MarketplaceFiltersAdvanced.tsx"
+      ]
+    },
+    {
+      "id": "V6.4-003",
+      "title": "Broken next/image logos 400",
+      "status": "fixed_code_pending_deploy",
+      "root_cause": "images.qualities allowlist omitted 60 and 78 used by ResponsiveImage",
+      "files": ["frontend/runtime_console_v3/next.config.mjs"],
+      "evidence_prod_pre_fix": {
+        "q70": 200,
+        "q60": 400,
+        "q78": 400,
+        "raw_logo": 200
+      }
+    },
+    {
+      "id": "V6.4-004",
+      "title": "Accessory buttons wrong destination",
+      "status": "fixed_code",
+      "root_cause": "marketplaceCategoryHref used /marketplace which redirects to /loja dropping query",
+      "files": [
+        "frontend/runtime_console_v3/src/lib/tcg-product-categories.ts",
+        "frontend/runtime_console_v3/src/components/games/GameHubPanel.tsx",
+        "frontend/runtime_console_v3/src/components/games/GameMegaMenuPanel.tsx",
+        "frontend/runtime_console_v3/src/components/cards/CardRelatedProductsSection.tsx",
+        "frontend/runtime_console_v3/src/components/marketplace/OfficialRelatedProducts.tsx",
+        "frontend/runtime_console_v3/src/components/cards/CardVersionsTab.tsx"
+      ]
+    },
+    {
+      "id": "V6.4-005",
+      "title": "Marketplace accessory categories empty",
+      "status": "partial",
+      "root_cause": "Routing drop (004) + store_products inventory almost exclusively category=single",
+      "evidence_prod": {
+        "products_total": 13571,
+        "category_sleeve": 1,
+        "category_sleeve_game_MTG": 0,
+        "category_playmat": 0,
+        "category_deck_box": 0
+      },
+      "note": "No DB/API change per ZERO FEATURE; singles marketplace returns products"
+    },
+    {
+      "id": "V6.4-006",
+      "title": "Full functional navigation certification",
+      "status": "in_progress",
+      "e2e_spec": "frontend/runtime_console_v3/e2e/specs/qa-platform-v6-4-functional.spec.ts"
+    }
+  ],
+  "out_of_scope_noise": [
+    "cloudflareinsights beacon SRI mismatch",
+    "vitals POST failures",
+    "tournament-platform events 401 (softJson empty)",
+    "long-task violations"
+  ],
+  "unit_tests": {
+    "game-theme-v2": "PASS",
+    "tcg-product-categories": "PASS"
+  },
+  "gate_reopen_rule": "Any reproducible functional regression sets ready_for_production=false"
+}

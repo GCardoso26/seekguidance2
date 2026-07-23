@@ -253,13 +253,15 @@ export function categoryImageUrl(id: string): string {
   return getCategoryMeta(id)?.imageUrl ?? "/images/product-types/accessory.svg";
 }
 
-/** URL de listagem marketplace com jogo + categoria */
+/** URL de listagem marketplace com jogo + categoria.
+ * Must use /marketplace/produtos — bare /marketplace redirects to /loja and drops filters (BUG-V5-005 / V6.4-004).
+ */
 export function marketplaceCategoryHref(gameSlug: string, categoryId: ProductCategoryId): string {
   const gameId = Object.entries(GAME_TOKENS).find(([, t]) => t.slug === gameSlug)?.[0];
   const params = new URLSearchParams();
   if (gameId) params.set("game_id", gameId);
   params.set("category", categoryId);
-  return `/marketplace?${params.toString()}`;
+  return `/marketplace/produtos?${params.toString()}`;
 }
 
 /** Singles → busca de cartas no catálogo (namespace CardTrader) */

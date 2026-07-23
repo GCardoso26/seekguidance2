@@ -26,9 +26,11 @@ describe("tcg-product-categories", () => {
     }
   });
 
-  it("builds marketplace href with game and category", () => {
-    expect(marketplaceCategoryHref("lorcana", "booster_box")).toContain("game_id=LORCANA");
-    expect(marketplaceCategoryHref("lorcana", "booster_box")).toContain("category=booster_box");
+  it("builds marketplace href with game and category on /marketplace/produtos", () => {
+    const href = marketplaceCategoryHref("lorcana", "booster_box");
+    expect(href.startsWith("/marketplace/produtos?")).toBe(true);
+    expect(href).toContain("game_id=LORCANA");
+    expect(href).toContain("category=booster_box");
   });
 
   it("labels categories in Portuguese", () => {

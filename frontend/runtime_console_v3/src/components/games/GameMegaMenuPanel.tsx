@@ -101,7 +101,7 @@ export function GameMegaMenuPanel({ gameId, slug, onNavigate }: Props) {
           ))}
         </ul>
         <Link
-          href={`/marketplace?game_id=${gameId}`}
+          href={`/marketplace/produtos?game_id=${gameId}`}
           className="mt-3 inline-block text-xs text-primary hover:underline"
           onClick={onNavigate}
         >
