@@ -13,6 +13,7 @@ from uuid import UUID
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.marketplace.marketplace_hygiene import STORE_NOT_TEST_SQL
 from app.marketplace.shop_store import STORE_SELLABLE_SQL
 
 
@@ -128,6 +129,8 @@ class CatalogMarketplaceAdapter:
                       AND cl.store_product_id IS NOT NULL
                       AND """
                     + STORE_SELLABLE_SQL.strip()
+                    + " AND "
+                    + STORE_NOT_TEST_SQL
                     + """
                     ORDER BY cl.price_cents ASC
                     LIMIT :lim

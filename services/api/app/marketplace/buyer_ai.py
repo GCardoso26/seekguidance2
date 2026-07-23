@@ -12,6 +12,8 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.marketplace.buyer_recommendations import get_buyer_recommendations
+from app.marketplace.marketplace_hygiene import PUBLIC_LISTING_SQL
+from app.marketplace.shop_store import STORE_SELLABLE_SQL
 
 
 async def _price_drop_candidates(session: AsyncSession, user_id: str, limit: int = 5) -> list[dict[str, Any]]:
@@ -50,7 +52,7 @@ async def _trusted_listings(session: AsyncSession, limit: int = 4) -> list[dict[
     rows = (
         await session.execute(
             text(
-                """
+                f"""
                 SELECT p.id, p.name, p.price_cents, s.name AS store_name, s.slug,
                        COALESCE(ss.trust_score, 75.0) AS trust_score
                 FROM tcg_judge.store_products p
@@ -58,6 +60,8 @@ async def _trusted_listings(session: AsyncSession, limit: int = 4) -> list[dict[
                 LEFT JOIN tcg_judge.seller_scores ss ON ss.store_id = s.id
                 WHERE p.is_active AND p.stock > 0
                   AND COALESCE(ss.trust_score, 75.0) >= 80
+                  AND {STORE_SELLABLE_SQL.strip()}
+                  AND {PUBLIC_LISTING_SQL.strip()}
                 ORDER BY ss.trust_score DESC NULLS LAST, p.price_cents ASC
                 LIMIT :lim
                 """

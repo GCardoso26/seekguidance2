@@ -12,6 +12,9 @@ from typing import Any
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.marketplace.marketplace_hygiene import PUBLIC_LISTING_SQL
+from app.marketplace.shop_store import STORE_SELLABLE_SQL
+
 
 async def _bought_product_names(session: AsyncSession, user_id: str, limit: int = 20) -> list[str]:
     rows = (
@@ -45,7 +48,7 @@ async def get_buyer_recommendations(
     popular = (
         await session.execute(
             text(
-                """
+                f"""
                 SELECT p.id, p.name, p.price_cents, p.images, p.stock,
                        s.name AS store_name, s.slug AS store_slug, s.id AS store_id,
                        COALESCE(ss.trust_score, 75.0) AS trust_score
@@ -53,6 +56,8 @@ async def get_buyer_recommendations(
                 JOIN tcg_judge.stores s ON s.id = p.store_id
                 LEFT JOIN tcg_judge.seller_scores ss ON ss.store_id = s.id
                 WHERE p.is_active AND p.stock > 0
+                  AND {STORE_SELLABLE_SQL.strip()}
+                  AND {PUBLIC_LISTING_SQL.strip()}
                 ORDER BY p.created_at DESC NULLS LAST, p.price_cents ASC
                 LIMIT :lim
                 """

@@ -12,6 +12,9 @@ from fastapi import HTTPException
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.marketplace.marketplace_hygiene import PUBLIC_LISTING_SQL
+from app.marketplace.shop_store import STORE_SELLABLE_SQL
+
 
 async def _load_deck(session: AsyncSession, deck_id: str, user_id: str) -> dict[str, Any]:
     row = (
@@ -73,7 +76,7 @@ async def _best_listing_for_name(session: AsyncSession, name: str) -> dict[str, 
     row = (
         await session.execute(
             text(
-                """
+                f"""
                 SELECT p.id, p.name, p.price_cents, p.stock, p.store_id,
                        s.name AS store_name, s.slug AS store_slug,
                        COALESCE(ss.trust_score, 75.0) AS trust_score
@@ -81,6 +84,8 @@ async def _best_listing_for_name(session: AsyncSession, name: str) -> dict[str, 
                 JOIN tcg_judge.stores s ON s.id = p.store_id
                 LEFT JOIN tcg_judge.seller_scores ss ON ss.store_id = s.id
                 WHERE p.is_active AND p.stock > 0
+                  AND {STORE_SELLABLE_SQL.strip()}
+                  AND {PUBLIC_LISTING_SQL.strip()}
                   AND p.name ILIKE :pat
                 ORDER BY p.price_cents ASC, ss.trust_score DESC NULLS LAST
                 LIMIT 1

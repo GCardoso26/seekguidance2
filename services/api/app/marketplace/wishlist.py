@@ -13,6 +13,7 @@ from fastapi import HTTPException
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.marketplace.marketplace_hygiene import PUBLIC_LISTING_SQL
 from app.marketplace.wishlist_aggregate import (
     can_remove_list,
     ensure_default_lists_payload,
@@ -270,7 +271,7 @@ async def _resolve_product(
                 SELECT p.*, s.id AS store_id
                 FROM tcg_judge.store_products p
                 JOIN tcg_judge.stores s ON s.id = p.store_id
-                WHERE p.id = CAST(:id AS uuid) AND p.is_active = true AND {STORE_SELLABLE_SQL.strip()}
+                WHERE p.id = CAST(:id AS uuid) AND p.is_active = true AND {STORE_SELLABLE_SQL.strip()} AND {PUBLIC_LISTING_SQL.strip()}
                 """
             ),
             {"id": product_id},

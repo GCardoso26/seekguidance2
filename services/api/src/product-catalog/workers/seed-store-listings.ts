@@ -47,6 +47,19 @@ async function main() {
   });
 
   try {
+    const store = await pool.query<{ is_test: boolean; name: string; slug: string }>(
+      `SELECT COALESCE(is_test, false) AS is_test, name, slug
+       FROM tcg_judge.stores WHERE id = $1::uuid`,
+      [storeId],
+    );
+    if (!store.rows[0]) throw new Error(`Store not found: ${storeId}`);
+    if (!store.rows[0].is_test && process.env.ALLOW_PUBLIC_SEED !== "1") {
+      throw new Error(
+        `Sprint 0: refusing to seed public store "${store.rows[0].name}" (${store.rows[0].slug}). ` +
+          `Use a is_test store, or set ALLOW_PUBLIC_SEED=1 deliberately.`,
+      );
+    }
+
     const variants = await pool.query<{ id: string; title: string; category: string }>(
       `
       SELECT v.id,
@@ -77,12 +90,13 @@ async function main() {
       );
       seeded++;
       try {
+        // Keep seeded storefront rows inactive until a real https image is attached.
         await pool.query(
           `
           INSERT INTO tcg_judge.store_products (
             store_id, name, category, price_cents, stock, is_active, master_variant_id, language, images
           )
-          VALUES ($1::uuid, $2, $3, 9990, 10, true, $4::uuid, 'pt', ARRAY[]::text[])
+          VALUES ($1::uuid, $2, $3, 9990, 10, false, $4::uuid, 'pt', ARRAY[]::text[])
           `,
           [storeId, row.title, categoryMap[row.category] ?? "accessory", row.id],
         );

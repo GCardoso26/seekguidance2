@@ -8,6 +8,10 @@ from fastapi import HTTPException
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.marketplace.marketplace_hygiene import (
+    PUBLIC_LISTING_SQL,
+    assert_public_listing_payload,
+)
 from app.marketplace.shop_store import STORE_SELLABLE_SQL, effective_plan, product_limit_for_plan
 
 PRODUCT_CATEGORIES = frozenset({
@@ -66,7 +70,11 @@ async def list_products(
     page: int = 1,
     limit: int = 20,
 ) -> dict[str, Any]:
-    clauses = ["p.is_active = true", STORE_SELLABLE_SQL.strip()]
+    clauses = [
+        "p.is_active = true",
+        STORE_SELLABLE_SQL.strip(),
+        PUBLIC_LISTING_SQL.strip(),
+    ]
     params: dict[str, Any] = {"lim": limit, "off": max(0, (page - 1) * limit)}
     if tcg_id:
         clauses.append("p.tcg_id = :tcg")
@@ -170,7 +178,10 @@ async def get_product(session: AsyncSession, product_id: str) -> dict[str, Any] 
                 FROM tcg_judge.store_products p
                 JOIN tcg_judge.stores s ON s.id = p.store_id
                 LEFT JOIN product_catalog.variants v ON v.id = p.master_variant_id
-                WHERE p.id = CAST(:id AS uuid) AND p.is_active = true AND {STORE_SELLABLE_SQL.strip()}
+                WHERE p.id = CAST(:id AS uuid)
+                  AND p.is_active = true
+                  AND {STORE_SELLABLE_SQL.strip()}
+                  AND {PUBLIC_LISTING_SQL.strip()}
                 """
             ),
             {"id": product_id},
@@ -214,8 +225,17 @@ async def create_product(
             )
     if category not in PRODUCT_CATEGORIES:
         raise HTTPException(400, "Categoria inválida")
-    if price_cents <= 0:
-        raise HTTPException(400, "Preço inválido")
+    if store.get("is_test"):
+        raise HTTPException(403, "Loja de teste não pode publicar na vitrine pública")
+    clean_images = assert_public_listing_payload(
+        name=name,
+        description=description,
+        sku=sku,
+        images=images,
+        price_cents=price_cents,
+        catalog_card_id=catalog_card_id,
+        require_image=True,
+    )
 
     row = (
         await session.execute(
@@ -243,7 +263,7 @@ async def create_product(
                 "compare": compare_at_price_cents,
                 "stock": stock,
                 "sku": sku,
-                "images": images or [],
+                "images": clean_images,
                 "cid": catalog_card_id,
             },
         )
@@ -288,6 +308,8 @@ async def bulk_create_products(
 
     store = await _assert_store_owner(session, store_id, owner_id)
     await require_verified_merchant(session, owner_id)
+    if store.get("is_test"):
+        raise HTTPException(403, "Loja de teste não pode publicar na vitrine pública")
     limit = product_limit_for_plan(effective_plan(store))
 
     params_list: list[dict[str, Any]] = []
@@ -296,8 +318,15 @@ async def bulk_create_products(
         price_cents = int(p["price_cents"])
         if category not in PRODUCT_CATEGORIES:
             raise HTTPException(400, f"Categoria inválida: {category}")
-        if price_cents <= 0:
-            raise HTTPException(400, f"Preço inválido: {p.get('name')}")
+        clean_images = assert_public_listing_payload(
+            name=str(p["name"]),
+            description=p.get("description"),
+            sku=p.get("sku"),
+            images=p.get("images") or [],
+            price_cents=price_cents,
+            catalog_card_id=p.get("catalog_card_id"),
+            require_image=True,
+        )
         params_list.append(
             {
                 "sid": store_id,
@@ -309,7 +338,7 @@ async def bulk_create_products(
                 "compare": p.get("compare_at_price_cents"),
                 "stock": int(p.get("stock") or 0),
                 "sku": p.get("sku"),
-                "images": p.get("images") or [],
+                "images": clean_images,
                 "cid": p.get("catalog_card_id"),
             }
         )
@@ -369,6 +398,7 @@ async def update_product(
     }
     sets: list[str] = []
     params: dict[str, Any] = {"id": product_id}
+    merged = dict(existing)
     for k, v in fields.items():
         if k not in allowed or v is None:
             continue
@@ -376,8 +406,25 @@ async def update_product(
             raise HTTPException(400, "Categoria inválida")
         sets.append(f"{k} = :{k}")
         params[k] = v
+        merged[k] = v
     if not sets:
         raise HTTPException(400, "Nada para atualizar")
+
+    # Reativar / manter ativo na vitrine exige payload higienizado.
+    will_be_active = bool(merged.get("is_active", True))
+    if will_be_active:
+        clean_images = assert_public_listing_payload(
+            name=str(merged.get("name") or ""),
+            description=merged.get("description"),
+            sku=merged.get("sku"),
+            images=list(merged.get("images") or []),
+            price_cents=int(merged.get("price_cents") or 0),
+            catalog_card_id=str(merged["catalog_card_id"]) if merged.get("catalog_card_id") else None,
+            require_image=True,
+        )
+        if not any(s.startswith("images =") for s in sets):
+            sets.append("images = :images")
+        params["images"] = clean_images
 
     row = (
         await session.execute(
