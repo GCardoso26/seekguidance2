@@ -4,18 +4,33 @@ import Image from "next/image";
 import { Package, ShieldCheck, Store, Truck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { StoreTrustChips } from "@/components/marketplace/StoreTrustChips";
 import { formatShopPrice, type ShopCartItem } from "@/lib/marketplace-shop";
 import { cn } from "@/lib/utils";
+
+export type CheckoutStoreMeta = {
+  store_id: string;
+  store_name: string;
+  verification_status?: string | null;
+  average_rating?: number | null;
+  review_count?: number | null;
+  pix_available?: boolean;
+  stripe_available?: boolean;
+};
 
 type Props = {
   items: ShopCartItem[];
   subtotalCents: number;
   discountCents?: number;
   escrowFeeCents?: number;
-  shippingCents?: number;
+  /** Cotação oficial selecionada; null = ainda não cotado. Não entra no total cobrado. */
+  quotedShippingCents?: number | null;
+  shippingQuoteLabel?: string | null;
   savingsCents?: number;
+  /** Total cobrado agora (produtos ± cupom ± escrow) — sem frete. */
   totalCents: number;
   storeName?: string;
+  stores?: CheckoutStoreMeta[];
   storesCount?: number;
   deliveryDays?: number | null;
   couponCode?: string | null;
@@ -29,26 +44,32 @@ function SummaryRow({
   value,
   tone = "default",
   testId,
+  hint,
 }: {
   label: string;
   value: string;
-  tone?: "default" | "discount" | "total";
+  tone?: "default" | "discount" | "total" | "muted";
   testId?: string;
+  hint?: string;
 }) {
   return (
-    <div className="flex items-center justify-between gap-3 text-small">
-      <span className="text-muted-foreground">{label}</span>
-      <span
-        data-testid={testId}
-        className={cn(
-          "font-medium tabular-nums",
-          tone === "discount" && "text-success",
-          tone === "total" && "font-mono text-lg font-bold text-foreground",
-          tone === "default" && "text-foreground",
-        )}
-      >
-        {value}
-      </span>
+    <div className="space-y-0.5">
+      <div className="flex items-center justify-between gap-3 text-small">
+        <span className="text-muted-foreground">{label}</span>
+        <span
+          data-testid={testId}
+          className={cn(
+            "font-medium tabular-nums",
+            tone === "discount" && "text-success",
+            tone === "total" && "font-mono text-lg font-bold text-foreground",
+            tone === "muted" && "text-muted-foreground",
+            tone === "default" && "text-foreground",
+          )}
+        >
+          {value}
+        </span>
+      </div>
+      {hint && <p className="text-caption text-muted-foreground">{hint}</p>}
     </div>
   );
 }
@@ -58,10 +79,12 @@ export function CheckoutOrderSummary({
   subtotalCents,
   discountCents = 0,
   escrowFeeCents = 0,
-  shippingCents,
+  quotedShippingCents,
+  shippingQuoteLabel,
   savingsCents = 0,
   totalCents,
   storeName,
+  stores,
   storesCount,
   deliveryDays,
   couponCode,
@@ -70,6 +93,7 @@ export function CheckoutOrderSummary({
   className,
 }: Props) {
   const itemCount = items.reduce((acc, item) => acc + item.quantity, 0);
+  const storeById = new Map((stores ?? []).map((s) => [s.store_id, s]));
   const byStore = new Map<string, ShopCartItem[]>();
   for (const item of items) {
     const key = item.store_id || "loja";
@@ -77,6 +101,12 @@ export function CheckoutOrderSummary({
     list.push(item);
     byStore.set(key, list);
   }
+
+  const primaryStore = stores?.[0];
+  const shippingDisplay =
+    quotedShippingCents != null
+      ? formatShopPrice(quotedShippingCents)
+      : "Calcule o CEP ao lado";
 
   return (
     <aside
@@ -96,22 +126,34 @@ export function CheckoutOrderSummary({
       </div>
 
       <div className="space-y-4 p-5">
-        {(storeName || storesCount != null || deliveryDays != null) && (
-          <div className="flex flex-wrap gap-2">
-            {storeName && (
-              <Badge variant="secondary" className="gap-1">
-                <Store className="h-3 w-3" aria-hidden />
-                {storeName}
-              </Badge>
-            )}
-            {storesCount != null && storesCount > 1 && (
-              <Badge variant="warning">{storesCount} lojas</Badge>
-            )}
-            {deliveryDays != null && (
-              <Badge variant="outline" className="gap-1">
-                <Truck className="h-3 w-3" aria-hidden />
-                ~{deliveryDays} dia(s)
-              </Badge>
+        {(storeName || primaryStore || storesCount != null || deliveryDays != null) && (
+          <div className="space-y-2">
+            <div className="flex flex-wrap gap-2">
+              {(storeName || primaryStore?.store_name) && (
+                <Badge variant="secondary" className="gap-1">
+                  <Store className="h-3 w-3" aria-hidden />
+                  {storeName || primaryStore?.store_name}
+                </Badge>
+              )}
+              {storesCount != null && storesCount > 1 && (
+                <Badge variant="warning">{storesCount} lojas</Badge>
+              )}
+              {deliveryDays != null && (
+                <Badge variant="outline" className="gap-1">
+                  <Truck className="h-3 w-3" aria-hidden />
+                  ~{deliveryDays} dia(s)
+                </Badge>
+              )}
+            </div>
+            {primaryStore && (
+              <StoreTrustChips
+                compact
+                verificationStatus={primaryStore.verification_status}
+                averageRating={primaryStore.average_rating}
+                reviewCount={primaryStore.review_count}
+                acceptsPix={primaryStore.pix_available}
+                acceptsCard={primaryStore.stripe_available}
+              />
             )}
           </div>
         )}
@@ -131,52 +173,59 @@ export function CheckoutOrderSummary({
                   Itens reservados no checkout
                 </li>
               ) : (
-                Array.from(byStore.entries()).map(([storeId, storeItems]) => (
-                  <li key={storeId} className="space-y-2 border-b border-border pb-3 last:border-0 last:pb-0">
-                    {byStore.size > 1 && (
-                      <p className="text-caption font-medium uppercase tracking-wide text-muted-foreground">
-                        Loja {storeId.slice(0, 8)}
-                      </p>
-                    )}
-                    {storeItems.map((item) => (
-                      <div key={item.product_id} className="flex gap-3">
-                        <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-border bg-muted">
-                          {item.image ? (
-                            <Image
-                              src={item.image}
-                              alt=""
-                              fill
-                              className="object-cover"
-                              sizes="48px"
-                            />
-                          ) : (
-                            <div className="flex h-full items-center justify-center text-caption text-muted-foreground">
-                              TCG
-                            </div>
-                          )}
+                Array.from(byStore.entries()).map(([storeId, storeItems]) => {
+                  const meta = storeById.get(storeId);
+                  return (
+                    <li key={storeId} className="space-y-2 border-b border-border pb-3 last:border-0 last:pb-0">
+                      {byStore.size > 1 && (
+                        <p className="text-caption font-medium uppercase tracking-wide text-muted-foreground">
+                          {meta?.store_name || `Loja ${storeId.slice(0, 8)}`}
+                        </p>
+                      )}
+                      {storeItems.map((item) => (
+                        <div key={item.product_id} className="flex gap-3">
+                          <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-border bg-muted">
+                            {item.image ? (
+                              <Image
+                                src={item.image}
+                                alt=""
+                                fill
+                                className="object-cover"
+                                sizes="48px"
+                              />
+                            ) : (
+                              <div className="flex h-full items-center justify-center text-caption text-muted-foreground">
+                                TCG
+                              </div>
+                            )}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="line-clamp-2 text-small font-medium leading-snug">{item.name}</p>
+                            <p className="text-caption text-muted-foreground">Qtd: {item.quantity}</p>
+                          </div>
+                          <span className="shrink-0 text-small font-medium tabular-nums">
+                            {formatShopPrice(item.price_cents * item.quantity)}
+                          </span>
                         </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="line-clamp-2 text-small font-medium leading-snug">{item.name}</p>
-                          <p className="text-caption text-muted-foreground">Qtd: {item.quantity}</p>
-                        </div>
-                        <span className="shrink-0 text-small font-medium tabular-nums">
-                          {formatShopPrice(item.price_cents * item.quantity)}
-                        </span>
-                      </div>
-                    ))}
-                  </li>
-                ))
+                      ))}
+                    </li>
+                  );
+                })
               )}
             </ul>
 
             <div className="space-y-2.5 border-t border-border pt-4">
               <SummaryRow
-                label={`Subtotal (${itemCount} ${itemCount === 1 ? "item" : "itens"})`}
+                label={`Produtos (${itemCount} ${itemCount === 1 ? "item" : "itens"})`}
                 value={formatShopPrice(subtotalCents)}
               />
-              {shippingCents != null && (
-                <SummaryRow label="Frete estimado" value={formatShopPrice(shippingCents)} />
-              )}
+              <SummaryRow
+                label={shippingQuoteLabel ? `Frete (${shippingQuoteLabel})` : "Frete cotado"}
+                value={shippingDisplay}
+                tone={quotedShippingCents != null ? "default" : "muted"}
+                testId="checkout-shipping-quote"
+                hint="Frete não está incluso no PIX/cartão nesta etapa"
+              />
               {discountCents > 0 && (
                 <SummaryRow
                   label={couponCode ? `Cupom ${couponCode}` : "Desconto"}
@@ -199,7 +248,12 @@ export function CheckoutOrderSummary({
             </div>
 
             <div className="rounded-xl bg-muted/40 px-4 py-3">
-              <SummaryRow label="Total a pagar" value={formatShopPrice(totalCents)} tone="total" />
+              <SummaryRow
+                label="Total a pagar agora"
+                value={formatShopPrice(totalCents)}
+                tone="total"
+                hint="Somente produtos (± cupom/escrow)"
+              />
             </div>
 
             <div className="flex items-center gap-2 text-caption text-muted-foreground">

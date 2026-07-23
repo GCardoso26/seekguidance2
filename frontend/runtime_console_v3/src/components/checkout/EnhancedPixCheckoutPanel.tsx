@@ -31,9 +31,14 @@ export function EnhancedPixCheckoutPanel({ pix, onRegenerate, onManualConfirm }:
 
   return (
     <div className="space-y-4">
+      {pix.store_name && (
+        <p className="text-small text-muted-foreground" data-testid="pix-store-name">
+          PIX da loja <span className="font-medium text-foreground">{pix.store_name}</span>
+        </p>
+      )}
       <div className="space-y-2 surface-card rounded-lg p-4 text-sm">
         <div className="flex justify-between">
-          <span className="text-muted-foreground">Subtotal</span>
+          <span className="text-muted-foreground">Produtos</span>
           <span>{formatShopPrice(subtotal)}</span>
         </div>
         {discount > 0 && (

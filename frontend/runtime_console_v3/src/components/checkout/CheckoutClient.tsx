@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { Truck } from "lucide-react";
 import { CheckoutOrderSummary } from "@/components/checkout/CheckoutOrderSummary";
 import { CheckoutPaymentMethodPicker } from "@/components/checkout/CheckoutPaymentMethodPicker";
+import { CartShippingQuotePanel, type SelectedShippingQuote } from "@/components/cart/CartShippingQuotePanel";
 import { CouponApply } from "@/components/checkout/CouponApply";
 import { CpfCheckoutModal } from "@/components/kyc/CpfCheckoutModal";
 import { InlineLoading } from "@/components/ui/async-state";
@@ -46,7 +47,15 @@ type Methods = {
   methods: { pix: boolean; stripe: boolean; escrow?: boolean };
   escrow_fee_cents?: number;
   default_method: "pix" | "stripe";
-  stores?: Array<{ store_id: string; store_name: string }>;
+  stores?: Array<{
+    store_id: string;
+    store_name: string;
+    pix_available?: boolean;
+    stripe_available?: boolean;
+    verification_status?: string | null;
+    average_rating?: number | null;
+    review_count?: number | null;
+  }>;
 };
 
 type PixData = {
@@ -104,6 +113,7 @@ export function CheckoutClient() {
   const [loading, setLoading] = useState(true);
   const [pixLoading, setPixLoading] = useState(false);
   const [useEscrow, setUseEscrow] = useState(false);
+  const [shippingSelection, setShippingSelection] = useState<SelectedShippingQuote | null>(null);
   const bootStarted = useRef(false);
   const stripeStarted = useRef(false);
 
@@ -337,29 +347,27 @@ export function CheckoutClient() {
               </Card>
             )}
 
-            {smartCart?.summary && checkoutSession && !reservationError && (
+            {checkoutSession && !reservationError && (
               <Card variant="muted" padding="md">
                 <CardHeader className="flex-row items-center gap-2 space-y-0 p-0 pb-3">
                   <Truck className="h-4 w-4 text-primary" aria-hidden />
-                  <CardTitle className="text-h3">Entrega estimada</CardTitle>
+                  <CardTitle className="text-h3">Frete e prazo</CardTitle>
                 </CardHeader>
-                <CardContent className="grid gap-2 p-0 text-small sm:grid-cols-3">
-                  <div>
-                    <p className="text-caption text-muted-foreground">Frete</p>
-                    <p className="font-semibold">
-                      {smartCart.summary.estimated_shipping_cents != null
-                        ? formatShopPrice(smartCart.summary.estimated_shipping_cents)
-                        : "No carrinho"}
+                <CardContent className="space-y-3 p-0">
+                  <CartShippingQuotePanel
+                    compact
+                    loginNextPath="/checkout"
+                    onSelectionChange={setShippingSelection}
+                  />
+                  {shippingSelection?.delivery_days != null && (
+                    <p className="text-caption text-muted-foreground" data-testid="checkout-delivery-hint">
+                      Prazo cotado:{" "}
+                      {shippingSelection.delivery_days === 0
+                        ? "retirada"
+                        : `~${shippingSelection.delivery_days} dia(s)`}
+                      {shippingSelection.service ? ` · ${shippingSelection.service}` : ""}
                     </p>
-                  </div>
-                  <div>
-                    <p className="text-caption text-muted-foreground">Prazo</p>
-                    <p className="font-semibold">~{smartCart.summary.estimated_sla_days ?? "—"} dias</p>
-                  </div>
-                  <div>
-                    <p className="text-caption text-muted-foreground">Lojas</p>
-                    <p className="font-semibold">{smartCart.summary.store_count ?? 1}</p>
-                  </div>
+                  )}
                 </CardContent>
               </Card>
             )}
@@ -476,12 +484,14 @@ export function CheckoutClient() {
             subtotalCents={summarySubtotal}
             discountCents={discountCents}
             escrowFeeCents={escrowFee}
-            shippingCents={smartCart?.summary.estimated_shipping_cents}
+            quotedShippingCents={shippingSelection?.price_cents ?? null}
+            shippingQuoteLabel={shippingSelection?.service ?? null}
             savingsCents={smartCart?.summary.savings_cents}
             totalCents={summaryTotal}
             storeName={methods?.stores?.[0]?.store_name}
+            stores={methods?.stores}
             storesCount={methods?.stores?.length ?? smartCart?.summary.store_count}
-            deliveryDays={smartCart?.summary.estimated_sla_days}
+            deliveryDays={shippingSelection?.delivery_days ?? null}
             couponCode={appliedCoupon?.code ?? pixData?.coupon_code}
             isLoading={loading || cartLoading || accountLoading}
             sticky

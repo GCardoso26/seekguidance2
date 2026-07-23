@@ -143,7 +143,8 @@ async def get_checkout_methods(session: AsyncSession, user_id: str) -> dict[str,
                     SELECT p.id, p.price_cents, p.stock, COALESCE(p.reserved_stock, 0) AS reserved_stock,
                            p.name, p.store_id,
                            s.name AS store_name, s.pix_key, s.payment_method_preference,
-                           s.stripe_account_id, s.stripe_onboarding_complete, s.shop_enabled
+                           s.stripe_account_id, s.stripe_onboarding_complete, s.shop_enabled,
+                           s.verification_status, s.average_rating, s.review_count
                     FROM tcg_judge.store_products p
                     JOIN tcg_judge.stores s ON s.id = p.store_id
                     WHERE p.id = :id AND p.is_active = true
@@ -178,6 +179,9 @@ async def get_checkout_methods(session: AsyncSession, user_id: str) -> dict[str,
                 "pix_available": store_has_pix(store),
                 "stripe_available": store_has_stripe(store),
                 "payment_method_preference": store.get("payment_method_preference") or "pix",
+                "verification_status": store.get("verification_status"),
+                "average_rating": float(store.get("average_rating") or 0),
+                "review_count": int(store.get("review_count") or 0),
             }
 
     pix_ok = all(s["pix_available"] for s in stores.values())

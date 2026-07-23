@@ -6,8 +6,9 @@ import { Button } from "@/components/ui/button";
 import { entrarPath } from "@/lib/auth/entrar-path";
 import { formatCepDisplay, readSavedBuyerCep, saveBuyerCep } from "@/lib/buyer-cep";
 import { formatShopPrice } from "@/lib/marketplace-shop";
+import { cn } from "@/lib/utils";
 
-type ShippingQuoteRow = {
+export type ShippingQuoteRow = {
   id?: string;
   service?: string;
   carrier?: string;
@@ -22,63 +23,111 @@ type QuoteResponse = {
   detail?: string;
 };
 
+export type SelectedShippingQuote = {
+  price_cents: number | null;
+  delivery_days: number | null;
+  service: string | null;
+  cep: string;
+};
+
+type Props = {
+  className?: string;
+  /** Quando true, copy curta para o checkout. */
+  compact?: boolean;
+  loginNextPath?: string;
+  onSelectionChange?: (selection: SelectedShippingQuote | null) => void;
+};
+
 /**
- * BP 5.2 — usa GET /api/buyer/shipping/quote (já existente).
+ * BP 5.2 / Sprint 4 — GET /api/buyer/shipping/quote (já existente).
  * Pré-preenche CEP salvo na PDP; não inventa valores se a API falhar.
  */
-export function CartShippingQuotePanel({ className }: { className?: string }) {
+export function CartShippingQuotePanel({
+  className,
+  compact = false,
+  loginNextPath = "/carrinho",
+  onSelectionChange,
+}: Props) {
   const [cep, setCep] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [needLogin, setNeedLogin] = useState(false);
   const [quotes, setQuotes] = useState<ShippingQuoteRow[]>([]);
+  const [selectedIdx, setSelectedIdx] = useState(0);
 
   useEffect(() => {
     const saved = readSavedBuyerCep();
     if (saved) setCep(formatCepDisplay(saved));
   }, []);
 
-  const quote = useCallback(async (digits: string) => {
-    if (digits.length !== 8) {
-      setError("Informe um CEP com 8 dígitos.");
-      setQuotes([]);
-      return;
-    }
-    saveBuyerCep(digits);
-    setLoading(true);
-    setError(null);
-    setNeedLogin(false);
-    try {
-      const res = await fetch(
-        `/api/buyer/shipping/quote?destination_postal_code=${encodeURIComponent(digits)}`,
-        { cache: "no-store" },
-      );
-      if (res.status === 401) {
-        setNeedLogin(true);
-        setQuotes([]);
-        setError(null);
+  const emitSelection = useCallback(
+    (list: ShippingQuoteRow[], idx: number, digits: string) => {
+      if (!onSelectionChange) return;
+      const q = list[idx];
+      if (!q) {
+        onSelectionChange(null);
         return;
       }
-      const data = (await res.json()) as QuoteResponse;
-      if (!res.ok) {
+      onSelectionChange({
+        price_cents: typeof q.price_cents === "number" ? q.price_cents : null,
+        delivery_days: typeof q.delivery_days === "number" ? q.delivery_days : null,
+        service: q.service ?? null,
+        cep: digits,
+      });
+    },
+    [onSelectionChange],
+  );
+
+  const quote = useCallback(
+    async (digits: string) => {
+      if (digits.length !== 8) {
+        setError("Informe um CEP com 8 dígitos.");
         setQuotes([]);
-        setError(typeof data.detail === "string" ? data.detail : "Não foi possível cotar o frete agora.");
+        onSelectionChange?.(null);
         return;
       }
-      const list = Array.isArray(data.quotes) ? data.quotes : [];
-      setQuotes(list);
-      if (list.length === 0) {
-        setError(
-          "Nenhuma cotação para este CEP com o carrinho atual. Confira o estoque ou tente outro CEP.",
+      saveBuyerCep(digits);
+      setLoading(true);
+      setError(null);
+      setNeedLogin(false);
+      try {
+        const res = await fetch(
+          `/api/buyer/shipping/quote?destination_postal_code=${encodeURIComponent(digits)}`,
+          { cache: "no-store" },
         );
+        if (res.status === 401) {
+          setNeedLogin(true);
+          setQuotes([]);
+          onSelectionChange?.(null);
+          setError(null);
+          return;
+        }
+        const data = (await res.json()) as QuoteResponse;
+        if (!res.ok) {
+          setQuotes([]);
+          onSelectionChange?.(null);
+          setError(typeof data.detail === "string" ? data.detail : "Não foi possível cotar o frete agora.");
+          return;
+        }
+        const list = Array.isArray(data.quotes) ? data.quotes : [];
+        setQuotes(list);
+        setSelectedIdx(0);
+        emitSelection(list, 0, digits);
+        if (list.length === 0) {
+          setError(
+            "Nenhuma cotação para este CEP com o carrinho atual. Confira o estoque ou tente outro CEP.",
+          );
+        }
+      } catch {
+        setQuotes([]);
+        onSelectionChange?.(null);
+        setError("Falha de rede ao cotar frete. Tente de novo.");
+      } finally {
+        setLoading(false);
       }
-    } catch {
-      setQuotes([]);
-      setError("Falha de rede ao cotar frete. Tente de novo.");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    },
+    [emitSelection, onSelectionChange],
+  );
 
   useEffect(() => {
     const saved = readSavedBuyerCep();
@@ -96,10 +145,17 @@ export function CartShippingQuotePanel({ className }: { className?: string }) {
       <h2 id="cart-shipping-title" className="text-small font-semibold text-foreground">
         Frete para o seu CEP
       </h2>
-      <p className="mt-1 text-caption text-muted-foreground">
-        Valores oficiais da loja (sem estimativa inventada). Se você salvou o CEP na página do
-        produto, ele já vem preenchido.
-      </p>
+      {!compact && (
+        <p className="mt-1 text-caption text-muted-foreground">
+          Valores oficiais da loja (sem estimativa inventada). Se você salvou o CEP na página do
+          produto, ele já vem preenchido.
+        </p>
+      )}
+      {compact && (
+        <p className="mt-1 text-caption text-muted-foreground">
+          Cotação oficial — o frete ainda não entra no PIX/cartão; use para decidir prazo e custo.
+        </p>
+      )}
       <div className="mt-3 flex gap-2">
         <input
           inputMode="numeric"
@@ -123,7 +179,7 @@ export function CartShippingQuotePanel({ className }: { className?: string }) {
       {needLogin && (
         <p className="mt-3 text-small text-muted-foreground" role="status">
           Entre na conta para ver frete e prazo deste CEP com os itens do carrinho.{" "}
-          <Link href={entrarPath("/carrinho")} className="text-primary underline">
+          <Link href={entrarPath(loginNextPath)} className="text-primary underline">
             Entrar
           </Link>
         </p>
@@ -136,24 +192,37 @@ export function CartShippingQuotePanel({ className }: { className?: string }) {
       )}
 
       {quotes.length > 0 && (
-        <ul className="mt-3 space-y-2" data-testid="cart-shipping-quotes-list">
+        <ul className="mt-3 space-y-2" data-testid="cart-shipping-quotes-list" role="radiogroup" aria-label="Opções de frete">
           {quotes.map((q, i) => (
-            <li
-              key={q.id ?? `${q.service}-${i}`}
-              className="flex items-center justify-between gap-3 rounded-md border border-border px-3 py-2 text-small"
-            >
-              <span className="min-w-0">
-                <span className="font-medium text-foreground">{q.service ?? "Opção"}</span>
-                {typeof q.delivery_days === "number" && (
-                  <span className="text-muted-foreground">
-                    {" "}
-                    · {q.delivery_days === 0 ? "Retirada" : `~${q.delivery_days} dia(s)`}
-                  </span>
+            <li key={q.id ?? `${q.service}-${i}`}>
+              <button
+                type="button"
+                role="radio"
+                aria-checked={selectedIdx === i}
+                onClick={() => {
+                  setSelectedIdx(i);
+                  emitSelection(quotes, i, cep.replace(/\D/g, ""));
+                }}
+                className={cn(
+                  "flex w-full items-center justify-between gap-3 rounded-md border px-3 py-2 text-left text-small transition-colors",
+                  selectedIdx === i
+                    ? "border-primary bg-primary/5 ring-1 ring-primary/20"
+                    : "border-border hover:border-primary/30",
                 )}
-              </span>
-              <span className="shrink-0 font-mono font-semibold tabular-nums">
-                {typeof q.price_cents === "number" ? formatShopPrice(q.price_cents) : "—"}
-              </span>
+              >
+                <span className="min-w-0">
+                  <span className="font-medium text-foreground">{q.service ?? "Opção"}</span>
+                  {typeof q.delivery_days === "number" && (
+                    <span className="text-muted-foreground">
+                      {" "}
+                      · {q.delivery_days === 0 ? "Retirada" : `~${q.delivery_days} dia(s)`}
+                    </span>
+                  )}
+                </span>
+                <span className="shrink-0 font-mono font-semibold tabular-nums">
+                  {typeof q.price_cents === "number" ? formatShopPrice(q.price_cents) : "—"}
+                </span>
+              </button>
             </li>
           ))}
         </ul>
