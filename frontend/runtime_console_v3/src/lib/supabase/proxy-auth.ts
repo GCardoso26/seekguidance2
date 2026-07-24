@@ -63,43 +63,48 @@ async function readSessionFromCookies(): Promise<SupabaseSessionJson | null> {
   return readSessionFromCookieList(jar.getAll());
 }
 
-/** Resolve userId + access_token para proxy BFF → FastAPI (JWT verificado no backend). */
+/**
+ * Resolve userId + access_token para proxy BFF → FastAPI.
+ * userId SEMPRE deriva do `sub` do JWT enviado — evita 403
+ * "Identidade do usuário inconsistente" quando cookie.user.id ≠ JWT.sub.
+ */
 export async function resolveSupabaseProxyAuth(request?: NextRequest): Promise<{
   userId: string | null;
   accessToken: string | null;
 }> {
   let accessToken = extractBearer(request);
-  let userId = accessToken ? decodeJwtSub(accessToken) : null;
 
-  if (request) {
+  if (!accessToken && request) {
     const fromRequestCookies = await readSessionFromCookieList(request.cookies.getAll());
-    accessToken = accessToken ?? fromRequestCookies?.access_token ?? null;
-    userId = userId ?? fromRequestCookies?.user?.id ?? null;
+    accessToken = fromRequestCookies?.access_token?.trim() || null;
   }
 
   if (!accessToken) {
     const fromHeaderCookies = await readSessionFromCookies();
-    accessToken = fromHeaderCookies?.access_token ?? null;
-    userId = userId ?? fromHeaderCookies?.user?.id ?? null;
+    accessToken = fromHeaderCookies?.access_token?.trim() || null;
   }
 
   const supabase = await createSupabaseServerClient();
-  if (!supabase) {
-    return { userId, accessToken };
-  }
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  userId = userId ?? user?.id ?? null;
-
-  if (!accessToken) {
+  if (supabase) {
+    // Prefer session do SSR client (pode refreshar) quando o sub bate com o token em mãos.
     const {
       data: { session },
     } = await supabase.auth.getSession();
-    accessToken = session?.access_token ?? null;
-    userId = userId ?? session?.user?.id ?? null;
+    const sessionToken = session?.access_token?.trim() || null;
+    if (sessionToken) {
+      if (!accessToken) {
+        accessToken = sessionToken;
+      } else {
+        const cookieSub = decodeJwtSub(accessToken);
+        const sessionSub = decodeJwtSub(sessionToken);
+        if (!cookieSub || cookieSub === sessionSub) {
+          accessToken = sessionToken;
+        }
+      }
+    }
   }
 
+  // Fonte de verdade: sub do JWT. Nunca misturar user.id de cookie com outro token.
+  const userId = accessToken ? decodeJwtSub(accessToken) : null;
   return { userId, accessToken };
 }

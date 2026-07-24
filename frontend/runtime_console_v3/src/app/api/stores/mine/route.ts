@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { fetchApiResilient, tournamentProxyHeaders } from "@/lib/tournament-api";
 import { preferSellerCiMocks } from "@/lib/seller-ci-mock";
 
@@ -13,13 +13,17 @@ const E2E_STORE = [
   },
 ];
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   if (preferSellerCiMocks()) {
     return NextResponse.json(E2E_STORE);
   }
+  const headers = await tournamentProxyHeaders(req);
+  if (!headers.Authorization || !headers["X-Judge-User-Id"]) {
+    return NextResponse.json({ detail: "Autenticação necessária" }, { status: 401 });
+  }
   try {
     const res = await fetchApiResilient(`/runtime/judge/stores/mine`, {
-      headers: await tournamentProxyHeaders(),
+      headers,
       cache: "no-store",
     });
     const text = await res.text();

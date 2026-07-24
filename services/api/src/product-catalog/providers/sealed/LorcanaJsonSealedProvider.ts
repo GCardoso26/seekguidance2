@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { ProductCategory } from "../../domain/enums.js";
 import type { ImportedProductDTO } from "../../domain/models.js";
 import { BaseProductCatalogProvider } from "../BaseProductCatalogProvider.js";
@@ -5,8 +8,48 @@ import type { ProductCatalogSyncContext, ProductCatalogSyncResult } from "../Pro
 import { extractLorcanaSetsPayload, normalizeLorcanaSetRow } from "./lorcanaSetNormalize.js";
 import { packshotUrlForSku } from "./lorcanaPackshots.js";
 
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+type SeedFile = {
+  items?: Array<Record<string, unknown>>;
+};
+
+/** Curated sets absent from lorcana-api — API Set_ID always wins on collision. */
+export function loadLorcanaSealedSetSeed(): Array<Record<string, unknown>> {
+  try {
+    const raw = JSON.parse(
+      readFileSync(join(__dirname, "../../sources/lorcana/sealed-sets.seed.json"), "utf8"),
+    ) as SeedFile;
+    return Array.isArray(raw.items) ? raw.items : [];
+  } catch {
+    return [];
+  }
+}
+
+export function mergeLorcanaSetsWithSeed(
+  apiSets: Array<Record<string, unknown>>,
+  seedSets: Array<Record<string, unknown>> = loadLorcanaSealedSetSeed(),
+): Array<Record<string, unknown>> {
+  const byCode = new Map<string, Record<string, unknown>>();
+  for (const row of seedSets) {
+    const code = String(row.Set_ID ?? row.setCode ?? row.code ?? "")
+      .trim()
+      .toUpperCase();
+    if (!code) continue;
+    byCode.set(code, row);
+  }
+  for (const row of apiSets) {
+    const code = String(row.Set_ID ?? row.setCode ?? row.code ?? row.id ?? "")
+      .trim()
+      .toUpperCase();
+    if (!code) continue;
+    byCode.set(code, row);
+  }
+  return [...byCode.values()];
+}
+
 /**
- * Lorcana sealed — Priority 1: public lorcana-api set metadata.
+ * Lorcana sealed — Priority 1: public lorcana-api set metadata + curated seed gap-fill.
  * Packshots: curated Ravensburger CDN URLs merged by SKU (lorcana-api has no images).
  */
 export class LorcanaJsonSealedProvider extends BaseProductCatalogProvider {
@@ -45,6 +88,8 @@ export class LorcanaJsonSealedProvider extends BaseProductCatalogProvider {
         errors.push(`lorcana_fetch:${e instanceof Error ? e.message : String(e)}`);
       }
     }
+
+    sets = mergeLorcanaSetsWithSeed(sets);
 
     const items: ImportedProductDTO[] = [];
     for (const set of sets) {

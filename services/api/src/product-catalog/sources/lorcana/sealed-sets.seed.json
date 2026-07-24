@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "purpose": "Curated Lorcana sealed sets missing from api.lorcana-api.com until the public API catches up. API rows win on Set_ID collision.",
+  "items": [
+    {
+      "Set_ID": "ATV",
+      "Name": "Attack of the Vine!",
+      "Set_Num": 13,
+      "Release_Date": "2026-07-24",
+      "source": "Ravensburger / Asmodee Set 13 release; article 11090046 (BOX), 11090060 (Trove)"
+    }
+  ]
+}

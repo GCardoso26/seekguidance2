@@ -1,8 +1,9 @@
 {
-  "version": 1,
-  "source": "ravensburger.cloud produktseiten (official US catalog listing)",
+  "version": 2,
+  "source": "ravensburger.cloud produktseiten (official catalog listing pages)",
   "sourcePages": [
     "https://www.ravensburger.us/en-US/products/disney-lorcana/boosters",
+    "https://www.ravensburger.us/en-US/products/disney-lorcana/trove-packs",
     "https://www.ravensburger.us/en-US/products/disney-lorcana/gift-sets"
   ],
   "cdnTemplate": "https://ravensburger.cloud/images/produktseiten/600x600/{productId}.webp",
@@ -15,11 +16,26 @@
       "productLabel": "Archazia's Island Booster Pack Display"
     },
     {
+      "sku": "LOR-TROVE-ARI",
+      "setCode": "ARI",
+      "ravensburgerProductId": "11098509",
+      "sourceUrl": "https://ravensburger.cloud/images/produktseiten/600x600/11098509.webp",
+      "productLabel": "Archazia's Island Illumineer's Trove",
+      "sourcePage": "https://www.ravensburger.us/en-US/products/disney-lorcana/trove-packs/disney-lorcana-tcg-archazias-island-illumineers-trove-11098509"
+    },
+    {
       "sku": "LOR-BOX-AZS",
       "setCode": "AZS",
       "ravensburgerProductId": "11098466",
       "sourceUrl": "https://ravensburger.cloud/images/produktseiten/600x600/11098466.webp",
       "productLabel": "Azurite Sea Booster Pack Display"
+    },
+    {
+      "sku": "LOR-TROVE-AZS",
+      "setCode": "AZS",
+      "ravensburgerProductId": "11098432",
+      "sourceUrl": "https://ravensburger.cloud/images/produktseiten/600x600/11098432.webp",
+      "productLabel": "Azurite Sea Illumineer's Trove"
     },
     {
       "sku": "LOR-BOX-FAB",
@@ -29,11 +45,27 @@
       "productLabel": "Fabled Booster Display Box"
     },
     {
+      "sku": "LOR-TROVE-FAB",
+      "setCode": "FAB",
+      "ravensburgerProductId": "11098613",
+      "sourceUrl": "https://ravensburger.cloud/images/produktseiten/600x600/11098613.webp",
+      "productLabel": "Fabled Illumineer's Trove",
+      "sourcePage": "https://www.ravensburger.us/en-US/products/disney-lorcana/trove-packs/fabled-illumineers-trove-11098613"
+    },
+    {
       "sku": "LOR-BOX-INK",
       "setCode": "INK",
       "ravensburgerProductId": "11098312",
       "sourceUrl": "https://ravensburger.cloud/images/produktseiten/600x600/11098312.webp",
       "productLabel": "Into the Inklands Booster Pack Display"
+    },
+    {
+      "sku": "LOR-TROVE-INK",
+      "setCode": "INK",
+      "ravensburgerProductId": "11098292",
+      "sourceUrl": "https://ravensburger.cloud/images/produktseiten/600x600/11098292.webp",
+      "productLabel": "Into the Inklands Illumineer's Trove",
+      "sourcePage": "https://www.ravensburger.co.uk/en-GB/products/disney-lorcana/trove-packs/into-the-inklands-illumineers-trove-11098292"
     },
     {
       "sku": "LOR-BOX-ROJ",
@@ -43,11 +75,27 @@
       "productLabel": "Reign of Jafar Booster Display Box"
     },
     {
+      "sku": "LOR-TROVE-ROJ",
+      "setCode": "ROJ",
+      "ravensburgerProductId": "11098510",
+      "sourceUrl": "https://ravensburger.cloud/images/produktseiten/600x600/11098510.webp",
+      "productLabel": "Reign of Jafar Illumineer's Trove",
+      "sourcePage": "https://www.ravensburger.us/en-US/products/disney-lorcana/trove-packs/disney-lorcana-tcg-reign-of-jafar-illumineer-s-trove-11098510"
+    },
+    {
       "sku": "LOR-BOX-SSK",
       "setCode": "SSK",
       "ravensburgerProductId": "11098455",
       "sourceUrl": "https://ravensburger.cloud/images/produktseiten/600x600/11098455.webp",
       "productLabel": "Shimmering Skies Booster Pack Display"
+    },
+    {
+      "sku": "LOR-TROVE-SSK",
+      "setCode": "SSK",
+      "ravensburgerProductId": "11098396",
+      "sourceUrl": "https://ravensburger.cloud/images/produktseiten/600x600/11098396.webp",
+      "productLabel": "Shimmering Skies Illumineer's Trove",
+      "sourcePage": "https://www.ravensburger.co.uk/en-GB/products/disney-lorcana/trove-packs/shimmering-skies-11098396"
     },
     {
       "sku": "LOR-BOX-TFC",
@@ -57,11 +105,27 @@
       "productLabel": "The First Chapter Booster Pack (official listing image; display SKU not listed)"
     },
     {
+      "sku": "LOR-TROVE-TFC",
+      "setCode": "TFC",
+      "ravensburgerProductId": "11098174",
+      "sourceUrl": "https://ravensburger.cloud/images/produktseiten/600x600/11098174.webp",
+      "productLabel": "The First Chapter Illumineer's Trove",
+      "sourcePage": "https://www.ravensburger.us/products/disney-lorcana/trove-packs/disney-lorcana-tcg-the-first-chapter-illumineer-s-trove-11098174"
+    },
+    {
       "sku": "LOR-BOX-URS",
       "setCode": "URS",
       "ravensburgerProductId": "11098342",
       "sourceUrl": "https://ravensburger.cloud/images/produktseiten/600x600/11098342.webp",
       "productLabel": "Ursula's Return Booster Pack Display"
+    },
+    {
+      "sku": "LOR-TROVE-URS",
+      "setCode": "URS",
+      "ravensburgerProductId": "11098352",
+      "sourceUrl": "https://ravensburger.cloud/images/produktseiten/600x600/11098352.webp",
+      "productLabel": "Ursula's Return Illumineer's Trove",
+      "sourcePage": "https://www.ravensburger.de/de-DE/produkte/disney-lorcana/trove-packs/disney-lorcana-ursula-s-return-illumineer-s-trove-englisch-schatzkiste-der-luminari-11098352"
     },
     {
       "sku": "LOR-BOX-WHI",
@@ -71,6 +135,14 @@
       "productLabel": "Whispers in the Well Booster Display"
     },
     {
+      "sku": "LOR-TROVE-WHI",
+      "setCode": "WHI",
+      "ravensburgerProductId": "11098786",
+      "sourceUrl": "https://ravensburger.cloud/images/produktseiten/600x600/11098786.webp",
+      "productLabel": "Whispers in the Well Illumineer's Trove",
+      "sourcePage": "https://www.ravensburger.us/en-US/products/disney-lorcana/trove-packs/whispers-in-the-well-illumineers-trove-11098786"
+    },
+    {
       "sku": "LOR-BOX-WUN",
       "setCode": "WUN",
       "ravensburgerProductId": "11098887",
@@ -78,11 +150,59 @@
       "productLabel": "Wilds Unknown Booster Pack Display"
     },
     {
+      "sku": "LOR-TROVE-WUN",
+      "setCode": "WUN",
+      "ravensburgerProductId": "11098864",
+      "sourceUrl": "https://ravensburger.cloud/images/produktseiten/600x600/11098864.webp",
+      "productLabel": "Wilds Unknown Illumineer's Trove",
+      "sourcePage": "https://www.ravensburger.us/en-US/products/disney-lorcana/trove-packs/disney-lorcana-tcg-wilds-unknownillumineers-trove--11098864"
+    },
+    {
       "sku": "LOR-BOX-WIN",
       "setCode": "WIN",
       "ravensburgerProductId": "11098838",
       "sourceUrl": "https://ravensburger.cloud/images/produktseiten/600x600/11098838.webp",
       "productLabel": "Winterspell Sleeved Booster Pack (display box not listed on official boosters page)"
+    },
+    {
+      "sku": "LOR-TROVE-WIN",
+      "setCode": "WIN",
+      "ravensburgerProductId": "11090016",
+      "sourceUrl": "https://ravensburger.cloud/images/produktseiten/600x600/11090016.webp",
+      "productLabel": "Winterspell Illumineer's Trove",
+      "sourcePage": "https://www.ravensburger.co.uk/en-GB/products/disney-lorcana/trove-packs/winterspell-illumineers-trove-english-11090016"
+    },
+    {
+      "sku": "LOR-BOX-ROF",
+      "setCode": "ROF",
+      "ravensburgerProductId": "11098271",
+      "sourceUrl": "https://ravensburger.cloud/images/produktseiten/600x600/11098271.webp",
+      "productLabel": "Rise of the Floodborn Booster Pack Display",
+      "sourcePage": "https://www.ravensburger.us/products/disney-lorcana/boosters/disney-lorcana-tcg-rise-of-the-floodborn-booster-pack-display-24-count-11098271"
+    },
+    {
+      "sku": "LOR-TROVE-ROF",
+      "setCode": "ROF",
+      "ravensburgerProductId": "11098250",
+      "sourceUrl": "https://ravensburger.cloud/images/produktseiten/600x600/11098250.webp",
+      "productLabel": "Rise of the Floodborn Illumineer's Trove",
+      "sourcePage": "https://www.ravensburger.us/products/disney-lorcana/trove-packs/disney-lorcana-tcg-rise-of-the-floodborn-illumineer-s-trove-11098250"
+    },
+    {
+      "sku": "LOR-BOX-ATV",
+      "setCode": "ATV",
+      "ravensburgerProductId": "11090046",
+      "sourceUrl": "https://ravensburger.cloud/images/produktseiten/600x600/11090046.webp",
+      "productLabel": "Attack of the Vine! Booster Pack Display (Set 13)",
+      "sourcePage": "https://www.asmodee.co.uk/products/rav11090046-disney-lorcana-tcg-attack-of-the-vine-booster-pack-display-24-set-13"
+    },
+    {
+      "sku": "LOR-TROVE-ATV",
+      "setCode": "ATV",
+      "ravensburgerProductId": "11090060",
+      "sourceUrl": "https://ravensburger.cloud/images/produktseiten/600x600/11090060.webp",
+      "productLabel": "Attack of the Vine! Illumineer's Trove (Set 13)",
+      "sourcePage": "https://www.ravensburger.de/de-CH/produkte/disney-lorcana/trove-packs/disney-lorcana-tcg-attack-of-the-vine-illumineers-trove-englisch-11090060"
     }
   ]
 }

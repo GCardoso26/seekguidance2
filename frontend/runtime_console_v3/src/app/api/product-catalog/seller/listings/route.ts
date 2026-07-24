@@ -3,9 +3,13 @@ import { TOURNAMENT_API_BASE, tournamentProxyHeaders } from "@/lib/tournament-ap
 
 export async function POST(req: NextRequest) {
   const body = await req.text();
+  const headers = await tournamentProxyHeaders(req);
+  if (!headers.Authorization || !headers["X-Judge-User-Id"]) {
+    return NextResponse.json({ detail: "Autenticação necessária" }, { status: 401 });
+  }
   const res = await fetch(`${TOURNAMENT_API_BASE}/runtime/judge/product-catalog/seller/listings`, {
     method: "POST",
-    headers: { ...(await tournamentProxyHeaders()), "Content-Type": "application/json" },
+    headers: { ...headers, "Content-Type": "application/json" },
     body,
   });
   const text = await res.text();
