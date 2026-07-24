@@ -1,7 +1,8 @@
 /** Jogos suportados no header picker (CardTrader-style). */
-import { GAME_TOKENS, ALL_GAME_IDS } from "@/lib/tcg-tokens";
+import { GAME_TOKENS, PRODUCT_GAME_IDS } from "@/lib/tcg-tokens";
 import type { GameId } from "@/types/card";
 
+/** ADR-016: SWU, Union Arena e Vanguard tiveram hard-exit do ecossistema de produto. */
 export const MARKETPLACE_GAME_OPTIONS = [
   { id: "MTG", name: "Magic: The Gathering" },
   { id: "POKEMON", name: "Pokémon TCG" },
@@ -10,15 +11,13 @@ export const MARKETPLACE_GAME_OPTIONS = [
   { id: "ONEPIECE", name: "One Piece" },
   { id: "FAB", name: "Flesh and Blood" },
   { id: "DIGIMON", name: "Digimon TCG" },
-  { id: "SWU", name: "Star Wars: Unlimited" },
   { id: "RIFTBOUND", name: "Riftbound" },
   { id: "SORCERY", name: "Sorcery" },
-  { id: "UARENA", name: "Union Arena" },
   { id: "DBFW", name: "Dragon Ball Fusion World" },
-  { id: "VANGUARD", name: "Cardfight!! Vanguard" },
+  { id: "GUNDAM", name: "Gundam Card Game" },
 ] as const;
 
-export const SUPPORTED_GAMES = ALL_GAME_IDS.map((id: GameId) => {
+export const SUPPORTED_GAMES = PRODUCT_GAME_IDS.map((id: GameId) => {
   const t = GAME_TOKENS[id];
   return {
     id,

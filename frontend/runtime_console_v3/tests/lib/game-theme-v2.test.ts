@@ -4,7 +4,7 @@ import {
   gameThemeCssVars,
   listAllGameThemes,
 } from "@/lib/experience/game-theme";
-import { ALL_GAME_IDS } from "@/lib/tcg-tokens";
+import { ALL_GAME_IDS, PRODUCT_GAME_IDS } from "@/lib/tcg-tokens";
 import { gameIdFromSlug } from "@/lib/tcg-tokens";
 
 describe("Theme Engine V2", () => {
@@ -20,7 +20,15 @@ describe("Theme Engine V2", () => {
       expect(theme.marketplace.skin).toBeTruthy();
       expect(theme.motion.hoverGlow).toBeTruthy();
     }
-    expect(listAllGameThemes()).toHaveLength(ALL_GAME_IDS.length);
+    expect(listAllGameThemes()).toHaveLength(PRODUCT_GAME_IDS.length);
+  });
+
+  it("excludes ADR-016 hard-exited games from the product theme listing", () => {
+    const ids = listAllGameThemes().map((t) => t.gameId);
+    expect(ids).not.toContain("SWU");
+    expect(ids).not.toContain("VANGUARD");
+    expect(ids).not.toContain("UARENA");
+    expect(ids).toContain("GUNDAM");
   });
 
   it("keeps Pokémon light and Magic dark — clearly distinct", () => {

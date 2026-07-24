@@ -1,3 +1,9 @@
+/**
+ * NOTE (ADR-016): SWU, UARENA e VANGUARD permanecem no tipo para preservar dados
+ * históricos (torneios, decks, cartas já indexadas). Foram removidos do
+ * ecossistema de produto (hard-exit) — ver `@/lib/product-game-allowlist`.
+ * Não os exponha em listas de produto sem filtrar via `isProductEcosystemDenied`.
+ */
 export type GameId =
   | "MTG"
   | "POKEMON"
@@ -11,7 +17,8 @@ export type GameId =
   | "SORCERY"
   | "UARENA"
   | "DBFW"
-  | "VANGUARD";
+  | "VANGUARD"
+  | "GUNDAM";
 
 export type Rarity = "common" | "uncommon" | "rare" | "mythic" | "special";
 

@@ -21,6 +21,7 @@ export type TcgOption = {
   beta?: boolean;
 };
 
+/** ADR-016: vanguard, union_arena e star_wars_unlimited removidos do ecossistema de produto. */
 export const TCG_OPTIONS: TcgOption[] = [
   { id: "magic", label: "Magic: The Gathering", enabled: true },
   { id: "pokemon", label: "Pokémon TCG", enabled: true },
@@ -32,10 +33,7 @@ export const TCG_OPTIONS: TcgOption[] = [
   { id: "digimon", label: "Digimon TCG", enabled: true },
   { id: "dragon_ball", label: "Dragon Ball Super Fusion World", enabled: true },
   { id: "sorcery", label: "Sorcery: Contested Realm", enabled: true },
-  { id: "vanguard", label: "Cardfight!! Vanguard", enabled: true },
   { id: "riftbound", label: "Riftbound — League of Legends", enabled: true },
-  { id: "union_arena", label: "Union Arena", enabled: true },
-  { id: "star_wars_unlimited", label: "Star Wars: Unlimited", enabled: true, beta: true },
 ];
 
 export type JudgeQuestion = {

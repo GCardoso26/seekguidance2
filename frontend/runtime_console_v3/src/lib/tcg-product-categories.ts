@@ -3,7 +3,7 @@
  * Estrutura inspirada no CardTrader (HTML de referência na raiz do monorepo).
  */
 import type { GameId } from "@/types/card";
-import { ALL_GAME_IDS, GAME_TOKENS } from "@/lib/tcg-tokens";
+import { PRODUCT_GAME_IDS, GAME_TOKENS } from "@/lib/tcg-tokens";
 
 export type ProductCategoryId =
   | "single"
@@ -212,6 +212,7 @@ export const GAME_PRODUCT_CATEGORIES: Record<GameId, ProductCategoryId[]> = {
   UARENA: ["single", "booster_box", "booster", "starter_deck", "sleeve", "playmat", "album"],
   DBFW: ["single", "booster", "sleeve", "album", "booster_box", "starter_deck", "playmat"],
   VANGUARD: ["single", "sleeve", "booster", "starter_deck", "booster_box", "playmat"],
+  GUNDAM: ["single", "booster_box", "booster", "starter_deck", "sleeve", "playmat", "album"],
 };
 
 /** Destaque por jogo — imagem padrão da categoria principal selada */
@@ -229,6 +230,7 @@ export const GAME_FEATURED_CATEGORY: Partial<Record<GameId, ProductCategoryId>> 
   UARENA: "booster_box",
   DBFW: "booster_box",
   VANGUARD: "booster_box",
+  GUNDAM: "booster_box",
 };
 
 export const ALL_PRODUCT_CATEGORY_IDS = Object.keys(PRODUCT_CATEGORY_META) as ProductCategoryId[];
@@ -275,8 +277,8 @@ export function expansionsHref(gameSlug: string): string {
   return gameExpansionsPath(gameSlug);
 }
 
-/** Lista de jogos para navegação (ordem marketplace). */
-export const NAV_GAME_IDS: GameId[] = ALL_GAME_IDS.filter(
+/** Lista de jogos para navegação (ordem marketplace). ADR-016: exclui hard-exited games. */
+export const NAV_GAME_IDS: GameId[] = PRODUCT_GAME_IDS.filter(
   (id) => (GAME_PRODUCT_CATEGORIES[id]?.length ?? 0) > 0,
 );
 

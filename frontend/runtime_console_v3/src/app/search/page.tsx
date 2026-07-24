@@ -7,7 +7,8 @@ import { CheckoutForm } from "@/components/payments/CheckoutForm";
 import { useTournamentSearch } from "@/hooks/useTournamentSearch";
 
 const qc = new QueryClient();
-const GAMES = ["MTG", "POKEMON", "LORCANA", "SWU"];
+/** ADR-016: SWU hard-exited from product ecosystem. */
+const GAMES = ["MTG", "POKEMON", "LORCANA"];
 
 function SearchPage() {
   const [q, setQ] = useState("");

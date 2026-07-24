@@ -69,3 +69,5 @@ Allowlist ≠ certified.
 ## Future
 
 Reabrir denylist ou alterar ordem R2–R4 exige **ADR que supersede este**.
+
+**Atualização (2026-07-24):** hard-exit operacional da denylist (Vanguard · SWU · Union Arena) e allowlist sealed/packshot para YGO · FAB · Gundam · Sorcery → **[ADR-016](./ADR-016-tcg-hard-exit-and-packshot-allowlist.md)** (não edita o corpo normativo acima).

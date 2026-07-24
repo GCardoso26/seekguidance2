@@ -23,6 +23,7 @@ Débitos aceitos temporariamente: [`TECHNICAL_DEBT_REGISTER.md`](../TECHNICAL_DE
 | [ADR-013](./ADR-013-tcg-expansion-allowlist.md) | TCG Expansion Allowlist & Denylist | Accepted |
 | [ADR-014](./ADR-014-testing-infrastructure-persona-composition.md) | Testing Infrastructure & Persona Composition | Accepted |
 | [ADR-015](./ADR-015-architecture-freeze-product-first.md) | Architecture Freeze & Product-First Delivery | Accepted |
+| [ADR-016](./ADR-016-tcg-hard-exit-and-packshot-allowlist.md) | TCG Hard-Exit Denylist & Packshot Allowlist Expansion | Accepted |
 
 ### Processo de engenharia (pós-fundação)
 

@@ -12,8 +12,10 @@ type PokemonSet = {
 };
 
 /**
- * Pokémon sealed products — Priority 1: official Pokémon TCG API images (logo/symbol).
- * Does not invent packshots beyond what the API provides.
+ * Pokémon sealed products — Priority 1: official Pokémon TCG API set metadata.
+ * ADR-016: the API's logo/symbol fields are set icons, not product packshots —
+ * they must not be promoted as the primary product image. `images` stays empty
+ * until a verified official packshot manifest exists (honesty > fake placeholder).
  */
 export class PokemonTcgSealedProvider extends BaseProductCatalogProvider {
   readonly providerId = "pokemon-tcg-sealed";
@@ -43,7 +45,6 @@ export class PokemonTcgSealedProvider extends BaseProductCatalogProvider {
     const items: ImportedProductDTO[] = [];
     for (const set of body.data ?? []) {
       if (!set.id || !set.name) continue;
-      const logo = set.images?.logo ?? set.images?.symbol;
       const sku = `PKM-ETB-${set.id.toUpperCase()}`;
       items.push({
         providerRef: `pokemon-set-${set.id}-etb`,
@@ -63,7 +64,8 @@ export class PokemonTcgSealedProvider extends BaseProductCatalogProvider {
             providerRef: `pokemon-set-${set.id}-etb-default`,
             variantName: "Padrão",
             sku,
-            images: logo ? [{ sourceUrl: logo, isPrimary: true }] : [],
+            // ADR-016: set logo/symbol are not packshots. Not use as primary image.
+            images: [],
           },
         ],
       });
@@ -86,11 +88,8 @@ export class PokemonTcgSealedProvider extends BaseProductCatalogProvider {
             providerRef: `pokemon-set-${set.id}-box-default`,
             variantName: "Padrão",
             sku: boxSku,
-            images: set.images?.symbol
-              ? [{ sourceUrl: set.images.symbol, isPrimary: true }]
-              : logo
-                ? [{ sourceUrl: logo, isPrimary: true }]
-                : [],
+            // ADR-016: set logo/symbol are not packshots. Not use as primary image.
+            images: [],
           },
         ],
       });

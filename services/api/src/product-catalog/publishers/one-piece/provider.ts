@@ -28,11 +28,11 @@ async function fetchOnePieceSets(): Promise<PublisherSetSeed[]> {
 }
 
 function seedFallback(game: string): PublisherSetSeed[] {
+  // ADR-016: no fake CDN placeholder — omit imageUrl until a verified official packshot exists.
   return [
     {
       code: `${game}-S1`,
       name: `${game} Starter Set`,
-      imageUrl: `https://cdn.judgetcg.example/publishers/${game.toLowerCase()}/s1-logo.webp`,
     },
   ];
 }

@@ -7,6 +7,9 @@ import {
   type ExpansionAssetDTO,
   type ExpansionAssetProvider,
 } from "../_shared/expansionAssets.js";
+import { createPackshotUrlForSku } from "../../providers/sealed/publisherPackshots.js";
+
+const packshotUrlForSku = createPackshotUrlForSku("yugioh");
 
 async function fetchSets(): Promise<PublisherSetSeed[]> {
   const url = process.env.YUGIOH_SETS_URL?.trim() || "https://db.ygoprodeck.com/api/v7/cardsets.php";
@@ -31,11 +34,11 @@ async function fetchSets(): Promise<PublisherSetSeed[]> {
 }
 
 function seedFallback(): PublisherSetSeed[] {
+  // ADR-016: no fake CDN placeholder — omit imageUrl until a verified official packshot exists.
   return [
     {
       code: "YUGIOH-S1",
       name: "Yu-Gi-Oh! Set 1",
-      imageUrl: "https://cdn.judgetcg.example/publishers/yugioh/s1.webp",
     },
   ];
 }
@@ -46,6 +49,7 @@ export const YugiohSealedProvider = createPublisherSealedProvider({
   publisher: "Konami",
   brand: "Yu-Gi-Oh!",
   fetchSets,
+  packshotUrlForSku,
 });
 
 export class YugiohExpansionAssetsProvider implements ExpansionAssetProvider {

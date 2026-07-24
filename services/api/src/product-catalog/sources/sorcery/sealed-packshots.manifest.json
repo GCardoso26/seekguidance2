@@ -1,0 +1,5 @@
+{
+  "version": 1,
+  "purpose": "ADR-016 packshot allowlist for Sorcery: Contested Realms sealed products. Empty until a verified official Erewhon Games/distributor packshot URL (HTTP 200) is confirmed — no invented URLs.",
+  "items": []
+}

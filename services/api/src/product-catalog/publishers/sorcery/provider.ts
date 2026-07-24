@@ -2,14 +2,18 @@ import {
   createPublisherSealedProvider,
   type PublisherSetSeed,
 } from "../_shared/createPublisherSealedProvider.js";
-import {
-  mapSetImagesToExpansionAssets,
-  type ExpansionAssetDTO,
-  type ExpansionAssetProvider,
-} from "../_shared/expansionAssets.js";
+import { createPackshotUrlForSku } from "../../providers/sealed/publisherPackshots.js";
 
+const packshotUrlForSku = createPackshotUrlForSku("sorcery");
+
+/**
+ * ADR-016: Sorcery: Contested Realm entry — no known public sets API yet.
+ * SORCERY_SETS_URL is an optional operator-provided override; without it we
+ * skip straight to the honest seed instead of fetching a placeholder CDN.
+ */
 async function fetchSets(): Promise<PublisherSetSeed[]> {
-  const url = process.env.DIGIMON_SETS_URL?.trim() || "https://digimoncard.io/api-public/getAllSets";
+  const url = process.env.SORCERY_SETS_URL?.trim();
+  if (!url) return seedFallback();
   try {
     const res = await fetch(url);
     if (!res.ok) return seedFallback();
@@ -34,38 +38,17 @@ function seedFallback(): PublisherSetSeed[] {
   // ADR-016: no fake CDN placeholder — omit imageUrl until a verified official packshot exists.
   return [
     {
-      code: "DIGIMON-S1",
-      name: "Digimon Card Game Set 1",
+      code: "SORCERY-S1",
+      name: "Sorcery: Contested Realm — Alpha",
     },
   ];
 }
 
-export const DigimonSealedProvider = createPublisherSealedProvider({
-  providerId: "digimon-sealed",
-  game: "DIGIMON",
-  publisher: "Bandai",
-  brand: "Digimon Card Game",
+export const SorcerySealedProvider = createPublisherSealedProvider({
+  providerId: "sorcery-sealed",
+  game: "SORCERY",
+  publisher: "Erik's Curiosa Limited",
+  brand: "Sorcery: Contested Realm",
   fetchSets,
+  packshotUrlForSku,
 });
-
-export class DigimonExpansionAssetsProvider implements ExpansionAssetProvider {
-  readonly providerId = "digimon-expansion-assets";
-  readonly game = "DIGIMON";
-
-  async syncExpansionAssets(): Promise<ExpansionAssetDTO[]> {
-    const sets = await fetchSets();
-    return sets.flatMap((s) =>
-      mapSetImagesToExpansionAssets({
-        game: this.game,
-        providerId: this.providerId,
-        code: s.code,
-        name: s.name,
-        logo: s.logoUrl ?? s.imageUrl,
-        icon: s.logoUrl ?? s.imageUrl,
-        packArt: s.imageUrl,
-        banner: s.imageUrl,
-        hero: s.imageUrl,
-      }),
-    );
-  }
-}

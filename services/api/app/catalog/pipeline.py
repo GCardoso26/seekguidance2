@@ -24,10 +24,11 @@ from app.tcg_adapters.sync_pokemon import sync_tcgdex
 from app.tcg_adapters.sync_pokemontcg import sync_pokemontcg
 from app.tcg_adapters.sync_riftbound import sync_riftbound
 from app.tcg_adapters.sync_sorcery import sync_sorcery
-from app.tcg_adapters.sync_swu import sync_swu
-from app.tcg_adapters.sync_union_arena import sync_union_arena
-from app.tcg_adapters.sync_vanguard import sync_vanguard
 from app.tcg_adapters.sync_yugioh import sync_yugioh
+
+# ADR-016: SWU, UARENA and VANGUARD are hard-exit denylisted from the public sync
+# pipeline (insufficient BR demand). Adapters kept under app/tcg_adapters for a
+# possible future re-entry, but intentionally not imported/wired here.
 
 logger = structlog.get_logger(__name__)
 
@@ -49,12 +50,10 @@ SYNC_SOURCES: dict[str, tuple[str, SyncFn]] = {
     "ONEPIECE": ("optcgapi", sync_onepiece),
     "FAB": ("fab-cube", sync_fab),
     "DIGIMON": ("digimoncard", sync_digimon),
-    "SWU": ("swu-db", sync_swu),
     "RIFTBOUND": ("riftscribe", sync_riftbound),
     "SORCERY": ("sorcerytcg", sync_sorcery),
-    "UARENA": ("apitcg-github", sync_union_arena),
     "DBFW": ("apitcg-github", sync_dbfw),
-    "VANGUARD": ("tcgapi", sync_vanguard),  # fallback TcgCsvProvider se TCG_API_KEY ausente
+    # ADR-016 hard-exit: SWU, UARENA, VANGUARD removed from the public sync list.
 }
 
 
@@ -187,9 +186,7 @@ async def run_game_sync(
             result = await sync_onepiece(session, limit=None)
         elif code == "DIGIMON":
             result = await sync_fn(session, limit=None if full else 100)
-        elif code == "SWU":
-            result = await sync_swu(session, limit=None if full else 150)
-        elif code in ("RIFTBOUND", "SORCERY", "UARENA", "DBFW", "VANGUARD"):
+        elif code in ("RIFTBOUND", "SORCERY", "DBFW"):
             result = await sync_fn(session, limit=None if full else 150)
         else:
             result = await sync_fn(session)

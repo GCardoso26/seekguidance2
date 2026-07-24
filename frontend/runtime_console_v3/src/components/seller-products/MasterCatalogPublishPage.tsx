@@ -20,6 +20,18 @@ const CONDITIONS = [
   { id: "DAMAGED", label: "Danificado" },
 ] as const;
 
+/** ADR-016: ícone/logo de set ≠ packshot oficial de sealed. */
+function isCatalogPackshotUrl(url: string | null | undefined): boolean {
+  if (!url || url.startsWith("fixture:") || !/^https?:\/\//i.test(url)) return false;
+  const u = url.toLowerCase();
+  if (u.includes("judgetcg.example")) return false;
+  if (u.includes("svgs.scryfall.io")) return false;
+  if (/\/(symbol|logo)(\.|\/|$)/.test(u)) return false;
+  if (u.includes("pokemontcg.io") && (u.includes("symbol") || u.includes("logo"))) return false;
+  if (u.includes("scrydex.com") && u.includes("symbol")) return false;
+  return true;
+}
+
 export function MasterCatalogPublishPage() {
   const [q, setQ] = useState("");
   const [category, setCategory] = useState("");
@@ -41,11 +53,8 @@ export function MasterCatalogPublishPage() {
   function selectVariant(variantId: string) {
     setSelectedVariantId(variantId);
     const item = data?.items.find((i) => i.variant_id === variantId);
-    const hasOfficial =
-      !!item?.image_url &&
-      !item.image_url.startsWith("fixture:") &&
-      /^https?:\/\//i.test(item.image_url);
-    setImageMode(hasOfficial ? "official" : "custom");
+    const hasPackshot = isCatalogPackshotUrl(item?.image_url);
+    setImageMode(hasPackshot ? "official" : "custom");
     setCustomImageUrl(undefined);
   }
 
@@ -84,8 +93,8 @@ export function MasterCatalogPublishPage() {
         });
       }
       toast.success(
-        imageMode === "official" && selected?.image_url
-          ? "Publicado com imagem oficial"
+        imageMode === "official" && isCatalogPackshotUrl(selected?.image_url)
+          ? "Publicado com packshot oficial"
           : "Publicado no catálogo da loja",
       );
     } catch {
@@ -211,13 +220,18 @@ export function MasterCatalogPublishPage() {
                 ) : (
                   <p className="text-xs text-muted-foreground">Sem imagem oficial no catálogo.</p>
                 )}
-                {selected.image_url ? (
+                {isCatalogPackshotUrl(selected.image_url) ? (
                   <p
                     className="rounded-md border border-primary/30 bg-primary/5 px-2 py-1.5 text-xs text-primary"
                     data-testid="official-image-autoselect"
                   >
-                    Imagem oficial encontrada — pré-selecionada automaticamente. Você pode enviar uma
-                    personalizada a qualquer momento.
+                    Packshot oficial encontrado — pré-selecionado automaticamente. Você pode enviar
+                    uma imagem personalizada a qualquer momento.
+                  </p>
+                ) : selected.image_url ? (
+                  <p className="rounded-md border border-border px-2 py-1.5 text-xs text-muted-foreground">
+                    O catálogo só tem ícone/logo de set (não é packshot). Envie uma foto do produto
+                    para publicar.
                   </p>
                 ) : null}
                 <fieldset className="space-y-2" data-testid="master-image-mode">
@@ -229,11 +243,11 @@ export function MasterCatalogPublishPage() {
                       type="radio"
                       name="image-mode"
                       checked={imageMode === "official"}
-                      disabled={!selected.image_url}
+                      disabled={!isCatalogPackshotUrl(selected.image_url)}
                       onChange={() => setImageMode("official")}
                       data-testid="image-mode-official"
                     />
-                    Usar imagem oficial
+                    Usar packshot oficial
                   </label>
                   <label className="flex items-center gap-2 text-sm">
                     <input

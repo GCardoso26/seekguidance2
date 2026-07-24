@@ -10,6 +10,8 @@ import {
 
 async function fetchSets(): Promise<PublisherSetSeed[]> {
   const url = process.env.DBFW_SETS_URL?.trim() || "https://cdn.judgetcg.example/publishers/dbfw/sets.json";
+  // ADR-016: never fetch the placeholder `.example` CDN — fall back to the honest seed directly.
+  if (url.includes(".example")) return seedFallback();
   try {
     const res = await fetch(url);
     if (!res.ok) return seedFallback();
@@ -31,11 +33,11 @@ async function fetchSets(): Promise<PublisherSetSeed[]> {
 }
 
 function seedFallback(): PublisherSetSeed[] {
+  // ADR-016: no fake CDN placeholder — omit imageUrl until a verified official packshot exists.
   return [
     {
       code: "DBFW-S1",
       name: "Dragon Ball Super Fusion World Set 1",
-      imageUrl: "https://cdn.judgetcg.example/publishers/dragon-ball/s1.webp",
     },
   ];
 }

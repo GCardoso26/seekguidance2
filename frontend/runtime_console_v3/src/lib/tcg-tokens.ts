@@ -1,4 +1,5 @@
 import type { GameId } from "@/types/card";
+import { isProductEcosystemDenied } from "@/lib/product-game-allowlist";
 
 export interface GameToken {
   primary: string;
@@ -100,9 +101,23 @@ export const GAME_TOKENS: Record<GameId, GameToken> = {
     name: "Cardfight!! Vanguard",
     slug: "vanguard",
   },
+  GUNDAM: {
+    primary: "#EF4444",
+    secondary: "#1F2937",
+    logo: "/logos/gundam.svg",
+    name: "Gundam Card Game",
+    slug: "gundam",
+  },
 };
 
 export const ALL_GAME_IDS = Object.keys(GAME_TOKENS) as GameId[];
+
+/**
+ * Jogos elegíveis para o ecossistema de produto (ADR-016 hard-exit).
+ * Use esta lista — e não `ALL_GAME_IDS` — em qualquer lugar voltado ao usuário
+ * (marketplace, seller, torneios, busca, onboarding).
+ */
+export const PRODUCT_GAME_IDS = ALL_GAME_IDS.filter((id) => !isProductEcosystemDenied(id));
 
 /** Human-friendly aliases → GameId (Epic 6 Game Identity). */
 const SLUG_ALIASES: Record<string, GameId> = {
@@ -130,6 +145,8 @@ const SLUG_ALIASES: Record<string, GameId> = {
   unionarena: "UARENA",
   vanguard: "VANGUARD",
   cardfightvanguard: "VANGUARD",
+  gundam: "GUNDAM",
+  gundamcardgame: "GUNDAM",
 };
 
 export function gameIdFromSlug(slug: string): GameId | null {

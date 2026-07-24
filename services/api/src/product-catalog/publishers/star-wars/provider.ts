@@ -40,6 +40,12 @@ function seedFallback(): PublisherSetSeed[] {
   ];
 }
 
+/**
+ * ADR-016: SWU (Star Wars: Unlimited) is hard-exit denylisted from the product
+ * ecosystem (insufficient BR demand). Not registered in providers/registry.ts —
+ * kept here only so reopening SWU later doesn't require rewriting the provider.
+ * Reopening requires an explicit new ADR.
+ */
 export const StarWarsSealedProvider = createPublisherSealedProvider({
   providerId: "star-wars-sealed",
   game: "SWU",

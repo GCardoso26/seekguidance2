@@ -8,11 +8,11 @@ export const PAIRING_FORMATS = [
   { value: "round_robin", label: "Round robin" },
 ] as const;
 
+/** ADR-016: SWU hard-exited from product ecosystem. */
 export const TOURNAMENT_GAME_OPTIONS = [
   { id: "MTG", name: "Magic: The Gathering" },
   { id: "POKEMON", name: "Pokémon TCG" },
   { id: "LORCANA", name: "Disney Lorcana" },
-  { id: "SWU", name: "Star Wars Unlimited" },
 ] as const;
 
 const sellerTournamentFormBase = z.object({

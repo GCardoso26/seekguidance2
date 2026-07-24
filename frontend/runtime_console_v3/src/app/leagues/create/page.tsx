@@ -71,7 +71,8 @@ function CreateLeagueWizard() {
               className="w-full min-h-[44px] surface-card rounded-lg px-4"
             />
             <select value={game} onChange={(e) => setGame(e.target.value)} className="w-full surface-card rounded-lg px-4 py-3">
-              {["MTG", "POKEMON", "LORCANA", "SWU"].map((g) => (
+              {/* ADR-016: SWU hard-exited from product ecosystem. */}
+              {["MTG", "POKEMON", "LORCANA"].map((g) => (
                 <option key={g} value={g}>
                   {g}
                 </option>

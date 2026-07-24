@@ -7,9 +7,14 @@ import {
   type ExpansionAssetDTO,
   type ExpansionAssetProvider,
 } from "../_shared/expansionAssets.js";
+import { createPackshotUrlForSku } from "../../providers/sealed/publisherPackshots.js";
+
+const packshotUrlForSku = createPackshotUrlForSku("fab");
 
 async function fetchSets(): Promise<PublisherSetSeed[]> {
   const url = process.env.FAB_SETS_URL?.trim() || "https://cdn.judgetcg.example/publishers/fab/sets.json";
+  // ADR-016: never fetch the placeholder `.example` CDN — fall back to the honest seed directly.
+  if (url.includes(".example")) return seedFallback();
   try {
     const res = await fetch(url);
     if (!res.ok) return seedFallback();
@@ -31,11 +36,11 @@ async function fetchSets(): Promise<PublisherSetSeed[]> {
 }
 
 function seedFallback(): PublisherSetSeed[] {
+  // ADR-016: no fake CDN placeholder — omit imageUrl until a verified official packshot exists.
   return [
     {
       code: "FAB-S1",
       name: "Flesh and Blood Set 1",
-      imageUrl: "https://cdn.judgetcg.example/publishers/fab/s1.webp",
     },
   ];
 }
@@ -46,6 +51,7 @@ export const FabSealedProvider = createPublisherSealedProvider({
   publisher: "Legend Story Studios",
   brand: "Flesh and Blood",
   fetchSets,
+  packshotUrlForSku,
 });
 
 export class FabExpansionAssetsProvider implements ExpansionAssetProvider {

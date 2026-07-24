@@ -21,6 +21,7 @@ export const SELLER_PRODUCT_CATEGORIES: { id: ProductCategoryId; label: string }
   { id: "accessory", label: "Acessórios" },
 ];
 
+/** ADR-016: Vanguard, Union Arena e SWU tiveram hard-exit do ecossistema de produto. */
 export const CATALOG_GAME_SLUGS = [
   { slug: "lorcana", label: "Lorcana" },
   { slug: "mtg", label: "Magic" },
@@ -31,10 +32,8 @@ export const CATALOG_GAME_SLUGS = [
   { slug: "dbfw", label: "Dragon Ball" },
   { slug: "riftbound", label: "Riftbound" },
   { slug: "fab", label: "Flesh and Blood" },
-  { slug: "vanguard", label: "Vanguard" },
-  { slug: "union-arena", label: "Union Arena" },
-  { slug: "swu", label: "Star Wars: Unlimited" },
   { slug: "sorcery", label: "Sorcery" },
+  { slug: "gundam", label: "Gundam" },
 ] as const;
 
 export type CatalogGameSlug = (typeof CATALOG_GAME_SLUGS)[number]["slug"];

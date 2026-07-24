@@ -6,6 +6,7 @@
 import type { CSSProperties } from "react";
 import {
   ALL_GAME_IDS,
+  PRODUCT_GAME_IDS,
   GAME_TOKENS,
   type GameToken,
   gameIdFromSlug,
@@ -644,6 +645,47 @@ const IDENTITY: Record<GameId, IdentitySeed> = {
     collection: { panelTint: "#061820" },
     deckBuilder: { workspaceTint: "#041018" },
   },
+  GUNDAM: {
+    surfaces: {
+      mood: "dark",
+      bg: "#0c0a0a",
+      bgElevated: "#1a1414",
+      accent: "#ef4444",
+      accentMuted: "#7f1d1d",
+      heroGlow: "#EF444440",
+      border: "#37415144",
+      text: "#f8fafc",
+      textMuted: "#cbd5e1",
+      gradientFrom: "#0c0a0a",
+      gradientVia: "#1f2937",
+      gradientTo: "#450a0a",
+      cardRadius: "0.375rem",
+      buttonRadius: "0.25rem",
+      shadow: "0 16px 40px rgba(239,68,68,0.25)",
+      texture: "metal",
+    },
+    typography: {
+      display: '"Orbitron", "Eurostile", "Segoe UI", sans-serif',
+      body: '"IBM Plex Sans", system-ui, sans-serif',
+      tracking: "0.06em",
+      displayWeight: 700,
+    },
+    hero: {
+      animation: "scanlines",
+      overlay: "neon",
+      tagline: "Mobile Suit, engaje",
+      description: "Aço, HUD tático e batalhas espaciais. Gundam Card Game no JudgeTCG.",
+      ctaPrimary: "Explorar",
+      ctaSecondary: "Decks",
+    },
+    motion: {
+      ...DEFAULT_MOTION,
+      hoverGlow: "0 0 28px rgba(239,68,68,0.5)",
+    },
+    marketplace: { skin: "federation", density: "compact" },
+    collection: { panelTint: "#1a1414" },
+    deckBuilder: { workspaceTint: "#120c0c" },
+  },
 };
 
 export function getGameTheme(gameId: GameId): GameTheme {
@@ -780,7 +822,18 @@ export function gameThemeCssVars(theme: GameTheme): CSSProperties {
   };
 }
 
+/**
+ * Lista pública de temas para uso em UI de produto (hero, mega-menu, etc).
+ * ADR-016: exclui jogos com hard-exit do ecossistema (SWU, UARENA, VANGUARD).
+ * Use `listAllGameThemesIncludingDenylisted` apenas para telas administrativas
+ * ou dados históricos que precisem renderizar TODOS os GameId conhecidos.
+ */
 export function listAllGameThemes(): GameTheme[] {
+  return PRODUCT_GAME_IDS.map(getGameTheme);
+}
+
+/** Inclui jogos com hard-exit (ADR-016) — não usar em superfícies de produto. */
+export function listAllGameThemesIncludingDenylisted(): GameTheme[] {
   return ALL_GAME_IDS.map(getGameTheme);
 }
 

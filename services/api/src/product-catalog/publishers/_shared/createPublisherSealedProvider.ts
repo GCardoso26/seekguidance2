@@ -22,6 +22,16 @@ export interface PublisherProviderConfig {
   brand: string;
   /** Priority 1: fetch from official API */
   fetchSets: () => Promise<PublisherSetSeed[]>;
+  /**
+   * ADR-016 packshot allowlist — optional curated override looked up by product SKU
+   * (e.g. `${game}-BOX-${code}`). Takes priority over `set.imageUrl`/`logoUrl` when present.
+   */
+  packshotUrlForSku?: (sku: string) => string | undefined;
+}
+
+/** ADR-016: never promote a `*.example` placeholder CDN URL as a real product image. */
+function isUsablePackshotUrl(url: string | undefined): url is string {
+  return typeof url === "string" && url.length > 0 && !url.includes(".example");
 }
 
 /**
@@ -42,7 +52,8 @@ export function createPublisherSealedProvider(config: PublisherProviderConfig) {
         for (const set of sets) {
           if (!set.code || !set.name) continue;
           const skuBox = `${config.game}-BOX-${set.code.toUpperCase()}`;
-          const img = set.imageUrl ?? set.logoUrl;
+          const rawImg = set.imageUrl ?? set.logoUrl;
+          const img = config.packshotUrlForSku?.(skuBox) ?? (isUsablePackshotUrl(rawImg) ? rawImg : undefined);
           items.push({
             providerRef: `${config.providerId}:${set.code}:box`,
             manufacturerName: config.publisher,

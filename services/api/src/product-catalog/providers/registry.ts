@@ -109,10 +109,12 @@ import {
 import { OnePieceSealedProvider } from "../publishers/one-piece/provider.js";
 import { DigimonSealedProvider } from "../publishers/digimon/provider.js";
 import { DragonBallSealedProvider } from "../publishers/dragon-ball/provider.js";
-import { StarWarsSealedProvider } from "../publishers/star-wars/provider.js";
+// ADR-016: SWU hard-exit denylist — StarWarsSealedProvider intentionally not imported/registered here.
 import { FabSealedProvider } from "../publishers/fab/provider.js";
 import { YugiohSealedProvider } from "../publishers/yugioh/provider.js";
 import { RiftboundSealedProvider } from "../publishers/riftbound/provider.js";
+import { GundamSealedProvider } from "../publishers/gundam/provider.js";
+import { SorcerySealedProvider } from "../publishers/sorcery/provider.js";
 import type { ProductCatalogJobKey } from "./ProductCatalogProvider.js";
 import { JOB_KEY_TO_CATEGORY } from "./ProductCatalogProvider.js";
 import type { ProductCatalogProvider } from "./ProductCatalogProvider.js";
@@ -141,10 +143,12 @@ function bootstrapRegistry(reg: ProductCatalogProviderRegistry): void {
   reg.register("catalog.sync.sealed", new OnePieceSealedProvider());
   reg.register("catalog.sync.sealed", new DigimonSealedProvider());
   reg.register("catalog.sync.sealed", new DragonBallSealedProvider());
-  reg.register("catalog.sync.sealed", new StarWarsSealedProvider());
+  // ADR-016: SWU hard-exit — no sealed registration (see publishers/star-wars/provider.ts).
   reg.register("catalog.sync.sealed", new FabSealedProvider());
   reg.register("catalog.sync.sealed", new YugiohSealedProvider());
   reg.register("catalog.sync.sealed", new RiftboundSealedProvider());
+  reg.register("catalog.sync.sealed", new GundamSealedProvider());
+  reg.register("catalog.sync.sealed", new SorcerySealedProvider());
   reg.register("catalog.sync.sealed", new LigaPublicImageFallbackProvider());
 
   const sleeveProviders = [

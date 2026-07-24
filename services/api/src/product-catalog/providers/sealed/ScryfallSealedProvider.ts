@@ -15,7 +15,12 @@ async function fetchScryfallSets(): Promise<Response> {
   });
 }
 
-/** Scryfall — produtos selados MTG (sets tipo booster/box). Imagem = icon_svg_uri (símbolo), não packshot. */
+/**
+ * Scryfall — produtos selados MTG (sets tipo booster/box).
+ * ADR-016: set icons (icon_svg_uri) NÃO são packshots de produto e não devem ser
+ * promovidos como imagem principal. Sem manifest de packshot oficial verificado,
+ * `images` fica vazio (honestidade > placeholder falso).
+ */
 export class ScryfallSealedProvider extends BaseProductCatalogProvider {
   readonly providerId = "scryfall-sealed";
   readonly category = ProductCategory.SEALED_PRODUCT;
@@ -43,7 +48,6 @@ export class ScryfallSealedProvider extends BaseProductCatalogProvider {
       const name = String(set.name ?? "");
       if (!code || !name) continue;
       const titlePt = `Booster Box — ${name} (Magic)`;
-      const icon = set.icon_svg_uri ? String(set.icon_svg_uri) : undefined;
       items.push({
         providerRef: `scryfall-set-${code}-box`,
         manufacturerName: "Wizards of the Coast",
@@ -63,7 +67,9 @@ export class ScryfallSealedProvider extends BaseProductCatalogProvider {
             providerRef: `scryfall-set-${code}-box-default`,
             variantName: "Padrão",
             sku: `MTG-BOX-${code.toUpperCase()}`,
-            images: icon ? [{ sourceUrl: icon, isPrimary: true }] : [],
+            // ADR-016: set icon_svg_uri is a rules-icon, not a packshot. No official
+            // Wizards CDN packshot manifest exists yet — honest empty over fake image.
+            images: [],
           },
         ],
       });
@@ -85,7 +91,8 @@ export class ScryfallSealedProvider extends BaseProductCatalogProvider {
             providerRef: `scryfall-set-${code}-bundle-default`,
             variantName: "Padrão",
             sku: `MTG-BUNDLE-${code.toUpperCase()}`,
-            images: icon ? [{ sourceUrl: icon, isPrimary: true }] : [],
+            // ADR-016: same rules-icon-is-not-a-packshot constraint as the box variant.
+            images: [],
           },
         ],
       });

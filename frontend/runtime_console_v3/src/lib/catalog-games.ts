@@ -1,5 +1,6 @@
-import { ALL_GAME_IDS, GAME_TOKENS } from "@/lib/tcg-tokens";
+import { PRODUCT_GAME_IDS, GAME_TOKENS } from "@/lib/tcg-tokens";
 import { IMPLEMENTATION_WAVE_GAME_IDS, isGameInImplementationWave } from "@/lib/game-rollout";
+import { isProductEcosystemDenied } from "@/lib/product-game-allowlist";
 import type { CatalogHealthReport } from "@/types/card";
 
 export interface GameInfo {
@@ -20,12 +21,10 @@ const MOCK_BY_GAME: CatalogHealthReport["by_game"] = {
   ONEPIECE: 3485,
   FAB: 13988,
   DIGIMON: 4297,
-  SWU: 7729,
   RIFTBOUND: 0,
   SORCERY: 0,
-  UARENA: 0,
   DBFW: 0,
-  VANGUARD: 0,
+  GUNDAM: 0,
 };
 
 const MOCK_TOTAL_CARDS = Object.values(MOCK_BY_GAME).reduce((sum, n) => sum + (n ?? 0), 0);
@@ -43,7 +42,7 @@ export const MOCK_CATALOG_HEALTH: CatalogHealthReport = {
 
 export function mapHealthToGames(health?: CatalogHealthReport | null): GameInfo[] {
   const byGame = health?.by_game ?? {};
-  return ALL_GAME_IDS.map((id) => {
+  return PRODUCT_GAME_IDS.filter((id) => !isProductEcosystemDenied(id)).map((id) => {
     const token = GAME_TOKENS[id];
     const count = byGame[id] ?? 0;
     return {
