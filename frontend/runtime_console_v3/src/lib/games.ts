@@ -149,10 +149,8 @@ export const DEFAULT_GAME_ORDER = [
   "onepiece",
   "fab",
   "digimon",
-  "swu",
   "riftbound",
   "sorcery",
-  "union-arena",
   "dbfw",
-  "vanguard",
+  "gundam",
 ] as const;

@@ -1,7 +1,6 @@
 import type { LucideIcon } from "lucide-react";
 import {
   BarChart3,
-  FileUp,
   ImageIcon,
   Layers,
   LayoutDashboard,
@@ -31,7 +30,7 @@ export const ADMIN_SIDEBAR_ITEMS: AdminSidebarItem[] = [
   { id: "feedback", label: "Feedback", icon: MessageSquare, href: "/admin/feedback" },
   { id: "newsletter", label: "Newsletter", icon: Mail, href: "/admin/newsletter" },
   { id: "console", label: "Console", icon: Terminal, href: "/admin/console" },
-  { id: "ingestion", label: "Ingestão SWU", icon: FileUp, href: "/admin/ingestion" },
+  // ADR-016: "Ingestão SWU" removed — SWU hard-exit from product ecosystem.
 ];
 
 export function adminSidebarItemActive(pathname: string, href: string): boolean {

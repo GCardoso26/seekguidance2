@@ -75,15 +75,15 @@ export default function AdminConsolePage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
                 <FileUp className="h-4 w-4" aria-hidden />
-                Upload SWU
+                Ingestão de regras
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="mb-4 text-sm text-muted-foreground">
-                Enviar PDF das regras de Star Wars Unlimited.
+                Status de upload de regras. SWU está em hard-exit (ADR-016).
               </p>
               <Link href="/admin/ingestion" className="text-sm font-medium text-primary hover:underline">
-                Console de upload →
+                Ver status →
               </Link>
             </CardContent>
           </Card>

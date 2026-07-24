@@ -9,9 +9,9 @@ import {
 } from "../_shared/expansionAssets.js";
 
 async function fetchSets(): Promise<PublisherSetSeed[]> {
-  const url = process.env.RIFTBOUND_SETS_URL?.trim() || "https://cdn.judgetcg.example/publishers/riftbound/sets.json";
-  // ADR-016: never fetch the placeholder `.example` CDN — fall back to the honest seed directly.
-  if (url.includes(".example")) return seedFallback();
+  const url = process.env.RIFTBOUND_SETS_URL?.trim();
+  // ADR-016: no `.example` CDN default — without env URL, use honest seed.
+  if (!url || url.includes(".example")) return seedFallback();
   try {
     const res = await fetch(url);
     if (!res.ok) return seedFallback();

@@ -11,8 +11,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.catalog.set_coverage import verify_image_coverage, verify_set_coverage
 
 GAMES = (
-    "MTG", "POKEMON", "LORCANA", "YGO", "ONEPIECE", "FAB", "DIGIMON", "SWU",
-    "RIFTBOUND", "SORCERY", "UARENA", "DBFW", "VANGUARD",
+    "MTG", "POKEMON", "LORCANA", "YGO", "ONEPIECE", "FAB", "DIGIMON",
+    "RIFTBOUND", "SORCERY", "DBFW", "GUNDAM",
+    # ADR-016 hard-exit (not in product health surface): SWU, UARENA, VANGUARD
 )
 
 

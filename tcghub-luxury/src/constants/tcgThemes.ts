@@ -17,10 +17,10 @@ export const TCG_THEMES: TcgTheme[] = [
   { id: "dragon_ball", name: "Dragon Ball", short: "DBS", accent: "#f59e0b", accentMuted: "#78350f" },
   { id: "force_of_will", name: "Force of Will", short: "FoW", accent: "#6366f1", accentMuted: "#312e81" },
   { id: "grand_archive", name: "Grand Archive", short: "GA", accent: "#14b8a6", accentMuted: "#134e4a" },
-  { id: "swu", name: "Star Wars Unlimited", short: "SWU", accent: "#64748b", accentMuted: "#1e293b" },
   { id: "riftbound", name: "Riftbound", short: "RFT", accent: "#ec4899", accentMuted: "#831843" },
   { id: "weiss", name: "Weiss Schwarz", short: "WS", accent: "#f472b6", accentMuted: "#831843" },
-  { id: "vanguard", name: "Cardfight!! Vanguard", short: "CFV", accent: "#22d3ee", accentMuted: "#155e75" },
+  { id: "gundam", name: "Gundam Card Game", short: "GDM", accent: "#64748b", accentMuted: "#1e293b" },
+  { id: "sorcery", name: "Sorcery: Contested Realms", short: "SRC", accent: "#7c3aed", accentMuted: "#1e1b4b" },
 ];
 
 export const FEATURES = [

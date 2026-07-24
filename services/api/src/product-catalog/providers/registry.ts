@@ -130,7 +130,7 @@ import { LorcanaExpansionAssetsProvider } from "../publishers/lorcana/provider.j
 import { OnePieceExpansionAssetsProvider } from "../publishers/one-piece/provider.js";
 import { DigimonExpansionAssetsProvider } from "../publishers/digimon/provider.js";
 import { DragonBallExpansionAssetsProvider } from "../publishers/dragon-ball/provider.js";
-import { StarWarsExpansionAssetsProvider } from "../publishers/star-wars/provider.js";
+// ADR-016: SWU hard-exit — StarWarsExpansionAssetsProvider not registered.
 import { FabExpansionAssetsProvider } from "../publishers/fab/provider.js";
 import { YugiohExpansionAssetsProvider } from "../publishers/yugioh/provider.js";
 import { RiftboundExpansionAssetsProvider } from "../publishers/riftbound/provider.js";
@@ -272,7 +272,6 @@ export function listExpansionAssetProviders(): ExpansionAssetProvider[] {
     new OnePieceExpansionAssetsProvider(),
     new DigimonExpansionAssetsProvider(),
     new DragonBallExpansionAssetsProvider(),
-    new StarWarsExpansionAssetsProvider(),
     new FabExpansionAssetsProvider(),
     new YugiohExpansionAssetsProvider(),
     new RiftboundExpansionAssetsProvider(),

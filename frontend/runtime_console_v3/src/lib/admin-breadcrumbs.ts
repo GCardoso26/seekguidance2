@@ -9,7 +9,7 @@ const SECTION_LABELS: Record<string, string> = {
   feedback: "Feedback",
   newsletter: "Newsletter",
   console: "Console",
-  ingestion: "Ingestão SWU",
+  ingestion: "Ingestão",
 };
 
 /** Gera breadcrumbs a partir do pathname do painel admin. */

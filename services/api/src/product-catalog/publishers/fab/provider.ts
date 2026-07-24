@@ -12,9 +12,9 @@ import { createPackshotUrlForSku } from "../../providers/sealed/publisherPacksho
 const packshotUrlForSku = createPackshotUrlForSku("fab");
 
 async function fetchSets(): Promise<PublisherSetSeed[]> {
-  const url = process.env.FAB_SETS_URL?.trim() || "https://cdn.judgetcg.example/publishers/fab/sets.json";
-  // ADR-016: never fetch the placeholder `.example` CDN — fall back to the honest seed directly.
-  if (url.includes(".example")) return seedFallback();
+  const url = process.env.FAB_SETS_URL?.trim();
+  // ADR-016: no `.example` CDN default — without env URL, use honest seed.
+  if (!url || url.includes(".example")) return seedFallback();
   try {
     const res = await fetch(url);
     if (!res.ok) return seedFallback();

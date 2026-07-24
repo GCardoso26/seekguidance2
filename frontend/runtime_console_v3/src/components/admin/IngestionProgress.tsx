@@ -7,7 +7,7 @@ type Props = {
   gameSlug?: string;
 };
 
-export function IngestionProgress({ gameSlug = "swu" }: Props) {
+export function IngestionProgress({ gameSlug }: Props) {
   const jobs = useQuery({
     queryKey: ["ingestion-jobs", gameSlug],
     queryFn: getIngestionJobs,

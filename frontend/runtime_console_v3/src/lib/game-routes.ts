@@ -2,13 +2,18 @@
  * Rotas canônicas de navegação por TCG (namespace estilo CardTrader).
  * `/loja/*` permanece como alias legado via redirects no next.config.
  */
-import { gameIdFromSlug, GAME_TOKENS } from "@/lib/tcg-tokens";
+import { isProductEcosystemDenied } from "@/lib/product-game-allowlist";
+import { gameIdFromSlug, GAME_TOKENS, PRODUCT_GAME_IDS } from "@/lib/tcg-tokens";
 import type { GameId } from "@/types/card";
 
-export const ALL_GAME_SLUGS = Object.values(GAME_TOKENS).map((t) => t.slug);
+/** Slugs navegáveis no ecossistema de produto (ADR-016: exclui hard-exit). */
+export const ALL_GAME_SLUGS = PRODUCT_GAME_IDS.map((id) => GAME_TOKENS[id].slug);
 
 export function isKnownGameSlug(slug: string): boolean {
-  return gameIdFromSlug(slug) !== null;
+  const id = gameIdFromSlug(slug);
+  if (!id) return false;
+  // ADR-016: hard-exit denylist — rotas /swu, /vanguard, /union-arena → 404.
+  return !isProductEcosystemDenied(id);
 }
 
 export function gameLandingPath(slug: string): string {

@@ -22,10 +22,8 @@ export const TCG_LOGOS: Record<string, TcgLogoMeta> = {
   gundam: { src: "/logos/gundam.svg", alt: "Gundam Card Game", width: LOGO_SIZE, height: LOGO_SIZE },
   dbfw: { src: "/logos/dbfw.svg", alt: "Dragon Ball Fusion World", width: LOGO_SIZE, height: LOGO_SIZE },
   sorcery: { src: "/logos/sorcery.svg", alt: "Sorcery: Contested Realm", width: LOGO_SIZE, height: LOGO_SIZE },
-  vanguard: { src: "/logos/vanguard.svg", alt: "Cardfight!! Vanguard", width: LOGO_SIZE, height: LOGO_SIZE },
   riftbound: { src: "/logos/riftbound.svg", alt: "Riftbound", width: LOGO_SIZE, height: LOGO_SIZE },
-  union_arena: { src: "/logos/union-arena.svg", alt: "Union Arena", width: LOGO_SIZE, height: LOGO_SIZE },
-  swu: { src: "/logos/swu.svg", alt: "Star Wars: Unlimited", width: LOGO_SIZE, height: LOGO_SIZE },
+  // ADR-016: vanguard / union_arena / swu removidos das listas de produto.
 };
 
 const DEFAULT: TcgLogoMeta = {

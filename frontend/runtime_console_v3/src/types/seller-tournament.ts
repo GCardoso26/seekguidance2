@@ -53,7 +53,6 @@ const GAME_NAMES: Record<string, string> = {
   MTG: "Magic: The Gathering",
   POKEMON: "Pokémon TCG",
   LORCANA: "Disney Lorcana",
-  SWU: "Star Wars Unlimited",
 };
 
 export function tournamentStatusLabel(status: string): string {

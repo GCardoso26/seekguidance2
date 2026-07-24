@@ -9,7 +9,9 @@ import {
 } from "../_shared/expansionAssets.js";
 
 async function fetchSets(): Promise<PublisherSetSeed[]> {
-  const url = process.env.SWU_SETS_URL?.trim() || "https://cdn.judgetcg.example/publishers/swu/sets.json";
+  const url = process.env.SWU_SETS_URL?.trim();
+  // ADR-016: no `.example` CDN fallback. Without an explicit URL, use honest seed.
+  if (!url || url.includes(".example")) return seedFallback();
   try {
     const res = await fetch(url);
     if (!res.ok) return seedFallback();
@@ -31,11 +33,11 @@ async function fetchSets(): Promise<PublisherSetSeed[]> {
 }
 
 function seedFallback(): PublisherSetSeed[] {
+  // ADR-016: no fake CDN placeholder — omit imageUrl.
   return [
     {
       code: "SWU-S1",
       name: "Star Wars Unlimited Set 1",
-      imageUrl: "https://cdn.judgetcg.example/publishers/star-wars/s1.webp",
     },
   ];
 }
