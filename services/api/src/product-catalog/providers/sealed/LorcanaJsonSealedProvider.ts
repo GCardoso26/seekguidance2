@@ -3,10 +3,11 @@ import type { ImportedProductDTO } from "../../domain/models.js";
 import { BaseProductCatalogProvider } from "../BaseProductCatalogProvider.js";
 import type { ProductCatalogSyncContext, ProductCatalogSyncResult } from "../ProductCatalogProvider.js";
 import { extractLorcanaSetsPayload, normalizeLorcanaSetRow } from "./lorcanaSetNormalize.js";
+import { packshotUrlForSku } from "./lorcanaPackshots.js";
 
 /**
  * Lorcana sealed — Priority 1: public lorcana-api set metadata.
- * Note: lorcana-api bulk/sets has no packshot URLs (Set_ID/Name only); products still upsert.
+ * Packshots: curated Ravensburger CDN URLs merged by SKU (lorcana-api has no images).
  */
 export class LorcanaJsonSealedProvider extends BaseProductCatalogProvider {
   readonly providerId = "lorcana-json-sealed";
@@ -50,14 +51,18 @@ export class LorcanaJsonSealedProvider extends BaseProductCatalogProvider {
       const norm = normalizeLorcanaSetRow(set);
       if (!norm) continue;
       const { code, name, releaseDate, image } = norm;
-      const sku = `LOR-BOX-${code.toUpperCase()}`;
+      const boxSku = `LOR-BOX-${code.toUpperCase()}`;
+      const troveSku = `LOR-TROVE-${code.toUpperCase()}`;
+      // Prefer curated official packshot; fall back to API logo/icon if ever present.
+      const boxImage = packshotUrlForSku(boxSku) ?? image;
+      const troveImage = packshotUrlForSku(troveSku) ?? image;
       items.push({
         providerRef: `lorcana-set-${code}-box`,
         manufacturerName: "Ravensburger",
         brandName: "Disney Lorcana",
         category: ProductCategory.SEALED_PRODUCT,
         subcategory: "BOOSTER_BOX",
-        sku,
+        sku: boxSku,
         titlePt: `Booster Box — ${name}`,
         titleEn: `Booster Box — ${name}`,
         game: "LORCANA",
@@ -68,8 +73,8 @@ export class LorcanaJsonSealedProvider extends BaseProductCatalogProvider {
           {
             providerRef: `lorcana-set-${code}-box-default`,
             variantName: "Padrão",
-            sku,
-            images: image ? [{ sourceUrl: image, isPrimary: true }] : [],
+            sku: boxSku,
+            images: boxImage ? [{ sourceUrl: boxImage, isPrimary: true }] : [],
           },
         ],
       });
@@ -79,7 +84,7 @@ export class LorcanaJsonSealedProvider extends BaseProductCatalogProvider {
         brandName: "Disney Lorcana",
         category: ProductCategory.SEALED_PRODUCT,
         subcategory: "ILLUMINEERS_TROVE",
-        sku: `LOR-TROVE-${code.toUpperCase()}`,
+        sku: troveSku,
         titlePt: `Illumineer's Trove — ${name}`,
         titleEn: `Illumineer's Trove — ${name}`,
         game: "LORCANA",
@@ -90,8 +95,8 @@ export class LorcanaJsonSealedProvider extends BaseProductCatalogProvider {
           {
             providerRef: `lorcana-set-${code}-trove-default`,
             variantName: "Padrão",
-            sku: `LOR-TROVE-${code.toUpperCase()}`,
-            images: image ? [{ sourceUrl: image, isPrimary: true, sortOrder: 0 }] : [],
+            sku: troveSku,
+            images: troveImage ? [{ sourceUrl: troveImage, isPrimary: true, sortOrder: 0 }] : [],
           },
         ],
       });

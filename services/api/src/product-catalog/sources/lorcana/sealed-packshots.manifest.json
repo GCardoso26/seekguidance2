@@ -1,0 +1,88 @@
+{
+  "version": 1,
+  "source": "ravensburger.cloud produktseiten (official US catalog listing)",
+  "sourcePages": [
+    "https://www.ravensburger.us/en-US/products/disney-lorcana/boosters",
+    "https://www.ravensburger.us/en-US/products/disney-lorcana/gift-sets"
+  ],
+  "cdnTemplate": "https://ravensburger.cloud/images/produktseiten/600x600/{productId}.webp",
+  "items": [
+    {
+      "sku": "LOR-BOX-ARI",
+      "setCode": "ARI",
+      "ravensburgerProductId": "11098557",
+      "sourceUrl": "https://ravensburger.cloud/images/produktseiten/600x600/11098557.webp",
+      "productLabel": "Archazia's Island Booster Pack Display"
+    },
+    {
+      "sku": "LOR-BOX-AZS",
+      "setCode": "AZS",
+      "ravensburgerProductId": "11098466",
+      "sourceUrl": "https://ravensburger.cloud/images/produktseiten/600x600/11098466.webp",
+      "productLabel": "Azurite Sea Booster Pack Display"
+    },
+    {
+      "sku": "LOR-BOX-FAB",
+      "setCode": "FAB",
+      "ravensburgerProductId": "11098639",
+      "sourceUrl": "https://ravensburger.cloud/images/produktseiten/600x600/11098639.webp",
+      "productLabel": "Fabled Booster Display Box"
+    },
+    {
+      "sku": "LOR-BOX-INK",
+      "setCode": "INK",
+      "ravensburgerProductId": "11098312",
+      "sourceUrl": "https://ravensburger.cloud/images/produktseiten/600x600/11098312.webp",
+      "productLabel": "Into the Inklands Booster Pack Display"
+    },
+    {
+      "sku": "LOR-BOX-ROJ",
+      "setCode": "ROJ",
+      "ravensburgerProductId": "11098558",
+      "sourceUrl": "https://ravensburger.cloud/images/produktseiten/600x600/11098558.webp",
+      "productLabel": "Reign of Jafar Booster Display Box"
+    },
+    {
+      "sku": "LOR-BOX-SSK",
+      "setCode": "SSK",
+      "ravensburgerProductId": "11098455",
+      "sourceUrl": "https://ravensburger.cloud/images/produktseiten/600x600/11098455.webp",
+      "productLabel": "Shimmering Skies Booster Pack Display"
+    },
+    {
+      "sku": "LOR-BOX-TFC",
+      "setCode": "TFC",
+      "ravensburgerProductId": "11098172",
+      "sourceUrl": "https://ravensburger.cloud/images/produktseiten/600x600/11098172.webp",
+      "productLabel": "The First Chapter Booster Pack (official listing image; display SKU not listed)"
+    },
+    {
+      "sku": "LOR-BOX-URS",
+      "setCode": "URS",
+      "ravensburgerProductId": "11098342",
+      "sourceUrl": "https://ravensburger.cloud/images/produktseiten/600x600/11098342.webp",
+      "productLabel": "Ursula's Return Booster Pack Display"
+    },
+    {
+      "sku": "LOR-BOX-WHI",
+      "setCode": "WHI",
+      "ravensburgerProductId": "11098812",
+      "sourceUrl": "https://ravensburger.cloud/images/produktseiten/600x600/11098812.webp",
+      "productLabel": "Whispers in the Well Booster Display"
+    },
+    {
+      "sku": "LOR-BOX-WUN",
+      "setCode": "WUN",
+      "ravensburgerProductId": "11098887",
+      "sourceUrl": "https://ravensburger.cloud/images/produktseiten/600x600/11098887.webp",
+      "productLabel": "Wilds Unknown Booster Pack Display"
+    },
+    {
+      "sku": "LOR-BOX-WIN",
+      "setCode": "WIN",
+      "ravensburgerProductId": "11098838",
+      "sourceUrl": "https://ravensburger.cloud/images/produktseiten/600x600/11098838.webp",
+      "productLabel": "Winterspell Sleeved Booster Pack (display box not listed on official boosters page)"
+    }
+  ]
+}
