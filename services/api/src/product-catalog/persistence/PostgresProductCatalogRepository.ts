@@ -143,12 +143,41 @@ export class PostgresProductCatalogRepository {
   }
 
   async upsertProduct(input: ProductUpsert): Promise<string> {
-    const id = input.id ?? getIdGenerator().generate();
+    // Idempotency for concurrent sealed syncs: resolve existing row by SKU before
+    // generating a new UUID (partial unique index uq_product_catalog_sku).
+    let id = input.id;
+    if (!id && input.sku) {
+      const existing = await this.pool.query<{ id: string }>(
+        `SELECT id FROM product_catalog.products WHERE sku = $1 LIMIT 1`,
+        [input.sku],
+      );
+      id = existing.rows[0]?.id;
+    }
+    id = id ?? getIdGenerator().generate();
     const titlePt = resolveTitlePt(input.titlePt, input.title ?? undefined);
     const normalized = normalizeProductTitle(titlePt);
     const productType = input.productType ?? CATEGORY_TO_PRODUCT_TYPE[input.category];
-    await this.pool.query(
-      `
+    const insertParams = [
+      id,
+      input.brandId ?? null,
+      input.manufacturerId ?? null,
+      input.category,
+      input.subcategory,
+      productType,
+      input.collectionId ?? null,
+      input.sku ?? null,
+      input.ean ?? null,
+      input.title ?? titlePt,
+      titlePt,
+      normalized,
+      input.description ?? null,
+      input.game ?? null,
+      input.releaseDate ?? null,
+      input.discontinued ?? false,
+    ] as const;
+    try {
+      await this.pool.query(
+        `
       INSERT INTO product_catalog.products (
         id, brand_id, manufacturer_id, category, subcategory, product_type, collection_id,
         sku, ean, title, title_pt, normalized_title, description, game, release_date, discontinued
@@ -171,25 +200,28 @@ export class PostgresProductCatalogRepository {
         discontinued = EXCLUDED.discontinued,
         updated_at = now()
       `,
-      [
-        id,
-        input.brandId ?? null,
-        input.manufacturerId ?? null,
-        input.category,
-        input.subcategory,
-        productType,
-        input.collectionId ?? null,
-        input.sku ?? null,
-        input.ean ?? null,
-        input.title ?? titlePt,
-        titlePt,
-        normalized,
-        input.description ?? null,
-        input.game ?? null,
-        input.releaseDate ?? null,
-        input.discontinued ?? false,
-      ],
-    );
+        [...insertParams],
+      );
+    } catch (err) {
+      // Concurrent sealed sync: another worker inserted the same SKU between SELECT and INSERT.
+      const pg = err as { code?: string; constraint?: string; message?: string };
+      const isSkuRace =
+        pg.code === "23505" &&
+        Boolean(input.sku) &&
+        (pg.constraint === "uq_product_catalog_sku" ||
+          String(pg.message ?? "").includes("uq_product_catalog_sku"));
+      if (isSkuRace && input.sku) {
+        const raced = await this.pool.query<{ id: string }>(
+          `SELECT id FROM product_catalog.products WHERE sku = $1 LIMIT 1`,
+          [input.sku],
+        );
+        const racedId = raced.rows[0]?.id;
+        if (racedId && racedId !== id) {
+          return this.upsertProduct({ ...input, id: racedId });
+        }
+      }
+      throw err;
+    }
     if (input.gameCodes?.length) {
       await this.linkProductGames(id, input.gameCodes);
     }

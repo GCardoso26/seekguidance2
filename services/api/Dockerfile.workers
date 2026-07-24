@@ -17,7 +17,9 @@ RUN npm run build \
         dest="dist/product-catalog/manufacturers/${rel}"; \
         mkdir -p "$(dirname "$dest")"; \
         cp "$f" "$dest"; \
-      done
+      done \
+  && mkdir -p dist/product-catalog/sources \
+  && cp -R src/product-catalog/sources/. dist/product-catalog/sources/
 
 FROM node:20-slim
 WORKDIR /app
