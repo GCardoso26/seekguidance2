@@ -1,5 +1,22 @@
 {
   "version": 1,
-  "purpose": "ADR-016 packshot allowlist for Gundam Card Game sealed products. Empty until a verified official Bandai/distributor packshot URL (HTTP 200) is confirmed — no invented URLs.",
-  "items": []
+  "purpose": "ADR-016 verified official sealed packshots for Gundam Card Game (Bandai).",
+  "source": "https://www.gundam-gcg.com/asia-en/products/gd01.html",
+  "evidence": "HTTP HEAD 200 on 2026-07-24. Official product thumbnail from gundam-gcg.com.",
+  "items": [
+    {
+      "sku": "GUNDAM-BOX-GD01",
+      "setCode": "GD01",
+      "sourceUrl": "https://www.gundam-gcg.com/gcg/bccard/asia-en/news/2025/09/05/erU5TeJyFox6vjDK/GD01_thumbnail.webp",
+      "productLabel": "Newtype Rising [GD01] — official product image",
+      "sourcePage": "https://www.gundam-gcg.com/asia-en/products/gd01.html"
+    },
+    {
+      "sku": "GUNDAM-BOX-GUNDAM-S1",
+      "setCode": "GD01",
+      "sourceUrl": "https://www.gundam-gcg.com/gcg/bccard/asia-en/news/2025/09/05/erU5TeJyFox6vjDK/GD01_thumbnail.webp",
+      "productLabel": "Legacy alias for GUNDAM-BOX-GD01",
+      "sourcePage": "https://www.gundam-gcg.com/asia-en/products/gd01.html"
+    }
+  ]
 }

@@ -93,6 +93,30 @@ export class PokemonTcgSealedProvider extends BaseProductCatalogProvider {
           },
         ],
       });
+      const packSku = `PKM-PACK-${set.id.toUpperCase()}`;
+      items.push({
+        providerRef: `pokemon-set-${set.id}-pack`,
+        manufacturerName: "The Pokémon Company",
+        brandName: "Pokémon TCG",
+        category: ProductCategory.SEALED_PRODUCT,
+        subcategory: "BOOSTER_PACK",
+        sku: packSku,
+        titlePt: `Booster Pack — ${set.name}`,
+        titleEn: `Booster Pack — ${set.name}`,
+        game: "POKEMON",
+        gameCodes: ["POKEMON"],
+        collectionName: set.name,
+        releaseDate: set.releaseDate,
+        variants: [
+          {
+            providerRef: `pokemon-set-${set.id}-pack-default`,
+            variantName: "Padrão",
+            sku: packSku,
+            // ADR-016: set logo/symbol are not packshots. Honest empty until curated PACK SKU.
+            images: [],
+          },
+        ],
+      });
     }
     return this.ok(items);
   }

@@ -36,11 +36,12 @@ async function fetchSets(): Promise<PublisherSetSeed[]> {
 }
 
 function seedFallback(): PublisherSetSeed[] {
-  // ADR-016: no fake CDN placeholder — omit imageUrl until a verified official packshot exists.
+  // ADR-016: Super Slam (SUP) — packshot via sealed-packshots.manifest.json (cdn.fabtcg.com).
   return [
     {
-      code: "FAB-S1",
-      name: "Flesh and Blood Set 1",
+      code: "SUP",
+      name: "Flesh and Blood — Super Slam",
+      releaseDate: "2025-09-26",
     },
   ];
 }

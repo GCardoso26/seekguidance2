@@ -35,11 +35,12 @@ async function fetchSets(): Promise<PublisherSetSeed[]> {
 }
 
 function seedFallback(): PublisherSetSeed[] {
-  // ADR-016: no fake CDN placeholder — omit imageUrl until a verified official packshot exists.
+  // ADR-016: Alpha — packshot via sealed-packshots.manifest.json (sorcerytcg.com box-alpha).
   return [
     {
-      code: "SORCERY-S1",
+      code: "ALPHA",
       name: "Sorcery: Contested Realm — Alpha",
+      releaseDate: "2022-01-01",
     },
   ];
 }

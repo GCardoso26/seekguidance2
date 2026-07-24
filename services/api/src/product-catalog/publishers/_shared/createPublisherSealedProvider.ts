@@ -24,7 +24,9 @@ export interface PublisherProviderConfig {
   fetchSets: () => Promise<PublisherSetSeed[]>;
   /**
    * ADR-016 packshot allowlist — optional curated override looked up by product SKU
-   * (e.g. `${game}-BOX-${code}`). Takes priority over `set.imageUrl`/`logoUrl` when present.
+   * (e.g. `${game}-BOX-${code}` or `${game}-PACK-${code}`).
+   * Takes priority over `set.imageUrl`/`logoUrl` when present for BOX only.
+   * PACK never falls back to set logo/icon (honesty > fake packshot).
    */
   packshotUrlForSku?: (sku: string) => string | undefined;
 }
@@ -36,6 +38,7 @@ function isUsablePackshotUrl(url: string | undefined): url is string {
 
 /**
  * Shared sealed publisher provider — API → site → manifest → Liga (elsewhere).
+ * Emits Booster Box + Booster Pack per set (founder auth 2026-07-24).
  */
 export function createPublisherSealedProvider(config: PublisherProviderConfig) {
   return class extends BaseProductCatalogProvider {
@@ -51,9 +54,15 @@ export function createPublisherSealedProvider(config: PublisherProviderConfig) {
         const items: ImportedProductDTO[] = [];
         for (const set of sets) {
           if (!set.code || !set.name) continue;
-          const skuBox = `${config.game}-BOX-${set.code.toUpperCase()}`;
+          const code = set.code.toUpperCase();
+          const skuBox = `${config.game}-BOX-${code}`;
+          const skuPack = `${config.game}-PACK-${code}`;
           const rawImg = set.imageUrl ?? set.logoUrl;
-          const img = config.packshotUrlForSku?.(skuBox) ?? (isUsablePackshotUrl(rawImg) ? rawImg : undefined);
+          const boxImg =
+            config.packshotUrlForSku?.(skuBox) ?? (isUsablePackshotUrl(rawImg) ? rawImg : undefined);
+          // ADR-016: pack art ≠ box art; only curated PACK SKU URLs, never logo reuse.
+          const packImg = config.packshotUrlForSku?.(skuPack);
+
           items.push({
             providerRef: `${config.providerId}:${set.code}:box`,
             manufacturerName: config.publisher,
@@ -72,7 +81,30 @@ export function createPublisherSealedProvider(config: PublisherProviderConfig) {
                 providerRef: `${config.providerId}:${set.code}:box:default`,
                 variantName: "Padrão",
                 sku: skuBox,
-                images: img ? [{ sourceUrl: img, isPrimary: true }] : [],
+                images: boxImg ? [{ sourceUrl: boxImg, isPrimary: true }] : [],
+              },
+            ],
+          });
+
+          items.push({
+            providerRef: `${config.providerId}:${set.code}:pack`,
+            manufacturerName: config.publisher,
+            brandName: config.brand,
+            category: ProductCategory.SEALED_PRODUCT,
+            subcategory: "BOOSTER_PACK",
+            sku: skuPack,
+            titlePt: `Booster Pack — ${set.name}`,
+            titleEn: `Booster Pack — ${set.name}`,
+            game: config.game,
+            gameCodes: [config.game],
+            collectionName: set.name,
+            releaseDate: set.releaseDate,
+            variants: [
+              {
+                providerRef: `${config.providerId}:${set.code}:pack:default`,
+                variantName: "Padrão",
+                sku: skuPack,
+                images: packImg ? [{ sourceUrl: packImg, isPrimary: true }] : [],
               },
             ],
           });

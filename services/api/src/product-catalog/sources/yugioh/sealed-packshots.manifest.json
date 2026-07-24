@@ -1,5 +1,43 @@
 {
   "version": 1,
-  "purpose": "ADR-016 packshot allowlist for Yu-Gi-Oh! sealed products. Empty until a verified official Konami/distributor packshot URL (HTTP 200) is confirmed — no invented URLs.",
-  "items": []
+  "purpose": "ADR-016 verified official sealed packshots for Yu-Gi-Oh! (Konami EU product pages).",
+  "source": "https://www.yugioh-card.com/eu/products/latest-releases/",
+  "evidence": "HTTP HEAD 200 on 2026-07-24. Imagery is official Konami foil-stack product art (sealed packs), not invented CDN.",
+  "items": [
+    {
+      "sku": "YUGIOH-BOX-AGOV",
+      "setCode": "AGOV",
+      "sourceUrl": "https://www.yugioh-card.com/eu/wp-content/uploads/2023/06/AGOV-Foil-Stack-EN-1.webp",
+      "productLabel": "Age of Overlord — official foil stack",
+      "sourcePage": "https://www.yugioh-card.com/eu/product/age-of-overlord/"
+    },
+    {
+      "sku": "YUGIOH-BOX-BLGG",
+      "setCode": "BLGG",
+      "sourceUrl": "https://www.yugioh-card.com/eu/wp-content/uploads/2026/02/BLGG-Foil-01-Stack-US.webp",
+      "productLabel": "Battles of Legend: Glorious Gallery — official foil stack",
+      "sourcePage": "https://www.yugioh-card.com/eu/products/latest-releases/"
+    },
+    {
+      "sku": "YUGIOH-BOX-BLZD",
+      "setCode": "BLZD",
+      "sourceUrl": "https://www.yugioh-card.com/eu/wp-content/uploads/2025/12/BLZD-Foil-Stack-EN.webp",
+      "productLabel": "Blazing Dominion — official foil stack",
+      "sourcePage": "https://www.yugioh-card.com/eu/product/blazing-dominion/"
+    },
+    {
+      "sku": "YUGIOH-BOX-BPRO",
+      "setCode": "BPRO",
+      "sourceUrl": "https://www.yugioh-card.com/eu/wp-content/uploads/2025/09/BPRO-Foil-Stack-US.webp",
+      "productLabel": "Burst Protocol — official foil stack",
+      "sourcePage": "https://www.yugioh-card.com/eu/product/burst-protocol/"
+    },
+    {
+      "sku": "YUGIOH-BOX-CORI",
+      "setCode": "CORI",
+      "sourceUrl": "https://www.yugioh-card.com/eu/wp-content/uploads/2026/03/CORI-Foil-Stack-US.webp",
+      "productLabel": "Chaos Origins — official foil stack",
+      "sourcePage": "https://www.yugioh-card.com/eu/product/chaos-origins/"
+    }
+  ]
 }

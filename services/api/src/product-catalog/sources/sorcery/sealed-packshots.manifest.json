@@ -1,5 +1,22 @@
 {
   "version": 1,
-  "purpose": "ADR-016 packshot allowlist for Sorcery: Contested Realms sealed products. Empty until a verified official Erewhon Games/distributor packshot URL (HTTP 200) is confirmed — no invented URLs.",
-  "items": []
+  "purpose": "ADR-016 verified official sealed packshots for Sorcery: Contested Realm (Erik's Curiosa).",
+  "source": "https://sorcerytcg.com/sets/alpha",
+  "evidence": "HTTP HEAD 200 on 2026-07-24. Official booster box art from sorcerytcg.com Next static media (box-alpha).",
+  "items": [
+    {
+      "sku": "SORCERY-BOX-ALPHA",
+      "setCode": "ALPHA",
+      "sourceUrl": "https://sorcerytcg.com/_next/static/media/box-alpha.887d94bc.png",
+      "productLabel": "Alpha Edition Booster Box",
+      "sourcePage": "https://sorcerytcg.com/sets/alpha"
+    },
+    {
+      "sku": "SORCERY-BOX-SORCERY-S1",
+      "setCode": "ALPHA",
+      "sourceUrl": "https://sorcerytcg.com/_next/static/media/box-alpha.887d94bc.png",
+      "productLabel": "Legacy alias for SORCERY-BOX-ALPHA",
+      "sourcePage": "https://sorcerytcg.com/sets/alpha"
+    }
+  ]
 }

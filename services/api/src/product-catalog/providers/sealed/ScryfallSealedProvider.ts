@@ -48,13 +48,16 @@ export class ScryfallSealedProvider extends BaseProductCatalogProvider {
       const name = String(set.name ?? "");
       if (!code || !name) continue;
       const titlePt = `Booster Box — ${name} (Magic)`;
+      const boxSku = `MTG-BOX-${code.toUpperCase()}`;
+      const packSku = `MTG-PACK-${code.toUpperCase()}`;
+      const bundleSku = `MTG-BUNDLE-${code.toUpperCase()}`;
       items.push({
         providerRef: `scryfall-set-${code}-box`,
         manufacturerName: "Wizards of the Coast",
         brandName: "Magic: The Gathering",
         category: ProductCategory.SEALED_PRODUCT,
         subcategory: "BOOSTER_BOX",
-        sku: `MTG-BOX-${code.toUpperCase()}`,
+        sku: boxSku,
         titlePt,
         titleEn: `Booster Box — ${name}`,
         description: `Produto selado Magic — set ${code}.`,
@@ -66,9 +69,33 @@ export class ScryfallSealedProvider extends BaseProductCatalogProvider {
           {
             providerRef: `scryfall-set-${code}-box-default`,
             variantName: "Padrão",
-            sku: `MTG-BOX-${code.toUpperCase()}`,
+            sku: boxSku,
             // ADR-016: set icon_svg_uri is a rules-icon, not a packshot. No official
             // Wizards CDN packshot manifest exists yet — honest empty over fake image.
+            images: [],
+          },
+        ],
+      });
+      items.push({
+        providerRef: `scryfall-set-${code}-pack`,
+        manufacturerName: "Wizards of the Coast",
+        brandName: "Magic: The Gathering",
+        category: ProductCategory.SEALED_PRODUCT,
+        subcategory: "BOOSTER_PACK",
+        sku: packSku,
+        titlePt: `Booster Pack — ${name} (Magic)`,
+        titleEn: `Booster Pack — ${name}`,
+        description: `Booster pack unitário Magic — set ${code}.`,
+        game: "MTG",
+        gameCodes: ["MTG"],
+        collectionName: name,
+        releaseDate: set.released_at ? String(set.released_at) : undefined,
+        variants: [
+          {
+            providerRef: `scryfall-set-${code}-pack-default`,
+            variantName: "Padrão",
+            sku: packSku,
+            // ADR-016: no official pack packshot manifest yet — honest empty.
             images: [],
           },
         ],
@@ -79,7 +106,7 @@ export class ScryfallSealedProvider extends BaseProductCatalogProvider {
         brandName: "Magic: The Gathering",
         category: ProductCategory.SEALED_PRODUCT,
         subcategory: "BUNDLE",
-        sku: `MTG-BUNDLE-${code.toUpperCase()}`,
+        sku: bundleSku,
         titlePt: `Bundle — ${name} (Magic)`,
         titleEn: `Bundle — ${name}`,
         game: "MTG",
@@ -90,7 +117,7 @@ export class ScryfallSealedProvider extends BaseProductCatalogProvider {
           {
             providerRef: `scryfall-set-${code}-bundle-default`,
             variantName: "Padrão",
-            sku: `MTG-BUNDLE-${code.toUpperCase()}`,
+            sku: bundleSku,
             // ADR-016: same rules-icon-is-not-a-packshot constraint as the box variant.
             images: [],
           },

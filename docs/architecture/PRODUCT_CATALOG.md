@@ -73,6 +73,8 @@ npm run catalog:remediate-p0 -- --sealed-only   # bootstrap + sealed only
 npm run catalog:remediate-p0                   # sealed first, then accessories
 ```
 
+Sealed sync emite por set (quando o provider cobre o jogo): `BOOSTER_BOX` (`*-BOX-*`), `BOOSTER_PACK` (`*-PACK-*`), e variantes específicas (Lorcana Trove, MTG Bundle, Pokémon ETB). Packshot de pack só com SKU `*-PACK-*` no manifest (ADR-016).
+
 ## Operação (MVP)
 
 | Peça | Onde |

@@ -1,5 +1,15 @@
 {
   "version": 1,
-  "purpose": "ADR-016 packshot allowlist for Flesh and Blood sealed products. Empty until a verified official Legend Story Studios/distributor packshot URL (HTTP 200) is confirmed — no invented URLs.",
-  "items": []
+  "purpose": "ADR-016 verified official sealed packshots for Flesh and Blood (Legend Story Studios).",
+  "source": "https://fabtcg.com/digital-assets/super-slam/",
+  "evidence": "HTTP HEAD 200 on 2026-07-24. Official display box packshot from cdn.fabtcg.com.",
+  "items": [
+    {
+      "sku": "FAB-BOX-SUP",
+      "setCode": "SUP",
+      "sourceUrl": "https://cdn.fabtcg.com/uploads/2025/07/EN_SUP_Display_Pleaides_Kayo.png",
+      "productLabel": "Super Slam Booster Display — Pleiades/Kayo (EN)",
+      "sourcePage": "https://fabtcg.com/digital-assets/super-slam/"
+    }
+  ]
 }

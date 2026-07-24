@@ -80,3 +80,5 @@ Nenhuma URL inventada. Manifest = evidência (CDN oficial / listagem fabricante)
 
 Reabrir Vanguard / UArena / SWU exige **novo ADR**.  
 Alterar allowlist sealed sem evidência de fonte de imagem = desvio Guardian.
+
+**Autorização founder (2026-07-24):** providers sealed emitem também `BOOSTER_PACK` (`*-PACK-*`) em todos os jogos do registry (além de BOX / Troves / Bundle / ETB já existentes). Packshot de pack só com SKU `*-PACK-*` curado no manifest (HTTP 200); proibido reutilizar arte de box/ícone de set.

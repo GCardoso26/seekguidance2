@@ -35,11 +35,12 @@ async function fetchSets(): Promise<PublisherSetSeed[]> {
 }
 
 function seedFallback(): PublisherSetSeed[] {
-  // ADR-016: no fake CDN placeholder — omit imageUrl until a verified official packshot exists.
+  // ADR-016: Newtype Rising (GD01) — packshot via sealed-packshots.manifest.json (gundam-gcg.com).
   return [
     {
-      code: "GUNDAM-S1",
+      code: "GD01",
       name: "Gundam Card Game — Newtype Rising",
+      releaseDate: "2025-07-26",
     },
   ];
 }

@@ -97,10 +97,13 @@ export class LorcanaJsonSealedProvider extends BaseProductCatalogProvider {
       if (!norm) continue;
       const { code, name, releaseDate, image } = norm;
       const boxSku = `LOR-BOX-${code.toUpperCase()}`;
+      const packSku = `LOR-PACK-${code.toUpperCase()}`;
       const troveSku = `LOR-TROVE-${code.toUpperCase()}`;
-      // Prefer curated official packshot; fall back to API logo/icon if ever present.
+      // Prefer curated official packshot; fall back to API logo/icon if ever present (BOX/TROVE only).
       const boxImage = packshotUrlForSku(boxSku) ?? image;
       const troveImage = packshotUrlForSku(troveSku) ?? image;
+      // ADR-016: pack ≠ box; only curated LOR-PACK-* URLs (no logo / box-art reuse).
+      const packImage = packshotUrlForSku(packSku);
       items.push({
         providerRef: `lorcana-set-${code}-box`,
         manufacturerName: "Ravensburger",
@@ -120,6 +123,28 @@ export class LorcanaJsonSealedProvider extends BaseProductCatalogProvider {
             variantName: "Padrão",
             sku: boxSku,
             images: boxImage ? [{ sourceUrl: boxImage, isPrimary: true }] : [],
+          },
+        ],
+      });
+      items.push({
+        providerRef: `lorcana-set-${code}-pack`,
+        manufacturerName: "Ravensburger",
+        brandName: "Disney Lorcana",
+        category: ProductCategory.SEALED_PRODUCT,
+        subcategory: "BOOSTER_PACK",
+        sku: packSku,
+        titlePt: `Booster Pack — ${name}`,
+        titleEn: `Booster Pack — ${name}`,
+        game: "LORCANA",
+        gameCodes: ["LORCANA"],
+        collectionName: name,
+        releaseDate,
+        variants: [
+          {
+            providerRef: `lorcana-set-${code}-pack-default`,
+            variantName: "Padrão",
+            sku: packSku,
+            images: packImage ? [{ sourceUrl: packImage, isPrimary: true }] : [],
           },
         ],
       });

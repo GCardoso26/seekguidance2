@@ -28,6 +28,7 @@ describe("lorcanaPackshots", () => {
   it("does not invent Quest / unknown SKUs", () => {
     expect(packshotUrlForSku("LOR-BOX-QU1")).toBeUndefined();
     expect(packshotUrlForSku("LOR-TROVE-QU1")).toBeUndefined();
+    expect(packshotUrlForSku("LOR-PACK-ARI")).toBeUndefined();
     expect(packshotUrlForSku("LOR-BOX-ZZZ")).toBeUndefined();
   });
 
