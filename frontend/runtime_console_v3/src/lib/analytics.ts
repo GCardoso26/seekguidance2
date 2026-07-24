@@ -38,7 +38,12 @@ export type MarketplaceEvent =
   | "search"
   | "add_to_cart"
   | "purchase"
-  | "listing_create";
+  | "listing_create"
+  /** North Star LPC funnel — docs/product/LPC_ANALYTICS_SPEC.md */
+  | "seller_listing_published"
+  | "buyer_card_open"
+  | "buyer_offers_viewed"
+  | "buyer_add_to_cart";
 
 export type BuyerExperienceEvent =
   | "wishlist_add"
@@ -123,6 +128,8 @@ const FLUSH_IMMEDIATE = new Set<AnalyticsEventName>([
   "purchase",
   "add_to_cart",
   "listing_create",
+  "seller_listing_published",
+  "buyer_add_to_cart",
   "wishlist_shared",
   "wishlist_converted",
 ]);
@@ -133,8 +140,10 @@ const IDEMPOTENT_EVENTS = new Set<AnalyticsEventName>([
   "checkout_completed",
   "checkout_failed",
   "listing_create",
+  "seller_listing_published",
   "wishlist_shared",
   "add_to_cart",
+  "buyer_add_to_cart",
   "wishlist_converted",
 ]);
 
@@ -257,6 +266,8 @@ export async function trackEvent(
     properties: {
       ...rest,
       session_id: sessionId,
+      sessionId,
+      ...(user_id ? { user_id, userId: user_id } : {}),
       event_schema_version: ANALYTICS_SCHEMA_VERSION,
       ...(typeof window !== "undefined"
         ? { url: window.location.href, referrer: document.referrer }

@@ -15,6 +15,14 @@ Preencher diariamente (ou a cada check-in). **Primeiros 7 dias:** só observar +
 
 **P0 estoque (2026-07-17):** checkout dizia “estoque insuficiente” após `initiate_checkout` reservar o próprio qty (ex.: Merida 4/4). Fix: credit da sessão + cancel de sessões active no retry + release se falhar depois do lock. Se prod ainda bloquear: zerar `reserved_stock` órfão ou esperar expire de sessões active.
 
+**Ativação R4 (2026-07-24):**
+- URL beta: `https://judgetcg.com.br`
+- Suporte: `ops@judgetcg.com.br`
+- Pack: [`EVIDENCE_R4_SESSION_PACK.md`](./EVIDENCE_R4_SESSION_PACK.md) · planilha [`lote1_planilha.md`](./lote1_planilha.md)
+- LPC sink no FE prod + registry BE (eventos da cadeia R1)
+- Round-trip humano + envio Lote 1: **pendente founder** (não automatizável)
+- R5 prep: [`interviews/`](./interviews/) · [`MARKET_LEARNING_R5_CHECKLIST.md`](./MARKET_LEARNING_R5_CHECKLIST.md)
+
 ---
 
 ## Checklist diário (5 min)

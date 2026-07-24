@@ -57,6 +57,15 @@ export function useAddListingToCart() {
           price: variables.listing.price,
           seller_id: variables.listing.sellerId,
         });
+        // North Star LPC — cart after offers (LPC_ANALYTICS_SPEC)
+        void trackEvent("buyer_add_to_cart", {
+          cardId: variables.listing.cardId,
+          card_id: variables.listing.cardId,
+          listingId: variables.listing.id,
+          listing_id: variables.listing.id,
+          seller_id: variables.listing.sellerId,
+          price: variables.listing.price,
+        });
         void queryClient.invalidateQueries({ queryKey: SHOP_CART_QUERY_KEY });
         cartToast(variables.card?.name ?? "Item");
         openCart();

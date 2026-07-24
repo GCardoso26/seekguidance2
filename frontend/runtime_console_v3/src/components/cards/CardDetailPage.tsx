@@ -98,8 +98,26 @@ export function CardDetailPage({ cardId }: CardDetailPageProps) {
   useEffect(() => {
     if (data?.card) {
       track("card_view", { card_id: data.card.id, card_name: data.card.name, game: data.card.game });
+      // North Star LPC — buyer opens PDP (LPC_ANALYTICS_SPEC)
+      track("buyer_card_open", {
+        cardId: data.card.id,
+        card_id: data.card.id,
+        game: data.card.game,
+      });
     }
   }, [data?.card, track]);
+
+  useEffect(() => {
+    if (!data?.card) return;
+    const offerCount = data.listings?.length ?? 0;
+    if (offerCount < 1) return;
+    track("buyer_offers_viewed", {
+      cardId: data.card.id,
+      card_id: data.card.id,
+      offerCount,
+      offer_count: offerCount,
+    });
+  }, [data?.card, data?.listings, track]);
 
   useEffect(() => {
     if (!data?.card) return;

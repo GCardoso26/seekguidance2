@@ -108,3 +108,10 @@ Decide **GO / NO-GO** para o próximo marco (Beta · Sprint 9 · R2 · R3), subo
 | **P4** | Escalar MTG / Pokémon / One Piece | Somente após evidência R1 |
 
 Mais código **não** aumenta automaticamente o valor do produto. Próximas decisões dependem de evidência (LPC, LCS, SD, **SRR**).
+
+## Packs ativos (R4 / R5)
+
+- [`EVIDENCE_R4_SESSION_PACK.md`](./EVIDENCE_R4_SESSION_PACK.md)
+- [`lote1_planilha.md`](./lote1_planilha.md)
+- [`interviews/`](./interviews/)
+- [`MARKET_LEARNING_R5_CHECKLIST.md`](./MARKET_LEARNING_R5_CHECKLIST.md)

@@ -41,12 +41,12 @@ Engenharia já está ✅. Só falta isto:
 
 | # | Ação | Status |
 |---|------|--------|
-| 1 | Preencher `URL_DO_BETA` | ⬜ |
-| 2 | Preencher contato de suporte | ⬜ |
-| 3 | Subir Redis + workers no ambiente compartilhado | ⬜ |
-| 4 | Round-trip de produção (usuário **novo**, não-admin) — ver abaixo | ⬜ |
-| 5 | Enviar **apenas** Lote 1 (10) · registrar na planilha | ⬜ |
-| 6 | Freeze de código 7 dias (exceto P0) | ⬜ após envio |
+| 1 | Preencher `URL_DO_BETA` | ✅ `https://judgetcg.com.br` |
+| 2 | Preencher contato de suporte | ✅ `ops@judgetcg.com.br` |
+| 3 | Subir Redis + workers no ambiente compartilhado | ✅ Render (api / pc-workers / sealed cron) |
+| 4 | Round-trip de produção (usuário **novo**, não-admin) — ver abaixo | ⬜ founder |
+| 5 | Enviar **apenas** Lote 1 (10) · registrar na planilha | ⬜ founder · [`lote1_planilha.md`](./lote1_planilha.md) |
+| 6 | Freeze de código 7 dias (exceto P0) | ⬜ após envio · [`EVIDENCE_R4_SESSION_PACK.md`](./EVIDENCE_R4_SESSION_PACK.md) |
 
 ### Teste de produção (obrigatório antes do 1º WhatsApp)
 

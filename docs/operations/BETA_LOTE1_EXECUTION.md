@@ -12,18 +12,20 @@
 ## Checklist pré-envio (Founder)
 
 1. [x] Baseline #0 (catalog + smoke) — engenharia  
-2. [ ] `URL_DO_BETA` preenchida  
-3. [ ] Contato de suporte preenchido  
-4. [ ] Redis + workers no ambiente compartilhado  
+2. [x] `URL_DO_BETA` preenchida  
+3. [x] Contato de suporte preenchido  
+4. [x] Redis + workers no ambiente compartilhado (Render `tcg-judge-api` / `pc-workers` / sealed cron)  
 5. [ ] Round-trip de produção (usuário **novo**, não-admin) — cronometrar:  
    `/register` → `/seller` → Criar Loja → Buscar Rapunzel → Publicar → janela anônima → `/search?q=Rapunzel` → PDP → Oferta → Carrinho  
 6. [ ] Enviar **apenas 10** convites  
-7. [ ] Registrar na planilha  
-8. [ ] Freeze 7 dias (exceto P0; **P1 só após Report #1**)  
+7. [ ] Registrar na planilha ([`lote1_planilha.md`](./lote1_planilha.md))  
+8. [ ] Freeze 7 dias (exceto P0; **P1 só após Report #1**) — ver [`EVIDENCE_R4_SESSION_PACK.md`](./EVIDENCE_R4_SESSION_PACK.md)  
 
-**URL_DO_BETA:** _______________________  
-**Contato suporte:** _______________________  
-**Tempo do round-trip (min):** _______ · Sem intervenção? S / N
+**URL_DO_BETA:** `https://judgetcg.com.br`  
+**Contato suporte:** `ops@judgetcg.com.br`  
+**Tempo do round-trip (min):** _______ · Sem intervenção? S / N  
+
+**Engenharia (2026-07-24):** sink LPC no FE prod (`runtime_console_v3`) + registry BE — eventos `seller_listing_published` · `buyer_card_open` · `buyer_offers_viewed` · `buyer_add_to_cart`. Round-trip humano ainda **pendente founder**.
 
 ## Mensagem (copiar — Grupo A)
 
@@ -40,8 +42,8 @@ Não pedimos inventário completo — só as cartas mais pedidas
 (ex.: 30–80 staples / encantadas / cartas quentes do meta) para
 aparecerem quando alguém pesquisar.
 
-Link: [URL_DO_BETA]
-Contato se travar: [WHATSAPP_OU_EMAIL]
+Link: https://judgetcg.com.br
+Contato se travar: ops@judgetcg.com.br
 
 Obrigado,
 Equipe JudgeTCG

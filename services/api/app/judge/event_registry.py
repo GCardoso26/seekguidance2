@@ -138,6 +138,11 @@ _EVENTS: tuple[EventDef, ...] = (
     _e("card_dwell_ms", "buyer", owner="marketplace", retention_days=180),
     _e("card_buy_click", "buyer", owner="marketplace", criticality="p0"),
     _e("card_add_to_cart", "buyer", owner="marketplace", criticality="p0"),
+    # North Star LPC funnel (R1 — docs/product/LPC_ANALYTICS_SPEC.md)
+    _e("seller_listing_published", "seller", owner="marketplace", criticality="p0"),
+    _e("buyer_card_open", "buyer", owner="marketplace", criticality="p0"),
+    _e("buyer_offers_viewed", "buyer", owner="marketplace", criticality="p0"),
+    _e("buyer_add_to_cart", "buyer", owner="marketplace", criticality="p0"),
     # Top Movers (Fase 1.4)
     _e("top_movers_open", "buyer", owner="marketplace", criticality="p0"),
     _e("top_movers_filter", "buyer", owner="marketplace"),
@@ -216,6 +221,10 @@ MARKETPLACE_EVENTS: Final[frozenset[str]] = frozenset(
         "add_to_cart",
         "purchase",
         "listing_create",
+        "seller_listing_published",
+        "buyer_card_open",
+        "buyer_offers_viewed",
+        "buyer_add_to_cart",
     }
 )
 

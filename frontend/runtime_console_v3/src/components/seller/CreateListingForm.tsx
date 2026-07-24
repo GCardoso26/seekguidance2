@@ -61,12 +61,28 @@ export function CreateListingForm({ card }: CreateListingFormProps) {
         throw new Error(typeof data.detail === "string" ? data.detail : "Falha ao listar carta");
       }
 
+      const created = (await res.json().catch(() => ({}))) as {
+        id?: string;
+        listing_id?: string;
+      };
+      const listingId = created.id ?? created.listing_id;
+
       setSuccess(true);
       track("listing_create", {
         card_id: card.id,
         card_name: card.name,
         price: Number(price),
         condition,
+      });
+      // North Star LPC — R1 chain start (LPC_ANALYTICS_SPEC)
+      track("seller_listing_published", {
+        cardId: card.id,
+        listingId,
+        card_id: card.id,
+        listing_id: listingId,
+        price: Number(price),
+        condition,
+        game: card.game,
       });
       router.refresh();
     } catch (err) {
