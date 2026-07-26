@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "purpose": "ADR-016 verified official sealed packshots for Pokémon TCG. Empty until curated HTTPS packshots exist — set logo/symbol from pokemontcg.io must never be used as product image.",
+  "source": "https://www.pokemon.com/us/pokemon-tcg/",
+  "evidence": "Provider emits images:[] intentionally. Manifest allowlist starts empty (honesty > fake packshot).",
+  "items": []
+}

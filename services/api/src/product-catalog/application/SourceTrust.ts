@@ -40,7 +40,11 @@ export function inferSourceType(providerId: string): SourceTypeV2 {
   if (id.includes("liga")) return "liga_portal";
   if (id.includes("seller") || id.includes("store")) return "seller_upload";
   if (id.includes("community")) return "community_verified";
-  if (id.includes("distributor") || id.includes("feed")) return "distributor_feed";
+  // TCGCSV / TCGplayer catalog — below official manufacturer/manifest (ADR-016 priority).
+  if (id.includes("tcgcsv") || id.includes("tcgplayer")) return "distributor_feed";
+  if (id.includes("distributor") || id.includes("feed") || id.includes("shopify")) {
+    return "distributor_feed";
+  }
   if (id.includes("cdn") || id.includes("images.wizards") || id.includes("pokemon.com")) {
     return "publisher_cdn";
   }
@@ -61,6 +65,7 @@ export function inferSourceType(providerId: string): SourceTypeV2 {
     id.includes("dragon-shield") ||
     id.includes("ultimate-guard") ||
     id.includes("ultra-pro") ||
+    id.includes("heavy-play") ||
     id.includes("gamegenic") ||
     id.includes("central") ||
     id.includes("manufacturer")

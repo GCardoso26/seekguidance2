@@ -1,6 +1,7 @@
 import { ScryfallSealedProvider } from "./sealed/ScryfallSealedProvider.js";
 import { PokemonTcgSealedProvider } from "./sealed/PokemonTcgSealedProvider.js";
 import { LorcanaJsonSealedProvider } from "./sealed/LorcanaJsonSealedProvider.js";
+import { TcgCsvSealedProvider } from "./sealed/TcgCsvSealedProvider.js";
 import { LigaPublicImageFallbackProvider } from "./sealed/LigaPublicImageFallbackProvider.js";
 import {
   CentralBinderProvider,
@@ -42,6 +43,11 @@ import {
   UltraProPlaymatProvider,
   UltraProSleevesProvider,
 } from "../manufacturers/ultra-pro/provider.js";
+import {
+  HeavyPlayDeckBoxProvider,
+  HeavyPlayPlaymatProvider,
+  HeavyPlaySleevesProvider,
+} from "../manufacturers/heavy-play/provider.js";
 import {
   VaultXBinderProvider,
   VaultXCountersProvider,
@@ -149,6 +155,8 @@ function bootstrapRegistry(reg: ProductCatalogProviderRegistry): void {
   reg.register("catalog.sync.sealed", new RiftboundSealedProvider());
   reg.register("catalog.sync.sealed", new GundamSealedProvider());
   reg.register("catalog.sync.sealed", new SorcerySealedProvider());
+  // TCGCSV/TCGplayer packshots — after publisher seeds, before Liga fallback (ADR-016 trust order).
+  reg.register("catalog.sync.sealed", new TcgCsvSealedProvider());
   reg.register("catalog.sync.sealed", new LigaPublicImageFallbackProvider());
 
   const sleeveProviders = [
@@ -157,6 +165,7 @@ function bootstrapRegistry(reg: ProductCatalogProviderRegistry): void {
     new DragonShieldSleevesProvider(),
     new UltimateGuardSleevesProvider(),
     new UltraProSleevesProvider(),
+    new HeavyPlaySleevesProvider(),
     new VaultXSleevesProvider(),
     new BcwSleevesProvider(),
     new KmcSleevesProvider(),
@@ -174,6 +183,7 @@ function bootstrapRegistry(reg: ProductCatalogProviderRegistry): void {
     new DragonShieldDeckBoxProvider(),
     new UltimateGuardDeckBoxProvider(),
     new UltraProDeckBoxProvider(),
+    new HeavyPlayDeckBoxProvider(),
     new VaultXDeckBoxProvider(),
     new BcwDeckBoxProvider(),
     new KmcDeckBoxProvider(),
@@ -246,6 +256,7 @@ function bootstrapRegistry(reg: ProductCatalogProviderRegistry): void {
     new DragonShieldPlaymatProvider(),
     new UltimateGuardPlaymatProvider(),
     new UltraProPlaymatProvider(),
+    new HeavyPlayPlaymatProvider(),
     new VaultXPlaymatProvider(),
     new BcwPlaymatProvider(),
     new KmcPlaymatProvider(),

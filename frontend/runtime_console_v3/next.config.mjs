@@ -36,6 +36,9 @@ const securityHeaders = [
 ];
 
 const marketplaceRedirects = [
+  // Customer Conversion First: /search era torneios e capturava queries de compra (ex. Rapunzel).
+  // Torneios ficam em /search/torneios; compra em /loja/busca (query string preservada).
+  { source: "/search", destination: "/loja/busca", permanent: true },
   { source: "/catalog/search", destination: "/loja/busca", permanent: true },
   { source: "/catalog/search/:path*", destination: "/loja/busca", permanent: true },
   { source: "/marketplace", destination: "/loja?from=marketplace", permanent: false },
@@ -170,6 +173,17 @@ const nextConfig = {
       // Fallbacks CDN
       { protocol: "https", hostname: "**.cloudfront.net" },
       { protocol: "https", hostname: "tcgplayer-cdn.tcgplayer.com" },
+      // Accessory brand CDNs (docs/ACCESSORY_IMAGE_PROVIDERS.md)
+      { protocol: "https", hostname: "cdn.shopify.com" },
+      { protocol: "https", hostname: "**.shopify.com" },
+      { protocol: "https", hostname: "images.tcdn.com.br" },
+      { protocol: "https", hostname: "**.tcdn.com.br" },
+      { protocol: "https", hostname: "ultimateguard.com" },
+      { protocol: "https", hostname: "**.ultimateguard.com" },
+      { protocol: "https", hostname: "cdn.svc.asmodee.net" },
+      { protocol: "https", hostname: "**.asmodee.net" },
+      { protocol: "https", hostname: "www.gamegenic.com" },
+      { protocol: "https", hostname: "**.gamegenic.com" },
     ],
   },
   async headers() {

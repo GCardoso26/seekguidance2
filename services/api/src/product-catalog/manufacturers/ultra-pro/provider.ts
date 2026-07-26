@@ -1,38 +1,48 @@
 import { ProductCategory } from "../../domain/enums.js";
-import { createManufacturerProvider } from "../_shared/createManufacturerProvider.js";
+import { createShopifyAccessoryProvider } from "../_shared/shopifyAccessoryProvider.js";
 
-export const UltraProSleevesProvider = createManufacturerProvider({
+const HOST = "ultrapro.com";
+const BRAND = "Ultra Pro";
+
+/** Live Shopify packshots — docs/ACCESSORY_IMAGE_PROVIDERS.md */
+export const UltraProSleevesProvider = createShopifyAccessoryProvider({
   providerId: "ultra-pro-sleeves",
+  host: HOST,
+  brandName: BRAND,
   category: ProductCategory.SLEEVES,
-  moduleUrl: import.meta.url,
 });
 
-export const UltraProDeckBoxProvider = createManufacturerProvider({
+export const UltraProDeckBoxProvider = createShopifyAccessoryProvider({
   providerId: "ultra-pro-deckboxes",
+  host: HOST,
+  brandName: BRAND,
   category: ProductCategory.DECK_BOX,
-  moduleUrl: import.meta.url,
 });
 
-export const UltraProBinderProvider = createManufacturerProvider({
+export const UltraProBinderProvider = createShopifyAccessoryProvider({
   providerId: "ultra-pro-binders",
+  host: HOST,
+  brandName: BRAND,
   category: ProductCategory.BINDER,
-  moduleUrl: import.meta.url,
 });
 
-export const UltraProPlaymatProvider = createManufacturerProvider({
+export const UltraProPlaymatProvider = createShopifyAccessoryProvider({
   providerId: "ultra-pro-playmats",
+  host: HOST,
+  brandName: BRAND,
   category: ProductCategory.PLAYMAT,
-  moduleUrl: import.meta.url,
 });
 
-export const UltraProDiceProvider = createManufacturerProvider({
+export const UltraProDiceProvider = createShopifyAccessoryProvider({
   providerId: "ultra-pro-dice",
+  host: HOST,
+  brandName: BRAND,
   category: ProductCategory.DICE,
-  moduleUrl: import.meta.url,
 });
 
-export const UltraProCountersProvider = createManufacturerProvider({
+export const UltraProCountersProvider = createShopifyAccessoryProvider({
   providerId: "ultra-pro-counters",
+  host: HOST,
+  brandName: BRAND,
   category: ProductCategory.COUNTERS,
-  moduleUrl: import.meta.url,
 });
