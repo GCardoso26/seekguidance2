@@ -10,6 +10,7 @@ import {
 } from "./queues.js";
 
 let sharedConnection: Redis | null = null;
+const queues = new Map<string, Queue>();
 
 export function redisConnectionFromEnv(): Redis {
   if (!sharedConnection) {
@@ -21,6 +22,14 @@ export function redisConnectionFromEnv(): Redis {
 
 /** Test/cert helper — drop singleton so a new REDIS_URL takes effect. */
 export async function resetRedisConnection(): Promise<void> {
+  for (const q of queues.values()) {
+    try {
+      await q.close();
+    } catch {
+      /* ignore */
+    }
+  }
+  queues.clear();
   if (sharedConnection) {
     try {
       await sharedConnection.quit();
@@ -33,10 +42,12 @@ export async function resetRedisConnection(): Promise<void> {
     }
     sharedConnection = null;
   }
-  queues.clear();
 }
 
-const queues = new Map<string, Queue>();
+/** Close queues + Redis — required for one-shot cron entrypoints (Render timeout). */
+export async function closeBullmqClient(): Promise<void> {
+  await resetRedisConnection();
+}
 
 export function getQueue(name: QueueName | string): Queue {
   let q = queues.get(name);
