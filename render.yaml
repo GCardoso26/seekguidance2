@@ -26,6 +26,11 @@ services:
         value: INFO
       - key: DATABASE_SSL
         value: require
+      # Session pooler ~15 clients — API Python capped (was 20+10)
+      - key: DB_POOL_SIZE
+        value: "4"
+      - key: DB_MAX_OVERFLOW
+        value: "2"
       - key: RUNTIME_AUTH_SECRET
         generateValue: true
       - key: RUNTIME_DEFAULT_ADMIN_PASSWORD

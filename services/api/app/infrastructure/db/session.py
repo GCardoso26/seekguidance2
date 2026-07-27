@@ -62,6 +62,14 @@ def get_engine():
                 pool_timeout=DB_POOL_TIMEOUT,
                 pool_recycle=DB_POOL_RECYCLE,
             )
+        else:
+            # Dev also capped — evita scripts locais + API saturar o mesmo pooler.
+            pool_kwargs.update(
+                pool_size=min(DB_POOL_SIZE, 5),
+                max_overflow=min(DB_MAX_OVERFLOW, 2),
+                pool_timeout=DB_POOL_TIMEOUT,
+                pool_recycle=DB_POOL_RECYCLE,
+            )
         _engine = create_async_engine(
             _async_engine_url(settings.database_url),
             **pool_kwargs,
