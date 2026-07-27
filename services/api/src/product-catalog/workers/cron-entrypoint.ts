@@ -7,10 +7,11 @@
  */
 import { readFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
-import { Pool } from "pg";
 import { runProductCatalogSyncJob } from "../cli/runProductCatalogSync.js";
 import type { ProductCatalogJobKey } from "../providers/ProductCatalogProvider.js";
+import { createCatalogPgPool } from "../persistence/createCatalogPgPool.js";
 import { createProviderScheduler } from "../scheduler/ProviderScheduler.js";
+import { closeBullmqClient } from "../../platform/bullmq/client.js";
 
 function loadEnvFile() {
   const p = resolve(process.cwd(), ".env");
@@ -40,14 +41,9 @@ const ACCESSORY_JOBS: ProductCatalogJobKey[] = [
   "catalog.sync.playmats",
 ];
 
-function pgUrl(raw: string): string {
-  return raw.replace(/^postgresql\+asyncpg:/, "postgresql:");
-}
-
 async function runTick(): Promise<void> {
-  const databaseUrl = process.env.DATABASE_URL;
-  if (!databaseUrl) throw new Error("DATABASE_URL required");
-  const pool = new Pool({ connectionString: pgUrl(databaseUrl) });
+  // Session pooler ~15 clients total — tick only needs one connection.
+  const pool = createCatalogPgPool({ max: 1 });
   try {
     const scheduler = createProviderScheduler(pool);
     if (process.argv.includes("--bootstrap")) {
@@ -58,6 +54,8 @@ async function runTick(): Promise<void> {
     console.log(JSON.stringify(result));
   } finally {
     await pool.end();
+    // BullMQ/ioredis keep the event loop alive — without this, Render cron → Timed out.
+    await closeBullmqClient();
   }
 }
 
@@ -66,28 +64,39 @@ async function main(): Promise<void> {
   const cmd = process.argv[2] ?? "sealed";
   const mode = process.argv.includes("--full") ? "full" : "incremental";
 
-  if (cmd === "tick") {
-    await runTick();
-    return;
-  }
-
-  if (cmd === "sealed") {
-    await runProductCatalogSyncJob("catalog.sync.sealed", { mode });
-    return;
-  }
-
-  if (cmd === "accessories") {
-    for (const jobKey of ACCESSORY_JOBS) {
-      await runProductCatalogSyncJob(jobKey, { mode });
+  try {
+    if (cmd === "tick") {
+      await runTick();
+      return;
     }
-    return;
-  }
 
-  console.error(`Usage: cron-entrypoint.js <sealed|accessories|tick> [--full] [--bootstrap]`);
-  process.exit(1);
+    if (cmd === "sealed") {
+      await runProductCatalogSyncJob("catalog.sync.sealed", { mode });
+      return;
+    }
+
+    if (cmd === "accessories") {
+      for (const jobKey of ACCESSORY_JOBS) {
+        await runProductCatalogSyncJob(jobKey, { mode });
+      }
+      return;
+    }
+
+    console.error(`Usage: cron-entrypoint.js <sealed|accessories|tick> [--full] [--bootstrap]`);
+    process.exitCode = 1;
+  } finally {
+    // One-shot crons: always release Redis so Node can exit (sealed/accessories may touch assets only).
+    await closeBullmqClient().catch(() => undefined);
+  }
 }
 
-main().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});
+main()
+  .then(() => {
+    // Explicit exit after tick/success — defensive against stray handles.
+    if (process.exitCode && process.exitCode !== 0) process.exit(process.exitCode);
+    process.exit(0);
+  })
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });

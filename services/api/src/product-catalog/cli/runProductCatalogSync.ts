@@ -1,7 +1,8 @@
-import { Pool } from "pg";
+import type { Pool } from "pg";
 import { randomUUID } from "node:crypto";
 import { createLogger } from "../../platform/logging/logger.js";
 import { ProductCatalogSyncService } from "../application/ProductCatalogSyncService.js";
+import { createCatalogPgPool } from "../persistence/createCatalogPgPool.js";
 import { PostgresProductCatalogRepository } from "../persistence/PostgresProductCatalogRepository.js";
 import type { ProductCatalogJobKey } from "../providers/ProductCatalogProvider.js";
 import { providersForJob } from "../providers/registry.js";
@@ -13,10 +14,6 @@ export type ProductCatalogSyncJobResult = {
   upserted: number;
   errors: string[];
 };
-
-function pgUrl(raw: string): string {
-  return raw.replace(/^postgresql\+asyncpg:/, "postgresql:");
-}
 
 /**
  * Executes a product-catalog sync job and returns the result (no process.exit).
@@ -32,11 +29,7 @@ export async function executeProductCatalogSyncJob(
   } = {},
 ): Promise<ProductCatalogSyncJobResult> {
   const ownPool = !opts.pool;
-  const databaseUrl = process.env.DATABASE_URL;
-  if (!opts.pool && !databaseUrl) {
-    throw new Error("DATABASE_URL required for product catalog sync");
-  }
-  const pool = opts.pool ?? new Pool({ connectionString: pgUrl(databaseUrl!) });
+  const pool = opts.pool ?? createCatalogPgPool({ max: 3 });
   try {
     const repo = new PostgresProductCatalogRepository(pool);
     const service = new ProductCatalogSyncService(repo, pool);

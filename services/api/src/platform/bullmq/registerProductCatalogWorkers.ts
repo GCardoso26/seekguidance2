@@ -5,11 +5,12 @@
  */
 import { Worker, type Job } from "bullmq";
 import type { Pool } from "pg";
-import { Pool as PgPool } from "pg";
 import { createLogger } from "../logging/logger.js";
 import { ensureDlq, redisConnectionFromEnv } from "./client.js";
 import { QUEUE_NAMES, type QueueName } from "./queues.js";
 import { executeProductCatalogSyncJob } from "../../product-catalog/cli/runProductCatalogSync.js";
+import { partitionProductCatalogSyncErrors } from "../../product-catalog/application/syncErrorPolicy.js";
+import { createCatalogPgPool } from "../../product-catalog/persistence/createCatalogPgPool.js";
 import type { ProductCatalogJobKey } from "../../product-catalog/providers/ProductCatalogProvider.js";
 import { listProductCatalogJobs } from "../../product-catalog/providers/registry.js";
 import type { ProductCatalogSyncCommandPayload } from "../../product-catalog/commands/ProductCatalogSyncCommand.js";
@@ -60,10 +61,6 @@ function resolveDryRun(job: Job): boolean {
   return data?.payload?.dryRun === true || data?.dryRun === true;
 }
 
-function pgUrl(raw: string): string {
-  return raw.replace(/^postgresql\+asyncpg:/, "postgresql:");
-}
-
 export async function registerProductCatalogBullmqWorkers(
   processor?: (job: Job) => Promise<unknown>,
   opts?: { pool?: Pool },
@@ -76,7 +73,17 @@ export async function registerProductCatalogBullmqWorkers(
   if (!opts?.pool && !databaseUrl) {
     throw new Error("DATABASE_URL required for product catalog BullMQ workers");
   }
-  const pool = opts?.pool ?? new PgPool({ connectionString: pgUrl(databaseUrl!) });
+  const concurrency = Number(process.env.BULLMQ_CONCURRENCY ?? 1);
+  const poolMax = Number(process.env.PG_POOL_MAX);
+  const pool =
+    opts?.pool ??
+    createCatalogPgPool({
+      connectionString: databaseUrl!,
+      max:
+        Number.isFinite(poolMax) && poolMax > 0
+          ? poolMax
+          : Math.min(4, Math.max(2, concurrency + 1)),
+    });
 
   const defaultProcessor = async (job: Job) => {
     const jobKey = resolveJobKey(job);
@@ -94,10 +101,11 @@ export async function registerProductCatalogBullmqWorkers(
 
     const result = await executeProductCatalogSyncJob(jobKey, { mode, dryRun: false, pool });
     if (!result.ok) {
-      const hard = result.errors.filter((e) => !e.startsWith("image:") && !e.startsWith("knowledge:"));
-      if (hard.length) {
-        throw new Error(`product_catalog_sync_failed:${jobKey}:${hard.slice(0, 3).join("|")}`);
-      }
+      const { hard, soft } = partitionProductCatalogSyncErrors(result.errors);
+      const sample = (hard.length ? hard : soft).slice(0, 3).join("|");
+      throw new Error(
+        `${hard.length ? "product_catalog_sync_failed" : "product_catalog_sync_degraded"}:${jobKey}:${sample}`,
+      );
     }
     return {
       ok: result.ok,

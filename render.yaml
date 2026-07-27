@@ -117,6 +117,8 @@ services:
       # Subir só após medir pool Postgres + 429 externos; 2 é o degrau seguro pós-Free
       - key: BULLMQ_CONCURRENCY
         value: "2"
+      - key: PG_POOL_MAX
+        value: "3"
       - key: DATABASE_URL
         sync: false
       - key: REDIS_URL
@@ -137,6 +139,8 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: PG_POOL_MAX
+        value: "3"
       - key: DATABASE_URL
         sync: false
 
@@ -152,6 +156,8 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: PG_POOL_MAX
+        value: "3"
       - key: DATABASE_URL
         sync: false
 
@@ -167,6 +173,8 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: PG_POOL_MAX
+        value: "1"
       - key: DATABASE_URL
         sync: false
       - key: REDIS_URL
