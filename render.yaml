@@ -3,15 +3,17 @@
 services:
   - type: keyvalue
     name: tcg-judge-redis
-    plan: free
+    # Paid Key Value — BullMQ exige noeviction (não usar Free / allkeys-lru)
+    plan: starter
     region: oregon
-    maxmemoryPolicy: allkeys-lru
+    maxmemoryPolicy: noeviction
     ipAllowList: []
 
   - type: web
     name: tcg-judge-api
     runtime: docker
-    plan: free
+    # Fora do Free: evita cold start e CPU compartilhada em produção
+    plan: standard
     region: oregon
     dockerfilePath: services/api/Dockerfile.production
     healthCheckPath: /v1/health
@@ -104,7 +106,7 @@ services:
   - type: worker
     name: tcg-judge-pc-workers
     runtime: docker
-    plan: starter
+    plan: standard
     region: oregon
     dockerfilePath: services/api/Dockerfile.workers
     envVars:
@@ -112,8 +114,9 @@ services:
         value: production
       - key: BULLMQ_WORKERS
         value: "1"
+      # Subir só após medir pool Postgres + 429 externos; 2 é o degrau seguro pós-Free
       - key: BULLMQ_CONCURRENCY
-        value: "1"
+        value: "2"
       - key: DATABASE_URL
         sync: false
       - key: REDIS_URL
