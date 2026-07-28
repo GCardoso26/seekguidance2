@@ -184,7 +184,12 @@ async def list_merged_catalog_sets(
         params["g"] = code
         game_clause_registry = "WHERE cs.game_code = :g"
         game_clause_catalog = "AND cc.game_code = :g"
-        sealed_game_clause = "AND p.game = :g"
+        if code == "YGO":
+            sealed_game_clause = "AND upper(p.game) IN ('YGO', 'YUGIOH')"
+        elif code == "ONEPIECE":
+            sealed_game_clause = "AND upper(p.game) IN ('ONEPIECE', 'ONE_PIECE')"
+        else:
+            sealed_game_clause = "AND upper(p.game) = :g"
 
     rows = (
         await session.execute(
@@ -213,66 +218,150 @@ async def list_merged_catalog_sets(
                   {game_clause_registry}
                 ),
                 covers AS (
-                  -- ADR-016: capa de set = packshot de BOX/BUNDLE/ETB/TROVE, nunca arte de carta
-                  SELECT DISTINCT ON (x.game_code, LOWER(x.set_code))
-                    x.game_code,
-                    x.set_code AS code,
-                    x.cdn_url AS cover_url
+                  -- ADR-016: capa = packshot BOX/BUNDLE/ETB/TROVE (todos os jogos), nunca arte de carta.
+                  -- 1) SKU PREFIX-BOX|BUNDLE|ETB|TROVE-SET  2) nome da coleção  3) título com nome do set
+                  SELECT DISTINCT ON (u.game_code, LOWER(u.code))
+                    u.game_code,
+                    u.code,
+                    u.cdn_url AS cover_url
                   FROM (
+                    WITH set_names AS (
+                      SELECT game_code, code, name FROM registry WHERE name IS NOT NULL AND name <> ''
+                      UNION
+                      SELECT game_code, code, name FROM catalog_agg WHERE name IS NOT NULL AND name <> ''
+                    ),
+                    sealed_assets AS (
+                      SELECT
+                        CASE upper(p.game)
+                          WHEN 'ONE_PIECE' THEN 'ONEPIECE'
+                          WHEN 'YUGIOH' THEN 'YGO'
+                          ELSE upper(p.game)
+                        END AS game_code,
+                        COALESCE(NULLIF(p.sku, ''), NULLIF(v.sku, ''), '') AS sku,
+                        p.subcategory,
+                        COALESCE(p.title_pt, '') AS title_pt,
+                        COALESCE(col.name, '') AS collection_name,
+                        a.cdn_url,
+                        CASE p.subcategory
+                          WHEN 'BOOSTER_BOX' THEN 1
+                          WHEN 'BUNDLE' THEN 2
+                          WHEN 'TROVE' THEN 3
+                          WHEN 'ILLUMINEERS_TROVE' THEN 3
+                          WHEN 'ELITE_TRAINER_BOX' THEN 4
+                          ELSE 9
+                        END AS kind_rank,
+                        CASE
+                          WHEN lower(COALESCE(p.title_pt, ''))
+                            ~ '(case|showcase|surge foil|master case|draft night|scene box|armory deck|deck display|tin display|file cards)'
+                          THEN 1
+                          ELSE 0
+                        END AS junk_rank,
+                        CASE l.role WHEN 'primary' THEN 0 ELSE 1 END AS role_rank
+                      FROM product_catalog.products p
+                      JOIN product_catalog.variants v ON v.product_id = p.id
+                      JOIN media.asset_links l
+                        ON l.entity_type = 'product_variant' AND l.entity_id = v.id
+                      JOIN media.assets a ON a.id = l.asset_id
+                      LEFT JOIN product_catalog.collections col ON col.id = p.collection_id
+                      WHERE p.category = 'SEALED_PRODUCT'
+                        AND p.subcategory IN (
+                          'BOOSTER_BOX',
+                          'BUNDLE',
+                          'TROVE',
+                          'ILLUMINEERS_TROVE',
+                          'ELITE_TRAINER_BOX'
+                        )
+                        AND a.cdn_url ILIKE 'https://%'
+                        AND a.cdn_url NOT ILIKE '%.svg%'
+                        AND a.cdn_url NOT ILIKE '%/logo%'
+                        AND a.cdn_url NOT ILIKE '%/symbol%'
+                        AND a.cdn_url NOT ILIKE '%svgs.scryfall%'
+                        AND a.cdn_url NOT ILIKE '%.example%'
+                        {sealed_game_clause}
+                    )
                     SELECT
-                      p.game AS game_code,
+                      sa.game_code,
                       (
                         regexp_match(
-                          upper(COALESCE(NULLIF(p.sku, ''), NULLIF(v.sku, ''), '')),
-                          '^(?:LOR|PKM|MTG|[A-Z0-9]+)-(?:BOX|BUNDLE|ETB|TROVE)-([A-Z0-9]+)$'
+                          upper(sa.sku),
+                          '^[A-Z0-9]+-(?:BOX|BUNDLE|ETB|TROVE)-([A-Z0-9-]+)$'
                         )
-                      )[1] AS set_code,
-                      a.cdn_url,
-                      CASE p.subcategory
-                        WHEN 'BOOSTER_BOX' THEN 1
-                        WHEN 'BUNDLE' THEN 2
-                        WHEN 'TROVE' THEN 3
-                        WHEN 'ILLUMINEERS_TROVE' THEN 3
-                        WHEN 'ELITE_TRAINER_BOX' THEN 4
-                        ELSE 9
-                      END AS kind_rank,
-                      CASE
-                        WHEN upper(COALESCE(p.sku, ''))
-                          ~ '^(LOR|PKM|MTG|[A-Z0-9]+)-(BOX|BUNDLE|ETB|TROVE)-'
-                        THEN 0
-                        ELSE 1
-                      END AS sku_rank,
-                      CASE WHEN lower(COALESCE(p.title_pt, '')) LIKE '% case%' THEN 1 ELSE 0 END AS case_rank,
-                      CASE l.role WHEN 'primary' THEN 0 ELSE 1 END AS role_rank
-                    FROM product_catalog.products p
-                    JOIN product_catalog.variants v ON v.product_id = p.id
-                    JOIN media.asset_links l
-                      ON l.entity_type = 'product_variant' AND l.entity_id = v.id
-                    JOIN media.assets a ON a.id = l.asset_id
-                    WHERE p.category = 'SEALED_PRODUCT'
-                      AND p.subcategory IN (
-                        'BOOSTER_BOX',
-                        'BUNDLE',
-                        'TROVE',
-                        'ILLUMINEERS_TROVE',
-                        'ELITE_TRAINER_BOX'
-                      )
-                      AND a.cdn_url ILIKE 'https://%'
-                      AND a.cdn_url NOT ILIKE '%.svg%'
-                      AND a.cdn_url NOT ILIKE '%/logo%'
-                      AND a.cdn_url NOT ILIKE '%/symbol%'
-                      AND a.cdn_url NOT ILIKE '%svgs.scryfall%'
-                      AND a.cdn_url NOT ILIKE '%.example%'
-                      {sealed_game_clause}
-                  ) x
-                  WHERE x.set_code IS NOT NULL AND x.set_code <> ''
+                      )[1] AS code,
+                      sa.cdn_url,
+                      0 AS strategy,
+                      sa.kind_rank,
+                      sa.junk_rank,
+                      sa.role_rank
+                    FROM sealed_assets sa
+                    WHERE upper(sa.sku) ~ '^[A-Z0-9]+-(?:BOX|BUNDLE|ETB|TROVE)-[A-Z0-9-]+$'
+                      -- Evita TCGCSV …-BOOSTER-BOX-G… (não é PREFIX-BOX-SET)
+                      AND upper(sa.sku) !~ '-BOOSTER-BOX-'
+                      AND upper(sa.sku) !~ '-ELITE-TRAINER-BOX-'
+
+                    UNION ALL
+
+                    SELECT
+                      sa.game_code,
+                      sn.code,
+                      sa.cdn_url,
+                      1 AS strategy,
+                      sa.kind_rank,
+                      sa.junk_rank,
+                      sa.role_rank
+                    FROM sealed_assets sa
+                    JOIN set_names sn
+                      ON sn.game_code = sa.game_code
+                     AND length(trim(sa.collection_name)) >= 4
+                     AND (
+                       lower(trim(sa.collection_name)) = lower(trim(sn.name))
+                       OR (
+                         length(trim(sa.collection_name)) >= 8
+                         AND lower(sn.name) LIKE ('%' || lower(trim(sa.collection_name)) || '%')
+                       )
+                       OR (
+                         length(trim(sn.name)) >= 8
+                         AND lower(trim(sa.collection_name)) LIKE ('%' || lower(trim(sn.name)) || '%')
+                       )
+                     )
+
+                    UNION ALL
+
+                    SELECT
+                      sa.game_code,
+                      sn.code,
+                      sa.cdn_url,
+                      2 AS strategy,
+                      sa.kind_rank,
+                      sa.junk_rank,
+                      sa.role_rank
+                    FROM sealed_assets sa
+                    JOIN set_names sn
+                      ON sn.game_code = sa.game_code
+                     AND length(trim(sn.name)) >= 6
+                     AND (
+                       lower(sa.title_pt) LIKE ('%' || lower(trim(sn.name)) || '%')
+                       OR (
+                         -- "Timeless Bonds" ⊂ "BT-26: BOOSTER TIMELESS BONDS"
+                         length(trim(sa.collection_name)) >= 8
+                         AND lower(sn.name) LIKE ('%' || lower(trim(sa.collection_name)) || '%')
+                       )
+                     )
+                     AND (
+                       lower(sa.title_pt) LIKE '%booster box%'
+                       OR lower(sa.title_pt) LIKE '%booster display%'
+                       OR lower(sa.title_pt) LIKE '%elite trainer%'
+                       OR sa.subcategory IN ('BOOSTER_BOX', 'ELITE_TRAINER_BOX', 'BUNDLE')
+                     )
+                    WHERE sa.junk_rank = 0
+                  ) u
+                  WHERE u.code IS NOT NULL AND u.code <> ''
                   ORDER BY
-                    x.game_code,
-                    LOWER(x.set_code),
-                    x.kind_rank,
-                    x.sku_rank,
-                    x.case_rank,
-                    x.role_rank
+                    u.game_code,
+                    LOWER(u.code),
+                    u.strategy,
+                    u.junk_rank,
+                    u.kind_rank,
+                    u.role_rank
                 )
                 SELECT
                   COALESCE(r.code, c.code) AS code,
