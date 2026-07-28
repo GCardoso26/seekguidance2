@@ -146,6 +146,8 @@ const nextConfig = {
       { protocol: "https", hostname: "lorcana-api.com" },
       { protocol: "https", hostname: "api.lorcana.ravensburger.com" },
       { protocol: "https", hostname: "**.ravensburger.com" },
+      { protocol: "https", hostname: "ravensburger.cloud" },
+      { protocol: "https", hostname: "**.ravensburger.cloud" },
       // Star Wars Unlimited
       { protocol: "https", hostname: "cdn.swu-db.com" },
       { protocol: "https", hostname: "**.swu-db.com" },
