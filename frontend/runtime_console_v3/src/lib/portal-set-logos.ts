@@ -23,8 +23,10 @@ export const LORCANA_SET_LOGO_INDEX: Record<string, number> = {
   AOV: 13,
 };
 
-/** Featured carousel — last 3 chapters (override when API order differs). */
-export const LORCANA_FEATURED_SET_CODES = ["WIN", "WUN", "ATV"] as const;
+/** Featured carousel — last 3 chapters (override when API order differs).
+ * Prod uses AOV ("Attack of the Vines"); ATV is an alternate code kept in logo map.
+ */
+export const LORCANA_FEATURED_SET_CODES = ["WIN", "WUN", "AOV"] as const;
 
 const GAME_SET_LOGO_INDEX: Partial<Record<GameId, Record<string, number>>> = {
   LORCANA: LORCANA_SET_LOGO_INDEX,

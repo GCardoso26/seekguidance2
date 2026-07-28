@@ -11,6 +11,10 @@ export async function GET(req: NextRequest) {
       headers,
       cache: "no-store",
     });
+    // Portal calendar is public; never surface upstream auth flaps as console 401.
+    if (!storeId && (res.status === 401 || res.status === 403)) {
+      return NextResponse.json({ events: [] }, { status: 200 });
+    }
     return new NextResponse(await res.text(), {
       status: res.status,
       headers: { "Content-Type": "application/json" },

@@ -20,7 +20,7 @@ describe("portal-set-logos", () => {
   });
 
   it("features the three latest Lorcana chapters", () => {
-    expect(LORCANA_FEATURED_SET_CODES).toEqual(["WIN", "WUN", "ATV"]);
+    expect(LORCANA_FEATURED_SET_CODES).toEqual(["WIN", "WUN", "AOV"]);
   });
 });
 
