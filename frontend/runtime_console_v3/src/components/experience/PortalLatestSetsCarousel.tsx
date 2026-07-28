@@ -9,6 +9,7 @@ import { gameMarketplaceSetPath } from "@/lib/game-routes";
 import {
   featuredSetCodesForGame,
   gameHasSetLogos,
+  setLogoIsMonochromeWordmark,
   setLogoPublicPath,
 } from "@/lib/portal-set-logos";
 import { cn } from "@/lib/utils";
@@ -120,7 +121,11 @@ export function PortalLatestSetsCarousel() {
                         <img
                           src={logo}
                           alt=""
-                          className="relative z-[1] max-h-32 w-auto max-w-full object-contain drop-shadow-lg transition group-hover:scale-[1.03]"
+                          className={cn(
+                            "relative z-[1] max-h-32 w-auto max-w-full object-contain drop-shadow-lg transition group-hover:scale-[1.03]",
+                            setLogoIsMonochromeWordmark(gameId, set.code) &&
+                              "brightness-0 invert opacity-95",
+                          )}
                         />
                       ) : (
                         <span className="text-3xl font-bold text-[color:var(--game-text-muted)]">

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   LORCANA_FEATURED_SET_CODES,
+  setLogoIsMonochromeWordmark,
   setLogoPublicPath,
   gameHasSetLogos,
 } from "@/lib/portal-set-logos";
@@ -14,6 +15,13 @@ describe("portal-set-logos", () => {
     expect(setLogoPublicPath("LORCANA", "ATV")).toBe("/logos/sets/lorcana/lor13.svg");
     expect(setLogoPublicPath("LORCANA", "AOV")).toBe("/logos/sets/lorcana/lor13.svg");
     expect(setLogoPublicPath("LORCANA", "ROF")).toBeNull();
+  });
+
+  it("flags black wordmark chapters for dark-theme invert", () => {
+    expect(setLogoIsMonochromeWordmark("LORCANA", "WUN")).toBe(true);
+    expect(setLogoIsMonochromeWordmark("LORCANA", "FAB")).toBe(true);
+    expect(setLogoIsMonochromeWordmark("LORCANA", "ROJ")).toBe(false);
+    expect(setLogoIsMonochromeWordmark("LORCANA", "AZS")).toBe(false);
   });
 
   it("returns null for games without set logo assets", () => {

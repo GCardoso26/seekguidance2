@@ -24,12 +24,14 @@ function LargeArt({
   imageUrl,
   title,
   contain,
+  monoLogo,
   priority,
   mediaType = "MARKETPLACE_CARD",
 }: {
   imageUrl?: string | null;
   title: string;
   contain?: boolean;
+  monoLogo?: boolean;
   priority?: boolean;
   mediaType?: MediaType;
 }) {
@@ -57,6 +59,7 @@ function LargeArt({
       className={cn(
         "large-visual-card__art",
         contain && "large-visual-card__art--contain",
+        monoLogo && "large-visual-card__art--mono-logo",
       )}
     />
   );
@@ -71,15 +74,17 @@ function CardShell({
   className,
   priority,
   contain,
+  monoLogo,
   footer,
   mediaType,
-}: BaseProps & { contain?: boolean; footer?: ReactNode }) {
+}: BaseProps & { contain?: boolean; monoLogo?: boolean; footer?: ReactNode }) {
   return (
     <Link href={href} className={cn("large-visual-card group block", className)}>
       <LargeArt
         imageUrl={imageUrl}
         title={title}
         contain={contain}
+        monoLogo={monoLogo}
         priority={priority}
         mediaType={mediaType}
       />
@@ -105,12 +110,17 @@ export function ExpansionCardHero(props: BaseProps & { code?: string }) {
   const isLogoFallback =
     Boolean(props.imageUrl) &&
     (/\/logos\//i.test(props.imageUrl!) || /\.svg(\?|$)/i.test(props.imageUrl!));
+  // Lorcana chapters 9–13 are black wordmarks — invert on dark portal cards.
+  const isMonoLogo =
+    Boolean(props.imageUrl) &&
+    /\/logos\/sets\/lorcana\/lor(?:9|1[0-3])\.svg/i.test(props.imageUrl!);
   return (
     <CardShell
       {...props}
       mediaType="SET_KEY_ART"
       meta={props.code ? `Set · ${props.code}` : props.meta ?? "Expansão"}
       contain={isLogoFallback}
+      monoLogo={isMonoLogo}
     />
   );
 }

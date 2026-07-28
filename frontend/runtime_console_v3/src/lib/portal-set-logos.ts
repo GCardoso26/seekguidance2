@@ -45,6 +45,16 @@ export function setLogoPublicPath(gameId: GameId, setCode: string): string | nul
   return `/logos/sets/${slug}/lor${idx}.svg`;
 }
 
+/**
+ * Chapters 9–13 ship as black vector wordmarks (fill #000).
+ * On dark portal cards they need invert / light treatment.
+ */
+export function setLogoIsMonochromeWordmark(gameId: GameId, setCode: string): boolean {
+  if (gameId !== "LORCANA") return false;
+  const idx = LORCANA_SET_LOGO_INDEX[setCode.trim().toUpperCase()];
+  return typeof idx === "number" && idx >= 9;
+}
+
 export function gameHasSetLogos(gameId: GameId): boolean {
   return Boolean(GAME_SLUG_FOR_LOGOS[gameId] && GAME_SET_LOGO_INDEX[gameId]);
 }
