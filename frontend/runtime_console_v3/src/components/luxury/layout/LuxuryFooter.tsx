@@ -53,8 +53,7 @@ export function LuxuryFooter() {
               </span>
             </Link>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">
-              Rulings com fonte. Torneios no horário. A mesa que juízes, jogadores e lojas usam no
-              competitivo sério.
+              Mercado feito por jogadores para jogadores.
             </p>
           </div>
 
@@ -94,8 +93,8 @@ export function LuxuryFooter() {
         <Separator className="my-10" />
 
         <div className="flex flex-col items-center justify-between gap-4 text-xs text-muted-foreground sm:flex-row">
-          <p>&copy; {new Date().getFullYear()} Judge TCG / tcghub.ai. Todos os direitos reservados.</p>
-          <p className="tracking-wide">Feito para o competitivo sério.</p>
+          <p>&copy; {new Date().getFullYear()} Judge TCG. Todos os direitos reservados.</p>
+          <p className="tracking-wide">Feito para deixar o mercado mais justo.</p>
         </div>
       </div>
     </footer>
