@@ -17,9 +17,11 @@ export default function LojaBuscaPage() {
         <Link href="/" className="text-sm text-muted-foreground hover:text-foreground">
           ← Início
         </Link>
-        <h1 className="mt-4 text-2xl font-bold">Loja de cartas</h1>
+        <h1 className="mt-4 text-2xl font-bold" data-testid="loja-busca-title">
+          Comprar no marketplace
+        </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Busca facetada com filtros por jogo, coleção, raridade e preço.
+          Produtos com oferta aparecem primeiro. Filtre por jogo, coleção, raridade e preço.
         </p>
         <div className="mt-8">
           <Suspense fallback={<CatalogSearchSkeleton />}>

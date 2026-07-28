@@ -18,9 +18,9 @@ export default function LojaPage() {
           <Suspense fallback={null}>
             <LojaMarketplaceAlert />
           </Suspense>
-          <h1 className="text-3xl font-bold text-foreground">Biblioteca de TCGs</h1>
+          <h1 className="text-3xl font-bold text-foreground">Catálogo de TCGs</h1>
           <p className="mt-2 max-w-2xl text-muted-foreground">
-            Entre no portal de cada universo — singles, expansões, decks e marketplace no mesmo ecossistema.
+            Cada jogo te leva a universos diferentes. Explore cada universo, tudo no mesmo lugar.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90">
