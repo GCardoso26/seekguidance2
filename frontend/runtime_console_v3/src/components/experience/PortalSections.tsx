@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { GameHero } from "@/components/experience/PortalHero";
+import { PortalLatestSetsCarousel } from "@/components/experience/PortalLatestSetsCarousel";
+import { PortalSealedProductsSection } from "@/components/experience/PortalSealedProductsSection";
 import { PortalLiveBlocks } from "@/components/live-data/PortalLiveBlocks";
 import { useGamePortal } from "@/components/experience/GameProvider";
 import {
@@ -10,12 +12,10 @@ import {
   EventCard,
   ExpansionCardHero,
   LargeMarketplaceCard,
-  LargeSealedCard,
   NewsCard,
 } from "@/components/experience/cards/LargeVisualCards";
 import { ProductCategoryIcon } from "@/components/games/ProductCategoryIcon";
 import {
-  GAME_FEATURED_CATEGORY,
   getCategoriesForGame,
   marketplaceCategoryHref,
   singlesSearchHref,
@@ -111,9 +111,7 @@ function SectionHeader({
 export function PortalSections({ cardCount = 0, healthLoading }: Props) {
   const { gameId, slug, theme } = useGamePortal();
   const categories = getCategoriesForGame(gameId);
-  const featuredCat = GAME_FEATURED_CATEGORY[gameId] ?? "booster_box";
-  const featuredMeta = categories.find((c) => c.id === featuredCat) ?? categories[0];
-  const sealedCats = categories.filter((c) => c.id !== "single").slice(0, 4);
+  const marketplaceHref = gameMarketplacePath(slug, gameId);
 
   const { data: sets = [], isLoading: setsLoading } = useQuery({
     queryKey: ["portal-sets", gameId],
@@ -159,6 +157,8 @@ export function PortalSections({ cardCount = 0, healthLoading }: Props) {
         latestSetLabel={latest ? latest.name : undefined}
         backgroundImage={heroBackground}
       />
+
+      <PortalLatestSetsCarousel />
 
       {/* Últimas expansões */}
       <section className="portal-section container mx-auto max-w-6xl px-4 py-12">
@@ -254,30 +254,11 @@ export function PortalSections({ cardCount = 0, healthLoading }: Props) {
         </ul>
       </section>
 
-      {/* Produtos selados */}
-      <section className="portal-section container mx-auto max-w-6xl px-4 py-12">
-        <SectionHeader
-          title="Produtos selados"
-          href={gameMarketplacePath(slug, gameId)}
-          linkLabel="Loja"
-        />
-        <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {(sealedCats.length ? sealedCats : featuredMeta ? [featuredMeta] : []).map((cat) => (
-            <li key={cat.id}>
-              <LargeSealedCard
-                href={categoryHref(cat.id)}
-                title={cat.label}
-                imageUrl={cat.imageUrl}
-                subtitle={`Selados · ${theme.name}`}
-              />
-            </li>
-          ))}
-        </ul>
-      </section>
+      <PortalSealedProductsSection marketplaceHref={marketplaceHref} />
 
       {/* Marketplace CTA */}
       <section className="portal-section container mx-auto max-w-6xl px-4 py-12">
-        <SectionHeader title="Marketplace" href={gameMarketplacePath(slug, gameId)} />
+        <SectionHeader title="Marketplace" href={marketplaceHref} />
         <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
           <div className="large-visual-card p-6 md:p-8">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[color:var(--game-accent)]">
@@ -295,7 +276,7 @@ export function PortalSections({ cardCount = 0, healthLoading }: Props) {
                 Singles
               </Link>
               <Link
-                href={gameMarketplacePath(slug, gameId)}
+                href={marketplaceHref}
                 className="inline-flex min-h-11 items-center rounded-[var(--game-button-radius)] border border-[color:var(--game-border)] px-5 text-sm font-medium"
               >
                 Todas as ofertas

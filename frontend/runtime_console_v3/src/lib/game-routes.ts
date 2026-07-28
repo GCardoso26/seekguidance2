@@ -50,6 +50,15 @@ export function gameMarketplacePath(slug: string, gameId: GameId): string {
   return `/loja/busca?game=${encodeURIComponent(gameId)}`;
 }
 
+/** Marketplace busca com filtro de expansão/coleção já aplicado. */
+export function gameMarketplaceSetPath(slug: string, gameId: GameId, setCode: string): string {
+  const params = new URLSearchParams({
+    game: gameId,
+    set: setCode.trim(),
+  });
+  return `/loja/busca?${params.toString()}`;
+}
+
 export function gameCollectionPath(slug: string): string {
   return `/colecao?game=${encodeURIComponent(slug)}`;
 }

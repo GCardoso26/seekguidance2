@@ -211,6 +211,26 @@
   padding: 1rem;
 }
 
+/* Portal set carousel */
+.game-portal .portal-carousel-arrow {
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 9999px;
+  border: 1px solid color-mix(in srgb, var(--game-primary) 30%, var(--game-border));
+  background: color-mix(in srgb, var(--game-bg-elevated) 92%, transparent);
+  color: var(--game-text);
+  box-shadow: var(--game-shadow);
+  transition: var(--game-card-transition);
+}
+
+.game-portal .portal-carousel-arrow:hover {
+  border-color: color-mix(in srgb, var(--game-accent) 55%, var(--game-border));
+  color: var(--game-accent);
+  transform: scale(1.05);
+}
+
 /* Marketplace skin shell */
 .game-portal .marketplace-skin {
   background: color-mix(in srgb, var(--game-bg) 94%, var(--game-primary));

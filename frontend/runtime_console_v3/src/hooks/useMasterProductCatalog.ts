@@ -6,7 +6,8 @@ export interface MasterCatalogSearchItem {
   product_id: string;
   title_pt: string;
   category: string;
-  subcategory: string;
+  subcategory?: string;
+  product_type?: string;
   game: string | null;
   sku: string | null;
   variant_id: string;
