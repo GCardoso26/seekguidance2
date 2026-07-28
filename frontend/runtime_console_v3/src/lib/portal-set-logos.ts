@@ -8,7 +8,7 @@ import type { GameId } from "@/types/card";
 /** Catalog set code → logo file index (chapter number). */
 export const LORCANA_SET_LOGO_INDEX: Record<string, number> = {
   TFC: 1,
-  ROF: 2,
+  // ROF (lor2) asset missing in source pack — omit until provided
   INK: 3,
   URS: 4,
   SSK: 5,

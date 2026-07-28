@@ -31,4 +31,15 @@ describe("resolveSetVisualUrl", () => {
       }),
     ).toBe("https://assets.tcgdex.net/en/base/basep/logo");
   });
+
+  it("prefers set logo over game fallback when cover missing", () => {
+    expect(
+      resolveSetVisualUrl({
+        coverUrl: null,
+        setLogoUrl: "/logos/sets/lorcana/lor11.svg",
+        iconUrl: null,
+        fallback: "/logos/lorcana.webp",
+      }),
+    ).toBe("/logos/sets/lorcana/lor11.svg");
+  });
 });

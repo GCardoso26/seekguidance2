@@ -12,6 +12,8 @@ describe("portal-set-logos", () => {
     expect(setLogoPublicPath("LORCANA", "WIN")).toBe("/logos/sets/lorcana/lor11.svg");
     expect(setLogoPublicPath("LORCANA", "WUN")).toBe("/logos/sets/lorcana/lor12.svg");
     expect(setLogoPublicPath("LORCANA", "ATV")).toBe("/logos/sets/lorcana/lor13.svg");
+    expect(setLogoPublicPath("LORCANA", "AOV")).toBe("/logos/sets/lorcana/lor13.svg");
+    expect(setLogoPublicPath("LORCANA", "ROF")).toBeNull();
   });
 
   it("returns null for games without set logo assets", () => {

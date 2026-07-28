@@ -8,6 +8,7 @@ import { ExpansionCardHero } from "@/components/experience/cards/LargeVisualCard
 import { gameLandingPath, gameSetPath } from "@/lib/game-routes";
 import { setCanonicalSlug } from "@/lib/set-slug";
 import { resolveSetVisualUrl } from "@/lib/set-visual-url";
+import { setLogoPublicPath } from "@/lib/portal-set-logos";
 import { gameIdFromSlug, GAME_TOKENS } from "@/lib/tcg-tokens";
 import type { GameId } from "@/types/card";
 import type { CatalogSetOption } from "@/types/search";
@@ -90,6 +91,9 @@ export function GameExpansionsPageClient({ slug }: { slug: string }) {
                   }
                   imageUrl={resolveSetVisualUrl({
                     coverUrl: set.cover_url,
+                    setLogoUrl: set.code
+                      ? setLogoPublicPath(gameId as GameId, set.code)
+                      : null,
                     iconUrl: null,
                     fallback: token.logo,
                   })}

@@ -31,6 +31,7 @@ import {
 } from "@/lib/game-routes";
 import { setCanonicalSlug } from "@/lib/set-slug";
 import { resolveSetVisualUrl } from "@/lib/set-visual-url";
+import { setLogoPublicPath } from "@/lib/portal-set-logos";
 import { cn } from "@/lib/utils";
 
 type SetRow = {
@@ -138,6 +139,7 @@ export function PortalSections({ cardCount = 0, healthLoading }: Props) {
   const heroBackground = latest
     ? resolveSetVisualUrl({
         coverUrl: latest.cover_url,
+        setLogoUrl: setLogoPublicPath(gameId, latest.code),
         iconUrl: null,
         fallback: "",
       }) || null
@@ -183,6 +185,7 @@ export function PortalSections({ cardCount = 0, healthLoading }: Props) {
                 }
                 imageUrl={resolveSetVisualUrl({
                   coverUrl: set.cover_url,
+                  setLogoUrl: setLogoPublicPath(gameId, set.code),
                   iconUrl: null,
                   fallback: theme.logo,
                 })}
