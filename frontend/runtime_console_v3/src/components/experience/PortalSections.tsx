@@ -164,12 +164,12 @@ export function PortalSections({ cardCount = 0, healthLoading }: Props) {
 
       {/* Últimas expansões */}
       <section className="portal-section container mx-auto max-w-6xl px-4 py-12">
-        <SectionHeader title="Últimas expansões" href={gameExpansionsPath(slug)} />
+        <SectionHeader title="Últimas edições" href={gameExpansionsPath(slug)} />
         {setsLoading && (
-          <p className="text-sm text-[color:var(--game-text-muted)]">Carregando expansões…</p>
+          <p className="text-sm text-[color:var(--game-text-muted)]">Carregando coleções…</p>
         )}
         {!setsLoading && sets.length === 0 && (
-          <p className="text-sm text-[color:var(--game-text-muted)]">Sets em sincronização</p>
+          <p className="text-sm text-[color:var(--game-text-muted)]">Sincronizando coleções...</p>
         )}
         <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {sets.slice(0, 4).map((set) => (
@@ -228,7 +228,7 @@ export function PortalSections({ cardCount = 0, healthLoading }: Props) {
 
       {/* Cartas populares */}
       <section className="portal-section container mx-auto max-w-6xl px-4 py-12">
-        <SectionHeader title="Cartas populares" href={gameCardsPath(slug)} />
+        <SectionHeader title="Cartas em alta" href={gameCardsPath(slug)} />
         {popularLoading && (
           <p className="text-sm text-[color:var(--game-text-muted)]">Carregando cartas…</p>
         )}
@@ -268,11 +268,10 @@ export function PortalSections({ cardCount = 0, healthLoading }: Props) {
               Loja {theme.name}
             </p>
             <h3 className="portal-section-title mt-2 text-2xl md:text-3xl">
-              Mesmo marketplace. Outro universo.
+              Todos os jogos em um único mercado.
             </h3>
             <p className="mt-3 max-w-lg text-sm text-[color:var(--game-text-muted)]">
-              Ofertas de singles e selados com a identidade visual de {theme.name} — backend
-              compartilhado, experiência própria.
+              Ofertas de cartas, produtos selados e acessórios.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Link href={gameCardsPath(slug)} className="game-cta inline-flex min-h-11 items-center px-5 text-sm font-semibold">
@@ -315,7 +314,7 @@ export function PortalSections({ cardCount = 0, healthLoading }: Props) {
                 <EventCard
                   href="/torneio"
                   title={`Torneios ${theme.name}`}
-                  subtitle="Calendário e inscrição — em evolução"
+                  subtitle="Calendário e inscrição — em desenvolvimento"
                   when="Em breve"
                   imageUrl={theme.logo}
                 />
@@ -324,7 +323,7 @@ export function PortalSections({ cardCount = 0, healthLoading }: Props) {
                 <NewsCard
                   href="/comunidade"
                   title="Comunidade"
-                  subtitle="Notícias e meta do universo"
+                  subtitle="Notícias e novidades do meta."
                   imageUrl={theme.logo}
                 />
               </li>
@@ -389,7 +388,7 @@ export function PortalSections({ cardCount = 0, healthLoading }: Props) {
           ))}
         </ul>
         <p className="mt-10 text-center text-xs text-[color:var(--game-text-muted)]">
-          Universo {theme.name} · Theme Engine V2 · identidade própria, plataforma única
+          Universo {theme.name}
         </p>
       </section>
     </div>
