@@ -102,12 +102,15 @@ function CardShell({
 }
 
 export function ExpansionCardHero(props: BaseProps & { code?: string }) {
+  const isLogoFallback =
+    Boolean(props.imageUrl) &&
+    (/\/logos\//i.test(props.imageUrl!) || /\.svg(\?|$)/i.test(props.imageUrl!));
   return (
     <CardShell
       {...props}
       mediaType="SET_KEY_ART"
       meta={props.code ? `Set · ${props.code}` : props.meta ?? "Expansão"}
-      contain
+      contain={isLogoFallback}
     />
   );
 }

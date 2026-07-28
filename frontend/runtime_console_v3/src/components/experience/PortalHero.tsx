@@ -16,6 +16,8 @@ type Props = {
   healthLoading?: boolean;
   latestSetHref?: string;
   latestSetLabel?: string;
+  /** Arte de fundo do universo (ex.: cover da última expansão) */
+  backgroundImage?: string | null;
   className?: string;
 };
 
@@ -28,14 +30,20 @@ export function GameHero({
   healthLoading,
   latestSetHref,
   latestSetLabel,
+  backgroundImage,
   className,
 }: Props) {
   const { theme, slug, gameId } = useGamePortal();
   const hero = theme.hero;
   const expansionsHref = latestSetHref ?? gameExpansionsPath(slug);
-  const hasStill = Boolean(
-    hero.imageDesktop || hero.image || hero.imageMobile || hero.imageFallback,
-  );
+  const stillSrc =
+    backgroundImage ||
+    hero.imageDesktop ||
+    hero.image ||
+    hero.imageMobile ||
+    hero.imageFallback ||
+    null;
+  const hasStill = Boolean(stillSrc);
 
   return (
     <section
@@ -45,8 +53,8 @@ export function GameHero({
       <div className="game-hero__media" aria-hidden>
         {hasStill ? (
           <HeroAssetFrame
-            desktopSrc={hero.imageDesktop || hero.image}
-            mobileSrc={hero.imageMobile}
+            desktopSrc={stillSrc || hero.imageDesktop || hero.image}
+            mobileSrc={hero.imageMobile || stillSrc || undefined}
             fallbackSrc={hero.imageFallback || theme.logo}
             overlaySrc={hero.imageOverlay}
             alt={theme.name}

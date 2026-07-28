@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ExpansionCardHero } from "@/components/experience/cards/LargeVisualCards";
 import { gameLandingPath, gameSetPath } from "@/lib/game-routes";
 import { setCanonicalSlug } from "@/lib/set-slug";
+import { resolveSetVisualUrl } from "@/lib/set-visual-url";
 import { gameIdFromSlug, GAME_TOKENS } from "@/lib/tcg-tokens";
 import type { GameId } from "@/types/card";
 import type { CatalogSetOption } from "@/types/search";
@@ -87,7 +88,11 @@ export function GameExpansionsPageClient({ slug }: { slug: string }) {
                   subtitle={
                     set.cardCount != null ? `${set.cardCount} cartas` : "Abrir expansão"
                   }
-                  imageUrl={token.logo}
+                  imageUrl={resolveSetVisualUrl({
+                    coverUrl: set.cover_url,
+                    iconUrl: set.icon_url,
+                    fallback: token.logo,
+                  })}
                 />
               </li>
             );

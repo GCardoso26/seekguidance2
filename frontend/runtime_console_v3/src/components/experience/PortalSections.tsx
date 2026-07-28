@@ -30,9 +30,17 @@ import {
   gameWishlistPath,
 } from "@/lib/game-routes";
 import { setCanonicalSlug } from "@/lib/set-slug";
+import { resolveSetVisualUrl } from "@/lib/set-visual-url";
 import { cn } from "@/lib/utils";
 
-type SetRow = { code: string; name: string; id?: string; cardCount?: number };
+type SetRow = {
+  code: string;
+  name: string;
+  id?: string;
+  cardCount?: number;
+  icon_url?: string | null;
+  cover_url?: string | null;
+};
 type PublicDeck = { id: string; name?: string; title?: string; coverUrl?: string };
 type PopularCard = {
   id: string;
@@ -129,6 +137,13 @@ export function PortalSections({ cardCount = 0, healthLoading }: Props) {
   const latestHref = latest
     ? gameSetPath(slug, setCanonicalSlug(latest))
     : gameExpansionsPath(slug);
+  const heroBackground = latest
+    ? resolveSetVisualUrl({
+        coverUrl: latest.cover_url,
+        iconUrl: latest.icon_url,
+        fallback: "",
+      }) || popular[0]?.imageUris?.large || popular[0]?.imageUris?.normal || null
+    : popular[0]?.imageUris?.large || popular[0]?.imageUris?.normal || null;
 
   function categoryHref(catId: ProductCategoryId): string {
     if (catId === "single") return singlesSearchHref(slug);
@@ -142,6 +157,7 @@ export function PortalSections({ cardCount = 0, healthLoading }: Props) {
         healthLoading={healthLoading}
         latestSetHref={latestHref}
         latestSetLabel={latest ? latest.name : undefined}
+        backgroundImage={heroBackground}
       />
 
       {/* Últimas expansões */}
@@ -165,7 +181,11 @@ export function PortalSections({ cardCount = 0, healthLoading }: Props) {
                     ? `${set.cardCount} cartas`
                     : "Abrir landing da expansão"
                 }
-                imageUrl={theme.logo}
+                imageUrl={resolveSetVisualUrl({
+                  coverUrl: set.cover_url,
+                  iconUrl: set.icon_url,
+                  fallback: theme.logo,
+                })}
               />
             </li>
           ))}

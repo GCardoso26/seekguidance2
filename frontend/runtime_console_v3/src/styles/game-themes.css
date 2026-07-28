@@ -76,11 +76,20 @@
   z-index: 0;
 }
 
+/* Quando há arte de universo, o gradiente vira fallback sob a mídia */
+.game-portal .game-hero:has(.game-hero__media img),
+.game-portal .game-hero:has(.game-hero__media video) {
+  background-color: var(--game-bg);
+}
+
 .game-portal .game-hero__media img,
 .game-portal .game-hero__media video {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center 25%;
+  transform: scale(1.04);
+  filter: saturate(1.05) contrast(1.05);
 }
 
 .game-portal .game-hero__overlay {
@@ -115,7 +124,12 @@
 .game-portal .game-hero__overlay[data-overlay="neon"] {
   background:
     radial-gradient(circle at 80% 20%, var(--game-hero-glow), transparent 40%),
-    linear-gradient(160deg, color-mix(in srgb, var(--game-bg) 75%, transparent), transparent 60%);
+    linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--game-bg) 82%, transparent) 0%,
+      color-mix(in srgb, var(--game-bg) 45%, transparent) 48%,
+      transparent 78%
+    );
 }
 
 .game-portal .game-hero__overlay[data-overlay="parchment"] {

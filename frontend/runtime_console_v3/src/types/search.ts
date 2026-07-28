@@ -20,4 +20,6 @@ export interface CatalogSetOption {
   code: string;
   name: string;
   cardCount?: number;
+  icon_url?: string | null;
+  cover_url?: string | null;
 }

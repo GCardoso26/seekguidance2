@@ -209,6 +209,27 @@ async def list_merged_catalog_sets(
                     cs.icon_url
                   FROM tcg_judge.card_sets cs
                   {game_clause_registry}
+                ),
+                covers AS (
+                  SELECT DISTINCT ON (cc.game_code, LOWER(cc.set_code))
+                    cc.game_code,
+                    cc.set_code AS code,
+                    COALESCE(
+                      NULLIF(cc.image_url, ''),
+                      NULLIF(cc.image_uris->>'normal', ''),
+                      NULLIF(cc.image_uris->>'large', ''),
+                      NULLIF(cc.image_uris->>'small', '')
+                    ) AS cover_url
+                  FROM tcg_judge.card_catalog cc
+                  WHERE cc.set_code IS NOT NULL AND cc.set_code <> ''
+                    AND (
+                      NULLIF(cc.image_url, '') IS NOT NULL
+                      OR NULLIF(cc.image_uris->>'normal', '') IS NOT NULL
+                      OR NULLIF(cc.image_uris->>'large', '') IS NOT NULL
+                      OR NULLIF(cc.image_uris->>'small', '') IS NOT NULL
+                    )
+                    {game_clause_catalog}
+                  ORDER BY cc.game_code, LOWER(cc.set_code), cc.name ASC
                 )
                 SELECT
                   COALESCE(r.code, c.code) AS code,
@@ -216,11 +237,15 @@ async def list_merged_catalog_sets(
                   COALESCE(c.card_count, r.registry_count, 0) AS card_count,
                   r.release_date,
                   r.icon_url,
+                  cov.cover_url,
                   COALESCE(r.game_code, c.game_code) AS game_code
                 FROM registry r
                 FULL OUTER JOIN catalog_agg c
                   ON r.game_code = c.game_code
                  AND LOWER(r.code) = LOWER(c.code)
+                LEFT JOIN covers cov
+                  ON cov.game_code = COALESCE(r.game_code, c.game_code)
+                 AND LOWER(cov.code) = LOWER(COALESCE(r.code, c.code))
                 ORDER BY r.release_date DESC NULLS LAST, name ASC
                 LIMIT :limit
                 """
@@ -237,6 +262,7 @@ async def list_merged_catalog_sets(
             "card_count": int(r["card_count"] or 0),
             "release_date": str(r["release_date"]) if r.get("release_date") else None,
             "icon_url": r.get("icon_url"),
+            "cover_url": r.get("cover_url"),
             "game_code": r.get("game_code"),
         }
         for r in rows
@@ -257,6 +283,7 @@ async def list_game_sets(session: AsyncSession, slug: str) -> list[dict[str, Any
             "release_date": s.get("release_date"),
             "card_count": s.get("card_count"),
             "icon_url": s.get("icon_url"),
+            "cover_url": s.get("cover_url"),
         }
         for s in merged
     ]
