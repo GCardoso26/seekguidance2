@@ -125,66 +125,44 @@ const nextConfig = {
     deviceSizes: [640, 750, 828, 1080, 1200, 1920],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     remotePatterns: [
+      // Keep ≤50 entries (Next.js hard limit). Prefer wildcard hosts over apex duplicates.
       { protocol: "https", hostname: supabaseHost },
       { protocol: "https", hostname: "**.supabase.co" },
-      { protocol: "https", hostname: "cards.scryfall.io" },
+      { protocol: "https", hostname: "**.scryfall.io" },
       { protocol: "https", hostname: "images.pokemontcg.io" },
       { protocol: "https", hostname: "images.ygoprodeck.com" },
       { protocol: "https", hostname: "lorcast.com" },
-      { protocol: "https", hostname: "optcgapi.com" },
       { protocol: "https", hostname: "**.optcgapi.com" },
       { protocol: "https", hostname: "**.digimoncard.io" },
       { protocol: "https", hostname: "goagain.dev" },
       { protocol: "https", hostname: "assets.tcgdex.net" },
-      { protocol: "https", hostname: "svgs.scryfall.io" },
-      { protocol: "https", hostname: "**.scryfall.io" },
-      { protocol: "https", hostname: "tcg-judge.com" },
       { protocol: "https", hostname: "judgetcg.com.br" },
-      { protocol: "https", hostname: "images.judgetcg.com.br" },
       { protocol: "https", hostname: "**.judgetcg.com.br" },
-      // Lorcana API + CDN oficial Ravensburger
+      { protocol: "https", hostname: "tcg-judge.com" },
+      // Lorcana + Ravensburger packshots
       { protocol: "https", hostname: "lorcana-api.com" },
-      { protocol: "https", hostname: "api.lorcana.ravensburger.com" },
       { protocol: "https", hostname: "**.ravensburger.com" },
       { protocol: "https", hostname: "ravensburger.cloud" },
       { protocol: "https", hostname: "**.ravensburger.cloud" },
-      // Star Wars Unlimited
-      { protocol: "https", hostname: "cdn.swu-db.com" },
+      // Other TCG CDNs
       { protocol: "https", hostname: "**.swu-db.com" },
-      // Riftbound
       { protocol: "https", hostname: "cmsassets.rgpub.io" },
       { protocol: "https", hostname: "**.tcggo.com" },
-      { protocol: "https", hostname: "images.tcggo.com" },
-      { protocol: "https", hostname: "riftscribe.gg" },
       { protocol: "https", hostname: "**.riftscribe.gg" },
-      // Sorcery
-      { protocol: "https", hostname: "cards.sorcerytcg.com" },
       { protocol: "https", hostname: "**.sorcerytcg.com" },
       { protocol: "https", hostname: "**.curiosa.io" },
-      // Union Arena
       { protocol: "https", hostname: "**.unionarena-tcg.com" },
-      { protocol: "https", hostname: "unionarena-tcg.com" },
       { protocol: "https", hostname: "**.apitcg.com" },
-      // DB Fusion World
       { protocol: "https", hostname: "**.dbs-cardgame.com" },
-      { protocol: "https", hostname: "dbs-cardgame.com" },
       { protocol: "https", hostname: "**.justtcg.com" },
-      // Cardfight Vanguard
       { protocol: "https", hostname: "**.vanguardcard.io" },
-      { protocol: "https", hostname: "vanguardcard.io" },
-      // Fallbacks CDN
       { protocol: "https", hostname: "**.cloudfront.net" },
       { protocol: "https", hostname: "tcgplayer-cdn.tcgplayer.com" },
-      // Accessory brand CDNs (docs/ACCESSORY_IMAGE_PROVIDERS.md)
-      { protocol: "https", hostname: "cdn.shopify.com" },
+      // Accessory brand CDNs
       { protocol: "https", hostname: "**.shopify.com" },
-      { protocol: "https", hostname: "images.tcdn.com.br" },
       { protocol: "https", hostname: "**.tcdn.com.br" },
-      { protocol: "https", hostname: "ultimateguard.com" },
       { protocol: "https", hostname: "**.ultimateguard.com" },
-      { protocol: "https", hostname: "cdn.svc.asmodee.net" },
       { protocol: "https", hostname: "**.asmodee.net" },
-      { protocol: "https", hostname: "www.gamegenic.com" },
       { protocol: "https", hostname: "**.gamegenic.com" },
     ],
   },
