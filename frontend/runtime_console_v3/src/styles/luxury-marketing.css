@@ -33,6 +33,15 @@
   font-size: clamp(2rem, 5vw, 3.5rem);
 }
 
+/* Footer labels are not display headings — keep them compact. */
+.luxury-marketing footer :is(h1, h2, h3) {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
 .luxury-marketing h3 {
   font-size: clamp(1.5rem, 3vw, 2rem);
 }

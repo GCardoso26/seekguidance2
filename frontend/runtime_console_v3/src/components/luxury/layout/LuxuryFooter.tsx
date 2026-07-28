@@ -60,16 +60,16 @@ export function LuxuryFooter() {
 
           {COLUMNS.map((col) => (
             <nav key={col.title} className="min-w-0" aria-label={col.title}>
-              <h2 className="text-overline truncate text-foreground">
+              <p className="text-[0.6875rem] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                 {col.title}
-              </h2>
-              <ul className="mt-4 space-y-3">
+              </p>
+              <ul className="mt-3 space-y-2.5">
                 {col.links.map((link) => (
                   <li key={link.label}>
                     {link.external ? (
                       <a
                         href={link.href}
-                        className="text-sm text-muted-foreground transition-colors hover:text-primary"
+                        className="text-xs text-muted-foreground transition-colors hover:text-primary"
                         {...(link.href.startsWith("http") || link.href.startsWith("mailto")
                           ? { target: "_blank", rel: "noopener noreferrer" }
                           : {})}
@@ -79,7 +79,7 @@ export function LuxuryFooter() {
                     ) : (
                       <Link
                         href={link.href}
-                        className="text-sm text-muted-foreground transition-colors hover:text-primary"
+                        className="text-xs text-muted-foreground transition-colors hover:text-primary"
                       >
                         {link.label}
                       </Link>
