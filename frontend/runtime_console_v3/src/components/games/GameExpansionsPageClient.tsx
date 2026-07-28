@@ -90,7 +90,7 @@ export function GameExpansionsPageClient({ slug }: { slug: string }) {
                   }
                   imageUrl={resolveSetVisualUrl({
                     coverUrl: set.cover_url,
-                    iconUrl: set.icon_url,
+                    iconUrl: null,
                     fallback: token.logo,
                   })}
                 />

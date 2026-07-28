@@ -140,10 +140,10 @@ export function PortalSections({ cardCount = 0, healthLoading }: Props) {
   const heroBackground = latest
     ? resolveSetVisualUrl({
         coverUrl: latest.cover_url,
-        iconUrl: latest.icon_url,
+        iconUrl: null,
         fallback: "",
-      }) || popular[0]?.imageUris?.large || popular[0]?.imageUris?.normal || null
-    : popular[0]?.imageUris?.large || popular[0]?.imageUris?.normal || null;
+      }) || null
+    : null;
 
   function categoryHref(catId: ProductCategoryId): string {
     if (catId === "single") return singlesSearchHref(slug);
@@ -183,7 +183,7 @@ export function PortalSections({ cardCount = 0, healthLoading }: Props) {
                 }
                 imageUrl={resolveSetVisualUrl({
                   coverUrl: set.cover_url,
-                  iconUrl: set.icon_url,
+                  iconUrl: null,
                   fallback: theme.logo,
                 })}
               />

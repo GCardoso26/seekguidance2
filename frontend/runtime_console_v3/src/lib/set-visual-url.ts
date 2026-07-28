@@ -1,6 +1,7 @@
 /**
  * Preferência de arte visual para cards de expansão / hero do portal.
- * Evita SVG de set (Scryfall) como capa full-bleed — usa cover de carta quando houver.
+ * Prefer packshot sealed (BOX/BUNDLE) em cover_url — nunca arte de carta.
+ * Ícones SVG de set (Scryfall) não servem como capa full-bleed.
  */
 export function resolveSetVisualUrl(input: {
   coverUrl?: string | null;

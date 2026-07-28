@@ -179,10 +179,12 @@ async def list_merged_catalog_sets(
     params: dict[str, Any] = {"limit": max(1, min(limit, 1000))}
     game_clause_registry = ""
     game_clause_catalog = ""
+    sealed_game_clause = ""
     if code:
         params["g"] = code
         game_clause_registry = "WHERE cs.game_code = :g"
         game_clause_catalog = "AND cc.game_code = :g"
+        sealed_game_clause = "AND p.game = :g"
 
     rows = (
         await session.execute(
@@ -211,25 +213,66 @@ async def list_merged_catalog_sets(
                   {game_clause_registry}
                 ),
                 covers AS (
-                  SELECT DISTINCT ON (cc.game_code, LOWER(cc.set_code))
-                    cc.game_code,
-                    cc.set_code AS code,
-                    COALESCE(
-                      NULLIF(cc.image_url, ''),
-                      NULLIF(cc.image_uris->>'normal', ''),
-                      NULLIF(cc.image_uris->>'large', ''),
-                      NULLIF(cc.image_uris->>'small', '')
-                    ) AS cover_url
-                  FROM tcg_judge.card_catalog cc
-                  WHERE cc.set_code IS NOT NULL AND cc.set_code <> ''
-                    AND (
-                      NULLIF(cc.image_url, '') IS NOT NULL
-                      OR NULLIF(cc.image_uris->>'normal', '') IS NOT NULL
-                      OR NULLIF(cc.image_uris->>'large', '') IS NOT NULL
-                      OR NULLIF(cc.image_uris->>'small', '') IS NOT NULL
-                    )
-                    {game_clause_catalog}
-                  ORDER BY cc.game_code, LOWER(cc.set_code), cc.name ASC
+                  -- ADR-016: capa de set = packshot de BOX/BUNDLE/ETB/TROVE, nunca arte de carta
+                  SELECT DISTINCT ON (x.game_code, LOWER(x.set_code))
+                    x.game_code,
+                    x.set_code AS code,
+                    x.cdn_url AS cover_url
+                  FROM (
+                    SELECT
+                      p.game AS game_code,
+                      (
+                        regexp_match(
+                          upper(COALESCE(NULLIF(p.sku, ''), NULLIF(v.sku, ''), '')),
+                          '^(?:LOR|PKM|MTG|[A-Z0-9]+)-(?:BOX|BUNDLE|ETB|TROVE)-([A-Z0-9]+)$'
+                        )
+                      )[1] AS set_code,
+                      a.cdn_url,
+                      CASE p.subcategory
+                        WHEN 'BOOSTER_BOX' THEN 1
+                        WHEN 'BUNDLE' THEN 2
+                        WHEN 'TROVE' THEN 3
+                        WHEN 'ILLUMINEERS_TROVE' THEN 3
+                        WHEN 'ELITE_TRAINER_BOX' THEN 4
+                        ELSE 9
+                      END AS kind_rank,
+                      CASE
+                        WHEN upper(COALESCE(p.sku, ''))
+                          ~ '^(LOR|PKM|MTG|[A-Z0-9]+)-(BOX|BUNDLE|ETB|TROVE)-'
+                        THEN 0
+                        ELSE 1
+                      END AS sku_rank,
+                      CASE WHEN lower(COALESCE(p.title_pt, '')) LIKE '% case%' THEN 1 ELSE 0 END AS case_rank,
+                      CASE l.role WHEN 'primary' THEN 0 ELSE 1 END AS role_rank
+                    FROM product_catalog.products p
+                    JOIN product_catalog.variants v ON v.product_id = p.id
+                    JOIN media.asset_links l
+                      ON l.entity_type = 'product_variant' AND l.entity_id = v.id
+                    JOIN media.assets a ON a.id = l.asset_id
+                    WHERE p.category = 'SEALED_PRODUCT'
+                      AND p.subcategory IN (
+                        'BOOSTER_BOX',
+                        'BUNDLE',
+                        'TROVE',
+                        'ILLUMINEERS_TROVE',
+                        'ELITE_TRAINER_BOX'
+                      )
+                      AND a.cdn_url ILIKE 'https://%'
+                      AND a.cdn_url NOT ILIKE '%.svg%'
+                      AND a.cdn_url NOT ILIKE '%/logo%'
+                      AND a.cdn_url NOT ILIKE '%/symbol%'
+                      AND a.cdn_url NOT ILIKE '%svgs.scryfall%'
+                      AND a.cdn_url NOT ILIKE '%.example%'
+                      {sealed_game_clause}
+                  ) x
+                  WHERE x.set_code IS NOT NULL AND x.set_code <> ''
+                  ORDER BY
+                    x.game_code,
+                    LOWER(x.set_code),
+                    x.kind_rank,
+                    x.sku_rank,
+                    x.case_rank,
+                    x.role_rank
                 )
                 SELECT
                   COALESCE(r.code, c.code) AS code,
