@@ -4,10 +4,13 @@ from __future__ import annotations
 
 from typing import Any
 
+import structlog
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.catalog.search_service import search_catalog_cards
+
+logger = structlog.get_logger(__name__)
 
 SLUG_TO_CODE: dict[str, str] = {
     "mtg": "MTG",
@@ -191,10 +194,104 @@ async def list_merged_catalog_sets(
         else:
             sealed_game_clause = "AND upper(p.game) = :g"
 
-    rows = (
-        await session.execute(
-            text(
-                f"""
+    try:
+        rows = await _execute_merged_sets_with_covers(
+            session,
+            params=params,
+            game_clause_registry=game_clause_registry,
+            game_clause_catalog=game_clause_catalog,
+            sealed_game_clause=sealed_game_clause,
+        )
+    except Exception as exc:
+        # Packshot CTE can fail (schema drift / PG timeout) — never block portal expansions.
+        logger.warning("catalog_sets_cover_query_failed", error=str(exc), game=code)
+        rows = await _execute_merged_sets_basic(
+            session,
+            params=params,
+            game_clause_registry=game_clause_registry,
+            game_clause_catalog=game_clause_catalog,
+        )
+
+    return [
+        {
+            "code": str(r["code"]),
+            "name": str(r["name"] or r["code"]),
+            "cardCount": int(r["card_count"] or 0),
+            "card_count": int(r["card_count"] or 0),
+            "release_date": str(r["release_date"]) if r.get("release_date") else None,
+            "icon_url": r.get("icon_url"),
+            "cover_url": r.get("cover_url"),
+            "game_code": r.get("game_code"),
+        }
+        for r in rows
+        if r.get("code")
+    ]
+
+
+async def _execute_merged_sets_basic(
+    session: AsyncSession,
+    *,
+    params: dict[str, Any],
+    game_clause_registry: str,
+    game_clause_catalog: str,
+) -> list[Any]:
+    result = await session.execute(
+        text(
+            f"""
+            WITH catalog_agg AS (
+              SELECT
+                cc.game_code,
+                cc.set_code AS code,
+                MAX(cc.set_name) AS name,
+                COUNT(*)::INTEGER AS card_count
+              FROM tcg_judge.card_catalog cc
+              WHERE cc.set_code IS NOT NULL AND cc.set_code <> ''
+              {game_clause_catalog}
+              GROUP BY cc.game_code, cc.set_code
+            ),
+            registry AS (
+              SELECT
+                cs.game_code,
+                cs.code,
+                cs.name,
+                cs.release_date,
+                cs.card_count AS registry_count,
+                cs.icon_url
+              FROM tcg_judge.card_sets cs
+              {game_clause_registry}
+            )
+            SELECT
+              COALESCE(r.code, c.code) AS code,
+              COALESCE(r.name, c.name, c.code) AS name,
+              COALESCE(c.card_count, r.registry_count, 0) AS card_count,
+              r.release_date,
+              r.icon_url,
+              NULL::text AS cover_url,
+              COALESCE(r.game_code, c.game_code) AS game_code
+            FROM registry r
+            FULL OUTER JOIN catalog_agg c
+              ON r.game_code = c.game_code
+             AND LOWER(r.code) = LOWER(c.code)
+            ORDER BY r.release_date DESC NULLS LAST, name ASC
+            LIMIT :limit
+            """
+        ),
+        params,
+    )
+    return list(result.mappings().all())
+
+
+async def _execute_merged_sets_with_covers(
+    session: AsyncSession,
+    *,
+    params: dict[str, Any],
+    game_clause_registry: str,
+    game_clause_catalog: str,
+    sealed_game_clause: str,
+) -> list[Any]:
+    result = await session.execute(
+        text(
+            f"""
                 WITH catalog_agg AS (
                   SELECT
                     cc.game_code,
@@ -381,25 +478,10 @@ async def list_merged_catalog_sets(
                 ORDER BY r.release_date DESC NULLS LAST, name ASC
                 LIMIT :limit
                 """
-            ),
-            params,
-        )
-    ).mappings().all()
-
-    return [
-        {
-            "code": str(r["code"]),
-            "name": str(r["name"] or r["code"]),
-            "cardCount": int(r["card_count"] or 0),
-            "card_count": int(r["card_count"] or 0),
-            "release_date": str(r["release_date"]) if r.get("release_date") else None,
-            "icon_url": r.get("icon_url"),
-            "cover_url": r.get("cover_url"),
-            "game_code": r.get("game_code"),
-        }
-        for r in rows
-        if r.get("code")
-    ]
+        ),
+        params,
+    )
+    return list(result.mappings().all())
 
 
 async def list_game_sets(session: AsyncSession, slug: str) -> list[dict[str, Any]]:

@@ -327,8 +327,11 @@ async def pairing_formats(session: DbSession) -> dict[str, Any]:
 async def runtime_events(
     session: DbSession,
     store_id: str | None = Query(default=None),
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
 ) -> dict[str, Any]:
+    """Lista pública de eventos (portal). Filtro por loja exige autenticação."""
     if store_id:
+        _require_user(x_judge_user_id)
         events = await EventService(session).list_for_store(store_id)
     else:
         events = await EventService(session).list_public()

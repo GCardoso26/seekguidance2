@@ -136,9 +136,8 @@ async def runtime_tenant_create(
     return runtime_real_tenant_engine_v1("tenants", action="create", tenant_id=tenant_id, name=name)
 
 
-@router.get("/runtime/events")
-async def runtime_events() -> dict[str, Any]:
-    return {"events": [], "integrity_status": "ok", "runtime_confidence": 0.94}
+# GET /runtime/events é o alias público do Tournament Platform (EventService.list_public).
+# Stub removido para não mascarar a rota real registrada depois em tournament_platform.
 
 
 @router.post("/runtime/events")

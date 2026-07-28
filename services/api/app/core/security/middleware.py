@@ -27,6 +27,9 @@ _PUBLIC_EXACT = frozenset(
         "/runtime/judge/webhooks/payments",
         "/runtime/warmup",
         "/v1/replay/health",
+        # Calendar público do portal (EventService.list_public — visibility=public).
+        # list_for_store(?store_id=) continua autenticado no handler.
+        "/runtime/events",
         "/auth/login",
         "/auth/refresh",
         "/auth/logout",
