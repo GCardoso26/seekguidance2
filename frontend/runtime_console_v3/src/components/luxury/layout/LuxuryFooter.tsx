@@ -42,7 +42,7 @@ export function LuxuryFooter() {
   return (
     <footer className="border-t border-white/5 bg-card">
       <div className="mx-auto max-w-7xl px-6 py-16 lg:px-8">
-        <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-5">
+        <div className="grid gap-10 md:grid-cols-2 md:gap-12 lg:grid-cols-[minmax(0,1.4fr)_repeat(4,minmax(0,1fr))]">
           <div className="lg:col-span-1">
             <Link href="/" className="flex items-center gap-3">
               <span className="flex h-9 w-9 items-center justify-center rounded-full border border-primary/30 bg-primary/10">
@@ -59,8 +59,8 @@ export function LuxuryFooter() {
           </div>
 
           {COLUMNS.map((col) => (
-            <div key={col.title}>
-              <h2 className="text-xs font-medium tracking-[0.2em] text-foreground uppercase">
+            <nav key={col.title} className="min-w-0" aria-label={col.title}>
+              <h2 className="text-overline truncate text-foreground">
                 {col.title}
               </h2>
               <ul className="mt-4 space-y-3">
@@ -87,7 +87,7 @@ export function LuxuryFooter() {
                   </li>
                 ))}
               </ul>
-            </div>
+            </nav>
           ))}
         </div>
 
