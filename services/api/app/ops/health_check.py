@@ -55,6 +55,45 @@ def payments_gate_status() -> str:
     return payments_status(get_settings())
 
 
+def collect_go_live_blockers(
+    *,
+    payments: str,
+    melhor_envio: dict[str, Any],
+    sentry: str,
+) -> list[dict[str, str]]:
+    """Checklist operacional explícito — não altera status healthy/degraded do Render."""
+    blockers: list[dict[str, str]] = []
+
+    if payments == "deferred":
+        blockers.append(
+            {
+                "code": "payments_deferred",
+                "fix": "PAYMENTS_ENABLED=true + PLATFORM_PIX_KEY",
+            }
+        )
+    elif payments == "misconfigured":
+        blockers.append(
+            {
+                "code": "payments_misconfigured",
+                "fix": "PLATFORM_PIX_KEY (PAYMENTS_ENABLED já true)",
+            }
+        )
+
+    me_status = str(melhor_envio.get("status") or "")
+    if me_status in {"disabled", "partial"}:
+        blockers.append(
+            {
+                "code": "melhor_envio_disabled" if me_status == "disabled" else "melhor_envio_partial",
+                "fix": "MELHOR_ENVIO_TOKEN + MELHOR_ENVIO_FROM_ADDRESS JSON",
+            }
+        )
+
+    if sentry == "disabled":
+        blockers.append({"code": "sentry_disabled", "fix": "SENTRY_DSN"})
+
+    return blockers
+
+
 async def build_health_payload() -> dict[str, Any]:
     from app.integrations.melhor_envio.validate import melhor_envio_config_snapshot
     from app.marketplace.freight_quote import shipping_v2_enabled
@@ -62,6 +101,10 @@ async def build_health_payload() -> dict[str, Any]:
     db_ok = await check_database()
     redis_status = await check_redis()
     core_ok = db_ok and redis_status in {"ok", "disabled"}
+
+    payments = payments_gate_status()
+    melhor_envio = melhor_envio_config_snapshot()
+    sentry = service_status("SENTRY_DSN")
 
     # Render injeta RENDER_GIT_COMMIT no deploy — útil para confirmar se o build novo está vivo.
     git_commit = (
@@ -83,13 +126,18 @@ async def build_health_payload() -> dict[str, Any]:
             "stripe": service_status("STRIPE_SECRET_KEY"),
             "openpix": service_status("OPENPIX_API_KEY"),
             "platform_pix": platform_pix_status(),
-            "payments": payments_gate_status(),
+            "payments": payments,
             "fcm": service_status("FIREBASE_PROJECT_ID"),
             "vapid": service_status("VAPID_PRIVATE_KEY"),
-            "sentry": service_status("SENTRY_DSN"),
-            "melhor_envio": melhor_envio_config_snapshot(),
+            "sentry": sentry,
+            "melhor_envio": melhor_envio,
         },
         "features": {
             "shipping_v2": shipping_v2_enabled(),
         },
+        "go_live_blockers": collect_go_live_blockers(
+            payments=payments,
+            melhor_envio=melhor_envio,
+            sentry=sentry,
+        ),
     }

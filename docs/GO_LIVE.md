@@ -22,8 +22,31 @@ No Go-Live, configure no Render:
 | `TCG_API_KEY` | Preços tcgapi.dev (valuation) |
 | `UPSTASH_REDIS_*` | Cache busca (opcional) |
 
-Verifique: `curl https://seekguidance.onrender.com/v1/health` → `payments: live`
+Verifique (API atual):
 
+```bash
+curl -s https://tcg-judge-api.onrender.com/v1/health | jq '.services.payments,.services.melhor_envio,.go_live_blockers'
+```
+
+Esperado pós-flip: `payments: "live"` e `go_live_blockers` sem `payments_deferred`.
+
+**Não** setar `PAYMENTS_ENABLED=true` no `render.yaml` sem secrets + certificação.
+
+## Melhor Envio (frete)
+
+Sem token, health reporta `melhor_envio.status=disabled` e entra em `go_live_blockers`.
+
+No Render, configure:
+
+| Variável | Descrição |
+|----------|-----------|
+| `MELHOR_ENVIO_TOKEN` | Token OAuth / API Melhor Envio |
+| `MELHOR_ENVIO_FROM_ADDRESS` | JSON com `address`, `city`, `state_abbr`, `postal_code` |
+| `MELHOR_ENVIO_SANDBOX` | `true` em homologação |
+| `MELHOR_ENVIO_WEBHOOK_SECRET` | Validação de webhooks (recomendado) |
+| `SHIPPING_V2_ENABLED` | Feature flag frete v2 |
+
+Esperado pós-config: `melhor_envio.status` = `configured` (ou `partial` se só faltar `from_address`).
 
 ## Deploy
 

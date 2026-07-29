@@ -10,6 +10,10 @@ import { createLogger } from "../../platform/logging/logger.js";
 const log = createLogger("product-catalog.asset-versions");
 type Q = Pool | PoolClient;
 
+function isPool(db: Q): db is Pool {
+  return typeof (db as Pool).connect === "function";
+}
+
 function mapRow(row: Record<string, unknown>): AssetVersionRecord {
   return {
     id: String(row.id),
@@ -35,58 +39,112 @@ function mapRow(row: Record<string, unknown>): AssetVersionRecord {
   };
 }
 
+function isUniqueViolation(err: unknown): boolean {
+  return Boolean(err && typeof err === "object" && (err as { code?: string }).code === "23505");
+}
+
 /**
  * Versioning ops: append (never delete), history, compare, rollback/restore markers.
- * Reprocess = append new version with pipelineVersion bump.
+ * Concurrent appends on the same asset_id are serialized via pg_advisory_xact_lock.
  */
 export class AssetVersioningService {
   constructor(private readonly db: Q) {}
 
+  private async withClient<T>(fn: (client: PoolClient) => Promise<T>): Promise<T> {
+    if (isPool(this.db)) {
+      const client = await this.db.connect();
+      try {
+        return await fn(client);
+      } finally {
+        client.release();
+      }
+    }
+    return fn(this.db);
+  }
+
   async append(input: AppendAssetVersionInput): Promise<AssetVersionRecord> {
-    const next = await this.db.query<{ n: string }>(
-      `SELECT coalesce(max(version_number), 0) + 1 AS n
-       FROM product_catalog.asset_version_history WHERE asset_id = $1`,
-      [input.assetId],
-    );
-    const versionNumber = Number(next.rows[0]?.n ?? 1);
-    await this.db.query(
-      `UPDATE product_catalog.asset_version_history SET is_current = false WHERE asset_id = $1`,
-      [input.assetId],
-    );
-    const id = getIdGenerator().generate();
-    const res = await this.db.query(
-      `
-      INSERT INTO product_catalog.asset_version_history (
-        id, asset_id, entity_type, entity_id, version_number, source, source_trust,
-        quality_score, sha256, width, height, format, size_bytes, cdn_url,
-        pipeline_version, derivatives, metadata, created_by, is_current
-      ) VALUES (
-        $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16::jsonb,$17::jsonb,$18,true
-      ) RETURNING *
-      `,
-      [
-        id,
-        input.assetId,
-        input.entityType,
-        input.entityId,
-        versionNumber,
-        input.source,
-        input.sourceTrust,
-        input.qualityScore,
-        input.sha256,
-        input.width ?? null,
-        input.height ?? null,
-        input.format ?? null,
-        input.sizeBytes ?? null,
-        input.cdnUrl ?? null,
-        input.pipelineVersion ?? "v2",
-        JSON.stringify(input.derivatives ?? {}),
-        JSON.stringify(input.metadata ?? {}),
-        input.createdBy ?? null,
-      ],
-    );
-    log.info({ assetId: input.assetId, versionNumber }, "asset_version_appended");
-    return mapRow(res.rows[0]);
+    const maxAttempts = 5;
+    let lastErr: unknown;
+
+    for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+      try {
+        return await this.withClient((client) => this.appendLocked(client, input));
+      } catch (err) {
+        lastErr = err;
+        if (!isUniqueViolation(err) || attempt === maxAttempts) throw err;
+        log.warn(
+          { assetId: input.assetId, attempt, err: String(err) },
+          "asset_version_append_retry",
+        );
+      }
+    }
+    throw lastErr instanceof Error ? lastErr : new Error(String(lastErr));
+  }
+
+  private async appendLocked(
+    client: PoolClient,
+    input: AppendAssetVersionInput,
+  ): Promise<AssetVersionRecord> {
+    await client.query("BEGIN");
+    try {
+      await client.query(`SELECT pg_advisory_xact_lock(hashtext($1::text))`, [input.assetId]);
+
+      const next = await client.query<{ n: string }>(
+        `SELECT coalesce(max(version_number), 0) + 1 AS n
+         FROM product_catalog.asset_version_history WHERE asset_id = $1`,
+        [input.assetId],
+      );
+      const versionNumber = Number(next.rows[0]?.n ?? 1);
+
+      await client.query(
+        `UPDATE product_catalog.asset_version_history SET is_current = false WHERE asset_id = $1`,
+        [input.assetId],
+      );
+
+      const id = getIdGenerator().generate();
+      const res = await client.query(
+        `
+        INSERT INTO product_catalog.asset_version_history (
+          id, asset_id, entity_type, entity_id, version_number, source, source_trust,
+          quality_score, sha256, width, height, format, size_bytes, cdn_url,
+          pipeline_version, derivatives, metadata, created_by, is_current
+        ) VALUES (
+          $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16::jsonb,$17::jsonb,$18,true
+        ) RETURNING *
+        `,
+        [
+          id,
+          input.assetId,
+          input.entityType,
+          input.entityId,
+          versionNumber,
+          input.source,
+          input.sourceTrust,
+          input.qualityScore,
+          input.sha256,
+          input.width ?? null,
+          input.height ?? null,
+          input.format ?? null,
+          input.sizeBytes ?? null,
+          input.cdnUrl ?? null,
+          input.pipelineVersion ?? "v2",
+          JSON.stringify(input.derivatives ?? {}),
+          JSON.stringify(input.metadata ?? {}),
+          input.createdBy ?? null,
+        ],
+      );
+
+      await client.query("COMMIT");
+      log.info({ assetId: input.assetId, versionNumber }, "asset_version_appended");
+      return mapRow(res.rows[0] as Record<string, unknown>);
+    } catch (err) {
+      try {
+        await client.query("ROLLBACK");
+      } catch {
+        /* ignore */
+      }
+      throw err;
+    }
   }
 
   async history(assetId: string): Promise<AssetVersionRecord[]> {
@@ -127,11 +185,9 @@ export class AssetVersioningService {
     return { fromVersion, toVersion, changed, from, to };
   }
 
-  /** Mark historical version as current (rollback/restore) — never deletes history. */
   async restore(assetId: string, versionNumber: number): Promise<AssetVersionRecord> {
     const target = await this.getVersion(assetId, versionNumber);
     if (!target) throw new Error("asset_version_not_found");
-    // Append a restore copy as new version to preserve audit trail
     return this.append({
       assetId,
       entityType: target.entityType,
