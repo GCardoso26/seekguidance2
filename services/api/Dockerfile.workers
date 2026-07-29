@@ -8,6 +8,7 @@ ENV REDISMS_DISABLE_POSTINSTALL=1
 RUN npm install --ignore-scripts
 COPY services/api/tsconfig.json services/api/vitest.config.ts ./
 COPY services/api/src ./src
+COPY services/api/scripts/copy-product-catalog-assets.mjs ./scripts/copy-product-catalog-assets.mjs
 # copy-product-catalog-assets.mjs runs inside `npm run build` (tsc skips JSON read via fs).
 # Do not use bash-only `read -d ''` here — node:*-slim /bin/sh is dash and silently skips copies.
 RUN npm run build \
