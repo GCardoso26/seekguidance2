@@ -36,10 +36,10 @@ describe("resolveSetVisualUrl", () => {
     expect(
       resolveSetVisualUrl({
         coverUrl: null,
-        setLogoUrl: "/logos/sets/lorcana/lor11.svg",
+        setLogoUrl: "/logos/sets/lorcana/lor11.avif",
         iconUrl: null,
         fallback: "/logos/lorcana.webp",
       }),
-    ).toBe("/logos/sets/lorcana/lor11.svg");
+    ).toBe("/logos/sets/lorcana/lor11.avif");
   });
 });

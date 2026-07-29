@@ -9,7 +9,6 @@ import { gameMarketplaceSetPath } from "@/lib/game-routes";
 import {
   featuredSetCodesForGame,
   gameHasSetLogos,
-  setLogoIsMonochromeWordmark,
   setLogoPublicPath,
 } from "@/lib/portal-set-logos";
 import { cn } from "@/lib/utils";
@@ -32,7 +31,7 @@ function SectionHeader({ title }: { title: string }) {
 }
 
 /**
- * Carrossel dos 3 sets mais recentes com logos locais (/logos/sets/{game}/).
+ * Carrossel dos 3 sets mais recentes com key art local (/logos/sets/{game}/*.avif).
  * Clique → marketplace filtrado por coleção (`/loja/busca?game=&set=`).
  */
 export function PortalLatestSetsCarousel() {
@@ -108,27 +107,16 @@ export function PortalLatestSetsCarousel() {
                       "hover:border-[color:var(--game-accent)]",
                     )}
                   >
-                    <div className="relative mb-4 flex h-36 w-full items-center justify-center">
-                      <div
-                        className="absolute inset-4 rounded-full opacity-40 blur-2xl"
-                        style={{
-                          background: `radial-gradient(circle, var(--game-hero-glow, var(--game-accent)) 0%, transparent 70%)`,
-                        }}
-                        aria-hidden
-                      />
+                    <div className="relative mb-4 aspect-[400/500] w-full overflow-hidden rounded-[calc(var(--game-card-radius)-4px)] bg-[color:var(--game-bg)]">
                       {logo ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
                           src={logo}
                           alt=""
-                          className={cn(
-                            "relative z-[1] max-h-32 w-auto max-w-full object-contain drop-shadow-lg transition group-hover:scale-[1.03]",
-                            setLogoIsMonochromeWordmark(gameId, set.code) &&
-                              "brightness-0 invert opacity-95",
-                          )}
+                          className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]"
                         />
                       ) : (
-                        <span className="text-3xl font-bold text-[color:var(--game-text-muted)]">
+                        <span className="flex h-full items-center justify-center text-3xl font-bold text-[color:var(--game-text-muted)]">
                           {set.code}
                         </span>
                       )}

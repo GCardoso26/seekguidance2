@@ -7,7 +7,7 @@
 export function resolveSetVisualUrl(input: {
   coverUrl?: string | null;
   iconUrl?: string | null;
-  /** Official set logo under /public/logos/sets/… */
+  /** Official set key art under /public/logos/sets/… */
   setLogoUrl?: string | null;
   fallback: string;
 }): string {

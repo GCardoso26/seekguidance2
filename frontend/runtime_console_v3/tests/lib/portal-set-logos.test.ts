@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
   LORCANA_FEATURED_SET_CODES,
-  setLogoIsMonochromeWordmark,
   setLogoPublicPath,
   gameHasSetLogos,
 } from "@/lib/portal-set-logos";
@@ -9,19 +8,13 @@ import { pickMasterCatalogImage } from "@/lib/portal-category-images";
 import type { MasterCatalogSearchItem } from "@/hooks/useMasterProductCatalog";
 
 describe("portal-set-logos", () => {
-  it("maps Lorcana set codes to public logo paths", () => {
-    expect(setLogoPublicPath("LORCANA", "WIN")).toBe("/logos/sets/lorcana/lor11.svg");
-    expect(setLogoPublicPath("LORCANA", "WUN")).toBe("/logos/sets/lorcana/lor12.svg");
-    expect(setLogoPublicPath("LORCANA", "ATV")).toBe("/logos/sets/lorcana/lor13.svg");
-    expect(setLogoPublicPath("LORCANA", "AOV")).toBe("/logos/sets/lorcana/lor13.svg");
+  it("maps Lorcana set codes to public AVIF key-art paths", () => {
+    expect(setLogoPublicPath("LORCANA", "WIN")).toBe("/logos/sets/lorcana/lor11.avif");
+    expect(setLogoPublicPath("LORCANA", "WUN")).toBe("/logos/sets/lorcana/lor12.avif");
+    expect(setLogoPublicPath("LORCANA", "ATV")).toBe("/logos/sets/lorcana/lor13.avif");
+    expect(setLogoPublicPath("LORCANA", "AOV")).toBe("/logos/sets/lorcana/lor13.avif");
+    expect(setLogoPublicPath("LORCANA", "TFC")).toBe("/logos/sets/lorcana/lor1.avif");
     expect(setLogoPublicPath("LORCANA", "ROF")).toBeNull();
-  });
-
-  it("flags black wordmark chapters for dark-theme invert", () => {
-    expect(setLogoIsMonochromeWordmark("LORCANA", "WUN")).toBe(true);
-    expect(setLogoIsMonochromeWordmark("LORCANA", "FAB")).toBe(true);
-    expect(setLogoIsMonochromeWordmark("LORCANA", "ROJ")).toBe(false);
-    expect(setLogoIsMonochromeWordmark("LORCANA", "AZS")).toBe(false);
   });
 
   it("returns null for games without set logo assets", () => {

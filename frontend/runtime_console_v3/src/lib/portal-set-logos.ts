@@ -1,11 +1,11 @@
 /**
- * Set logo assets under /public/logos/sets/{gameSlug}/.
- * Lorcana: lor1…lor13 (First Chapter → Attack of the Vine).
+ * Set visual assets under /public/logos/sets/{gameSlug}/.
+ * Lorcana: lor1…lor13 key art AVIF (First Chapter → Attack of the Vine).
  * Other games: add folders when assets exist (same pattern).
  */
 import type { GameId } from "@/types/card";
 
-/** Catalog set code → logo file index (chapter number). */
+/** Catalog set code → key-art file index (chapter number). */
 export const LORCANA_SET_LOGO_INDEX: Record<string, number> = {
   TFC: 1,
   // ROF (lor2) asset missing in source pack — omit until provided
@@ -36,23 +36,15 @@ const GAME_SLUG_FOR_LOGOS: Partial<Record<GameId, string>> = {
   LORCANA: "lorcana",
 };
 
+const SET_KEY_ART_EXT = "avif";
+
 export function setLogoPublicPath(gameId: GameId, setCode: string): string | null {
   const slug = GAME_SLUG_FOR_LOGOS[gameId];
   const indexMap = GAME_SET_LOGO_INDEX[gameId];
   if (!slug || !indexMap) return null;
   const idx = indexMap[setCode.trim().toUpperCase()];
   if (!idx) return null;
-  return `/logos/sets/${slug}/lor${idx}.svg`;
-}
-
-/**
- * Chapters 9–13 ship as black vector wordmarks (fill #000).
- * On dark portal cards they need invert / light treatment.
- */
-export function setLogoIsMonochromeWordmark(gameId: GameId, setCode: string): boolean {
-  if (gameId !== "LORCANA") return false;
-  const idx = LORCANA_SET_LOGO_INDEX[setCode.trim().toUpperCase()];
-  return typeof idx === "number" && idx >= 9;
+  return `/logos/sets/${slug}/lor${idx}.${SET_KEY_ART_EXT}`;
 }
 
 export function gameHasSetLogos(gameId: GameId): boolean {

@@ -211,14 +211,6 @@
   padding: 1rem;
 }
 
-/* Black wordmark SVGs (Lorcana 9–13) on dark cards → readable light marks */
-.game-portal .large-visual-card__art--mono-logo {
-  object-fit: contain;
-  padding: 1.25rem;
-  filter: brightness(0) invert(1);
-  opacity: 0.94;
-}
-
 /* Portal set carousel */
 .game-portal .portal-carousel-arrow {
   align-items: center;
