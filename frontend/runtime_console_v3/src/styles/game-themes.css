@@ -132,6 +132,25 @@
     );
 }
 
+/* Banner carousel — light left scrim so dark copy stays readable */
+.game-portal .game-hero__overlay[data-overlay="banner"] {
+  background: linear-gradient(
+    105deg,
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(255, 255, 255, 0.68) 36%,
+    rgba(15, 23, 42, 0.15) 70%,
+    rgba(15, 23, 42, 0.32) 100%
+  );
+}
+
+.game-portal .game-hero__carousel-slide {
+  object-position: center 30%;
+}
+
+.game-portal .game-hero[data-hero-carousel="true"] .game-hero__fx {
+  opacity: 0.18;
+}
+
 .game-portal .game-hero__overlay[data-overlay="parchment"] {
   background:
     linear-gradient(135deg, rgba(28, 16, 8, 0.85), rgba(12, 8, 4, 0.55)),

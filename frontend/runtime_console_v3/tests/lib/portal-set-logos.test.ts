@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   LORCANA_FEATURED_SET_CODES,
+  LORCANA_HERO_BANNER_PATHS,
+  portalHeroBannerPaths,
   setLogoPublicPath,
   gameHasSetLogos,
 } from "@/lib/portal-set-logos";
@@ -15,6 +17,11 @@ describe("portal-set-logos", () => {
     expect(setLogoPublicPath("LORCANA", "AOV")).toBe("/logos/sets/lorcana/lor13.avif");
     expect(setLogoPublicPath("LORCANA", "TFC")).toBe("/logos/sets/lorcana/lor1.avif");
     expect(setLogoPublicPath("LORCANA", "ROF")).toBeNull();
+  });
+
+  it("exposes Lorcana portal hero banner paths", () => {
+    expect(portalHeroBannerPaths("LORCANA")).toEqual([...LORCANA_HERO_BANNER_PATHS]);
+    expect(portalHeroBannerPaths("POKEMON")).toEqual([]);
   });
 
   it("returns null for games without set logo assets", () => {

@@ -31,7 +31,7 @@ import {
 } from "@/lib/game-routes";
 import { setCanonicalSlug } from "@/lib/set-slug";
 import { resolveSetVisualUrl } from "@/lib/set-visual-url";
-import { setLogoPublicPath } from "@/lib/portal-set-logos";
+import { portalHeroBannerPaths, setLogoPublicPath } from "@/lib/portal-set-logos";
 import { cn } from "@/lib/utils";
 
 type SetRow = {
@@ -136,14 +136,16 @@ export function PortalSections({ cardCount = 0, healthLoading }: Props) {
   const latestHref = latest
     ? gameSetPath(slug, setCanonicalSlug(latest))
     : gameExpansionsPath(slug);
-  const heroBackground = latest
-    ? resolveSetVisualUrl({
-        coverUrl: latest.cover_url,
-        setLogoUrl: setLogoPublicPath(gameId, latest.code),
-        iconUrl: null,
-        fallback: "",
-      }) || null
-    : null;
+  const heroBanners = portalHeroBannerPaths(gameId);
+  const heroBackground =
+    heroBanners.length === 0 && latest
+      ? resolveSetVisualUrl({
+          coverUrl: latest.cover_url,
+          setLogoUrl: setLogoPublicPath(gameId, latest.code),
+          iconUrl: null,
+          fallback: "",
+        }) || null
+      : null;
 
   function categoryHref(catId: ProductCategoryId): string {
     if (catId === "single") return singlesSearchHref(slug);
@@ -158,6 +160,7 @@ export function PortalSections({ cardCount = 0, healthLoading }: Props) {
         latestSetHref={latestHref}
         latestSetLabel={latest ? latest.name : undefined}
         backgroundImage={heroBackground}
+        backgroundImages={heroBanners.length > 0 ? heroBanners : null}
       />
 
       <PortalLatestSetsCarousel />

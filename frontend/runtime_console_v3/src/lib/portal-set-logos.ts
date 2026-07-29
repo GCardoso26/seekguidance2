@@ -28,6 +28,18 @@ export const LORCANA_SET_LOGO_INDEX: Record<string, number> = {
  */
 export const LORCANA_FEATURED_SET_CODES = ["WIN", "WUN", "AOV"] as const;
 
+/** Full-bleed portal hero banners (WUN / AOV / next chapter art). */
+export const LORCANA_HERO_BANNER_PATHS = [
+  "/logos/sets/lorcana/lor12_banner.avif",
+  "/logos/sets/lorcana/lor13_banner.avif",
+  "/logos/sets/lorcana/lor14_banner.avif",
+] as const;
+
+export function portalHeroBannerPaths(gameId: GameId): readonly string[] {
+  if (gameId === "LORCANA") return LORCANA_HERO_BANNER_PATHS;
+  return [];
+}
+
 const GAME_SET_LOGO_INDEX: Partial<Record<GameId, Record<string, number>>> = {
   LORCANA: LORCANA_SET_LOGO_INDEX,
 };
