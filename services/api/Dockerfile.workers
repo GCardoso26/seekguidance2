@@ -8,18 +8,12 @@ ENV REDISMS_DISABLE_POSTINSTALL=1
 RUN npm install --ignore-scripts
 COPY services/api/tsconfig.json services/api/vitest.config.ts ./
 COPY services/api/src ./src
+# copy-product-catalog-assets.mjs runs inside `npm run build` (tsc skips JSON read via fs).
+# Do not use bash-only `read -d ''` here — node:*-slim /bin/sh is dash and silently skips copies.
 RUN npm run build \
   && npm prune --omit=dev \
-  && mkdir -p dist/product-catalog/manufacturers \
-  && find src/product-catalog/manufacturers -name 'manifest.json' -print0 \
-    | while IFS= read -r -d '' f; do \
-        rel="${f#src/product-catalog/manufacturers/}"; \
-        dest="dist/product-catalog/manufacturers/${rel}"; \
-        mkdir -p "$(dirname "$dest")"; \
-        cp "$f" "$dest"; \
-      done \
-  && mkdir -p dist/product-catalog/sources \
-  && cp -R src/product-catalog/sources/. dist/product-catalog/sources/
+  && test -f dist/product-catalog/manufacturers/central/manifest.json \
+  && test -d dist/product-catalog/sources
 
 FROM node:20-slim
 WORKDIR /app

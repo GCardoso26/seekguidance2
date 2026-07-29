@@ -6,7 +6,7 @@
   "type": "module",
   "main": "dist/workers/main.js",
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json && node scripts/copy-product-catalog-assets.mjs",
     "dev": "tsx watch src/workers/main.ts",
     "worker": "node dist/workers/main.js",
     "worker:outbox": "node dist/workers/outbox-publisher.js",
