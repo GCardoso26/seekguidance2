@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-import os
 import uuid
 from typing import Any
 
@@ -113,9 +112,13 @@ async def ingest_asset(
     sha256 = hashlib.sha256(raw).hexdigest()
     mime = _sniff_mime(raw)
 
-    public_base = (os.environ.get("PRODUCT_CATALOG_R2_PUBLIC_BASE") or "").rstrip("/")
+    # Este caminho (upload de lojista) nunca envia bytes para o object storage, então não
+    # pode publicar URL de R2: o objeto não existe e `cdn_url` ainda é espelhado em
+    # store_products.images, o que colocaria imagem quebrada na vitrine. Quem sobe bytes é
+    # o AssetMediaPipeline em TypeScript (ADR-017), com layout de chave diferente
+    # (`{sha}/original.ext`, não `{sha}.webp`).
     storage_key = f"assets/{sha256[:2]}/{sha256}"
-    cdn_url = f"{public_base}/{storage_key}.webp" if public_base else source_url
+    cdn_url = source_url
     derivatives = _derivative_map(cdn_url)
     if alt or media_type or provider_id:
         derivatives["_meta"] = {
