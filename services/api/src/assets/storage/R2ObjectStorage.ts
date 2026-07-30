@@ -76,6 +76,22 @@ export function createObjectStorageFromEnv(
   const bucket = env.R2_BUCKET?.trim();
 
   if (!accountId || !accessKeyId || !secretAccessKey || !bucket) {
+    const missing = Object.entries({
+      R2_ACCOUNT_ID: accountId,
+      R2_ACCESS_KEY_ID: accessKeyId,
+      R2_SECRET_ACCESS_KEY: secretAccessKey,
+      R2_BUCKET: bucket,
+    })
+      .filter(([, value]) => !value)
+      .map(([name]) => name);
+
+    // Sem nenhuma pista de R2 é o default legítimo de dev/teste e não merece ruído.
+    // Config parcial, ou base pública sem credencial, é engano de operador: o pipeline
+    // seguiria em passthrough calado e a vitrine continuaria hotlinkando a origem.
+    if (missing.length < 4 || env.PRODUCT_CATALOG_R2_PUBLIC_BASE?.trim()) {
+      log.warn({ missing }, "object_storage_r2_disabled_incomplete_config");
+    }
+
     return new NoopObjectStorage();
   }
 
