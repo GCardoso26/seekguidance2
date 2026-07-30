@@ -251,6 +251,67 @@ Pokémon/YGO/… sem backfill. Defaults em `resolveTcgCsvSealedCaps`:
 Alias legado: `TCGCSV_SEALED_MAX_GROUPS` ainda alimenta `MAX_GROUPS_PER_GAME` se a env per-game não
 estiver setada. Groups são ordenados por `publishedOn` DESC (sets recentes primeiro).
 
+### 5.4.1 Universo de selados (medido) e dimensionamento do teto global
+
+Levantamento reprodutível em 2026-07-30 (`scripts/tcgcsv-sealed-universe-survey.ts`, sem caps e sem
+write): **1.720 groups**, **237.762 produtos**, dos quais **14.288 são selados** pelo filtro
+`isSealedTcgCsvProduct` — **100% com `imageUrl`**, 0 grupos com falha HTTP.
+
+| Jogo | cat | groups | selados | selados 2024+ |
+|------|-----|--------|---------|---------------|
+| MTG | 1 | 453 | 5.869 | 2.228 |
+| POKEMON | 3 | 217 | 4.091 | 1.435 |
+| YUGIOH | 2 | 654 | 2.489 | 941 |
+| ONE_PIECE | 68 | 84 | 443 | 162 |
+| FAB | 62 | 103 | 336 | 185 |
+| LORCANA | 71 | 20 | 283 | 228 |
+| DIGIMON | 63 | 100 | 277 | 100 |
+| SORCERY | 77 | 7 | 196 | 33 |
+| GUNDAM | 86 | 22 | 138 | 138 |
+| DBFW | 80 | 51 | 120 | 120 |
+| RIFTBOUND | 89 | 9 | 46 | 46 |
+| **Total** | — | **1.720** | **14.288** | **5.616** |
+
+**Pisos para cobertura de 100%:** `MAX_GROUPS_PER_GAME ≥ 654` (YGO), `MAX_PRODUCTS_PER_GAME ≥ 5.869`
+(MTG), `MAX_PRODUCTS ≥ 14.288`. O default full atual de `MAX_PRODUCTS` (`6000`) fica **abaixo** do
+universo: subir só os caps per-game trunca a corrida silenciosamente nos últimos jogos do mapa.
+
+#### Custo unitário medido (corrida de 2026-07-30, caps 25/50)
+
+| Métrica | Valor medido | Origem |
+|---------|--------------|--------|
+| Tempo por produto persistido | **4,95 s** | 494 upserts em 2.447 s (download + SHA-256 + versionamento) |
+| Taxa de imagem OK | **86%** | 425 `asset_pipeline_v2_ok` / 494; 69 × `asset_download_403` no CDN |
+| Bytes por imagem | **104,7 KB** (máx. 227 KB) | `AVG(size_bytes)` sobre 802 assets `tcgcsv-sealed` |
+| Linhas Postgres por produto | **~6,5 KB** | `products` 2.075 B + `variants` 776 B + 2× `provider_mappings` 489 B + `assets` 2.404 B × 0,86 + `asset_links` 405 B + `product_games` 162 B |
+
+Sem `PRODUCT_CATALOG_R2_PUBLIC_BASE` os bytes da imagem **não** são gravados: só metadados vão ao
+Postgres e `cdn_url` continua apontando para o TCGplayer. O custo de objeto abaixo só se materializa
+quando o R2 estiver configurado.
+
+#### Previsão por cenário de cap
+
+| Cenário | GROUPS/jogo | PRODUCTS/jogo | MAX_PRODUCTS | Cobertura | Tempo | Postgres | R2 |
+|---------|-------------|---------------|--------------|-----------|-------|----------|-----|
+| **A — default full atual** | 80 | 500 | 6.000 | 3.115 (22%) | ~4,3 h | ~20 MB | ~280 MB |
+| **B — catálogo vivo (2024+)** | 250 | 2.500 | 7.000 | ~5.600 (39%) | ~7,7 h | ~37 MB | ~505 MB |
+| **C — cobertura total** | 700 | 6.000 | 16.000 | 14.288 (100%) | **~19,6 h** | ~93 MB | ~1,29 GB |
+
+Cenário B aproxima "só o que ainda circula" pela ordenação `publishedOn` DESC — não existe filtro por
+ano no provider; o cap de groups é o proxy de recência.
+
+#### Recomendação (Platform Guardian)
+
+Cenário **C não entra sem evidência de demanda**: 14 mil SKUs selados é capacidade para liquidez
+imaginada, e o gargalo de Beta é oferta de vendedor, não tamanho de catálogo. Manter **A** como default
+de cron e usar **B** como backfill pontual quando houver vendedor pedindo o SKU. Antes de qualquer
+corrida longa (>4 h), resolver dois bloqueios observados:
+
+1. `uq_product_variant_fingerprint` duplicado é tratado como **erro hard** → a corrida sai com exit 1
+   mesmo tendo persistido tudo o que dava.
+2. ~14% dos `_in_1000x1000.jpg` respondem 403; sem fallback para `_400w`/`_200w` esses produtos entram
+   sem imagem (o script de banners do portal já faz esse fallback e pode servir de referência).
+
 ### 5.5 Rodar a sincronização
 
 ```bash
