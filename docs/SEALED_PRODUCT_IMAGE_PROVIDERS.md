@@ -298,8 +298,8 @@ esconderia lançamento novo. Verificado com `scripts/tcgcsv-sealed-dry-count.ts`
 | Tempo por produto persistido | **4,95 s** | 494 upserts em 2.447 s, serial, sem resize/upload |
 | Taxa de imagem OK | **86%** | 425 `asset_pipeline_v2_ok` / 494; 69 × `asset_download_403` |
 | Bytes por imagem original | **104,7 KB** (máx. 227 KB) | `AVG(size_bytes)` sobre 802 assets `tcgcsv-sealed` |
-| Objetos por asset com R2 | **9** | original + 4 WebP + 4 AVIF (`PRODUCT_IMAGE_SIZES`) |
-| Bytes por asset com R2 | **~600 KB** | original + derivadas |
+| Objetos por asset com R2 | **4,75** (teto 9) | medido em 8 imagens reais do CDN; sem upscale, fonte de 716×1000 só gera as larguras 240 e 420 |
+| Bytes por asset com R2 | **196 KB** | original + derivadas, mesma amostra |
 | Linhas Postgres por produto | **~6,5 KB** | `products` + `variants` + 2× `provider_mappings` + `assets` × 0,86 + `asset_links` + `product_games` |
 
 Sem `PRODUCT_CATALOG_R2_PUBLIC_BASE` os bytes **não** são gravados: só metadados vão ao Postgres e
@@ -310,9 +310,15 @@ configurado.
 
 | Cenário | GROUPS/jogo | PRODUCTS/jogo | MAX_PRODUCTS | MIN_YEAR | Cobertura | Tempo (conc. 4) | Postgres | R2 |
 |---------|-------------|---------------|--------------|----------|-----------|-----------------|----------|-----|
-| **A — default full atual** | 80 | 500 | 6.000 | — | ~3.100 (52%) | ~1,5 h | ~20 MB | ~1,8 GB |
-| **B — catálogo vivo (2024+)** | 250 | 2.500 | 7.000 | 2024 | **2.400 (100% do recorte)** | ~1,2 h | ~16 MB | ~1,4 GB |
-| **C — cobertura total** | 700 | 3.000 | 8.000 | — | 5.952 (100%) | ~2,9 h | ~39 MB | ~3,5 GB |
+| **A — default full atual** | 80 | 500 | 6.000 | — | ~3.100 (52%) | ~1,5 h | ~20 MB | ~0,58 GB |
+| **B — catálogo vivo (2024+)** | 250 | 2.500 | 7.000 | 2024 | **2.400 (100% do recorte)** | ~1,2 h | ~16 MB | ~0,45 GB |
+| **C — cobertura total** | 700 | 3.000 | 8.000 | — | 5.952 (100%) | ~2,9 h | ~39 MB | ~1,11 GB |
+
+Somando os 7.302 assets que já existem na plataforma (1,37 GB), o pior caso fica em **~2,5 GB** —
+dentro dos 10 GB gratuitos do R2, com margem de 4×. O plano gratuito só apertaria se as fontes
+passassem a entregar imagem acima de 1200 px, quando as 9 derivadas são geradas e o custo por asset
+sobe para perto de 600 KB (aí 10 GB comportam ~17 mil assets). Escritas do backfill completo: ~35 mil
+operações Class A contra 1 milhão/mês grátis.
 
 Tempo assume `PRODUCT_CATALOG_SYNC_CONCURRENCY=4` e ~7 s por item com resize e upload (4,95 s medido
 sem upload + margem). Serial, multiplique por 4.

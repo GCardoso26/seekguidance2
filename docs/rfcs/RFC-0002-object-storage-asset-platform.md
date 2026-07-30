@@ -62,7 +62,7 @@ Nenhuma fronteira pública muda. `media.assets.cdn_url` e `derivatives` já são
 |-------|-----------|
 | Ligar a env antes do backfill sobrescreve `cdn_url` bom por URL vazia (`COALESCE` pega o EXCLUDED não-nulo) | Ligar `PRODUCT_CATALOG_R2_PUBLIC_BASE` só após o reprocessamento dos assets existentes concluir |
 | `sharp` é binário nativo e quebra imagem Docker | Validar build dos workers antes do merge; sem `sharp` disponível o pipeline degrada para original sem derivadas |
-| Custo de armazenamento cresce ~6× por asset | ~600 KB por asset; ~2,4 GB no recorte 2024+ e ~6 GB no catálogo completo. R2 não cobra egress |
+| Custo de armazenamento cresce por asset | Medido em 196 KB por asset (4,75 objetos; sem upscale a fonte de 716×1000 só rende as larguras 240 e 420): 0,45 GB no recorte 2024+, 1,11 GB no catálogo completo e ~2,5 GB somando os assets que já existem. Cabe nos 10 GB gratuitos com margem de 4×; R2 não cobra egress |
 | Credencial vazada dá escrita no bucket | Token R2 restrito a um bucket, sem permissão de delete; segredo só em Render |
 
 **Rollback:** remover `PRODUCT_CATALOG_R2_PUBLIC_BASE`. O pipeline volta a gravar a URL de origem e o `NoopObjectStorage` assume. Os objetos já enviados ficam órfãos no bucket, sem impacto em runtime.
