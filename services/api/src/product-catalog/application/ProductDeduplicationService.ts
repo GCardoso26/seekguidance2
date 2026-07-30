@@ -56,8 +56,19 @@ export class ProductDeduplicationService {
       byEan: Map<string, string>;
       byFingerprint: Map<string, string>;
       byProductAndName: Map<string, string>;
+      productIdByVariant?: Map<string, string>;
     },
   ): ResolvedProductIdentity {
+    /**
+     * SKU e EAN são únicos globalmente, então valem como identidade mesmo cruzando
+     * produto. Fingerprint não: reaproveitar variante de outro produto foi o caminho
+     * que deixou produtos sem nenhuma variante.
+     */
+    const belongsToProduct = (variantId: string): boolean => {
+      const owner = lookups.productIdByVariant?.get(variantId);
+      return owner === undefined || owner === productId;
+    };
+
     const sku = variant.sku?.trim();
     if (sku) {
       const id = lookups.bySku.get(sku);
@@ -71,7 +82,7 @@ export class ProductDeduplicationService {
     const fp = variant.fingerprint?.trim();
     if (fp) {
       const id = lookups.byFingerprint.get(fp);
-      if (id) return { strategy: "fingerprint", existingVariantId: id };
+      if (id && belongsToProduct(id)) return { strategy: "fingerprint", existingVariantId: id };
     }
     const key = `${productId}::${normalizeProductTitle(variant.variantName)}`;
     const byName = lookups.byProductAndName.get(key);

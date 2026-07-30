@@ -18,6 +18,10 @@ import { mediaTypeForCategory } from "../application/mediaTypeForCategory.js";
 import { notifySyncFailure } from "../application/SyncFailureNotifier.js";
 import { createAssetVersioningService } from "../application/AssetVersioningService.js";
 import { applyOfficialKnowledgeFromImport } from "./applyOfficialKnowledgeFromImport.js";
+import {
+  partitionProductCatalogSyncErrors,
+  productCatalogSyncJobOk,
+} from "./syncErrorPolicy.js";
 import type { ImportedProductDTO } from "../domain/models.js";
 import { PostgresProductCatalogRepository } from "../persistence/PostgresProductCatalogRepository.js";
 import { productCatalogProviderRegistry } from "../providers/registry.js";
@@ -28,6 +32,36 @@ import type {
 } from "../providers/ProductCatalogProvider.js";
 
 const log = createLogger("product-catalog.sync");
+
+/**
+ * Serial por padrão: é o comportamento que as corridas horárias já validaram.
+ * Com resize + upload para R2 (ADR-017) o custo por item sobe muito, então o backfill
+ * grande liga `PRODUCT_CATALOG_SYNC_CONCURRENCY=4` — exige `PG_POOL_MAX` >= concorrência.
+ */
+function resolveSyncConcurrency(): number {
+  const raw = Number(process.env.PRODUCT_CATALOG_SYNC_CONCURRENCY ?? "1");
+  if (!Number.isFinite(raw) || raw < 1) return 1;
+  return Math.min(Math.trunc(raw), 8);
+}
+
+async function forEachLimit<T>(
+  items: readonly T[],
+  limit: number,
+  fn: (item: T) => Promise<void>,
+): Promise<void> {
+  if (limit <= 1) {
+    for (const item of items) await fn(item);
+    return;
+  }
+  let cursor = 0;
+  await Promise.all(
+    Array.from({ length: Math.min(limit, items.length) }, async () => {
+      while (cursor < items.length) {
+        await fn(items[cursor++]);
+      }
+    }),
+  );
+}
 
 export class ProductCatalogSyncService {
   constructor(
@@ -70,20 +104,20 @@ export class ProductCatalogSyncService {
         const providerSeen = products.count;
         let providerUpserted = 0;
         let providerDup = 0;
-        for (const dto of products.items ?? []) {
+        await forEachLimit(products.items ?? [], resolveSyncConcurrency(), async (dto) => {
           const n = await this.persistOne(provider, dto, lookups, ctx, providerErrors);
           if (n === 0 && !ctx.dryRun) {
             providerDup++;
           }
           upserted += n;
           providerUpserted += n;
-        }
-        // Image/knowledge soft warnings must not fail the run (BUG-V6-002).
-        const hardErrors = providerErrors.filter(
-          (e) => !e.startsWith("image:") && !e.startsWith("knowledge:"),
-        );
-        const softOnly = hardErrors.length === 0 && providerErrors.length > 0;
-        const finalStatus = hardErrors.length > 0 ? "failed" : "completed";
+        });
+        // Soft: image:/knowledge: (BUG-V6-002) + upstream HTTP 429/5xx for job exit.
+        // Upstream flakes still fail the *provider* run for scheduler visibility.
+        const { hard: hardErrors, transient, imageKnowledge, variantConflicts } =
+          partitionProductCatalogSyncErrors(providerErrors);
+        const finalStatus =
+          hardErrors.length > 0 || transient.length > 0 ? "failed" : "completed";
         await this.repo.finishSyncRun(runId, finalStatus, {
           itemsSeen: providerSeen,
           itemsUpserted: providerUpserted,
@@ -95,13 +129,20 @@ export class ProductCatalogSyncService {
           provider.providerId,
           provider.category,
           finalStatus,
-          hardErrors[0] ?? (softOnly ? `soft_warnings:${providerErrors.length}` : undefined),
+          hardErrors[0] ??
+            transient[0] ??
+            (imageKnowledge.length + variantConflicts.length
+              ? `soft_warnings:${imageKnowledge.length + variantConflicts.length}`
+              : undefined),
         );
         errors.push(...providerErrors);
-        if (hardErrors.length === 0) {
+        if (hardErrors.length === 0 && transient.length === 0) {
           productCatalogProviderRegistry.markSuccess(provider.providerId);
         } else {
-          productCatalogProviderRegistry.markFailure(provider.providerId, hardErrors[0]!);
+          productCatalogProviderRegistry.markFailure(
+            provider.providerId,
+            hardErrors[0] ?? transient[0] ?? "provider_failed",
+          );
         }
       } catch (e) {
         const msg = e instanceof Error ? e.message : String(e);
@@ -120,10 +161,20 @@ export class ProductCatalogSyncService {
       }
     }
 
-    const hardErrors = errors.filter(
-      (e) => !e.startsWith("image:") && !e.startsWith("knowledge:"),
-    );
-    return { ok: hardErrors.length === 0, upserted, errors };
+    const ok = productCatalogSyncJobOk(upserted, errors);
+    if (!ok) {
+      const { hard } = partitionProductCatalogSyncErrors(errors);
+      log.warn(
+        { upserted, hardErrors: hard.slice(0, 5), errorCount: errors.length },
+        "product_catalog_job_failed",
+      );
+    } else if (errors.length) {
+      log.warn(
+        { upserted, errors: errors.slice(0, 8) },
+        "product_catalog_job_degraded_soft_errors",
+      );
+    }
+    return { ok, upserted, errors };
   }
 
   private async persistOne(
@@ -136,12 +187,15 @@ export class ProductCatalogSyncService {
     if (ctx.dryRun) return 0;
     const assets = createAssetService(this.pool);
     try {
-      const { productId, variantIds } = await this.repo.persistImportedProduct(
+      const { productId, variantIds, variantConflicts } = await this.repo.persistImportedProduct(
         provider.providerId,
         dto,
         lookups,
         productDeduplicationService,
       );
+      for (const conflict of variantConflicts) {
+        errors.push(`variant:${conflict}`);
+      }
       await appendDomainEvent(this.pool, {
         eventType: "ProductImported",
         aggregateType: "product",

@@ -126,6 +126,19 @@ services:
         value: "3"
       - key: DATABASE_URL
         sync: false
+      # Object storage próprio (ADR-017). Sem estas quatro o pipeline usa NoopObjectStorage
+      # e mantém a URL de origem — é o estado seguro.
+      - key: R2_ACCOUNT_ID
+        sync: false
+      - key: R2_ACCESS_KEY_ID
+        sync: false
+      - key: R2_SECRET_ACCESS_KEY
+        sync: false
+      - key: R2_BUCKET
+        sync: false
+      # Só ligar DEPOIS do backfill-asset-storage.ts concluir (ADR-017, ordem de corte).
+      - key: PRODUCT_CATALOG_R2_PUBLIC_BASE
+        sync: false
       - key: REDIS_URL
         fromService:
           type: keyvalue
@@ -148,6 +161,16 @@ services:
         value: "3"
       - key: DATABASE_URL
         sync: false
+      - key: R2_ACCOUNT_ID
+        sync: false
+      - key: R2_ACCESS_KEY_ID
+        sync: false
+      - key: R2_SECRET_ACCESS_KEY
+        sync: false
+      - key: R2_BUCKET
+        sync: false
+      - key: PRODUCT_CATALOG_R2_PUBLIC_BASE
+        sync: false
 
   # Accessories diário
   - type: cron
@@ -164,6 +187,16 @@ services:
       - key: PG_POOL_MAX
         value: "3"
       - key: DATABASE_URL
+        sync: false
+      - key: R2_ACCOUNT_ID
+        sync: false
+      - key: R2_ACCESS_KEY_ID
+        sync: false
+      - key: R2_SECRET_ACCESS_KEY
+        sync: false
+      - key: R2_BUCKET
+        sync: false
+      - key: PRODUCT_CATALOG_R2_PUBLIC_BASE
         sync: false
 
   # Scheduler tick — enfileira providers due no Redis

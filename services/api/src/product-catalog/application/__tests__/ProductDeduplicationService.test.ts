@@ -43,4 +43,37 @@ describe("ProductDeduplicationService", () => {
     expect(r.strategy).toBe("fingerprint");
     expect(r.existingVariantId).toBe("v-1");
   });
+
+  it("não reaproveita variante cujo fingerprint pertence a outro produto", () => {
+    const r = productDeduplicationService.resolveVariant(
+      "p-2",
+      { variantName: "Padrão", fingerprint: "mtg|booster box" },
+      {
+        bySku: new Map(),
+        byEan: new Map(),
+        byFingerprint: new Map([["mtg|booster box", "v-do-p1"]]),
+        byProductAndName: new Map(),
+        productIdByVariant: new Map([["v-do-p1", "p-1"]]),
+      },
+    );
+    expect(r.strategy).toBe("new");
+    expect(r.existingVariantId).toBeUndefined();
+    expect(r.existingProductId).toBe("p-2");
+  });
+
+  it("mantém o match por fingerprint quando a variante é do mesmo produto", () => {
+    const r = productDeduplicationService.resolveVariant(
+      "p-1",
+      { variantName: "Padrão", fingerprint: "mtg|booster box" },
+      {
+        bySku: new Map(),
+        byEan: new Map(),
+        byFingerprint: new Map([["mtg|booster box", "v-do-p1"]]),
+        byProductAndName: new Map(),
+        productIdByVariant: new Map([["v-do-p1", "p-1"]]),
+      },
+    );
+    expect(r.strategy).toBe("fingerprint");
+    expect(r.existingVariantId).toBe("v-do-p1");
+  });
 });

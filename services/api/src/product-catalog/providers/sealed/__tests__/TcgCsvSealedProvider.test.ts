@@ -1,6 +1,7 @@
 import { describe, expect, it, vi, afterEach, beforeEach } from "vitest";
 import {
   classifySealedSubcategory,
+  groupPassesMinYear,
   isSealedTcgCsvProduct,
   resolveTcgCsvSealedCaps,
   TCGCSV_CATEGORY_BY_GAME,
@@ -14,6 +15,7 @@ describe("TcgCsvSealedProvider helpers", () => {
     delete process.env.TCGCSV_SEALED_MAX_PRODUCTS_PER_GAME;
     delete process.env.TCGCSV_SEALED_MAX_PRODUCTS;
     delete process.env.TCGCSV_SEALED_MAX_GROUPS;
+    delete process.env.TCGCSV_SEALED_MIN_YEAR;
   });
 
   afterEach(() => {
@@ -21,6 +23,7 @@ describe("TcgCsvSealedProvider helpers", () => {
     delete process.env.TCGCSV_SEALED_MAX_PRODUCTS_PER_GAME;
     delete process.env.TCGCSV_SEALED_MAX_PRODUCTS;
     delete process.env.TCGCSV_SEALED_MAX_GROUPS;
+    delete process.env.TCGCSV_SEALED_MIN_YEAR;
   });
 
   it("maps validated games and excludes ADR-016 denylist", () => {
@@ -36,6 +39,22 @@ describe("TcgCsvSealedProvider helpers", () => {
     expect(caps.maxGroupsPerGame).toBe(80);
     expect(caps.maxProductsPerGame).toBe(500);
     expect(caps.maxProductsGlobal).toBe(6000);
+    expect(caps.minYear).toBe(0);
+  });
+
+  it("le TCGCSV_SEALED_MIN_YEAR e ignora valor invalido", () => {
+    process.env.TCGCSV_SEALED_MIN_YEAR = "2024";
+    expect(resolveTcgCsvSealedCaps("full").minYear).toBe(2024);
+    process.env.TCGCSV_SEALED_MIN_YEAR = "nao-e-ano";
+    expect(resolveTcgCsvSealedCaps("full").minYear).toBe(0);
+  });
+
+  it("corta grupos por ano e mantem grupo sem data", () => {
+    expect(groupPassesMinYear("2023-11-03", 2024)).toBe(false);
+    expect(groupPassesMinYear("2024-01-01", 2024)).toBe(true);
+    expect(groupPassesMinYear("2026-05-10", 2024)).toBe(true);
+    expect(groupPassesMinYear(undefined, 2024)).toBe(true);
+    expect(groupPassesMinYear("2019-01-01", 0)).toBe(true);
   });
 
   it("classifies sealed product names", () => {
@@ -48,6 +67,70 @@ describe("TcgCsvSealedProvider helpers", () => {
   it("filters singles out of sealed keyword check", () => {
     expect(isSealedTcgCsvProduct("Charizard ex #223")).toBe(false);
     expect(isSealedTcgCsvProduct("Booster Box — Scarlet")).toBe(true);
+  });
+
+  it.each([
+    "Sting, Bilbo's Sword (Showcase)",
+    "My Precious (Showcase)",
+    "Tintagel",
+    "Blue Destiny Unit-1 (EX)",
+    "Blue Sentinel",
+    "Gift of the Frog",
+    "Destiny Draw",
+    "Casey at the Bat",
+    "Judy Hopps - On the Case",
+    "Whispers in the Well Case File Cards (1 of 18)",
+    "Fireball (Preconstructed Deck)",
+    "Snorlax - 33/95 (Prerelease)",
+    "Groudon ex - 038 (EX Collector's Tins)",
+    "Squirtle - 33/214 (Premium Collection Promo)",
+    "Display of Artistry (Blue)",
+    "Deadly Display (Red)",
+    "Treasure Trove",
+    "Trove Golem",
+    "Code Card - Starter Deck 10: Giblet (FS10)",
+  ])("rejects single %s that leaked through substring matching", (name) => {
+    expect(isSealedTcgCsvProduct(name)).toBe(false);
+  });
+
+  it.each([
+    "30th Celebration Mini Tin [Espeon]",
+    "Booster Box Case",
+    "Elite Trainer Box - Surging Sparks",
+    "Illumineer's Trove",
+    "Premium Collection",
+    "Prerelease Kit",
+    "Build & Battle Stadium Display",
+    "Disney Lorcana: Gateway Case",
+    "Armory Deck: Malice Case",
+    "30th Celebration ex Box Case",
+    "Star Trek - Draft Night Case",
+    "Disney Lorcana: Fabled Starter Deck (Emerald & Ruby)",
+    "Origins - Champion Deck (Jinx) Display",
+    "Starter Deck 07: Celestial Drive Display",
+    "Magnificent Monsters Display",
+    "The Four Elementals Preconstructed Deck: Air",
+    "Disney Lorcana: Azurite Sea Illumineer's Trove",
+  ])("accepts sealed %s", (name) => {
+    expect(isSealedTcgCsvProduct(name)).toBe(true);
+  });
+
+  it("rejects rows carrying per-card extendedData even when the name looks sealed", () => {
+    const cardFields = [
+      { name: "Rarity", value: "Rare" },
+      { name: "Number", value: "042" },
+      { name: "Card Type", value: "Unit" },
+    ];
+    expect(isSealedTcgCsvProduct("Collection Box", cardFields)).toBe(false);
+    expect(isSealedTcgCsvProduct("Collection Box", [{ name: "Description", value: "x" }])).toBe(
+      true,
+    );
+  });
+
+  it("no longer labels Showcase singles as COLLECTION_BOX", () => {
+    expect(classifySealedSubcategory("30th celebration mini tin [espeon]")).toBe("COLLECTION_BOX");
+    expect(classifySealedSubcategory("booster box case")).toBe("BOOSTER_BOX");
+    expect(classifySealedSubcategory("illumineer's trove")).toBe("TROVE");
   });
 
   it("assigns distributor_feed trust to tcgcsv-sealed", () => {

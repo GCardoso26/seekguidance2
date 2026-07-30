@@ -157,7 +157,7 @@ Peças existentes relevantes:
 - **Taxonomia:** `domain/enums.ts` (`ProductCategory`: SLEEVES, DECK_BOX, BINDER, BINDER_PAGE, DICE,
   COUNTERS, PLAYMAT) e `domain/taxonomy.ts` (subcategorias PT-BR).
 - **Ingestão de imagem:** `application/ProductCatalogSyncService.ts` → `AssetService.ingest` →
-  `assets/media/AssetMediaPipeline.ts` (SHA-256 + CDN via `PRODUCT_CATALOG_R2_PUBLIC_BASE`).
+  `assets/media/AssetMediaPipeline.ts` (SHA-256, `sharp` e upload para R2 quando configurado — ADR-017).
   `mediaTypeForCategory` → `ACCESSORY | ACCESSORY_GALLERY | ACCESSORY_LIFESTYLE`.
 - **Marcas:** tabelas `product_catalog.manufacturers` / `brands` (texto relacional, sem enum).
 - **Runner/cron:** `workers/sync-runner.ts catalog.sync.{categoria}`; `workers/cron-entrypoint.ts accessories`.
@@ -247,9 +247,11 @@ Cada job sincroniza **uma** `ProductCategory`. Mapear o tipo/tag da loja para
 ### 5.4 Liberar as imagens no frontend
 
 Escolher **uma** das opções:
-- **Reingerir para CDN próprio** (recomendado): setar `PRODUCT_CATALOG_R2_PUBLIC_BASE` — o
-  `AssetMediaPipeline` baixa, faz hash e serve de `assets/{sha}.webp` (evita hotlink e problemas de ToS);
-  **ou**
+- **Reingerir para CDN próprio** (recomendado): credenciais `R2_*` mais `PRODUCT_CATALOG_R2_PUBLIC_BASE`
+  — o `AssetMediaPipeline` baixa, faz hash, otimiza com `sharp` e serve de
+  `assets/{sha[0:2]}/{sha}/original.jpg` e `.../{tamanho}.{webp|avif}` (ADR-017; evita hotlink e
+  problemas de ToS). Seguir a ordem de corte da §5.6 de
+  [SEALED_PRODUCT_IMAGE_PROVIDERS.md](SEALED_PRODUCT_IMAGE_PROVIDERS.md); **ou**
 - **Allowlist no `next.config.mjs`** (`remotePatterns`) os hosts das marcas:
   `cdn.shopify.com`, `images.tcdn.com.br`, `ultimateguard.com`, `cdn.svc.asmodee.net`,
   `**.wp.com`/`wp-content` conforme a marca.
@@ -276,7 +278,8 @@ node src/product-catalog/workers/cron-entrypoint.js accessories   # roda todos o
 
 | Env | Uso |
 |-----|-----|
-| `PRODUCT_CATALOG_R2_PUBLIC_BASE` | CDN próprio após ingestão (`assets/{sha}.webp`) |
+| `R2_ACCOUNT_ID` / `R2_ACCESS_KEY_ID` / `R2_SECRET_ACCESS_KEY` / `R2_BUCKET` | Object storage (ADR-017); sem elas o pipeline mantém a URL de origem |
+| `PRODUCT_CATALOG_R2_PUBLIC_BASE` | CDN próprio após ingestão (`assets/{sha[0:2]}/{sha}/…`) |
 | `MANUFACTURER_ASSET_CDN_BASE` | Reescrever hosts placeholder de manifests antes do download |
 | `PRODUCT_CATALOG_CENTRAL_DRIVE_API` + `GOOGLE_DRIVE_API_KEY` | Ingestão da **Central** via Google Drive |
 | `ASSET_PIPELINE_TIMEOUT_MS` / `ASSET_PIPELINE_MAX_ATTEMPTS` | Robustez do download |

@@ -1,6 +1,6 @@
 # Image Providers de Produtos Selados (TCGs) — Validação e Guia de Implementação
 
-**Data:** 2026-07-25
+**Data:** 2026-07-25 · **Revisão:** 2026-07-30 (filtro com gate duplo, universo re-medido, runbook do R2)
 **Escopo:** validar a existência de *image providers* para **produtos selados** (booster box, booster
 unitário, bundle, deck pré-construído, display, ETB, tin, etc.) dos 10 TCGs solicitados e documentar
 **como implementar** na plataforma JudgeTCG.
@@ -73,6 +73,8 @@ https://tcgplayer-cdn.tcgplayer.com/product/{productId}_in_1000x1000.jpg  # alta
 
 - Validado: `_200w`, `_400w` e `_in_1000x1000` → **HTTP 200 / image/jpeg**.
 - A URL base sem sufixo de tamanho (`/{id}.jpg`) retorna **403** — sempre use um sufixo de tamanho.
+- Em ~14% dos produtos **as três resoluções respondem 403** juntas: o bloqueio é por produto, não por
+  tamanho. Trocar de sufixo não recupera a imagem (detalhe em §5.4.1).
 - O host **`tcgplayer-cdn.tcgplayer.com` já está no allowlist** de imagens
   (`frontend/runtime_console_v3/next.config.mjs → remotePatterns`).
 
@@ -151,8 +153,8 @@ Responsabilidades:
 
 1. Para cada jogo suportado, ler o `categoryId` do mapa (seção 2.1).
 2. `GET https://tcgcsv.com/tcgplayer/{categoryId}/groups` → iterar grupos (sets).
-3. `GET https://tcgcsv.com/tcgplayer/{categoryId}/{groupId}/products` → filtrar **apenas selados** por
-   palavra-chave (seção 2.3) e descartar cartas individuais.
+3. `GET https://tcgcsv.com/tcgplayer/{categoryId}/{groupId}/products` → filtrar **apenas selados** com o
+   gate duplo (§5.4.1) e descartar cartas individuais.
 4. Mapear cada produto selado para `ImportedProductDTO`:
    - `variants[].images = [{ sourceUrl: "https://tcgplayer-cdn.tcgplayer.com/product/{id}_in_1000x1000.jpg", isPrimary: true }]`.
    - `subcategory`/`product_type` a partir das palavras-chave (BOOSTER_BOX, BOOSTER_PACK, BUNDLE,
@@ -173,10 +175,14 @@ const CATEGORY_BY_GAME: Record<string, number> = {
   ONE_PIECE: 68, LORCANA: 71, SORCERY: 77, DBFW: 80, GUNDAM: 86, RIFTBOUND: 89,
 };
 
-const SEALED_KEYWORDS = [
+// Gate 1: extendedData de carta reprova o produto (mais confiável que texto).
+const CARD_EXTENDED_DATA_KEYS = ["rarity", "number", "card type"];
+// Gate 2: frase com fronteira de palavra. `includes` deixava passar carta:
+// "tin" casava com Blue Destiny, "case" com todo (Showcase).
+const SEALED_PHRASES = [
   "booster box", "booster pack", "display", "bundle", "elite trainer",
   "starter deck", "structure deck", "preconstructed", "commander deck",
-  "deck set", "gift", "collection", "case", "tin", "blister", "prerelease",
+  "deck set", "gift box", "collection box", "booster case", "tin", "blister", "prerelease",
 ];
 
 const CDN = (id: number) => `https://tcgplayer-cdn.tcgplayer.com/product/${id}_in_1000x1000.jpg`;
@@ -194,8 +200,7 @@ export class TcgCsvSealedProvider extends BaseProductCatalogProvider {
     for (const g of groups.results ?? []) {
       const prods = await this.getJson(`https://tcgcsv.com/tcgplayer/${categoryId}/${g.groupId}/products`);
       for (const p of prods.results ?? []) {
-        const name = String(p.name ?? "").toLowerCase();
-        if (!SEALED_KEYWORDS.some((k) => name.includes(k))) continue; // só selados
+        if (!isSealedTcgCsvProduct(String(p.name ?? ""), p.extendedData)) continue; // só selados
         if (!p.imageUrl) continue;
         out.push({
           providerRef: String(p.productId),
@@ -251,66 +256,81 @@ Pokémon/YGO/… sem backfill. Defaults em `resolveTcgCsvSealedCaps`:
 Alias legado: `TCGCSV_SEALED_MAX_GROUPS` ainda alimenta `MAX_GROUPS_PER_GAME` se a env per-game não
 estiver setada. Groups são ordenados por `publishedOn` DESC (sets recentes primeiro).
 
-### 5.4.1 Universo de selados (medido) e dimensionamento do teto global
+### 5.4.1 Universo de selados (re-medido com o filtro corrigido)
 
-Levantamento reprodutível em 2026-07-30 (`scripts/tcgcsv-sealed-universe-survey.ts`, sem caps e sem
-write): **1.720 groups**, **237.762 produtos**, dos quais **14.288 são selados** pelo filtro
-`isSealedTcgCsvProduct` — **100% com `imageUrl`**, 0 grupos com falha HTTP.
+> A medição de 2026-07-30 de manhã apontava **14.288 selados**. Estava inflada: o filtro por substring
+> classificava carta avulsa como selado (`tin` em *Blue Destiny*, `case` em *(Showcase)*). Com o gate
+> duplo — `extendedData` com `Rarity`/`Number`/`Card Type` reprova, e frase com fronteira de palavra —
+> o universo real é **5.952**, 58% menor. Os números abaixo substituem os anteriores.
 
-| Jogo | cat | groups | selados | selados 2024+ |
-|------|-----|--------|---------|---------------|
-| MTG | 1 | 453 | 5.869 | 2.228 |
-| POKEMON | 3 | 217 | 4.091 | 1.435 |
-| YUGIOH | 2 | 654 | 2.489 | 941 |
-| ONE_PIECE | 68 | 84 | 443 | 162 |
-| FAB | 62 | 103 | 336 | 185 |
-| LORCANA | 71 | 20 | 283 | 228 |
-| DIGIMON | 63 | 100 | 277 | 100 |
-| SORCERY | 77 | 7 | 196 | 33 |
-| GUNDAM | 86 | 22 | 138 | 138 |
-| DBFW | 80 | 51 | 120 | 120 |
-| RIFTBOUND | 89 | 9 | 46 | 46 |
-| **Total** | — | **1.720** | **14.288** | **5.616** |
+Levantamento reprodutível (`scripts/tcgcsv-sealed-universe-survey.ts`, sem caps e sem write):
+**1.720 groups**, **237.762 produtos**, dos quais **5.952 são selados** — **100% com `imageUrl`**,
+0 grupos com falha HTTP.
 
-**Pisos para cobertura de 100%:** `MAX_GROUPS_PER_GAME ≥ 654` (YGO), `MAX_PRODUCTS_PER_GAME ≥ 5.869`
-(MTG), `MAX_PRODUCTS ≥ 14.288`. O default full atual de `MAX_PRODUCTS` (`6000`) fica **abaixo** do
-universo: subir só os caps per-game trunca a corrida silenciosamente nos últimos jogos do mapa.
+| Jogo | cat | groups | groups 2024+ | selados | selados 2024+ |
+|------|-----|--------|--------------|---------|---------------|
+| POKEMON | 3 | 217 | 44 | 2.280 | 965 |
+| MTG | 1 | 453 | 120 | 1.756 | 714 |
+| YUGIOH | 2 | 654 | 77 | 997 | 88 |
+| ONE_PIECE | 68 | 84 | 59 | 241 | 145 |
+| LORCANA | 71 | 20 | 15 | 168 | 137 |
+| DIGIMON | 63 | 100 | 50 | 166 | 79 |
+| FAB | 62 | 103 | 62 | 116 | 56 |
+| DBFW | 80 | 51 | 51 | 91 | 91 |
+| GUNDAM | 86 | 22 | 22 | 87 | 87 |
+| RIFTBOUND | 89 | 9 | 9 | 31 | 31 |
+| SORCERY | 77 | 7 | 5 | 19 | 7 |
+| **Total** | — | **1.720** | **514** | **5.952** | **2.400** |
 
-#### Custo unitário medido (corrida de 2026-07-30, caps 25/50)
+**Pisos para cobertura de 100%:** `MAX_GROUPS_PER_GAME ≥ 654` (YGO), `MAX_PRODUCTS_PER_GAME ≥ 2.280`
+(Pokémon), `MAX_PRODUCTS ≥ 5.952`. Para o recorte 2024+ os pisos caem para 120 groups, 965 produtos
+por jogo e 2.400 globais — o default full de `MAX_PRODUCTS` (`6000`) já cobre o universo inteiro.
+
+`TCGCSV_SEALED_MIN_YEAR=2024` filtra groups por `publishedOn`; grupo **sem data passa no corte**,
+porque o TCGCSV deixa `publishedOn` vazio em coleção recente e descartar por ausência de dado
+esconderia lançamento novo. Verificado com `scripts/tcgcsv-sealed-dry-count.ts`: 2.400 itens em
+11 jogos, zero erros, batendo item a item com a coluna "selados 2024+".
+
+#### Custo unitário medido
 
 | Métrica | Valor medido | Origem |
 |---------|--------------|--------|
-| Tempo por produto persistido | **4,95 s** | 494 upserts em 2.447 s (download + SHA-256 + versionamento) |
-| Taxa de imagem OK | **86%** | 425 `asset_pipeline_v2_ok` / 494; 69 × `asset_download_403` no CDN |
-| Bytes por imagem | **104,7 KB** (máx. 227 KB) | `AVG(size_bytes)` sobre 802 assets `tcgcsv-sealed` |
-| Linhas Postgres por produto | **~6,5 KB** | `products` 2.075 B + `variants` 776 B + 2× `provider_mappings` 489 B + `assets` 2.404 B × 0,86 + `asset_links` 405 B + `product_games` 162 B |
+| Tempo por produto persistido | **4,95 s** | 494 upserts em 2.447 s, serial, sem resize/upload |
+| Taxa de imagem OK | **86%** | 425 `asset_pipeline_v2_ok` / 494; 69 × `asset_download_403` |
+| Bytes por imagem original | **104,7 KB** (máx. 227 KB) | `AVG(size_bytes)` sobre 802 assets `tcgcsv-sealed` |
+| Objetos por asset com R2 | **9** | original + 4 WebP + 4 AVIF (`PRODUCT_IMAGE_SIZES`) |
+| Bytes por asset com R2 | **~600 KB** | original + derivadas |
+| Linhas Postgres por produto | **~6,5 KB** | `products` + `variants` + 2× `provider_mappings` + `assets` × 0,86 + `asset_links` + `product_games` |
 
-Sem `PRODUCT_CATALOG_R2_PUBLIC_BASE` os bytes da imagem **não** são gravados: só metadados vão ao
-Postgres e `cdn_url` continua apontando para o TCGplayer. O custo de objeto abaixo só se materializa
-quando o R2 estiver configurado.
+Sem `PRODUCT_CATALOG_R2_PUBLIC_BASE` os bytes **não** são gravados: só metadados vão ao Postgres e
+`cdn_url` continua apontando para o TCGplayer. O custo de objeto abaixo só se materializa com o R2
+configurado.
 
 #### Previsão por cenário de cap
 
-| Cenário | GROUPS/jogo | PRODUCTS/jogo | MAX_PRODUCTS | Cobertura | Tempo | Postgres | R2 |
-|---------|-------------|---------------|--------------|-----------|-------|----------|-----|
-| **A — default full atual** | 80 | 500 | 6.000 | 3.115 (22%) | ~4,3 h | ~20 MB | ~280 MB |
-| **B — catálogo vivo (2024+)** | 250 | 2.500 | 7.000 | ~5.600 (39%) | ~7,7 h | ~37 MB | ~505 MB |
-| **C — cobertura total** | 700 | 6.000 | 16.000 | 14.288 (100%) | **~19,6 h** | ~93 MB | ~1,29 GB |
+| Cenário | GROUPS/jogo | PRODUCTS/jogo | MAX_PRODUCTS | MIN_YEAR | Cobertura | Tempo (conc. 4) | Postgres | R2 |
+|---------|-------------|---------------|--------------|----------|-----------|-----------------|----------|-----|
+| **A — default full atual** | 80 | 500 | 6.000 | — | ~3.100 (52%) | ~1,5 h | ~20 MB | ~1,8 GB |
+| **B — catálogo vivo (2024+)** | 250 | 2.500 | 7.000 | 2024 | **2.400 (100% do recorte)** | ~1,2 h | ~16 MB | ~1,4 GB |
+| **C — cobertura total** | 700 | 3.000 | 8.000 | — | 5.952 (100%) | ~2,9 h | ~39 MB | ~3,5 GB |
 
-Cenário B aproxima "só o que ainda circula" pela ordenação `publishedOn` DESC — não existe filtro por
-ano no provider; o cap de groups é o proxy de recência.
+Tempo assume `PRODUCT_CATALOG_SYNC_CONCURRENCY=4` e ~7 s por item com resize e upload (4,95 s medido
+sem upload + margem). Serial, multiplique por 4.
 
 #### Recomendação (Platform Guardian)
 
-Cenário **C não entra sem evidência de demanda**: 14 mil SKUs selados é capacidade para liquidez
-imaginada, e o gargalo de Beta é oferta de vendedor, não tamanho de catálogo. Manter **A** como default
-de cron e usar **B** como backfill pontual quando houver vendedor pedindo o SKU. Antes de qualquer
-corrida longa (>4 h), resolver dois bloqueios observados:
+Com o universo real em 5.952, o cenário **C deixa de ser capacidade para liquidez imaginada** — mas
+continua sem evidência de demanda: o gargalo de Beta é oferta de vendedor, não tamanho de catálogo.
+Manter **A** como default de cron e rodar **B** como backfill pontual. O recorte 2024+ é o que cobre
+produto que ainda circula em loja, com metade do custo de objeto do catálogo inteiro.
 
-1. `uq_product_variant_fingerprint` duplicado é tratado como **erro hard** → a corrida sai com exit 1
-   mesmo tendo persistido tudo o que dava.
-2. ~14% dos `_in_1000x1000.jpg` respondem 403; sem fallback para `_400w`/`_200w` esses produtos entram
-   sem imagem (o script de banners do portal já faz esse fallback e pode servir de referência).
+#### Correção: o 403 do CDN é por produto, não por resolução
+
+A recomendação anterior sugeria fallback de `_in_1000x1000` para `_400w`/`_200w`. **Isso não funciona.**
+Medido em 2026-07-30: nos produtos que respondem 403, as três resoluções respondem 403 igual, com
+User-Agent de bot e de navegador. O 403 é do produto no CDN, não do tamanho pedido. Fallback por
+resolução só gasta requisição. O caminho correto é o da ADR-017: baixar uma vez o que responde 200 e
+servir do CDN próprio, onde a URL não expira nem depende da política do TCGplayer.
 
 ### 5.5 Rodar a sincronização
 
@@ -332,10 +352,47 @@ npx tsx src/product-catalog/workers/sync-runner.ts catalog.sync.sealed --since 2
 ```
 
 Abortar se disco Supabase / WAL degradar. O `ProductCatalogSyncService` persiste os produtos e dispara
-o `AssetMediaPipeline`, que baixa a imagem, calcula SHA-256 e (se `PRODUCT_CATALOG_R2_PUBLIC_BASE`
-estiver setado) publica no CDN próprio — evitando hotlink direto ao TCGplayer em produção.
+o `AssetMediaPipeline`, que baixa a imagem, calcula SHA-256 e (se o R2 estiver configurado) otimiza com
+`sharp` e publica no CDN próprio — evitando hotlink direto ao TCGplayer em produção.
 
-### 5.6 Variáveis de ambiente
+Backfill 2024+ com concorrência:
+
+```powershell
+$env:TCGCSV_SEALED_MIN_YEAR="2024"
+$env:TCGCSV_SEALED_MAX_GROUPS_PER_GAME="250"
+$env:TCGCSV_SEALED_MAX_PRODUCTS_PER_GAME="2500"
+$env:TCGCSV_SEALED_MAX_PRODUCTS="7000"
+$env:PRODUCT_CATALOG_SYNC_CONCURRENCY="4"   # exige PG_POOL_MAX >= 4
+npm run sync:sealed -- --full
+npx tsx scripts/count-tcgcsv-sealed-by-game.ts   # cobertura esperada: 11 jogos, 2.400 itens
+```
+
+### 5.6 Runbook do R2 (ADR-017)
+
+Ordem obrigatória. Ligar `PRODUCT_CATALOG_R2_PUBLIC_BASE` antes do backfill faz
+`cdn_url = COALESCE(EXCLUDED.cdn_url, …)` sobrescrever hotlink bom por URL de objeto que não existe.
+
+1. **Deploy do código novo primeiro.** Enquanto o cron horário roda a versão antiga, ele reinsere os
+   falso-positivos que a purga tirou — foi o que aconteceu em 2026-07-30.
+2. **Purga** com o filtro corrigido já em produção:
+   `npx tsx scripts/purge-tcgcsv-false-positives.ts` (dry-run), revisar
+   `.tmp/tcgcsv-purge-report.json`, então `--apply` (grava snapshot antes de deletar).
+3. **Credenciais R2** nos serviços `tcg-judge-pc-workers`, `tcg-judge-pc-sealed-hourly` e
+   `tcg-judge-pc-accessories-daily`: `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`,
+   `R2_BUCKET`. Ainda **sem** `PRODUCT_CATALOG_R2_PUBLIC_BASE` no runtime.
+4. **Backfill dos assets existentes**, que precisa da base pública para escrever as URLs:
+   `npx tsx scripts/backfill-asset-storage.ts --limit 50` (amostra), conferir
+   `.tmp/asset-storage-backfill.json` e abrir uma URL derivada no navegador; depois
+   `--concurrency 4` na corrida completa.
+5. **Ligar `PRODUCT_CATALOG_R2_PUBLIC_BASE=https://cdn.judgetcg.com`** no runtime. A partir daí toda
+   ingestão nova nasce no CDN próprio.
+6. **Verificar**: `npx tsx scripts/catalog-health-check.ts` e uma amostra de `derivatives` respondendo
+   200 sem host de terceiro.
+
+Rollback: remover `PRODUCT_CATALOG_R2_PUBLIC_BASE`. O pipeline volta ao `NoopObjectStorage`, mantém a
+URL de origem em `cdn_url` e para de publicar derivadas. Os objetos já no R2 continuam servindo.
+
+### 5.7 Variáveis de ambiente
 
 | Env | Uso |
 |-----|-----|
@@ -343,7 +400,10 @@ estiver setado) publica no CDN próprio — evitando hotlink direto ao TCGplayer
 | `TCGCSV_SEALED_MAX_GROUPS_PER_GAME` | grupos por jogo (ver §5.4) |
 | `TCGCSV_SEALED_MAX_PRODUCTS_PER_GAME` | produtos selados por jogo |
 | `TCGCSV_SEALED_MAX_PRODUCTS` | teto global de segurança |
-| `PRODUCT_CATALOG_R2_PUBLIC_BASE` | base do CDN próprio para reidratar as imagens ingeridas |
+| `TCGCSV_SEALED_MIN_YEAR` | corta groups por `publishedOn` (vazio = sem corte); grupo sem data passa |
+| `PRODUCT_CATALOG_SYNC_CONCURRENCY` | produtos em paralelo no sync (default `1`, teto `8`) |
+| `R2_ACCOUNT_ID` / `R2_ACCESS_KEY_ID` / `R2_SECRET_ACCESS_KEY` / `R2_BUCKET` | credenciais do object storage; sem elas o pipeline usa `NoopObjectStorage` |
+| `PRODUCT_CATALOG_R2_PUBLIC_BASE` | base do CDN próprio; **só ligar depois do backfill** (§5.6) |
 | `PRODUCT_CATALOG_LIGA_IMAGE_FALLBACK` / `PRODUCT_CATALOG_LIGA_SEED_URLS` | fallback existente (Liga) |
 
 ---
@@ -396,7 +456,11 @@ logo/ícone de set como packshot.
 - [ ] (Opcional) linha em `product_catalog.provider_registry`.
 - [x] Confirmar `tcgplayer-cdn.tcgplayer.com` no `next.config.mjs` (já presente).
 - [x] Rodar `sync-runner` / `sync-tcgcsv-sealed-only` com caps e validar cobertura por `game` (≥10 jogos).
-- [ ] Configurar `PRODUCT_CATALOG_R2_PUBLIC_BASE` para reidratar imagens no CDN próprio.
+- [x] Gate duplo no filtro de selados (`extendedData` + fronteira de palavra) — §5.4.1.
+- [x] `TCGCSV_SEALED_MIN_YEAR` e re-medição do universo (5.952 reais, 2.400 no recorte 2024+).
+- [x] `ObjectStoragePort` + `R2ObjectStorage` + otimização com `sharp` (ADR-017).
+- [x] `cdn.judgetcg.com` em `remotePatterns` (o CSP `img-src` já aceita `https:`).
+- [ ] Executar o runbook do R2 em produção na ordem da §5.6 (deploy → purga → credenciais → backfill → env).
 - [ ] Validar no frontend (`CardImage`/`ResponsiveImage`, `mediaType` SEALED_*).
 - [ ] (Opcional) manifests oficiais para arte curada de topo (ADR-016).
 

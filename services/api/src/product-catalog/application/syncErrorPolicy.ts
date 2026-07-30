@@ -19,8 +19,22 @@ export function isTransientUpstreamSyncError(error: string): boolean {
   return false;
 }
 
+/**
+ * Colisão de fingerprint de variante. A corrida persistiu o resto do produto; derrubar
+ * o exit code por causa de uma variante não recuperada esconde o que de fato entrou.
+ */
+export function isVariantConflictSoftError(error: string): boolean {
+  const e = error.trim();
+  if (e.startsWith("variant:")) return true;
+  return e.includes("uq_product_variant_fingerprint");
+}
+
 export function isSoftProductCatalogSyncError(error: string): boolean {
-  return isImageOrKnowledgeSoftError(error) || isTransientUpstreamSyncError(error);
+  return (
+    isImageOrKnowledgeSoftError(error) ||
+    isTransientUpstreamSyncError(error) ||
+    isVariantConflictSoftError(error)
+  );
 }
 
 export function partitionProductCatalogSyncErrors(errors: string[]): {
@@ -28,11 +42,13 @@ export function partitionProductCatalogSyncErrors(errors: string[]): {
   hard: string[];
   transient: string[];
   imageKnowledge: string[];
+  variantConflicts: string[];
 } {
   const soft: string[] = [];
   const hard: string[] = [];
   const transient: string[] = [];
   const imageKnowledge: string[] = [];
+  const variantConflicts: string[] = [];
   for (const e of errors) {
     if (isImageOrKnowledgeSoftError(e)) {
       soft.push(e);
@@ -40,11 +56,14 @@ export function partitionProductCatalogSyncErrors(errors: string[]): {
     } else if (isTransientUpstreamSyncError(e)) {
       soft.push(e);
       transient.push(e);
+    } else if (isVariantConflictSoftError(e)) {
+      soft.push(e);
+      variantConflicts.push(e);
     } else {
       hard.push(e);
     }
   }
-  return { soft, hard, transient, imageKnowledge };
+  return { soft, hard, transient, imageKnowledge, variantConflicts };
 }
 
 /**

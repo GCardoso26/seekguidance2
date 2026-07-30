@@ -16,7 +16,13 @@ const concurrencyIdx = process.argv.indexOf("--concurrency");
 const CONCURRENCY = concurrencyIdx >= 0 ? Number(process.argv[concurrencyIdx + 1]) : 8;
 
 type Group = { groupId?: number; name?: string; publishedOn?: string };
-type Product = { productId?: number; name?: string; cleanName?: string; imageUrl?: string };
+type Product = {
+  productId?: number;
+  name?: string;
+  cleanName?: string;
+  imageUrl?: string;
+  extendedData?: Array<{ name?: string; value?: string }>;
+};
 
 async function getJson<T>(url: string, attempts = 3): Promise<T | null> {
   for (let i = 0; i < attempts; i++) {
@@ -55,6 +61,7 @@ type GameSurvey = {
   sealed: number;
   sealedWithImage: number;
   sealedByYear: Record<string, number>;
+  sealedWithImageFrom2024: number;
 };
 
 const results: GameSurvey[] = [];
@@ -72,6 +79,7 @@ for (const [game, categoryId] of Object.entries(TCGCSV_CATEGORY_BY_GAME)) {
     sealed: 0,
     sealedWithImage: 0,
     sealedByYear: {},
+    sealedWithImageFrom2024: 0,
   };
 
   await mapLimit(groups, CONCURRENCY, async (g) => {
@@ -84,13 +92,18 @@ for (const [game, categoryId] of Object.entries(TCGCSV_CATEGORY_BY_GAME)) {
     }
     survey.groupsFetched++;
     const year = String(g.publishedOn ?? "").slice(0, 4) || "unknown";
+    // "unknown" entra no recorte 2024+ pelo mesmo motivo de groupPassesMinYear.
+    const inCut = year === "unknown" || Number(year) >= 2024;
     for (const p of body.results) {
       survey.products++;
       const name = String(p.name || p.cleanName || "").trim();
-      if (!name || !isSealedTcgCsvProduct(name)) continue;
+      if (!name || !isSealedTcgCsvProduct(name, p.extendedData)) continue;
       survey.sealed++;
       survey.sealedByYear[year] = (survey.sealedByYear[year] ?? 0) + 1;
-      if (p.imageUrl) survey.sealedWithImage++;
+      if (p.imageUrl) {
+        survey.sealedWithImage++;
+        if (inCut) survey.sealedWithImageFrom2024++;
+      }
     }
   });
 
@@ -106,9 +119,10 @@ const totals = results.reduce(
     products: acc.products + r.products,
     sealed: acc.sealed + r.sealed,
     sealedWithImage: acc.sealedWithImage + r.sealedWithImage,
+    sealedWithImageFrom2024: acc.sealedWithImageFrom2024 + r.sealedWithImageFrom2024,
     groupsFailed: acc.groupsFailed + r.groupsFailed,
   }),
-  { groups: 0, products: 0, sealed: 0, sealedWithImage: 0, groupsFailed: 0 },
+  { groups: 0, products: 0, sealed: 0, sealedWithImage: 0, sealedWithImageFrom2024: 0, groupsFailed: 0 },
 );
 
 const payload = {
@@ -116,6 +130,7 @@ const payload = {
   totals,
   maxGroupsPerGame: Math.max(...results.map((r) => r.groups)),
   maxSealedPerGame: Math.max(...results.map((r) => r.sealed)),
+  maxSealedFrom2024PerGame: Math.max(...results.map((r) => r.sealedWithImageFrom2024)),
   games: results.sort((a, b) => b.sealed - a.sealed),
 };
 

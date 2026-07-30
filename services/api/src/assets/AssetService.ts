@@ -44,7 +44,9 @@ export class PostgresAssetRepository {
         mime = COALESCE(EXCLUDED.mime, media.assets.mime),
         size_bytes = COALESCE(EXCLUDED.size_bytes, media.assets.size_bytes),
         blurhash = COALESCE(EXCLUDED.blurhash, media.assets.blurhash),
-        derivatives = media.assets.derivatives || EXCLUDED.derivatives
+        -- Substitui em vez de mesclar (ADR-017): merge preservava derivadas antigas
+        -- que apontam para objetos inexistentes e respondem 403.
+        derivatives = EXCLUDED.derivatives
       RETURNING id
       `,
       [

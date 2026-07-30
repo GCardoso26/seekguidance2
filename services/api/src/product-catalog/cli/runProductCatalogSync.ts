@@ -1,6 +1,7 @@
 import type { Pool } from "pg";
 import { randomUUID } from "node:crypto";
 import { createLogger } from "../../platform/logging/logger.js";
+import { bootstrapObjectStorage } from "../../assets/storage/R2ObjectStorage.js";
 import { ProductCatalogSyncService } from "../application/ProductCatalogSyncService.js";
 import { createCatalogPgPool } from "../persistence/createCatalogPgPool.js";
 import { PostgresProductCatalogRepository } from "../persistence/PostgresProductCatalogRepository.js";
@@ -30,13 +31,19 @@ export async function executeProductCatalogSyncJob(
 ): Promise<ProductCatalogSyncJobResult> {
   const ownPool = !opts.pool;
   const pool = opts.pool ?? createCatalogPgPool({ max: 3 });
+  const storage = bootstrapObjectStorage();
   try {
     const repo = new PostgresProductCatalogRepository(pool);
     const service = new ProductCatalogSyncService(repo, pool);
     const providers = providersForJob(jobKey);
     const requestId = randomUUID();
     log.info(
-      { jobKey, providers: providers.map((p) => p.providerId), requestId },
+      {
+        jobKey,
+        providers: providers.map((p) => p.providerId),
+        requestId,
+        objectStorage: storage.id,
+      },
       "product_catalog_sync_start",
     );
     const result = await service.runJob(jobKey, providers, {

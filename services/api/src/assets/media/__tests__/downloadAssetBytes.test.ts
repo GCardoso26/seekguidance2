@@ -106,6 +106,20 @@ describe("downloadAssetBytes", () => {
     });
     expect(out.sha256).toHaveLength(64);
     expect(out.mime).toBe("image/png");
-    expect(out.cdnUrl).toMatch(/^fixture:\/\//);
+    // Sem object storage o pipeline mantém a URL de origem: next/image rejeita fixture://.
+    expect(out.cdnUrl).toBe(
+      "https://cdn.judgetcg.example/manufacturers/gamegenic/sleeves-packshot.webp",
+    );
+    expect(out.storageKey).toBeUndefined();
+  });
+
+  it("não publica derivadas quando não há object storage", async () => {
+    const out = await assetMediaPipeline.process({
+      sourceUrl: "https://cdn.judgetcg.example/manufacturers/gamegenic/sleeves-packshot.webp",
+      requestId: "test-req",
+      providerId: "gamegenic",
+    });
+    const urls = Object.entries(out.derivatives).filter(([k]) => !k.startsWith("_"));
+    expect(urls).toEqual([]);
   });
 });

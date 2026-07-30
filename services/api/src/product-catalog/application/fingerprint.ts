@@ -10,6 +10,12 @@ export interface FingerprintParts {
   language?: string;
   finish?: string;
   attributes?: Record<string, string>;
+  /**
+   * Token final que separa produtos distintos com o mesmo título — usado por selados,
+   * onde marca + título colidiam entre reprints e acabavam prendendo a variante no
+   * produto errado (uq_product_variant_fingerprint).
+   */
+  discriminator?: string;
 }
 
 /** Tokeniza para fingerprint estável (dedup cross-provider). */
@@ -37,6 +43,7 @@ export function buildVariantFingerprint(parts: FingerprintParts): string {
       tokens.push(`${slugToken(k)}:${slugToken(v)}`);
     }
   }
+  if (parts.discriminator) tokens.push(slugToken(parts.discriminator));
   return tokens.filter(Boolean).join("|");
 }
 
@@ -49,6 +56,7 @@ export function fingerprintFromVariantDto(input: {
   language?: string;
   finish?: string;
   attributes?: Record<string, string>;
+  discriminator?: string;
 }): string {
   return buildVariantFingerprint({
     brandSlug: input.brandName,
@@ -58,5 +66,6 @@ export function fingerprintFromVariantDto(input: {
     language: input.language,
     finish: input.finish,
     attributes: input.attributes,
+    discriminator: input.discriminator,
   });
 }

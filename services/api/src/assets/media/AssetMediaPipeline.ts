@@ -2,7 +2,9 @@ import { createLogger } from "../../platform/logging/logger.js";
 import { getHashPort } from "../../shared/hash/HashPort.js";
 import type { AssetMetadata } from "../domain/types.js";
 import type { MediaType } from "../domain/mediaTypes.js";
+import { getObjectStorage } from "../storage/ObjectStoragePort.js";
 import { downloadAssetBytes } from "./downloadAssetBytes.js";
+import { optimizeImage, type OptimizedDerivative } from "./optimizeImage.js";
 
 const log = createLogger("assets.pipeline");
 
@@ -29,9 +31,10 @@ export interface AssetPipelineOutput {
 }
 
 /**
- * Pipeline V2: virus scan → download → SHA256 → derivative map (WebP/AVIF/JPEG) →
- * blur/LQIP/palette stubs → CDN key.
- * Heavy sharp encoding remains behind workers/flags; URLs + metadata are always emitted.
+ * Pipeline V3 (ADR-017): virus scan → download → SHA256 → resize/encode → upload → CDN próprio.
+ *
+ * Sem object storage configurado (dev, CI, produção antes do corte) o pipeline mantém a
+ * URL de origem e **não** publica derivadas: URL derivada só existe se o objeto existe.
  */
 export class AssetMediaPipeline {
   async process(input: AssetPipelineInput): Promise<AssetPipelineOutput> {
@@ -39,28 +42,53 @@ export class AssetMediaPipeline {
     const downloaded = await downloadAssetBytes(input.sourceUrl);
     const bytes = downloaded.bytes;
     const sha256 = getHashPort().sha256(bytes);
-    const mime = sniffMime(bytes);
 
+    const storage = getObjectStorage();
     const publicBase = process.env.PRODUCT_CATALOG_R2_PUBLIC_BASE?.replace(/\/$/, "");
-    const storageKey = `assets/${sha256.slice(0, 2)}/${sha256}`;
-    const cdnUrl = publicBase
-      ? `${publicBase}/${storageKey}.webp`
+    const uploadEnabled = storage.enabled && Boolean(publicBase);
+
+    const optimized = uploadEnabled
+      ? await optimizeImage(bytes)
+      : { derivatives: [] as OptimizedDerivative[], optimized: false, width: undefined, height: undefined, format: undefined };
+
+    const mime = mimeFromFormat(optimized.format) ?? sniffMime(bytes);
+    const prefix = `assets/${sha256.slice(0, 2)}/${sha256}`;
+    const originalKey = `${prefix}/original${extensionFor(mime)}`;
+
+    const publishedDerivatives: Record<string, { url: string; mime: string; width: number; height: number }> =
+      {};
+    let uploadedBytes = 0;
+
+    if (uploadEnabled) {
+      await storage.put({ key: originalKey, body: bytes, contentType: mime ?? "application/octet-stream" });
+      uploadedBytes += bytes.byteLength;
+      for (const d of optimized.derivatives) {
+        const key = `${prefix}/${d.size}.${d.format}`;
+        await storage.put({ key, body: d.bytes, contentType: d.mime });
+        uploadedBytes += d.bytes.byteLength;
+        publishedDerivatives[`${d.size}.${d.format}`] = {
+          url: `${publicBase}/${key}`,
+          mime: d.mime,
+          width: d.width,
+          height: d.height,
+        };
+      }
+    }
+
+    const cdnUrl = uploadEnabled
+      ? `${publicBase}/${originalKey}`
       : downloaded.fromFixture
         ? // Prefer real source URL over opaque fixture:// (Next/Image rejects fixture scheme).
           downloaded.finalUrl || `fixture://assets/${sha256}.png`
         : downloaded.finalUrl;
-
-    const { buildFormatDerivativeMap, buildDerivativeSet } = await import(
-      "../cdn/derivativeUrls.js"
-    );
-    const sizeSet = buildDerivativeSet(cdnUrl);
-    const formatMap = buildFormatDerivativeMap(cdnUrl);
 
     const blurhash =
       process.env.ASSET_PIPELINE_BLURHASH === "1" ? placeholderBlurhash(sha256) : undefined;
     const lqip = buildLqipDataUrl(sha256, mime);
     const dominantColor = dominantFromHash(sha256);
     const palette = paletteFromHash(sha256);
+    const width = optimized.width ?? input.metadata?.width;
+    const height = optimized.height ?? input.metadata?.height;
 
     const metadata: AssetMetadata = {
       alt: input.metadata?.alt,
@@ -76,24 +104,18 @@ export class AssetMediaPipeline {
       dominantColor,
       palette,
       lqip,
-      aspectRatio: undefined,
-      width: input.metadata?.width,
-      height: input.metadata?.height,
+      aspectRatio: width && height ? Math.round((width / height) * 1000) / 1000 : undefined,
+      width,
+      height,
     };
 
+    // Só entra aqui o que foi realmente enviado. Nada de sufixo concatenado sobre host de terceiro.
     const derivatives: Record<string, unknown> = {
-      ...formatMap,
-      webp: { url: sizeSet.medium, mime: "image/webp" },
-      avif: { url: formatMap["medium.avif"]?.url, mime: "image/avif" },
-      jpeg: { url: formatMap["medium.jpeg"]?.url, mime: "image/jpeg" },
-      thumbnail: { url: sizeSet.thumb, mime: "image/webp" },
-      small: { url: sizeSet.small },
-      medium: { url: sizeSet.medium },
-      large: { url: sizeSet.large },
-      full: { url: sizeSet.full },
-      original: { url: sizeSet.original },
+      ...publishedDerivatives,
+      ...(uploadEnabled ? { original: { url: cdnUrl, mime, width, height } } : {}),
       _meta: metadata,
-      _pipeline: "asset-pipeline-v2",
+      _pipeline: uploadEnabled ? "asset-pipeline-v3-r2" : "asset-pipeline-v3-passthrough",
+      _storage: storage.id,
     };
 
     log.info(
@@ -104,19 +126,22 @@ export class AssetMediaPipeline {
         mediaType: metadata.mediaType,
         fromFixture: downloaded.fromFixture,
         attempts: downloaded.attempts,
+        uploaded: uploadEnabled,
+        derivativeCount: Object.keys(publishedDerivatives).length,
+        uploadedBytes,
       },
-      "asset_pipeline_v2_ok",
+      "asset_pipeline_v3_ok",
     );
 
     return {
       sha256,
-      storageKey,
+      storageKey: uploadEnabled ? originalKey : undefined,
       cdnUrl,
       mime,
       sizeBytes: bytes.byteLength,
       blurhash,
-      width: metadata.width,
-      height: metadata.height,
+      width,
+      height,
       derivatives,
       metadata,
     };
@@ -139,6 +164,32 @@ function sniffMime(buf: Buffer): string | undefined {
   if (buf.length >= 8 && buf[0] === 0x89 && buf[1] === 0x50) return "image/png";
   if (buf.length >= 4 && buf.toString("ascii", 0, 4) === "RIFF") return "image/webp";
   return undefined;
+}
+
+function mimeFromFormat(format?: string): string | undefined {
+  if (!format) return undefined;
+  if (format === "jpg" || format === "jpeg") return "image/jpeg";
+  if (format === "svg") return "image/svg+xml";
+  return `image/${format}`;
+}
+
+function extensionFor(mime?: string): string {
+  switch (mime) {
+    case "image/jpeg":
+      return ".jpg";
+    case "image/png":
+      return ".png";
+    case "image/webp":
+      return ".webp";
+    case "image/avif":
+      return ".avif";
+    case "image/gif":
+      return ".gif";
+    case "image/svg+xml":
+      return ".svg";
+    default:
+      return ".bin";
+  }
 }
 
 function placeholderBlurhash(seed: string): string {

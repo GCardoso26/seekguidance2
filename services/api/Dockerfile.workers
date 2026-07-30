@@ -14,7 +14,10 @@ COPY services/api/scripts/copy-product-catalog-assets.mjs ./scripts/copy-product
 RUN npm run build \
   && npm prune --omit=dev \
   && test -f dist/product-catalog/manufacturers/central/manifest.json \
-  && test -d dist/product-catalog/sources
+  && test -d dist/product-catalog/sources \
+  # sharp é binário nativo (ADR-017): falhar no build é melhor que degradar silenciosamente
+  # para "só o original" durante a ingestão de assets em produção.
+  && node -e "import('sharp').then(m => m.default({create:{width:8,height:8,channels:3,background:'#000'}}).webp().toBuffer()).then(() => console.log('sharp ok'))"
 
 FROM node:20-slim
 WORKDIR /app

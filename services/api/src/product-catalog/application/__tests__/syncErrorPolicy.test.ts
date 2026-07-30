@@ -35,4 +35,16 @@ describe("syncErrorPolicy", () => {
     expect(p.transient).toEqual(["pokemon_tcg_http_500"]);
     expect(p.imageKnowledge).toEqual(["image:x"]);
   });
+
+  it("classifies variant fingerprint collisions as soft", () => {
+    const dup =
+      'product:tcgcsv:3:1:duplicate key value violates unique constraint "uq_product_variant_fingerprint"';
+    expect(isSoftProductCatalogSyncError(dup)).toBe(true);
+    expect(isSoftProductCatalogSyncError("variant:tcgcsv:99:fingerprint_owned_by:p-1")).toBe(true);
+    expect(productCatalogSyncJobOk(120, [dup])).toBe(true);
+
+    const p = partitionProductCatalogSyncErrors([dup, "persist:fail"]);
+    expect(p.variantConflicts).toEqual([dup]);
+    expect(p.hard).toEqual(["persist:fail"]);
+  });
 });

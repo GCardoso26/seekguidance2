@@ -2,7 +2,7 @@ import type { Pool, PoolClient } from "pg";
 import { getIdGenerator } from "../../shared/ids/IdGenerator.js";
 import { fingerprintFromVariantDto } from "../application/fingerprint.js";
 import { normalizeProductTitle, resolveTitlePt } from "../application/normalizeTitle.js";
-import { CATEGORY_TO_PRODUCT_TYPE } from "../domain/enums.js";
+import { CATEGORY_TO_PRODUCT_TYPE, ProductCategory } from "../domain/enums.js";
 import type {
   BrandUpsert,
   ImportedProductDTO,
@@ -23,6 +23,8 @@ export interface DeduplicationLookups {
   variantByEan: Map<string, string>;
   variantByFingerprint: Map<string, string>;
   variantByProductAndName: Map<string, string>;
+  /** variantId → productId; impede reaproveitar variante presa em outro produto. */
+  productIdByVariant: Map<string, string>;
 }
 
 export class PostgresProductCatalogRepository {
@@ -37,6 +39,7 @@ export class PostgresProductCatalogRepository {
     const variantByEan = new Map<string, string>();
     const variantByFingerprint = new Map<string, string>();
     const variantByProductAndName = new Map<string, string>();
+    const productIdByVariant = new Map<string, string>();
 
     const products = await this.pool.query<{ id: string; sku: string | null; ean: string | null; normalized_title: string }>(
       `SELECT id, sku, ean, normalized_title FROM product_catalog.products`,
@@ -63,6 +66,7 @@ export class PostgresProductCatalogRepository {
         `${row.product_id}::${normalizeProductTitle(row.variant_name)}`,
         row.id,
       );
+      productIdByVariant.set(row.id, row.product_id);
     }
 
     const images = await this.pool.query<{ sha256: string; entity_id: string }>(
@@ -86,6 +90,7 @@ export class PostgresProductCatalogRepository {
       variantByEan,
       variantByFingerprint,
       variantByProductAndName,
+      productIdByVariant,
     };
   }
 
@@ -256,13 +261,33 @@ export class PostgresProductCatalogRepository {
   }
 
   async upsertVariant(input: VariantUpsert): Promise<string> {
+    return (await this.upsertVariantDetailed(input)).id;
+  }
+
+  /**
+   * Insere de forma idempotente. Sem `id` conhecido e com fingerprint preenchido,
+   * o conflito resolve pelo índice parcial `uq_product_variant_fingerprint` em vez
+   * de estourar 23505 e derrubar a corrida inteira.
+   *
+   * `product_id` nunca é reescrito no DO UPDATE: mover uma variante de produto foi
+   * o que deixou 20 produtos sem nenhuma variante.
+   */
+  async upsertVariantDetailed(
+    input: VariantUpsert,
+  ): Promise<{ id: string; productId: string; conflicted: boolean }> {
     const id = input.id ?? getIdGenerator().generate();
-    await this.pool.query(
+    const fingerprint = input.fingerprint?.trim() || null;
+    const useFingerprintTarget = !input.id && fingerprint !== null;
+    const conflictTarget = useFingerprintTarget
+      ? `(fingerprint) WHERE fingerprint IS NOT NULL AND fingerprint <> ''`
+      : `(id)`;
+
+    const res = await this.pool.query<{ id: string; product_id: string }>(
       `
       INSERT INTO product_catalog.variants (
         id, product_id, color, size, language, edition, finish, variant_name, sku, ean, fingerprint
       ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
-      ON CONFLICT (id) DO UPDATE SET
+      ON CONFLICT ${conflictTarget} DO UPDATE SET
         color = COALESCE(EXCLUDED.color, product_catalog.variants.color),
         size = COALESCE(EXCLUDED.size, product_catalog.variants.size),
         language = COALESCE(EXCLUDED.language, product_catalog.variants.language),
@@ -273,6 +298,7 @@ export class PostgresProductCatalogRepository {
         ean = COALESCE(product_catalog.variants.ean, EXCLUDED.ean),
         fingerprint = COALESCE(product_catalog.variants.fingerprint, EXCLUDED.fingerprint),
         updated_at = now()
+      RETURNING id, product_id
       `,
       [
         id,
@@ -285,10 +311,17 @@ export class PostgresProductCatalogRepository {
         input.variantName,
         input.sku ?? null,
         input.ean ?? null,
-        input.fingerprint ?? null,
+        fingerprint,
       ],
     );
-    return id;
+
+    const row = res.rows[0];
+    if (!row) return { id, productId: input.productId, conflicted: false };
+    return {
+      id: row.id,
+      productId: row.product_id,
+      conflicted: row.id !== id || row.product_id !== input.productId,
+    };
   }
 
   async upsertAttributes(attrs: ProductAttributeUpsert[]): Promise<void> {
@@ -328,7 +361,7 @@ export class PostgresProductCatalogRepository {
     dto: ImportedProductDTO,
     lookups: DeduplicationLookups,
     dedup: import("../application/ProductDeduplicationService.js").ProductDeduplicationService,
-  ): Promise<{ productId: string; variantIds: string[] }> {
+  ): Promise<{ productId: string; variantIds: string[]; variantConflicts: string[] }> {
     let manufacturerId: string | null = null;
     let brandId: string | null = null;
     if (dto.manufacturerName) {
@@ -376,8 +409,15 @@ export class PostgresProductCatalogRepository {
     });
 
     await this.upsertProviderMapping(providerId, "PRODUCT", dto.providerRef, { productId });
+    if (dto.sku) lookups.bySku.set(dto.sku, productId);
+    if (dto.ean) lookups.byEan.set(dto.ean, productId);
+    lookups.byNormalizedTitle.set(
+      normalizeProductTitle(resolveTitlePt(dto.titlePt, dto.titleEn ?? undefined)),
+      productId,
+    );
 
     const variantIds: string[] = [];
+    const variantConflicts: string[] = [];
     for (const v of dto.variants) {
       const fingerprint = fingerprintFromVariantDto({
         brandName: dto.brandName,
@@ -388,6 +428,9 @@ export class PostgresProductCatalogRepository {
         language: v.language,
         finish: v.finish,
         attributes: v.attributes,
+        // Selado repete título entre reprints/foils; sem discriminador o fingerprint colide.
+        discriminator:
+          dto.category === ProductCategory.SEALED_PRODUCT ? (v.sku ?? dto.sku ?? undefined) : undefined,
       });
       const vIdentity = dedup.resolveVariant(
         productId,
@@ -397,9 +440,10 @@ export class PostgresProductCatalogRepository {
           byEan: lookups.variantByEan,
           byFingerprint: lookups.variantByFingerprint,
           byProductAndName: lookups.variantByProductAndName,
+          productIdByVariant: lookups.productIdByVariant,
         },
       );
-      const variantId = await this.upsertVariant({
+      const upserted = await this.upsertVariantDetailed({
         id: vIdentity.existingVariantId,
         productId,
         color: v.color,
@@ -412,6 +456,27 @@ export class PostgresProductCatalogRepository {
         ean: v.ean,
         fingerprint,
       });
+      const variantId = upserted.id;
+
+      if (upserted.productId !== productId) {
+        // O fingerprint bateu em variante de outro produto. Anexar aqui produziria o
+        // vínculo errado, então a variante fica de fora e o conflito vira erro soft.
+        variantConflicts.push(
+          `${v.providerRef}:fingerprint_owned_by:${upserted.productId}`,
+        );
+        variantIds.push("");
+        continue;
+      }
+
+      lookups.variantByFingerprint.set(fingerprint, variantId);
+      lookups.productIdByVariant.set(variantId, productId);
+      if (v.sku) lookups.variantBySku.set(v.sku, variantId);
+      if (v.ean) lookups.variantByEan.set(v.ean, variantId);
+      lookups.variantByProductAndName.set(
+        `${productId}::${normalizeProductTitle(v.variantName)}`,
+        variantId,
+      );
+
       if (v.attributes) {
         await this.upsertAttributes(
           Object.entries(v.attributes).map(([key, value]) => ({
@@ -428,7 +493,7 @@ export class PostgresProductCatalogRepository {
       });
     }
 
-    return { productId, variantIds };
+    return { productId, variantIds, variantConflicts };
   }
 
   async startSyncRun(jobKey: string, providerId: string, mode: "full" | "incremental"): Promise<string> {
