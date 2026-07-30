@@ -32,7 +32,7 @@ describe("GameSelector", () => {
 
   it("renderiza jogos com contagem e badge em breve", () => {
     render(<GameSelector games={GAMES} onSelect={vi.fn()} />);
-    expect(screen.getByRole("radiogroup", { name: /escolha seu jogo/i })).toBeTruthy();
+    expect(screen.getByRole("radiogroup", { name: /Todos os jogos no mercado/i })).toBeTruthy();
     expect(screen.getByText(/35k cartas/i)).toBeTruthy();
     expect(screen.getByText("Em breve")).toBeTruthy();
     expect(screen.getByText("Catálogo em ingestão")).toBeTruthy();

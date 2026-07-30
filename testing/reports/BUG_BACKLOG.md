@@ -14,10 +14,10 @@ Formato obrigatório. Status: OPEN salvo indicação.
 | **Impacto** | Checkout real / PIX indisponível; Beta público sem compra |
 | **Causa Raiz** | `PAYMENTS_ENABLED` aparentemente true em prod sem `PLATFORM_PIX_KEY` |
 | **Correção** | Ops: setar `PLATFORM_PIX_KEY` (+ type); ou reverter `PAYMENTS_ENABLED=false` até ter chave; depois `certify:checkout:prod` |
-| **Arquivos alterados** | `health_check.py` (`go_live_blockers`); `docs/GO_LIVE.md` — **ainda local, não deployado** |
+| **Arquivos alterados** | `health_check.py` (`go_live_blockers`); `docs/GO_LIVE.md` — deploy `c0c04b2c` |
 | **Testes criados** | `test_go_live_blockers_*` em `test_sprint7.py` |
-| **Evidência** | health live sem campo `go_live_blockers`; `gitCommit=c3ce4c8c` ≠ working tree P0 |
-| **Status** | BLOCKED_ON_OPS (pior: misconfigured) |
+| **Evidência** | Probe 2026-07-30T01:11Z: `payments=misconfigured`, blocker `payments_misconfigured` listado |
+| **Status** | BLOCKED_ON_OPS (misconfigured) |
 
 ---
 
@@ -33,7 +33,7 @@ Formato obrigatório. Status: OPEN salvo indicação.
 | **Correção** | Ops: `MELHOR_ENVIO_TOKEN` + `MELHOR_ENVIO_FROM_ADDRESS` JSON (+ `SHIPPING_V2_ENABLED`) |
 | **Arquivos alterados** | `health_check.py` (`go_live_blockers`); `docs/GO_LIVE.md` |
 | **Testes criados** | `test_go_live_blockers_*` |
-| **Evidência** | Health lista `melhor_envio_disabled` até secret existir |
+| **Evidência** | Probe 01:11Z: `melhor_envio_disabled` em `go_live_blockers`; `token_set=false` |
 | **Status** | BLOCKED_ON_OPS |
 
 ---
@@ -67,8 +67,8 @@ Formato obrigatório. Status: OPEN salvo indicação.
 | **Correção** | Transação + `pg_advisory_xact_lock(hashtext(asset_id))` + retry em `23505` |
 | **Arquivos alterados** | `AssetVersioningService.ts` |
 | **Testes criados** | `AssetVersioningLogic.test.ts` — 4 appends concorrentes → versions `[1,2,3,4]` |
-| **Evidência** | vitest AssetVersioningLogic 2/2 pass (2026-07-29) |
-| **Status** | FIXED |
+| **Evidência** | vitest 2/2; deploy `c0c04b2c`; logs: último burst uq_asset_version ~22:43Z 2026-07-29, silêncio no slice recente |
+| **Status** | FIXED (monitorar workers/cron) |
 
 ---
 
@@ -78,14 +78,14 @@ Formato obrigatório. Status: OPEN salvo indicação.
 |---|---|
 | **ID** | AUDIT-20260729-005 |
 | **Severidade** | P1 |
-| **Reprodução** | `npx vitest run` em `frontend/runtime_console_v3` → 6 falhas (5 após fix MobileLayout) |
+| **Reprodução** | `npx vitest run` → 5 falhas (GameSelector, CardCard, SellerOffersTable, tcg-logos, seller-plans) |
 | **Impacto** | CI/confiança de regressão |
-| **Causa Raiz** | Testes desalinhados / regressões de UI (GameSelector aria, CardCard, SellerOffersTable, tcg-logos, seller-plans) |
-| **Correção** | Corrigir produto ou atualizar contratos de teste com evidência |
-| **Arquivos alterados** | `tests/components/mobile/MobileLayout.test.tsx` (fix nesta pass) |
-| **Testes criados** | atualização MobileLayout |
-| **Evidência** | vitest summary 472 pass / 6 fail |
-| **Status** | PARTIAL |
+| **Causa Raiz** | TEST DRIFT — sandbox Vitest, ADR-016 11 jogos, copy/aria |
+| **Correção** | Testes alinhados; `aria-label` no botão Ver do CardCard |
+| **Arquivos alterados** | 5 test files + `CardCard.tsx` |
+| **Testes criados** | atualização dos 5 |
+| **Evidência** | vitest 19/19 nos arquivos alvo (2026-07-30) |
+| **Status** | FIXED |
 
 ---
 
@@ -95,14 +95,14 @@ Formato obrigatório. Status: OPEN salvo indicação.
 |---|---|
 | **ID** | AUDIT-20260729-006 |
 | **Severidade** | P1 |
-| **Reprodução** | Supabase advisor security: `anon_security_definer_function_executable` em `public.handle_new_user_google_confirm`, `public.rls_auto_enable` |
+| **Reprodução** | Advisor: `anon_security_definer_function_executable` em `handle_new_user_google_confirm`, `rls_auto_enable` |
 | **Impacto** | Superfície de ataque via RPC |
 | **Causa Raiz** | EXECUTE concedido a anon em SECURITY DEFINER |
-| **Correção** | Revogar EXECUTE de anon; auditar funções |
-| **Arquivos alterados** | — |
+| **Correção** | `REVOKE ALL … FROM PUBLIC, anon, authenticated` |
+| **Arquivos alterados** | `20260730015909_p1_security_revoke_and_rls_tighten.sql` (aplicada em prod) |
 | **Testes criados** | — |
-| **Evidência** | get_advisors security WARN |
-| **Status** | OPEN |
+| **Evidência** | `anon_exec=false`, `auth_exec=false`; advisors: `anon_secdef=0` |
+| **Status** | FIXED |
 
 ---
 
@@ -115,11 +115,11 @@ Formato obrigatório. Status: OPEN salvo indicação.
 | **Reprodução** | Advisor: `rls_policy_always_true` em `analytics_events`, `newsletter_subscribers` |
 | **Impacto** | Insert aberto / abuso |
 | **Causa Raiz** | Policies WITH CHECK true |
-| **Correção** | Restringir inserts; rate limit; captcha se público |
-| **Arquivos alterados** | — |
+| **Correção** | DROP policies; inserts só via API service_role |
+| **Arquivos alterados** | mesma migration P1 |
 | **Testes criados** | — |
-| **Evidência** | advisors |
-| **Status** | OPEN |
+| **Evidência** | advisors `always_true=0`; policies insert removidas |
+| **Status** | FIXED |
 
 ---
 
@@ -132,11 +132,11 @@ Formato obrigatório. Status: OPEN salvo indicação.
 | **Reprodução** | Advisor: `auth_leaked_password_protection` WARN |
 | **Impacto** | Senhas vazadas não bloqueadas |
 | **Causa Raiz** | Proteção HaveIBeenPwned desligada no Auth |
-| **Correção** | Habilitar no dashboard Supabase Auth |
-| **Arquivos alterados** | — |
+| **Correção** | Ativar no dashboard Supabase Auth (ver `docs/GO_LIVE.md`) |
+| **Arquivos alterados** | `docs/GO_LIVE.md` (checklist) |
 | **Testes criados** | — |
-| **Evidência** | advisors |
-| **Status** | OPEN |
+| **Evidência** | advisor ainda WARN pós-migration (toggle Auth, não SQL) |
+| **Status** | BLOCKED_ON_OPS |
 
 ---
 
@@ -176,8 +176,10 @@ Formato obrigatório. Status: OPEN salvo indicação.
 
 ## Contagem
 
-| Sev | OPEN |
+| Sev | Estado |
 |---|---|
-| P0 | 3 (1 mitigated risk) |
-| P1 | 5 |
-| P2 | 2 |
+| P0 | 001/002 BLOCKED_ON_OPS · 003 MITIGATED/DISK_OPS |
+| P1 | 004/005/006/007 FIXED · 008 BLOCKED_ON_OPS (Auth toggle) |
+| P2 | 2 OPEN |
+
+Execução: migration `20260730015909_p1_security_revoke_and_rls_tighten` · [`P1_STUDY.md`](P1_STUDY.md)

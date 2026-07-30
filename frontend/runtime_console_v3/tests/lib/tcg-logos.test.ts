@@ -4,8 +4,8 @@ import { ALL_TCG_LOGO_SLUGS, getTcgLogo, getTcgLogoBySlug, getTcgLogoDimensions 
 import { TCG_OPTIONS } from "@/types/judge";
 
 describe("tcg-logos", () => {
-  it("mapeia os 14 slugs de jogo", () => {
-    expect(ALL_TCG_LOGO_SLUGS).toHaveLength(14);
+  it("mapeia os slugs de jogo (ADR-016 allowlist)", () => {
+    expect(ALL_TCG_LOGO_SLUGS).toHaveLength(11);
     for (const game of TCG_OPTIONS) {
       const slug = gameSlugFromTcg(game.id);
       const logo = getTcgLogo(game.id);
@@ -20,7 +20,7 @@ describe("tcg-logos", () => {
     expect(getTcgLogoDimensions("compact")).toEqual({ width: 64, height: 64 });
   });
 
-  it("todos os 14 jogos com SVG dedicado em /public/logos", () => {
+  it("todos os jogos allowlist com SVG dedicado em /public/logos", () => {
     for (const game of TCG_OPTIONS) {
       const slug = gameSlugFromTcg(game.id);
       const logo = getTcgLogo(game.id);

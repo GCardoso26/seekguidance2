@@ -175,6 +175,7 @@ export function CardCard({
             size="sm"
             variant="outline"
             className="min-h-11 flex-1"
+            aria-label={`Ver detalhes de ${card.name}`}
             onClick={(e) => {
               e.stopPropagation();
               handleViewDetail();

@@ -78,7 +78,8 @@ describe("SellerOffersTable", () => {
 
   it("mostra estado vazio sem ofertas", () => {
     render(<SellerOffersTable listings={[]} />);
-    expect(screen.getByText(/Nenhuma oferta disponível/i)).toBeTruthy();
+    expect(screen.getByTestId("pdp-no-offers")).toBeTruthy();
+    expect(screen.getByText(/sem ofertas/i)).toBeTruthy();
   });
 
   it("ordena por preço ascendente por padrão", () => {

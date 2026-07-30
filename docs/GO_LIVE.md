@@ -48,6 +48,16 @@ No Render, configure:
 
 Esperado pós-config: `melhor_envio.status` = `configured` (ou `partial` se só faltar `from_address`).
 
+## Auth — proteção de senhas vazadas (AUDIT-008)
+
+No dashboard Supabase do projeto de produção:
+
+1. **Authentication → Providers → Email** (ou **Auth → Settings → Security**)
+2. Ativar **Leaked password protection** (HaveIBeenPwned)
+3. Revalidar: advisor `auth_leaked_password_protection` deve sumir
+
+Isto é toggle de Auth — não vai em migration SQL.
+
 ## Deploy
 
 ```bash
