@@ -137,10 +137,9 @@ const nextConfig = {
       { protocol: "https", hostname: "goagain.dev" },
       { protocol: "https", hostname: "assets.tcgdex.net" },
       { protocol: "https", hostname: "judgetcg.com.br" },
+      // Cobre cdn.judgetcg.com.br, o CDN próprio de mídia do R2 (ADR-017)
       { protocol: "https", hostname: "**.judgetcg.com.br" },
       { protocol: "https", hostname: "tcg-judge.com" },
-      // CDN próprio de mídia (ADR-017) — destino do R2, substitui o hotlink do TCGplayer
-      { protocol: "https", hostname: "cdn.judgetcg.com" },
       // Lorcana + Ravensburger packshots
       { protocol: "https", hostname: "lorcana-api.com" },
       { protocol: "https", hostname: "**.ravensburger.com" },

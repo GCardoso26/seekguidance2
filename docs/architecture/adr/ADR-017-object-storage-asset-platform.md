@@ -20,7 +20,7 @@ Problema **observado**, não imaginado: existe hoje, no banco de produção, met
 
 ### 1. Autorizar object storage próprio para mídia
 
-Cloudflare R2, S3-compatível, servido por `cdn.judgetcg.com`. Escopo restrito a **mídia de catálogo**. Não é storage de propósito geral e não substitui Postgres para dado estruturado.
+Cloudflare R2, S3-compatível, servido por `cdn.judgetcg.com.br` (a zona na conta Cloudflare é a `.com.br`). Escopo restrito a **mídia de catálogo**. Não é storage de propósito geral e não substitui Postgres para dado estruturado.
 
 ### 2. O pipeline de asset é: download, otimizar, upload, persistir
 
@@ -52,7 +52,7 @@ Quatro resoluções de produto (240, 420, 800, 1200) em AVIF e WebP, mais o orig
 - `services/api` ganha duas dependências: `sharp` (nativa) e `@aws-sdk/client-s3`. Os Dockerfiles de worker precisam suportar o binário nativo.
 - `PRODUCT_CATALOG_R2_PUBLIC_BASE` passa a ser env de corte com pré-requisito: só pode ser ligada **depois** do backfill de reprocessamento, sob pena de sobrescrever `cdn_url` funcionando por URL vazia.
 - Novas envs: `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET`.
-- `cdn.judgetcg.com` entra em `remotePatterns` e no CSP `img-src` do frontend.
+- `cdn.judgetcg.com.br` já é coberto por `**.judgetcg.com.br` em `remotePatterns`; o CSP `img-src` aceita `https:`.
 
 ### Não altera
 

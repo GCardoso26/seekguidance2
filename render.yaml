@@ -136,7 +136,8 @@ services:
         sync: false
       - key: R2_BUCKET
         sync: false
-      # Só ligar DEPOIS do backfill-asset-storage.ts concluir (ADR-017, ordem de corte).
+      # https://cdn.judgetcg.com.br — só ligar DEPOIS do backfill-asset-storage.ts
+      # concluir (ADR-017, ordem de corte).
       - key: PRODUCT_CATALOG_R2_PUBLIC_BASE
         sync: false
       - key: REDIS_URL

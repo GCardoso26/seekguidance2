@@ -35,7 +35,7 @@ O ponto 3 do próprio [docs/SEALED_PRODUCT_IMAGE_PROVIDERS.md](../SEALED_PRODUCT
 
 3. **Supabase Storage.** Projeto já existe, uma dependência a menos. Porém o egress conta na cota do plano e o mesmo Postgres já teve incidente de disco cheio (AUDIT-003); acoplar mídia ao mesmo fornecedor concentra risco.
 
-4. **Cloudflare R2 com CDN próprio (proposta).** Egress zero, S3-compatível, domínio `cdn.judgetcg.com` sob nosso controle. Custa uma dependência nativa (`sharp`) e credenciais novas.
+4. **Cloudflare R2 com CDN próprio (proposta).** Egress zero, S3-compatível, domínio `cdn.judgetcg.com.br` sob nosso controle. Custa uma dependência nativa (`sharp`) e credenciais novas.
 
 ## Proposta
 
@@ -44,7 +44,7 @@ Completar o pipeline que já existe, na ordem que ele já declara: **download �
 ```text
 Provider → Job → Download → Virus scan → SHA-256 → Dedupe
                                                       ↓
-        cdn.judgetcg.com ← Upload R2 ← WebP/AVIF ← Resize
+        cdn.judgetcg.com.br ← Upload R2 ← WebP/AVIF ← Resize
 ```
 
 - **Porta hexagonal** `ObjectStoragePort` com `R2ObjectStorage` e `NoopObjectStorage`. O default é `Noop`, então dev e CI continuam sem rede e sem credencial.
@@ -72,7 +72,7 @@ Nenhuma fronteira pública muda. `media.assets.cdn_url` e `derivatives` já são
 1. `ObjectStoragePort` + `R2ObjectStorage` + `NoopObjectStorage`, com testes usando o Noop.
 2. `sharp` no `AssetMediaPipeline`, gerando derivadas reais e preenchendo `width`/`height` (hoje sempre nulos).
 3. Backfill de reprocessamento dos assets existentes.
-4. `cdn.judgetcg.com` em `remotePatterns` e no CSP `img-src` do frontend.
+4. `cdn.judgetcg.com.br` liberado no frontend (já coberto por `**.judgetcg.com.br` em `remotePatterns`).
 5. Ligar a env em produção e validar HTTP 200 nas derivadas.
 
 ## Critérios de aceite

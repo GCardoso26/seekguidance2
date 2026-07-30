@@ -375,25 +375,30 @@ npx tsx scripts/count-tcgcsv-sealed-by-game.ts   # cobertura esperada: 11 jogos,
 
 ### 5.6 Runbook do R2 (ADR-017)
 
-Ordem obrigatória. Ligar `PRODUCT_CATALOG_R2_PUBLIC_BASE` antes do backfill faz
-`cdn_url = COALESCE(EXCLUDED.cdn_url, …)` sobrescrever hotlink bom por URL de objeto que não existe.
-
 1. **Deploy do código novo primeiro.** Enquanto o cron horário roda a versão antiga, ele reinsere os
-   falso-positivos que a purga tirou — foi o que aconteceu em 2026-07-30.
+   falso-positivos que a purga tirou — aconteceu em 2026-07-30: a corrida iniciada às 15:20 UTC seguiu
+   com a imagem velha até 15:41 e inseriu mais 79. Espere a primeira corrida com a imagem nova.
 2. **Purga** com o filtro corrigido já em produção:
    `npx tsx scripts/purge-tcgcsv-false-positives.ts` (dry-run), revisar
    `.tmp/tcgcsv-purge-report.json`, então `--apply` (grava snapshot antes de deletar).
-3. **Credenciais R2** nos serviços `tcg-judge-pc-workers`, `tcg-judge-pc-sealed-hourly` e
-   `tcg-judge-pc-accessories-daily`: `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`,
-   `R2_BUCKET`. Ainda **sem** `PRODUCT_CATALOG_R2_PUBLIC_BASE` no runtime.
-4. **Backfill dos assets existentes**, que precisa da base pública para escrever as URLs:
-   `npx tsx scripts/backfill-asset-storage.ts --limit 50` (amostra), conferir
-   `.tmp/asset-storage-backfill.json` e abrir uma URL derivada no navegador; depois
-   `--concurrency 4` na corrida completa.
-5. **Ligar `PRODUCT_CATALOG_R2_PUBLIC_BASE=https://cdn.judgetcg.com`** no runtime. A partir daí toda
-   ingestão nova nasce no CDN próprio.
+3. **Custom Domain no bucket** (`cdn.judgetcg.com.br`, zona na mesma conta Cloudflare) e as quatro
+   credenciais `R2_*` nos serviços `tcg-judge-pc-workers`, `tcg-judge-pc-sealed-hourly` e
+   `tcg-judge-pc-accessories-daily`. Não habilitar a Public Development URL: ela expõe o bucket num
+   domínio `r2.dev` sem cache.
+4. **Ligar `PRODUCT_CATALOG_R2_PUBLIC_BASE=https://cdn.judgetcg.com.br`** no runtime e no `.env` local.
+   A partir daí toda ingestão nova nasce no CDN próprio.
+5. **Backfill dos assets existentes**: `npx tsx scripts/backfill-asset-storage.ts --limit 50`
+   (amostra), conferir `.tmp/asset-storage-backfill.json` e abrir uma URL derivada no navegador;
+   depois `--concurrency 4` na corrida completa.
 6. **Verificar**: `npx tsx scripts/catalog-health-check.ts` e uma amostra de `derivatives` respondendo
    200 sem host de terceiro.
+
+Sobre a ordem entre 4 e 5: a versão anterior deste runbook mandava ligar a env **depois** do backfill,
+porque o código antigo gravava `cdn_url` sem nunca subir bytes e o `COALESCE(EXCLUDED.cdn_url, …)`
+trocaria hotlink bom por URL morta. Isso deixou de valer: `AssetService.ingest` executa o pipeline
+antes de gravar e o upload acontece na mesma chamada que monta a URL, então `cdn_url` só aponta para o
+R2 depois que o objeto existe. O backfill continua necessário — sem ele, asset que nenhuma corrida
+volta a tocar fica em hotlink para sempre —, mas não bloqueia mais a env.
 
 Rollback: remover `PRODUCT_CATALOG_R2_PUBLIC_BASE`. O pipeline volta ao `NoopObjectStorage`, mantém a
 URL de origem em `cdn_url` e para de publicar derivadas. Os objetos já no R2 continuam servindo.
@@ -465,7 +470,7 @@ logo/ícone de set como packshot.
 - [x] Gate duplo no filtro de selados (`extendedData` + fronteira de palavra) — §5.4.1.
 - [x] `TCGCSV_SEALED_MIN_YEAR` e re-medição do universo (5.952 reais, 2.400 no recorte 2024+).
 - [x] `ObjectStoragePort` + `R2ObjectStorage` + otimização com `sharp` (ADR-017).
-- [x] `cdn.judgetcg.com` em `remotePatterns` (o CSP `img-src` já aceita `https:`).
+- [x] `cdn.judgetcg.com.br` liberado no frontend por `**.judgetcg.com.br` (o CSP `img-src` já aceita `https:`).
 - [ ] Executar o runbook do R2 em produção na ordem da §5.6 (deploy → purga → credenciais → backfill → env).
 - [ ] Validar no frontend (`CardImage`/`ResponsiveImage`, `mediaType` SEALED_*).
 - [ ] (Opcional) manifests oficiais para arte curada de topo (ADR-016).
