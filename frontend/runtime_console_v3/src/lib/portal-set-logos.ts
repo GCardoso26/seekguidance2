@@ -35,9 +35,66 @@ export const LORCANA_HERO_BANNER_PATHS = [
   "/logos/sets/lorcana/lor14_banner.avif",
 ] as const;
 
+/**
+ * Packshot hero banners for wave games (excl. Lorcana AVIF above).
+ * Sourced via scripts/fetch-portal-hero-banners.mjs (TCGCSV → TCGplayer CDN).
+ */
+const WAVE_HERO_BANNER_PATHS: Partial<Record<GameId, readonly string[]>> = {
+  MTG: [
+    "/logos/sets/mtg/mtg_banner_1.jpg",
+    "/logos/sets/mtg/mtg_banner_2.jpg",
+    "/logos/sets/mtg/mtg_banner_3.jpg",
+  ],
+  POKEMON: [
+    "/logos/sets/pokemon/pokemon_banner_1.jpg",
+    "/logos/sets/pokemon/pokemon_banner_2.jpg",
+    "/logos/sets/pokemon/pokemon_banner_3.jpg",
+  ],
+  YGO: [
+    "/logos/sets/yugioh/yugioh_banner_1.jpg",
+    "/logos/sets/yugioh/yugioh_banner_2.jpg",
+    "/logos/sets/yugioh/yugioh_banner_3.jpg",
+  ],
+  ONEPIECE: [
+    "/logos/sets/onepiece/onepiece_banner_1.jpg",
+    "/logos/sets/onepiece/onepiece_banner_2.jpg",
+    "/logos/sets/onepiece/onepiece_banner_3.jpg",
+  ],
+  DIGIMON: [
+    "/logos/sets/digimon/digimon_banner_1.jpg",
+    "/logos/sets/digimon/digimon_banner_2.jpg",
+    "/logos/sets/digimon/digimon_banner_3.jpg",
+  ],
+  DBFW: [
+    "/logos/sets/dbfw/dbfw_banner_1.jpg",
+    "/logos/sets/dbfw/dbfw_banner_2.jpg",
+    "/logos/sets/dbfw/dbfw_banner_3.jpg",
+  ],
+  RIFTBOUND: [
+    "/logos/sets/riftbound/riftbound_banner_1.jpg",
+    "/logos/sets/riftbound/riftbound_banner_2.jpg",
+    "/logos/sets/riftbound/riftbound_banner_3.jpg",
+  ],
+  FAB: [
+    "/logos/sets/fab/fab_banner_1.jpg",
+    "/logos/sets/fab/fab_banner_2.jpg",
+    "/logos/sets/fab/fab_banner_3.jpg",
+  ],
+  GUNDAM: [
+    "/logos/sets/gundam/gundam_banner_1.jpg",
+    "/logos/sets/gundam/gundam_banner_2.jpg",
+    "/logos/sets/gundam/gundam_banner_3.jpg",
+  ],
+  SORCERY: [
+    "/logos/sets/sorcery/sorcery_banner_1.jpg",
+    "/logos/sets/sorcery/sorcery_banner_2.jpg",
+    "/logos/sets/sorcery/sorcery_banner_3.jpg",
+  ],
+};
+
 export function portalHeroBannerPaths(gameId: GameId): readonly string[] {
   if (gameId === "LORCANA") return LORCANA_HERO_BANNER_PATHS;
-  return [];
+  return WAVE_HERO_BANNER_PATHS[gameId] ?? [];
 }
 
 const GAME_SET_LOGO_INDEX: Partial<Record<GameId, Record<string, number>>> = {

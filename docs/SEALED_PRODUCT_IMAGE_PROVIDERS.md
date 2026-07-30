@@ -56,6 +56,7 @@ box**, **pack**, **bundle**, **deck pré-construído**, **display**, etc., e cad
 | Pokémon | https://tcg.pokemon.com/pt-br/ | **3** (JP: **85**) | `30th Celebration Pack` (ETB/box/pack) |
 | Magic: The Gathering | https://magic.wizards.com/en | **1** | `Star Trek Commander Deck - Federation Fleet` |
 | Disney Lorcana | https://www.disneylorcana.com/en-US/ | **71** | `Disney Lorcana: Hyperia City Booster Box` |
+| Riftbound | https://riftbound.leagueoflegends.com/ | **89** | `Vendetta - Booster Pack` / Display |
 
 > Observação: também existem `Dragon Ball Super CCG` (27) e `Dragon Ball Z TCG` (23) — para **Fusion
 > World** use **80**.
@@ -108,6 +109,7 @@ individuais (não resolve selado).
 | Flesh and Blood | **TCGCSV cat 62** [SELADO] | fab-cube JSON [CARTAS] | fabtcg.com |
 | Sorcery | **TCGCSV cat 77** [SELADO]; + manifest de packshots oficial já existente no repo | sorcerytcg CDN [CARTAS] | sorcerytcg.com |
 | Lorcana | **TCGCSV cat 71** [SELADO] | lorcana-api / lorcast [CARTAS] | disneylorcana.com |
+| Riftbound | **TCGCSV cat 89** [SELADO] | — | riftbound.leagueoflegends.com |
 
 **Conclusão:** para **imagem de selado**, o caminho consistente e multi-jogo é **TCGCSV/TCGplayer**. Os
 sites oficiais servem como **fonte secundária/curada** (manifest de packshot ou scraping controlado),
@@ -168,7 +170,7 @@ import type { ImportedProductDTO, ProductCatalogSyncContext, ProductCatalogSyncR
 
 const CATEGORY_BY_GAME: Record<string, number> = {
   MTG: 1, YUGIOH: 2, POKEMON: 3, FAB: 62, DIGIMON: 63,
-  ONE_PIECE: 68, LORCANA: 71, SORCERY: 77, DBFW: 80, GUNDAM: 86,
+  ONE_PIECE: 68, LORCANA: 71, SORCERY: 77, DBFW: 80, GUNDAM: 86, RIFTBOUND: 89,
 };
 
 const SEALED_KEYWORDS = [
@@ -235,25 +237,51 @@ Opcional: inserir linha em `product_catalog.provider_registry` (migration
 `tcgplayer-cdn.tcgplayer.com` **já está** em `next.config.mjs → remotePatterns`. Nenhuma mudança
 necessária. (Se um dia usar imagens dos sites oficiais, adicionar os hosts correspondentes.)
 
-### 5.4 Rodar a sincronização
+### 5.4 Orçamento per-game (caps)
+
+O budget é **por jogo**, para o primeiro jogo do mapa (ex. MTG) não consumir o teto global e deixar
+Pokémon/YGO/… sem backfill. Defaults em `resolveTcgCsvSealedCaps`:
+
+| Env | Full default | Incremental default | Papel |
+|-----|--------------|---------------------|--------|
+| `TCGCSV_SEALED_MAX_GROUPS_PER_GAME` | `80` | `15` | grupos (sets) por categoria |
+| `TCGCSV_SEALED_MAX_PRODUCTS_PER_GAME` | `500` | `80` | produtos selados por jogo |
+| `TCGCSV_SEALED_MAX_PRODUCTS` | `6000` | `600` | teto global de segurança |
+
+Alias legado: `TCGCSV_SEALED_MAX_GROUPS` ainda alimenta `MAX_GROUPS_PER_GAME` se a env per-game não
+estiver setada. Groups são ordenados por `publishedOn` DESC (sets recentes primeiro).
+
+### 5.5 Rodar a sincronização
 
 ```bash
 # requer Postgres/Supabase com o schema product_catalog
 cd services/api
-npx tsx src/product-catalog/workers/sync-runner.ts catalog.sync.sealed --full
+
+# contagem sem write
+npx tsx src/product-catalog/workers/sync-runner.ts catalog.sync.sealed --full --dry-run
+
+# ingest real com caps controlados
+# PowerShell:
+$env:TCGCSV_SEALED_MAX_GROUPS_PER_GAME="80"
+$env:TCGCSV_SEALED_MAX_PRODUCTS_PER_GAME="500"
+npm run sync:sealed -- --full
+
 # incremental:
 npx tsx src/product-catalog/workers/sync-runner.ts catalog.sync.sealed --since 2026-07-01
 ```
 
-O `ProductCatalogSyncService` persiste os produtos e dispara o `AssetMediaPipeline`, que baixa a imagem,
-calcula SHA-256 e (se `PRODUCT_CATALOG_R2_PUBLIC_BASE` estiver setado) publica no CDN próprio — evitando
-hotlink direto ao TCGplayer em produção.
+Abortar se disco Supabase / WAL degradar. O `ProductCatalogSyncService` persiste os produtos e dispara
+o `AssetMediaPipeline`, que baixa a imagem, calcula SHA-256 e (se `PRODUCT_CATALOG_R2_PUBLIC_BASE`
+estiver setado) publica no CDN próprio — evitando hotlink direto ao TCGplayer em produção.
 
-### 5.5 Variáveis de ambiente
+### 5.6 Variáveis de ambiente
 
 | Env | Uso |
 |-----|-----|
 | `JUSTTCG_API_KEY` | (opcional) header para TCGCSV, se aplicável ao seu tier |
+| `TCGCSV_SEALED_MAX_GROUPS_PER_GAME` | grupos por jogo (ver §5.4) |
+| `TCGCSV_SEALED_MAX_PRODUCTS_PER_GAME` | produtos selados por jogo |
+| `TCGCSV_SEALED_MAX_PRODUCTS` | teto global de segurança |
 | `PRODUCT_CATALOG_R2_PUBLIC_BASE` | base do CDN próprio para reidratar as imagens ingeridas |
 | `PRODUCT_CATALOG_LIGA_IMAGE_FALLBACK` / `PRODUCT_CATALOG_LIGA_SEED_URLS` | fallback existente (Liga) |
 
@@ -299,13 +327,14 @@ logo/ícone de set como packshot.
 
 ## 8. Checklist de implementação
 
-- [x] Criar `TcgCsvSealedProvider.ts` (seção 5.1) com o mapa de `categoryId`.
+- [x] Criar `TcgCsvSealedProvider.ts` (seção 5.1) com o mapa de `categoryId` (inclui **Riftbound 89**).
 - [x] Filtrar somente selados (descartar cartas) e mapear subcategoria/`product_type`.
 - [x] Emitir `images[].sourceUrl` no padrão `_in_1000x1000.jpg`.
+- [x] Orçamento **per-game** (`TCGCSV_SEALED_MAX_*_PER_GAME` + teto global) — §5.4.
 - [x] Registrar em `providers/registry.ts` (`catalog.sync.sealed`).
 - [ ] (Opcional) linha em `product_catalog.provider_registry`.
 - [x] Confirmar `tcgplayer-cdn.tcgplayer.com` no `next.config.mjs` (já presente).
-- [ ] Rodar `sync-runner.ts catalog.sync.sealed --full` e validar ingestão em `media.assets`.
+- [x] Rodar `sync-runner` / `sync-tcgcsv-sealed-only` com caps e validar cobertura por `game` (≥10 jogos).
 - [ ] Configurar `PRODUCT_CATALOG_R2_PUBLIC_BASE` para reidratar imagens no CDN próprio.
 - [ ] Validar no frontend (`CardImage`/`ResponsiveImage`, `mediaType` SEALED_*).
 - [ ] (Opcional) manifests oficiais para arte curada de topo (ADR-016).

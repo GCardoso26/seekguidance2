@@ -1,0 +1,145 @@
+{
+  "generatedAt": "2026-07-30T04:22:09.961Z",
+  "games": [
+    {
+      "gameId": "MTG",
+      "slug": "mtg",
+      "paths": [
+        "/logos/sets/mtg/mtg_banner_1.jpg",
+        "/logos/sets/mtg/mtg_banner_2.jpg",
+        "/logos/sets/mtg/mtg_banner_3.jpg"
+      ],
+      "products": [
+        "Star Trek Commander Deck - Federation Fleet",
+        "Star Trek Commander Deck - Landing Party",
+        "Star Trek Commander Deck - Klingon Fury"
+      ]
+    },
+    {
+      "gameId": "POKEMON",
+      "slug": "pokemon",
+      "paths": [
+        "/logos/sets/pokemon/pokemon_banner_1.jpg",
+        "/logos/sets/pokemon/pokemon_banner_2.jpg",
+        "/logos/sets/pokemon/pokemon_banner_3.jpg"
+      ],
+      "products": [
+        "30th Celebration Elite Trainer Box",
+        "30th Celebration Pokemon Center Elite Trainer Box",
+        "30th Celebration 2-Pack Blister"
+      ]
+    },
+    {
+      "gameId": "YGO",
+      "slug": "yugioh",
+      "paths": [
+        "/logos/sets/yugioh/yugioh_banner_1.jpg",
+        "/logos/sets/yugioh/yugioh_banner_2.jpg",
+        "/logos/sets/yugioh/yugioh_banner_3.jpg"
+      ],
+      "products": [
+        "Magnificent Monsters Display",
+        "Magnificent Monsters Booster Pack",
+        "Chaos Origins Booster Box [1st Edition]"
+      ]
+    },
+    {
+      "gameId": "ONEPIECE",
+      "slug": "onepiece",
+      "paths": [
+        "/logos/sets/onepiece/onepiece_banner_1.jpg",
+        "/logos/sets/onepiece/onepiece_banner_2.jpg",
+        "/logos/sets/onepiece/onepiece_banner_3.jpg"
+      ],
+      "products": [
+        "The World's Strongest Warriors Booster Pack",
+        "Starter Deck 31: RED Monkey.D.Luffy",
+        "Starter Deck 31: RED Monkey.D.Luffy Display"
+      ]
+    },
+    {
+      "gameId": "DIGIMON",
+      "slug": "digimon",
+      "paths": [
+        "/logos/sets/digimon/digimon_banner_1.jpg",
+        "/logos/sets/digimon/digimon_banner_2.jpg",
+        "/logos/sets/digimon/digimon_banner_3.jpg"
+      ],
+      "products": [
+        "Timeless Bonds Booster Pack",
+        "Timeless Bonds Booster Box",
+        "Timeless Bonds Booster Box Case"
+      ]
+    },
+    {
+      "gameId": "DBFW",
+      "slug": "dbfw",
+      "paths": [
+        "/logos/sets/dbfw/dbfw_banner_1.jpg",
+        "/logos/sets/dbfw/dbfw_banner_2.jpg",
+        "/logos/sets/dbfw/dbfw_banner_3.jpg"
+      ],
+      "products": [
+        "Story Booster 01 Booster Box",
+        "Story Booster 01 Booster Box Case",
+        "Story Booster 01 Booster Pack"
+      ]
+    },
+    {
+      "gameId": "RIFTBOUND",
+      "slug": "riftbound",
+      "paths": [
+        "/logos/sets/riftbound/riftbound_banner_1.jpg",
+        "/logos/sets/riftbound/riftbound_banner_2.jpg",
+        "/logos/sets/riftbound/riftbound_banner_3.jpg"
+      ],
+      "products": [
+        "Vendetta - Booster Pack",
+        "Vendetta - Booster Display",
+        "Vendetta - Booster Display Case"
+      ]
+    },
+    {
+      "gameId": "FAB",
+      "slug": "fab",
+      "paths": [
+        "/logos/sets/fab/fab_banner_1.jpg",
+        "/logos/sets/fab/fab_banner_2.jpg",
+        "/logos/sets/fab/fab_banner_3.jpg"
+      ],
+      "products": [
+        "Usurp the Shadow Throne Booster Pack",
+        "Usurp the Shadow Throne Booster Box",
+        "Usurp the Shadow Throne Booster Box Case"
+      ]
+    },
+    {
+      "gameId": "GUNDAM",
+      "slug": "gundam",
+      "paths": [
+        "/logos/sets/gundam/gundam_banner_1.jpg",
+        "/logos/sets/gundam/gundam_banner_2.jpg",
+        "/logos/sets/gundam/gundam_banner_3.jpg"
+      ],
+      "products": [
+        "Freedom Ascension Booster Pack",
+        "Freedom Ascension Booster Box",
+        "Freedom Ascension Booster Box Case"
+      ]
+    },
+    {
+      "gameId": "SORCERY",
+      "slug": "sorcery",
+      "paths": [
+        "/logos/sets/sorcery/sorcery_banner_1.jpg",
+        "/logos/sets/sorcery/sorcery_banner_2.jpg",
+        "/logos/sets/sorcery/sorcery_banner_3.jpg"
+      ],
+      "products": [
+        "Prophets of Doom Preconstructed Decks",
+        "Gothic Booster Pack",
+        "Gothic Booster Box"
+      ]
+    }
+  ]
+}

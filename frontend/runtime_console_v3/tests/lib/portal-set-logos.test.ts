@@ -8,6 +8,8 @@ import {
 } from "@/lib/portal-set-logos";
 import { pickMasterCatalogImage } from "@/lib/portal-category-images";
 import type { MasterCatalogSearchItem } from "@/hooks/useMasterProductCatalog";
+import { IMPLEMENTATION_WAVE_GAME_IDS } from "@/lib/game-rollout";
+import { isProductEcosystemDenied } from "@/lib/product-game-allowlist";
 
 describe("portal-set-logos", () => {
   it("maps Lorcana set codes to public AVIF key-art paths", () => {
@@ -19,9 +21,16 @@ describe("portal-set-logos", () => {
     expect(setLogoPublicPath("LORCANA", "ROF")).toBeNull();
   });
 
-  it("exposes Lorcana portal hero banner paths", () => {
+  it("exposes portal hero banner paths for all wave games", () => {
     expect(portalHeroBannerPaths("LORCANA")).toEqual([...LORCANA_HERO_BANNER_PATHS]);
-    expect(portalHeroBannerPaths("POKEMON")).toEqual([]);
+    for (const gameId of IMPLEMENTATION_WAVE_GAME_IDS) {
+      if (isProductEcosystemDenied(gameId)) continue;
+      const paths = portalHeroBannerPaths(gameId);
+      expect(paths, gameId).toHaveLength(3);
+      for (const p of paths) {
+        expect(p.startsWith("/logos/sets/")).toBe(true);
+      }
+    }
   });
 
   it("returns null for games without set logo assets", () => {

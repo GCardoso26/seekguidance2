@@ -2,6 +2,8 @@
  * TCGCSV → TCGplayer CDN sealed packshots (docs/SEALED_PRODUCT_IMAGE_PROVIDERS.md).
  * ADR-016: verified HTTPS packshots only — never set logo/icon. Trust = distributor_feed
  * so curated official manifests still win over this source.
+ *
+ * Budget is per-game so MTG cannot starve Pokémon/YGO/… under a global product cap.
  */
 import { ProductCategory } from "../../domain/enums.js";
 import type { ImportedProductDTO } from "../../domain/models.js";
@@ -15,7 +17,7 @@ import { fetchWithTransientRetry } from "../fetchWithTransientRetry.js";
 const TCGCSV_BASE = "https://tcgcsv.com/tcgplayer";
 const TCGCSV_UA = "JudgeTCG/product-catalog (https://judgetcg.com.br)";
 
-/** Validated category map (2026-07-25) — excludes ADR-016 denylist (SWU/Vanguard/UArena). */
+/** Validated category map — excludes ADR-016 denylist (SWU/Vanguard/UArena). */
 export const TCGCSV_CATEGORY_BY_GAME: Record<string, number> = {
   MTG: 1,
   YUGIOH: 2,
@@ -27,6 +29,7 @@ export const TCGCSV_CATEGORY_BY_GAME: Record<string, number> = {
   SORCERY: 77,
   DBFW: 80,
   GUNDAM: 86,
+  RIFTBOUND: 89,
 };
 
 const SEALED_KEYWORDS = [
@@ -96,6 +99,27 @@ export function isSealedTcgCsvProduct(name: string): boolean {
   return SEALED_KEYWORDS.some((k) => n.includes(k));
 }
 
+export function resolveTcgCsvSealedCaps(mode: ProductCatalogSyncContext["mode"]): {
+  maxGroupsPerGame: number;
+  maxProductsPerGame: number;
+  maxProductsGlobal: number;
+} {
+  const isFull = mode === "full";
+  return {
+    maxGroupsPerGame: Number(
+      process.env.TCGCSV_SEALED_MAX_GROUPS_PER_GAME ??
+        process.env.TCGCSV_SEALED_MAX_GROUPS ??
+        (isFull ? "80" : "15"),
+    ),
+    maxProductsPerGame: Number(
+      process.env.TCGCSV_SEALED_MAX_PRODUCTS_PER_GAME ?? (isFull ? "500" : "80"),
+    ),
+    maxProductsGlobal: Number(
+      process.env.TCGCSV_SEALED_MAX_PRODUCTS ?? (isFull ? "6000" : "600"),
+    ),
+  };
+}
+
 function headers(): Record<string, string> {
   const h: Record<string, string> = {
     Accept: "application/json",
@@ -124,17 +148,15 @@ export class TcgCsvSealedProvider extends BaseProductCatalogProvider {
   override async syncProducts(
     ctx: ProductCatalogSyncContext,
   ): Promise<ProductCatalogSyncResult<ImportedProductDTO>> {
-    const maxGroups = Number(
-      process.env.TCGCSV_SEALED_MAX_GROUPS ?? (ctx.mode === "full" ? "40" : "12"),
-    );
-    const maxProducts = Number(
-      process.env.TCGCSV_SEALED_MAX_PRODUCTS ?? (ctx.mode === "full" ? "2500" : "600"),
+    const { maxGroupsPerGame, maxProductsPerGame, maxProductsGlobal } = resolveTcgCsvSealedCaps(
+      ctx.mode,
     );
     const items: ImportedProductDTO[] = [];
     const errors: string[] = [];
 
     for (const [game, categoryId] of Object.entries(TCGCSV_CATEGORY_BY_GAME)) {
-      if (items.length >= maxProducts) break;
+      if (items.length >= maxProductsGlobal) break;
+
       const groupsBody = await getJson<{ results?: TcgCsvGroup[] }>(
         `${TCGCSV_BASE}/${categoryId}/groups`,
       );
@@ -146,10 +168,12 @@ export class TcgCsvSealedProvider extends BaseProductCatalogProvider {
       const groups = [...groupsBody.results]
         .filter((g) => g.groupId != null)
         .sort((a, b) => String(b.publishedOn ?? "").localeCompare(String(a.publishedOn ?? "")))
-        .slice(0, Math.max(1, maxGroups));
+        .slice(0, Math.max(1, maxGroupsPerGame));
+
+      let gameCount = 0;
 
       for (const g of groups) {
-        if (items.length >= maxProducts) break;
+        if (items.length >= maxProductsGlobal || gameCount >= maxProductsPerGame) break;
         const groupId = Number(g.groupId);
         const setCode = String(g.abbreviation || groupId).toUpperCase();
         const prodsBody = await getJson<{ results?: TcgCsvProduct[] }>(
@@ -161,7 +185,7 @@ export class TcgCsvSealedProvider extends BaseProductCatalogProvider {
         }
 
         for (const p of prodsBody.results) {
-          if (items.length >= maxProducts) break;
+          if (items.length >= maxProductsGlobal || gameCount >= maxProductsPerGame) break;
           const productId = Number(p.productId);
           const name = String(p.name || p.cleanName || "").trim();
           if (!productId || !name || !isSealedTcgCsvProduct(name)) continue;
@@ -198,6 +222,7 @@ export class TcgCsvSealedProvider extends BaseProductCatalogProvider {
               },
             ],
           });
+          gameCount += 1;
         }
       }
     }
