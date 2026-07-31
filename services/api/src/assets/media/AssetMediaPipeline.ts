@@ -127,6 +127,11 @@ export class AssetMediaPipeline {
         fromFixture: downloaded.fromFixture,
         attempts: downloaded.attempts,
         uploaded: uploadEnabled,
+        // uploaded=false tem duas causas distintas e caras de confundir: storage sem
+        // credencial ou base pública ausente. Sem estes dois campos só dá para saber
+        // consultando o banco.
+        storage: storage.id,
+        hasPublicBase: Boolean(publicBase),
         derivativeCount: Object.keys(publishedDerivatives).length,
         uploadedBytes,
       },
