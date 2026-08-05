@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { ArrowUpDown, ShoppingCart, Store } from "lucide-react";
 import { ConditionBadge, type CardCondition } from "@/components/cards/ConditionBadge";
 import { Badge } from "@/components/ui/badge";
@@ -70,10 +71,10 @@ export function SellerOffersTable({ listings, onBuy, buyingId }: SellerOffersTab
         </p>
         <div className="flex flex-wrap justify-center gap-2">
           <Button variant="outline" size="sm" asChild>
-            <a href="/wishlist">Lista de interesse</a>
+            <Link href="/wishlist">Lista de interesse</Link>
           </Button>
           <Button variant="outline" size="sm" asChild>
-            <a href="/loja/busca">Buscar similares</a>
+            <Link href="/loja/busca">Buscar similares</Link>
           </Button>
         </div>
       </div>
