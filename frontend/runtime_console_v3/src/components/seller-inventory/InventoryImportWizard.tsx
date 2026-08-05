@@ -115,7 +115,14 @@ async function postImportCsv(
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
-    throw new Error(String((data as { detail?: string }).detail ?? "Falha na importação"));
+    const detail = (data as { detail?: unknown }).detail;
+    const msg =
+      typeof detail === "string"
+        ? detail
+        : detail && typeof detail === "object" && "message" in (detail as object)
+          ? String((detail as { message?: string }).message)
+          : `Falha na importação (HTTP ${res.status})`;
+    throw new Error(msg);
   }
   return data as ImportResult;
 }

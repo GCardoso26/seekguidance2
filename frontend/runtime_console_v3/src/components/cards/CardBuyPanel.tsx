@@ -227,9 +227,22 @@ export function CardBuyPanel({
         )}
 
         {!best && purchasable.length === 0 && (
-          <p className="text-center text-small text-muted-foreground">
-            Nenhuma oferta à venda no momento. Crie um alerta de preço para ser avisado.
-          </p>
+          <div className="space-y-2 text-center" data-testid="buy-panel-no-offers">
+            <p className="text-small font-medium text-foreground">
+              No momento este produto está sem ofertas.
+            </p>
+            <p className="text-small text-muted-foreground">
+              Veja produtos semelhantes ou entre na lista de interesse.
+            </p>
+            <div className="flex flex-wrap justify-center gap-2 pt-1">
+              <Link href="/wishlist" className="text-small text-primary underline">
+                Lista de interesse
+              </Link>
+              <Link href="/loja/busca" className="text-small text-primary underline">
+                Buscar similares
+              </Link>
+            </div>
+          </div>
         )}
       </div>
     </section>

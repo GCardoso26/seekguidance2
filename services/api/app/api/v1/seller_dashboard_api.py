@@ -462,6 +462,7 @@ async def seller_inventory_search(
     health: str | None = None,
     max_stock: int | None = None,
     ink: str | None = None,
+    status: Literal["active", "inactive", "all"] = "active",
     x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
 ) -> dict[str, Any]:
     user_id = _require_user(x_judge_user_id)
@@ -479,6 +480,7 @@ async def seller_inventory_search(
         health=health,
         max_stock=max_stock,
         ink=ink,
+        status=status,
     )
 
 
@@ -568,14 +570,22 @@ async def seller_inventory_import_csv(
 ) -> dict[str, Any]:
     user_id = _require_user(x_judge_user_id)
     store = await seller_dash.resolve_owner_store(session, user_id)
-    return await shop_inv.import_products_csv(
-        session,
-        str(store["id"]),
-        user_id,
-        body.csv,
-        dry_run=body.dry_run,
-        on_duplicate=body.on_duplicate,
-    )
+    try:
+        return await shop_inv.import_products_csv(
+            session,
+            str(store["id"]),
+            user_id,
+            body.csv,
+            dry_run=body.dry_run,
+            on_duplicate=body.on_duplicate,
+        )
+    except HTTPException:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(
+            500,
+            f"Falha interna na importação CSV: {type(exc).__name__}: {exc}",
+        ) from exc
 
 
 @router.post("/runtime/judge/seller/inventory/backfill-liga-images")

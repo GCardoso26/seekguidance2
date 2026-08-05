@@ -170,6 +170,10 @@ async def list_products(
                  WHERE l.entity_type = 'product_variant'
                    AND l.entity_id = p.master_variant_id
                    AND a.cdn_url ILIKE 'https://%'
+                   AND a.cdn_url NOT ILIKE '%/logo%'
+                   AND a.cdn_url NOT ILIKE '%/symbol%'
+                   AND a.cdn_url NOT ILIKE '%svgs.scryfall%'
+                   AND a.cdn_url NOT ILIKE '%.svg'
                  ORDER BY CASE l.role WHEN 'primary' THEN 0 ELSE 1 END, l.sort_order
                  LIMIT 1
                ) AS asset_cdn_url,
@@ -229,6 +233,10 @@ async def get_product(session: AsyncSession, product_id: str) -> dict[str, Any] 
                          WHERE l.entity_type = 'product_variant'
                            AND l.entity_id = p.master_variant_id
                            AND a.cdn_url ILIKE 'https://%'
+                           AND a.cdn_url NOT ILIKE '%/logo%'
+                           AND a.cdn_url NOT ILIKE '%/symbol%'
+                           AND a.cdn_url NOT ILIKE '%svgs.scryfall%'
+                           AND a.cdn_url NOT ILIKE '%.svg'
                          ORDER BY CASE l.role WHEN 'primary' THEN 0 ELSE 1 END, l.sort_order
                          LIMIT 1
                        ) AS asset_cdn_url,
@@ -281,14 +289,20 @@ async def create_product(
     if limit is not None:
         count_row = (
             await session.execute(
-                text("SELECT COUNT(*) AS c FROM tcg_judge.store_products WHERE store_id = :sid"),
+                text(
+                    """
+                    SELECT COUNT(*) AS c
+                    FROM tcg_judge.store_products
+                    WHERE store_id = :sid AND is_active
+                    """
+                ),
                 {"sid": store_id},
             )
         ).mappings().first()
         if count_row and int(count_row["c"]) >= limit:
             raise HTTPException(
                 403,
-                f"Limite de {limit} produtos no plano atual. Faça upgrade em /vendedor/painel/planos.",
+                f"Limite de {limit} produtos ativos no plano atual. Faça upgrade em /vendedor/painel/planos.",
             )
     if category not in PRODUCT_CATEGORIES:
         raise HTTPException(400, "Categoria inválida")
@@ -361,12 +375,17 @@ async def bulk_create_products(
     store_id: str,
     owner_id: str,
     products: list[dict[str, Any]],
+    *,
+    require_image: bool = True,
 ) -> int:
     """Insere vários produtos em uma transação (1 check de limite + 1 commit).
 
     Cada item em ``products`` deve ter: name, category, price_cents;
     opcionais: description, tcg_id, compare_at_price_cents, stock, sku,
     images, catalog_card_id.
+
+    ``require_image``: False no import CSV de estoque (vitrine pública já
+    filtra anúncios sem foto via hygiene).
     """
     if not products:
         return 0
@@ -392,7 +411,7 @@ async def bulk_create_products(
             images=p.get("images") or [],
             price_cents=price_cents,
             catalog_card_id=p.get("catalog_card_id"),
-            require_image=True,
+            require_image=require_image,
         )
         params_list.append(
             {
@@ -413,7 +432,13 @@ async def bulk_create_products(
     if limit is not None:
         count_row = (
             await session.execute(
-                text("SELECT COUNT(*) AS c FROM tcg_judge.store_products WHERE store_id = :sid"),
+                text(
+                    """
+                    SELECT COUNT(*) AS c
+                    FROM tcg_judge.store_products
+                    WHERE store_id = :sid AND is_active
+                    """
+                ),
                 {"sid": store_id},
             )
         ).mappings().first()
@@ -421,7 +446,7 @@ async def bulk_create_products(
         if current + len(params_list) > limit:
             raise HTTPException(
                 403,
-                f"Limite de {limit} produtos no plano atual "
+                f"Limite de {limit} produtos ativos no plano atual "
                 f"(já tem {current}; esta importação adicionaria {len(params_list)}). "
                 f"Faça upgrade em /vendedor/painel/planos.",
             )

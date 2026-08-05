@@ -27,14 +27,14 @@ export function MarketplaceHeroSearch({ totalCards, gameCount }: Props) {
     <section className="border-b border-border bg-background pb-10 pt-8">
       <div className="container mx-auto px-4 text-center">
         <h1 className="text-display-l font-semibold tracking-tight text-foreground" data-testid="hero-title">
-          Cartas de Pokémon, Magic, Lorcana e outros jogos, vendidas por lojas especializadas
+          Onde comprar cartas e produtos TCG
         </h1>
         <p className="mx-auto mt-4 max-w-2xl text-body-lg text-muted-foreground">
-          Compare preços e condições, veja quem vende e finalize no carrinho com PIX ou cartão.
+          Singles, selados e acessórios de lojas especializadas — preço, estoque e condição à vista.
         </p>
 
         <div className="mx-auto mt-8 max-w-2xl">
-          <GlobalSearchBar placeholder="Buscar carta ou loja…" />
+          <GlobalSearchBar placeholder="Buscar carta, booster ou acessório…" />
         </div>
 
         <div className="mt-6 flex flex-wrap justify-center gap-6 text-small text-muted-foreground">

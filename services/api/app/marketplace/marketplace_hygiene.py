@@ -14,6 +14,8 @@ from typing import Any
 
 from fastapi import HTTPException
 
+from app.catalog.image_utils import normalize_tcgdex_image_url
+
 # Cláusula SQL (alias p=store_products, s=stores) para listagens públicas.
 STORE_NOT_TEST_SQL = "COALESCE(s.is_test, false) = false"
 
@@ -55,6 +57,11 @@ def is_valid_public_image_url(url: str | None) -> bool:
         return False
     if "judgetcg.example" in low:
         return False
+    # ADR-016: set logos/symbols are not product packshots (Pokémon TCG API, Scryfall SVGs).
+    if "images.pokemontcg.io" in low and ("/logo" in low or "/symbol" in low):
+        return False
+    if "svgs.scryfallcdn.com" in low or ("scryfall" in low and low.endswith(".svg")):
+        return False
     return True
 
 
@@ -70,7 +77,7 @@ def resolve_listing_images(
         return clean
     for candidate in (asset_cdn_url, catalog_image_url):
         if is_valid_public_image_url(candidate):
-            return [str(candidate).strip()]
+            return [normalize_tcgdex_image_url(str(candidate).strip()) or str(candidate).strip()]
     return []
 
 

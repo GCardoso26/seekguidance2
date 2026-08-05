@@ -21,6 +21,7 @@ import type {
   InventoryKind,
   InventorySearchResponse,
   InventorySource,
+  PublishStatus,
   SalesPeriod,
   StockFilter,
 } from "@/components/seller-inventory/types";
@@ -40,6 +41,7 @@ export default function EstoquePage() {
   const [query, setQuery] = useState("");
   const [committedQuery, setCommittedQuery] = useState("");
   const [stockFilter, setStockFilter] = useState<StockFilter>("all");
+  const [publishStatus, setPublishStatus] = useState<PublishStatus>("active");
   const [health, setHealth] = useState<string | null>(null);
   const [maxStock, setMaxStock] = useState<number | null>(null);
   const [ink, setInk] = useState<string | null>(null);
@@ -57,6 +59,7 @@ export default function EstoquePage() {
       game,
       committedQuery,
       stockFilter,
+      publishStatus,
       health,
       maxStock,
       ink,
@@ -64,7 +67,7 @@ export default function EstoquePage() {
       page,
       pageSize,
     ],
-    [source, kind, game, committedQuery, stockFilter, health, maxStock, ink, period, page, pageSize],
+    [source, kind, game, committedQuery, stockFilter, publishStatus, health, maxStock, ink, period, page, pageSize],
   );
 
   const dashQuery = useQuery({
@@ -106,6 +109,7 @@ export default function EstoquePage() {
         kind,
         game,
         stock_filter: stockFilter,
+        status: publishStatus,
         period,
         page: String(page),
         limit: String(pageSize),
@@ -212,6 +216,11 @@ export default function EstoquePage() {
               if (f.stock_filter === "without_stock") setStockFilter("without_stock");
               else if (f.stock_filter === "with_stock") setStockFilter("with_stock");
               else setStockFilter("all");
+              if (f.status === "inactive" || f.status === "active" || f.status === "all") {
+                setPublishStatus(f.status);
+              } else {
+                setPublishStatus("active");
+              }
               if (typeof f.health === "string") setHealth(f.health);
               else setHealth(null);
               if (typeof f.max_stock === "number") setMaxStock(f.max_stock);
@@ -269,12 +278,16 @@ export default function EstoquePage() {
           kind={kind}
           onKindChange={(k) => {
             setKind(k);
+            setPublishStatus("active");
+            setActiveActionId(null);
             setPage(1);
           }}
           game={game}
           onGameChange={(g) => {
             setGame(g);
             setInk(null);
+            setPublishStatus("active");
+            setActiveActionId(null);
             setPage(1);
             setPageSize(48);
             setFullView(false);
@@ -339,6 +352,7 @@ export default function EstoquePage() {
             <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-muted-foreground">
               <span>
                 Mostrando {items.length} de {total} resultado{total === 1 ? "" : "s"}
+                {publishStatus === "inactive" ? " · não publicados / arquivados" : ""}
                 {pageSize < total ? ` · página ${page}` : ""}
               </span>
               <div className="flex flex-wrap gap-2">

@@ -70,9 +70,13 @@ function CardListItem({
           </span>
         )}
         {card.listingCount != null && card.listingCount > 0 ? (
-          <span className="mt-1 text-xs text-muted-foreground">
-            {card.listingCount} oferta{card.listingCount !== 1 ? "s" : ""}
+          <span className="mt-1 text-xs text-muted-foreground" data-testid="card-offer-count">
+            {card.listingCount === 1 ? "1 oferta disponível" : `${card.listingCount} ofertas disponíveis`}
             {stock != null && stock > 0 ? ` · ${stock} un.` : ""}
+          </span>
+        ) : card.listingCount === 0 ? (
+          <span className="mt-1 text-xs text-muted-foreground" data-testid="card-no-offers">
+            No momento este produto está sem ofertas.
           </span>
         ) : null}
       </div>

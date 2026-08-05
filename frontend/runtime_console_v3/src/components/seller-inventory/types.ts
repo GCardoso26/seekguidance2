@@ -8,6 +8,8 @@ export type InventoryKind = "cards" | "products";
 
 export type StockFilter = "all" | "with_stock" | "without_stock";
 
+export type PublishStatus = "active" | "inactive" | "all";
+
 export type SalesPeriod = "day" | "week" | "month" | "year";
 
 export type InventoryHealth = {
@@ -70,6 +72,7 @@ export type InventorySearchResponse = {
   has_more: boolean;
   source: InventorySource;
   kind: InventoryKind;
+  status?: PublishStatus;
 };
 
 export type DashboardAction = {

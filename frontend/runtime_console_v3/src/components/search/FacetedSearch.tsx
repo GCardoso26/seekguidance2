@@ -5,6 +5,8 @@ import dynamic from "next/dynamic";
 import { useRouter, useSearchParams } from "next/navigation";
 import { LayoutGrid, List, Rows3, Table2 } from "lucide-react";
 import { CardGrid } from "@/components/cards/CardGrid";
+import { MarketplaceProductsRail } from "@/components/search/MarketplaceProductsRail";
+import { SearchBuyEmptyState } from "@/components/search/SearchBuyEmptyState";
 import { InlineAlert } from "@/components/ui/async-state";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,11 +16,16 @@ import {
   useCardSearch,
   useCatalogSets,
 } from "@/hooks/useCardSearch";
+import {
+  classifyPurchaseIntent,
+  rankCardsBuyFirst,
+} from "@/features/search/conversion";
 import { gameCardsPath } from "@/lib/game-routes";
 import { GAME_TOKENS } from "@/lib/tcg-tokens";
 import type { GameId } from "@/types/card";
 import type { SearchFilters } from "@/types/search";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { trackEvent } from "@/lib/analytics";
 
 /** Base path escopado a um jogo (`/pokemon/cards` ou legado `/loja/pokemon/busca`). */
 function isGameScopedSearchPath(path: string): boolean {
@@ -108,9 +115,24 @@ export function FacetedSearch({
     refetch,
   } = useCardSearch(queryFilters);
 
-  const cards = useMemo(() => data?.pages.flatMap((p) => p.cards) ?? [], [data]);
+  const rawCards = useMemo(() => data?.pages.flatMap((p) => p.cards) ?? [], [data]);
+  const purchaseIntent = useMemo(
+    () => classifyPurchaseIntent(debouncedQ),
+    [debouncedQ],
+  );
+  const cards = useMemo(() => rankCardsBuyFirst(rawCards), [rawCards]);
   const total = data?.pages[0]?.total ?? 0;
   const isDegraded = Boolean(data?.pages[0]?.degraded);
+  const buyableCount = useMemo(
+    () =>
+      cards.filter(
+        (c) =>
+          (c.listingCount ?? 0) > 0 ||
+          (c.availableStock ?? c.marketplaceStock ?? 0) > 0 ||
+          c.lowestPrice != null,
+      ).length,
+    [cards],
+  );
 
   useEffect(() => {
     const q = debouncedQ.trim();
@@ -120,9 +142,27 @@ export function FacetedSearch({
         game: filters.game,
         set: filters.set,
         results_count: total,
+        purchase_intent: purchaseIntent,
+        buyable_count: buyableCount,
       });
+      if (!isLoading && buyableCount === 0) {
+        void trackEvent("search_without_products", {
+          query: q,
+          intent: purchaseIntent,
+          catalog_total: total,
+        });
+      }
     }
-  }, [debouncedQ, filters.game, filters.set, total, track]);
+  }, [
+    debouncedQ,
+    filters.game,
+    filters.set,
+    total,
+    track,
+    purchaseIntent,
+    buyableCount,
+    isLoading,
+  ]);
 
   const syncURL = useCallback(
     (next: SearchFilters) => {
@@ -227,9 +267,17 @@ export function FacetedSearch({
         />
 
         <div className="min-w-0 flex-1">
+          <MarketplaceProductsRail query={debouncedQ} intent={purchaseIntent} />
+
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <p className="text-sm text-muted-foreground" aria-live="polite">
-              {isLoading && cards.length === 0 ? "Carregando…" : `${total.toLocaleString("pt-BR")} resultados`}
+              {isLoading && cards.length === 0
+                ? "Carregando…"
+                : `${total.toLocaleString("pt-BR")} resultados${
+                    buyableCount > 0
+                      ? ` · ${buyableCount.toLocaleString("pt-BR")} com oferta`
+                      : ""
+                  }`}
             </p>
 
             <div className="flex items-center gap-2">
@@ -288,23 +336,44 @@ export function FacetedSearch({
             />
           )}
 
-          <CardGrid
-            cards={cards}
-            viewMode={viewMode}
-            isLoading={isLoading || isFetchingNextPage}
-            isError={isError || isDegraded}
-            hasMore={Boolean(hasNextPage)}
-            onLoadMore={() => fetchNextPage()}
-            onViewDetail={(id) => {
-              if (cardDetailPath) {
-                router.push(`${cardDetailPath}/${encodeURIComponent(id)}`);
-              } else {
-                setQuickViewCardId(id);
-              }
-            }}
-            onAddToDeck={(card) => router.push(`/decks?add=${card.id}`)}
-            onAddToCart={() => router.push("/carrinho")}
-          />
+          {!isLoading && !isError && !isDegraded && cards.length === 0 ? (
+            <SearchBuyEmptyState
+              query={debouncedQ}
+              intent={purchaseIntent}
+              onClearFilters={clearFilters}
+            />
+          ) : (
+            <CardGrid
+              cards={cards}
+              viewMode={viewMode}
+              isLoading={isLoading || isFetchingNextPage}
+              isError={isError || isDegraded}
+              hasMore={Boolean(hasNextPage)}
+              emptyMessage="Ainda não existem ofertas deste item no marketplace."
+              onLoadMore={() => fetchNextPage()}
+              onViewDetail={(id) => {
+                void trackEvent("search_product_click", {
+                  card_id: id,
+                  query: debouncedQ,
+                  intent: purchaseIntent,
+                  source: "search",
+                });
+                if (cardDetailPath) {
+                  router.push(`${cardDetailPath}/${encodeURIComponent(id)}`);
+                } else {
+                  setQuickViewCardId(id);
+                }
+              }}
+              onAddToDeck={(card) => router.push(`/decks?add=${card.id}`)}
+              onAddToCart={(card) => {
+                void trackEvent("add_to_cart", {
+                  card_id: card.id,
+                  source: "search",
+                });
+                router.push("/carrinho");
+              }}
+            />
+          )}
         </div>
       </div>
 

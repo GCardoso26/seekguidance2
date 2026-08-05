@@ -51,10 +51,11 @@ export const GROUP_LABELS: Record<SearchResultGroup, string> = {
   system: "Sistema",
 };
 
+/** Buy-first: products before cards/content on public surfaces. */
 export const GROUP_ORDER: SearchResultGroup[] = [
+  "products",
   "cards",
   "orders",
-  "products",
   "customers",
   "users",
   "tickets",

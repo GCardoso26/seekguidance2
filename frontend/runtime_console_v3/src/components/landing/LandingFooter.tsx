@@ -13,7 +13,7 @@ const FOOTER_COLUMNS = [
   {
     title: "Comunidade",
     links: [
-      { href: "/search", label: "Torneios" },
+      { href: "/search/torneios", label: "Torneios" },
       { href: "/social", label: "Social" },
       { href: "/marketplace", label: "Lojas" },
       { href: "/leagues", label: "Ligas" },

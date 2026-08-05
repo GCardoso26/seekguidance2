@@ -9,6 +9,7 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.catalog.games_service import game_code_from_slug, search_game_cards
+from app.catalog.image_utils import normalize_tcgdex_image_url
 from app.marketplace import card_listings as card_listings_svc
 from app.marketplace import shop_products as shop_products_svc
 
@@ -17,6 +18,9 @@ Kind = Literal["cards", "products"]
 StockFilter = Literal["all", "with_stock", "without_stock"]
 Period = Literal["day", "week", "month", "year"]
 AdjustMode = Literal["set", "add"]
+# active = publicados; inactive = não publicados / arquivados; all = ambos
+PublishStatus = Literal["active", "inactive", "all"]
+
 
 _REVENUE_FILTER = "o.status IN ('paid', 'processing', 'shipped', 'delivered')"
 
@@ -29,6 +33,7 @@ _PERIOD_INTERVAL = {
 
 
 async def _resolve_store(session: AsyncSession, owner_id: str) -> dict[str, Any]:
+    """Mesma prioridade que seller_dashboard.resolve_owner_store (não-teste → plano → recente)."""
     row = (
         await session.execute(
             text(
@@ -36,7 +41,16 @@ async def _resolve_store(session: AsyncSession, owner_id: str) -> dict[str, Any]
                 SELECT id, slug, name, owner_id
                 FROM tcg_judge.stores
                 WHERE owner_id = :oid
-                ORDER BY created_at ASC
+                ORDER BY
+                  CASE WHEN COALESCE(is_test, false) THEN 1 ELSE 0 END,
+                  CASE WHEN shop_enabled THEN 0 ELSE 1 END,
+                  CASE lower(COALESCE(subscription_plan, 'free'))
+                    WHEN 'enterprise' THEN 0
+                    WHEN 'pro' THEN 1
+                    WHEN 'lojista' THEN 2
+                    ELSE 3
+                  END,
+                  created_at DESC
                 LIMIT 1
                 """
             ),
@@ -63,7 +77,7 @@ def _row_item(**kwargs: Any) -> dict[str, Any]:
         "id": kwargs.get("id"),
         "kind": kwargs.get("kind"),
         "title": kwargs.get("title") or "",
-        "image_url": kwargs.get("image_url"),
+        "image_url": normalize_tcgdex_image_url(kwargs.get("image_url")),
         "game": kwargs.get("game"),
         "set_code": kwargs.get("set_code"),
         "listing_id": kwargs.get("listing_id"),
@@ -111,6 +125,7 @@ async def search_inventory(
     health: str | None = None,
     max_stock: int | None = None,
     ink: str | None = None,
+    status: PublishStatus = "active",
 ) -> dict[str, Any]:
     store = await _resolve_store(session, owner_id)
     store_id = str(store["id"])
@@ -132,6 +147,7 @@ async def search_inventory(
             health=health,
             max_stock=max_stock,
             ink=ink,
+            status=status,
         )
     else:
         items, total = await _search_products(
@@ -146,6 +162,7 @@ async def search_inventory(
             limit=limit,
             health=health,
             max_stock=max_stock,
+            status=status,
         )
 
     from app.marketplace.seller_inventory_health import enrich_items_with_health
@@ -167,6 +184,7 @@ async def search_inventory(
         "has_more": page * limit < total,
         "source": source,
         "kind": kind,
+        "status": status,
     }
 
 
@@ -185,10 +203,16 @@ async def _search_cards(
     health: str | None = None,
     max_stock: int | None = None,
     ink: str | None = None,
+    status: PublishStatus = "active",
 ) -> tuple[list[dict[str, Any]], int]:
-    code = game_code_from_slug(game)
-    if not code:
-        raise HTTPException(400, "Jogo inválido")
+    game_slug = (game or "").strip().lower()
+    # Chip "Não publicados" agrega todos os jogos — não filtrar por MTG default.
+    if game_slug in {"", "all", "*"} or status == "inactive":
+        code: str | None = None
+    else:
+        code = game_code_from_slug(game)
+        if not code:
+            raise HTTPException(400, "Jogo inválido")
 
     if source == "my_catalog":
         return await _cards_my_catalog(
@@ -203,7 +227,10 @@ async def _search_cards(
             health=health,
             max_stock=max_stock,
             ink=ink,
+            status=status,
         )
+    if not code:
+        raise HTTPException(400, "Selecione um jogo para esta fonte de busca")
     if source == "system":
         return await _cards_system(
             session, store_id=store_id, game=game, q=q, stock_filter=stock_filter, page=page, limit=limit
@@ -226,7 +253,7 @@ async def _cards_my_catalog(
     *,
     owner_id: str,
     store_id: str,
-    game_code: str,
+    game_code: str | None,
     q: str | None,
     stock_filter: StockFilter,
     page: int,
@@ -234,15 +261,17 @@ async def _cards_my_catalog(
     health: str | None = None,
     max_stock: int | None = None,
     ink: str | None = None,
+    status: PublishStatus = "active",
 ) -> tuple[list[dict[str, Any]], int]:
     """Meu cadastro de cartas: listagens + singles em store_products (ex.: CSV Liga)."""
     params: dict[str, Any] = {
         "owner_id": owner_id,
         "store_id": store_id,
-        "g": game_code,
         "lim": limit,
         "off": (page - 1) * limit,
     }
+    if game_code:
+        params["g"] = game_code
 
     listing_extra: list[str] = []
     product_extra: list[str] = []
@@ -355,17 +384,18 @@ async def _cards_my_catalog(
         product_extra.append(ink_sql)
         params["ink"] = ink.strip().lower()
 
-    listing_where = " AND ".join(["cl.seller_id = :owner_id", "cc.game_code = :g", *listing_extra])
-    product_where = " AND ".join(
-        [
-            "p.store_id = :store_id",
-            "p.is_active",
-            "p.category IN ('single', 'oversized', 'token')",
-            """NOT EXISTS (
-                 SELECT 1 FROM tcg_judge.card_listings clx
-                 WHERE clx.store_product_id = p.id
-               )""",
-            """(
+    if status == "active":
+        listing_extra.append("cl.status = 'active'")
+        product_active_sql = "p.is_active"
+    elif status == "inactive":
+        listing_extra.append("cl.status = 'inactive'")
+        product_active_sql = "NOT p.is_active"
+    else:
+        product_active_sql = "TRUE"
+
+    listing_game_sql = "cc.game_code = :g" if game_code else "TRUE"
+    product_game_sql = (
+        """(
                  p.tcg_id = :g
                  OR cc.game_code = :g
                  OR (
@@ -376,9 +406,29 @@ async def _cards_my_catalog(
                      OR COALESCE(p.sku, '') ~ '^LOR[0-9]+-'
                    )
                  )
+               )"""
+        if game_code
+        else "TRUE"
+    )
+
+    listing_where = " AND ".join(["cl.seller_id = :owner_id", listing_game_sql, *listing_extra])
+    product_where = " AND ".join(
+        [
+            "p.store_id = :store_id",
+            product_active_sql,
+            "p.category IN ('single', 'oversized', 'token')",
+            """NOT EXISTS (
+                 SELECT 1 FROM tcg_judge.card_listings clx
+                 WHERE clx.store_product_id = p.id
                )""",
+            product_game_sql,
             *product_extra,
         ]
+    )
+    product_game_select = (
+        "LOWER(COALESCE(NULLIF(p.tcg_id, ''), cc.game_code, :g))"
+        if game_code
+        else "LOWER(COALESCE(NULLIF(p.tcg_id, ''), cc.game_code, 'unknown'))"
     )
 
     union_sql = f"""
@@ -401,7 +451,8 @@ async def _cards_my_catalog(
             'listing'::text AS row_kind,
             NULL::text AS category,
             NULL::text AS sku,
-            COALESCE(cc.game_data->>'ink', '') AS ink
+            COALESCE(cc.game_data->>'ink', '') AS ink,
+            CASE WHEN cl.status = 'active' THEN 'active' ELSE 'inactive' END AS publish_status
           FROM tcg_judge.card_listings cl
           JOIN tcg_judge.card_catalog cc ON cc.id = cl.card_id
           WHERE {listing_where}
@@ -432,13 +483,14 @@ async def _cards_my_catalog(
                 ELSE NULL
               END
             ) AS set_code,
-            LOWER(COALESCE(NULLIF(p.tcg_id, ''), cc.game_code, :g)) AS game,
+            {product_game_select} AS game,
             ({product_image_sql}) AS image_url,
             p.updated_at AS sort_ts,
             'product'::text AS row_kind,
             p.category::text AS category,
             p.sku::text AS sku,
-            COALESCE(cc.game_data->>'ink', '') AS ink
+            COALESCE(cc.game_data->>'ink', '') AS ink,
+            CASE WHEN p.is_active THEN 'active' ELSE 'inactive' END AS publish_status
           FROM tcg_judge.store_products p
           LEFT JOIN tcg_judge.card_catalog cc ON cc.id = p.catalog_card_id
           WHERE {product_where}
@@ -490,6 +542,7 @@ async def _cards_my_catalog(
                 sku=r.get("sku"),
                 ink=r.get("ink") or None,
                 source="csv" if row_kind == "product" else "catalog",
+                status=r.get("publish_status") or "active",
             )
         )
     return items, total
@@ -703,6 +756,7 @@ async def _search_products(
     limit: int,
     health: str | None = None,
     max_stock: int | None = None,
+    status: PublishStatus = "active",
 ) -> tuple[list[dict[str, Any]], int]:
     if source == "my_catalog":
         return await _products_my_catalog(
@@ -714,6 +768,7 @@ async def _search_products(
             limit=limit,
             health=health,
             max_stock=max_stock,
+            status=status,
         )
     if source == "system":
         return await _products_system(
@@ -741,11 +796,18 @@ async def _products_my_catalog(
     limit: int,
     health: str | None = None,
     max_stock: int | None = None,
+    status: PublishStatus = "active",
 ) -> tuple[list[dict[str, Any]], int]:
     # Singles ficam na aba Cartas; aqui só produtos físicos / sem link de listing.
+    if status == "active":
+        active_clause = "p.is_active"
+    elif status == "inactive":
+        active_clause = "NOT p.is_active"
+    else:
+        active_clause = "TRUE"
     clauses = [
         "p.store_id = :sid",
-        "p.is_active",
+        active_clause,
         "p.category NOT IN ('single', 'oversized', 'token')",
         """NOT EXISTS (
              SELECT 1 FROM tcg_judge.card_listings cl
@@ -782,7 +844,7 @@ async def _products_my_catalog(
         await session.execute(
             text(
                 f"""
-                SELECT p.id, p.name, p.stock, p.price_cents, p.category, p.images, p.sku
+                SELECT p.id, p.name, p.stock, p.price_cents, p.category, p.images, p.sku, p.is_active
                 FROM tcg_judge.store_products p
                 WHERE {where}
                 ORDER BY p.name ASC
@@ -796,7 +858,10 @@ async def _products_my_catalog(
     items = []
     for r in rows:
         images = r.get("images") or []
-        image = images[0] if isinstance(images, list) and images else None
+        raw = images[0] if isinstance(images, list) and images else None
+        from app.marketplace.marketplace_hygiene import is_valid_public_image_url
+
+        image = raw if is_valid_public_image_url(raw) else None
         items.append(
             _row_item(
                 id=str(r["id"]),
@@ -807,6 +872,8 @@ async def _products_my_catalog(
                 quantity=r["stock"],
                 price_cents=r["price_cents"],
                 category=r.get("category"),
+                sku=r.get("sku"),
+                status="active" if r.get("is_active") else "inactive",
             )
         )
     return items, total

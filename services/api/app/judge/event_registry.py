@@ -143,6 +143,13 @@ _EVENTS: tuple[EventDef, ...] = (
     _e("buyer_card_open", "buyer", owner="marketplace", criticality="p0"),
     _e("buyer_offers_viewed", "buyer", owner="marketplace", criticality="p0"),
     _e("buyer_add_to_cart", "buyer", owner="marketplace", criticality="p0"),
+    # Customer Conversion First funnel
+    _e("search_product_click", "buyer", owner="marketplace", criticality="p0"),
+    _e("search_without_products", "buyer", owner="marketplace", criticality="p0"),
+    _e("search_abandonment", "buyer", owner="marketplace"),
+    _e("home_product_ctr", "buyer", owner="marketplace", criticality="p0"),
+    _e("category_ctr", "buyer", owner="marketplace", criticality="p0"),
+    _e("marketplace_ctr", "buyer", owner="marketplace", criticality="p0"),
     # Top Movers (Fase 1.4)
     _e("top_movers_open", "buyer", owner="marketplace", criticality="p0"),
     _e("top_movers_filter", "buyer", owner="marketplace"),

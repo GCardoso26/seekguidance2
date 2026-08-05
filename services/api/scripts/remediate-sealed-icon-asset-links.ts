@@ -75,13 +75,42 @@ WHERE l.id = d.id
 RETURNING l.id;
 `;
 
+const CLEAN_STORE_IMAGES_SQL = `
+UPDATE tcg_judge.store_products p
+SET images = COALESCE((
+  SELECT array_agg(u ORDER BY ord)
+  FROM unnest(COALESCE(p.images, ARRAY[]::text[])) WITH ORDINALITY AS t(u, ord)
+  WHERE u IS NOT NULL
+    AND u <> ''
+    AND u NOT ILIKE '%/logo%'
+    AND u NOT ILIKE '%/symbol%'
+    AND u NOT ILIKE '%svgs.scryfall%'
+    AND u NOT ILIKE '%.svg'
+), ARRAY[]::text[])
+WHERE p.category::text ILIKE '%sealed%'
+   OR COALESCE(p.sku, '') ILIKE 'PKM-%'
+   OR COALESCE(p.tcg_id, '') ILIKE 'POKEMON'
+RETURNING p.id;
+`;
+
 async function main(): Promise<void> {
   const databaseUrl = process.env.DATABASE_URL?.replace(/^postgresql\+asyncpg:/, "postgresql:");
   if (!databaseUrl) throw new Error("DATABASE_URL required");
   const pool = new Pool({ connectionString: databaseUrl });
   try {
     const res = await pool.query<{ id: string }>(SQL);
-    console.log(JSON.stringify({ ok: true, unlinked: res.rowCount ?? res.rows.length }, null, 2));
+    const cleaned = await pool.query<{ id: string }>(CLEAN_STORE_IMAGES_SQL);
+    console.log(
+      JSON.stringify(
+        {
+          ok: true,
+          unlinked: res.rowCount ?? res.rows.length,
+          store_products_images_cleaned: cleaned.rowCount ?? cleaned.rows.length,
+        },
+        null,
+        2,
+      ),
+    );
   } finally {
     await pool.end();
   }

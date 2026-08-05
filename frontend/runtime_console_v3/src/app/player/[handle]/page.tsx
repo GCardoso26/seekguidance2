@@ -27,7 +27,7 @@ function ProfilePage() {
           <Link href="/" className="text-sm text-muted-foreground hover:text-foreground">
             ← Início
           </Link>
-          <Link href="/search" className="text-sm text-muted-foreground hover:text-foreground">
+          <Link href="/search/torneios" className="text-sm text-muted-foreground hover:text-foreground">
             Descobrir torneios
           </Link>
         </div>

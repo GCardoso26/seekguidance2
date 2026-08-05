@@ -86,7 +86,7 @@ export function SellerOpsDashboardV2() {
         <Link href="/vendedor/painel/estatisticas/inteligencia" className="text-primary hover:underline">
           Inteligência completa →
         </Link>
-        <Link href="/vendedor/painel/performance" className="text-primary hover:underline">
+        <Link href="/vendedor/painel/estatisticas" className="text-primary hover:underline">
           Performance →
         </Link>
       </div>

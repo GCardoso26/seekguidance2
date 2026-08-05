@@ -1,36 +1,21 @@
-# UX_REPORT
+# UX_REPORT — AUDIT_PASS_2026-07-29
 
-**Persona:** Juliana (UX)  
-**Gerado:** 2026-07-22T06:55:00Z  
-**Status:** **WARN** · Confidence **55%**
+## Percurso HTTP (shell only)
 
-## Percurso Home → Portal → Carta → Coleção → Deck → Marketplace → Perfil → Home
+Rotas beachhead respondem 200: home, lorcana portal, expansions, loja, busca.
 
-| Etapa | Evidência HTTP prod | Nota |
-|-------|---------------------|------|
-| Home | `/` 200 | OK |
-| Escolher jogo / Portal | `/pokemon` `/lorcana` `/mtg` 200; `/magic` `/star-wars` `/dragon-ball` `/gundam` **404** | Multi-TCG **parcial** |
-| Carta | PDP fixture Renato **404** | Risco descoberta |
-| Coleção | `/colecao` 200 | Collection V2 |
-| Deck | `/decks` 200 | Deck V2 |
-| Marketplace | `/loja` 200 | OK |
-| Perfil | `/perfil` 200 (markers Profile V2) | OK |
-| Público | `/u/demo` 200 | OK |
+## Issues com evidência
 
-## Runner
+| Item | Evidência |
+|---|---|
+| Mobile nav labels mudaram (Perfil→Alertas/Coleção) | Vitest MobileLayout falhava; teste alinhado ao V2 |
+| GameSelector aria/label drift | Teste falha: radiogroup name `/escolha seu jogo/i` |
+| CVC 2026-07-23: navegação 2.8/10 | Arquivo customer-score.json |
 
-Juliana → **partial** uxScore **6.5** — “campanha visual exige browser supervisionado”
+## Não feito
 
-## Pergunta: entende a plataforma em &lt;10s?
+Walkthrough visual browser, dark/tablet, contraste WCAG medido, empty/error states filmados.
 
-**Não comprovado por evidência de sessão supervisionada.**  
-Indícios positivos: home multi-TCG + portais com SEO.  
-Indícios negativos: slug `/magic` 404 (usuário pode digitar “magic” e falhar; canônico parece `/mtg`).
+## Veredito UX
 
-## Gaps
-
-Dark mode, skeletons, empty states, a11y WCAG, Lighthouse — **não medidos** nesta rodada.
-
-## Veredito
-
-UX de superfície **promissora**, **não** certificada para Beta.
+**Não aprovado para READY.** Shell ok ≠ experiência de compra.

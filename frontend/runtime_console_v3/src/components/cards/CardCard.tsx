@@ -8,6 +8,7 @@ import { RarityBadge } from "@/components/catalog/RarityBadge";
 import { formatRarityDisplay } from "@/lib/game-config/rarity";
 import { Button } from "@/components/ui/button";
 import { cardImageUrl, formatCurrency } from "@/lib/format-currency";
+import { offerCountLabel } from "@/features/search/conversion";
 import type { UnifiedCard } from "@/types/card";
 import { cn } from "@/lib/utils";
 import { useAnalytics } from "@/hooks/useAnalytics";
@@ -140,15 +141,19 @@ export function CardCard({
 
         <div className="mt-2 flex flex-wrap items-center gap-2">
           {card.rarity && <RarityBadge game={card.game} rarity={card.rarity} />}
-          {card.listingCount !== undefined && card.listingCount > 0 && (
-            <span className="text-caption text-muted-foreground">
-              {card.listingCount} oferta{card.listingCount !== 1 ? "s" : ""}
+          {card.listingCount !== undefined && card.listingCount > 0 ? (
+            <span className="text-caption text-muted-foreground" data-testid="card-offer-count">
+              {offerCountLabel(card.listingCount)}
               {stock != null && stock > 0 ? ` · ${stock} un.` : ""}
             </span>
-          )}
+          ) : card.listingCount === 0 ? (
+            <span className="text-caption text-muted-foreground" data-testid="card-no-offers">
+              {offerCountLabel(0)}
+            </span>
+          ) : null}
         </div>
 
-        {showPrice && price !== undefined && (
+        {showPrice && price !== undefined ? (
           <div className="mt-auto pt-3">
             <div className="flex items-center justify-between gap-2">
               <span className="font-mono text-lg font-semibold tracking-tight">
@@ -167,7 +172,9 @@ export function CardCard({
             </div>
             {trend !== undefined && <PriceSparkline trend={trend} className="mt-1" />}
           </div>
-        )}
+        ) : showPrice ? (
+          <p className="mt-auto pt-3 text-caption text-muted-foreground">Preço sob consulta nas ofertas</p>
+        ) : null}
 
         <div className="mt-3 flex gap-2 md:hidden">
           <Button

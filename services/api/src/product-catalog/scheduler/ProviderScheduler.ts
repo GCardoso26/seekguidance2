@@ -8,6 +8,9 @@ const log = createLogger("provider.scheduler");
 
 export type ScheduleKind = "every" | "hourly" | "daily" | "weekly" | "manual";
 
+/** ADR-016 hard-exit — may still exist as stale rows in provider_registry. */
+export const SCHEDULER_DENYLISTED_PROVIDER_IDS = new Set(["star-wars-sealed"]);
+
 function nextRunAt(kind: ScheduleKind, from = new Date()): Date | null {
   const d = new Date(from);
   switch (kind) {
@@ -27,6 +30,57 @@ function nextRunAt(kind: ScheduleKind, from = new Date()): Date | null {
     default:
       return null;
   }
+}
+
+export function categoryToJobKey(category: string): ProductCatalogJobKey | null {
+  const map: Record<string, ProductCatalogJobKey> = {
+    SEALED_PRODUCT: "catalog.sync.sealed",
+    SLEEVES: "catalog.sync.sleeves",
+    DECK_BOX: "catalog.sync.deckboxes",
+    BINDER: "catalog.sync.binders",
+    BINDER_PAGE: "catalog.sync.pages",
+    DICE: "catalog.sync.dice",
+    COUNTERS: "catalog.sync.counters",
+    PLAYMAT: "catalog.sync.playmats",
+  };
+  return map[category] ?? null;
+}
+
+type DueRow = {
+  provider_id: string;
+  category: string;
+  schedule_kind: ScheduleKind;
+  circuit_open_until: Date | null;
+};
+
+/**
+ * Group due providers by job key — enqueue catalog.sync.sealed once, not once per sealed provider.
+ */
+export function groupDueProvidersByJobKey(
+  rows: DueRow[],
+): {
+  byJob: Map<ProductCatalogJobKey, DueRow[]>;
+  denylisted: DueRow[];
+  unknownCategory: DueRow[];
+} {
+  const byJob = new Map<ProductCatalogJobKey, DueRow[]>();
+  const denylisted: DueRow[] = [];
+  const unknownCategory: DueRow[] = [];
+  for (const row of rows) {
+    if (SCHEDULER_DENYLISTED_PROVIDER_IDS.has(row.provider_id)) {
+      denylisted.push(row);
+      continue;
+    }
+    const jobKey = categoryToJobKey(row.category);
+    if (!jobKey) {
+      unknownCategory.push(row);
+      continue;
+    }
+    const list = byJob.get(jobKey) ?? [];
+    list.push(row);
+    byJob.set(jobKey, list);
+  }
+  return { byJob, denylisted, unknownCategory };
 }
 
 /**
@@ -59,13 +113,13 @@ export class ProviderScheduler {
     );
   }
 
-  async tick(): Promise<{ enqueued: string[] }> {
-    const due = await this.pool.query<{
-      provider_id: string;
-      category: string;
-      schedule_kind: ScheduleKind;
-      circuit_open_until: Date | null;
-    }>(
+  async tick(): Promise<{
+    enqueued: string[];
+    jobs: string[];
+    disabled: string[];
+    skipped: string[];
+  }> {
+    const due = await this.pool.query<DueRow>(
       `
       SELECT provider_id, category, schedule_kind, circuit_open_until
       FROM product_catalog.provider_registry
@@ -74,54 +128,79 @@ export class ProviderScheduler {
         AND next_run_at IS NOT NULL
         AND next_run_at <= now()
         AND (circuit_open_until IS NULL OR circuit_open_until < now())
+      ORDER BY next_run_at ASC
       `,
     );
 
+    const { byJob, denylisted, unknownCategory } = groupDueProvidersByJobKey(due.rows);
+    const disabled: string[] = [];
+    const skipped: string[] = unknownCategory.map((r) => r.provider_id);
+
+    for (const row of denylisted) {
+      await this.pool.query(
+        `UPDATE product_catalog.provider_registry
+         SET enabled = false, last_status = 'denylisted', updated_at = now()
+         WHERE provider_id = $1`,
+        [row.provider_id],
+      );
+      disabled.push(row.provider_id);
+      log.warn({ providerId: row.provider_id }, "scheduler_disabled_denylisted_provider");
+    }
+
     const enqueued: string[] = [];
-    for (const row of due.rows) {
-      const jobKey = categoryToJobKey(row.category);
-      if (!jobKey) continue;
+    const jobs: string[] = [];
+
+    for (const [jobKey, rows] of byJob) {
       try {
         const jobId = await enqueueProductCatalogSync(jobKey, { mode: "incremental" });
-        enqueued.push(`${row.provider_id}:${jobId}`);
-        const next = nextRunAt(row.schedule_kind);
-        await this.pool.query(
-          `UPDATE product_catalog.provider_registry SET next_run_at = $2, last_status = 'queued', updated_at = now()
-           WHERE provider_id = $1`,
-          [row.provider_id, next?.toISOString() ?? null],
-        );
+        jobs.push(`${jobKey}:${jobId}`);
+        for (const row of rows) {
+          enqueued.push(`${row.provider_id}:${jobId}`);
+          const next = nextRunAt(row.schedule_kind);
+          await this.pool.query(
+            `UPDATE product_catalog.provider_registry SET next_run_at = $2, last_status = 'queued', updated_at = now()
+             WHERE provider_id = $1`,
+            [row.provider_id, next?.toISOString() ?? null],
+          );
+        }
       } catch (e) {
-        log.error({ providerId: row.provider_id, err: String(e) }, "scheduler_enqueue_failed");
+        log.error({ jobKey, err: String(e) }, "scheduler_enqueue_failed");
       }
     }
-    return { enqueued };
+
+    log.info(
+      {
+        dueProviders: due.rows.length,
+        uniqueJobs: jobs.length,
+        enqueuedProviders: enqueued.length,
+        disabled: disabled.length,
+      },
+      "scheduler_tick_done",
+    );
+    return { enqueued, jobs, disabled, skipped };
   }
 
   /** Bootstrap schedules from in-memory registry — manufacturers daily (24h), sealed hourly detection. */
   async syncFromMemoryRegistry(defaults: Partial<Record<string, ScheduleKind>> = {}): Promise<void> {
     for (const job of productCatalogProviderRegistry.listJobs()) {
       for (const p of productCatalogProviderRegistry.getProvidersForJob(job)) {
+        if (SCHEDULER_DENYLISTED_PROVIDER_IDS.has(p.providerId)) continue;
         const kind =
           defaults[p.providerId] ??
           (p.category === "SEALED_PRODUCT" ? "hourly" : "daily");
         await this.registerSchedule(p.providerId, p.category, kind);
       }
     }
+    // Disable stale denylisted rows left from older bootstraps.
+    for (const providerId of SCHEDULER_DENYLISTED_PROVIDER_IDS) {
+      await this.pool.query(
+        `UPDATE product_catalog.provider_registry
+         SET enabled = false, last_status = 'denylisted', updated_at = now()
+         WHERE provider_id = $1 AND enabled = true`,
+        [providerId],
+      );
+    }
   }
-}
-
-function categoryToJobKey(category: string): ProductCatalogJobKey | null {
-  const map: Record<string, ProductCatalogJobKey> = {
-    SEALED_PRODUCT: "catalog.sync.sealed",
-    SLEEVES: "catalog.sync.sleeves",
-    DECK_BOX: "catalog.sync.deckboxes",
-    BINDER: "catalog.sync.binders",
-    BINDER_PAGE: "catalog.sync.pages",
-    DICE: "catalog.sync.dice",
-    COUNTERS: "catalog.sync.counters",
-    PLAYMAT: "catalog.sync.playmats",
-  };
-  return map[category] ?? null;
 }
 
 export function createProviderScheduler(pool: Pool): ProviderScheduler {

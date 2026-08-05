@@ -35,9 +35,9 @@ export function UniverseHomeHero({ health }: Props) {
         <p className="text-xs font-semibold uppercase tracking-[0.28em] text-muted-foreground">
           {brand.shortName}
         </p>
-        <h1 className="mt-3 max-w-3xl text-4xl font-semibold tracking-tight text-foreground md:text-5xl lg:text-6xl">
+        <h2 className="mt-3 max-w-3xl text-4xl font-semibold tracking-tight text-foreground md:text-5xl lg:text-6xl">
           Escolha seu universo
-        </h1>
+        </h2>
         <p className="mt-4 max-w-xl text-base text-muted-foreground md:text-lg">
           O ecossistema definitivo para Trading Card Games — colecione, monte decks,
           descubra preços e compre em um só lugar.

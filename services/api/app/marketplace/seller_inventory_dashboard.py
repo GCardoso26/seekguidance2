@@ -177,13 +177,13 @@ async def get_inventory_dashboard(session: AsyncSession, owner_id: str) -> dict[
             "id": "unpublished",
             "label": "Não publicados",
             "count": int(products.get("unpublished") or 0) + int(listings.get("unpublished_listings") or 0),
-            "filter": {"status": "inactive"},
+            "filter": {"status": "inactive", "game": "all"},
         },
         {
             "id": "archived",
             "label": "Arquivados",
             "count": int(products.get("archived") or 0) + int(listings.get("archived_listings") or 0),
-            "filter": {"status": "inactive"},
+            "filter": {"status": "inactive", "game": "all"},
         },
         {
             "id": "awaiting_review",

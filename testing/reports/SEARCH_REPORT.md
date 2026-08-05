@@ -1,33 +1,24 @@
-# SEARCH_REPORT
+# SEARCH_REPORT — AUDIT_PASS_2026-07-29
 
-**Persona:** Eduardo (Search)  
-**Gerado:** 2026-07-22T06:55:00Z  
-**Status:** **PASS*** · Confidence **85%**
+## Provas HTTP
 
-\*Suíte automatizada + probes; facets/autocomplete browser parciais.
+| Query | Rota | HTTP | t |
+|---|---|---|---|
+| charizard | `/loja/busca?q=charizard` | 200 | ~0.52s |
+| rapunzel | `/loja/busca?q=rapunzel` | 200 | ~0.11s |
 
-## Runner
+## Não provado
 
-`eduardo-search-audit.mjs` → score **85**, status **pass**  
-Queries (Rapunzel, charizard, pikachu, black lotus, …) → HTTP 200, latências ~34–687ms.
+- Ranking / popularidade / buy-first intent
+- Fuzzy / sinônimos
+- Resultados relevantes (conteúdo da página não assertado)
+- Autocomplete
+- dragon shield / playmat / booster / deck box relevance
 
-## SEO (prod `/pokemon`)
+## CVC histórico
 
-| Check | Resultado |
-|-------|-----------|
-| Canonical | Presente |
-| OpenGraph | Presente |
-| Twitter card | Presente |
-
-## Gaps
-
-| Item | Status |
-|------|--------|
-| Busca por deck / coleção / vendedor E2E | Não formalizado nesta rodada |
-| Facets browser | Pendente manual |
-| Schema.org em todas as PDPs | Não auditado em massa |
-| Empty results UX | Não capturado |
+search_score **0.6**/10 (2026-07-23).
 
 ## Veredito
 
-Search **operacional** para queries de catálogo; cobertura Beta &lt;95% confidence exigida.
+Search **responde**; qualidade de descoberta **não certificada**.

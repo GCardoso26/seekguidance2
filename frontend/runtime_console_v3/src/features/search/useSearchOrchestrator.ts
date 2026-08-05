@@ -73,7 +73,7 @@ export function useSearchOrchestrator(query: string, enabled: boolean) {
         const ranked = rankSearchResults(q, flat, {
           favoriteIds: favorites,
           recentIds,
-          providerBoost: { navigation: 5, "seller-global": 10 },
+          providerBoost: { navigation: 5, "seller-global": 10, products: 25, cards: 15 },
         });
         setResults(ranked);
         trackSearchEvent({

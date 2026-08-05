@@ -43,7 +43,14 @@ export type MarketplaceEvent =
   | "seller_listing_published"
   | "buyer_card_open"
   | "buyer_offers_viewed"
-  | "buyer_add_to_cart";
+  | "buyer_add_to_cart"
+  /** Customer Conversion First funnel */
+  | "search_product_click"
+  | "search_without_products"
+  | "search_abandonment"
+  | "home_product_ctr"
+  | "category_ctr"
+  | "marketplace_ctr";
 
 export type BuyerExperienceEvent =
   | "wishlist_add"

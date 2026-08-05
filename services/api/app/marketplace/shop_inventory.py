@@ -632,33 +632,41 @@ async def import_products_csv(
         }
 
     if not dry_run and to_merge:
-        for item in to_merge:
-            await session.execute(
-                text(
-                    """
-                    UPDATE tcg_judge.store_products
-                    SET stock = stock + :add,
-                        price_cents = COALESCE(:price, price_cents),
-                        catalog_card_id = COALESCE(:cid, catalog_card_id),
-                        images = CASE
-                          WHEN :has_images THEN CAST(:images AS text[])
-                          ELSE images
-                        END,
-                        updated_at = NOW()
-                    WHERE id = :id
-                    """
-                ),
-                {
-                    "id": item["id"],
-                    "add": int(item["add_stock"]),
-                    "price": item.get("price_cents"),
-                    "cid": item.get("catalog_card_id"),
-                    "has_images": bool(item.get("images")),
-                    "images": item.get("images") or [],
-                },
-            )
-            updated += 1
-        await session.commit()
+        try:
+            for item in to_merge:
+                imgs = item.get("images") or []
+                has_images = bool(imgs)
+                await session.execute(
+                    text(
+                        """
+                        UPDATE tcg_judge.store_products
+                        SET stock = stock + :add,
+                            price_cents = COALESCE(:price, price_cents),
+                            catalog_card_id = COALESCE(:cid, catalog_card_id),
+                            images = CASE
+                              WHEN :has_images THEN :images
+                              ELSE images
+                            END,
+                            updated_at = NOW()
+                        WHERE id = :id
+                        """
+                    ),
+                    {
+                        "id": item["id"],
+                        "add": int(item["add_stock"]),
+                        "price": item.get("price_cents"),
+                        "cid": item.get("catalog_card_id"),
+                        "has_images": has_images,
+                        # asyncpg adapta list[str] → text[]; CAST(:images AS text[]) quebrava (500).
+                        "images": imgs if has_images else [],
+                    },
+                )
+                updated += 1
+            await session.commit()
+        except Exception as exc:  # noqa: BLE001 — devolver erro acionável ao lojista
+            await session.rollback()
+            errors.append(f"Falha ao somar estoque existente: {exc}")
+            updated = 0
 
     if not dry_run and to_insert:
         try:
@@ -667,6 +675,7 @@ async def import_products_csv(
                 store_id,
                 owner_id,
                 to_insert,
+                require_image=False,
             )
         except HTTPException as exc:
             detail = exc.detail if isinstance(exc.detail, str) else str(exc.detail)

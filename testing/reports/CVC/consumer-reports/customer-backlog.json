@@ -1,0 +1,125 @@
+{
+  "generated_at": "2026-07-23",
+  "source": "Customer Validation Council v1.0",
+  "items": [
+    {
+      "id": "CVC-P0-001",
+      "priority": "P0",
+      "title": "Remover lojas e produtos de teste da vitrine pública",
+      "description": "Loja de Testes 1, Loja Teste Debug, Sleeve teste, Carta #1 seed",
+      "personas_affected": 8,
+      "blocks_purchase": true
+    },
+    {
+      "id": "CVC-P0-002",
+      "priority": "P0",
+      "title": "Consertar busca de staples (Charizard, Lightning Bolt, ETB, playmat, deck box)",
+      "description": "Buscas principais retornam 0; cliente acha catálogo mentiroso",
+      "personas_affected": 8,
+      "blocks_purchase": true
+    },
+    {
+      "id": "CVC-P0-003",
+      "priority": "P0",
+      "title": "Foto obrigatória em todo anúncio público",
+      "description": "Boosters e singles sem imagem; sleeve com URL Amazon como imagem",
+      "personas_affected": 8,
+      "blocks_purchase": true
+    },
+    {
+      "id": "CVC-P0-004",
+      "priority": "P0",
+      "title": "Página de produto completa (foto, preço, loja, estoque, comprar)",
+      "description": "PDP genérica/frágil; cliente não fecha",
+      "personas_affected": 7,
+      "blocks_purchase": true
+    },
+    {
+      "id": "CVC-P0-005",
+      "priority": "P0",
+      "title": "Estoque real de acessórios (sleeves, deck box, playmat, binder)",
+      "description": "1 sleeve lixo; playmat/deck box 0",
+      "personas_affected": 5,
+      "blocks_purchase": true
+    },
+    {
+      "id": "CVC-P1-001",
+      "priority": "P1",
+      "title": "Filtros Near Mint / Foil / Idioma / Edição",
+      "personas_affected": 2,
+      "blocks_purchase": false
+    },
+    {
+      "id": "CVC-P1-002",
+      "priority": "P1",
+      "title": "Comparador multi-loja na mesma carta",
+      "personas_affected": 3,
+      "blocks_purchase": false
+    },
+    {
+      "id": "CVC-P1-003",
+      "priority": "P1",
+      "title": "Separar menu comprador do menu planos/lojista",
+      "personas_affected": 7,
+      "blocks_purchase": false
+    },
+    {
+      "id": "CVC-P1-004",
+      "priority": "P1",
+      "title": "Home com ofertas reais + preço + foto (sem loading eterno)",
+      "personas_affected": 8,
+      "blocks_purchase": false
+    },
+    {
+      "id": "CVC-P1-005",
+      "priority": "P1",
+      "title": "Avaliações de loja + prazo de frete na cara",
+      "personas_affected": 6,
+      "blocks_purchase": false
+    },
+    {
+      "id": "CVC-P1-006",
+      "priority": "P1",
+      "title": "Moderação de preço absurdo (ex.: R$15.000 sem foto)",
+      "personas_affected": 4,
+      "blocks_purchase": false
+    },
+    {
+      "id": "CVC-P1-007",
+      "priority": "P1",
+      "title": "Categorias claras: Singles | Selados | Acessórios + guia pro iniciante",
+      "personas_affected": 5,
+      "blocks_purchase": false
+    },
+    {
+      "id": "CVC-P2-001",
+      "priority": "P2",
+      "title": "Corrigir rodapé (Termos, Contato BR, remover links mentira)",
+      "personas_affected": 6
+    },
+    {
+      "id": "CVC-P2-002",
+      "priority": "P2",
+      "title": "Esconder jogos Em breve da home de compra",
+      "personas_affected": 5
+    },
+    {
+      "id": "CVC-P2-003",
+      "priority": "P2",
+      "title": "Carrinho sempre visível no topo",
+      "personas_affected": 6
+    },
+    {
+      "id": "CVC-P3-001",
+      "priority": "P3",
+      "title": "Ofertas do dia / cupom primeira compra / frete grátis",
+      "personas_affected": 3
+    },
+    {
+      "id": "CVC-P3-002",
+      "priority": "P3",
+      "title": "Kits (sleeve+deckbox) e ‘presente até R$X’",
+      "personas_affected": 3
+    }
+  ]
+}

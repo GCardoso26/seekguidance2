@@ -52,12 +52,28 @@ export function MarketplaceHomeInteractiveSections() {
   return (
     <>
       <CatalogMarketplaceSection showHero={false} showGames={false} />
+      <section className="border-t border-border py-8" data-testid="home-offers-week">
+        <div className="container mx-auto px-4">
+          <h2 className="mb-2 text-h2 font-semibold text-foreground">Ofertas e catálogo</h2>
+          <p className="mb-4 text-sm text-muted-foreground">
+            Produtos com foto, preço e disponibilidade reais — sem estoque inventado.
+          </p>
+        </div>
+      </section>
       <LiveHomeFeed />
       <section className="border-t border-border py-8">
         <div className="container mx-auto px-4">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-h2 font-semibold text-foreground">Tendências de preço</h2>
-            <Link href="/loja/tendencias" className="text-sm text-primary hover:underline">
+            <h2 className="text-h2 font-semibold text-foreground">Produtos populares</h2>
+            <Link
+              href="/loja/tendencias"
+              className="text-sm text-primary hover:underline"
+              onClick={() => {
+                void import("@/lib/analytics").then(({ trackEvent }) =>
+                  trackEvent("home_product_ctr", { source: "trending_link" }),
+                );
+              }}
+            >
               Ver todas →
             </Link>
           </div>

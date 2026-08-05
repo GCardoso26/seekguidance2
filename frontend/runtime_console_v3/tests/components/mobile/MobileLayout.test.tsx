@@ -49,7 +49,10 @@ describe("MobileLayout", () => {
     expect(screen.getByText("Conteúdo")).toBeTruthy();
     const mobileNav = screen.getByRole("navigation", { name: "Navegação mobile" });
     expect(within(mobileNav).getByText("Loja")).toBeTruthy();
+    // MOBILE_FIRST_V2 default ON: Decks + Alertas (não "Perfil")
     expect(within(mobileNav).getByText("Decks")).toBeTruthy();
-    expect(within(mobileNav).getByText("Perfil")).toBeTruthy();
+    expect(within(mobileNav).getByText("Alertas")).toBeTruthy();
+    expect(within(mobileNav).getByText("Coleção")).toBeTruthy();
+    expect(within(mobileNav).queryByText("Perfil")).toBeNull();
   });
 });

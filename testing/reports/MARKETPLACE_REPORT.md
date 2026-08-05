@@ -1,29 +1,23 @@
-# MARKETPLACE_REPORT
+# MARKETPLACE_REPORT — AUDIT_PASS_2026-07-29
 
-**Persona:** Fernanda (Marketplace)  
-**Gerado:** 2026-07-22T06:55:00Z  
-**Status:** **WARN** · Confidence **45%**
+## Provas
 
-## Probes HTTP (prod)
-
-| Rota | Status |
-|------|--------|
+| Check | Resultado |
+|---|---|
 | `/loja` | 200 |
-| `/loja/busca?q=bolt` | 200 |
-| `/api/catalog/cards/search?q=lightning&limit=3` | 200 |
+| `/loja/busca?q=charizard` | 200 |
+| `/loja/busca?q=rapunzel` | 200 |
+| product-catalog search API | 200 + items |
+| LPC / liquidez | 0 (PROJECT_STATUS / North Star) |
 
-## Runner
+## Gaps não provados
 
-`fernanda-marketplace-stub.mjs` → **pending_manual** (liquidez/ofertas/confiança qualitativos)
-
-## Não comprovado nesta rodada
-
-- Cadastro multi-vendedores
-- Comparar ofertas / menor-maior preço
-- Liquidez / promoções / preço histórico (UI)
-- Checkout marketplace ponta a ponta
-- Feedback pós-compra
+- Ofertas reais com estoque
+- Filtros foil/idioma/condição E2E
+- Oversell / reserva concorrente
+- Seller listing E2E
+- Comparação de preços
 
 ## Veredito
 
-Marketplace **parcialmente** saudável na superfície pública; **não** validado como BC completo para Beta.
+Marketplace **shell online**, mercado **sem liquidez comprovada**. Não READY.

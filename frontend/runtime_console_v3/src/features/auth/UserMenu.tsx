@@ -4,11 +4,14 @@ import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import {
   Clock,
   FlaskConical,
+  Gavel,
   Heart,
+  Layers,
   LogOut,
   Package,
   Settings,
   Store,
+  Trophy,
   User,
   Users,
   Wallet,
@@ -116,6 +119,28 @@ export function UserMenu({ onHistoryClick }: Props = {}) {
             <Link href="/perfil/seguidos" className={itemClass}>
               <Users className="h-4 w-4" aria-hidden />
               Seguidos
+            </Link>
+          </DropdownMenu.Item>
+          <DropdownMenu.Separator className="my-1 h-px bg-muted" />
+          <p className="px-3 py-1 text-caption font-semibold uppercase tracking-wide text-muted-foreground">
+            Ecossistema
+          </p>
+          <DropdownMenu.Item asChild>
+            <Link href="/search/torneios" className={itemClass} data-testid="nav-eventos">
+              <Trophy className="h-4 w-4" aria-hidden />
+              Eventos
+            </Link>
+          </DropdownMenu.Item>
+          <DropdownMenu.Item asChild>
+            <Link href="/decks" className={itemClass}>
+              <Layers className="h-4 w-4" aria-hidden />
+              Deck Builder
+            </Link>
+          </DropdownMenu.Item>
+          <DropdownMenu.Item asChild>
+            <Link href="/judge" className={itemClass}>
+              <Gavel className="h-4 w-4" aria-hidden />
+              Judge
             </Link>
           </DropdownMenu.Item>
           {onHistoryClick ? (

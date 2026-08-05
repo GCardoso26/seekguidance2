@@ -142,7 +142,7 @@ async def rebuild_listing_performance(session: AsyncSession, *, store_id: str) -
               JOIN tcg_judge.shop_order_items oi ON oi.order_id = o.id
               JOIN tcg_judge.store_products sp ON sp.id = oi.product_id
               WHERE o.store_id = cl.store_id
-                AND sp.card_id = cl.card_id
+                AND sp.catalog_card_id = cl.card_id
                 AND o.status IN ('paid', 'processing', 'shipped', 'delivered')
             ) sales ON TRUE
             WHERE cl.seller_id = :uid

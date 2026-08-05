@@ -65,7 +65,7 @@ export function GameSelector({ games, onSelect, selectedGame }: GameSelectorProp
   return (
     <div
       role="radiogroup"
-      aria-label="Escolha seu jogo de cartas"
+      aria-label="Todos os jogos no mercado:"
       className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4 lg:grid-cols-6"
     >
       {games.map((game, index) => {

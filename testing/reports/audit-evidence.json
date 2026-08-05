@@ -1,0 +1,93 @@
+{
+  "generated_at": "2026-07-29T20:35:00Z",
+  "platform_stage": "Framework Complete / Beta Not started",
+  "historical_disk_incident": {
+    "symptom": "No space left on device / econnrefused via Supavisor",
+    "when": "2026-07-29 ~04:59Z",
+    "status_now": "database ok"
+  },
+  "supabase_advisors": {
+    "performance": {
+      "WARN": 155,
+      "INFO": 458,
+      "total": 613
+    },
+    "security": {
+      "WARN": 22,
+      "INFO": 113,
+      "total": 135
+    },
+    "project": "rjgzaakhzuzdzcooywva"
+  },
+  "ready_for_production": false,
+  "not_executed_this_pass": [
+    "Lighthouse CI",
+    "Playwright full E2E",
+    "Load 100-1000",
+    "certify:checkout:prod",
+    "certify:payment",
+    "certify:bullmq",
+    "Browser console crawl",
+    "Qdrant probe",
+    "Full XSS review of dangerouslySetInnerHTML sinks"
+  ],
+  "north_star": {
+    "LCS": "0%",
+    "LPC": 0
+  },
+  "postgres_logs_sample": [
+    "uq_asset_version duplicate key ERROR (repeated during asset sync)",
+    "checkpoint complete"
+  ],
+  "vitest_frontend": {
+    "tests_passed": 472,
+    "note": "MobileLayout test updated this pass; 5 other failures remain",
+    "files_passed": 130,
+    "tests_failed": 6,
+    "files_failed": 6
+  },
+  "cvc_score_2026_07_23": {
+    "would_buy_now": 0,
+    "verdict": "NOT READY FOR CUSTOMERS",
+    "customer_satisfaction": 2.1
+  },
+  "live_probes": {
+    "api": {
+      "checkout-v2 /health": {
+        "postgres": "ok",
+        "sprint": "6",
+        "status": "ok",
+        "workers": "ok",
+        "outbox": "ok"
+      },
+      "GET judgetcg /api/product-catalog/search": 200,
+      "GET /v1/health": 200,
+      "GET /runtime/judge/product-catalog/search": 200,
+      "GET /runtime/events": 200
+    },
+    "pages_http": {
+      "/lorcana": 200,
+      "/loja/busca?q=charizard": 200,
+      "/mtg": 200,
+      "/magic": 200,
+      "/loja": 200,
+      "/lorcana/expansions": 200,
+      "/": 200,
+      "/robots.txt": 200,
+      "/sitemap.xml": 200,
+      "/loja/busca?q=rapunzel": 200
+    },
+    "api_health": {
+      "gitCommit": "c3ce4c8c",
+      "database": "ok",
+      "redis": "ok",
+      "openpix": "disabled",
+      "payments": "deferred",
+      "stripe": "ok",
+      "melhor_envio": "disabled",
+      "sentry": "disabled",
+      "status": "healthy"
+    }
+  },
+  "audit_pass": "AUDIT_PASS_2026-07-29"
+}

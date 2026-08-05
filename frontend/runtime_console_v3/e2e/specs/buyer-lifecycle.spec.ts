@@ -21,7 +21,10 @@ test.describe("Carlos Buyer lifecycle (Checkout V2 path)", () => {
   });
 
   test("01 home → search → results", async ({ page }) => {
+    // /search redirects to purchase search; must never open tournament discovery.
     await page.goto("/search?q=Rapunzel");
+    await expect(page).toHaveURL(/\/loja\/busca/);
+    await expect(page.getByText("Descobrir Torneios")).toHaveCount(0);
     await expect(page.locator("body")).toBeVisible();
     await page.screenshot({ path: path.join(EVIDENCE, "01-search.png"), fullPage: true });
   });

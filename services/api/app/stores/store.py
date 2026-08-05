@@ -38,6 +38,7 @@ async def list_owner_stores(session: AsyncSession, owner_id: str) -> list[dict[s
                 SELECT * FROM tcg_judge.stores
                 WHERE owner_id = :oid
                 ORDER BY
+                  CASE WHEN COALESCE(is_test, false) THEN 1 ELSE 0 END,
                   CASE WHEN shop_enabled THEN 0 ELSE 1 END,
                   CASE lower(COALESCE(subscription_plan, 'free'))
                     WHEN 'enterprise' THEN 0

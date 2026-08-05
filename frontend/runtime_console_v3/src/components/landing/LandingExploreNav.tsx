@@ -7,7 +7,7 @@ import { useJudgeAuth } from "@/features/auth/AuthProvider";
 import { cn } from "@/lib/utils";
 
 const EXPLORE_LINKS = [
-  { href: "/search", label: "Torneios" },
+  { href: "/search/torneios", label: "Torneios" },
   { href: "/marketplace", label: "Lojas" },
   { href: "/social", label: "Social" },
 ] as const;

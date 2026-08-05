@@ -58,8 +58,13 @@ const CpfRequiredBanner = dynamic(
   { ssr: false },
 );
 
-/** BP 5.1 — One goal no header de compra: Loja. Resto no menu da conta. */
-const STORE_NAV = [{ href: "/loja", label: "Loja" }] as const;
+/** BP 5.1 / Customer Conversion First — Compra em destaque; Eventos fora do nav primário. */
+const STORE_NAV = [
+  { href: "/loja", label: "Comprar" },
+  { href: "/loja/singles", label: "Singles" },
+  { href: "/loja/selados", label: "Selados" },
+  { href: "/loja/acessorios", label: "Acessórios" },
+] as const;
 
 function DesktopNavLink({ href, label }: { href: string; label: string }) {
   const pathname = usePathname();

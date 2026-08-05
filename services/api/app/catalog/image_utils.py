@@ -10,6 +10,22 @@ SORCERY_CDN = "https://d27a44hjr9gen3.cloudfront.net"
 _SORCERY_SLUG_RE = re.compile(r"^([a-z]+)-(.+)-([a-z]+)-([sf])$")
 _BROKEN_SORCERY_HOST = "cards.sorcerytcg.com"
 
+TCGDEX_ASSETS_HOST = "assets.tcgdex.net"
+_IMAGE_EXT_RE = re.compile(r"\.(webp|png|jpe?g)(\?|$)", re.IGNORECASE)
+
+
+def normalize_tcgdex_image_url(url: str | None) -> str | None:
+    """TCGdex serve a imagem em `<base>/<quality>.<ext>`; a base sozinha devolve 404."""
+    if not url or not isinstance(url, str):
+        return url
+    trimmed = url.strip()
+    if TCGDEX_ASSETS_HOST not in trimmed:
+        return url
+    normalized = trimmed.rstrip("/")
+    if not normalized.startswith("http") or _IMAGE_EXT_RE.search(normalized):
+        return url
+    return f"{normalized}/high.webp"
+
 
 def sorcery_slug_to_image_url(slug: str | None) -> str | None:
     """Converte variant slug da API Sorcery em URL do CDN público (Curiosa/CloudFront)."""
@@ -95,4 +111,4 @@ def resolve_card_image(row: dict[str, Any]) -> dict[str, str]:
 
     if fallback and not uris["normal"]:
         uris = {"small": fallback, "normal": fallback, "large": fallback}
-    return uris
+    return {key: normalize_tcgdex_image_url(value) or value for key, value in uris.items()}

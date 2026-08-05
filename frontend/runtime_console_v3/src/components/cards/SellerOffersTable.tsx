@@ -62,13 +62,29 @@ export function SellerOffersTable({ listings, onBuy, buyingId }: SellerOffersTab
 
   if (listings.length === 0) {
     return (
-      <div className="py-10 text-center">
-        <Store className="mx-auto mb-3 h-10 w-10 text-muted-foreground/50" aria-hidden />
-        <p className="text-body font-medium">Nenhuma oferta disponível</p>
-        <p className="mt-1 text-small text-muted-foreground">Crie um alerta de preço para ser notificado.</p>
+      <div className="space-y-4 py-8 text-center" data-testid="pdp-no-offers">
+        <Store className="mx-auto h-10 w-10 text-muted-foreground/50" aria-hidden />
+        <p className="text-body font-medium">No momento este produto está sem ofertas.</p>
+        <p className="text-small text-muted-foreground">
+          Veja produtos semelhantes abaixo ou entre na lista de interesse.
+        </p>
+        <div className="flex flex-wrap justify-center gap-2">
+          <Button variant="outline" size="sm" asChild>
+            <a href="/wishlist">Lista de interesse</a>
+          </Button>
+          <Button variant="outline" size="sm" asChild>
+            <a href="/loja/busca">Buscar similares</a>
+          </Button>
+        </div>
       </div>
     );
   }
+
+  const prices = listings.map((l) => l.price);
+  const minPrice = Math.min(...prices);
+  const maxPrice = Math.max(...prices);
+  const storeCount = new Set(listings.map((l) => l.sellerName || l.sellerId || l.id)).size;
+  const totalQty = listings.reduce((acc, l) => acc + (l.quantity || 0), 0);
 
   const SortBtn = ({ label, col }: { label: string; col: SortKey }) => (
     <button
@@ -82,7 +98,25 @@ export function SellerOffersTable({ listings, onBuy, buyingId }: SellerOffersTab
   );
 
   return (
-    <DataTable className="border-0 shadow-none" stickyHeader density="comfortable">
+    <div className="space-y-3" data-testid="pdp-offers-table">
+      <div
+        className="flex flex-wrap gap-x-4 gap-y-1 rounded-lg border border-border bg-muted/20 px-3 py-2 text-sm text-muted-foreground"
+        data-testid="pdp-stock-summary"
+      >
+        <span>
+          {listings.length === 1 ? "1 oferta disponível" : `${listings.length} ofertas disponíveis`}
+        </span>
+        <span>
+          {storeCount} loja{storeCount !== 1 ? "s" : ""}
+        </span>
+        {totalQty > 0 && <span>{totalQty} un. em estoque</span>}
+        <span>
+          {minPrice === maxPrice
+            ? formatCurrency(minPrice, listings[0]?.currency || "BRL")
+            : `${formatCurrency(minPrice, listings[0]?.currency || "BRL")} – ${formatCurrency(maxPrice, listings[0]?.currency || "BRL")}`}
+        </span>
+      </div>
+      <DataTable className="border-0 shadow-none" stickyHeader density="comfortable">
       <DataTableHeader>
         <tr>
           <DataTableHead>Vendedor</DataTableHead>
@@ -151,5 +185,6 @@ export function SellerOffersTable({ listings, onBuy, buyingId }: SellerOffersTab
         })}
       </DataTableBody>
     </DataTable>
+    </div>
   );
 }

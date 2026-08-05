@@ -10,6 +10,7 @@ from fastapi import HTTPException
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.catalog.image_utils import normalize_tcgdex_image_url
 from app.marketplace import card_listings as card_listings_svc
 from app.marketplace import seller_dashboard_overview_cache as overview_cache
 from app.marketplace import seller_fulfillment as seller_ff
@@ -37,6 +38,7 @@ async def resolve_owner_store(session: AsyncSession, owner_id: str) -> dict[str,
                 FROM tcg_judge.stores
                 WHERE owner_id = :oid
                 ORDER BY
+                  CASE WHEN COALESCE(is_test, false) THEN 1 ELSE 0 END,
                   CASE WHEN shop_enabled THEN 0 ELSE 1 END,
                   CASE lower(COALESCE(subscription_plan, 'free'))
                     WHEN 'enterprise' THEN 0
@@ -186,7 +188,12 @@ async def _low_stock_items(
             {"sid": store_id, "thr": threshold, "uid": owner_id},
         )
     ).mappings().all()
-    return [dict(r) for r in rows]
+    items = []
+    for r in rows:
+        item = dict(r)
+        item["image_url"] = normalize_tcgdex_image_url(item.get("image_url"))
+        items.append(item)
+    return items
 
 
 async def _count_open_tickets(session: AsyncSession, store_id: str) -> int:

@@ -2,6 +2,8 @@ import { ProductCategory } from "../../domain/enums.js";
 import type { ImportedProductDTO } from "../../domain/models.js";
 import { BaseProductCatalogProvider } from "../BaseProductCatalogProvider.js";
 import type { ProductCatalogSyncContext, ProductCatalogSyncResult } from "../ProductCatalogProvider.js";
+import { fetchWithTransientRetry } from "../fetchWithTransientRetry.js";
+import { createPackshotUrlForSku } from "./publisherPackshots.js";
 
 type PokemonSet = {
   id: string;
@@ -11,11 +13,18 @@ type PokemonSet = {
   images?: { symbol?: string; logo?: string };
 };
 
+const packshotUrlForSku = createPackshotUrlForSku("pokemon");
+
+function imagesForSku(sku: string): { sourceUrl: string; isPrimary: true }[] {
+  const url = packshotUrlForSku(sku);
+  return url ? [{ sourceUrl: url, isPrimary: true }] : [];
+}
+
 /**
  * Pokémon sealed products — Priority 1: official Pokémon TCG API set metadata.
  * ADR-016: the API's logo/symbol fields are set icons, not product packshots —
- * they must not be promoted as the primary product image. `images` stays empty
- * until a verified official packshot manifest exists (honesty > fake placeholder).
+ * they must not be promoted as the primary product image. Images come only from
+ * the curated sealed-packshots.manifest.json allowlist (honesty > fake placeholder).
  */
 export class PokemonTcgSealedProvider extends BaseProductCatalogProvider {
   readonly providerId = "pokemon-tcg-sealed";
@@ -33,11 +42,7 @@ export class PokemonTcgSealedProvider extends BaseProductCatalogProvider {
     if (apiKey) headers["X-Api-Key"] = apiKey;
 
     const url = "https://api.pokemontcg.io/v2/sets?pageSize=50&orderBy=-releaseDate";
-    let res = await fetch(url, { headers });
-    if (!res.ok && (res.status === 429 || res.status >= 500)) {
-      await new Promise((r) => setTimeout(r, 400));
-      res = await fetch(url, { headers });
-    }
+    const res = await fetchWithTransientRetry(url, { headers }, { attempts: 4, baseDelayMs: 500 });
     if (!res.ok) {
       return { ok: false, count: 0, errors: [`pokemon_tcg_http_${res.status}`] };
     }
@@ -64,8 +69,7 @@ export class PokemonTcgSealedProvider extends BaseProductCatalogProvider {
             providerRef: `pokemon-set-${set.id}-etb-default`,
             variantName: "Padrão",
             sku,
-            // ADR-016: set logo/symbol are not packshots. Not use as primary image.
-            images: [],
+            images: imagesForSku(sku),
           },
         ],
       });
@@ -88,8 +92,7 @@ export class PokemonTcgSealedProvider extends BaseProductCatalogProvider {
             providerRef: `pokemon-set-${set.id}-box-default`,
             variantName: "Padrão",
             sku: boxSku,
-            // ADR-016: set logo/symbol are not packshots. Not use as primary image.
-            images: [],
+            images: imagesForSku(boxSku),
           },
         ],
       });
@@ -112,8 +115,7 @@ export class PokemonTcgSealedProvider extends BaseProductCatalogProvider {
             providerRef: `pokemon-set-${set.id}-pack-default`,
             variantName: "Padrão",
             sku: packSku,
-            // ADR-016: set logo/symbol are not packshots. Honest empty until curated PACK SKU.
-            images: [],
+            images: imagesForSku(packSku),
           },
         ],
       });

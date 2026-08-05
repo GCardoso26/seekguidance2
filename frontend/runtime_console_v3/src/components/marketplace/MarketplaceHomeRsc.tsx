@@ -2,25 +2,29 @@ import Link from "next/link";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import { MarketplaceHeroSearch } from "@/components/marketplace/MarketplaceHeroSearch";
 import { MarketplaceHomeBelowFold } from "@/components/marketplace/MarketplaceHomeBelowFold";
+import { HomeCategoryStrip } from "@/components/marketplace/HomeCategoryStrip";
 import { TrustFooterStrip } from "@/components/layout/TrustFooterStrip";
 import { UniverseHomeHero } from "@/components/experience/UniverseHomeHero";
 import { Button } from "@/components/ui/button";
 import { getMegaMenuGames, MOCK_CATALOG_HEALTH } from "@/lib/catalog-games";
 
-function DiscoveryCta() {
+function EcosystemSection() {
   return (
-    <section className="border-t border-border py-12">
+    <section className="border-t border-border py-12" data-testid="home-ecosystem">
       <div className="container mx-auto max-w-2xl px-4 text-center">
-        <h2 className="text-2xl font-semibold text-foreground">Buscar no catálogo</h2>
+        <h2 className="text-2xl font-semibold text-foreground">Conheça o ecossistema</h2>
         <p className="mt-2 text-muted-foreground">
-          Compare ofertas de lojas, monte decks e acompanhe sua coleção.
+          Decks, coleção, eventos e regras — depois de comprar.
         </p>
         <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
-          <Button size="lg" asChild className="min-h-12 bg-primary text-primary-foreground">
-            <Link href="/loja/busca">Ver ofertas</Link>
-          </Button>
           <Button size="lg" variant="outline" asChild className="min-h-12">
             <Link href="/decks">Explorar decks</Link>
+          </Button>
+          <Button size="lg" variant="outline" asChild className="min-h-12">
+            <Link href="/search/torneios">Eventos</Link>
+          </Button>
+          <Button size="lg" variant="outline" asChild className="min-h-12">
+            <Link href="/judge">Judge</Link>
           </Button>
         </div>
         <p className="mt-4 text-caption text-muted-foreground">
@@ -35,8 +39,8 @@ function DiscoveryCta() {
 }
 
 /**
- * Home — LCP is static UniverseHomeHero (no Suspense/data race).
- * Live catalog counts hydrate below the fold.
+ * Home conversion-first — LCP = hero de compra + busca.
+ * Universos TCG e institucional ficam abaixo do fold de produtos.
  */
 export function MarketplaceHomeRsc() {
   const bootstrap = MOCK_CATALOG_HEALTH;
@@ -45,12 +49,13 @@ export function MarketplaceHomeRsc() {
 
   return (
     <MobileLayout>
-      <UniverseHomeHero health={bootstrap} />
-      <div className="border-t border-border">
-        <MarketplaceHeroSearch totalCards={totalCards} gameCount={gameCount} />
-      </div>
+      <MarketplaceHeroSearch totalCards={totalCards} gameCount={gameCount} />
+      <HomeCategoryStrip />
       <MarketplaceHomeBelowFold />
-      <DiscoveryCta />
+      <div className="border-t border-border">
+        <UniverseHomeHero health={bootstrap} />
+      </div>
+      <EcosystemSection />
       <TrustFooterStrip />
     </MobileLayout>
   );

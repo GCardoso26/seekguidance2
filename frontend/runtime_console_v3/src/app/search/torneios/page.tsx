@@ -10,7 +10,7 @@ const qc = new QueryClient();
 /** ADR-016: SWU hard-exited from product ecosystem. */
 const GAMES = ["MTG", "POKEMON", "LORCANA"];
 
-function SearchPage() {
+function TorneiosSearchPage() {
   const [q, setQ] = useState("");
   const [selectedGames, setSelectedGames] = useState<string[]>([]);
   const [freeOnly, setFreeOnly] = useState(false);
@@ -35,7 +35,15 @@ function SearchPage() {
           <Link href="/" className="text-sm text-muted-foreground">
             ← Início
           </Link>
-          <h1 className="mt-2 text-2xl font-bold">Descobrir Torneios</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Procurando cartas ou produtos?{" "}
+            <Link href="/loja/busca" className="underline hover:text-foreground">
+              Ir para a loja
+            </Link>
+          </p>
+          <h1 className="mt-2 text-2xl font-bold" data-testid="torneios-title">
+            Descobrir Torneios
+          </h1>
         </div>
       </header>
       <main className="container mx-auto grid gap-8 px-4 py-8 lg:grid-cols-3">
@@ -46,6 +54,7 @@ function SearchPage() {
             value={q}
             onChange={(e) => setQ(e.target.value)}
             className="w-full surface-card rounded-lg px-4 py-2"
+            data-testid="torneios-search-input"
           />
           <div className="flex flex-wrap gap-2">
             {GAMES.map((g) => (
@@ -117,7 +126,7 @@ function SearchPage() {
 export default function Page() {
   return (
     <QueryClientProvider client={qc}>
-      <SearchPage />
+      <TorneiosSearchPage />
     </QueryClientProvider>
   );
 }

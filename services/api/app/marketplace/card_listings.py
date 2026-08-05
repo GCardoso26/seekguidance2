@@ -9,6 +9,7 @@ from fastapi import HTTPException
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.catalog.image_utils import normalize_tcgdex_image_url
 from app.marketplace.shop_store import store_is_sellable
 
 VALID_CONDITIONS = frozenset({"NM", "LP", "MP", "HP", "DM"})
@@ -70,7 +71,7 @@ def _listing_payload(row: dict[str, Any]) -> dict[str, Any]:
         card_images = {}
     if not image_list and isinstance(card_images, dict):
         image_list = [
-            u
+            normalize_tcgdex_image_url(u)
             for u in (
                 card_images.get("normal"),
                 card_images.get("large"),
