@@ -2,7 +2,7 @@ import Link from "next/link";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import { MarketplaceHeroSearch } from "@/components/marketplace/MarketplaceHeroSearch";
 import { MarketplaceHomeBelowFold } from "@/components/marketplace/MarketplaceHomeBelowFold";
-import { HomeCategoryStrip } from "@/components/marketplace/HomeCategoryStrip";
+import { MarketplaceDiscoveryShowcase } from "@/components/marketplace/MarketplaceDiscoveryShowcase";
 import { TrustFooterStrip } from "@/components/layout/TrustFooterStrip";
 import { UniverseHomeHero } from "@/components/experience/UniverseHomeHero";
 import { Button } from "@/components/ui/button";
@@ -39,7 +39,7 @@ function EcosystemSection() {
 }
 
 /**
- * Home conversion-first — LCP = hero de compra + busca.
+ * Home conversion-first — LCP = hero de compra + busca; vitrine material abaixo.
  * Universos TCG e institucional ficam abaixo do fold de produtos.
  */
 export function MarketplaceHomeRsc() {
@@ -50,7 +50,7 @@ export function MarketplaceHomeRsc() {
   return (
     <MobileLayout>
       <MarketplaceHeroSearch totalCards={totalCards} gameCount={gameCount} />
-      <HomeCategoryStrip />
+      <MarketplaceDiscoveryShowcase />
       <MarketplaceHomeBelowFold />
       <div className="border-t border-border">
         <UniverseHomeHero health={bootstrap} />

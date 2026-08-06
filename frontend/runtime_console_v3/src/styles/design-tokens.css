@@ -2,6 +2,9 @@
  * JudgeTCG Design System — Surface Identity (BP 5.1)
  * Ink-forward marketplace · não indigo SaaS · não template shadcn default
  * Fonte única de verdade — sem hex em componentes.
+ *
+ * Camadas (P1 OpenDesign): permanente = estes tokens no fluxo de compra;
+ * contextual = CSS vars de game-themes.css só em PortalLayout / hubs de jogo.
  */
 
 :root {

@@ -50,6 +50,7 @@ export type MarketplaceEvent =
   | "search_abandonment"
   | "home_product_ctr"
   | "category_ctr"
+  | "discovery_ctr"
   | "marketplace_ctr";
 
 export type BuyerExperienceEvent =

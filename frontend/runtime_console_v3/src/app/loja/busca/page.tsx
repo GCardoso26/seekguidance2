@@ -3,12 +3,12 @@ import { Suspense } from "react";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import { CatalogSearchSkeleton } from "@/components/search/CatalogSearchSkeleton";
 import { LojaBuscaClient } from "@/app/loja/busca/LojaBuscaClient";
-import { MarketplaceGameSkin } from "@/components/experience/MarketplaceGameSkin";
+import { GameTaxonomyChip } from "@/components/marketplace/GameTaxonomyChip";
 
 /**
  * Shell RSC (H1/copy estáticos) + island FacetedSearch.
- * Alinha `/loja/busca` ao padrão do hub `/loja` para LCP.
- * Epic 6: Theme Engine V2 skin when `?game=` is present.
+ * Camada permanente: sem MarketplaceGameSkin / data-mood.
+ * `?game=` só informa taxonomia via chip local.
  */
 export default function LojaBuscaPage() {
   return (
@@ -25,9 +25,8 @@ export default function LojaBuscaPage() {
         </p>
         <div className="mt-8">
           <Suspense fallback={<CatalogSearchSkeleton />}>
-            <MarketplaceGameSkin>
-              <LojaBuscaClient />
-            </MarketplaceGameSkin>
+            <GameTaxonomyChip />
+            <LojaBuscaClient />
           </Suspense>
         </div>
       </div>
