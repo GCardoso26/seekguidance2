@@ -16,8 +16,10 @@ import {
 import type { TableDensity } from "@/lib/seller-workspace-preferences";
 import type { SellerListingRow } from "@/types/seller-listing";
 import { DataTable } from "../DataTable";
+import { OpsTruncatedText } from "../OpsTruncatedText";
 import { listingStatusLabel } from "./ListingsToolbar";
 import { duplicateListing } from "@/lib/seller-bulk-listings";
+import type { OpsColumnMeta } from "@/lib/ops-table";
 
 function formatListingDate(iso: string | undefined): string {
   if (!iso) return "—";
@@ -145,35 +147,37 @@ const COLUMN_BUILDERS: Record<
     id: "cardName",
     accessorKey: "cardName",
     header: "Carta",
-    cell: ({ row }) => (
-      <div>
-        <Link
+    meta: { priority: "primary", minWidthClass: "min-w-[12rem]" } satisfies OpsColumnMeta,
+    cell: ({ row }) => {
+      const name = row.original.cardName || "Carta";
+      return (
+        <OpsTruncatedText
+          text={name}
           href={`/vendedor/painel/listagens/${row.original.id}`}
-          className="font-medium hover:text-primary hover:underline"
-        >
-          {row.original.cardName || "Carta"}
-        </Link>
-        {row.original.setName && (
-          <p className="text-xs text-muted-foreground">{row.original.setName}</p>
-        )}
-      </div>
-    ),
+          subtitle={row.original.setName || undefined}
+          className="max-w-[14rem] sm:max-w-[18rem]"
+        />
+      );
+    },
   }),
   language: () => ({
     id: "language",
     accessorKey: "language",
     header: "Idioma",
+    meta: { priority: "secondary" } satisfies OpsColumnMeta,
     cell: ({ row }) => <span className="text-xs uppercase">{row.original.language}</span>,
   }),
   foil: () => ({
     id: "foil",
     accessorFn: (r) => (r.foil ? 1 : 0),
     header: "Foil",
+    meta: { priority: "tertiary" } satisfies OpsColumnMeta,
     cell: ({ row }) => (row.original.foil ? "Sim" : "—"),
   }),
   condition: () => ({
     id: "condition",
     header: "Condição",
+    meta: { priority: "secondary" } satisfies OpsColumnMeta,
     cell: ({ row }) => (
       <ConditionBadge condition={row.original.condition as CardCondition} size="sm" />
     ),
@@ -182,6 +186,7 @@ const COLUMN_BUILDERS: Record<
     id: "price",
     accessorKey: "price",
     header: "Preço",
+    meta: { priority: "primary" } satisfies OpsColumnMeta,
     cell: ({ row }) => (
       <InlineNumberCell
         value={row.original.price}
@@ -194,6 +199,7 @@ const COLUMN_BUILDERS: Record<
     id: "quantity",
     accessorKey: "quantity",
     header: "Qtd",
+    meta: { priority: "primary" } satisfies OpsColumnMeta,
     cell: ({ row }) => (
       <InlineNumberCell
         value={row.original.quantity}
@@ -206,6 +212,7 @@ const COLUMN_BUILDERS: Record<
     id: "status",
     accessorFn: (r) => r.status ?? "active",
     header: "Status",
+    meta: { priority: "secondary" } satisfies OpsColumnMeta,
     cell: ({ row }) => (
       <span className="rounded-full border border-border px-2 py-0.5 text-xs">
         {listingStatusLabel(row.original.status)}
@@ -216,6 +223,7 @@ const COLUMN_BUILDERS: Record<
     id: "updated",
     accessorKey: "createdAt",
     header: "Atualizado",
+    meta: { priority: "tertiary" } satisfies OpsColumnMeta,
     cell: ({ row }) => (
       <span className="text-xs text-muted-foreground">{formatListingDate(row.original.createdAt)}</span>
     ),
@@ -224,6 +232,7 @@ const COLUMN_BUILDERS: Record<
     id: "actions",
     header: "",
     enableSorting: false,
+    meta: { priority: "primary" } satisfies OpsColumnMeta,
     cell: ({ row }) => (
       <div className="flex items-center gap-2">
         <Link

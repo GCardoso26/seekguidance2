@@ -2,8 +2,10 @@
 
 import type { ColumnDef, OnChangeFn, RowSelectionState } from "@tanstack/react-table";
 import { DataTable } from "@/components/seller-dashboard/DataTable";
+import { OpsTruncatedText } from "@/components/seller-dashboard/OpsTruncatedText";
 import { SaleStatusBadge } from "@/components/seller-dashboard/SaleStatusBadge";
 import { formatShopPrice } from "@/lib/marketplace-shop";
+import type { OpsColumnMeta } from "@/lib/ops-table";
 import { orderCustomerLabel, type SellerOrderRow } from "@/types/seller-order";
 
 function formatOrderDate(iso: string | undefined): string {
@@ -44,6 +46,7 @@ function buildColumns(
         />
       ),
       enableSorting: false,
+      meta: { priority: "primary" } satisfies OpsColumnMeta,
     });
   }
 
@@ -52,6 +55,7 @@ function buildColumns(
       id: "id",
       accessorKey: "id",
       header: "Pedido",
+      meta: { priority: "primary", minWidthClass: "min-w-[6rem]" } satisfies OpsColumnMeta,
       cell: ({ row }) => (
         <button
           type="button"
@@ -66,17 +70,26 @@ function buildColumns(
       id: "customer",
       accessorFn: (row) => orderCustomerLabel(row),
       header: "Cliente",
+      meta: { priority: "primary", minWidthClass: "min-w-[10rem]" } satisfies OpsColumnMeta,
+      cell: ({ row }) => (
+        <OpsTruncatedText
+          text={orderCustomerLabel(row.original)}
+          className="max-w-[12rem] sm:max-w-[16rem]"
+        />
+      ),
     },
     {
       id: "status",
       accessorKey: "status",
       header: "Status",
+      meta: { priority: "primary" } satisfies OpsColumnMeta,
       cell: ({ row }) => <SaleStatusBadge status={row.original.status} />,
     },
     {
       id: "payment",
       accessorKey: "payment_method",
       header: "Pagamento",
+      meta: { priority: "secondary" } satisfies OpsColumnMeta,
       cell: ({ row }) => (
         <span className="text-xs uppercase text-muted-foreground">
           {row.original.payment_method ?? "—"}
@@ -87,6 +100,7 @@ function buildColumns(
       id: "total_cents",
       accessorKey: "total_cents",
       header: "Valor",
+      meta: { priority: "primary" } satisfies OpsColumnMeta,
       cell: ({ row }) => (
         <span className="font-semibold tabular-nums">{formatShopPrice(row.original.total_cents)}</span>
       ),
@@ -95,6 +109,7 @@ function buildColumns(
       id: "created_at",
       accessorKey: "created_at",
       header: "Data",
+      meta: { priority: "tertiary" } satisfies OpsColumnMeta,
       cell: ({ row }) => (
         <span className="text-muted-foreground">{formatOrderDate(row.original.created_at)}</span>
       ),

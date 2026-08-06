@@ -6,6 +6,7 @@ import { formatShopPrice } from "@/lib/marketplace-shop";
 import { orderCustomerLabel, type SellerOrderRow } from "@/types/seller-order";
 import { OrderActions } from "@/components/store/OrderActions";
 import { SaleStatusBadge } from "./SaleStatusBadge";
+import { OpsTruncatedText } from "./OpsTruncatedText";
 
 type Props = {
   orders: SellerOrderRow[];
@@ -31,7 +32,10 @@ export function OrderCards({ orders, onUpdated }: Props) {
               >
                 #{order.id.slice(0, 8)}
               </Link>
-              <p className="mt-1 text-sm text-foreground">{orderCustomerLabel(order)}</p>
+              <OpsTruncatedText
+                text={orderCustomerLabel(order)}
+                className="mt-1 max-w-[16rem]"
+              />
               <p className="text-xs text-muted-foreground">{formatOrderDate(order.created_at)}</p>
             </div>
             <div className="text-right">
@@ -40,12 +44,15 @@ export function OrderCards({ orders, onUpdated }: Props) {
             </div>
           </div>
           {order.items && order.items.length > 0 && (
-            <ul className="mt-2 text-xs text-muted-foreground">
-              {order.items.slice(0, 3).map((item, i) => (
-                <li key={`${order.id}-item-${i}`}>
-                  {item.quantity}x {item.product_name}
-                </li>
-              ))}
+            <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
+              {order.items.slice(0, 3).map((item, i) => {
+                const line = `${item.quantity}x ${item.product_name ?? "Item"}`;
+                return (
+                  <li key={`${order.id}-item-${i}`}>
+                    <OpsTruncatedText text={line} className="max-w-full [&_p]:font-normal" />
+                  </li>
+                );
+              })}
             </ul>
           )}
           <div className="mt-3">

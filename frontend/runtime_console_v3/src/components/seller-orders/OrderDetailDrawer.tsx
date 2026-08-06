@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { X } from "lucide-react";
 import { FulfillmentActions, FulfillmentWorkflowStepper } from "@/components/seller-fulfillment";
 import { SaleStatusBadge } from "@/components/seller-dashboard/SaleStatusBadge";
+import { OpsTruncatedText } from "@/components/seller-dashboard/OpsTruncatedText";
 import { OrderActions } from "@/components/store/OrderActions";
 import { useFulfillment } from "@/hooks/useFulfillment";
 import { formatShopPrice } from "@/lib/marketplace-shop";
@@ -110,18 +111,22 @@ export function OrderDetailDrawer({ orderId, open, onOpenChange, onUpdated }: Pr
                 <div>
                   <h3 className="mb-2 text-sm font-semibold text-muted-foreground">Itens</h3>
                   <ul className="space-y-1 text-sm">
-                    {items.map((item, idx) => (
-                      <li key={idx} className="flex justify-between gap-2">
-                        <span>
-                          {item.quantity ?? 1}x {item.product_name ?? "Item"}
-                        </span>
-                        <span className="tabular-nums">
-                          {formatShopPrice(
-                            (item.unit_price_cents ?? 0) * (item.quantity ?? 1),
-                          )}
-                        </span>
-                      </li>
-                    ))}
+                    {items.map((item, idx) => {
+                      const label = `${item.quantity ?? 1}x ${item.product_name ?? "Item"}`;
+                      return (
+                        <li key={idx} className="flex justify-between gap-2">
+                          <OpsTruncatedText
+                            text={label}
+                            className="min-w-0 flex-1 max-w-[14rem] [&_p]:font-normal"
+                          />
+                          <span className="shrink-0 tabular-nums">
+                            {formatShopPrice(
+                              (item.unit_price_cents ?? 0) * (item.quantity ?? 1),
+                            )}
+                          </span>
+                        </li>
+                      );
+                    })}
                   </ul>
                 </div>
 

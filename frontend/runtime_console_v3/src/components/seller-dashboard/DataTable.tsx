@@ -12,6 +12,7 @@ import {
 } from "@tanstack/react-table";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { opsColumnCellClass, type OpsColumnMeta } from "@/lib/ops-table";
 
 type Props<T> = {
   data: T[];
@@ -25,6 +26,10 @@ type Props<T> = {
   stickyHeader?: boolean;
   density?: "comfortable" | "compact";
 };
+
+function columnMeta(def: ColumnDef<unknown, unknown>): OpsColumnMeta | undefined {
+  return def.meta as OpsColumnMeta | undefined;
+}
 
 export function DataTable<T>({
   data,
@@ -80,12 +85,14 @@ export function DataTable<T>({
                 {headerGroup.headers.map((header) => {
                   const canSort = header.column.getCanSort();
                   const sorted = header.column.getIsSorted();
+                  const meta = columnMeta(header.column.columnDef as ColumnDef<unknown, unknown>);
                   return (
                     <th
                       key={header.id}
                       className={cn(
                         "px-4 font-medium text-muted-foreground",
                         density === "compact" ? "py-2" : "py-3",
+                        opsColumnCellClass(meta),
                       )}
                       aria-sort={
                         sorted === "asc" ? "ascending" : sorted === "desc" ? "descending" : undefined
@@ -120,17 +127,21 @@ export function DataTable<T>({
                 key={row.id}
                 className="border-b border-border/60 transition-colors last:border-0 hover:bg-muted/40"
               >
-                {row.getVisibleCells().map((cell) => (
-                  <td
-                    key={cell.id}
-                    className={cn(
-                      "px-4 text-foreground",
-                      density === "compact" ? "py-2" : "py-3",
-                    )}
-                  >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
-                ))}
+                {row.getVisibleCells().map((cell) => {
+                  const meta = columnMeta(cell.column.columnDef as ColumnDef<unknown, unknown>);
+                  return (
+                    <td
+                      key={cell.id}
+                      className={cn(
+                        "px-4 text-foreground",
+                        density === "compact" ? "py-2" : "py-3",
+                        opsColumnCellClass(meta),
+                      )}
+                    >
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </td>
+                  );
+                })}
               </tr>
             ))}
           </tbody>
