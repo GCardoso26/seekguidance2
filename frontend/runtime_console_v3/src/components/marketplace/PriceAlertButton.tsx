@@ -52,15 +52,15 @@ export function PriceAlertButton({ productId, product, className, size = "md" }:
         aria-pressed={Boolean(existing)}
         data-testid={`price-alert-button-${productId}`}
         className={cn(
-          "relative rounded-full border border-border bg-foreground/50 text-foreground backdrop-blur transition hover:border-sky-400/50 hover:text-info",
+          "relative rounded-full border border-border bg-card/90 text-foreground shadow-xs backdrop-blur transition-colors hover:border-info/50 hover:text-info focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card",
           pad,
-          existing && "border-sky-500/50 bg-sky-500/20 text-info",
+          existing && "border-info/50 bg-info/10 text-info",
           className,
         )}
       >
         <Bell className={cn(iconSize, existing && "fill-current")} />
         {existing && (
-          <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-sky-400" />
+          <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-info" />
         )}
       </button>
       {open && (

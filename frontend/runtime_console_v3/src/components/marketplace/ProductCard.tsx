@@ -12,7 +12,6 @@ import { PriceAlertButton } from "@/components/marketplace/PriceAlertButton";
 import { StoreTrustChips } from "@/components/marketplace/StoreTrustChips";
 import { GAME_TOKENS } from "@/lib/tcg-tokens";
 import type { GameId } from "@/types/card";
-import { cn } from "@/lib/utils";
 
 type Props = {
   product: ShopProduct;
@@ -28,7 +27,6 @@ function isNewProduct(createdAt: string | null | undefined, nowMs: number): bool
 }
 
 export function ProductCard({ product, onAdd }: Props) {
-  const [isHovered, setIsHovered] = useState(false);
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
     setMounted(true);
@@ -41,11 +39,9 @@ export function ProductCard({ product, onAdd }: Props) {
 
   return (
     <article
-      className="group flex flex-col overflow-hidden rounded-xl border border-border bg-card shadow-card transition-all duration-200 hover:border-primary/25 hover:shadow-card-hover"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      className="group flex flex-col overflow-hidden rounded-lg border border-border bg-card shadow-card transition-all duration-200 hover:border-primary/25 hover:shadow-card-hover"
     >
-      <div className="relative aspect-square overflow-hidden bg-muted/30">
+      <div className="relative aspect-square overflow-hidden bg-muted/40">
         <Link href={`/marketplace/product/${product.id}`} className="block h-full w-full">
           <CardImage
             src={image}
@@ -54,10 +50,7 @@ export function ProductCard({ product, onAdd }: Props) {
             mediaType={mediaType}
             fill
             listQuality
-            className={cn(
-              "object-cover transition-transform duration-300",
-              isHovered && "scale-[1.03]",
-            )}
+            className="object-contain p-3"
             sizes="(max-width:768px) 50vw, 25vw"
           />
         </Link>
@@ -68,36 +61,40 @@ export function ProductCard({ product, onAdd }: Props) {
         </div>
 
         <div
-          className={cn(
-            "absolute bottom-2 right-2 z-10 flex gap-1 transition-opacity",
-            isHovered ? "opacity-100" : "opacity-90",
-          )}
+          className="absolute bottom-2 right-2 z-10 flex gap-1 opacity-100 transition-opacity duration-base md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100"
         >
-          <PriceAlertButton productId={product.id} product={product} size="sm" />
-          <WishlistButton productId={product.id} product={product} size="sm" />
+          <PriceAlertButton productId={product.id} product={product} size="sm" className="min-h-11 min-w-11 p-2.5" />
+          <WishlistButton productId={product.id} product={product} size="sm" className="min-h-11 min-w-11 p-2.5" />
         </div>
       </div>
 
-      <div className="flex flex-1 flex-col gap-2 p-4">
-        <div className="space-y-1">
+      <div className="flex flex-1 flex-col gap-3 p-4">
+        <div className="space-y-2">
+          <div className="flex min-h-5 flex-wrap items-center gap-2">
+            {gameToken && (
+              <p className="text-overline text-muted-foreground">
+                {gameToken.name}
+              </p>
+            )}
+            {product.condition && <Badge variant="secondary">{product.condition}</Badge>}
+          </div>
           <Link
             href={`/marketplace/product/${product.id}`}
-            className="line-clamp-2 text-sm font-semibold leading-snug text-foreground transition-colors group-hover:text-primary"
+            className="line-clamp-2 text-body font-semibold leading-snug text-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card"
           >
             {product.name}
           </Link>
-          {gameToken && (
-            <p className="text-caption font-medium uppercase tracking-wide text-muted-foreground">
-              {gameToken.name}
-            </p>
-          )}
         </div>
 
+        <p className="font-mono text-xl font-semibold tracking-tight text-foreground">
+          {formatShopPrice(product.price_cents)}
+        </p>
+
         {product.store_name && product.store_slug && (
-          <div className="space-y-1">
+          <div className="border-t border-border pt-3">
             <Link
               href={`/marketplace/loja/${product.store_slug}`}
-              className="text-small text-muted-foreground transition-colors hover:text-primary"
+              className="text-small font-medium text-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card"
             >
               {product.store_name}
             </Link>
@@ -112,18 +109,11 @@ export function ProductCard({ product, onAdd }: Props) {
           </div>
         )}
 
-        <div className="flex flex-wrap items-center gap-2">
-          {product.condition && <Badge variant="secondary">{product.condition}</Badge>}
-        </div>
-
-        <div className="mt-auto space-y-3 pt-1">
-          <p className="font-mono text-lg font-semibold tracking-tight text-foreground">
-            {formatShopPrice(product.price_cents)}
-          </p>
+        <div className="mt-auto pt-1">
           <Button
             type="button"
             size="sm"
-            className="w-full"
+            className="min-h-11 w-full"
             disabled={outOfStock}
             onClick={(e) => {
               e.preventDefault();

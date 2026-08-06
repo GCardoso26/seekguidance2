@@ -9,7 +9,13 @@ import {
 
 describe("pdv-pix-payment", () => {
   const items = [
-    { product_id: "p1", name: "Booster", price_cents: 1990, quantity: 2 },
+    {
+      product_id: "p1",
+      source: "official" as const,
+      name: "Booster",
+      price_cents: 1990,
+      quantity: 2,
+    },
   ];
 
   it("monta payload PIX com itens do carrinho", () => {

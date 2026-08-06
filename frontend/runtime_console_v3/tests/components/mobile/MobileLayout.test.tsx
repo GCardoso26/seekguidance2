@@ -1,8 +1,8 @@
 /**
  * @vitest-environment jsdom
  */
-import { describe, it, expect, vi } from "vitest";
-import { render, screen, within } from "@testing-library/react";
+import { afterEach, describe, it, expect, vi } from "vitest";
+import { cleanup, render, screen, within } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 
@@ -14,6 +14,10 @@ vi.mock("next/navigation", () => ({
     prefetch: vi.fn(),
     back: vi.fn(),
   }),
+}));
+
+vi.mock("@/components/layout/GlobalHeader", () => ({
+  GlobalHeader: () => <header data-testid="mock-global-header" />,
 }));
 
 vi.mock("@/components/gamification/LigaPassWidget", () => ({
@@ -44,6 +48,10 @@ function renderLayout() {
 }
 
 describe("MobileLayout", () => {
+  afterEach(() => {
+    cleanup();
+  });
+
   it("renderiza navegação inferior", () => {
     renderLayout();
     expect(screen.getByText("Conteúdo")).toBeTruthy();

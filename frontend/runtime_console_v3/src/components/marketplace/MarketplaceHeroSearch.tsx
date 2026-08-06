@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatCountStable } from "@/lib/format-count";
 
@@ -24,31 +23,29 @@ type Props = {
 /** Hero loja — só fatos (BP 5.2 Trust Engineering). */
 export function MarketplaceHeroSearch({ totalCards, gameCount }: Props) {
   return (
-    <section className="border-b border-border bg-background pb-10 pt-8">
-      <div className="container mx-auto px-4 text-center">
-        <h1 className="text-display-l font-semibold tracking-tight text-foreground" data-testid="hero-title">
+    <section className="border-b border-border bg-background py-12 sm:py-16">
+      <div className="container mx-auto max-w-5xl px-4 text-center">
+        <p className="text-overline text-muted-foreground">Marketplace multi-TCG</p>
+        <h1 className="mx-auto mt-3 max-w-3xl text-display-l font-semibold text-foreground" data-testid="hero-title">
           Onde comprar cartas e produtos TCG
         </h1>
-        <p className="mx-auto mt-4 max-w-2xl text-body-lg text-muted-foreground">
+        <p className="mx-auto mt-5 max-w-[62ch] text-body-lg text-muted-foreground">
           Singles, selados e acessórios de lojas especializadas — preço, estoque e condição à vista.
         </p>
 
-        <div className="mx-auto mt-8 max-w-2xl">
+        <div className="mx-auto mt-9 max-w-2xl">
           <GlobalSearchBar placeholder="Buscar carta, booster ou acessório…" />
         </div>
 
-        <div className="mt-6 flex flex-wrap justify-center gap-6 text-small text-muted-foreground">
+        <div className="mx-auto mt-6 grid max-w-3xl gap-x-6 gap-y-2 text-small text-muted-foreground sm:grid-cols-3">
           <span>{formatCountStable(totalCards)} cartas no catálogo</span>
           <span>{gameCount} jogos</span>
-          <span>CEP na página do produto; frete oficial no carrinho</span>
+          <span>Frete oficial no carrinho</span>
         </div>
 
-        <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+        <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Button size="lg" asChild className="min-h-12 bg-primary text-primary-foreground">
-            <Link href="/loja/busca">
-              <ShoppingBag className="mr-2 h-5 w-5" aria-hidden />
-              Ver ofertas
-            </Link>
+            <Link href="/loja/busca">Ver ofertas</Link>
           </Button>
         </div>
         <p className="mt-4 text-caption text-muted-foreground">
