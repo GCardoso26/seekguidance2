@@ -44,70 +44,70 @@ const GAME_CONFIG: Partial<Record<GameId, GameConfig>> = {
   YGO: {
     code: "YGO",
     slug: "yugioh",
-    filters: ["set", "rarity", "type", "price"],
+    filters: ["set", "rarity", "type", "condition", "price"],
     typeLabel: "Tipo de carta",
   },
   LORCANA: {
     code: "LORCANA",
     slug: "lorcana",
-    filters: ["set", "rarity", "type", "price"],
+    filters: ["set", "rarity", "type", "condition", "price"],
     typeLabel: "Tipo",
   },
   ONEPIECE: {
     code: "ONEPIECE",
     slug: "onepiece",
-    filters: ["set", "rarity", "type", "price"],
+    filters: ["set", "rarity", "type", "condition", "price"],
     typeLabel: "Tipo",
   },
   FAB: {
     code: "FAB",
     slug: "fab",
-    filters: ["set", "rarity", "type", "price"],
+    filters: ["set", "rarity", "type", "condition", "price"],
     typeLabel: "Classe",
   },
   DIGIMON: {
     code: "DIGIMON",
     slug: "digimon",
-    filters: ["set", "rarity", "type", "price"],
+    filters: ["set", "rarity", "type", "condition", "price"],
     typeLabel: "Tipo",
   },
   SWU: {
     code: "SWU",
     slug: "swu",
-    filters: ["set", "rarity", "type", "price"],
+    filters: ["set", "rarity", "type", "condition", "price"],
     typeLabel: "Tipo",
   },
   RIFTBOUND: {
     code: "RIFTBOUND",
     slug: "riftbound",
-    filters: ["set", "rarity", "type", "price"],
+    filters: ["set", "rarity", "type", "condition", "price"],
     colorLabel: "Domínios",
     typeLabel: "Tipo",
   },
   SORCERY: {
     code: "SORCERY",
     slug: "sorcery",
-    filters: ["set", "rarity", "type", "price"],
+    filters: ["set", "rarity", "type", "condition", "price"],
     colorLabel: "Elemento",
     typeLabel: "Tipo",
   },
   UARENA: {
     code: "UARENA",
     slug: "union-arena",
-    filters: ["set", "rarity", "type", "price"],
+    filters: ["set", "rarity", "type", "condition", "price"],
     typeLabel: "Tipo",
   },
   DBFW: {
     code: "DBFW",
     slug: "dbfw",
-    filters: ["set", "rarity", "type", "price"],
+    filters: ["set", "rarity", "type", "condition", "price"],
     colorLabel: "Cor",
     typeLabel: "Tipo",
   },
   VANGUARD: {
     code: "VANGUARD",
     slug: "vanguard",
-    filters: ["set", "rarity", "type", "price"],
+    filters: ["set", "rarity", "type", "condition", "price"],
     typeLabel: "Clã",
   },
 };
@@ -117,7 +117,7 @@ export function getGameConfig(gameId: GameId): GameConfig {
     GAME_CONFIG[gameId] ?? {
       code: gameId,
       slug: gameSlugFromId(gameId),
-      filters: ["set", "rarity", "price"],
+      filters: ["set", "rarity", "condition", "price"],
     }
   );
 }

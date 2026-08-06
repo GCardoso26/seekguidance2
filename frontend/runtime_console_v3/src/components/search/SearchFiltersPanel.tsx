@@ -7,6 +7,14 @@ import { ALL_GAME_IDS, GAME_TOKENS } from "@/lib/tcg-tokens";
 import { getGameConfig } from "@/lib/game-config";
 import type { CatalogSetOption, SearchFilters } from "@/types/search";
 
+const FALLBACK_CONDITIONS = [
+  { value: "NM", label: "Near Mint" },
+  { value: "LP", label: "Lightly Played" },
+  { value: "MP", label: "Moderately Played" },
+  { value: "HP", label: "Heavily Played" },
+  { value: "DM", label: "Damaged" },
+] as const;
+
 interface SearchFiltersPanelProps {
   filters: SearchFilters;
   onChange: (updates: Partial<SearchFilters>) => void;
@@ -50,7 +58,9 @@ function FilterContent({
 }: SearchFiltersPanelProps) {
   const gameCfg = getGameConfig(filters.game);
   const rarityOptions = gameCfg?.rarities ?? [];
-  const conditionOptions = gameCfg?.conditions ?? [];
+  const conditionOptions = gameCfg?.conditions?.length
+    ? gameCfg.conditions
+    : [...FALLBACK_CONDITIONS];
   const languageOptions = gameCfg?.languages ?? [];
   const colorOptions = gameCfg?.colors ?? [];
 

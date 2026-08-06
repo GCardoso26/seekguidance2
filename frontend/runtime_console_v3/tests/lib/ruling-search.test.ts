@@ -16,6 +16,11 @@ describe("RulingSearch", () => {
     const results = search.search("evasive", { tcg: "lorcana" });
     expect(results.length).toBeGreaterThan(0);
   });
+
+  it("lista corpus quando a query está vazia", () => {
+    const results = search.search("", { tcg: "lorcana", limit: 20 });
+    expect(results.length).toBeGreaterThan(0);
+  });
 });
 
 describe("RulingManager workflow", () => {

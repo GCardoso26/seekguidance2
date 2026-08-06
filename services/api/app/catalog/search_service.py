@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
@@ -17,11 +18,20 @@ SORT_WHITELIST = frozenset(
     {"relevance", "price_asc", "price_desc", "name_asc", "name_desc", "newest"}
 )
 
+# Espelha frontend rarityMatchKey: "Super Rare" ↔ "super_rare".
+_RARITY_KEY_RE = re.compile(r"[\s_-]+")
+_RARITY_STRIP_RE = re.compile(r"[^a-z0-9_]")
+
 
 def _split_csv(value: str | None) -> list[str]:
     if not value:
         return []
     return [v.strip() for v in value.split(",") if v.strip()]
+
+
+def _rarity_match_key(raw: str) -> str:
+    key = _RARITY_KEY_RE.sub("_", raw.strip().lower())
+    return _RARITY_STRIP_RE.sub("", key)
 
 
 def _card_payload(row: dict[str, Any]) -> dict[str, Any]:
@@ -143,8 +153,16 @@ def _build_where(
         params["set_code"] = set_code.strip()
 
     if rarities:
-        clauses.append("LOWER(cc.rarity) = ANY(:rarities)")
-        params["rarities"] = [r.lower() for r in rarities]
+        # Normaliza espaços/hífens → underscore (UI envia super_rare; DB pode ter "Super Rare").
+        clauses.append(
+            """
+            regexp_replace(
+              regexp_replace(lower(trim(cc.rarity)), '[\\s_-]+', '_', 'g'),
+              '[^a-z0-9_]', '', 'g'
+            ) = ANY(:rarities)
+            """
+        )
+        params["rarities"] = [_rarity_match_key(r) for r in rarities]
 
     if language:
         clauses.append("cc.language = :language")

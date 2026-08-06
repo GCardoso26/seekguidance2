@@ -32,10 +32,14 @@ export class RulingSearch {
   constructor(private readonly corpus: Ruling[] = IN_MEMORY) {}
 
   search(query: string, options: SearchOptions = {}): Ruling[] {
-    const q = normalize(query);
+    const q = normalize(query).trim();
     const limit = options.limit ?? 20;
-    return this.corpus
-      .filter((r) => this.matchesOptions(r, options))
+    const matched = this.corpus.filter((r) => this.matchesOptions(r, options));
+    // Query vazia: listar corpus filtrado (página de rulings abre sem busca).
+    if (!q) {
+      return matched.slice(0, limit);
+    }
+    return matched
       .map((r) => ({ ruling: r, score: this.score(r, q) }))
       .filter((x) => x.score > 0)
       .sort((a, b) => b.score - a.score)

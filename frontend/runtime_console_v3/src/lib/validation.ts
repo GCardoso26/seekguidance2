@@ -4,8 +4,9 @@ export const CardSearchSchema = z.object({
   q: z.string().max(100).optional(),
   game: z.string().max(20).optional(),
   set: z.string().max(40).optional(),
-  rarity: z.string().max(30).optional(),
-  condition: z.string().max(20).optional(),
+  /** CSV multi-select (ex.: common,uncommon,super_rare,legendary). */
+  rarity: z.string().max(200).optional(),
+  condition: z.string().max(80).optional(),
   price_min: z.coerce.number().min(0).optional(),
   price_max: z.coerce.number().min(0).optional(),
   language: z.string().max(10).optional(),

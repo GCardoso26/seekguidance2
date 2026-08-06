@@ -40,3 +40,22 @@ def test_build_where_set_code_preserves_lowercase_from_scryfall():
     )
     assert "LOWER(cc.set_code) = LOWER(:set_code)" in where
     assert params["set_code"] == "ktk"
+
+
+def test_build_where_rarities_normalize_spaces_to_underscore():
+    where, params = _build_where(
+        game="LORCANA",
+        set_code=None,
+        rarities=["super_rare", "Super Rare"],
+        language=None,
+        conditions=[],
+        foil=None,
+        price_min_cents=None,
+        price_max_cents=None,
+        query="",
+        meili_ids=None,
+        card_ids=None,
+        colors=None,
+    )
+    assert "regexp_replace" in where
+    assert params["rarities"] == ["super_rare", "super_rare"]

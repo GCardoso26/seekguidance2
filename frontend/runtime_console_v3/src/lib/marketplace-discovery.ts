@@ -7,7 +7,6 @@ import {
   portalHeroBannerPaths,
   setLogoPublicPath,
 } from "@/lib/portal-set-logos";
-import { PRODUCT_CATEGORY_META } from "@/lib/tcg-product-categories";
 import { GAME_TOKENS } from "@/lib/tcg-tokens";
 import { gameExpansionsPath, gameLandingPath, gameCardsPath } from "@/lib/game-routes";
 import type { GameId } from "@/types/card";
@@ -25,13 +24,15 @@ export type DiscoveryTile = {
   accent?: string;
 };
 
+/** Key art / banners reais — evita SVG de product-types na home. */
+const LOR_BANNERS = portalHeroBannerPaths("LORCANA");
 const CATEGORY_TILES: DiscoveryTile[] = [
   {
     id: "cat-singles",
     rail: "categories",
     title: "Singles",
     subtitle: "Cartas avulsas por jogo",
-    imageUrl: PRODUCT_CATEGORY_META.single.imageUrl,
+    imageUrl: setLogoPublicPath("LORCANA", "WIN") ?? LOR_BANNERS[0] ?? "/logos/lorcana.svg",
     href: "/loja/singles",
   },
   {
@@ -39,7 +40,7 @@ const CATEGORY_TILES: DiscoveryTile[] = [
     rail: "categories",
     title: "Selados",
     subtitle: "Boosters, displays e kits",
-    imageUrl: PRODUCT_CATEGORY_META.booster.imageUrl,
+    imageUrl: LOR_BANNERS[1] ?? LOR_BANNERS[0] ?? "/logos/lorcana.svg",
     href: "/loja/selados",
   },
   {
@@ -47,7 +48,7 @@ const CATEGORY_TILES: DiscoveryTile[] = [
     rail: "categories",
     title: "Acessórios",
     subtitle: "Sleeves, playmats, deck boxes",
-    imageUrl: PRODUCT_CATEGORY_META.sleeve.imageUrl,
+    imageUrl: LOR_BANNERS[2] ?? LOR_BANNERS[0] ?? "/logos/lorcana.svg",
     href: "/loja/acessorios",
   },
 ];
