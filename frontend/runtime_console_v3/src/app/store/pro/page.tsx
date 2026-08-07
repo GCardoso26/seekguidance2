@@ -48,7 +48,7 @@ function ProPageContent() {
     return (
       <div className="surface-card p-8 text-center">
         <p className="text-muted-foreground">Cadastre uma loja para assinar o Pro.</p>
-        <Link href="/stores/create" className="mt-4 inline-block text-primary underline">
+        <Link href="/vendedor/painel/onboarding" className="mt-4 inline-block text-primary underline">
           Criar loja
         </Link>
       </div>
@@ -80,7 +80,7 @@ function ProPageContent() {
       ) : (
         <div className="rounded-xl border border-primary/30 bg-primary/10 p-6">
           <p className="font-semibold">Assinatura ativa</p>
-          <Link href="/store/dashboard?tab=pagamentos" className="mt-2 inline-block text-sm text-primary underline">
+          <Link href="/vendedor/painel/configuracoes/pagamentos" className="mt-2 inline-block text-sm text-primary underline">
             Gerenciar em Pagamentos
           </Link>
         </div>

@@ -46,7 +46,7 @@ function CuponsContent() {
   if (!storeId) {
     return (
       <p className="text-muted-foreground">
-        <Link href="/stores/create" className="text-primary underline">
+        <Link href="/vendedor/painel/onboarding" className="text-primary underline">
           Crie uma loja
         </Link>{" "}
         para gerenciar cupons.
@@ -72,7 +72,7 @@ export default function StoreCuponsPage() {
   return (
     <MobileLayout>
       <div className="container mx-auto px-4 py-8">
-        <Link href="/store/dashboard" className="text-sm text-muted-foreground">
+        <Link href="/vendedor/painel" className="text-sm text-muted-foreground">
           ← Dashboard
         </Link>
         <h1 className="mt-4 text-2xl font-bold">Cupons</h1>

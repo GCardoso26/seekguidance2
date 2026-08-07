@@ -31,7 +31,7 @@ export default function StorePage() {
   return (
     <MobileLayout>
       <div className="container mx-auto px-4 py-8">
-        <Link href="/marketplace/produtos" className="text-sm text-muted-foreground">← Produtos selados</Link>
+        <Link href="/loja/selados" className="text-sm text-muted-foreground">← Produtos selados</Link>
         {isLoading && <p className="mt-6 text-muted-foreground">Carregando…</p>}
         {store && (
           <>

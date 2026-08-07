@@ -7,6 +7,7 @@ import { MobileLayout } from "@/components/layout/MobileLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { publicProfilePath } from "@/lib/profile-v2";
 
 export default function DecklistDetailPage() {
   const params = useParams();
@@ -26,7 +27,7 @@ export default function DecklistDetailPage() {
       <MobileLayout>
         <div className="container mx-auto px-4 py-8 text-center">
           <p className="text-danger">Decklist não encontrada</p>
-          <Link href="/marketplace/produtos">
+          <Link href="/loja/selados">
             <Button variant="outline" className="mt-4 border-border">
               Voltar aos produtos selados
             </Button>
@@ -36,10 +37,14 @@ export default function DecklistDetailPage() {
     );
   }
 
+  const sellerHref = decklist.seller_handle
+    ? publicProfilePath(decklist.seller_handle)
+    : "/loja/selados";
+
   return (
     <MobileLayout>
       <div className="container mx-auto max-w-4xl px-4 py-8">
-        <Link href="/marketplace/produtos" className="text-sm text-muted-foreground">
+        <Link href="/loja/selados" className="text-sm text-muted-foreground">
           ← Produtos selados
         </Link>
 
@@ -53,7 +58,7 @@ export default function DecklistDetailPage() {
           <h1 className="text-3xl font-bold">{decklist.name}</h1>
           <div className="mt-2 flex flex-wrap gap-4 text-sm text-muted-foreground">
             {decklist.seller_handle && (
-              <Link href={`/player/${decklist.seller_handle}`} className="hover:text-primary">
+              <Link href={sellerHref} className="hover:text-primary">
                 @{decklist.seller_handle}
               </Link>
             )}
@@ -113,8 +118,8 @@ export default function DecklistDetailPage() {
                   )}
                 </p>
                 <p className="mb-4 text-sm text-muted-foreground/70">{decklist.sales_count} pessoas já compraram</p>
-                <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90-light">
-                  Comprar agora
+                <Button asChild className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
+                  <Link href="/loja/selados">Comprar agora</Link>
                 </Button>
                 <p className="mt-2 text-center text-xs text-muted-foreground/70">
                   Pagamento com PIX ou cartão
@@ -129,7 +134,7 @@ export default function DecklistDetailPage() {
                   <p className="mt-2 text-sm text-muted-foreground">
                     {decklist.seller_name ?? decklist.seller_handle}
                   </p>
-                  <Link href={`/player/${decklist.seller_handle}`}>
+                  <Link href={sellerHref}>
                     <Button variant="outline" className="mt-3 w-full border-border">
                       Ver perfil
                     </Button>

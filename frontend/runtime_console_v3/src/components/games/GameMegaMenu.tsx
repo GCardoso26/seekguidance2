@@ -7,6 +7,7 @@ import { ChevronDown } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { GameMegaMenuPanel } from "@/components/games/GameMegaMenuPanel";
 import { getMegaMenuGames } from "@/lib/catalog-games";
+import { isKnownGameSlug } from "@/lib/game-routes";
 import { useCatalogHealth } from "@/hooks/useCatalogHealth";
 import { shouldBypassImageOptimizer } from "@/lib/format-currency";
 import { GAME_TOKENS, gameSlugFromId } from "@/lib/tcg-tokens";
@@ -24,7 +25,8 @@ export function GameMegaMenu({ className }: Props) {
   const [openSlug, setOpenSlug] = useState<string | null>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
 
-  const activeSlug = pathname.match(/^\/loja\/([^/]+)/)?.[1] ?? null;
+  const firstSeg = pathname.match(/^\/([^/]+)(?:\/|$)/)?.[1] ?? null;
+  const activeSlug = firstSeg && isKnownGameSlug(firstSeg) ? firstSeg : null;
   const openGame = openSlug ? games.find((g) => gameSlugFromId(g.id as GameId) === openSlug) : null;
   const openGameId = openGame?.id as GameId | undefined;
 

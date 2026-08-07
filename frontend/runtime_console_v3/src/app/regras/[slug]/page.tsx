@@ -66,7 +66,7 @@ export default async function RegrasGamePage({ params }: { params: Promise<{ slu
             <Link href={`/judge?game=${slug}`}>Consultar assistente de juiz</Link>
           </Button>
           <Button variant="outline" asChild>
-            <Link href={`/loja/${slug}/busca`}>Buscar cartas</Link>
+            <Link href={`/${slug}/cards`}>Buscar cartas</Link>
           </Button>
         </div>
       </div>

@@ -43,7 +43,7 @@ const LINKS = [
     icon: Heart,
   },
   {
-    href: "/seguidos",
+    href: "/perfil/seguidos",
     label: "Favoritos",
     hint: "Lojas e cartas",
     icon: Star,

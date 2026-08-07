@@ -9,7 +9,7 @@ export default function PerfilConfiguracoesPage() {
     return (
       <p className="p-6 text-sm text-muted-foreground">
         Profile V2 desativado.{" "}
-        <Link href="/player/me" className="text-primary hover:underline">
+        <Link href="/perfil" className="text-primary hover:underline">
           Editar perfil
         </Link>
       </p>

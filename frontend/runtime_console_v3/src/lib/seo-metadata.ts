@@ -39,12 +39,12 @@ export function gameMetadataFromSlug(slug: string, cardCount?: number): Metadata
     title: `${token.name} — Cartas e Listagens`,
     description: `Compre cards de ${token.name} com preços em tempo real no Judge TCG. ${countText} Compare estado (NM a HP), frete no carrinho e pagamento via PIX ou cartão.`,
     alternates: {
-      canonical: `${brand.url.replace(/\/$/, "")}/loja/${slug}`,
+      canonical: `${brand.url.replace(/\/$/, "")}/${slug}`,
     },
     openGraph: {
       title: `${token.name} — Judge TCG`,
       description: `Marketplace de ${token.name}`,
-      url: `${brand.url.replace(/\/$/, "")}/loja/${slug}`,
+      url: `${brand.url.replace(/\/$/, "")}/${slug}`,
       images: [token.logo],
     },
     twitter: {

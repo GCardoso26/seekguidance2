@@ -1,6 +1,6 @@
 /**
  * Rotas canônicas de navegação por TCG (namespace estilo CardTrader).
- * `/loja/*` permanece como alias legado via redirects no next.config.
+ * Landing: `/{slug}`; cards: `/{slug}/cards`. Alias `/loja/{slug}` fecha no layout.
  */
 import { isProductEcosystemDenied } from "@/lib/product-game-allowlist";
 import { gameIdFromSlug, GAME_TOKENS, PRODUCT_GAME_IDS } from "@/lib/tcg-tokens";
@@ -37,9 +37,9 @@ export function gameSetPath(slug: string, setSlug: string): string {
   return `/${slug}/sets/${encodeURIComponent(setSlug)}`;
 }
 
-/** Alias under /expansions/[setSlug] — same landing. */
+/** Prefer gameSetPath; expansions/[set] 301 → sets/[set]. */
 export function gameExpansionDetailPath(slug: string, setSlug: string): string {
-  return `/${slug}/expansions/${encodeURIComponent(setSlug)}`;
+  return gameSetPath(slug, setSlug);
 }
 
 export function gameSellersPath(slug: string): string {
@@ -65,19 +65,6 @@ export function gameCollectionPath(slug: string): string {
 
 export function gameWishlistPath(): string {
   return `/wishlist`;
-}
-
-/** Paths legados `/loja/*` — mantidos para compatibilidade. */
-export function legacyGameLandingPath(slug: string): string {
-  return `/loja/${slug}`;
-}
-
-export function legacyGameCardsPath(slug: string): string {
-  return `/loja/${slug}/busca`;
-}
-
-export function legacyCardDetailPath(cardId: string): string {
-  return `/loja/cartas/${encodeURIComponent(cardId)}`;
 }
 
 export function gameIdFromSlugOrThrow(slug: string): GameId {

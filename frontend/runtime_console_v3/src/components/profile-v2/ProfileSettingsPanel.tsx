@@ -8,7 +8,7 @@ import { isFeatureEnabled } from "@/lib/feature-flags";
 
 /**
  * Configurações isoladas do hub — identidade fica no Resumo.
- * Edição completa permanece em /player/me (legado).
+ * Edição completa permanece em /perfil (legado consolidado).
  */
 export function ProfileSettingsPanel() {
   const { data: profile } = usePlayerProfile("me");
@@ -40,7 +40,7 @@ export function ProfileSettingsPanel() {
             Perfil público {publicEnabled ? "disponível após criar handle." : "desativado (flag)."}
           </p>
         )}
-        <Link href="/player/me" className="inline-block text-small text-primary hover:underline">
+        <Link href="/perfil" className="inline-block text-small text-primary hover:underline">
           Editar nome, bio, avatar e jogos favoritos
         </Link>
       </section>

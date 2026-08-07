@@ -104,7 +104,7 @@ export function PortalLiveBlocks() {
               {e.name || e.title || "Evento"}
             </Link>
           ))}
-          <Link href="/leaderboard" className="portal-link mt-2 inline-flex text-xs hover:underline">
+          <Link href="/comunidade/leaderboard" className="portal-link mt-2 inline-flex text-xs hover:underline">
             Ranking / Top players →
           </Link>
           <Link href="/torneio" className="portal-link mt-1 inline-flex text-xs hover:underline">

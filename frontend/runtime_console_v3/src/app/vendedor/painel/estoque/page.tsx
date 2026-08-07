@@ -177,7 +177,7 @@ export default function EstoquePage() {
         <PageEmpty
           variant="panel"
           title="Você ainda não tem uma loja cadastrada"
-          action={{ label: "Cadastrar loja", href: "/stores/create" }}
+          action={{ label: "Cadastrar loja", href: "/vendedor/painel/onboarding" }}
         />
       </PageShell>
     );

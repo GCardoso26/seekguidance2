@@ -224,14 +224,14 @@ function MyProfilePageContent() {
 
         <div className="mt-4 flex gap-2">
           <Link
-            href="/player/me/history"
+            href="/perfil/historico"
             className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg border border-border py-2 text-sm font-medium text-foreground hover:bg-muted/80"
           >
             <History className="h-4 w-4" />
             Histórico completo
           </Link>
           <Link
-            href="/player/me/badges"
+            href="/perfil/conquistas"
             className="inline-flex items-center justify-center gap-1 rounded-lg border border-border px-3 py-2 text-sm text-foreground hover:bg-muted/80"
           >
             <Award className="h-4 w-4" />

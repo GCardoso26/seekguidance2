@@ -39,7 +39,7 @@ export function GamificationProfilePage() {
           Ver todos os badges
         </Link>
         <Link
-          href="/leaderboard"
+          href="/comunidade/leaderboard"
           className="rounded-lg border border-border px-4 py-2 text-sm text-foreground hover:border-primary/40"
         >
           Leaderboard

@@ -333,14 +333,14 @@ export function PortalSections({ cardCount = 0, healthLoading }: Props) {
             </ul>
           </div>
           <div>
-            <SectionHeader title="Ranking" href="/leaderboard" />
+            <SectionHeader title="Ranking" href="/comunidade/leaderboard" />
             <div className="large-visual-card p-6">
               <p className="text-sm text-[color:var(--game-text-muted)]">
                 Rankings por jogo chegam no épico Social / Rankings — a âncora de navegação já
                 existe neste portal.
               </p>
               <Link
-                href="/leaderboard"
+                href="/comunidade/leaderboard"
                 className="portal-link mt-4 inline-flex text-sm font-medium hover:underline"
               >
                 Ver leaderboard →

@@ -30,12 +30,12 @@ export function buildSearchEmptyState(
   if (intent === "accessory") {
     suggestions.unshift({
       label: "Ver acessórios no marketplace",
-      href: "/marketplace/produtos?category=accessory",
+      href: "/loja/selados?category=accessory",
     });
   } else if (intent === "sealed") {
     suggestions.unshift({
       label: "Ver selados no marketplace",
-      href: "/marketplace/produtos?category=booster",
+      href: "/loja/selados?category=booster",
     });
   } else if (q) {
     suggestions.unshift({

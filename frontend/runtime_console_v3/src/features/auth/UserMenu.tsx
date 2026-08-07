@@ -150,7 +150,7 @@ export function UserMenu({ onHistoryClick }: Props = {}) {
             </DropdownMenu.Item>
           ) : (
             <DropdownMenu.Item asChild>
-              <Link href="/player/me/history" className={itemClass}>
+              <Link href="/perfil/historico" className={itemClass}>
                 <Clock className="h-4 w-4" aria-hidden />
                 Histórico
               </Link>

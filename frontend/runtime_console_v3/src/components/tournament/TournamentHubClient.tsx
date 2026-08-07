@@ -60,7 +60,7 @@ export function TournamentHubClient() {
             >
               Criar torneio
             </Link>
-            <Link href="/leaderboard" className="inline-flex min-h-10 items-center text-sm text-primary hover:underline">
+            <Link href="/comunidade/leaderboard" className="inline-flex min-h-10 items-center text-sm text-primary hover:underline">
               Rankings / Top players →
             </Link>
           </div>
@@ -116,7 +116,7 @@ export function TournamentHubClient() {
           {[
             { href: "/decks", title: "Decks vencedores", sub: "Listas públicas" },
             { href: "/loja/busca", title: "Marketplace", sub: "Comprar staples do meta" },
-            { href: "/leaderboard", title: "Top 8 / Ranking", sub: "Jogadores em destaque" },
+            { href: "/comunidade/leaderboard", title: "Top 8 / Ranking", sub: "Jogadores em destaque" },
           ].map((x) => (
             <Link
               key={x.href}

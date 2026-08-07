@@ -28,7 +28,7 @@ export default function PlanosPage() {
     return (
       <main className="p-8 text-center">
         <p className="text-muted-foreground">Cadastre uma loja para assinar um plano.</p>
-        <Link href="/stores/create" className="mt-4 inline-block text-primary underline">
+        <Link href="/vendedor/painel/onboarding" className="mt-4 inline-block text-primary underline">
           Criar loja
         </Link>
       </main>

@@ -8,6 +8,7 @@ import { useCardDetail } from "@/hooks/useCardDetail";
 import { cardImageUrl, formatCurrency } from "@/lib/format-currency";
 import { cn } from "@/lib/utils";
 import { GAME_TOKENS, gameSlugFromId } from "@/lib/tcg-tokens";
+import { gameCardsPath } from "@/lib/game-routes";
 import type { GameId } from "@/types/card";
 import { RarityBadge } from "@/components/catalog/RarityBadge";
 import { useEffect } from "react";
@@ -157,7 +158,7 @@ export function QuickViewModal({ cardId, isOpen, onClose }: QuickViewModalProps)
               {gameToken && (
                 <Button variant="outline" className="w-full" asChild>
                   <Link
-                    href={`/loja/${gameSlugFromId(card.game as GameId)}/busca`}
+                    href={gameCardsPath(gameSlugFromId(card.game as GameId))}
                     onClick={onClose}
                   >
                     Ver mais de {gameToken.name}

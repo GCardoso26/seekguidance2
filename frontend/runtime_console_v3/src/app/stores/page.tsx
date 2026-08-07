@@ -24,7 +24,7 @@ export default function StoresPage() {
             <h1 className="mt-2 text-3xl font-bold">Lojas TCG</h1>
             <p className="mt-1 text-muted-foreground">Encontre lojas verificadas para jogar</p>
           </div>
-          <Link href="/stores/create">
+          <Link href="/vendedor/painel/onboarding">
             <Button className="bg-primary text-primary-foreground hover:opacity-90">Cadastrar minha loja</Button>
           </Link>
         </div>

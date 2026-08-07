@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { notFound, redirect, RedirectType } from "next/navigation";
+import { isKnownGameSlug } from "@/lib/game-routes";
 import { fetchCatalogHealth, gameMetadataFromSlug } from "@/lib/seo-metadata";
 import { ALL_GAME_IDS, GAME_TOKENS, gameIdFromSlug } from "@/lib/tcg-tokens";
 import type { GameId } from "@/types/card";
@@ -28,6 +30,12 @@ export async function generateMetadata({ params }: Pick<Props, "params">): Promi
   };
 }
 
-export default function GameLojaLayout({ children }: Pick<Props, "children">) {
-  return children;
+/**
+ * Alias legado /loja/{jogo} → canônico /{jogo}.
+ * Hard-exit (ADR-016) e slug desconhecido → 404 (simétrico a [gameSlug]/layout).
+ */
+export default async function GameLojaLayout({ children: _children, params }: Props) {
+  const { game } = await params;
+  if (!isKnownGameSlug(game)) notFound();
+  redirect(`/${game}`, RedirectType.replace);
 }

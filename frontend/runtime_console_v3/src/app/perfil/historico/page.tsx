@@ -9,7 +9,7 @@ export default function PerfilHistoricoPage() {
     return (
       <p className="p-6 text-sm text-muted-foreground">
         Profile V2 desativado.{" "}
-        <Link href="/player/me/history" className="text-primary hover:underline">
+        <Link href="/perfil/historico" className="text-primary hover:underline">
           Histórico
         </Link>
       </p>

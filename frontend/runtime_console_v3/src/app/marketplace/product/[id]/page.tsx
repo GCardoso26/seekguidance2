@@ -68,7 +68,7 @@ export default function ProductDetailPage() {
   return (
     <MobileLayout>
       <div className="container mx-auto px-4 py-8">
-        <Link href="/marketplace/produtos" className="text-sm text-muted-foreground hover:text-primary">
+        <Link href="/loja/selados" className="text-sm text-muted-foreground hover:text-primary">
           ← Marketplace
         </Link>
         {isLoading && <p className="mt-6 text-muted-foreground">Carregando…</p>}

@@ -29,7 +29,7 @@ export default function LojaPage() {
               </Link>
             </Button>
             <Button asChild variant="outline" className="border-border">
-              <Link href="/marketplace/produtos" prefetch={false}>
+              <Link href="/loja/selados" prefetch={false}>
                 Produtos selados
               </Link>
             </Button>

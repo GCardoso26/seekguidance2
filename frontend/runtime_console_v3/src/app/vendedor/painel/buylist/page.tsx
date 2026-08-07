@@ -150,7 +150,7 @@ function BuylistPageContent() {
         <PageEmpty
           variant="panel"
           title="Cadastre sua loja para usar BuyList"
-          action={{ label: "Cadastrar loja", href: "/stores/create" }}
+          action={{ label: "Cadastrar loja", href: "/vendedor/painel/onboarding" }}
         />
       </PageShell>
     );

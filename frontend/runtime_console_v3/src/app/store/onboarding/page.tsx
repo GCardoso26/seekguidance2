@@ -88,7 +88,7 @@ export default function StoreOnboardingPage() {
 
         {error && (
 
-          <Link href="/store/dashboard?tab=pagamentos" className="mt-6 inline-block text-primary underline">
+          <Link href="/vendedor/painel/configuracoes/pagamentos" className="mt-6 inline-block text-primary underline">
 
             Voltar ao dashboard
 

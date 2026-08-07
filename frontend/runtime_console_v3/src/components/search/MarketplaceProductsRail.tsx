@@ -55,10 +55,10 @@ export function MarketplaceProductsRail({ query, intent, enabled = true }: Props
 
   const href =
     intent === "accessory"
-      ? `/marketplace/produtos?q=${encodeURIComponent(q)}&category=accessory`
+      ? `/loja/selados?q=${encodeURIComponent(q)}&category=accessory`
       : intent === "sealed"
-        ? `/marketplace/produtos?q=${encodeURIComponent(q)}&category=booster`
-        : `/marketplace/produtos?q=${encodeURIComponent(q)}`;
+        ? `/loja/selados?q=${encodeURIComponent(q)}&category=booster`
+        : `/loja/selados?q=${encodeURIComponent(q)}`;
 
   return (
     <section

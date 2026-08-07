@@ -142,7 +142,7 @@ export function GameHubPanel({ gameId, slug, cardCount = 0, healthLoading }: Pro
                 ))}
               </ul>
               <Link
-                href={`/marketplace/produtos?game_id=${gameId}`}
+                href={`/loja/selados?game_id=${gameId}`}
                 className="mt-4 inline-block text-xs text-primary hover:underline"
               >
                 Ver todas as categorias…

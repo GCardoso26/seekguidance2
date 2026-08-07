@@ -28,7 +28,7 @@ export function ProStatusWidget({ plan = "free", expiresAt }: Props) {
       <p>
         Plano <strong>Free</strong> — limite de 20 produtos. Assine Pro por R$ 49/mês para produtos ilimitados.
       </p>
-      <Link href="/store/pro" className="mt-2 inline-block font-semibold text-primary underline">
+      <Link href="/vendedor/painel/pro" className="mt-2 inline-block font-semibold text-primary underline">
         Assinar Pro Loja
       </Link>
     </div>

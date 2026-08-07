@@ -44,13 +44,33 @@ const marketplaceRedirects = [
   { source: "/marketplace", destination: "/loja?from=marketplace", permanent: false },
   { source: "/games/:game", destination: "/:game", permanent: true },
   { source: "/loja/:game/busca", destination: "/:game/cards", permanent: false },
+  { source: "/loja/:game/cartas/:id", destination: "/:game/cards/:id", permanent: true },
   { source: "/cards/:id", destination: "/loja/cartas/:id", permanent: true },
   { source: "/marketplace/checkout", destination: "/checkout", permanent: true },
-  // /marketplace/cart → rewrite (não redirect) em rewrites() — evita hop extra + P95 inflado
+  { source: "/marketplace/checkout/:path*", destination: "/checkout/:path*", permanent: true },
+  { source: "/marketplace/cart", destination: "/carrinho", permanent: true },
+
+  // Fechar sub-árvore /marketplace/* (específicos antes do catch-all)
+  { source: "/marketplace/produtos", destination: "/loja/selados", permanent: true },
+  { source: "/marketplace/produtos/:path*", destination: "/loja/selados/:path*", permanent: true },
+  { source: "/marketplace/intelligence", destination: "/loja/tendencias", permanent: true },
+  { source: "/marketplace/orders", destination: "/perfil/pedidos", permanent: true },
+  { source: "/marketplace/orders/:path*", destination: "/perfil/pedidos", permanent: true },
+  { source: "/marketplace/loja/:slug", destination: "/loja", permanent: true },
+  { source: "/marketplace/product/:id", destination: "/loja/selados", permanent: true },
+  { source: "/marketplace/:path*", destination: "/loja", permanent: true },
+
   { source: "/player/me", destination: "/perfil", permanent: true },
+  { source: "/player/me/history", destination: "/perfil/historico", permanent: true },
+  { source: "/player/me/badges", destination: "/perfil/conquistas", permanent: true },
+  { source: "/player/:handle", destination: "/u/:handle", permanent: true },
   { source: "/leaderboard", destination: "/comunidade/leaderboard", permanent: true },
   { source: "/alerts", destination: "/perfil/alertas", permanent: true },
   { source: "/decks/:deckId/edit", destination: "/decks/:deckId/build", permanent: true },
+  { source: "/stores/create", destination: "/vendedor/painel/onboarding", permanent: true },
+
+  // Expansão canônica /sets (Epic 6)
+  { source: "/:game/expansions/:set", destination: "/:game/sets/:set", permanent: true },
 
   // === Redirects de vendedor (/store → /vendedor/painel) ===
   { source: "/store", destination: "/vendedor/painel", permanent: true },
@@ -191,7 +211,6 @@ const nextConfig = {
     return [
       // Browsers still request /favicon.ico — map to App Router icon route.
       { source: "/favicon.ico", destination: "/icon" },
-      { source: "/marketplace/cart", destination: "/carrinho" },
       { source: "/api/proxy/:path*", destination: `${target}/:path*` },
     ];
   },

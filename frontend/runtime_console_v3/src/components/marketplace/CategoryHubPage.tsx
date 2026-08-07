@@ -123,7 +123,7 @@ export function CategoryHubPage({ kind }: Props) {
                 return (
                   <li key={id}>
                     <Link
-                      href={`/marketplace/produtos?category=${id}`}
+                      href={`/loja/selados?category=${id}`}
                       className="flex flex-col rounded-xl border border-border bg-card p-4 transition hover:border-primary/40"
                       data-testid={`hub-cat-${id}`}
                     >

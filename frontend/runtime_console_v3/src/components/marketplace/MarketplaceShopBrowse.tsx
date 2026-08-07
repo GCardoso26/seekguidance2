@@ -51,8 +51,7 @@ function MarketplaceShopBrowseInner() {
     (next: MarketplaceProductFilters) => {
       const params = searchParamsFromFilters({ ...next, page: undefined });
       const qs = params.toString();
-      // Must use /marketplace/produtos — /marketplace redirects to /loja and drops filter query (BUG-V5-005).
-      router.replace(qs ? `/marketplace/produtos?${qs}` : "/marketplace/produtos", { scroll: false });
+      router.replace(qs ? `/loja/selados?${qs}` : "/loja/selados", { scroll: false });
     },
     [router],
   );

@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { gameLandingPath, isKnownGameSlug } from "@/lib/game-routes";
 import { gameSlugFromId, GAME_TOKENS } from "@/lib/tcg-tokens";
 import type { GameId } from "@/types/card";
 import type { GameInfo } from "@/lib/catalog-games";
@@ -15,8 +16,9 @@ interface GameTabsProps {
 
 export function GameTabs({ games, className }: GameTabsProps) {
   const pathname = usePathname();
-  const activeSlug = pathname.match(/^\/loja\/([^/]+)/)?.[1] ?? null;
-  const isAll = !activeSlug || activeSlug === "busca" || activeSlug === "cartas" || activeSlug === "tendencias";
+  const firstSeg = pathname.match(/^\/([^/]+)(?:\/|$)/)?.[1] ?? null;
+  const activeSlug = firstSeg && isKnownGameSlug(firstSeg) ? firstSeg : null;
+  const isAll = !activeSlug;
 
   return (
     <nav
@@ -46,7 +48,7 @@ export function GameTabs({ games, className }: GameTabsProps) {
         return (
           <Link
             key={game.id}
-            href={`/loja/${slug}`}
+            href={gameLandingPath(slug)}
             aria-current={active ? "page" : undefined}
             className={cn(
               "flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium whitespace-nowrap transition-colors",

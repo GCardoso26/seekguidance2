@@ -58,7 +58,7 @@ export default function CreateStorePage() {
             <p>
               Você já tem a loja <strong>{existingStore.name}</strong> ({existingStore.slug}).
             </p>
-            <Link href="/store/dashboard?tab=pagamentos" className="mt-2 inline-block text-primary underline">
+            <Link href="/vendedor/painel/configuracoes/pagamentos" className="mt-2 inline-block text-primary underline">
               Ir para o dashboard e conectar Stripe
             </Link>
           </div>

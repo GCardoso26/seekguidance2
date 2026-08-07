@@ -1,4 +1,5 @@
 import type { Deck, DeckCardEntry } from "@/types/deck";
+import { gameCardsPath } from "@/lib/game-routes";
 
 export interface DeckPrice {
   total: number;
@@ -70,7 +71,7 @@ export function buildMissingCardsSearchUrl(gameSlug: string, missing: MissingCar
     params.append("card_id", item.card_id);
     params.append("qty", String(item.missing));
   }
-  return `/loja/${gameSlug}/busca?${params.toString()}`;
+  return `${gameCardsPath(gameSlug)}?${params.toString()}`;
 }
 
 export function estimateCollectionValue(

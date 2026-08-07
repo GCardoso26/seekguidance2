@@ -29,7 +29,7 @@ export function FriendCard({ friend, type = "friend" }: Props) {
   return (
     <article className="flex items-center justify-between rounded-xl border border-border p-4">
       <div>
-        <Link href={`/player/${friend.handle}`} className="font-semibold hover:text-primary">
+        <Link href={`/u/${friend.handle}`} className="font-semibold hover:text-primary">
           @{friend.handle}
         </Link>
         <p className="text-sm text-muted-foreground">{friend.display_name}</p>
