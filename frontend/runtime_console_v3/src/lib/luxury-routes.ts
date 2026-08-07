@@ -1,4 +1,7 @@
-/** Rotas que não recebem o shell luxury (app shell próprio ou ops). */
+/** Rotas que não recebem o shell luxury (app shell próprio ou ops).
+ * Fluxos transacionais (carrinho/checkout/pedidos/vendedor) ficam em Galeria clara —
+ * nunca Noite de Leilão (design.md §7).
+ */
 const EXACT_EXCLUDE = new Set([
   "/",
   "/judge",
@@ -27,6 +30,7 @@ const PREFIX_EXCLUDE = [
   "/vendedor",
   "/carrinho",
   "/checkout",
+  "/pedidos",
   "/decks",
   "/player",
   "/social",
@@ -49,6 +53,21 @@ const PREFIX_EXCLUDE = [
   "/colecao",
   "/portal",
 ];
+
+/** Prefixos que devem permanecer em Galeria clara (nunca auction). */
+export const GALLERY_LOCKED_PREFIXES = [
+  "/carrinho",
+  "/checkout",
+  "/pedidos",
+  "/vendedor",
+  "/loja/busca",
+] as const;
+
+export function isGalleryLockedPath(pathname: string): boolean {
+  return GALLERY_LOCKED_PREFIXES.some(
+    (p) => pathname === p || pathname.startsWith(`${p}/`) || pathname.startsWith(`${p}?`),
+  );
+}
 
 export type LuxuryShellVariant = "full" | "minimal" | "none";
 

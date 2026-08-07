@@ -768,27 +768,21 @@ export function hexToHslChannels(hex: string): string {
   return `${Math.round(h * 360)} ${Math.round(s * 100)}% ${Math.round(l * 100)}%`;
 }
 
-/** Inline CSS variables for portal shell (SSR-safe) — Theme Engine V2. */
+/** Inline CSS variables for portal shell (SSR-safe) — Galeria + selo 1px.
+ * Superfície = Noite de Leilão canônica (não skin por jogo).
+ * Accent/primary do jogo = apenas taxonomia (selo).
+ */
 export function gameThemeCssVars(theme: GameTheme): CSSProperties {
   const s = theme.surfaces;
+  const seal = hexToHslChannels(s.accent);
   const ctaFg = ctaForegroundForPrimary(theme.primary);
-  const fg = hexToHslChannels(s.text);
-  const mutedFg = hexToHslChannels(s.textMuted);
-  const bg = hexToHslChannels(s.bg);
-  const elevated = hexToHslChannels(s.bgElevated);
-  const border = hexToHslChannels(s.border);
-  const accent = hexToHslChannels(s.accent);
   return {
     ["--game-primary" as string]: theme.primary,
     ["--game-secondary" as string]: theme.secondary,
-    ["--game-bg" as string]: s.bg,
-    ["--game-bg-elevated" as string]: s.bgElevated,
     ["--game-accent" as string]: s.accent,
     ["--game-accent-muted" as string]: s.accentMuted,
     ["--game-hero-glow" as string]: s.heroGlow,
     ["--game-border" as string]: s.border,
-    ["--game-text" as string]: s.text,
-    ["--game-text-muted" as string]: s.textMuted,
     ["--game-cta-fg" as string]: ctaFg,
     ["--game-gradient-from" as string]: s.gradientFrom,
     ["--game-gradient-via" as string]: s.gradientVia,
@@ -807,18 +801,12 @@ export function gameThemeCssVars(theme: GameTheme): CSSProperties {
     ["--game-collection-tint" as string]: theme.collection.panelTint,
     ["--game-deck-tint" as string]: theme.deckBuilder.workspaceTint,
     ["--game-marketplace-skin" as string]: theme.marketplace.skin,
-    // Sync Tailwind semantic tokens inside portal so text-foreground / muted stay legible (V6.4-001).
-    ["--foreground" as string]: fg,
-    ["--muted-foreground" as string]: mutedFg,
-    ["--background" as string]: bg,
-    ["--card" as string]: elevated,
-    ["--card-foreground" as string]: fg,
-    ["--popover" as string]: elevated,
-    ["--popover-foreground" as string]: fg,
-    ["--border" as string]: border,
-    ["--input" as string]: border,
-    ["--primary" as string]: accent,
+    // Selo de taxonomia (1px) — não pinta a parede
+    ["--tcg-seal" as string]: seal,
+    ["--tcg-accent" as string]: seal,
+    ["--primary" as string]: seal,
     ["--primary-foreground" as string]: hexToHslChannels(ctaFg),
+    ["--ring" as string]: seal,
   };
 }
 

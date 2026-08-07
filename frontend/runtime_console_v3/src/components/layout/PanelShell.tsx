@@ -40,7 +40,8 @@ export function PanelShell({
   return (
     <div
       className={cn(VARIANT_CLASS[variant], "flex min-h-screen bg-background text-foreground")}
-      data-theme={theme}
+      data-theme={theme ?? "light"}
+      data-shell="gallery"
     >
       {showSidebar && (
         <div className="hidden w-64 shrink-0 lg:block">

@@ -1,89 +1,115 @@
 /**
- * JudgeTCG Design System — Surface Identity (BP 5.1)
- * Ink-forward marketplace · não indigo SaaS · não template shadcn default
- * Fonte única de verdade — sem hex em componentes.
- *
- * Camadas (P1 OpenDesign): permanente = estes tokens no fluxo de compra;
- * contextual = CSS vars de game-themes.css só em PortalLayout / hubs de jogo.
+ * JudgeTCG Design System — Galeria (design.md)
+ * Parede neutra; a carta é a cor; um selo índigo.
+ * Fonte de verdade: oklch() → canais HSL derivados (nunca hex novo em componentes).
  */
 
 :root {
-  /* ── Neutral scale (papel frio, denso) ── */
-  --neutral-50: 210 16% 98%;
-  --neutral-100: 210 14% 95%;
-  --neutral-200: 210 12% 88%;
-  --neutral-300: 210 10% 78%;
-  --neutral-400: 210 9% 58%;
-  --neutral-500: 215 10% 42%;
-  --neutral-600: 215 14% 32%;
-  --neutral-700: 218 22% 22%;
-  --neutral-800: 220 28% 14%;
-  --neutral-900: 222 32% 9%;
+  /* ── OKLch canônicos (documentação / consumo direto) ── */
+  --bg: oklch(0.945 0.004 90);
+  --surface: oklch(0.98 0.003 90);
+  --surface-2: oklch(1 0.002 90);
+  --fg: oklch(0.24 0.012 255);
+  --muted-ink: oklch(0.44 0.018 250);
+  --border-ok: oklch(0.88 0.006 90);
+  --selo: oklch(0.44 0.17 250);
+  --on-selo: oklch(0.985 0.006 240);
+  --selo-hover: oklch(0.38 0.16 250);
+  --selo-press: oklch(0.34 0.15 250);
+  --selo-soft: color-mix(in oklch, var(--selo) 10%, var(--surface));
+  --ring-ok: oklch(0.44 0.17 250 / 0.55);
+  --disabled-bg: oklch(0.92 0.005 90);
+  --disabled-fg: oklch(0.7 0.012 250);
 
-  /* ── Primary: tinta / felt (não roxo) ── */
-  --primary-50: 205 35% 96%;
-  --primary-100: 205 32% 90%;
-  --primary-200: 206 30% 78%;
-  --primary-300: 208 32% 58%;
-  --primary-400: 210 38% 42%;
-  --primary-500: 214 42% 28%;
-  --primary-600: 216 46% 22%;
-  --primary-700: 218 48% 16%;
-  --primary-800: 220 50% 12%;
-  --primary-900: 222 52% 8%;
+  /* ── Neutral scale (parede quente — HSL derivados) ── */
+  --neutral-50: 44 20% 98%;
+  --neutral-100: 44 16% 95%;
+  --neutral-200: 44 7% 84%;
+  --neutral-300: 44 6% 74%;
+  --neutral-400: 44 5% 58%;
+  --neutral-500: 211 8% 42%;
+  --neutral-600: 214 12% 32%;
+  --neutral-700: 214 14% 24%;
+  --neutral-800: 214 15% 16%;
+  --neutral-900: 214 15% 13%;
 
-  /* ── Accent: latão discreto (CTA highlight / foco) ── */
-  --brass-500: 36 55% 38%;
-  --brass-600: 34 58% 30%;
+  /* ── Primary: tinta (texto / ênfase — não lavagem) ── */
+  --primary-50: 214 30% 96%;
+  --primary-100: 214 24% 90%;
+  --primary-200: 214 20% 78%;
+  --primary-300: 214 18% 58%;
+  --primary-400: 214 16% 42%;
+  --primary-500: 214 15% 24%;
+  --primary-600: 214 16% 18%;
+  --primary-700: 214 18% 14%;
+  --primary-800: 214 20% 11%;
+  --primary-900: 214 22% 9%;
 
-  /* ── Semantic scales (500 = default) ── */
-  --success-50: 152 35% 95%;
-  --success-500: 152 55% 26%;
-  --success-700: 152 55% 20%;
-  --warning-50: 38 70% 95%;
-  --warning-500: 32 75% 32%;
-  --warning-700: 28 78% 26%;
-  --danger-50: 0 70% 97%;
-  --danger-500: 0 65% 38%;
-  --danger-700: 0 62% 32%;
-  --info-50: 205 50% 96%;
-  --info-500: 205 55% 36%;
-  --info-700: 205 55% 28%;
+  /* ── Selo: único acento do sistema (índigo) — substitui brass ── */
+  --selo-50: 211 60% 96%;
+  --selo-100: 211 50% 90%;
+  --selo-200: 211 55% 78%;
+  --selo-300: 211 70% 58%;
+  --selo-400: 211 90% 42%;
+  --selo-500: 211 100% 34%;
+  --selo-600: 214 100% 29%;
+  --selo-700: 215 100% 25%;
+  --selo-800: 216 80% 20%;
+  --selo-900: 217 70% 14%;
+  --on-selo-hsl: 206 75% 98%;
 
-  /* ── Core surfaces (light) ── */
-  --background: var(--neutral-50);
-  --foreground: var(--neutral-900);
-  --card: 0 0% 100%;
-  --card-foreground: var(--neutral-900);
-  --popover: 0 0% 100%;
-  --popover-foreground: var(--neutral-900);
-  --muted: var(--neutral-100);
-  --muted-foreground: var(--neutral-700);
-  --border: var(--neutral-200);
-  --input: var(--neutral-200);
-  --ring: var(--primary-500);
+  /* Compat: brass → selo */
+  --brass-500: var(--selo-500);
+  --brass-600: var(--selo-600);
 
-  /* ── Brand aliases ── */
-  --primary: var(--primary-500);
-  --primary-foreground: 0 0% 100%;
+  /* ── Semânticos (HSL derivados de oklch) ── */
+  --success-50: 151 40% 95%;
+  --success-500: 151 100% 22%;
+  --success-700: 151 90% 18%;
+  --warning-50: 36 70% 95%;
+  --warning-500: 36 100% 31%;
+  --warning-700: 34 90% 26%;
+  --danger-50: 2 70% 97%;
+  --danger-500: 2 71% 41%;
+  --danger-700: 2 68% 34%;
+  --info-50: 199 50% 96%;
+  --info-500: 199 78% 33%;
+  --info-700: 199 70% 26%;
+
+  /* ── Core surfaces (Galeria clara) ── */
+  --background: 44 10% 92%;
+  --foreground: 214 15% 13%;
+  --card: 44 20% 97%;
+  --card-foreground: 214 15% 13%;
+  --popover: 44 20% 97%;
+  --popover-foreground: 214 15% 13%;
+  --muted: 44 14% 94%;
+  --muted-foreground: 211 10% 33%;
+  --border: 44 7% 84%;
+  --input: 44 7% 84%;
+  --ring: 211 100% 34%;
+
+  /* CTA = selo (um acento); tinta fica em primary-* */
+  --primary: var(--selo-500);
+  --primary-foreground: var(--on-selo-hsl);
   --secondary: var(--neutral-100);
   --secondary-foreground: var(--neutral-900);
-  --accent: var(--primary-50);
-  --accent-foreground: var(--primary-700);
+  --accent: var(--selo-50);
+  --accent-foreground: var(--selo-700);
 
   --success: var(--success-500);
-  --success-foreground: 0 0% 100%;
+  --success-foreground: 201 100% 98%;
   --warning: var(--warning-500);
-  --warning-foreground: var(--neutral-900);
+  --warning-foreground: 214 40% 9%;
   --danger: var(--danger-500);
-  --danger-foreground: 0 0% 100%;
+  --danger-foreground: 201 100% 98%;
   --info: var(--info-500);
-  --info-foreground: 0 0% 100%;
+  --info-foreground: 201 100% 98%;
 
-  /* ── Legacy luxury aliases → semantic ── */
-  --luxury-gold: var(--brass-500);
-  --luxury-gold-light: 36 50% 48%;
-  --luxury-gold-dark: var(--brass-600);
+  /* ── Luxury aliases → Galeria ── */
+  --luxury-gold: var(--selo-500);
+  --luxury-gold-light: var(--selo-400);
+  --luxury-gold-dark: var(--selo-600);
   --luxury-silver: var(--neutral-400);
   --luxury-silver-light: var(--neutral-300);
   --luxury-onyx: var(--background);
@@ -94,17 +120,25 @@
   --luxury-mist: var(--muted-foreground);
   --luxury-panel-bg: var(--background);
   --luxury-panel-surface: var(--card);
-  --luxury-panel-elevated: var(--muted);
+  --luxury-panel-elevated: var(--surface-2-hsl, 60 40% 99%);
 
-  /* ── Elevation (mais plana = menos SaaS) ── */
-  --shadow-color: 220 28% 12%;
-  --shadow-xs: 0 1px 0 hsl(var(--shadow-color) / 0.04);
-  --shadow-sm: 0 1px 2px hsl(var(--shadow-color) / 0.05);
-  --shadow-md: 0 2px 4px hsl(var(--shadow-color) / 0.06);
-  --shadow-lg: 0 4px 12px hsl(var(--shadow-color) / 0.07);
-  --shadow-xl: 0 8px 20px hsl(var(--shadow-color) / 0.08);
+  /* ── Noite de Leilão (só hubs / coleções / lançamentos) ── */
+  --auction-bg: 216 31% 9%;
+  --auction-surface: 216 22% 16%;
+  --auction-fg: 44 16% 90%;
+  --auction-muted: 214 12% 62%;
+  --auction-border: 216 18% 22%;
+  --auction-foil: 39 54% 60%;
 
-  /* ── Radius (menos “pill app”) ── */
+  /* ── Elevation (plana — fio > sombra) ── */
+  --shadow-color: 214 15% 12%;
+  --shadow-xs: 0 1px 0 hsl(var(--shadow-color) / 0.03);
+  --shadow-sm: 0 1px 2px hsl(var(--shadow-color) / 0.04);
+  --shadow-md: 0 2px 4px hsl(var(--shadow-color) / 0.05);
+  --shadow-lg: 0 4px 12px hsl(var(--shadow-color) / 0.06);
+  --shadow-xl: 0 8px 20px hsl(var(--shadow-color) / 0.07);
+
+  /* ── Radius (pequeno) ── */
   --radius-sm: 0.25rem;
   --radius-md: 0.375rem;
   --radius-lg: 0.5rem;
@@ -115,7 +149,7 @@
   /* ── Typography ── */
   --font-display: var(--font-display-family), "Source Serif 4", Georgia, serif;
   --font-sans: var(--font-sans-family), "IBM Plex Sans", system-ui, sans-serif;
-  --font-mono: var(--font-mono-family), ui-monospace, "IBM Plex Mono", monospace;
+  --font-mono: var(--font-mono-family), "IBM Plex Mono", ui-monospace, monospace;
 
   --text-display-xl: clamp(2.25rem, 1.8rem + 2vw, 3rem);
   --text-display-l: clamp(2rem, 1.7rem + 1.4vw, 2.5rem);
@@ -138,9 +172,9 @@
   --text-code: 0.8125rem;
   --text-table: 0.875rem;
 
-  --leading-tight: 1.2;
+  --leading-tight: 1.15;
   --leading-normal: 1.5;
-  --leading-relaxed: 1.625;
+  --leading-relaxed: 1.6;
 
   /* ── Spacing (escala 4) ── */
   --space-1: 0.25rem;
@@ -157,7 +191,7 @@
   /* ── Layout / motion ── */
   --mobile-nav-offset: 4.5rem;
   --page-gutter: 1rem;
-  --page-max: 80rem; /* 7xl */
+  --page-max: 80rem;
   --control-height: 2.25rem;
   --control-height-sm: 2rem;
   --control-height-lg: 2.5rem;
@@ -167,71 +201,100 @@
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
 
+  /* Fio de galeria — gesto único */
+  --gallery-frame: 1px solid hsl(var(--border));
+  --gallery-pad: 1px;
+
+  color-scheme: light;
+}
+
+/* Noite de Leilão — apenas em hubs / coleções / lançamentos */
+[data-shell="auction"] {
+  --background: var(--auction-bg);
+  --foreground: var(--auction-fg);
+  --card: var(--auction-surface);
+  --card-foreground: var(--auction-fg);
+  --popover: var(--auction-surface);
+  --popover-foreground: var(--auction-fg);
+  --muted: 216 20% 14%;
+  --muted-foreground: var(--auction-muted);
+  --border: var(--auction-border);
+  --input: var(--auction-border);
+  --ring: var(--auction-foil);
+  --primary: var(--auction-foil);
+  --primary-foreground: var(--auction-bg);
+  --accent: 216 22% 18%;
+  --accent-foreground: var(--auction-fg);
+  --luxury-onyx: var(--auction-bg);
+  --luxury-obsidian: var(--auction-surface);
+  --luxury-frost: var(--auction-fg);
+  --luxury-mist: var(--auction-muted);
+  --luxury-gold: var(--auction-foil);
+  color-scheme: dark;
+}
+
+/* Carrinho / checkout / pedidos / vendedor — sempre Galeria clara */
+[data-shell="gallery"],
+[data-shell="transactional"] {
   color-scheme: light;
 }
 
 .dark {
-  --background: 224 28% 7%;
-  --foreground: 210 20% 96%;
-  --card: 224 26% 10%;
-  --card-foreground: 210 20% 96%;
-  --popover: 224 26% 10%;
-  --popover-foreground: 210 20% 96%;
-  --muted: 224 20% 14%;
-  /* AA on dark surfaces (~7% L): target relative luminance > ~0.55 */
-  --muted-foreground: 220 12% 72%;
-  --border: 224 18% 18%;
-  --input: 224 18% 18%;
-  --ring: var(--primary-400);
-
-  --primary: var(--primary-400);
-  --primary-foreground: 0 0% 100%;
-  --secondary: 224 20% 14%;
-  --secondary-foreground: 210 20% 96%;
-  --accent: 214 30% 14%;
-  --accent-foreground: var(--primary-300);
-
-  --success: 152 45% 42%;
+  /* Dark global = Noite de Leilão canônica (não skin por jogo) */
+  --background: var(--auction-bg);
+  --foreground: var(--auction-fg);
+  --card: var(--auction-surface);
+  --card-foreground: var(--auction-fg);
+  --popover: var(--auction-surface);
+  --popover-foreground: var(--auction-fg);
+  --muted: 216 20% 14%;
+  --muted-foreground: var(--auction-muted);
+  --border: var(--auction-border);
+  --input: var(--auction-border);
+  --ring: var(--selo-400);
+  --primary: var(--selo-400);
+  --primary-foreground: var(--on-selo-hsl);
+  --secondary: 216 20% 14%;
+  --secondary-foreground: var(--auction-fg);
+  --accent: 216 22% 18%;
+  --accent-foreground: var(--auction-fg);
+  --success: 151 45% 42%;
   --success-foreground: 0 0% 100%;
   --warning: 36 70% 48%;
-  --warning-foreground: 222 32% 9%;
-  --danger: 0 65% 52%;
+  --warning-foreground: 214 40% 9%;
+  --danger: 2 65% 52%;
   --danger-foreground: 0 0% 100%;
-  --info: 205 55% 52%;
+  --info: 199 55% 52%;
   --info-foreground: 0 0% 100%;
-
-  --luxury-gold: var(--brass-500);
-  --luxury-gold-light: 36 50% 48%;
-  --luxury-gold-dark: var(--brass-600);
-  --luxury-silver: 210 9% 55%;
-  --luxury-silver-light: 210 9% 70%;
+  --luxury-gold: var(--selo-400);
+  --luxury-gold-light: var(--selo-300);
+  --luxury-gold-dark: var(--selo-600);
   --luxury-onyx: var(--background);
   --luxury-obsidian: var(--card);
-  --luxury-midnight: 220 24% 12%;
-  --luxury-velvet: 214 30% 14%;
   --luxury-frost: var(--foreground);
   --luxury-mist: var(--muted-foreground);
-  --luxury-panel-bg: var(--background);
-  --luxury-panel-surface: var(--card);
-  --luxury-panel-elevated: var(--muted);
-
-  --shadow-color: 220 28% 4%;
+  --shadow-color: 216 30% 4%;
   color-scheme: dark;
 }
 
-/* High contrast — opt-in via html[data-contrast="high"] */
 html[data-contrast="high"] {
-  --border: 210 10% 55%;
-  --muted-foreground: 215 14% 28%;
-  --ring: 214 42% 22%;
-  --primary: 214 42% 22%;
+  --border: 44 8% 55%;
+  --muted-foreground: 214 14% 22%;
+  --ring: 211 100% 28%;
+  --primary: 211 100% 28%;
 }
 
 html[data-contrast="high"].dark {
-  --border: 210 10% 55%;
-  --muted-foreground: 210 12% 80%;
-  --ring: 205 40% 65%;
-  --primary: 205 40% 65%;
+  --border: 44 10% 55%;
+  --muted-foreground: 44 12% 80%;
+  --ring: 211 80% 65%;
+  --primary: 211 80% 65%;
+}
+
+/* Focus-visible Galeria */
+:focus-visible {
+  outline: 3px solid hsl(var(--ring) / 0.55);
+  outline-offset: 2px;
 }
 
 @media (prefers-reduced-motion: reduce) {

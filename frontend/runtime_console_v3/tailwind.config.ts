@@ -5,7 +5,7 @@ const config: Config = {
   content: ["./src/**/*.{ts,tsx}"],
   theme: {
     extend: {
-      colors: {
+        colors: {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {
@@ -51,9 +51,23 @@ const config: Config = {
           DEFAULT: "hsl(var(--info))",
           foreground: "hsl(var(--info-foreground))",
         },
+        selo: {
+          DEFAULT: "hsl(var(--selo-500))",
+          50: "hsl(var(--selo-50))",
+          100: "hsl(var(--selo-100))",
+          200: "hsl(var(--selo-200))",
+          300: "hsl(var(--selo-300))",
+          400: "hsl(var(--selo-400))",
+          500: "hsl(var(--selo-500))",
+          600: "hsl(var(--selo-600))",
+          700: "hsl(var(--selo-700))",
+          800: "hsl(var(--selo-800))",
+          900: "hsl(var(--selo-900))",
+          foreground: "hsl(var(--on-selo-hsl))",
+        },
         hub: {
-          DEFAULT: "#FF6B00",
-          500: "#FF6B00",
+          DEFAULT: "hsl(var(--selo-500))",
+          500: "hsl(var(--selo-500))",
         },
         luxury: {
           gold: "hsl(var(--luxury-gold))",
@@ -75,9 +89,9 @@ const config: Config = {
         },
       },
       fontFamily: {
-        sans: ["var(--font-inter)", "system-ui", "sans-serif"],
-        mono: ["var(--font-mono)", "ui-monospace", "monospace"],
-        display: ["var(--font-inter)", "system-ui", "sans-serif"],
+        sans: ["var(--font-sans)", "IBM Plex Sans", "system-ui", "sans-serif"],
+        mono: ["var(--font-mono)", "IBM Plex Mono", "ui-monospace", "monospace"],
+        display: ["var(--font-display)", "Source Serif 4", "Georgia", "serif"],
       },
       fontSize: {
         "display-xl": ["var(--text-display-xl)", { lineHeight: "1.15", letterSpacing: "-0.03em", fontWeight: "700" }],

@@ -53,8 +53,9 @@ export function PortalNav() {
               href={item.href}
               data-active={active ? "true" : "false"}
               className={cn(
-                "shrink-0 border-b-2 border-transparent px-3 py-3 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground",
-                active && "text-foreground",
+                "shrink-0 border-b-2 border-transparent px-3 py-3 text-sm font-medium tracking-[0.02em] text-muted-foreground transition-colors hover:text-foreground",
+                "focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/55 focus-visible:ring-offset-2",
+                active && "border-[hsl(var(--tcg-seal,var(--primary)))] text-foreground",
               )}
             >
               {item.label}

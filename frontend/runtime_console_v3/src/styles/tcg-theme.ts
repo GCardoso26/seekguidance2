@@ -1,24 +1,33 @@
 /**
- * Temas completos por TCG — variáveis CSS injetadas em :root / .judge-app.
- * Metáfora: mesa de jogo noturna com acentos da identidade de cada jogo.
+ * Temas por TCG — Galeria (design.md §7–§8).
+ * Cada jogo expõe apenas um selo de taxonomia derivado do accent.
+ * Superfícies escuras (Noite de Leilão) vivem em LUXURY_JUDGE_SURFACES
+ * e só entram via applyAuctionNightVars — nunca por padrão.
  */
 import type { CSSProperties } from "react";
 import { contrastRatio } from "@/lib/wcag-contrast";
 import type { TcgPattern } from "@/lib/tcg-brand-meta";
 import type { TcgType } from "@/types/judge";
 
-/** Superfícies e tipografia alinhadas ao design system luxury (mesa judge). */
+/**
+ * Noite de Leilão — tokens canônicos escuros (reservados).
+ * Aplicar somente com applyAuctionNightVars / data-shell="auction".
+ */
 export const LUXURY_JUDGE_SURFACES: Record<string, string> = {
-  "--tcg-surface": "#0a0a0f",
-  "--tcg-surface-elevated": "#161622",
-  "--tcg-text-primary": "#e2e8f0",
-  "--tcg-text-secondary": "#94a3b8",
-  "--tcg-card-bg": "linear-gradient(145deg, rgb(255 255 255 / 0.06) 0%, rgb(10 10 15 / 0.98) 100%)",
-  "--judge-surface": "240 22% 4%",
+  "--tcg-surface": "hsl(216 31% 9%)",
+  "--tcg-surface-elevated": "hsl(216 22% 16%)",
+  "--tcg-text-primary": "hsl(44 16% 90%)",
+  "--tcg-text-secondary": "hsl(214 12% 62%)",
+  "--tcg-card-bg": "hsl(216 22% 16%)",
+  "--judge-surface": "216 31% 9%",
+  "--auction-bg": "216 31% 9%",
+  "--auction-surface": "216 22% 16%",
+  "--auction-fg": "44 16% 90%",
+  "--auction-muted": "214 12% 62%",
 };
 
 export type TCGTheme = {
-  /** Variáveis CSS (--tcg-*) */
+  /** Variáveis CSS mínimas (--tcg-seal / accent / verdict) — sem superfícies */
   css: Record<string, string>;
   /** Canais HSL sem hsl() — compat com Tailwind legado */
   accent: string;
@@ -29,32 +38,43 @@ export type TCGTheme = {
   icon: string;
   publisher: string;
   emoji: string;
+  /** Tint sutil do selo sobre transparente — não lava o shell */
   themeGradient: string;
+  /**
+   * ADR-016: jogos com hard-exit do ecossistema de produto
+   * (histórico/admin; sem landing nem selo de vitrine).
+   */
+  hardExit?: boolean;
 };
 
+const VERDICT_CSS = {
+  "--tcg-verdict-permitido": "#22C55E",
+  "--tcg-verdict-nao-permitido": "#EF4444",
+  "--tcg-verdict-depende": "#EAB308",
+} as const;
+
+function sealCss(accent: string, accentFg: string): Record<string, string> {
+  return {
+    "--tcg-seal": accent,
+    "--tcg-accent": accent,
+    "--tcg-accent-fg": accentFg,
+    ...VERDICT_CSS,
+  };
+}
+
+function sealTint(accent: string): string {
+  return `linear-gradient(135deg, hsl(${accent} / 0.12), transparent)`;
+}
+
 function theme(
-  partial: Omit<TCGTheme, "css"> & { css: Record<string, string> },
+  partial: Omit<TCGTheme, "css"> & { css?: Record<string, string> },
 ): TCGTheme {
-  return partial;
+  const css = partial.css ?? sealCss(partial.accent, partial.accentFg);
+  return { ...partial, css };
 }
 
 export const TCG_THEMES: Record<TcgType, TCGTheme> = {
   magic: theme({
-    css: {
-      "--tcg-primary": "#1E3A5F",
-      "--tcg-primary-light": "#4A90D9",
-      "--tcg-accent": "#C9A227",
-      "--tcg-surface": "#0F172A",
-      "--tcg-surface-elevated": "#1E293B",
-      "--tcg-text-primary": "#F1F5F9",
-      "--tcg-text-secondary": "#94A3B8",
-      "--tcg-border": "rgba(74, 144, 217, 0.2)",
-      "--tcg-glow": "0 0 20px rgba(74, 144, 217, 0.15)",
-      "--tcg-card-bg": "linear-gradient(145deg, #1E293B 0%, #0F172A 100%)",
-      "--tcg-verdict-permitido": "#22C55E",
-      "--tcg-verdict-nao-permitido": "#EF4444",
-      "--tcg-verdict-depende": "#EAB308",
-    },
     accent: "221 83% 42%",
     accentFg: "0 0% 100%",
     headerFrom: "221 83% 38%",
@@ -63,24 +83,9 @@ export const TCG_THEMES: Record<TcgType, TCGTheme> = {
     icon: "MTG",
     publisher: "Wizards of the Coast",
     emoji: "🃏",
-    themeGradient: "linear-gradient(135deg, #1E3A5F 0%, #0F172A 55%, #C9A227 120%)",
+    themeGradient: sealTint("221 83% 42%"),
   }),
   pokemon: theme({
-    css: {
-      "--tcg-primary": "#DC2626",
-      "--tcg-primary-light": "#EF4444",
-      "--tcg-accent": "#FACC15",
-      "--tcg-surface": "#18181B",
-      "--tcg-surface-elevated": "#27272A",
-      "--tcg-text-primary": "#FAFAFA",
-      "--tcg-text-secondary": "#A1A1AA",
-      "--tcg-border": "rgba(220, 38, 38, 0.25)",
-      "--tcg-glow": "0 0 20px rgba(220, 38, 38, 0.15)",
-      "--tcg-card-bg": "linear-gradient(145deg, #27272A 0%, #18181B 100%)",
-      "--tcg-verdict-permitido": "#22C55E",
-      "--tcg-verdict-nao-permitido": "#EF4444",
-      "--tcg-verdict-depende": "#EAB308",
-    },
     accent: "0 72% 50%",
     accentFg: "0 0% 100%",
     headerFrom: "0 78% 46%",
@@ -89,24 +94,9 @@ export const TCG_THEMES: Record<TcgType, TCGTheme> = {
     icon: "PKM",
     publisher: "The Pokémon Company",
     emoji: "⚡",
-    themeGradient: "linear-gradient(135deg, #DC2626 0%, #18181B 50%, #FACC15 110%)",
+    themeGradient: sealTint("0 72% 50%"),
   }),
   yugioh: theme({
-    css: {
-      "--tcg-primary": "#B45309",
-      "--tcg-primary-light": "#F59E0B",
-      "--tcg-accent": "#FDE047",
-      "--tcg-surface": "#0C0A09",
-      "--tcg-surface-elevated": "#1C1917",
-      "--tcg-text-primary": "#FAFAF9",
-      "--tcg-text-secondary": "#A8A29E",
-      "--tcg-border": "rgba(245, 158, 11, 0.22)",
-      "--tcg-glow": "0 0 20px rgba(245, 158, 11, 0.12)",
-      "--tcg-card-bg": "linear-gradient(145deg, #1C1917 0%, #0C0A09 100%)",
-      "--tcg-verdict-permitido": "#22C55E",
-      "--tcg-verdict-nao-permitido": "#EF4444",
-      "--tcg-verdict-depende": "#EAB308",
-    },
     accent: "38 92% 50%",
     accentFg: "222 35% 12%",
     headerFrom: "38 88% 44%",
@@ -115,24 +105,9 @@ export const TCG_THEMES: Record<TcgType, TCGTheme> = {
     icon: "YGO",
     publisher: "Konami",
     emoji: "👁",
-    themeGradient: "linear-gradient(135deg, #B45309 0%, #0C0A09 55%, #FDE047 115%)",
+    themeGradient: sealTint("38 92% 50%"),
   }),
   lorcana: theme({
-    css: {
-      "--tcg-primary": "#6D28D9",
-      "--tcg-primary-light": "#A78BFA",
-      "--tcg-accent": "#C4B5FD",
-      "--tcg-surface": "#0F0A1A",
-      "--tcg-surface-elevated": "#1E1533",
-      "--tcg-text-primary": "#F5F3FF",
-      "--tcg-text-secondary": "#A5B4FC",
-      "--tcg-border": "rgba(167, 139, 250, 0.22)",
-      "--tcg-glow": "0 0 24px rgba(109, 40, 217, 0.2)",
-      "--tcg-card-bg": "linear-gradient(145deg, #1E1533 0%, #0F0A1A 100%)",
-      "--tcg-verdict-permitido": "#22C55E",
-      "--tcg-verdict-nao-permitido": "#EF4444",
-      "--tcg-verdict-depende": "#EAB308",
-    },
     accent: "270 55% 48%",
     accentFg: "0 0% 100%",
     headerFrom: "270 55% 42%",
@@ -141,24 +116,9 @@ export const TCG_THEMES: Record<TcgType, TCGTheme> = {
     icon: "LOR",
     publisher: "Ravensburger",
     emoji: "✨",
-    themeGradient: "linear-gradient(135deg, #6D28D9 0%, #0F0A1A 50%, #C4B5FD 110%)",
+    themeGradient: sealTint("270 55% 48%"),
   }),
   one_piece: theme({
-    css: {
-      "--tcg-primary": "#DC2626",
-      "--tcg-primary-light": "#F87171",
-      "--tcg-accent": "#1D4ED8",
-      "--tcg-surface": "#0F172A",
-      "--tcg-surface-elevated": "#1E293B",
-      "--tcg-text-primary": "#F8FAFC",
-      "--tcg-text-secondary": "#94A3B8",
-      "--tcg-border": "rgba(220, 38, 38, 0.2)",
-      "--tcg-glow": "0 0 18px rgba(29, 78, 216, 0.15)",
-      "--tcg-card-bg": "linear-gradient(145deg, #1E293B 0%, #0F172A 100%)",
-      "--tcg-verdict-permitido": "#22C55E",
-      "--tcg-verdict-nao-permitido": "#EF4444",
-      "--tcg-verdict-depende": "#EAB308",
-    },
     accent: "0 82% 52%",
     accentFg: "0 0% 100%",
     headerFrom: "0 78% 46%",
@@ -167,24 +127,9 @@ export const TCG_THEMES: Record<TcgType, TCGTheme> = {
     icon: "OP",
     publisher: "Bandai",
     emoji: "🏴‍☠️",
-    themeGradient: "linear-gradient(135deg, #DC2626 0%, #0F172A 50%, #1D4ED8 110%)",
+    themeGradient: sealTint("0 82% 52%"),
   }),
   flesh_and_blood: theme({
-    css: {
-      "--tcg-primary": "#7F1D1D",
-      "--tcg-primary-light": "#B91C1C",
-      "--tcg-accent": "#D4D4D8",
-      "--tcg-surface": "#09090B",
-      "--tcg-surface-elevated": "#18181B",
-      "--tcg-text-primary": "#FAFAFA",
-      "--tcg-text-secondary": "#A1A1AA",
-      "--tcg-border": "rgba(185, 28, 28, 0.25)",
-      "--tcg-glow": "0 0 18px rgba(127, 29, 29, 0.2)",
-      "--tcg-card-bg": "linear-gradient(145deg, #18181B 0%, #09090B 100%)",
-      "--tcg-verdict-permitido": "#22C55E",
-      "--tcg-verdict-nao-permitido": "#EF4444",
-      "--tcg-verdict-depende": "#EAB308",
-    },
     accent: "0 65% 38%",
     accentFg: "0 0% 100%",
     headerFrom: "0 62% 34%",
@@ -193,24 +138,9 @@ export const TCG_THEMES: Record<TcgType, TCGTheme> = {
     icon: "FAB",
     publisher: "Legend Story Studios",
     emoji: "⚔️",
-    themeGradient: "linear-gradient(135deg, #7F1D1D 0%, #09090B 55%, #D4D4D8 115%)",
+    themeGradient: sealTint("0 65% 38%"),
   }),
   gundam: theme({
-    css: {
-      "--tcg-primary": "#1E40AF",
-      "--tcg-primary-light": "#3B82F6",
-      "--tcg-accent": "#DC2626",
-      "--tcg-surface": "#020617",
-      "--tcg-surface-elevated": "#0F172A",
-      "--tcg-text-primary": "#F1F5F9",
-      "--tcg-text-secondary": "#94A3B8",
-      "--tcg-border": "rgba(59, 130, 246, 0.2)",
-      "--tcg-glow": "0 0 20px rgba(30, 64, 175, 0.18)",
-      "--tcg-card-bg": "linear-gradient(145deg, #0F172A 0%, #020617 100%)",
-      "--tcg-verdict-permitido": "#22C55E",
-      "--tcg-verdict-nao-permitido": "#EF4444",
-      "--tcg-verdict-depende": "#EAB308",
-    },
     accent: "0 75% 46%",
     accentFg: "0 0% 100%",
     headerFrom: "0 72% 40%",
@@ -219,24 +149,9 @@ export const TCG_THEMES: Record<TcgType, TCGTheme> = {
     icon: "GCG",
     publisher: "Bandai",
     emoji: "🤖",
-    themeGradient: "linear-gradient(135deg, #1E40AF 0%, #020617 50%, #DC2626 110%)",
+    themeGradient: sealTint("0 75% 46%"),
   }),
   digimon: theme({
-    css: {
-      "--tcg-primary": "#EA580C",
-      "--tcg-primary-light": "#FB923C",
-      "--tcg-accent": "#2563EB",
-      "--tcg-surface": "#0C0A09",
-      "--tcg-surface-elevated": "#1C1917",
-      "--tcg-text-primary": "#FAFAF9",
-      "--tcg-text-secondary": "#A8A29E",
-      "--tcg-border": "rgba(234, 88, 12, 0.22)",
-      "--tcg-glow": "0 0 18px rgba(37, 99, 235, 0.15)",
-      "--tcg-card-bg": "linear-gradient(145deg, #1C1917 0%, #0C0A09 100%)",
-      "--tcg-verdict-permitido": "#22C55E",
-      "--tcg-verdict-nao-permitido": "#EF4444",
-      "--tcg-verdict-depende": "#EAB308",
-    },
     accent: "24 95% 52%",
     accentFg: "0 0% 100%",
     headerFrom: "24 90% 46%",
@@ -245,24 +160,9 @@ export const TCG_THEMES: Record<TcgType, TCGTheme> = {
     icon: "DGM",
     publisher: "Bandai",
     emoji: "🦖",
-    themeGradient: "linear-gradient(135deg, #EA580C 0%, #0C0A09 50%, #2563EB 110%)",
+    themeGradient: sealTint("24 95% 52%"),
   }),
   dragon_ball: theme({
-    css: {
-      "--tcg-primary": "#DC2626",
-      "--tcg-primary-light": "#F97316",
-      "--tcg-accent": "#FACC15",
-      "--tcg-surface": "#0F172A",
-      "--tcg-surface-elevated": "#1E293B",
-      "--tcg-text-primary": "#F8FAFC",
-      "--tcg-text-secondary": "#94A3B8",
-      "--tcg-border": "rgba(249, 115, 22, 0.22)",
-      "--tcg-glow": "0 0 20px rgba(220, 38, 38, 0.15)",
-      "--tcg-card-bg": "linear-gradient(145deg, #1E293B 0%, #0F172A 100%)",
-      "--tcg-verdict-permitido": "#22C55E",
-      "--tcg-verdict-nao-permitido": "#EF4444",
-      "--tcg-verdict-depende": "#EAB308",
-    },
     accent: "355 85% 52%",
     accentFg: "0 0% 100%",
     headerFrom: "355 80% 46%",
@@ -271,24 +171,9 @@ export const TCG_THEMES: Record<TcgType, TCGTheme> = {
     icon: "DB",
     publisher: "Bandai",
     emoji: "🐉",
-    themeGradient: "linear-gradient(135deg, #DC2626 0%, #0F172A 50%, #FACC15 110%)",
+    themeGradient: sealTint("355 85% 52%"),
   }),
   sorcery: theme({
-    css: {
-      "--tcg-primary": "#57534E",
-      "--tcg-primary-light": "#78716C",
-      "--tcg-accent": "#A8A29E",
-      "--tcg-surface": "#0C0A09",
-      "--tcg-surface-elevated": "#1C1917",
-      "--tcg-text-primary": "#FAFAF9",
-      "--tcg-text-secondary": "#A8A29E",
-      "--tcg-border": "rgba(168, 162, 158, 0.2)",
-      "--tcg-glow": "0 0 16px rgba(87, 83, 78, 0.2)",
-      "--tcg-card-bg": "linear-gradient(145deg, #1C1917 0%, #0C0A09 100%)",
-      "--tcg-verdict-permitido": "#22C55E",
-      "--tcg-verdict-nao-permitido": "#EF4444",
-      "--tcg-verdict-depende": "#EAB308",
-    },
     accent: "25 45% 38%",
     accentFg: "0 0% 100%",
     headerFrom: "25 42% 32%",
@@ -297,50 +182,9 @@ export const TCG_THEMES: Record<TcgType, TCGTheme> = {
     icon: "SCR",
     publisher: "Erik's Curiosa",
     emoji: "🔮",
-    themeGradient: "linear-gradient(135deg, #57534E 0%, #0C0A09 55%, #A8A29E 115%)",
-  }),
-  vanguard: theme({
-    css: {
-      "--tcg-primary": "#BE123C",
-      "--tcg-primary-light": "#F43F5E",
-      "--tcg-accent": "#FDE047",
-      "--tcg-surface": "#0F172A",
-      "--tcg-surface-elevated": "#1E293B",
-      "--tcg-text-primary": "#F1F5F9",
-      "--tcg-text-secondary": "#94A3B8",
-      "--tcg-border": "rgba(244, 63, 94, 0.2)",
-      "--tcg-glow": "0 0 18px rgba(190, 18, 60, 0.15)",
-      "--tcg-card-bg": "linear-gradient(145deg, #1E293B 0%, #0F172A 100%)",
-      "--tcg-verdict-permitido": "#22C55E",
-      "--tcg-verdict-nao-permitido": "#EF4444",
-      "--tcg-verdict-depende": "#EAB308",
-    },
-    accent: "350 72% 44%",
-    accentFg: "0 0% 100%",
-    headerFrom: "350 68% 38%",
-    headerTo: "345 62% 28%",
-    pattern: "grid",
-    icon: "CFV",
-    publisher: "Bushiroad",
-    emoji: "🛡",
-    themeGradient: "linear-gradient(135deg, #BE123C 0%, #0F172A 50%, #FDE047 110%)",
+    themeGradient: sealTint("25 45% 38%"),
   }),
   riftbound: theme({
-    css: {
-      "--tcg-primary": "#CA8A04",
-      "--tcg-primary-light": "#EAB308",
-      "--tcg-accent": "#7C3AED",
-      "--tcg-surface": "#0F172A",
-      "--tcg-surface-elevated": "#1E293B",
-      "--tcg-text-primary": "#F8FAFC",
-      "--tcg-text-secondary": "#94A3B8",
-      "--tcg-border": "rgba(234, 179, 8, 0.22)",
-      "--tcg-glow": "0 0 18px rgba(124, 58, 237, 0.15)",
-      "--tcg-card-bg": "linear-gradient(145deg, #1E293B 0%, #0F172A 100%)",
-      "--tcg-verdict-permitido": "#22C55E",
-      "--tcg-verdict-nao-permitido": "#EF4444",
-      "--tcg-verdict-depende": "#EAB308",
-    },
     accent: "42 96% 48%",
     accentFg: "222 35% 12%",
     headerFrom: "42 92% 42%",
@@ -349,24 +193,24 @@ export const TCG_THEMES: Record<TcgType, TCGTheme> = {
     icon: "RBT",
     publisher: "Riot Games",
     emoji: "⚡",
-    themeGradient: "linear-gradient(135deg, #CA8A04 0%, #0F172A 50%, #7C3AED 110%)",
+    themeGradient: sealTint("42 96% 48%"),
   }),
+  /** ADR-016 hard-exit — histórico/admin; sem landing de produto. */
+  vanguard: theme({
+    hardExit: true,
+    accent: "350 72% 44%",
+    accentFg: "0 0% 100%",
+    headerFrom: "350 68% 38%",
+    headerTo: "345 62% 28%",
+    pattern: "grid",
+    icon: "CFV",
+    publisher: "Bushiroad",
+    emoji: "🛡",
+    themeGradient: sealTint("350 72% 44%"),
+  }),
+  /** ADR-016 hard-exit — histórico/admin; sem landing de produto. */
   union_arena: theme({
-    css: {
-      "--tcg-primary": "#DC2626",
-      "--tcg-primary-light": "#F87171",
-      "--tcg-accent": "#FFFFFF",
-      "--tcg-surface": "#09090B",
-      "--tcg-surface-elevated": "#18181B",
-      "--tcg-text-primary": "#FAFAFA",
-      "--tcg-text-secondary": "#A1A1AA",
-      "--tcg-border": "rgba(220, 38, 38, 0.22)",
-      "--tcg-glow": "0 0 18px rgba(255, 255, 255, 0.08)",
-      "--tcg-card-bg": "linear-gradient(145deg, #18181B 0%, #09090B 100%)",
-      "--tcg-verdict-permitido": "#22C55E",
-      "--tcg-verdict-nao-permitido": "#EF4444",
-      "--tcg-verdict-depende": "#EAB308",
-    },
+    hardExit: true,
     accent: "0 78% 50%",
     accentFg: "0 0% 100%",
     headerFrom: "0 75% 44%",
@@ -375,24 +219,11 @@ export const TCG_THEMES: Record<TcgType, TCGTheme> = {
     icon: "UA",
     publisher: "Bandai",
     emoji: "🎴",
-    themeGradient: "linear-gradient(135deg, #DC2626 0%, #09090B 50%, #FFFFFF 110%)",
+    themeGradient: sealTint("0 78% 50%"),
   }),
+  /** ADR-016 hard-exit — histórico/admin; sem landing de produto. */
   star_wars_unlimited: theme({
-    css: {
-      "--tcg-primary": "#1E3A8A",
-      "--tcg-primary-light": "#3B82F6",
-      "--tcg-accent": "#94A3B8",
-      "--tcg-surface": "#020617",
-      "--tcg-surface-elevated": "#0F172A",
-      "--tcg-text-primary": "#F1F5F9",
-      "--tcg-text-secondary": "#94A3B8",
-      "--tcg-border": "rgba(59, 130, 246, 0.2)",
-      "--tcg-glow": "0 0 22px rgba(30, 58, 138, 0.2)",
-      "--tcg-card-bg": "linear-gradient(145deg, #0F172A 0%, #020617 100%)",
-      "--tcg-verdict-permitido": "#22C55E",
-      "--tcg-verdict-nao-permitido": "#EF4444",
-      "--tcg-verdict-depende": "#EAB308",
-    },
+    hardExit: true,
     accent: "210 65% 42%",
     accentFg: "0 0% 100%",
     headerFrom: "210 62% 36%",
@@ -401,7 +232,7 @@ export const TCG_THEMES: Record<TcgType, TCGTheme> = {
     icon: "SWU",
     publisher: "Fantasy Flight Games",
     emoji: "⭐",
-    themeGradient: "linear-gradient(135deg, #1E3A8A 0%, #020617 50%, #94A3B8 110%)",
+    themeGradient: sealTint("210 65% 42%"),
   }),
 };
 
@@ -409,15 +240,12 @@ export function getTcgTheme(id: TcgType): TCGTheme {
   return TCG_THEMES[id];
 }
 
-/** Injeta variáveis no elemento (tipicamente documentElement ou .judge-app). */
+/** Injeta selo/accent no elemento — não aplica Noite de Leilão. */
 export function applyTcgThemeVars(el: HTMLElement, id: TcgType): void {
   const t = getTcgTheme(id);
   el.setAttribute("data-tcg", id);
   el.setAttribute("data-pattern", t.pattern);
   for (const [key, value] of Object.entries(t.css)) {
-    el.style.setProperty(key, value);
-  }
-  for (const [key, value] of Object.entries(LUXURY_JUDGE_SURFACES)) {
     el.style.setProperty(key, value);
   }
   el.style.setProperty("--tcg-accent", t.accent);
@@ -426,11 +254,19 @@ export function applyTcgThemeVars(el: HTMLElement, id: TcgType): void {
   el.style.setProperty("--judge-header-to", t.headerTo);
 }
 
+/** Aplica Noite de Leilão (LUXURY_JUDGE_SURFACES) + data-shell="auction". */
+export function applyAuctionNightVars(el: HTMLElement): void {
+  el.setAttribute("data-shell", "auction");
+  for (const [key, value] of Object.entries(LUXURY_JUDGE_SURFACES)) {
+    el.style.setProperty(key, value);
+  }
+}
+
+/** Estilo React: apenas selo/accent — sem superfícies de leilão. */
 export function tcgThemeStyle(id: TcgType): CSSProperties {
   const t = getTcgTheme(id);
   return {
     ...t.css,
-    ...LUXURY_JUDGE_SURFACES,
     "--tcg-accent": t.accent,
     "--tcg-accent-fg": t.accentFg,
     "--judge-header-from": t.headerFrom,
@@ -451,16 +287,61 @@ export function verdictColorVar(
   return "var(--tcg-verdict-permitido)";
 }
 
-/** Contraste texto primário / superfície elevada — validado em CI (≥ 4.5 AA). */
-export const THEME_CONTRAST_RATIOS: Record<TcgType, number> = Object.fromEntries(
-  (Object.keys(TCG_THEMES) as TcgType[]).map((id) => {
-    const css = TCG_THEMES[id].css;
-    const ratio = contrastRatio(
-      css["--tcg-text-primary"],
-      css["--tcg-surface-elevated"],
+/** Converte `hsl(H S% L%)` ou canais `H S% L%` em hex para contrastRatio. */
+function hslLikeToHex(value: string): string {
+  const m = value
+    .trim()
+    .match(
+      /^(?:hsl\(\s*)?([\d.]+)\s+([\d.]+)%\s+([\d.]+)%\s*\)?$/i,
     );
-    return [id, Math.round(ratio * 10) / 10];
-  }),
+  if (!m) return value;
+  const h = Number(m[1]);
+  const s = Number(m[2]) / 100;
+  const l = Number(m[3]) / 100;
+  const c = (1 - Math.abs(2 * l - 1)) * s;
+  const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+  const mid = l - c / 2;
+  let r = 0;
+  let g = 0;
+  let b = 0;
+  if (h < 60) {
+    r = c;
+    g = x;
+  } else if (h < 120) {
+    r = x;
+    g = c;
+  } else if (h < 180) {
+    g = c;
+    b = x;
+  } else if (h < 240) {
+    g = x;
+    b = c;
+  } else if (h < 300) {
+    r = x;
+    b = c;
+  } else {
+    r = c;
+    b = x;
+  }
+  const toByte = (n: number) =>
+    Math.round((n + mid) * 255)
+      .toString(16)
+      .padStart(2, "0");
+  return `#${toByte(r)}${toByte(g)}${toByte(b)}`;
+}
+
+/**
+ * Contraste texto / superfície elevada da Noite de Leilão (canônico).
+ * Temas Galeria não pintam shell — o AA relevante é o escuro reservado.
+ */
+const auctionNightContrast = (() => {
+  const fg = hslLikeToHex(LUXURY_JUDGE_SURFACES["--tcg-text-primary"]);
+  const bg = hslLikeToHex(LUXURY_JUDGE_SURFACES["--tcg-surface-elevated"]);
+  return Math.round(contrastRatio(fg, bg) * 10) / 10;
+})();
+
+export const THEME_CONTRAST_RATIOS: Record<TcgType, number> = Object.fromEntries(
+  (Object.keys(TCG_THEMES) as TcgType[]).map((id) => [id, auctionNightContrast]),
 ) as Record<TcgType, number>;
 
 export { getAccessibleTextColor } from "@/lib/wcag-contrast";

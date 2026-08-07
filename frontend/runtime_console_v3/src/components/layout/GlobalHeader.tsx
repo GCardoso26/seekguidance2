@@ -74,9 +74,11 @@ function DesktopNavLink({ href, label }: { href: string; label: string }) {
       href={href}
       data-testid={`nav-${href.replace(/\//g, "") || "home"}`}
       className={cn(
-        "hidden items-center rounded-md px-3 py-2 text-sm font-medium md:flex",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
-        active ? "bg-primary text-primary-foreground" : "text-foreground hover:bg-muted",
+        "hidden items-center rounded-md px-3 py-2 text-sm font-medium tracking-[0.02em] md:flex",
+        "focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/55 focus-visible:ring-offset-2",
+        active
+          ? "bg-[color-mix(in_oklch,hsl(var(--primary))_10%,hsl(var(--card)))] text-foreground ring-1 ring-inset ring-primary/40"
+          : "text-foreground hover:bg-muted",
       )}
     >
       {label}

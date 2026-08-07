@@ -51,7 +51,10 @@ describe("Theme Engine V2", () => {
     const pokemon = getGameTheme("POKEMON");
     const vars = gameThemeCssVars(pokemon) as Record<string, string>;
     expect(vars["--game-cta-fg"]).toBe("#0f172a");
-    expect(vars["--foreground"]).toMatch(/^\d+ \d+% \d+%$/);
+    // Galeria: portal não sobrescreve --foreground; só injeta selo de taxonomia
+    expect(vars["--foreground"]).toBeUndefined();
+    expect(vars["--tcg-seal"]).toMatch(/^\d+ \d+% \d+%$/);
+    expect(vars["--tcg-accent"]).toBe(vars["--tcg-seal"]);
   });
 
   it("keeps white CTA on dark primaries (MTG)", () => {

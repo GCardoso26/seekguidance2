@@ -58,9 +58,18 @@ export function MobileLayout({ children }: { children: ReactNode }) {
     pathname === "/marketplace/checkout" ||
     pathname?.startsWith("/marketplace/checkout/");
   const nav = isFeatureEnabled("MOBILE_FIRST_V2") ? MOBILE_NAV_V2 : MOBILE_NAV_DEFAULT;
+  const galleryLocked =
+    pathname.startsWith("/carrinho") ||
+    pathname.startsWith("/checkout") ||
+    pathname.startsWith("/pedidos") ||
+    pathname.startsWith("/vendedor") ||
+    pathname.startsWith("/loja");
 
   return (
-    <div className="flex min-h-screen flex-col bg-background text-foreground">
+    <div
+      className="flex min-h-screen flex-col bg-background text-foreground"
+      data-shell={galleryLocked ? "gallery" : undefined}
+    >
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground"

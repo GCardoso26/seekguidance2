@@ -62,7 +62,8 @@ export function GameMegaMenu({ className }: Props) {
           <Link
             href="/loja/busca"
             className={cn(
-              "shrink-0 rounded-full px-3 py-1.5 text-sm font-medium whitespace-nowrap transition-colors",
+              "shrink-0 rounded-md px-3 py-1.5 text-sm font-medium tracking-[0.02em] whitespace-nowrap transition-colors",
+              "focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/55 focus-visible:ring-offset-2",
               !activeSlug || activeSlug === "busca"
                 ? "bg-primary text-primary-foreground"
                 : "text-muted-foreground hover:bg-muted/80 hover:text-foreground",
@@ -88,11 +89,21 @@ export function GameMegaMenu({ className }: Props) {
                 onMouseEnter={() => setOpenSlug(slug)}
                 onFocus={() => setOpenSlug(slug)}
                 className={cn(
-                  "flex shrink-0 items-center gap-1 rounded-full px-3 py-1.5 text-sm font-medium whitespace-nowrap transition-colors",
+                  "flex shrink-0 items-center gap-1 rounded-md px-3 py-1.5 text-sm font-medium tracking-[0.02em] whitespace-nowrap transition-colors",
+                  "border border-transparent focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/55 focus-visible:ring-offset-2",
                   active || isOpen
-                    ? "bg-primary/15 text-primary"
+                    ? "bg-muted/80 text-foreground"
                     : "text-muted-foreground hover:bg-muted/80 hover:text-foreground",
                 )}
+                style={
+                  active || isOpen
+                    ? {
+                        borderColor: "hsl(var(--border))",
+                        borderTopWidth: 2,
+                        borderTopColor: token.primary,
+                      }
+                    : undefined
+                }
               >
                 <Image
                   src={token.logo}

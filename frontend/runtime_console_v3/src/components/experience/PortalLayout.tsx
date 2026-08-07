@@ -16,8 +16,8 @@ type Props = {
 };
 
 /**
- * Portal shell — Theme Engine V2 + GameProvider + nav.
- * Same layout tree for every TCG; identity comes from theme tokens.
+ * Portal shell — Galeria / Noite de Leilão canônica + selo 1px por jogo.
+ * A parede nunca muda de cor por TCG; só o fio de taxonomia.
  */
 export function PortalLayout({
   gameId,
@@ -28,11 +28,12 @@ export function PortalLayout({
   const theme = getGameTheme(gameId);
   const body = (
     <div
-      className="game-portal min-h-[50vh]"
+      className="game-portal min-h-[50vh] bg-background text-foreground"
       data-game={slug}
-      data-mood={theme.surfaces.mood}
-      data-texture={theme.surfaces.texture ?? "none"}
-      data-marketplace-skin={theme.marketplace.skin}
+      data-shell="auction"
+      data-mood="dark"
+      data-texture="none"
+      data-marketplace-skin="gallery-seal"
       data-density={theme.marketplace.density}
       style={gameThemeCssVars(theme)}
     >

@@ -1,55 +1,47 @@
 /**
- * Per-game portal themes V2 — identity system via [data-game] + [data-mood] + [data-texture].
- * Performance-first CSS (no heavy JS particles). Respects prefers-reduced-motion.
+ * Portal Galeria — selo 1px por jogo; parede = tokens do shell
+ * (Galeria clara ou Noite de Leilão canônica via data-shell).
  */
 
 .game-portal {
-  --game-primary: #1e3a5f;
-  --game-secondary: #0f172a;
-  --game-bg: #f8fafc;
-  --game-bg-elevated: #ffffff;
-  --game-accent: #b45309;
-  --game-accent-muted: #d6d3d1;
-  --game-hero-glow: transparent;
   --game-border: hsl(var(--border));
   --game-text: hsl(var(--foreground));
   --game-text-muted: hsl(var(--muted-foreground));
-  --game-cta-fg: #ffffff;
-  --game-gradient-from: #0f172a;
-  --game-gradient-via: #1e293b;
-  --game-gradient-to: #020617;
-  --game-card-radius: 0.75rem;
-  --game-button-radius: 0.5rem;
-  --game-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
-  --game-font-display: var(--font-display-family), Georgia, serif;
-  --game-font-body: var(--font-sans-family), system-ui, sans-serif;
+  --game-cta-fg: hsl(var(--primary-foreground));
+  --game-card-radius: 0.5rem;
+  --game-button-radius: 0.375rem;
+  --game-shadow: var(--shadow-md);
+  --game-font-display: var(--font-display);
+  --game-font-body: var(--font-sans);
   --game-tracking: 0.02em;
   --game-display-weight: 600;
-  --game-hover-lift: translateY(-4px) scale(1.01);
-  --game-hover-glow: 0 12px 28px rgba(0, 0, 0, 0.18);
-  --game-card-transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+  --game-hover-lift: translateY(-2px);
+  --game-hover-glow: var(--shadow-sm);
+  --game-card-transition: transform 0.2s var(--ease-out), box-shadow 0.2s var(--ease-out), border-color 0.2s var(--ease-out);
   color: var(--game-text);
   font-family: var(--game-font-body);
-  background-color: var(--game-bg);
+  background-color: hsl(var(--background));
 }
 
-.game-portal[data-mood="light"] {
-  color-scheme: light;
-}
-
+.game-portal[data-shell="auction"],
 .game-portal[data-mood="dark"] {
   color-scheme: dark;
 }
 
+.game-portal[data-shell="gallery"],
+.game-portal[data-mood="light"] {
+  color-scheme: light;
+}
+
 .game-portal .portal-nav {
-  border-bottom: 1px solid color-mix(in srgb, var(--game-primary) 28%, var(--game-border));
-  background: color-mix(in srgb, var(--game-bg-elevated) 88%, transparent);
-  backdrop-filter: blur(10px);
+  border-bottom: 1px solid hsl(var(--border));
+  background: color-mix(in oklch, hsl(var(--card)) 92%, transparent);
+  backdrop-filter: blur(8px);
 }
 
 .game-portal .portal-nav a[data-active="true"] {
-  color: var(--game-accent);
-  border-bottom-color: var(--game-accent);
+  color: hsl(var(--foreground));
+  border-bottom-color: hsl(var(--tcg-seal, var(--primary)));
 }
 
 /* ——— Hero System ——— */
