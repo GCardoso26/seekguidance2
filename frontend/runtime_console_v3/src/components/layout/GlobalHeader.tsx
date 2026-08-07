@@ -114,9 +114,10 @@ export function GlobalHeader({ showGameTabs = true, chrome = "default" }: Global
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="flex h-14 items-center gap-3">
             <Link
-              href="/loja"
+              href="/"
               className="flex shrink-0 items-center gap-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
               data-testid="header-logo"
+              aria-label={`${brand.name} — início`}
             >
               <span className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md bg-primary/10">
                 {/* eslint-disable-next-line @next/next/no-img-element */}

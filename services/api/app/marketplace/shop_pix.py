@@ -611,12 +611,18 @@ async def confirm_pix_payment(
         from app.marketplace import checkout_atomic
 
         try:
-            await checkout_atomic.finalize_checkout(
+            finalize_result = await checkout_atomic.finalize_checkout(
                 session,
                 checkout_session_id,
                 payment_method="pix",
             )
-            stock_finalized = True
+            stock_finalized = finalize_result.get("status") == "completed"
+            if not stock_finalized:
+                logger.warning(
+                    "pix_checkout_finalize_not_completed",
+                    session_id=checkout_session_id,
+                    result=finalize_result,
+                )
         except Exception as exc:
             logger.error("pix_checkout_finalize_failed", session_id=checkout_session_id, error=str(exc))
 
@@ -634,7 +640,7 @@ async def confirm_pix_payment(
 
     order_row = (
         await session.execute(
-            text("SELECT use_escrow, payment_method FROM tcg_judge.shop_orders WHERE id = :id"),
+            text("SELECT use_escrow, payment_method, status FROM tcg_judge.shop_orders WHERE id = :id"),
             {"id": order_id},
         )
     ).mappings().first()
@@ -645,6 +651,7 @@ async def confirm_pix_payment(
             or str(order_row.get("payment_method", "")).startswith("escrow_")
         )
     )
+    was_pending = bool(order_row and str(order_row.get("status")) == "pending")
 
     history_status = "processing" if is_escrow else "paid"
     status_note = "Pagamento PIX em custódia (Compra Protegida)" if is_escrow else "Pagamento PIX confirmado"
@@ -679,24 +686,13 @@ async def confirm_pix_payment(
     except Exception as exc:
         logger.warning("payment_aggregate_pix_capture_failed", order_id=order_id, error=str(exc))
 
-    if not stock_finalized and not is_escrow:
-        items = (
-            await session.execute(
-                text("SELECT product_id, quantity FROM tcg_judge.shop_order_items WHERE order_id = :oid"),
-                {"oid": order_id},
-            )
-        ).mappings().all()
-        for item in items:
-            await session.execute(
-                text(
-                    """
-                    UPDATE tcg_judge.store_products
-                    SET stock = GREATEST(0, stock - :qty), updated_at = NOW()
-                    WHERE id = :pid
-                    """
-                ),
-                {"pid": str(item["product_id"]), "qty": int(item["quantity"])},
-            )
+    if not stock_finalized and was_pending:
+        from app.marketplace import checkout_atomic
+
+        try:
+            await checkout_atomic.deduct_stock_for_order(session, order_id)
+        except Exception as exc:
+            logger.error("pix_order_stock_deduction_failed", order_id=order_id, error=str(exc))
 
     await session.execute(
         text(

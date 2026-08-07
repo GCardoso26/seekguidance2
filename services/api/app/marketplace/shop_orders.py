@@ -523,13 +523,19 @@ async def handle_payment_intent_succeeded(session: AsyncSession, settings: Setti
         from app.marketplace import checkout_atomic
 
         try:
-            await checkout_atomic.finalize_checkout(
+            finalize_result = await checkout_atomic.finalize_checkout(
                 session,
                 checkout_session_id,
                 payment_intent_id=payment_intent_id,
                 payment_method="stripe",
             )
-            stock_finalized = True
+            stock_finalized = finalize_result.get("status") == "completed"
+            if not stock_finalized:
+                logger.warning(
+                    "checkout_finalize_not_completed",
+                    session_id=checkout_session_id,
+                    result=finalize_result,
+                )
         except Exception as exc:
             logger.error("checkout_finalize_failed", session_id=checkout_session_id, error=str(exc))
 
@@ -545,27 +551,46 @@ async def handle_payment_intent_succeeded(session: AsyncSession, settings: Setti
         )
 
     if order_ids:
+        newly_paid_order_ids: list[str] = []
         for oid in order_ids:
             if use_escrow:
                 from app.marketplace import shop_escrow
 
+                before = (
+                    await session.execute(
+                        text(
+                            """
+                            SELECT status FROM tcg_judge.shop_orders
+                            WHERE id = :id
+                            """
+                        ),
+                        {"id": oid},
+                    )
+                ).mappings().first()
                 await shop_escrow.on_payment_received(
                     session, oid, payment_intent_id=payment_intent_id
                 )
+                if before and str(before.get("status")) == "pending":
+                    newly_paid_order_ids.append(oid)
             else:
-                await session.execute(
-                    text(
-                        """
-                        UPDATE tcg_judge.shop_orders
-                        SET status = 'paid', updated_at = NOW()
-                        WHERE id = :id AND status = 'pending'
-                        """
-                    ),
-                    {"id": oid},
-                )
-                from app.marketplace.seller_fulfillment import on_order_paid_enqueue_fulfillment
+                row = (
+                    await session.execute(
+                        text(
+                            """
+                            UPDATE tcg_judge.shop_orders
+                            SET status = 'paid', updated_at = NOW()
+                            WHERE id = :id AND status = 'pending'
+                            RETURNING id
+                            """
+                        ),
+                        {"id": oid},
+                    )
+                ).first()
+                if row:
+                    newly_paid_order_ids.append(oid)
+                    from app.marketplace.seller_fulfillment import on_order_paid_enqueue_fulfillment
 
-                await on_order_paid_enqueue_fulfillment(session, oid)
+                    await on_order_paid_enqueue_fulfillment(session, oid)
 
         from app.payments.payment_aggregate import record_payment_captured
 
@@ -579,41 +604,33 @@ async def handle_payment_intent_succeeded(session: AsyncSession, settings: Setti
             except Exception as exc:
                 logger.warning("payment_aggregate_capture_failed", order_id=oid, error=str(exc))
     elif payment_intent_id and not use_escrow:
-        await session.execute(
-            text(
-                """
-                UPDATE tcg_judge.shop_orders
-                SET status = 'paid', updated_at = NOW()
-                WHERE stripe_payment_intent_id = :pi AND status = 'pending'
-                """
-            ),
-            {"pi": payment_intent_id},
-        )
-
-    if order_ids and not stock_finalized:
-        for oid in order_ids:
-            items = (
+        newly_paid_order_ids = [
+            str(r["id"])
+            for r in (
                 await session.execute(
                     text(
                         """
-                        SELECT product_id, quantity FROM tcg_judge.shop_order_items
-                        WHERE order_id = :oid
+                        UPDATE tcg_judge.shop_orders
+                        SET status = 'paid', updated_at = NOW()
+                        WHERE stripe_payment_intent_id = :pi AND status = 'pending'
+                        RETURNING id
                         """
                     ),
-                    {"oid": oid},
+                    {"pi": payment_intent_id},
                 )
             ).mappings().all()
-            for item in items:
-                await session.execute(
-                    text(
-                        """
-                        UPDATE tcg_judge.store_products
-                        SET stock = GREATEST(0, stock - :qty), updated_at = NOW()
-                        WHERE id = :pid
-                        """
-                    ),
-                    {"pid": str(item["product_id"]), "qty": int(item["quantity"])},
-                )
+        ]
+    else:
+        newly_paid_order_ids = []
+
+    if not stock_finalized and newly_paid_order_ids:
+        from app.marketplace import checkout_atomic
+
+        for oid in newly_paid_order_ids:
+            try:
+                await checkout_atomic.deduct_stock_for_order(session, oid)
+            except Exception as exc:
+                logger.error("order_stock_deduction_failed", order_id=oid, error=str(exc))
 
     if order_ids:
         from app.gamification.xp import award_xp_for_paid_order

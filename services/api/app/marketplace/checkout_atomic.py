@@ -367,6 +367,112 @@ async def cancel_checkout(
     return {"status": "cancelled"}
 
 
+async def apply_sale_stock_deduction(
+    session: AsyncSession,
+    product_id: str,
+    qty: int,
+    *,
+    listing_id: str | None = None,
+    require_reserved: bool = False,
+) -> None:
+    """Baixa definitiva de estoque (store_products + card_listings vinculadas).
+
+    Quando require_reserved=True (checkout atômico), exige reserved_stock >= qty.
+    Fallback pós-pagamento libera reserva e quantidade mesmo sem reserva prévia.
+    """
+    if qty < 1:
+        return
+
+    reserved_clause = "AND reserved_stock >= :qty" if require_reserved else ""
+    updated = (
+        await session.execute(
+            text(
+                f"""
+                UPDATE tcg_judge.store_products
+                SET stock = GREATEST(stock - :qty, 0),
+                    reserved_stock = GREATEST(reserved_stock - :qty, 0),
+                    updated_at = NOW()
+                WHERE id = :pid
+                  {reserved_clause}
+                RETURNING id
+                """
+            ),
+            {"pid": product_id, "qty": qty},
+        )
+    ).first()
+    if not updated:
+        logger.error(
+            "sale_stock_deduction_failed",
+            product_id=product_id,
+            qty=qty,
+            require_reserved=require_reserved,
+        )
+        raise HTTPException(400, f"Estoque insuficiente para produto {product_id}")
+
+    lid = listing_id
+    if not lid:
+        row = (
+            await session.execute(
+                text(
+                    """
+                    SELECT id FROM tcg_judge.card_listings
+                    WHERE store_product_id = :pid
+                    ORDER BY CASE WHEN status = 'active' THEN 0 ELSE 1 END, updated_at DESC
+                    LIMIT 1
+                    """
+                ),
+                {"pid": product_id},
+            )
+        ).mappings().first()
+        lid = str(row["id"]) if row else None
+
+    if lid:
+        await session.execute(
+            text(
+                """
+                UPDATE tcg_judge.card_listings
+                SET quantity = GREATEST(quantity - :qty, 0),
+                    reserved_quantity = GREATEST(reserved_quantity - :qty, 0),
+                    status = CASE WHEN quantity - :qty <= 0 THEN 'sold' ELSE status END,
+                    version = version + 1,
+                    updated_at = NOW()
+                WHERE id = :lid
+                """
+            ),
+            {"lid": lid, "qty": qty},
+        )
+
+
+async def deduct_stock_for_order(session: AsyncSession, order_id: str) -> int:
+    """Fallback: baixa estoque a partir dos itens do pedido (produto + listing)."""
+    items = (
+        await session.execute(
+            text(
+                """
+                SELECT product_id, quantity
+                FROM tcg_judge.shop_order_items
+                WHERE order_id = :oid
+                """
+            ),
+            {"oid": order_id},
+        )
+    ).mappings().all()
+    deducted = 0
+    for item in items:
+        pid = item.get("product_id")
+        qty = int(item.get("quantity") or 0)
+        if not pid or qty < 1:
+            continue
+        await apply_sale_stock_deduction(
+            session,
+            str(pid),
+            qty,
+            require_reserved=False,
+        )
+        deducted += 1
+    return deducted
+
+
 async def finalize_checkout(
     session: AsyncSession,
     session_id: str,
@@ -391,62 +497,34 @@ async def finalize_checkout(
     if data["status"] != "active":
         return {"skipped": True, "reason": data["status"]}
 
-    for item in _parse_locked_items(data.get("locked_items")):
-        qty = int(item.get("quantity", 0))
-        product_id = item.get("product_id")
-        if not product_id or qty < 1:
-            continue
+    async with session.begin_nested():
+        for item in _parse_locked_items(data.get("locked_items")):
+            qty = int(item.get("quantity", 0))
+            product_id = item.get("product_id")
+            if not product_id or qty < 1:
+                continue
 
-        updated = (
-            await session.execute(
-                text(
-                    """
-                    UPDATE tcg_judge.store_products
-                    SET stock = GREATEST(stock - :qty, 0),
-                        reserved_stock = GREATEST(reserved_stock - :qty, 0),
-                        updated_at = NOW()
-                    WHERE id = :pid
-                      AND reserved_stock >= :qty
-                    RETURNING id
-                    """
-                ),
-                {"pid": product_id, "qty": qty},
-            )
-        ).first()
-        if not updated:
-            logger.error("checkout_finalize_stock_failed", product_id=product_id, qty=qty)
-            raise HTTPException(400, f"Estoque insuficiente para produto {product_id}")
-
-        listing_id = item.get("listing_id")
-        if listing_id:
-            await session.execute(
-                text(
-                    """
-                    UPDATE tcg_judge.card_listings
-                    SET quantity = GREATEST(quantity - :qty, 0),
-                        reserved_quantity = GREATEST(reserved_quantity - :qty, 0),
-                        status = CASE WHEN quantity - :qty <= 0 THEN 'sold' ELSE status END,
-                        version = version + 1,
-                        updated_at = NOW()
-                    WHERE id = :lid
-                    """
-                ),
-                {"lid": listing_id, "qty": qty},
+            await apply_sale_stock_deduction(
+                session,
+                str(product_id),
+                qty,
+                listing_id=str(item["listing_id"]) if item.get("listing_id") else None,
+                require_reserved=True,
             )
 
-    await session.execute(
-        text(
-            """
-            UPDATE tcg_judge.checkout_sessions
-            SET status = 'completed',
-                completed_at = NOW(),
-                payment_intent_id = COALESCE(:pi, payment_intent_id),
-                payment_method = COALESCE(:pm, payment_method)
-            WHERE id = :id
-            """
-        ),
-        {"id": session_id, "pi": payment_intent_id, "pm": payment_method},
-    )
+        await session.execute(
+            text(
+                """
+                UPDATE tcg_judge.checkout_sessions
+                SET status = 'completed',
+                    completed_at = NOW(),
+                    payment_intent_id = COALESCE(:pi, payment_intent_id),
+                    payment_method = COALESCE(:pm, payment_method)
+                WHERE id = :id
+                """
+            ),
+            {"id": session_id, "pi": payment_intent_id, "pm": payment_method},
+        )
     await session.commit()
     return {"status": "completed", "session_id": session_id}
 
