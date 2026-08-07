@@ -25,6 +25,7 @@
 | Sandbox fail-open | Entitlements fail-closed em erro de API |
 | CSV ilimitado | max 2MB (API + BFF) |
 | RLS shop_orders / listings | SELECT/UPDATE + trigger anti-tamper; seller CRUD |
+| JWT enforce off em prod | Production sempre enforce; `JUDGE_SUPABASE_JWT_ENFORCE=false` recusa boot |
 
 ### Regras absolutas para a ferramenta
 

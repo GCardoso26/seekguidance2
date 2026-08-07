@@ -302,9 +302,12 @@ class Settings(BaseSettings):
         return self
 
     def should_enforce_supabase_jwt(self) -> bool:
+        # Production: always enforce — JUDGE_SUPABASE_JWT_ENFORCE=false is ignored (fail-closed).
+        if self.environment == "production":
+            return True
         if self.judge_supabase_jwt_enforce is not None:
             return bool(self.judge_supabase_jwt_enforce)
-        return self.environment == "production"
+        return False
 
     @model_validator(mode="after")
     def _validate_production_secrets(self) -> "Settings":
@@ -313,14 +316,19 @@ class Settings(BaseSettings):
         salt = (self.cpf_salt or "").strip()
         if len(salt) < 32:
             raise ValueError("CPF_SALT must be at least 32 characters in production")
-        if self.should_enforce_supabase_jwt():
-            jwt_secret = (self.supabase_jwt_secret or "").strip()
-            supabase_url = self.resolve_supabase_url()
-            if not supabase_url and len(jwt_secret) < 16:
-                raise ValueError(
-                    "SUPABASE_URL or SUPABASE_JWT_SECRET is required in production "
-                    "(projetos Supabase novos usam ES256 via JWKS)"
-                )
+        if self.judge_supabase_jwt_enforce is False:
+            # Misconfig comum: desligar JWT em prod. Recusar boot.
+            raise ValueError(
+                "JUDGE_SUPABASE_JWT_ENFORCE=false is forbidden in production "
+                "(JWT enforcement is fail-closed)"
+            )
+        jwt_secret = (self.supabase_jwt_secret or "").strip()
+        supabase_url = self.resolve_supabase_url()
+        if not supabase_url and len(jwt_secret) < 16:
+            raise ValueError(
+                "SUPABASE_URL or SUPABASE_JWT_SECRET is required in production "
+                "(projetos Supabase novos usam ES256 via JWKS)"
+            )
         return self
 
 
