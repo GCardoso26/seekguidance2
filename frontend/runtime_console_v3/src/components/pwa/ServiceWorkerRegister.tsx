@@ -11,8 +11,9 @@ export function ServiceWorkerRegister() {
     if (!("serviceWorker" in navigator)) return;
 
     void navigator.serviceWorker
-      .register("/sw.js")
+      .register("/sw.js", { updateViaCache: "none" })
       .then((reg) => {
+        void reg.update();
         reg.addEventListener("updatefound", () => {
           const worker = reg.installing;
           worker?.addEventListener("statechange", () => {

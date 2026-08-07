@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
+import { useJudgeAuth } from "@/features/auth/AuthProvider";
 import {
   fetchBuyerRecommendations,
   fetchPublicDecks,
@@ -73,6 +74,7 @@ function ChipList({
  * Consome apenas BFFs públicos existentes.
  */
 export function LiveHomeFeed() {
+  const { user } = useJudgeAuth();
   const decksQ = useQuery({
     queryKey: ["live-home-decks"],
     queryFn: () => fetchPublicDecks(8),
@@ -96,6 +98,7 @@ export function LiveHomeFeed() {
   const recsQ = useQuery({
     queryKey: ["live-home-recs"],
     queryFn: () => fetchBuyerRecommendations(8),
+    enabled: Boolean(user),
     staleTime: 60_000,
   });
 

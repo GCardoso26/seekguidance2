@@ -15,6 +15,9 @@ export async function GET(req: NextRequest) {
     if (res.status === 404 || res.status === 501 || res.status === 503) {
       return NextResponse.json(buyerRecommendationsMock());
     }
+    if (res.status === 401 || res.status === 403) {
+      return NextResponse.json(buyerRecommendationsMock());
+    }
     const text = await res.text();
     return new NextResponse(text, {
       status: res.status,

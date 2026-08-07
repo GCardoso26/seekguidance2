@@ -1,15 +1,13 @@
-const CACHE_SHELL = "tcg-judge-shell-v5";
+const CACHE_SHELL = "tcg-judge-shell-v6";
 const CACHE_API = "tcg-judge-api-v2";
 const CACHE_IMAGES = "tcg-judge-images-v2";
 const CACHE_FONTS = "tcg-judge-fonts-v1";
-const CACHE_PAGES = "tcg-judge-pages-v2";
 
 const SHELL_URLS = ["/", "/offline", "/manifest.json", "/icon-192", "/icon-512"];
 
 const API_RENDER = /^https:\/\/seekguidance\.onrender\.com\/.*/;
 const IMAGE_EXT = /\.(?:png|jpg|jpeg|svg|gif|webp|avif)(?:\?.*)?$/i;
 const FONT_EXT = /\.(?:woff2?|ttf|otf)(?:\?.*)?$/i;
-const PAGE_PATHS = /^\/(loja\/mtg|decks|perfil|entrar)(?:\/|$)/;
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE_SHELL).then((cache) => cache.addAll(SHELL_URLS)));
@@ -17,7 +15,7 @@ self.addEventListener("install", (event) => {
 });
 
 self.addEventListener("activate", (event) => {
-  const keep = new Set([CACHE_SHELL, CACHE_API, CACHE_IMAGES, CACHE_FONTS, CACHE_PAGES]);
+  const keep = new Set([CACHE_SHELL, CACHE_API, CACHE_IMAGES, CACHE_FONTS]);
   event.waitUntil(
     caches.keys().then((keys) => Promise.all(keys.filter((k) => !keep.has(k)).map((k) => caches.delete(k)))),
   );
@@ -53,18 +51,6 @@ async function cacheFirst(request, cacheName) {
   return response;
 }
 
-async function staleWhileRevalidate(request, cacheName) {
-  const cache = await caches.open(cacheName);
-  const cached = await cache.match(request);
-  const networkPromise = fetch(request)
-    .then((response) => {
-      if (response.ok) void cache.put(request, response.clone());
-      return response;
-    })
-    .catch(() => null);
-  return cached || networkPromise || fetch(request);
-}
-
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
   const url = new URL(event.request.url);
@@ -79,7 +65,8 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Chunks Next.js têm hash por deploy — nunca cachear (evita 404 + MIME text/plain).
+  // Chunks/CSS/HTML do Next embutem hashes por deploy — nunca cachear.
+  // Cachear HTML de /decks/* causava MIME text/plain em chunks antigos (404 immutable).
   if (url.pathname.startsWith("/_next/")) {
     event.respondWith(fetch(event.request));
     return;
@@ -101,25 +88,20 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  if (url.origin === self.location.origin && PAGE_PATHS.test(url.pathname)) {
-    event.respondWith(staleWhileRevalidate(event.request, CACHE_PAGES));
-    return;
-  }
-
   if (url.pathname.match(/\.(js|css)$/)) {
     event.respondWith(fetch(event.request));
     return;
   }
 
+  // Documentos App Router: sempre rede. Offline → /offline (nunca HTML stale com chunks velhos).
   if (event.request.mode === "navigate") {
     event.respondWith(
-      fetch(event.request)
-        .catch(async () => {
-          const offline = await caches.match("/offline");
-          if (offline) return offline;
-          const shell = await caches.match("/");
-          return shell || new Response("Offline", { status: 503 });
-        }),
+      fetch(event.request).catch(async () => {
+        const offline = await caches.match("/offline");
+        if (offline) return offline;
+        const shell = await caches.match("/");
+        return shell || new Response("Offline", { status: 503 });
+      }),
     );
     return;
   }
