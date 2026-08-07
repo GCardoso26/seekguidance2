@@ -20,10 +20,11 @@ function CheckoutSuccessInner() {
   useEffect(() => {
     if (!paymentSucceeded || trackedRef.current) return;
     trackedRef.current = true;
-    void trackEvent("purchase_completed", {
+    void trackEvent("purchase", {
       order_id: orderId || undefined,
       payment_intent: paymentIntent || undefined,
       redirect_status: redirectStatus || undefined,
+      source: "checkout_success",
     });
     awardXpFireAndForget("marketplace_purchase", qc);
   }, [orderId, paymentIntent, paymentSucceeded, qc, redirectStatus]);
