@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Any, Literal
 
 from app.api.deps import DbSession, SettingsDep
@@ -119,6 +120,20 @@ class CouponCreateBody(BaseModel):
     min_order_cents: int = Field(default=0, ge=0)
     max_discount_cents: int | None = Field(default=None, gt=0)
     max_uses: int | None = Field(default=None, gt=0)
+    expires_at: datetime | None = None
+    is_active: bool = True
+
+
+class CouponUpdateBody(BaseModel):
+    type: str | None = Field(default=None, pattern="^(percentage|fixed)$")
+    value_cents: int | None = Field(default=None, gt=0)
+    min_order_cents: int | None = Field(default=None, ge=0)
+    max_discount_cents: int | None = Field(default=None, gt=0)
+    max_uses: int | None = Field(default=None, gt=0)
+    expires_at: datetime | None = None
+    clear_expires_at: bool = False
+    clear_max_uses: bool = False
+    is_active: bool | None = None
 
 
 class CouponValidateBody(BaseModel):
@@ -752,6 +767,36 @@ async def deactivate_store_coupon(
     return {"coupon": coupon}
 
 
+@router.patch("/runtime/judge/marketplace/shop/stores/{store_id}/coupons/{coupon_id}")
+async def patch_store_coupon(
+    session: DbSession,
+    store_id: str,
+    coupon_id: str,
+    body: CouponUpdateBody,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    fields = body.model_fields_set
+    clear_max_uses = body.clear_max_uses or ("max_uses" in fields and body.max_uses is None)
+    clear_expires = body.clear_expires_at or ("expires_at" in fields and body.expires_at is None)
+    coupon = await shop_coupons.update_coupon(
+        session,
+        store_id,
+        user_id,
+        coupon_id,
+        coupon_type=body.type,
+        value_cents=body.value_cents,
+        min_order_cents=body.min_order_cents,
+        max_discount_cents=body.max_discount_cents,
+        max_uses=None if clear_max_uses else body.max_uses,
+        clear_max_uses=clear_max_uses,
+        expires_at=None if clear_expires else body.expires_at,
+        clear_expires_at=clear_expires,
+        is_active=body.is_active,
+    )
+    return {"coupon": coupon}
+
+
 @router.post("/runtime/judge/marketplace/shop/reviews/{review_id}/respond")
 async def respond_shop_review(
     session: DbSession,
@@ -782,6 +827,8 @@ async def create_store_coupon(
         min_order_cents=body.min_order_cents,
         max_discount_cents=body.max_discount_cents,
         max_uses=body.max_uses,
+        expires_at=body.expires_at,
+        is_active=body.is_active,
     )
     return {"coupon": coupon}
 

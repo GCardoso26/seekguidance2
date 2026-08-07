@@ -35,6 +35,7 @@ async def create_coupon(
     max_discount_cents: int | None = None,
     max_uses: int | None = None,
     expires_at: datetime | None = None,
+    is_active: bool = True,
 ) -> dict[str, Any]:
     store = (
         await session.execute(
@@ -56,8 +57,9 @@ async def create_coupon(
             text(
                 """
                 INSERT INTO tcg_judge.shop_coupons
-                  (store_id, code, type, value_cents, min_order_cents, max_discount_cents, max_uses, expires_at)
-                VALUES (:sid, :code, :type, :val, :min, :max_d, :max_u, :exp)
+                  (store_id, code, type, value_cents, min_order_cents, max_discount_cents,
+                   max_uses, expires_at, is_active)
+                VALUES (:sid, :code, :type, :val, :min, :max_d, :max_u, :exp, :active)
                 RETURNING *
                 """
             ),
@@ -70,6 +72,7 @@ async def create_coupon(
                 "max_d": max_discount_cents,
                 "max_u": max_uses,
                 "exp": expires_at,
+                "active": is_active,
             },
         )
     ).mappings().first()
@@ -105,18 +108,87 @@ async def list_coupons(session: AsyncSession, store_id: str, owner_id: str) -> l
 async def deactivate_coupon(
     session: AsyncSession, store_id: str, owner_id: str, coupon_id: str
 ) -> dict[str, Any]:
+    return await update_coupon(
+        session,
+        store_id,
+        owner_id,
+        coupon_id,
+        is_active=False,
+    )
+
+
+async def update_coupon(
+    session: AsyncSession,
+    store_id: str,
+    owner_id: str,
+    coupon_id: str,
+    *,
+    coupon_type: str | None = None,
+    value_cents: int | None = None,
+    min_order_cents: int | None = None,
+    max_discount_cents: int | None = None,
+    max_uses: int | None = None,
+    clear_max_uses: bool = False,
+    expires_at: datetime | None = None,
+    clear_expires_at: bool = False,
+    is_active: bool | None = None,
+) -> dict[str, Any]:
+    store = (
+        await session.execute(
+            text("SELECT id FROM tcg_judge.stores WHERE id = :id AND owner_id = :oid"),
+            {"id": store_id, "oid": owner_id},
+        )
+    ).mappings().first()
+    if not store:
+        raise HTTPException(404, "Loja não encontrada")
+
+    if coupon_type is not None and coupon_type not in {"percentage", "fixed"}:
+        raise HTTPException(400, "Tipo de cupom inválido")
+    if value_cents is not None and value_cents <= 0:
+        raise HTTPException(400, "Valor inválido")
+
+    sets: list[str] = []
+    params: dict[str, Any] = {"cid": coupon_id, "sid": store_id}
+    if coupon_type is not None:
+        sets.append("type = :type")
+        params["type"] = coupon_type
+    if value_cents is not None:
+        sets.append("value_cents = :val")
+        params["val"] = value_cents
+    if min_order_cents is not None:
+        sets.append("min_order_cents = :min_o")
+        params["min_o"] = min_order_cents
+    if max_discount_cents is not None:
+        sets.append("max_discount_cents = :max_d")
+        params["max_d"] = max_discount_cents
+    if clear_max_uses:
+        sets.append("max_uses = NULL")
+    elif max_uses is not None:
+        sets.append("max_uses = :max_u")
+        params["max_u"] = max_uses
+    if clear_expires_at:
+        sets.append("expires_at = NULL")
+    elif expires_at is not None:
+        sets.append("expires_at = :exp")
+        params["exp"] = expires_at
+    if is_active is not None:
+        sets.append("is_active = :active")
+        params["active"] = is_active
+
+    if not sets:
+        raise HTTPException(400, "Nenhum campo para atualizar")
+
     row = (
         await session.execute(
             text(
-                """
-                UPDATE tcg_judge.shop_coupons c
-                SET is_active = FALSE
-                FROM tcg_judge.stores s
-                WHERE c.id = :cid AND c.store_id = s.id AND s.id = :sid AND s.owner_id = :oid
-                RETURNING c.*
+                f"""
+                UPDATE tcg_judge.shop_coupons
+                SET {", ".join(sets)}
+                WHERE id = :cid AND store_id = :sid
+                RETURNING *
                 """
             ),
-            {"cid": coupon_id, "sid": store_id, "oid": owner_id},
+            params,
         )
     ).mappings().first()
     if not row:
