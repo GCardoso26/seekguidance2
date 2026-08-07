@@ -18,24 +18,34 @@ GAMES = (
 
 
 async def verify_ingestion_lite(session: AsyncSession) -> dict[str, Any]:
-    """Health rápido para BFF/produção — uma query agregada."""
+    """Health rápido para BFF/produção — uma query agregada com contagem por jogo.
+
+    `by_game` precisa incluir todos os jogos da wave (ex.: GUNDAM); só MTG fazia
+    `mapHealthToGames` marcar o restante como indisponível na UI de mercado.
+    """
+    filter_cols = ",\n                  ".join(
+        f"count(*) FILTER (WHERE game_code = '{game}') AS c_{game.lower()}" for game in GAMES
+    )
     row = (
         await session.execute(
             text(
-                """
+                f"""
                 SELECT
                   count(*) AS total_cards,
-                  count(*) FILTER (WHERE game_code = 'MTG') AS mtg_cards
+                  {filter_cols}
                 FROM tcg_judge.card_catalog
                 """
             )
         )
     ).mappings().first()
     total = int(row["total_cards"]) if row else 0
+    by_game = {
+        game: int(row[f"c_{game.lower()}"]) if row else 0 for game in GAMES
+    }
     ready = total > 50
     return {
         "total_cards": total,
-        "by_game": {"MTG": int(row["mtg_cards"]) if row else 0},
+        "by_game": by_game,
         "missing_images": [],
         "missing_prices": [],
         "last_sync": {},
