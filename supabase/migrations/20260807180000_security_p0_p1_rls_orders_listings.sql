@@ -1,6 +1,8 @@
 -- P1 security: tighten shop_orders RLS — owner SELECT + limited UPDATE; protect financial columns.
 -- Buyer read unchanged. Mutating totals/buyer/fees via PostgREST client is blocked by trigger.
 
+SET search_path TO tcg_judge, public;
+
 DROP POLICY IF EXISTS "Orders store owner" ON shop_orders;
 
 CREATE POLICY "Orders store owner select" ON shop_orders
@@ -21,8 +23,8 @@ RETURNS trigger
 LANGUAGE plpgsql
 AS $$
 BEGIN
-  -- service_role / backend bypasses via role check
-  IF current_setting('role', true) = 'service_role' THEN
+  -- Backend (sem JWT) e service_role passam; só bloqueia cliente autenticado via PostgREST.
+  IF tcg_judge.is_service_role() OR auth.uid() IS NULL THEN
     RETURN NEW;
   END IF;
   IF TG_OP = 'UPDATE' THEN
