@@ -1,6 +1,12 @@
 """Testes do filtro de busca facetada do catálogo."""
 
-from app.catalog.search_service import _build_where
+from app.catalog.search_service import _build_where, _order_by
+
+
+def test_order_by_newest_prioritizes_set_release_date():
+    sql = _order_by("newest")
+    assert "cs.release_date DESC" in sql
+    assert "last_synced_at" not in sql
 
 
 def test_build_where_set_code_is_case_insensitive():

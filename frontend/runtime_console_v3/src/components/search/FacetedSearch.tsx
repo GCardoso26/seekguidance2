@@ -120,7 +120,13 @@ export function FacetedSearch({
     () => classifyPurchaseIntent(debouncedQ),
     [debouncedQ],
   );
-  const cards = useMemo(() => rankCardsBuyFirst(rawCards), [rawCards]);
+  const cards = useMemo(() => {
+    // Buy-first só na relevância — outros sorts (newest, preço, nome) vêm da API.
+    if (filters.sortBy && filters.sortBy !== "relevance") {
+      return rawCards;
+    }
+    return rankCardsBuyFirst(rawCards);
+  }, [rawCards, filters.sortBy]);
   const total = data?.pages[0]?.total ?? 0;
   const isDegraded = Boolean(data?.pages[0]?.degraded);
   const buyableCount = useMemo(

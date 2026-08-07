@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import dynamic from "next/dynamic";
 import * as Dialog from "@radix-ui/react-dialog";
 import Image from "next/image";
@@ -18,8 +18,19 @@ import { CardDetailHero } from "@/components/cards/CardDetailHero";
 import { CardVariantSelector } from "@/components/cards/CardVariantSelector";
 import { SellerOffersTable } from "@/components/cards/SellerOffersTable";
 import { MobileLayout } from "@/components/layout/MobileLayout";
+import { useGamePortalOptional } from "@/components/experience/GameProvider";
 import { CardVersionsTab } from "@/components/cards/CardVersionsTab";
 import { CardInfoTab } from "@/components/cards/CardInfoTab";
+
+/**
+ * `/{game}/cards/...` já vem com PortalLayout → MobileLayout.
+ * `/cards/[id]` (legado) não — aí o chrome precisa do MobileLayout.
+ */
+function CardPageChrome({ children }: { children: ReactNode }) {
+  const inPortal = Boolean(useGamePortalOptional());
+  if (inPortal) return <>{children}</>;
+  return <MobileLayout>{children}</MobileLayout>;
+}
 
 const PriceChart = dynamic(
   () => import("@/components/cards/PriceChart").then((m) => m.PriceChart),
@@ -188,7 +199,7 @@ export function CardDetailPage({ cardId }: CardDetailPageProps) {
     [...(card.types ?? []), ...(card.subtypes?.length ? ["—", ...card.subtypes] : [])].filter(Boolean).join(" ");
 
   return (
-    <MobileLayout>
+    <CardPageChrome>
       <main className="min-h-screen bg-background pb-28 lg:pb-12">
         <div className="page-container pt-4">
           <Breadcrumbs
@@ -508,13 +519,13 @@ export function CardDetailPage({ cardId }: CardDetailPageProps) {
           </Dialog.Portal>
         </Dialog.Root>
       </main>
-    </MobileLayout>
+    </CardPageChrome>
   );
 }
 
 function CardDetailSkeleton() {
   return (
-    <MobileLayout>
+    <CardPageChrome>
       <main className="page-container py-8" aria-busy="true" aria-label="Carregando carta">
         <Skeleton className="mb-6 h-4 w-64" />
         <div className="grid gap-8 lg:grid-cols-12">
@@ -529,13 +540,13 @@ function CardDetailSkeleton() {
           </div>
         </div>
       </main>
-    </MobileLayout>
+    </CardPageChrome>
   );
 }
 
 function CardDetailError({ notFound }: { notFound?: boolean }) {
   return (
-    <MobileLayout>
+    <CardPageChrome>
       <main className="page-container py-16 text-center">
         <AlertCircle className="mx-auto mb-4 h-12 w-12 text-danger" aria-hidden />
         <h1 className="text-h2">{notFound ? "Carta não encontrada" : "Erro ao carregar carta"}</h1>
@@ -546,6 +557,6 @@ function CardDetailError({ notFound }: { notFound?: boolean }) {
           <Link href="/loja/busca">Voltar à busca</Link>
         </Button>
       </main>
-    </MobileLayout>
+    </CardPageChrome>
   );
 }

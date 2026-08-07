@@ -3,7 +3,7 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { Filter, X } from "lucide-react";
 import { useMemo } from "react";
-import { ALL_GAME_IDS, GAME_TOKENS } from "@/lib/tcg-tokens";
+import { GAME_TOKENS, PRODUCT_GAME_IDS } from "@/lib/tcg-tokens";
 import { getGameConfig } from "@/lib/game-config";
 import type { CatalogSetOption, SearchFilters } from "@/types/search";
 
@@ -69,7 +69,7 @@ function FilterContent({
       <div>
         <h3 className="mb-2 text-sm font-semibold">Jogo</h3>
         <div className="space-y-1">
-          {ALL_GAME_IDS.map((id) => {
+          {PRODUCT_GAME_IDS.map((id) => {
             const token = GAME_TOKENS[id];
             const locked = lockGame && filters.game === id;
             return (

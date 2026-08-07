@@ -217,7 +217,13 @@ def _order_by(sort: str) -> str:
     if sort == "name_desc":
         return "cc.name DESC"
     if sort == "newest":
-        return "cc.last_synced_at DESC NULLS LAST, cc.name ASC"
+        # Último set lançado primeiro (não last_synced_at — sync ≠ lançamento).
+        return (
+            "cs.release_date DESC NULLS LAST, "
+            "cc.set_code ASC NULLS LAST, "
+            "cc.card_number ASC NULLS LAST, "
+            "cc.name ASC"
+        )
     return "cc.name ASC"
 
 
@@ -313,6 +319,9 @@ async def search_catalog_cards(
 
     base_from = f"""
         FROM tcg_judge.card_catalog cc
+        LEFT JOIN tcg_judge.card_sets cs
+          ON cs.game_code = cc.game_code
+         AND LOWER(cs.code) = LOWER(cc.set_code)
         LEFT JOIN LATERAL (
           SELECT cp.price_cents, cp.currency, cp.condition, cp.foil, cp.source, cp.recorded_at
           FROM tcg_judge.card_prices cp

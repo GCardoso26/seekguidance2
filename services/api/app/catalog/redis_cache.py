@@ -19,7 +19,8 @@ SEARCH_CACHE_TTL = 120
 def _search_cache_key(**params: Any) -> str:
     raw = json.dumps(params, sort_keys=True, default=str)
     digest = hashlib.sha256(raw.encode()).hexdigest()[:24]
-    return f"tcg:search:{digest}"
+    # v2: sort=newest usa release_date do set (não last_synced_at).
+    return f"tcg:search:v2:{digest}"
 
 
 def get_search_cache(**params: Any) -> dict[str, Any] | None:

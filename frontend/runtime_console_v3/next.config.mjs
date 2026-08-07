@@ -189,10 +189,10 @@ const nextConfig = {
   },
   async headers() {
     return [
-      {
-        source: "/_next/static/:path*",
-        headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
-      },
+      // Não aplicar Cache-Control immutable em /_next/static via headers custom —
+      // 404 soft (not-found.txt) herdava immutable + text/plain e quebrava chunks
+      // com MIME type checking (ex.: /decks/novo). O preset Next/Vercel já cacheia
+      // assets hashed com sucesso corretamente.
       {
         source: "/images/:path*",
         headers: [{ key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" }],
