@@ -17,6 +17,7 @@ from app.catalog.validate import validate_card_payload
 from app.tcg_adapters.sync_dbfw import sync_dbfw
 from app.tcg_adapters.sync_digimon import sync_digimon
 from app.tcg_adapters.sync_fab import sync_fab
+from app.tcg_adapters.sync_gundam import sync_gundam
 from app.tcg_adapters.sync_lorcana import sync_lorcana
 from app.tcg_adapters.sync_mtg import sync_scryfall
 from app.tcg_adapters.sync_onepiece import sync_onepiece
@@ -53,6 +54,7 @@ SYNC_SOURCES: dict[str, tuple[str, SyncFn]] = {
     "RIFTBOUND": ("riftscribe", sync_riftbound),
     "SORCERY": ("sorcerytcg", sync_sorcery),
     "DBFW": ("apitcg-github", sync_dbfw),
+    "GUNDAM": ("apitcg-github", sync_gundam),
     # ADR-016 hard-exit: SWU, UARENA, VANGUARD removed from the public sync list.
 }
 
@@ -186,7 +188,7 @@ async def run_game_sync(
             result = await sync_onepiece(session, limit=None)
         elif code == "DIGIMON":
             result = await sync_fn(session, limit=None if full else 100)
-        elif code in ("RIFTBOUND", "SORCERY", "DBFW"):
+        elif code in ("RIFTBOUND", "SORCERY", "DBFW", "GUNDAM"):
             result = await sync_fn(session, limit=None if full else 150)
         else:
             result = await sync_fn(session)

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   cardImageUrl,
   isExternalCardImageUrl,
+  normalizeTcgdexImageUrl,
   shouldBypassImageOptimizer,
 } from "@/lib/format-currency";
 
@@ -38,5 +39,27 @@ describe("card image helpers", () => {
         },
       }),
     ).toBe("https://d27a44hjr9gen3.cloudfront.net/art/13_treasures_of_britain_b_s.png");
+  });
+
+  it("normaliza base TCGdex para /high.webp", () => {
+    expect(normalizeTcgdexImageUrl("https://assets.tcgdex.net/en/xy/xy8/40")).toBe(
+      "https://assets.tcgdex.net/en/xy/xy8/40/high.webp",
+    );
+    expect(normalizeTcgdexImageUrl("https://assets.tcgdex.net/en/tcgp/A3/112/")).toBe(
+      "https://assets.tcgdex.net/en/tcgp/A3/112/high.webp",
+    );
+    const already = "https://assets.tcgdex.net/en/xy/xy8/40/high.webp";
+    expect(normalizeTcgdexImageUrl(already)).toBe(already);
+    expect(normalizeTcgdexImageUrl("https://images.pokemontcg.io/xy8/40")).toBe(
+      "https://images.pokemontcg.io/xy8/40",
+    );
+  });
+
+  it("aplica normalização TCGdex em cardImageUrl", () => {
+    expect(
+      cardImageUrl({
+        image_url: "https://assets.tcgdex.net/en/xy/xy8/40",
+      }),
+    ).toBe("https://assets.tcgdex.net/en/xy/xy8/40/high.webp");
   });
 });

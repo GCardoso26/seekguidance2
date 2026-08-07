@@ -6,6 +6,7 @@
  */
 import { ResponsiveImage } from "@/components/assets/ResponsiveImage";
 import type { MediaType } from "@/lib/assets";
+import { normalizeCatalogImageUrl } from "@/lib/format-currency";
 import type { ImageProps } from "next/image";
 
 type CardImageProps = Omit<
@@ -27,9 +28,10 @@ export function CardImage({
   mediaType = "CARD",
   ...props
 }: CardImageProps) {
+  const normalized = src ? normalizeCatalogImageUrl(src) : src;
   return (
     <ResponsiveImage
-      src={src}
+      src={normalized}
       alt={alt}
       mediaType={mediaType}
       fallbackLabel={fallbackLabel}

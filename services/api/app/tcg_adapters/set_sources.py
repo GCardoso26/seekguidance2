@@ -32,6 +32,7 @@ SET_COVERAGE_GAMES = (
     "SORCERY",
     "UARENA",
     "DBFW",
+    "GUNDAM",
     "VANGUARD",
 )
 
@@ -319,6 +320,10 @@ async def fetch_dbfw_sets(client: httpx.AsyncClient) -> list[dict[str, Any]]:
     return await _apitcg_set_codes(client, "dragon-ball-fusion-tcg-data")
 
 
+async def fetch_gundam_sets(client: httpx.AsyncClient) -> list[dict[str, Any]]:
+    return await _apitcg_set_codes(client, "gundam-tcg-data")
+
+
 async def fetch_vanguard_sets(client: httpx.AsyncClient) -> list[dict[str, Any]]:
     from app.infrastructure.external.providers.catalog_resolver import get_catalog_provider_for_game
 
@@ -368,6 +373,7 @@ SOURCE_SET_FETCHERS = {
     "SORCERY": fetch_sorcery_sets,
     "UARENA": fetch_union_arena_sets,
     "DBFW": fetch_dbfw_sets,
+    "GUNDAM": fetch_gundam_sets,
     "VANGUARD": fetch_vanguard_sets,
 }
 

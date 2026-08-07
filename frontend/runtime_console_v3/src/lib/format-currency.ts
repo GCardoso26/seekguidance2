@@ -14,6 +14,8 @@ export function formatCurrency(value: number, currency = "USD"): string {
 const CARD_IMAGE_PLACEHOLDER = "/logos/default-tcg.svg";
 const SORCERY_CDN = "https://d27a44hjr9gen3.cloudfront.net";
 const SORCERY_SLUG_RE = /^([a-z]+)-(.+)-([a-z]+)-([sf])$/;
+const TCGDEX_ASSETS_HOST = "assets.tcgdex.net";
+const IMAGE_EXT_RE = /\.(webp|png|jpe?g)(\?|$)/i;
 
 function sorcerySlugToCdnUrl(slug: string): string | null {
   const match = SORCERY_SLUG_RE.exec(slug.trim());
@@ -27,6 +29,24 @@ function normalizeSorceryImageUrl(url: string): string {
   const filename = url.split("/").pop() ?? "";
   const slug = filename.replace(/\.(jpg|jpeg|png|webp)$/i, "");
   return sorcerySlugToCdnUrl(slug) ?? url;
+}
+
+/**
+ * Espelha `normalize_tcgdex_image_url` (API): base TCGdex sozinha devolve 404;
+ * a imagem pública é `<base>/<quality>.<ext>`.
+ */
+export function normalizeTcgdexImageUrl(url: string | null | undefined): string | null | undefined {
+  if (url == null || typeof url !== "string") return url;
+  const trimmed = url.trim();
+  if (!trimmed.includes(TCGDEX_ASSETS_HOST)) return url;
+  const normalized = trimmed.replace(/\/+$/, "");
+  if (!normalized.startsWith("http") || IMAGE_EXT_RE.test(normalized)) return url;
+  return `${normalized}/high.webp`;
+}
+
+/** Reescritas de CDN legadas / incompletas antes de renderizar. */
+export function normalizeCatalogImageUrl(url: string): string {
+  return normalizeSorceryImageUrl(normalizeTcgdexImageUrl(url) ?? url);
 }
 
 type CardImageSource = {
@@ -92,7 +112,7 @@ export function cardImageUrl(card: CardImageSource): string {
     [card.image_url, card.imageUrl],
   );
   const raw = resolved?.src ?? CARD_IMAGE_PLACEHOLDER;
-  return normalizeSorceryImageUrl(raw);
+  return normalizeCatalogImageUrl(raw);
 }
 
 /** Lista / grid — medium preferido; evita full desnecessário. */
@@ -110,7 +130,7 @@ export function cardImageUrlForList(card: CardImageSource): string {
     [card.image_url, card.imageUrl, uris?.small, uris?.thumb],
   );
   const raw = resolved?.src ?? CARD_IMAGE_PLACEHOLDER;
-  return normalizeSorceryImageUrl(raw);
+  return normalizeCatalogImageUrl(raw);
 }
 
 export function isSvgImageUrl(url: string): boolean {

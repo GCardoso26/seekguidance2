@@ -319,6 +319,77 @@ export const GAME_CONFIGS: GameConfiguration[] = [
       emptyInventoryHint: "Publique staples Standard da watchlist Pokémon",
     },
   },
+  {
+    gameCode: "GUNDAM",
+    slugs: ["gundam", "gundam-card-game", "gundamcardgame"],
+    displayName: "Gundam Card Game",
+    market: {
+      releaseTier: "unlisted",
+      primaryMarket: "BR",
+      liquidityHypothesis: "Sealed/packshot ADR-016; liquidez singles ainda sem evidência North Star",
+      watchlistTargetSize: 15,
+      catalogProviderId: "gundam-apitcg",
+    },
+    capabilities: {
+      foil: true,
+      etched: false,
+      serialized: false,
+      reverseHolo: false,
+      collectorNumber: true,
+      multiLanguageListings: true,
+      competitiveFormats: true,
+      commanderStyle: false,
+      enchantedStyleRarities: false,
+      sealedProduct: true,
+    },
+    rarities: [
+      { value: "C", label: "Common", color: "#9CA3AF" },
+      { value: "U", label: "Uncommon", color: "#22C55E" },
+      { value: "R", label: "Rare", color: "#3B82F6" },
+      { value: "RR", label: "Double Rare", color: "#6366F1" },
+      { value: "LR", label: "Legendary Rare", color: "#F59E0B" },
+      { value: "P", label: "Promo", color: "#64748B" },
+    ],
+    languages: [
+      { value: "en", label: "Inglês" },
+      { value: "jp", label: "Japonês" },
+    ],
+    conditions: DEFAULT_CONDITIONS,
+    finishes: [
+      { value: "nonfoil", label: "Non-foil" },
+      { value: "foil", label: "Foil" },
+    ],
+    formats: [{ value: "standard", label: "Standard" }],
+    watchlistCardNames: ["Gundam", "Char", "Amuro Ray", "Unicorn Gundam"],
+    searchSynonyms: {
+      rx78: ["gundam"],
+      unicorn: ["unicorn gundam"],
+      char: ["char", "char aznable"],
+      amuro: ["amuro ray"],
+      newtype: ["newtype rising"],
+      gd01: ["newtype rising"],
+    },
+    filterFacets: [
+      {
+        id: "color",
+        label: "Cor",
+        options: [
+          { value: "blue", label: "Blue" },
+          { value: "green", label: "Green" },
+          { value: "red", label: "Red" },
+          { value: "white", label: "White" },
+          { value: "purple", label: "Purple" },
+        ],
+      },
+    ],
+    types: ["UNIT", "PILOT", "COMMAND", "BASE", "RESOURCE"],
+    sellerWizardCopy: {
+      searchPlaceholder: "Buscar carta Gundam (ex.: Unicorn Gundam)",
+      conditionHint: "Condição da single Gundam Card Game",
+      finishHint: "Non-foil ou Foil",
+      emptyInventoryHint: "Publique singles GD01 / starters ST01–ST06",
+    },
+  },
 ];
 
 export function getGameConfig(gameOrSlug: string | undefined | null): GameConfiguration | undefined {

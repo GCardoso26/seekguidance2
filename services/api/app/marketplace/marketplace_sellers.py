@@ -8,6 +8,7 @@ from fastapi import HTTPException
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.catalog.image_utils import normalize_tcgdex_image_url
 from app.marketplace import shop_reviews as shop_reviews_svc
 from app.players.store import get_profile_by_handle
 
@@ -286,7 +287,7 @@ def _serialize_product(row: dict[str, Any]) -> dict[str, Any]:
             "code": str(row.get("set_code") or ""),
             "name_en": str(row.get("set_name") or ""),
         },
-        "image_url": row.get("image_url"),
+        "image_url": normalize_tcgdex_image_url(row.get("image_url")),
     }
 
 

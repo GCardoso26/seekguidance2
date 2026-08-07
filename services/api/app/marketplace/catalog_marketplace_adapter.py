@@ -13,6 +13,7 @@ from uuid import UUID
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.catalog.image_utils import normalize_tcgdex_image_url
 from app.marketplace.marketplace_hygiene import STORE_NOT_TEST_SQL
 from app.marketplace.shop_store import STORE_SELLABLE_SQL
 
@@ -91,7 +92,7 @@ class CatalogMarketplaceAdapter:
             name=str(row["name"]),
             game_code=row.get("game_code"),
             set_name=row.get("set_name"),
-            image_url=row.get("image_url"),
+            image_url=normalize_tcgdex_image_url(row.get("image_url")),
             language=row.get("language"),
             taxonomy=taxonomy,
         )
@@ -146,7 +147,7 @@ class CatalogMarketplaceAdapter:
                 card_name=str(r["card_name"]),
                 game_code=r.get("game_code"),
                 set_name=r.get("set_name"),
-                image_url=r.get("image_url"),
+                image_url=normalize_tcgdex_image_url(r.get("image_url")),
                 price_cents=int(r["price_cents"]),
                 condition=str(r["condition"]),
                 store_id=str(r["store_id"]),
@@ -167,7 +168,7 @@ class CatalogMarketplaceAdapter:
             "card_name": projection.card_name,
             "game_code": projection.game_code,
             "set_name": projection.set_name,
-            "image_url": projection.image_url,
+            "image_url": normalize_tcgdex_image_url(projection.image_url),
             "price_cents": projection.price_cents,
             "condition": projection.condition,
             "store_product_id": projection.store_product_id,
