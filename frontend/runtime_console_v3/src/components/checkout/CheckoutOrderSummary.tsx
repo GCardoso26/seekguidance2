@@ -106,7 +106,7 @@ export function CheckoutOrderSummary({
   const shippingDisplay =
     quotedShippingCents != null
       ? formatShopPrice(quotedShippingCents)
-      : "Calcule o CEP ao lado";
+      : "Frete não calculado — informe o CEP ao lado";
 
   return (
     <aside

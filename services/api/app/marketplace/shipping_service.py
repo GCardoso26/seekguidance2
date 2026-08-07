@@ -25,7 +25,7 @@ async def get_shipping_read_model(
     cart = await shop_cart.get_cart(session, user_id)
     raw = cart.get("items") or []
     items = list(raw) if isinstance(raw, list) else []
-    quotes = await quote_freight(
+    freight = await quote_freight(
         session,
         user_id=user_id,
         destination_postal_code=destination_postal_code,
@@ -33,10 +33,16 @@ async def get_shipping_read_model(
     )
     smart = await analyze_cart(session, user_id, goal="best_value")
     summary = smart.get("summary") or {}
+    # FE espera `quotes` como lista plana; `quote_freight` aninha em {quotes, recommended, meta}.
+    quote_rows = freight.get("quotes") if isinstance(freight, dict) else None
+    if not isinstance(quote_rows, list):
+        quote_rows = []
     return {
         "shipping_v2": shipping_v2_enabled(),
         "destination_postal_code": destination_postal_code,
-        "quotes": quotes,
+        "quotes": quote_rows,
+        "recommended": freight.get("recommended") if isinstance(freight, dict) else None,
+        "meta": freight.get("meta") if isinstance(freight, dict) else None,
         "cart_summary": summary,
         "by_store": smart.get("by_store") or [],
     }

@@ -18,10 +18,17 @@ export type ShippingQuoteRow = {
 };
 
 type QuoteResponse = {
-  quotes?: ShippingQuoteRow[];
+  quotes?: ShippingQuoteRow[] | { quotes?: ShippingQuoteRow[] };
   destination_postal_code?: string;
   detail?: string;
 };
+
+function normalizeQuoteRows(data: QuoteResponse): ShippingQuoteRow[] {
+  const raw = data.quotes;
+  if (Array.isArray(raw)) return raw;
+  if (raw && typeof raw === "object" && Array.isArray(raw.quotes)) return raw.quotes;
+  return [];
+}
 
 export type SelectedShippingQuote = {
   price_cents: number | null;
@@ -109,7 +116,7 @@ export function CartShippingQuotePanel({
           setError(typeof data.detail === "string" ? data.detail : "Não foi possível cotar o frete agora.");
           return;
         }
-        const list = Array.isArray(data.quotes) ? data.quotes : [];
+        const list = normalizeQuoteRows(data);
         setQuotes(list);
         setSelectedIdx(0);
         emitSelection(list, 0, digits);

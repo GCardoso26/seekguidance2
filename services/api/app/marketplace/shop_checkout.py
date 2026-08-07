@@ -354,6 +354,12 @@ async def _build_stripe_checkout(
     pi_kwargs: dict[str, Any] = {
         "amount": total_cents,
         "currency": "brl",
+        # Payment Element exige automatic_payment_methods (ou payment_method_types explícito).
+        "automatic_payment_methods": {"enabled": True},
+        "payment_method_options": {
+            # Habilita planos de parcelamento quando a conta/bandeira oferecer (ex.: MX; BR se disponível).
+            "card": {"installments": {"enabled": True}},
+        },
         "metadata": {
             "cart_id": str(cart["id"]),
             "buyer_id": user_id,
@@ -381,27 +387,41 @@ async def _build_stripe_checkout(
 
     try:
         intent = stripe.PaymentIntent.create(**pi_kwargs)
-    except stripe.StripeError as exc:
-        logger.error("stripe_pi_create_error", error=str(exc), order_ids=pending_orders)
-        # Pedidos já commitados sem PI — cancelar para não orphanar pending.
-        if pending_orders:
-            await session.execute(
-                text(
-                    """
-                    UPDATE tcg_judge.shop_orders
-                    SET status = 'cancelled', updated_at = NOW()
-                    WHERE id = ANY(CAST(:ids AS uuid[]))
-                      AND status = 'pending'
-                      AND stripe_payment_intent_id IS NULL
-                    """
-                ),
-                {"ids": pending_orders},
+    except stripe.StripeError as first_exc:
+        # Contas sem installments (comum em BR) — um retry sem a opção.
+        if "payment_method_options" in pi_kwargs:
+            logger.warning(
+                "stripe_pi_installments_rejected_retry",
+                error=str(first_exc),
+                order_ids=pending_orders,
             )
-            await session.commit()
-        raise HTTPException(
-            400,
-            f"Falha no pagamento Stripe: {exc.user_message or str(exc)}"[:280],
-        ) from exc
+            pi_kwargs.pop("payment_method_options", None)
+            try:
+                intent = stripe.PaymentIntent.create(**pi_kwargs)
+            except stripe.StripeError as exc:
+                first_exc = exc
+            else:
+                first_exc = None  # type: ignore[assignment]
+        if first_exc is not None:
+            logger.error("stripe_pi_create_error", error=str(first_exc), order_ids=pending_orders)
+            if pending_orders:
+                await session.execute(
+                    text(
+                        """
+                        UPDATE tcg_judge.shop_orders
+                        SET status = 'cancelled', updated_at = NOW()
+                        WHERE id = ANY(CAST(:ids AS uuid[]))
+                          AND status = 'pending'
+                          AND stripe_payment_intent_id IS NULL
+                        """
+                    ),
+                    {"ids": pending_orders},
+                )
+                await session.commit()
+            raise HTTPException(
+                400,
+                f"Falha no pagamento Stripe: {first_exc.user_message or str(first_exc)}"[:280],
+            ) from first_exc
 
     for order_id in pending_orders:
         await session.execute(

@@ -28,7 +28,7 @@ export function PixStatusRealtime({ txid }: Props) {
         clearInterval(id);
         invalidateAfterPurchase(qc);
         awardXpFireAndForget("marketplace_purchase", qc);
-        setTimeout(() => router.push("/marketplace/checkout/success?payment_method=pix"), 2000);
+        setTimeout(() => router.push("/checkout/success?payment_method=pix"), 2000);
       } else if (data.status === "expired") {
         setStatus("expired");
         clearInterval(id);

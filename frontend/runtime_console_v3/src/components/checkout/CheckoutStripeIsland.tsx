@@ -28,7 +28,7 @@ function StripeCheckoutForm() {
     setError(null);
     const result = await stripe.confirmPayment({
       elements,
-      confirmParams: { return_url: `${window.location.origin}/marketplace/checkout/success` },
+      confirmParams: { return_url: `${window.location.origin}/checkout/success` },
     });
     if (result.error) {
       setError(result.error.message ?? "Pagamento falhou");
@@ -38,7 +38,13 @@ function StripeCheckoutForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <PaymentElement />
+      <PaymentElement
+        options={{
+          layout: "tabs",
+          // Parcelas aparecem no Element quando o PaymentIntent tem installments.enabled
+          // e a conta/bandeira oferece planos (Stripe nativo: principalmente MX; BR se habilitado).
+        }}
+      />
       {error && <p className="text-small text-danger">{error}</p>}
       <Button type="submit" size="lg" className="w-full" disabled={!stripe || loading} loading={loading}>
         Pagar com cartão
