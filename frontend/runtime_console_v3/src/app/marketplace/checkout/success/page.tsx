@@ -3,11 +3,13 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { trackEvent } from "@/lib/analytics";
-import { awardXp } from "@/lib/xp";
+import { awardXpFireAndForget } from "@/lib/award-xp-client";
 
 function CheckoutSuccessInner() {
   const searchParams = useSearchParams();
+  const qc = useQueryClient();
   const orderId = searchParams.get("order_id");
   const paymentIntent = searchParams.get("payment_intent");
   const redirectStatus = searchParams.get("redirect_status");
@@ -23,8 +25,8 @@ function CheckoutSuccessInner() {
       payment_intent: paymentIntent || undefined,
       redirect_status: redirectStatus || undefined,
     });
-    void awardXp(25, "purchase");
-  }, [orderId, paymentIntent, paymentSucceeded, redirectStatus]);
+    awardXpFireAndForget("marketplace_purchase", qc);
+  }, [orderId, paymentIntent, paymentSucceeded, qc, redirectStatus]);
 
   return (
     <div className="mx-auto max-w-lg px-4 py-16 text-center">
@@ -56,7 +58,7 @@ function CheckoutSuccessInner() {
           Ver meus pedidos
         </Link>
         <Link
-          href="/loja/cartas"
+          href="/loja/singles"
           className="rounded-xl border border-[var(--line)] px-6 py-3 text-sm font-medium text-[var(--ink)]"
         >
           Continuar comprando
