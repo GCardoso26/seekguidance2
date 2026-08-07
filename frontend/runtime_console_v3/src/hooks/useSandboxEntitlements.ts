@@ -44,33 +44,13 @@ export function useSandboxEntitlements() {
       if (user.email) headers["X-Judge-User-Email"] = user.email;
       const res = await fetch("/api/sandbox/status", { headers, cache: "no-store" });
       if (!res.ok) {
-        setStatus({
-          ...DEFAULT,
-          mode: "sandbox",
-          elevated: Boolean(user.email),
-          demos: {
-            store: true,
-            events: true,
-            financial: true,
-            tournament: true,
-            analytics: true,
-          },
-        });
+        // Fail-closed: erro de API não eleva sandbox.
+        setStatus({ ...DEFAULT, mode: "sandbox" });
         return;
       }
       setStatus((await res.json()) as SandboxStatus);
     } catch {
-      setStatus({
-        ...DEFAULT,
-        elevated: canElevateSandbox(),
-        demos: {
-          store: true,
-          events: true,
-          financial: true,
-          tournament: true,
-          analytics: true,
-        },
-      });
+      setStatus(DEFAULT);
     }
   }, [user, session?.access_token]);
 

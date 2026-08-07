@@ -450,7 +450,10 @@ async def update_listing(
     row = (
         await session.execute(
             text(
-                "SELECT seller_id, store_product_id, quantity FROM tcg_judge.card_listings WHERE id = :id"
+                """
+                SELECT seller_id, store_id, store_product_id, quantity
+                FROM tcg_judge.card_listings WHERE id = :id
+                """
             ),
             {"id": uid},
         )
@@ -497,6 +500,7 @@ async def update_listing(
         raise
 
     product_id = row.get("store_product_id")
+    store_id = row.get("store_id")
     if product_id:
         prod_updates: dict[str, Any] = {"pid": product_id}
         prod_sets: list[str] = []
@@ -511,9 +515,16 @@ async def update_listing(
         elif "status" in updates and updates["status"] == "active":
             prod_sets.append("is_active = true")
         if prod_sets:
+            store_clause = "AND store_id = :sid" if store_id else ""
+            if store_id:
+                prod_updates["sid"] = store_id
             await session.execute(
                 text(
-                    f"UPDATE tcg_judge.store_products SET {', '.join(prod_sets)}, updated_at = NOW() WHERE id = :pid"
+                    f"""
+                    UPDATE tcg_judge.store_products
+                    SET {', '.join(prod_sets)}, updated_at = NOW()
+                    WHERE id = :pid {store_clause}
+                    """
                 ),
                 prod_updates,
             )

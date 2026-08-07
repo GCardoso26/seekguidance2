@@ -66,9 +66,6 @@ async def _normalize_pdv_items(
     normalized: list[dict[str, Any]] = []
     for item in items:
         qty = max(1, int(item.get("quantity") or 1))
-        price = max(0, int(item.get("price_cents") or 0))
-        line_total = price * qty
-        total += line_total
 
         source = str(item.get("source") or "").strip().lower()
         local_product_id = item.get("local_product_id")
@@ -87,7 +84,7 @@ async def _normalize_pdv_items(
                 await session.execute(
                     text(
                         """
-                        SELECT id, stock, name, category, cost_cents, active
+                        SELECT id, stock, name, category, cost_cents, price_cents, active
                         FROM pdv.local_products
                         WHERE id = :id AND store_id = :sid
                         """
@@ -100,6 +97,10 @@ async def _normalize_pdv_items(
             stock = prod.get("stock")
             if stock is not None and int(stock) < qty:
                 raise HTTPException(400, f"Estoque insuficiente: {prod['name']}")
+            # Preço canônico do DB — não confiar em price_cents do cliente.
+            price = max(0, int(prod.get("price_cents") or 0))
+            line_total = price * qty
+            total += line_total
             cost = prod.get("cost_cents")
             normalized.append(
                 {
@@ -121,7 +122,7 @@ async def _normalize_pdv_items(
                 await session.execute(
                     text(
                         """
-                        SELECT id, stock, name FROM tcg_judge.store_products
+                        SELECT id, stock, name, price_cents FROM tcg_judge.store_products
                         WHERE id = :id AND store_id = :sid
                         """
                     ),
@@ -132,17 +133,23 @@ async def _normalize_pdv_items(
                 raise HTTPException(400, f"Produto não encontrado: {product_id}")
             if int(prod["stock"]) < qty:
                 raise HTTPException(400, f"Estoque insuficiente: {prod['name']}")
-        normalized.append(
-            {
-                "source": "official",
-                "product_id": product_id,
-                "local_product_id": None,
-                "name": item.get("name") or "Item",
-                "quantity": qty,
-                "price_cents": price,
-                "line_total_cents": line_total,
-            }
-        )
+            price = max(0, int(prod.get("price_cents") or 0))
+            line_total = price * qty
+            total += line_total
+            normalized.append(
+                {
+                    "source": "official",
+                    "product_id": product_id,
+                    "local_product_id": None,
+                    "name": item.get("name") or prod["name"] or "Item",
+                    "quantity": qty,
+                    "price_cents": price,
+                    "line_total_cents": line_total,
+                }
+            )
+            continue
+
+        raise HTTPException(400, "Item sem product_id / local_product_id")
     return normalized, total
 
 

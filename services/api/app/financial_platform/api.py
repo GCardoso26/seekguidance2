@@ -17,6 +17,11 @@ from app.financial_platform.domain.enums import (
     RefundStatus,
     TxnType,
 )
+from app.financial_platform.security import (
+    assert_subject_self_or_admin,
+    require_platform_admin,
+    require_store_finance,
+)
 from app.financial_platform.services import (
     CashbackService,
     ChargebackService,
@@ -122,6 +127,7 @@ async def post_journal(
     x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
 ) -> dict[str, Any]:
     user_id = _require_user(x_judge_user_id)
+    await require_platform_admin(session, user_id)
     journal = await LedgerService(session).post_journal(
         idempotency_key=body.idempotency_key,
         txn_type=body.txn_type,
@@ -144,7 +150,8 @@ async def ensure_account(
 ) -> dict[str, Any]:
     from app.financial_platform.domain.enums import AccountType, OwnerType
 
-    _require_user(x_judge_user_id)
+    user_id = _require_user(x_judge_user_id)
+    await require_platform_admin(session, user_id)
     aid = await LedgerService(session).ensure_account(
         code=body.code,
         name=body.name,
@@ -163,6 +170,7 @@ async def record_txn(
     x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
 ) -> dict[str, Any]:
     user_id = _require_user(x_judge_user_id)
+    await require_platform_admin(session, user_id)
     return await TransactionService(session).record(
         txn_type=body.txn_type,
         amount_cents=body.amount_cents,
@@ -180,7 +188,8 @@ async def create_split(
     session: DbSession,
     x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
 ) -> dict[str, Any]:
-    _require_user(x_judge_user_id)
+    user_id = _require_user(x_judge_user_id)
+    await require_platform_admin(session, user_id)
     return await SplitService(session).create_rule(
         name=body.name,
         scope_type=body.scope_type,
@@ -195,7 +204,8 @@ async def request_payout(
     session: DbSession,
     x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
 ) -> dict[str, Any]:
-    _require_user(x_judge_user_id)
+    user_id = _require_user(x_judge_user_id)
+    await require_store_finance(session, user_id, body.store_id, "store.finance.approve")
     return await PayoutService(session).request(
         store_id=body.store_id,
         amount_cents=body.amount_cents,
@@ -210,7 +220,8 @@ async def advance_payout(
     status: PayoutStatus = Query(...),
     x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
 ) -> dict[str, Any]:
-    _require_user(x_judge_user_id)
+    user_id = _require_user(x_judge_user_id)
+    await require_platform_admin(session, user_id)
     return await PayoutService(session).advance(payout_id, status)
 
 
@@ -221,6 +232,7 @@ async def request_refund(
     x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
 ) -> dict[str, Any]:
     user_id = _require_user(x_judge_user_id)
+    await require_platform_admin(session, user_id)
     return await RefundService(session).request(
         amount_cents=body.amount_cents,
         idempotency_key=body.idempotency_key,
@@ -236,7 +248,8 @@ async def advance_refund(
     status: RefundStatus = Query(...),
     x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
 ) -> dict[str, Any]:
-    _require_user(x_judge_user_id)
+    user_id = _require_user(x_judge_user_id)
+    await require_platform_admin(session, user_id)
     return await RefundService(session).advance(refund_id, status)
 
 
@@ -246,7 +259,11 @@ async def issue_gift(
     session: DbSession,
     x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
 ) -> dict[str, Any]:
-    _require_user(x_judge_user_id)
+    user_id = _require_user(x_judge_user_id)
+    if body.store_id:
+        await require_store_finance(session, user_id, body.store_id, "store.finance.approve")
+    else:
+        await require_platform_admin(session, user_id)
     return await GiftCardService(session).issue(
         amount_cents=body.amount_cents,
         card_type=body.card_type,
@@ -271,7 +288,8 @@ async def create_escrow(
     order_ref: str | None = Query(default=None),
     x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
 ) -> dict[str, Any]:
-    _require_user(x_judge_user_id)
+    user_id = _require_user(x_judge_user_id)
+    await require_platform_admin(session, user_id)
     return await EscrowService(session).create(amount_cents=amount_cents, order_ref=order_ref)
 
 
@@ -282,7 +300,8 @@ async def advance_escrow(
     status: EscrowStatus = Query(...),
     x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
 ) -> dict[str, Any]:
-    _require_user(x_judge_user_id)
+    user_id = _require_user(x_judge_user_id)
+    await require_platform_admin(session, user_id)
     return await EscrowService(session).transition(escrow_id, status)
 
 
@@ -293,7 +312,8 @@ async def upsert_policies(
     session: DbSession,
     x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
 ) -> dict[str, Any]:
-    _require_user(x_judge_user_id)
+    user_id = _require_user(x_judge_user_id)
+    await require_store_finance(session, user_id, store_id, "store.finance.approve")
     return await PolicyService(session).upsert(store_id, body.model_dump(exclude_none=True))
 
 
@@ -304,12 +324,18 @@ async def commission_rule(
     percent_bps: int = Query(ge=0),
     x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
 ) -> dict[str, Any]:
-    _require_user(x_judge_user_id)
+    user_id = _require_user(x_judge_user_id)
+    await require_platform_admin(session, user_id)
     return await CommissionService(session).upsert_rule(fee_type=fee_type, percent_bps=percent_bps)
 
 
 @fp.get("/chargebacks")
-async def chargebacks(session: DbSession) -> dict[str, Any]:
+async def chargebacks(
+    session: DbSession,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    await require_platform_admin(session, user_id)
     return await ChargebackService(session).list_all()
 
 
@@ -334,7 +360,9 @@ async def runtime_health(
     subject_id: str | None = Query(default=None),
     x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
 ) -> dict[str, Any]:
-    uid = subject_id or _require_user(x_judge_user_id)
+    actor = _require_user(x_judge_user_id)
+    uid = subject_id or actor
+    await assert_subject_self_or_admin(session, actor, uid)
     return await MartService(session).financial_health(subject_type, uid)
 
 
@@ -362,7 +390,8 @@ async def runtime_payouts(
     store_id: str = Query(...),
     x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
 ) -> dict[str, Any]:
-    _require_user(x_judge_user_id)
+    user_id = _require_user(x_judge_user_id)
+    await require_store_finance(session, user_id, store_id, "store.finance.view")
     return {"payouts": await PayoutService(session).list_for_store(store_id)}
 
 
@@ -383,12 +412,18 @@ async def runtime_settlements(
     session: DbSession,
     x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
 ) -> dict[str, Any]:
-    _require_user(x_judge_user_id)
+    user_id = _require_user(x_judge_user_id)
+    await require_platform_admin(session, user_id)
     return await SettlementService(session).list_all()
 
 
 @router.get("/runtime/revenue")
-async def runtime_revenue(session: DbSession) -> dict[str, Any]:
+async def runtime_revenue(
+    session: DbSession,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    await require_platform_admin(session, user_id)
     return await MartService(session).revenue()
 
 
@@ -398,8 +433,17 @@ async def runtime_financial_dashboard(
     x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
     store_id: str | None = Query(default=None),
 ) -> dict[str, Any]:
+    from app.identity_platform.permissions import PermissionService
+
     user_id = _require_user(x_judge_user_id)
-    return await DashboardService(session).financial_dashboard(user_id=user_id, store_id=store_id)
+    is_admin = await PermissionService(session).can(user_id, "platform.admin")
+    if store_id:
+        await require_store_finance(session, user_id, store_id, "store.finance.view")
+    return await DashboardService(session).financial_dashboard(
+        user_id=user_id,
+        store_id=store_id,
+        include_marketplace=is_admin,
+    )
 
 
 router.include_router(fp)

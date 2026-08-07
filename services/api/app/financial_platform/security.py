@@ -1,4 +1,4 @@
-"""Idempotency + audit trail helpers."""
+"""Idempotency + audit trail + access control helpers."""
 
 from __future__ import annotations
 
@@ -9,6 +9,8 @@ from typing import Any
 from fastapi import HTTPException
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.identity_platform.permissions import PermissionService
 
 
 def new_correlation_id() -> str:
@@ -81,3 +83,48 @@ def assert_balanced(lines: list[tuple[int, int]]) -> None:
             status_code=400,
             detail=f"unbalanced_journal:debit={debits}:credit={credits}",
         )
+
+
+async def require_platform_admin(session: AsyncSession, actor_id: str) -> None:
+    ok = await PermissionService(session).can(actor_id, "platform.admin")
+    if not ok:
+        raise HTTPException(status_code=403, detail="platform_admin_required")
+
+
+async def require_store_finance(
+    session: AsyncSession,
+    actor_id: str,
+    store_id: str,
+    permission: str = "store.finance.view",
+) -> None:
+    """Owner/finance role na loja, ou platform admin."""
+    perms = PermissionService(session)
+    if await perms.can(actor_id, "platform.admin"):
+        return
+    if await perms.can(actor_id, permission, store_id=store_id):
+        return
+    owned = (
+        await session.execute(
+            text(
+                """
+                SELECT 1 FROM tcg_judge.stores
+                WHERE id = CAST(:sid AS uuid) AND owner_id = :uid
+                LIMIT 1
+                """
+            ),
+            {"sid": store_id, "uid": actor_id},
+        )
+    ).first()
+    if owned and permission.startswith("store.finance."):
+        return
+    raise HTTPException(status_code=403, detail="store_finance_forbidden")
+
+
+async def assert_subject_self_or_admin(
+    session: AsyncSession,
+    actor_id: str,
+    subject_id: str,
+) -> None:
+    if subject_id == actor_id:
+        return
+    await require_platform_admin(session, actor_id)

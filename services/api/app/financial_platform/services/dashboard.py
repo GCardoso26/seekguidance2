@@ -83,9 +83,9 @@ class DashboardService:
         }
 
     async def seller(self, store_id: str) -> dict[str, Any]:
-        settlements = await SettlementService(self.session).list_all()
+        settlements = await SettlementService(self.session).list_for_store(store_id)
         payouts = await PayoutService(self.session).list_for_store(store_id)
-        escrow = await EscrowService(self.session).list_all(20)
+        escrow = await EscrowService(self.session).list_for_store(store_id, 20)
         return {
             "store_id": store_id,
             "settlements": settlements,
@@ -103,8 +103,16 @@ class DashboardService:
             "chargebacks_note": "see /runtime/judge/financial-platform/chargebacks",
         }
 
-    async def financial_dashboard(self, *, user_id: str | None, store_id: str | None) -> dict[str, Any]:
-        out: dict[str, Any] = {"marketplace": await self.marketplace()}
+    async def financial_dashboard(
+        self,
+        *,
+        user_id: str | None,
+        store_id: str | None,
+        include_marketplace: bool = False,
+    ) -> dict[str, Any]:
+        out: dict[str, Any] = {}
+        if include_marketplace:
+            out["marketplace"] = await self.marketplace()
         if user_id:
             out["buyer"] = await self.buyer(user_id)
             out["transactions"] = await TransactionService(self.session).list_for_subject(

@@ -11,8 +11,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ detail: "Autenticação necessária" }, { status: 401 });
     }
     const body = await req.text();
+    const MAX_CSV_BYTES = 2_000_000;
     if (!body || body.length < 2) {
       return NextResponse.json({ detail: "Body CSV ausente" }, { status: 400 });
+    }
+    if (body.length > MAX_CSV_BYTES) {
+      return NextResponse.json(
+        { detail: `CSV excede o limite de ${MAX_CSV_BYTES} bytes` },
+        { status: 413 },
+      );
     }
     const res = await fetch(`${TOURNAMENT_API_BASE}/runtime/judge/seller/inventory/import-csv`, {
       method: "POST",

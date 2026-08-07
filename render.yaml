@@ -33,11 +33,16 @@ services:
         value: "2"
       - key: RUNTIME_AUTH_SECRET
         generateValue: true
+      # Nunca fixar senha fraca em produção — definir secret forte no dashboard Render.
       - key: RUNTIME_DEFAULT_ADMIN_PASSWORD
-        value: admin
+        sync: false
+      - key: CORS_ALLOWED_ORIGINS
+        sync: false
       - key: DATABASE_URL
         sync: false
       - key: CPF_SALT
+        sync: false
+      - key: PIX_WEBHOOK_INTERNAL_SECRET
         sync: false
       - key: REDIS_URL
         fromService:

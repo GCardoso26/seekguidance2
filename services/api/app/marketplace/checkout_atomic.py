@@ -383,13 +383,13 @@ async def apply_sale_stock_deduction(
     if qty < 1:
         return
 
-    reserved_clause = "AND reserved_stock >= :qty" if require_reserved else ""
+    reserved_clause = "AND reserved_stock >= :qty" if require_reserved else "AND stock >= :qty"
     updated = (
         await session.execute(
             text(
                 f"""
                 UPDATE tcg_judge.store_products
-                SET stock = GREATEST(stock - :qty, 0),
+                SET stock = stock - :qty,
                     reserved_stock = GREATEST(reserved_stock - :qty, 0),
                     updated_at = NOW()
                 WHERE id = :pid
@@ -443,8 +443,75 @@ async def apply_sale_stock_deduction(
         )
 
 
+async def mark_order_stock_claimed(session: AsyncSession, order_id: str) -> None:
+    """Registra que estoque já foi baixado (ex.: via finalize_checkout) para bloquear fallback."""
+    already = (
+        await session.execute(
+            text(
+                """
+                SELECT 1 FROM tcg_judge.shop_order_status_history
+                WHERE order_id = :oid AND note = 'stock_deducted'
+                LIMIT 1
+                """
+            ),
+            {"oid": order_id},
+        )
+    ).first()
+    if already:
+        return
+    status_row = (
+        await session.execute(
+            text("SELECT status FROM tcg_judge.shop_orders WHERE id = :oid"),
+            {"oid": order_id},
+        )
+    ).mappings().first()
+    st = str(status_row["status"]) if status_row else "paid"
+    await session.execute(
+        text(
+            """
+            INSERT INTO tcg_judge.shop_order_status_history (order_id, status, note)
+            VALUES (:oid, :st, 'stock_deducted')
+            """
+        ),
+        {"oid": order_id, "st": st},
+    )
+
+
 async def deduct_stock_for_order(session: AsyncSession, order_id: str) -> int:
-    """Fallback: baixa estoque a partir dos itens do pedido (produto + listing)."""
+    """Fallback: baixa estoque a partir dos itens do pedido (produto + listing).
+
+    Idempotente: lock do pedido + nota `stock_deducted` em status history.
+    """
+    order = (
+        await session.execute(
+            text(
+                """
+                SELECT id, status FROM tcg_judge.shop_orders
+                WHERE id = :oid
+                FOR UPDATE
+                """
+            ),
+            {"oid": order_id},
+        )
+    ).mappings().first()
+    if not order or str(order.get("status")) not in {"paid", "processing"}:
+        return 0
+
+    already = (
+        await session.execute(
+            text(
+                """
+                SELECT 1 FROM tcg_judge.shop_order_status_history
+                WHERE order_id = :oid AND note = 'stock_deducted'
+                LIMIT 1
+                """
+            ),
+            {"oid": order_id},
+        )
+    ).first()
+    if already:
+        return 0
+
     items = (
         await session.execute(
             text(
@@ -470,6 +537,16 @@ async def deduct_stock_for_order(session: AsyncSession, order_id: str) -> int:
             require_reserved=False,
         )
         deducted += 1
+
+    await session.execute(
+        text(
+            """
+            INSERT INTO tcg_judge.shop_order_status_history (order_id, status, note)
+            VALUES (:oid, :st, 'stock_deducted')
+            """
+        ),
+        {"oid": order_id, "st": str(order["status"])},
+    )
     return deducted
 
 

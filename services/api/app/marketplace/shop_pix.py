@@ -576,7 +576,7 @@ async def confirm_pix_payment(
     """Webhook ou confirmação manual — marca pedido PIX como pago."""
     pix_tx = (
         await session.execute(
-            text("SELECT * FROM tcg_judge.pix_transactions WHERE txid = :txid"),
+            text("SELECT * FROM tcg_judge.pix_transactions WHERE txid = :txid FOR UPDATE"),
             {"txid": txid},
         )
     ).mappings().first()
@@ -632,7 +632,7 @@ async def confirm_pix_payment(
             UPDATE tcg_judge.pix_transactions
             SET status = 'paid', paid_at = NOW(),
                 webhook_payload = COALESCE(CAST(:payload AS jsonb), webhook_payload)
-            WHERE txid = :txid
+            WHERE txid = :txid AND status = 'pending'
             """
         ),
         {"txid": txid, "payload": payload_json},
@@ -640,7 +640,14 @@ async def confirm_pix_payment(
 
     order_row = (
         await session.execute(
-            text("SELECT use_escrow, payment_method, status FROM tcg_judge.shop_orders WHERE id = :id"),
+            text(
+                """
+                SELECT use_escrow, payment_method, status
+                FROM tcg_judge.shop_orders
+                WHERE id = :id
+                FOR UPDATE
+                """
+            ),
             {"id": order_id},
         )
     ).mappings().first()
@@ -651,29 +658,36 @@ async def confirm_pix_payment(
             or str(order_row.get("payment_method", "")).startswith("escrow_")
         )
     )
-    was_pending = bool(order_row and str(order_row.get("status")) == "pending")
 
     history_status = "processing" if is_escrow else "paid"
     status_note = "Pagamento PIX em custódia (Compra Protegida)" if is_escrow else "Pagamento PIX confirmado"
 
+    newly_paid = False
     if is_escrow:
         from app.marketplace import shop_escrow
 
-        await shop_escrow.on_payment_received(session, order_id, pix_txid=txid)
+        if order_row and str(order_row.get("status")) == "pending":
+            await shop_escrow.on_payment_received(session, order_id, pix_txid=txid)
+            newly_paid = True
     else:
-        await session.execute(
-            text(
-                """
-                UPDATE tcg_judge.shop_orders
-                SET status = 'paid', paid_at = NOW(), updated_at = NOW()
-                WHERE id = :id AND status = 'pending'
-                """
-            ),
-            {"id": order_id},
-        )
-        from app.marketplace.seller_fulfillment import on_order_paid_enqueue_fulfillment
+        paid_row = (
+            await session.execute(
+                text(
+                    """
+                    UPDATE tcg_judge.shop_orders
+                    SET status = 'paid', paid_at = NOW(), updated_at = NOW()
+                    WHERE id = :id AND status = 'pending'
+                    RETURNING id
+                    """
+                ),
+                {"id": order_id},
+            )
+        ).first()
+        newly_paid = bool(paid_row)
+        if newly_paid:
+            from app.marketplace.seller_fulfillment import on_order_paid_enqueue_fulfillment
 
-        await on_order_paid_enqueue_fulfillment(session, order_id)
+            await on_order_paid_enqueue_fulfillment(session, order_id)
 
     try:
         from app.payments.payment_aggregate import record_payment_captured
@@ -686,9 +700,11 @@ async def confirm_pix_payment(
     except Exception as exc:
         logger.warning("payment_aggregate_pix_capture_failed", order_id=order_id, error=str(exc))
 
-    if not stock_finalized and was_pending:
-        from app.marketplace import checkout_atomic
+    from app.marketplace import checkout_atomic
 
+    if stock_finalized:
+        await checkout_atomic.mark_order_stock_claimed(session, order_id)
+    elif newly_paid:
         try:
             await checkout_atomic.deduct_stock_for_order(session, order_id)
         except Exception as exc:

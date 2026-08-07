@@ -17,6 +17,7 @@ _WEBHOOK_PREFIXES = (
     "/runtime/judge/stripe/webhook",
     "/runtime/judge/webhooks/payments",
     "/runtime/judge/marketplace/shop/pix/webhook",
+    "/runtime/judge/carriers/melhor-envio/webhook",
 )
 
 _SENSITIVE_MUTATION_PREFIXES = (
@@ -29,6 +30,14 @@ _SENSITIVE_MUTATION_PREFIXES = (
     "/runtime/judge/marketplace/shop/orders",
     "/runtime/judge/marketplace/shop/stores/",
     "/runtime/judge/marketplace/listings",
+    "/runtime/judge/financial-platform",
+    "/runtime/financial-",
+    "/runtime/wallet",
+    "/runtime/payouts",
+    "/runtime/settlements",
+    "/runtime/revenue",
+    "/runtime/judge/stripe/",
+    "/runtime/judge/carriers/",
 )
 
 

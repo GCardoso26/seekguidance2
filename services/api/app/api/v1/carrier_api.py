@@ -18,8 +18,9 @@ logger = structlog.get_logger(__name__)
 
 
 def _verify_melhor_envio_signature(raw: bytes, signature: str | None, secret: str | None) -> bool:
+    """Fail-closed: sem secret configurado, rejeita (nunca aceitar unsigned)."""
     if not secret:
-        return True
+        return False
     if not signature:
         return False
     expected = hmac.new(secret.encode(), raw, hashlib.sha256).hexdigest()
@@ -30,6 +31,9 @@ def _verify_melhor_envio_signature(raw: bytes, signature: str | None, secret: st
 async def melhor_envio_webhook(request: Request, session: DbSession) -> dict[str, Any]:
     """Recebe eventos Melhor Envio — processamento assíncrono via Background Job."""
     settings = get_settings()
+    if not (settings.melhor_envio_webhook_secret or "").strip():
+        raise HTTPException(503, "MELHOR_ENVIO_WEBHOOK_SECRET não configurado")
+
     raw = await request.body()
     signature = request.headers.get("X-ME-Signature") or request.headers.get("X-Signature")
 

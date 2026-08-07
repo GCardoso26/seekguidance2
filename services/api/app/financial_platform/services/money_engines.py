@@ -100,6 +100,31 @@ class EscrowService:
         legacy = await list_escrow_transactions(self.session, limit)
         return {"cases": [dict(r) for r in rows], "rc1_projection": legacy}
 
+    async def list_for_store(self, store_id: str, limit: int = 50) -> dict[str, Any]:
+        """Escrow ligado a pedidos da loja — sem vazamento cross-tenant."""
+        rows = (
+            await self.session.execute(
+                text(
+                    """
+                    SELECT e.id::text, e.order_ref, e.amount_cents, e.status, e.created_at::text
+                    FROM tcg_judge.fin_escrow_cases e
+                    INNER JOIN tcg_judge.shop_orders o
+                      ON o.id::text = e.order_ref
+                      OR (
+                        e.order_ref ~ '^[0-9a-fA-F-]{36}$'
+                        AND o.id = CAST(e.order_ref AS uuid)
+                      )
+                    WHERE o.store_id = CAST(:sid AS uuid)
+                    ORDER BY e.created_at DESC
+                    LIMIT :lim
+                    """
+                ),
+                {"sid": store_id, "lim": limit},
+            )
+        ).mappings().all()
+        legacy = await list_escrow_transactions(self.session, limit, store_id=store_id)
+        return {"cases": [dict(r) for r in rows], "rc1_projection": legacy}
+
 
 class SplitService:
     def __init__(self, session: AsyncSession) -> None:
@@ -214,6 +239,25 @@ class SettlementService:
             "rc1_projection": await list_settlements(self.session, limit),
         }
 
+    async def list_for_store(self, store_id: str, limit: int = 50) -> dict[str, Any]:
+        rows = (
+            await self.session.execute(
+                text(
+                    """
+                    SELECT id::text, store_id, status, total_cents, created_at::text
+                    FROM tcg_judge.fin_settlement_runs
+                    WHERE store_id = :sid
+                    ORDER BY created_at DESC LIMIT :lim
+                    """
+                ),
+                {"sid": store_id, "lim": limit},
+            )
+        ).mappings().all()
+        return {
+            "runs": [dict(r) for r in rows],
+            "rc1_projection": await list_settlements(self.session, limit, store_id=store_id),
+        }
+
 
 class PayoutService:
     def __init__(self, session: AsyncSession) -> None:
@@ -240,6 +284,36 @@ class PayoutService:
         min_cents = int(pol["payout_min_cents"]) if pol else 5000
         if amount_cents < min_cents:
             raise HTTPException(status_code=400, detail=f"below_payout_minimum:{min_cents}")
+
+        # Custódia ≠ saque: só permite debitar saldo escrow já liberado (available).
+        owner = (
+            await self.session.execute(
+                text("SELECT owner_id FROM tcg_judge.stores WHERE id = CAST(:sid AS uuid)"),
+                {"sid": store_id},
+            )
+        ).mappings().first()
+        if not owner:
+            raise HTTPException(status_code=404, detail="store_not_found")
+        bal = (
+            await self.session.execute(
+                text(
+                    """
+                    SELECT available_cents
+                    FROM tcg_judge.escrow_balances
+                    WHERE user_id = :uid
+                    FOR UPDATE
+                    """
+                ),
+                {"uid": str(owner["owner_id"])},
+            )
+        ).mappings().first()
+        available = int(bal["available_cents"]) if bal else 0
+        if amount_cents > available:
+            raise HTTPException(
+                status_code=400,
+                detail=f"insufficient_available_balance:{available}",
+            )
+
         pid = str(uuid.uuid4())
         await self.session.execute(
             text(
@@ -251,12 +325,24 @@ class PayoutService:
             ),
             {"id": pid, "sid": store_id, "amt": amount_cents, "ikey": idempotency_key},
         )
+        if bal:
+            await self.session.execute(
+                text(
+                    """
+                    UPDATE tcg_judge.escrow_balances
+                    SET available_cents = available_cents - :amt,
+                        updated_at = NOW()
+                    WHERE user_id = :uid AND available_cents >= :amt
+                    """
+                ),
+                {"uid": str(owner["owner_id"]), "amt": amount_cents},
+            )
         await write_audit(
             self.session,
             action="payout_requested",
             actor_id=None,
             correlation_id=new_correlation_id(),
-            payload={"payout_id": pid, "store_id": store_id},
+            payload={"payout_id": pid, "store_id": store_id, "available_before": available},
         )
         await self.session.commit()
         emit("payout_requested", {"payout_id": pid})

@@ -48,6 +48,11 @@ def init_db(storage_path: str | None = None) -> Path:
     return path
 
 
+_WEAK_ADMIN_PASSWORDS = frozenset(
+    {"admin", "password", "123456", "changeme", "secret", "judgetcg", "tcgjudge"}
+)
+
+
 def ensure_default_admin(storage_path: str | None = None) -> None:
     cfg = get_settings()
     env_password = (
@@ -59,10 +64,17 @@ def ensure_default_admin(storage_path: str | None = None) -> None:
         total_users = int(conn.execute("SELECT count(*) FROM users").fetchone()[0])
         row = conn.execute("SELECT id FROM users WHERE username = ?", ("admin",)).fetchone()
 
+        if cfg.environment == "production":
+            # Produção: nunca seed/atualiza com senha ausente ou fraca.
+            if not env_password or env_password.strip().lower() in _WEAK_ADMIN_PASSWORDS:
+                return
+            if len(env_password.strip()) < 12:
+                return
+
         if cfg.environment == "production" and not env_password and total_users > 0:
             return
 
-        password = env_password or ("admin" if total_users == 0 else None)
+        password = env_password or ("admin" if total_users == 0 and cfg.environment != "production" else None)
         if not password:
             return
 

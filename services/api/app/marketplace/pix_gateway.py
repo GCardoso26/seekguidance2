@@ -40,7 +40,10 @@ class PixGateway(ABC):
 
 
 class ManualPixGateway(PixGateway):
-    """Sem PSP — lojista confirma manualmente ou via endpoint interno."""
+    """Sem PSP — confirmação só com PIX_WEBHOOK_INTERNAL_SECRET (nunca unsigned)."""
+
+    def __init__(self, internal_secret: str | None = None) -> None:
+        self.internal_secret = (internal_secret or "").strip()
 
     async def create_charge(
         self,
@@ -60,7 +63,13 @@ class ManualPixGateway(PixGateway):
         }
 
     def verify_webhook(self, payload: bytes, headers: dict[str, str]) -> bool:
-        return True
+        if not self.internal_secret:
+            logger.warning("manual_pix_webhook_rejected_no_secret")
+            return False
+        provided = headers.get("x-pix-webhook-secret") or headers.get("X-Pix-Webhook-Secret") or ""
+        if not provided:
+            return False
+        return hmac.compare_digest(provided, self.internal_secret)
 
     def parse_webhook(self, payload: dict[str, Any]) -> str | None:
         txid = payload.get("txid") or payload.get("correlationID")
@@ -150,8 +159,13 @@ class AsaasGateway(PixGateway):
         }
 
     def verify_webhook(self, payload: bytes, headers: dict[str, str]) -> bool:
+        if not self.webhook_token:
+            logger.warning("asaas_webhook_rejected_no_token")
+            return False
         token = headers.get("asaas-access-token") or headers.get("Asaas-Access-Token") or ""
-        return not self.webhook_token or hmac.compare_digest(token, self.webhook_token)
+        if not token:
+            return False
+        return hmac.compare_digest(token, self.webhook_token)
 
     def parse_webhook(self, payload: dict[str, Any]) -> str | None:
         payment = payload.get("payment") or payload
@@ -166,7 +180,7 @@ def get_pix_gateway(settings: Settings) -> PixGateway:
         return OpenPixGateway(settings.openpix_api_key, settings.openpix_webhook_secret)
     if settings.asaas_api_key:
         return AsaasGateway(settings.asaas_api_key, settings.asaas_webhook_token)
-    return ManualPixGateway()
+    return ManualPixGateway(settings.pix_webhook_internal_secret)
 
 
 def parse_json_body(raw: bytes) -> dict[str, Any]:

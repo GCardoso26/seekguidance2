@@ -631,6 +631,16 @@ async def handle_payment_intent_succeeded(session: AsyncSession, settings: Setti
                 await checkout_atomic.deduct_stock_for_order(session, oid)
             except Exception as exc:
                 logger.error("order_stock_deduction_failed", order_id=oid, error=str(exc))
+    elif stock_finalized and newly_paid_order_ids:
+        from app.marketplace import checkout_atomic
+
+        for oid in newly_paid_order_ids:
+            await checkout_atomic.mark_order_stock_claimed(session, oid)
+    elif stock_finalized and order_ids:
+        from app.marketplace import checkout_atomic
+
+        for oid in order_ids:
+            await checkout_atomic.mark_order_stock_claimed(session, oid)
 
     if order_ids:
         from app.gamification.xp import award_xp_for_paid_order

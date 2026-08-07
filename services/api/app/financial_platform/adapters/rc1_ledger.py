@@ -29,21 +29,42 @@ async def list_sprint6_ledger(session: AsyncSession, limit: int = 50) -> list[di
         return []
 
 
-async def list_settlements(session: AsyncSession, limit: int = 50) -> list[dict[str, Any]]:
+async def list_settlements(
+    session: AsyncSession,
+    limit: int = 50,
+    *,
+    store_id: str | None = None,
+) -> list[dict[str, Any]]:
     try:
-        rows = (
-            await session.execute(
-                text(
-                    """
-                    SELECT id::text, status, created_at::text
-                    FROM tcg_judge.settlements
-                    ORDER BY created_at DESC
-                    LIMIT :lim
-                    """
-                ),
-                {"lim": limit},
-            )
-        ).mappings().all()
+        if store_id:
+            rows = (
+                await session.execute(
+                    text(
+                        """
+                        SELECT id::text, status, created_at::text
+                        FROM tcg_judge.settlements
+                        WHERE store_id = CAST(:sid AS uuid)
+                        ORDER BY created_at DESC
+                        LIMIT :lim
+                        """
+                    ),
+                    {"lim": limit, "sid": store_id},
+                )
+            ).mappings().all()
+        else:
+            rows = (
+                await session.execute(
+                    text(
+                        """
+                        SELECT id::text, status, created_at::text
+                        FROM tcg_judge.settlements
+                        ORDER BY created_at DESC
+                        LIMIT :lim
+                        """
+                    ),
+                    {"lim": limit},
+                )
+            ).mappings().all()
         return [dict(r) for r in rows]
     except Exception:
         return []

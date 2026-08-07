@@ -6,6 +6,7 @@ from typing import Any
 
 import structlog
 from app.api.deps import DbSession, SettingsDep
+from app.api.judge_user import require_judge_user
 from app.judge.analytics_events import record_analytics_events
 from app.judge.stripe_service import (
     cancel_subscription_row,
@@ -52,10 +53,7 @@ class PortalBody(BaseModel):
 
 
 def _require_user(x_judge_user_id: str | None) -> str:
-    uid = (x_judge_user_id or "").strip()
-    if not uid:
-        raise HTTPException(status_code=401, detail="Autenticação necessária")
-    return uid
+    return require_judge_user(x_judge_user_id)
 
 
 def _require_stripe(settings: SettingsDep) -> None:

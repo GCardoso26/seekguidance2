@@ -160,7 +160,7 @@ class InventoryExportBody(BaseModel):
 
 
 class InventoryImportBody(BaseModel):
-    csv: str = Field(min_length=1)
+    csv: str = Field(min_length=1, max_length=2_000_000)
     dry_run: bool = False
     on_duplicate: Literal["ask", "merge", "skip"] = "ask"
 
