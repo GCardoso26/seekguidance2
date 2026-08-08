@@ -78,6 +78,9 @@ describe('Phase 5 controlled publishing safety', () => {
   let app: Awaited<ReturnType<typeof buildServer>>
 
   before(async () => {
+    process.env.CWM_CREDENTIALS_ENCRYPTION_KEY = 'phase5-test-encryption-key-32chars!!'
+    ;(config as { credentialsEncryptionKey: string }).credentialsEncryptionKey =
+      process.env.CWM_CREDENTIALS_ENCRYPTION_KEY
     resetDbForTests(tmp)
     app = await buildServer()
     const boot = await bootstrapWorkspace({ name: 'P5', email: 'p5@cwm.test' })

@@ -2,7 +2,8 @@ import { createCipheriv, createDecipheriv, createHash, randomBytes } from 'node:
 import { config } from '../config.js'
 
 function keyBytes(): Buffer | null {
-  const raw = config.credentialsEncryptionKey
+  // Live env wins (same pattern as PublishingSafety) so tests can set the key after boot.
+  const raw = process.env.CWM_CREDENTIALS_ENCRYPTION_KEY || config.credentialsEncryptionKey
   if (!raw || raw.length < 16) return null
   return createHash('sha256').update(raw).digest()
 }
