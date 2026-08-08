@@ -1,0 +1,83 @@
+{
+  "name": "NEXUS — Captura de Lead",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "nexus-lead",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-lead",
+      "name": "Webhook Lead",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 320]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.SHEET_WEBHOOK}}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"email\": \"{{$json.body.email}}\",\n  \"name\": \"{{$json.body.name}}\",\n  \"source\": \"{{$json.body.source || 'landing'}}\",\n  \"createdAt\": \"{{$now.toISO()}}\"\n}"
+      },
+      "id": "sheet",
+      "name": "Salvar Planilha",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [500, 200]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.EMAIL_API_URL}}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$env.RESEND_API_KEY}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"from\": \"NEXUS IA <onboarding@seudominio.com>\",\n  \"to\": [\"{{$('Webhook Lead').item.json.body.email}}\"],\n  \"subject\": \"Seu AI Income Starter Kit (lite)\",\n  \"html\": \"<p>Olá{{$('Webhook Lead').item.json.body.name ? ', ' + $('Webhook Lead').item.json.body.name : ''}}!</p><p>Seu kit está pronto:</p><p><a href='https://seudominio.com/kit'>Baixar AI Income Starter Kit</a></p><p>Hoje: grave o roteiro #01.</p><p>— NEXUS IA</p>\"\n}"
+      },
+      "id": "email",
+      "name": "E-mail Entrega",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [500, 400]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"ok\": true,\n  \"redirect\": \"/obrigado\"\n}"
+      },
+      "id": "respond",
+      "name": "Responder OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [780, 320]
+    }
+  ],
+  "connections": {
+    "Webhook Lead": {
+      "main": [
+        [
+          { "node": "Salvar Planilha", "type": "main", "index": 0 },
+          { "node": "E-mail Entrega", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Salvar Planilha": {
+      "main": [[{ "node": "Responder OK", "type": "main", "index": 0 }]]
+    },
+    "E-mail Entrega": {
+      "main": [[{ "node": "Responder OK", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": { "executionOrder": "v1" }
+}

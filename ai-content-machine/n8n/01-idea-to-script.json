@@ -1,0 +1,81 @@
+{
+  "name": "NEXUS — Ideia para Roteiro",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "nexus-idea",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "webhook-idea",
+      "name": "Webhook Ideia",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [260, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.LLM_API_URL}}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$env.OPENAI_API_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"gpt-4o-mini\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Você é roteirista de conteúdo dark curto (TikTok/Reels/Shorts) da marca NEXUS IA. Sempre use HOOK, PROBLEMA, INSIGHT, SOLUÇÃO, CTA. CTA padrão: Peguei os prompts que uso e deixei no link da bio. Transforme substancialmente a informação; nunca copie IP.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Ideia: {{$json.body.idea}}\\nCanal (A dinheiro / B produtividade / C ferramentas): {{$json.body.channel}}\\nGere roteiro 35-45s + 3 ganchos alternativos + título Pinterest.\"\n    }\n  ]\n}"
+      },
+      "id": "llm-script",
+      "name": "LLM Roteiro",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [520, 300]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "script",
+              "name": "script",
+              "value": "={{$json.choices[0].message.content}}",
+              "type": "string"
+            },
+            {
+              "id": "idea",
+              "name": "idea",
+              "value": "={{$('Webhook Ideia').item.json.body.idea}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "format-out",
+      "name": "Formatar Saída",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [780, 300]
+    }
+  ],
+  "connections": {
+    "Webhook Ideia": {
+      "main": [[{ "node": "LLM Roteiro", "type": "main", "index": 0 }]]
+    },
+    "LLM Roteiro": {
+      "main": [[{ "node": "Formatar Saída", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": { "executionOrder": "v1" },
+  "meta": { "templateCredsSetupCompleted": false }
+}
