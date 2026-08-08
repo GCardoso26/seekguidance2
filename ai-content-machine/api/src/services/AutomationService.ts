@@ -4,6 +4,12 @@ import { runDailyContentEngine, runResearchEngine } from './pipelines/dailyConte
 import { researchService } from '../research/ResearchService.js'
 import { scriptFactoryService } from '../scriptFactory/ScriptFactoryService.js'
 import { productionService } from '../production/ProductionService.js'
+import { publishingService } from '../publishing/PublishingService.js'
+import { analyticsService } from '../analytics/AnalyticsService.js'
+import { winnerDetectionService } from '../winner/WinnerDetectionService.js'
+import { strategyService } from '../strategy/StrategyService.js'
+import { feedbackLoopService } from '../publishing/FeedbackLoopService.js'
+import type { MockScenario } from '../analytics/MockAnalyticsProvider.js'
 import { sumAiCost } from './AiCostService.js'
 
 export const WORKFLOWS = {
@@ -156,6 +162,59 @@ export class AutomationService {
             : undefined,
           regenerate: Boolean(payload.regenerate),
         })) as unknown as Record<string, unknown>
+      } else if (workflow === 'content_publisher') {
+        const contentId = String(payload.contentId || '')
+        if (!contentId) throw new Error('contentId_required')
+        if (payload.feedbackLoop) {
+          result = (await feedbackLoopService.run({
+            workspaceId,
+            contentId,
+            platform: payload.platform ? String(payload.platform) : undefined,
+            scenario: payload.scenario as MockScenario | undefined,
+            executionId,
+            minimumEvidence: payload.minimumEvidence ? Number(payload.minimumEvidence) : 1,
+            feedResearch: payload.feedResearch !== false,
+          })) as unknown as Record<string, unknown>
+        } else {
+          result = (await publishingService.run({
+            workspaceId,
+            contentId,
+            platform: payload.platform ? String(payload.platform) : undefined,
+            scheduledAt: payload.scheduledAt ? String(payload.scheduledAt) : undefined,
+            executionId,
+            forceFailTimes: Number(payload.forceFailTimes || 0),
+            publicationVersion: payload.publicationVersion
+              ? Number(payload.publicationVersion)
+              : undefined,
+          })) as unknown as Record<string, unknown>
+        }
+      } else if (workflow === 'analytics_sync') {
+        result = (await analyticsService.sync({
+          workspaceId,
+          publicationId: payload.publicationId ? String(payload.publicationId) : undefined,
+          contentId: payload.contentId ? String(payload.contentId) : undefined,
+          scenario: payload.scenario as MockScenario | undefined,
+          executionId,
+          forceFailTimes: Number(payload.forceFailTimes || 0),
+        })) as unknown as Record<string, unknown>
+      } else if (workflow === 'winner_engine') {
+        result = (await winnerDetectionService.detect({
+          workspaceId,
+          publicationId: payload.publicationId ? String(payload.publicationId) : undefined,
+          contentId: payload.contentId ? String(payload.contentId) : undefined,
+          ageHoursOverride:
+            payload.ageHoursOverride !== undefined ? Number(payload.ageHoursOverride) : undefined,
+          executionId,
+          forceFailTimes: Number(payload.forceFailTimes || 0),
+        })) as unknown as Record<string, unknown>
+      } else if (workflow === 'daily_strategy_agent') {
+        result = (await strategyService.analyze({
+          workspaceId,
+          minimumEvidence: payload.minimumEvidence ? Number(payload.minimumEvidence) : 3,
+          feedResearch: Boolean(payload.feedResearch),
+          executionId,
+          forceFailTimes: Number(payload.forceFailTimes || 0),
+        })) as unknown as Record<string, unknown>
       } else {
         // Other CWM workflows are triggered via n8n JSON in production.
         // In mock MVP we acknowledge the trigger without fabricating REAL side-effects.
@@ -173,7 +232,11 @@ export class AutomationService {
         ? created.contents.length
         : Array.isArray(result.topicsCreated)
           ? result.topicsCreated.length
-          : result.scriptId || result.productionRunId
+          : result.scriptId ||
+              result.productionRunId ||
+              result.publicationRunId ||
+              (Array.isArray(result.snapshots) ? result.snapshots.length : 0) ||
+              (Array.isArray(result.recommendations) ? result.recommendations.length : 0)
             ? 1
             : Number(result.itemsFound ?? 0)
       const runStatus =
@@ -419,6 +482,31 @@ export class AutomationService {
       scriptRuns: db.prepare(scriptSql).all(...scriptParams),
       productionRuns: db.prepare(productionSql).all(...productionParams),
       productionStages: db.prepare(productionStageSql).all(...productionStageParams),
+      publicationRuns: workspaceId
+        ? db
+            .prepare(
+              `SELECT status, COUNT(*) as c FROM publication_runs WHERE workspace_id = ? AND created_at >= ? GROUP BY status`,
+            )
+            .all(workspaceId, since)
+        : db
+            .prepare(
+              `SELECT status, COUNT(*) as c FROM publication_runs WHERE created_at >= ? GROUP BY status`,
+            )
+            .all(since),
+      winners: workspaceId
+        ? db
+            .prepare(
+              `SELECT performance_class as status, COUNT(*) as c FROM contents WHERE workspace_id = ? AND performance_class IS NOT NULL GROUP BY performance_class`,
+            )
+            .all(workspaceId)
+        : [],
+      strategyRecommendations: workspaceId
+        ? db
+            .prepare(
+              `SELECT COUNT(*) as c FROM strategy_recommendations WHERE workspace_id = ? AND created_at >= ?`,
+            )
+            .get(workspaceId, since)
+        : { c: 0 },
       aiCostCents: workspaceId ? sumAiCost(workspaceId) : 0,
     }
   }

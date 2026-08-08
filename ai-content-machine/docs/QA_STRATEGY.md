@@ -49,3 +49,14 @@ Heurísticas de “beleza” ficam fora do QA técnico binário.
 
 Somente quando voice/visuals/subtitles/final/thumbnail/storage/checksums/licenses estão válidos e não há falha aberta.  
 Caso contrário: `REQUIRES_REVIEW` / `READY_FOR_REVIEW`.
+
+## Publication validation (Fase 4)
+
+Antes de publicar, `PublishingService.validateContentPackage` exige:
+
+- package `READY_FOR_PUBLISH`
+- final video + thumbnail existem
+- checksum/license válidos
+- sem falha de produção não resolvida
+
+Falha → `REQUIRES_REVIEW` / `FAILED` (nunca marca REAL).

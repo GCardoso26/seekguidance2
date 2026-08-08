@@ -9,6 +9,7 @@ import { workspaceRoutes } from './routes/workspaces.js'
 import { researchRoutes } from './routes/research.js'
 import { scriptRoutes } from './routes/scripts.js'
 import { productionRoutes } from './routes/production.js'
+import { publishingRoutes } from './routes/publishing.js'
 
 export async function buildServer() {
   getDb()
@@ -28,6 +29,7 @@ export async function buildServer() {
   await app.register(researchRoutes)
   await app.register(scriptRoutes)
   await app.register(productionRoutes)
+  await app.register(publishingRoutes)
 
   return app
 }

@@ -27,6 +27,15 @@
 | `production.qa_failed` | Media QA FAIL / review |
 | `production.completed` | Package pronto (ou review) |
 | `production.failed` | Falha de stage / pipeline |
+| `publication.started` | Publication run iniciada |
+| `publication.validated` | Package validado |
+| `publication.scheduled` | Agendada (mock) |
+| `publication.published` | Publicada (MOCK explícito) |
+| `publication.failed` | Falha de publish |
+| `publication.cancelled` | Cancelada |
+| `metrics.snapshot_created` | Snapshot append-only |
+| `strategy.recommended` | Recomendações geradas |
+| `strategy.research_feedback` | Strategy → Research |
 | `content.created` | Content record criado |
 | `content.approved` | Aprovado (humano ou auto) |
 | `content.scheduled` | Agendado |

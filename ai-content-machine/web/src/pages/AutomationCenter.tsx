@@ -15,6 +15,9 @@ type Health = {
   scriptRuns?: Array<{ status: string; c: number }>
   productionRuns?: Array<{ status: string; c: number }>
   productionStages?: Array<{ stage: string; c: number }>
+  publicationRuns?: Array<{ status: string; c: number }>
+  winners?: Array<{ status: string; c: number }>
+  strategyRecommendations?: { c: number }
   aiCostCents?: number
   observability?: {
     successRate: number
@@ -61,6 +64,9 @@ export function AutomationCenter() {
   const [researchRuns, setResearchRuns] = useState<Array<Record<string, unknown>>>([])
   const [scriptRuns, setScriptRuns] = useState<Array<Record<string, unknown>>>([])
   const [productionRuns, setProductionRuns] = useState<Array<Record<string, unknown>>>([])
+  const [publicationRuns, setPublicationRuns] = useState<Array<Record<string, unknown>>>([])
+  const [metricSnapshots, setMetricSnapshots] = useState<Array<Record<string, unknown>>>([])
+  const [recommendations, setRecommendations] = useState<Array<Record<string, unknown>>>([])
   const [selectedProduction, setSelectedProduction] = useState<Record<string, unknown> | null>(null)
   const [windowFilter, setWindowFilter] = useState<'24h' | '7d' | '30d'>('24h')
   const [workflowFilter, setWorkflowFilter] = useState('')
@@ -81,12 +87,22 @@ export function AutomationCenter() {
       const rr = await fetch(`${API}/api/research/workspaces/${workspaceId}/runs`).then((r) => r.json())
       const sr = await fetch(`${API}/api/scripts/workspaces/${workspaceId}/runs`).then((r) => r.json())
       const pr = await fetch(`${API}/api/production/workspaces/${workspaceId}/runs`).then((r) => r.json())
+      const pub = await fetch(`${API}/api/publishing/workspaces/${workspaceId}/runs`).then((r) => r.json())
+      const snaps = await fetch(`${API}/api/analytics/workspaces/${workspaceId}/snapshots`).then((r) =>
+        r.json(),
+      )
+      const recs = await fetch(`${API}/api/strategy/workspaces/${workspaceId}/recommendations`).then((r) =>
+        r.json(),
+      )
       setResearchRuns(rr.runs || [])
       setScriptRuns(sr.runs || [])
       let runs = (pr.runs || []) as Array<Record<string, unknown>>
       if (statusFilter) runs = runs.filter((r) => String(r.status) === statusFilter)
       if (stageFilter) runs = runs.filter((r) => String(r.current_stage || '') === stageFilter)
       setProductionRuns(runs)
+      setPublicationRuns(pub.runs || [])
+      setMetricSnapshots(snaps.snapshots || [])
+      setRecommendations(recs.recommendations || [])
     }
   }
 
@@ -273,6 +289,41 @@ export function AutomationCenter() {
             }}
           >
             Run Production
+          </button>
+          <button
+            className="btn btn-ghost"
+            disabled={busy || !workspaceId}
+            onClick={async () => {
+              if (!workspaceId) return
+              setBusy(true)
+              try {
+                const ready = (snap?.contents || []).find((c) => c.status === 'qa' || c.status === 'published')
+                const prod = productionRuns.find((r) => r.package_status === 'READY_FOR_PUBLISH')
+                const contentId = ready?.id || (prod as { content_id?: string } | undefined)?.content_id
+                if (!contentId) {
+                  setLog('Nenhum content READY_FOR_PUBLISH — rode Production primeiro')
+                  return
+                }
+                const res = await fetch(`${API}/api/publishing/run`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    workspaceId,
+                    contentId,
+                    platform: 'YOUTUBE_SHORT',
+                    feedbackLoop: true,
+                    scenario: 'WINNER',
+                    await: true,
+                  }),
+                })
+                setLog(JSON.stringify(await res.json(), null, 2))
+                await refresh()
+              } finally {
+                setBusy(false)
+              }
+            }}
+          >
+            Run Publishing Loop
           </button>
         </div>
 
@@ -526,6 +577,91 @@ export function AutomationCenter() {
               Error: {String(selectedProduction.error || '-')}
             </pre>
           ) : null}
+        </div>
+
+        <h2 style={{ marginTop: '2rem', fontFamily: 'var(--font-display)', letterSpacing: '-0.04em' }}>
+          Publishing
+        </h2>
+        <div className="flow-strip">
+          {(['QUEUED', 'SCHEDULED', 'PUBLISHED', 'FAILED'] as const).map((status) => (
+            <div key={status}>
+              <strong>{publicationRuns.filter((r) => r.status === status).length}</strong>
+              <span>{status}</span>
+            </div>
+          ))}
+        </div>
+        <div className="kit-grid">
+          <pre>
+            {publicationRuns
+              .slice(0, 10)
+              .map(
+                (r) =>
+                  `${r.created_at} | ${r.status} | ${r.platform} | ext=${r.external_id || '-'} | ${r.reality}`,
+              )
+              .join('\n') || 'Nenhuma publication.'}
+          </pre>
+        </div>
+
+        <h2 style={{ marginTop: '2rem', fontFamily: 'var(--font-display)', letterSpacing: '-0.04em' }}>
+          Analytics
+        </h2>
+        <div className="flow-strip">
+          <div>
+            <strong>{metricSnapshots.reduce((a, s) => a + Number(s.views || 0), 0)}</strong>
+            <span>Views</span>
+          </div>
+          <div>
+            <strong>
+              {metricSnapshots.length
+                ? (
+                    metricSnapshots.reduce((a, s) => a + Number(s.completion_rate || 0), 0) /
+                    metricSnapshots.length
+                  ).toFixed(2)
+                : 0}
+            </strong>
+            <span>Avg completion</span>
+          </div>
+          <div>
+            <strong>{metricSnapshots.reduce((a, s) => a + Number(s.clicks || 0), 0)}</strong>
+            <span>Clicks</span>
+          </div>
+          <div>
+            <strong>{metricSnapshots.reduce((a, s) => a + Number(s.conversions || 0), 0)}</strong>
+            <span>Conversions</span>
+          </div>
+        </div>
+
+        <h2 style={{ marginTop: '2rem', fontFamily: 'var(--font-display)', letterSpacing: '-0.04em' }}>
+          Winners
+        </h2>
+        <div className="flow-strip">
+          {(health?.winners || []).map((w) => (
+            <div key={w.status}>
+              <strong>{w.c}</strong>
+              <span>{w.status}</span>
+            </div>
+          ))}
+          <div>
+            <strong>
+              {(snap?.contents || []).filter((c) => c.performance_class === 'WINNER').length}
+            </strong>
+            <span>Top performers</span>
+          </div>
+        </div>
+
+        <h2 style={{ marginTop: '2rem', fontFamily: 'var(--font-display)', letterSpacing: '-0.04em' }}>
+          Strategy
+        </h2>
+        <div className="kit-grid">
+          <pre>
+            {recommendations
+              .slice(0, 12)
+              .map(
+                (r) =>
+                  `${r.created_at} | ${r.kind || '-'} | ${r.status} | conf=${Number(r.confidence || 0).toFixed(2)} | evidence=${r.evidence_count}`,
+              )
+              .join('\n') || 'Nenhuma recommendation.'}
+          </pre>
         </div>
 
         <h2 style={{ marginTop: '3rem', fontFamily: 'var(--font-display)', letterSpacing: '-0.04em' }}>

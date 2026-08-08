@@ -8,12 +8,12 @@
 | `04-cwm-script-factory.json` | CWM — Script Factory | `script_factory` | webhook → prompts + `/api/scripts/generate` (v2) |
 | `05-cwm-content-production.json` | CWM — Content Production | `content_production` | webhook → `/api/production/run` (v2) |
 | `06-cwm-human-approval-gate.json` | CWM — Human Approval Gate | `human_approval_gate` | webhook |
-| `07-cwm-content-publisher.json` | CWM — Content Publisher | `content_publisher` | webhook |
-| `08-cwm-analytics-sync.json` | CWM — Analytics Sync | `analytics_sync` | Cron */6h |
-| `09-cwm-winner-engine.json` | CWM — Winner Engine | `winner_engine` | Cron 08:30 |
+| `07-cwm-content-publisher.json` | CWM — Content Publisher | `content_publisher` | webhook → `/api/publishing/run` (v2) |
+| `08-cwm-analytics-sync.json` | CWM — Analytics Sync | `analytics_sync` | Cron */6h + webhook → `/api/analytics/sync` (v2) |
+| `09-cwm-winner-engine.json` | CWM — Winner Engine | `winner_engine` | Cron 08:30 + webhook → `/api/winners/detect` (v2) |
 | `10-cwm-content-recycling.json` | CWM — Content Recycling Engine | `content_recycling` | webhook |
 | `11-cwm-monetization-engine.json` | CWM — Monetization Engine | `monetization_engine` | webhook |
-| `12-cwm-daily-strategy-agent.json` | CWM — Daily Strategy Agent | `daily_strategy_agent` | Cron 05:00 |
+| `12-cwm-daily-strategy-agent.json` | CWM — Daily Strategy Agent | `daily_strategy_agent` | Cron 05:00 + webhook → `/api/strategy/analyze` (v2) |
 | `18-cwm-30-day-war-mode.json` | CWM — 30 Day War Mode | `war_30_day` | Cron + webhook |
 
 ## Daily Content Engine — detalhe

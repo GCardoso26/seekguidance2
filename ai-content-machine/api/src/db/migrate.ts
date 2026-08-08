@@ -14,6 +14,7 @@ export function migrate(database?: Database.Database): void {
   execSqlFile(db, path.join(root, 'db/migrations/001_init.sqlite.sql'))
   execSqlFileSafe(db, path.join(root, 'db/migrations/002_research_script_runs.sqlite.sql'))
   execSqlFileSafe(db, path.join(root, 'db/migrations/003_production.sqlite.sql'))
+  execSqlFileSafe(db, path.join(root, 'db/migrations/004_publishing.sqlite.sql'))
   seedPrompts(db)
 }
 

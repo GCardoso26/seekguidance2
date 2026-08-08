@@ -24,6 +24,8 @@ export type ResearchRunInput = {
   executionId?: string
   /** Force failure provider injection for tests */
   testProviders?: ResearchProvider[]
+  /** Bypass same-day idempotency (strategy feedback / explicit re-run) */
+  force?: boolean
 }
 
 function defaultProviders(): ResearchProvider[] {
@@ -61,9 +63,11 @@ export class ResearchService {
     const date = new Date().toISOString().slice(0, 10)
     const providers = input.testProviders ?? input.providers ?? defaultProviders()
     const providerLabel = providers.map((p) => p.name).sort().join('+')
-    const idempotencyKey = researchIdemKey(input.workspaceId, niche.id, date, providerLabel)
+    const idempotencyKey = input.force
+      ? `${researchIdemKey(input.workspaceId, niche.id, date, providerLabel)}:force:${uid()}`
+      : researchIdemKey(input.workspaceId, niche.id, date, providerLabel)
 
-    if (alreadyProcessed(idempotencyKey)) {
+    if (!input.force && alreadyProcessed(idempotencyKey)) {
       const existing = db
         .prepare(`SELECT * FROM research_runs WHERE idempotency_key = ?`)
         .get(idempotencyKey)

@@ -11,35 +11,61 @@
       "name": "Every 6 Hours",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
-      "position": [240, 300]
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "cwm/analytics-sync",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [200, 480]
     },
     {
       "parameters": {
         "method": "POST",
-        "url": "={{$env.CWM_API_BASE}}/api/automation/trigger",
+        "url": "={{$env.CWM_API_BASE}}/api/analytics/sync",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"workflow\": \"analytics_sync\",\n  \"workspaceId\": \"{{$env.CWM_DEFAULT_WORKSPACE_ID}}\",\n  \"payload\": { \"source\": \"n8n-analytics\" }\n}"
+        "jsonBody": "={\n  \"workspaceId\": \"{{$json.body.workspaceId || $env.CWM_DEFAULT_WORKSPACE_ID}}\",\n  \"publicationId\": \"{{$json.body.publicationId || undefined}}\",\n  \"await\": true\n}",
+        "options": { "timeout": 120000 }
       },
-      "id": "trigger",
-      "name": "Trigger Analytics Sync",
+      "id": "sync",
+      "name": "Sync Metrics",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [520, 300]
+      "position": [480, 390]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{$json}}"
+      },
+      "id": "respond",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [720, 480]
     }
   ],
   "connections": {
-    "Every 6 Hours": {
-      "main": [[{ "node": "Trigger Analytics Sync", "type": "main", "index": 0 }]]
-    }
+    "Every 6 Hours": { "main": [[{ "node": "Sync Metrics", "type": "main", "index": 0 }]] },
+    "Webhook": { "main": [[{ "node": "Sync Metrics", "type": "main", "index": 0 }]] },
+    "Sync Metrics": { "main": [[{ "node": "Respond", "type": "main", "index": 0 }]] }
   },
   "settings": { "executionOrder": "v1" },
   "meta": {
     "cwm": {
       "workflowKey": "analytics_sync",
-      "version": 1,
-      "purpose": "Fetch platform metrics every 6h; never mark synced without data",
-      "tables": ["content_metrics", "contents"]
+      "version": 2,
+      "purpose": "Fetch/normalize platform metrics into metric_snapshots (MOCK deterministic)",
+      "tables": ["metric_snapshots", "content_metrics"],
+      "controlPlane": "/api/analytics/sync"
     }
   }
 }

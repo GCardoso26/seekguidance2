@@ -110,4 +110,13 @@ Workflow especial + tabela `war_campaigns` com progresso diário adaptativo (`Ad
 - WF 05 chama `POST /api/production/run` (não lógica de negócio em Code nodes)
 - Retry por stage + DLQ + idempotência `productionId+stage+version`
 - Mock gera artefatos FFmpeg verificáveis (`sourceType=MOCK`)
-- **Não** implementa Publishing Engine
+
+## Fase 4 — Publishing + Analytics Feedback Loop
+
+- **PublishingService** + MockPublisher (`api/src/publishing/`)
+- **AnalyticsService** + deterministic MockAnalytics (`api/src/analytics/`)
+- **WinnerDetectionService** + ContentDNA (`api/src/winner/`)
+- **StrategyService** → research feedback (`api/src/strategy/`)
+- Tabelas: `publication_runs`, `metric_snapshots` (+ reuse `strategy_recommendations`, `content_metrics`)
+- WF 07/08/09/12 v2 → Control Plane APIs
+- **Não** implementa OAuth real / ads / monetização real
