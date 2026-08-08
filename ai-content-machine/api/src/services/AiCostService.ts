@@ -12,6 +12,7 @@ export function recordAiCost(input: {
   contentIdeaId?: string
   scriptRunId?: string
   researchRunId?: string
+  productionRunId?: string
   reality?: Reality
 }): string {
   const id = uid()
@@ -19,8 +20,8 @@ export function recordAiCost(input: {
     .prepare(
       `INSERT INTO ai_cost_events
        (id, workspace_id, operation, provider, model, input_tokens, output_tokens,
-        estimated_cost_cents, content_idea_id, script_run_id, research_run_id, reality, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        estimated_cost_cents, content_idea_id, script_run_id, research_run_id, production_run_id, reality, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     )
     .run(
       id,
@@ -34,6 +35,7 @@ export function recordAiCost(input: {
       input.contentIdeaId ?? null,
       input.scriptRunId ?? null,
       input.researchRunId ?? null,
+      input.productionRunId ?? null,
       input.reality ?? 'MOCK',
       nowIso(),
     )

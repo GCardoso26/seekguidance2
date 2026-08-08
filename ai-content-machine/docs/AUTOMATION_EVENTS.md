@@ -16,6 +16,17 @@
 | `script.completed` | Script run concluída |
 | `script.failed` | Script run falhou / DLQ |
 | `script.created` | Roteiro gerado |
+| `production.started` | Production run iniciada |
+| `production.planned` | Production plan + storyboard |
+| `voice.generated` | Voice asset gerado |
+| `visuals.generated` | Visual assets gerados |
+| `subtitles.generated` | Subtítulos SRT/VTT |
+| `video.composed` | FINAL_VIDEO composto |
+| `thumbnail.generated` | Thumbnail gerado |
+| `production.qa_passed` | Media QA PASS |
+| `production.qa_failed` | Media QA FAIL / review |
+| `production.completed` | Package pronto (ou review) |
+| `production.failed` | Falha de stage / pipeline |
 | `content.created` | Content record criado |
 | `content.approved` | Aprovado (humano ou auto) |
 | `content.scheduled` | Agendado |

@@ -6,7 +6,7 @@
 | `02-cwm-research-engine.json` | CWM — Research Engine | `research_engine` | Cron 06:00 + webhook → `/api/research/run` (v2) |
 | `03-cwm-idea-generator.json` | CWM — Idea Generator | `idea_generator` | webhook |
 | `04-cwm-script-factory.json` | CWM — Script Factory | `script_factory` | webhook → prompts + `/api/scripts/generate` (v2) |
-| `05-cwm-content-production.json` | CWM — Content Production | `content_production` | webhook |
+| `05-cwm-content-production.json` | CWM — Content Production | `content_production` | webhook → `/api/production/run` (v2) |
 | `06-cwm-human-approval-gate.json` | CWM — Human Approval Gate | `human_approval_gate` | webhook |
 | `07-cwm-content-publisher.json` | CWM — Content Publisher | `content_publisher` | webhook |
 | `08-cwm-analytics-sync.json` | CWM — Analytics Sync | `analytics_sync` | Cron */6h |
@@ -25,7 +25,16 @@
 **Failure modes:** workspace pausado, sem canais/nichos, falha de asset validation, publish fail → DLQ  
 **Retry:** Control Plane + n8n retry; idempotência por `daily:{workspace}:{date}`
 
+## Content Production — detalhe (v2)
+
+**Purpose:** script aprovado → plan → voice → visuals → subtitles → compose → thumbnail → QA → storage → content package.  
+**Inputs:** `workspaceId`, `scriptId`, `platform?`  
+**Control Plane:** `POST /api/production/run` (`await:true` no n8n)  
+**Outputs:** `production_runs`, `media_assets`, `content_packages`  
+**Failure modes:** stage fail → PARTIAL + retry por stage; max retries → DLQ  
+**Não publica** redes sociais nesta fase.
+
 ## Princípio
 
-Workflows n8n **disparam** o Control Plane (`POST /api/automation/trigger`) e carregam prompts via `GET /api/ai/prompts/:name`.  
+Workflows n8n **disparam** o Control Plane (APIs dedicadas ou `/api/automation/trigger`) e carregam prompts via `GET /api/ai/prompts/:name`.  
 Estado permanente fica no Postgres/SQLite — não no n8n.

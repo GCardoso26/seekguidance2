@@ -25,3 +25,27 @@ Scores: hookStrength, clarity, novelty, retentionPotential, platformFit, ctaQual
 - source traceability obrigatória
 - fingerprint anti-duplicata
 - scoreBreakdown explicável
+
+## Media QA (Fase 3)
+
+`MediaQAService` valida o pacote técnico:
+
+- arquivo existe / size > 0 / duration > 0
+- resolution, fps, aspect ratio vs `PlatformProductionProfile`
+- codecs vídeo/áudio, tracks presentes
+- subtítulos (SRT/VTT) sem overlaps; start < end
+- thumbnail dimensions/format/size
+- licenças conhecidas; checksums
+
+Resultados: `PASS` | `FAIL` | `REQUIRES_REVIEW`
+
+### ProductionQualityScore (0–100)
+
+`technicalQuality`, `audioQuality`, `subtitleQuality`, `visualCompleteness`, `platformFit`, `assetTraceability`
+
+Heurísticas de “beleza” ficam fora do QA técnico binário.
+
+### Quality gate → READY_FOR_PUBLISH
+
+Somente quando voice/visuals/subtitles/final/thumbnail/storage/checksums/licenses estão válidos e não há falha aberta.  
+Caso contrário: `REQUIRES_REVIEW` / `READY_FOR_REVIEW`.

@@ -13,6 +13,8 @@ type Health = {
   workflows: Record<string, string>
   researchRuns?: Array<{ status: string; c: number }>
   scriptRuns?: Array<{ status: string; c: number }>
+  productionRuns?: Array<{ status: string; c: number }>
+  productionStages?: Array<{ stage: string; c: number }>
   aiCostCents?: number
   observability?: {
     successRate: number
@@ -58,9 +60,13 @@ export function AutomationCenter() {
   const [busy, setBusy] = useState(false)
   const [researchRuns, setResearchRuns] = useState<Array<Record<string, unknown>>>([])
   const [scriptRuns, setScriptRuns] = useState<Array<Record<string, unknown>>>([])
+  const [productionRuns, setProductionRuns] = useState<Array<Record<string, unknown>>>([])
+  const [selectedProduction, setSelectedProduction] = useState<Record<string, unknown> | null>(null)
   const [windowFilter, setWindowFilter] = useState<'24h' | '7d' | '30d'>('24h')
   const [workflowFilter, setWorkflowFilter] = useState('')
   const [providerFilter, setProviderFilter] = useState('')
+  const [statusFilter, setStatusFilter] = useState('')
+  const [stageFilter, setStageFilter] = useState('')
 
   async function refresh() {
     const params = new URLSearchParams({ window: windowFilter })
@@ -74,8 +80,13 @@ export function AutomationCenter() {
       if (!s.error) setSnap(s)
       const rr = await fetch(`${API}/api/research/workspaces/${workspaceId}/runs`).then((r) => r.json())
       const sr = await fetch(`${API}/api/scripts/workspaces/${workspaceId}/runs`).then((r) => r.json())
+      const pr = await fetch(`${API}/api/production/workspaces/${workspaceId}/runs`).then((r) => r.json())
       setResearchRuns(rr.runs || [])
       setScriptRuns(sr.runs || [])
+      let runs = (pr.runs || []) as Array<Record<string, unknown>>
+      if (statusFilter) runs = runs.filter((r) => String(r.status) === statusFilter)
+      if (stageFilter) runs = runs.filter((r) => String(r.current_stage || '') === stageFilter)
+      setProductionRuns(runs)
     }
   }
 
@@ -83,7 +94,7 @@ export function AutomationCenter() {
     void refresh()
     const t = setInterval(() => void refresh(), 5000)
     return () => clearInterval(t)
-  }, [workspaceId, windowFilter, workflowFilter, providerFilter])
+  }, [workspaceId, windowFilter, workflowFilter, providerFilter, statusFilter, stageFilter])
 
   async function createWorkspace(e: FormEvent) {
     e.preventDefault()
@@ -226,6 +237,43 @@ export function AutomationCenter() {
           >
             Run Script Factory
           </button>
+          <button
+            className="btn btn-ghost"
+            disabled={busy || !workspaceId}
+            onClick={async () => {
+              if (!workspaceId) return
+              setBusy(true)
+              try {
+                const scripts = await fetch(`${API}/api/workspaces/${workspaceId}`).then((r) => r.json())
+                const approved =
+                  (scripts.scripts || []).find(
+                    (s: { status: string; qa_status: string }) =>
+                      s.status === 'approved' || (s.status === 'ready' && s.qa_status === 'passed'),
+                  ) || (scripts.scripts || [])[0]
+                if (!approved) {
+                  setLog('Nenhum script — rode Script Factory primeiro')
+                  return
+                }
+                const res = await fetch(`${API}/api/production/run`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    workspaceId,
+                    scriptId: approved.id,
+                    platform: approved.platform || 'YOUTUBE_SHORT',
+                    allowUnapproved: true,
+                    await: true,
+                  }),
+                })
+                setLog(JSON.stringify(await res.json(), null, 2))
+                await refresh()
+              } finally {
+                setBusy(false)
+              }
+            }}
+          >
+            Run Production
+          </button>
         </div>
 
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginTop: '1.25rem' }}>
@@ -257,6 +305,32 @@ export function AutomationCenter() {
             placeholder="provider"
             style={{ padding: '0.6rem 0.8rem', border: '1px solid var(--line)', background: 'var(--white)' }}
           />
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            style={{ padding: '0.6rem 0.8rem', border: '1px solid var(--line)', background: 'var(--white)' }}
+          >
+            <option value="">Production status</option>
+            {['QUEUED', 'COMPLETED', 'PARTIAL', 'FAILED', 'REQUIRES_REVIEW', 'CANCELLED'].map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
+          <select
+            value={stageFilter}
+            onChange={(e) => setStageFilter(e.target.value)}
+            style={{ padding: '0.6rem 0.8rem', border: '1px solid var(--line)', background: 'var(--white)' }}
+          >
+            <option value="">Production stage</option>
+            {['PLANNING', 'VOICE', 'VISUALS', 'SUBTITLES', 'COMPOSING', 'THUMBNAIL', 'QA', 'STORAGE'].map(
+              (s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ),
+            )}
+          </select>
         </div>
 
         <div className="flow-strip" style={{ marginTop: '1.25rem' }}>
@@ -296,15 +370,15 @@ export function AutomationCenter() {
             <span>Script runs</span>
           </div>
           <div>
-            <strong>
-              {scriptRuns.filter((r) => r.status === 'COMPLETED').length}/
-              {Math.max(scriptRuns.length, 1)}
-            </strong>
-            <span>Script success</span>
+            <strong>{productionRuns.length}</strong>
+            <span>Production runs</span>
           </div>
           <div>
-            <strong>{health?.today.completed ?? 0}</strong>
-            <span>Completed</span>
+            <strong>
+              {productionRuns.filter((r) => r.status === 'COMPLETED').length}/
+              {Math.max(productionRuns.length, 1)}
+            </strong>
+            <span>Production success</span>
           </div>
         </div>
 
@@ -368,6 +442,90 @@ export function AutomationCenter() {
               )
               .join('\n') || 'Nenhum script run.'}
           </pre>
+        </div>
+
+        <h2 style={{ marginTop: '2rem', fontFamily: 'var(--font-display)', letterSpacing: '-0.04em' }}>
+          Production
+        </h2>
+        <div className="flow-strip" style={{ marginTop: '0.75rem' }}>
+          {(
+            [
+              ['QUEUED', 'Queued'],
+              ['COMPLETED', 'Completed'],
+              ['PARTIAL', 'Partial'],
+              ['FAILED', 'Failed'],
+            ] as const
+          ).map(([status, label]) => (
+            <div key={status}>
+              <strong>{productionRuns.filter((r) => r.status === status).length}</strong>
+              <span>{label}</span>
+            </div>
+          ))}
+          <div>
+            <strong>{health?.openFailures ?? 0}</strong>
+            <span>DLQ</span>
+          </div>
+        </div>
+        <div className="kit-grid" style={{ marginTop: '1rem' }}>
+          <pre>
+            {productionRuns
+              .slice(0, 12)
+              .map((r) => {
+                const stages = [
+                  'PLANNING',
+                  'VOICE',
+                  'VISUALS',
+                  'SUBTITLES',
+                  'COMPOSING',
+                  'THUMBNAIL',
+                  'QA',
+                  'STORAGE',
+                ]
+                const result = (() => {
+                  try {
+                    return JSON.parse(String(r.result || '{}')) as {
+                      stages?: Record<string, { ok?: boolean }>
+                    }
+                  } catch {
+                    return {}
+                  }
+                })()
+                const timeline = stages
+                  .map((s) => {
+                    if (result.stages?.[s]?.ok) return `✓ ${s}`
+                    if (r.current_stage === s) return `→ ${s}`
+                    return `○ ${s}`
+                  })
+                  .join(' · ')
+                return `${r.created_at} | ${r.status} | stage=${r.current_stage || '-'} | pkg=${r.package_status} | score=${r.quality_score ?? '-'}\n  ${timeline}`
+              })
+              .join('\n\n') || 'Nenhum production run.'}
+          </pre>
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.75rem' }}>
+            {productionRuns.slice(0, 5).map((r) => (
+              <button
+                key={String(r.id)}
+                type="button"
+                className="btn btn-ghost"
+                onClick={async () => {
+                  const detail = await fetch(`${API}/api/production/runs/${r.id}`).then((x) => x.json())
+                  setSelectedProduction(detail)
+                  setLog(JSON.stringify(detail, null, 2))
+                }}
+              >
+                Detalhe {String(r.id).slice(0, 8)}
+              </button>
+            ))}
+          </div>
+          {selectedProduction ? (
+            <pre style={{ marginTop: '0.75rem' }}>
+              Assets: {Array.isArray(selectedProduction.assets) ? selectedProduction.assets.length : 0}
+              {' · '}
+              Package: {String((selectedProduction.package as { status?: string } | null)?.status || '-')}
+              {' · '}
+              Error: {String(selectedProduction.error || '-')}
+            </pre>
+          ) : null}
         </div>
 
         <h2 style={{ marginTop: '3rem', fontFamily: 'var(--font-display)', letterSpacing: '-0.04em' }}>

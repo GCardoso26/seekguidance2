@@ -8,6 +8,7 @@ import { promptRoutes } from './routes/prompts.js'
 import { workspaceRoutes } from './routes/workspaces.js'
 import { researchRoutes } from './routes/research.js'
 import { scriptRoutes } from './routes/scripts.js'
+import { productionRoutes } from './routes/production.js'
 
 export async function buildServer() {
   getDb()
@@ -26,6 +27,7 @@ export async function buildServer() {
   await app.register(workspaceRoutes)
   await app.register(researchRoutes)
   await app.register(scriptRoutes)
+  await app.register(productionRoutes)
 
   return app
 }

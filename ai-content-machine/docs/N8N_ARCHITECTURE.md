@@ -102,3 +102,12 @@ Workflow especial + tabela `war_campaigns` com progresso diário adaptativo (`Ad
 - **ScriptFactoryService** (`api/src/scriptFactory/`) — context, hooks, script, CTA, caption, visual brief, QA, `script_runs`, `ai_cost_events`
 - Daily Engine **não** foi reescrito; `runResearchEngine` delega ao ResearchService
 - LocalOrchestrator (mock) executa ambos via AutomationService
+
+## Fase 3 — Content Production Engine
+
+- **ProductionService** (`api/src/production/`) — plan, voice, visuals, subtitles, compose, thumbnail, media QA, storage, content package
+- Tabelas: `production_runs`, `media_assets`, `content_packages`
+- WF 05 chama `POST /api/production/run` (não lógica de negócio em Code nodes)
+- Retry por stage + DLQ + idempotência `productionId+stage+version`
+- Mock gera artefatos FFmpeg verificáveis (`sourceType=MOCK`)
+- **Não** implementa Publishing Engine

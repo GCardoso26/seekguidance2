@@ -3,6 +3,7 @@ import { getDb, uid, nowIso } from '../db/client.js'
 import { runDailyContentEngine, runResearchEngine } from './pipelines/dailyContentEngine.js'
 import { researchService } from '../research/ResearchService.js'
 import { scriptFactoryService } from '../scriptFactory/ScriptFactoryService.js'
+import { productionService } from '../production/ProductionService.js'
 import { sumAiCost } from './AiCostService.js'
 
 export const WORKFLOWS = {
@@ -136,6 +137,25 @@ export class AutomationService {
           forceQaFail: Boolean(payload.forceQaFail),
           forceAiFailTimes: Number(payload.forceAiFailTimes || 0),
         })) as unknown as Record<string, unknown>
+      } else if (workflow === 'content_production') {
+        const scriptId = String(payload.scriptId || '')
+        if (!scriptId) throw new Error('scriptId_required')
+        result = (await productionService.run({
+          workspaceId,
+          scriptId,
+          contentId: payload.contentId ? String(payload.contentId) : undefined,
+          platform: payload.platform ? String(payload.platform) : undefined,
+          executionId,
+          allowUnapproved: Boolean(payload.allowUnapproved),
+          forceFailStage: payload.forceFailStage
+            ? (String(payload.forceFailStage) as import('../production/types.js').ProductionStage)
+            : undefined,
+          forceFailTimes: Number(payload.forceFailTimes || 0),
+          targetDurationOverride: payload.targetDurationOverride
+            ? Number(payload.targetDurationOverride)
+            : undefined,
+          regenerate: Boolean(payload.regenerate),
+        })) as unknown as Record<string, unknown>
       } else {
         // Other CWM workflows are triggered via n8n JSON in production.
         // In mock MVP we acknowledge the trigger without fabricating REAL side-effects.
@@ -153,7 +173,7 @@ export class AutomationService {
         ? created.contents.length
         : Array.isArray(result.topicsCreated)
           ? result.topicsCreated.length
-          : result.scriptId
+          : result.scriptId || result.productionRunId
             ? 1
             : Number(result.itemsFound ?? 0)
       const runStatus =
@@ -355,6 +375,26 @@ export class AutomationService {
     }
     scriptSql += ` GROUP BY status`
 
+    let productionSql = `SELECT status, COUNT(*) as c FROM production_runs WHERE created_at >= ?`
+    const productionParams: unknown[] = [since]
+    if (workspaceId) {
+      productionSql += ` AND workspace_id = ?`
+      productionParams.push(workspaceId)
+    }
+    if (opts?.provider) {
+      productionSql += ` AND reality = ?`
+      productionParams.push(opts.provider)
+    }
+    productionSql += ` GROUP BY status`
+
+    let productionStageSql = `SELECT current_stage as stage, COUNT(*) as c FROM production_runs WHERE created_at >= ? AND current_stage IS NOT NULL`
+    const productionStageParams: unknown[] = [since]
+    if (workspaceId) {
+      productionStageSql += ` AND workspace_id = ?`
+      productionStageParams.push(workspaceId)
+    }
+    productionStageSql += ` GROUP BY current_stage`
+
     return {
       mode: config.automationMode,
       systemReady: systemReady(),
@@ -377,6 +417,8 @@ export class AutomationService {
       openFailures: failures.c,
       researchRuns: db.prepare(researchSql).all(...researchParams),
       scriptRuns: db.prepare(scriptSql).all(...scriptParams),
+      productionRuns: db.prepare(productionSql).all(...productionParams),
+      productionStages: db.prepare(productionStageSql).all(...productionStageParams),
       aiCostCents: workspaceId ? sumAiCost(workspaceId) : 0,
     }
   }
