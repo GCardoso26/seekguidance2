@@ -3,7 +3,9 @@ import { emitEvent } from '../services/EventService.js'
 import { withRetry } from '../lib/retry.js'
 import { recordAiCost } from '../services/AiCostService.js'
 import { mockAnalyticsProvider, type MockScenario } from './MockAnalyticsProvider.js'
+import { youtubeAnalyticsProvider } from './YouTubeAnalyticsProvider.js'
 import { normalizePlatformMetrics } from './MetricNormalizer.js'
+import { config } from '../config.js'
 
 export type AnalyticsSyncInput = {
   workspaceId: string
@@ -13,6 +15,8 @@ export type AnalyticsSyncInput = {
   executionId?: string
   forceFailTimes?: number
   windowLabel?: string
+  /** Prefer real YouTube analytics when connected */
+  preferReal?: boolean
 }
 
 export class AnalyticsService {
@@ -87,14 +91,51 @@ export class AnalyticsService {
 
       const externalId = String(input.publication.external_id || '')
       const platform = String(input.publication.platform || 'TIKTOK')
+      const publicationSource = String(input.publication.publication_source || 'MOCK')
+      const wantReal =
+        (input.preferReal || publicationSource === 'REAL') &&
+        platform.toUpperCase().includes('YOUTUBE') &&
+        config.automationMode !== 'mock'
+
+      emitEvent({
+        workspaceId: input.workspaceId,
+        eventType: 'metrics.sync_started',
+        entityType: 'publication_run',
+        entityId: pubId,
+        reality: wantReal ? 'REAL' : 'MOCK',
+        payload: { window: input.windowLabel },
+      })
+
+      if (wantReal && youtubeAnalyticsProvider.status() === 'READY') {
+        const real = await youtubeAnalyticsProvider.fetch({
+          externalId,
+          platform,
+          workspaceId: input.workspaceId,
+        })
+        return {
+          fetched: { raw: real.raw, scenario: real.status },
+          metrics: real.metrics,
+          platform,
+          externalId,
+          metricsSource: 'YOUTUBE' as const,
+          reality: 'REAL' as const,
+        }
+      }
+
       const fetched = mockAnalyticsProvider.fetch({
         externalId,
         platform,
         scenario: input.scenario,
       })
-      // Ensure canonical via normalizer (raw may already be canonical)
       const metrics = normalizePlatformMetrics(platform, fetched.raw)
-      return { fetched, metrics, platform, externalId }
+      return {
+        fetched,
+        metrics,
+        platform,
+        externalId,
+        metricsSource: 'MOCK' as const,
+        reality: 'MOCK' as const,
+      }
     })
 
     if (!retried.ok) {
@@ -113,13 +154,21 @@ export class AnalyticsService {
           retried.failure.attempts,
           nowIso(),
         )
+      emitEvent({
+        workspaceId: input.workspaceId,
+        eventType: 'metrics.sync_failed',
+        entityType: 'publication_run',
+        entityId: pubId,
+        reality: 'FAILED',
+        payload: { error: retried.failure.error },
+      })
       throw new Error(retried.failure.error)
     }
 
-    const { metrics, fetched, platform } = retried.value
+    const { metrics, fetched, platform, metricsSource, reality } = retried.value
     const contentId = String(input.publication.content_id)
     const day = nowIso().slice(0, 10)
-    const snapshotKey = `${pubId}:${input.windowLabel}:${day}`
+    const snapshotKey = `${pubId}:${input.windowLabel}:${day}:${metricsSource}`
     const existing = getDb()
       .prepare(`SELECT id FROM metric_snapshots WHERE snapshot_key = ?`)
       .get(snapshotKey) as { id: string } | undefined
@@ -132,8 +181,8 @@ export class AnalyticsService {
          (id, workspace_id, publication_id, content_id, platform, captured_at,
           views, likes, comments, shares, saves, watch_time, average_view_duration,
           completion_rate, followers_gained, clicks, conversions, raw_metrics,
-          source, reality, snapshot_key, created_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'MOCK', 'MOCK', ?, ?)`,
+          source, reality, snapshot_key, created_at, metrics_source, window_label)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       )
       .run(
         id,
@@ -154,8 +203,12 @@ export class AnalyticsService {
         metrics.clicks,
         metrics.conversions,
         JSON.stringify(fetched.raw),
+        metricsSource,
+        reality,
         snapshotKey,
         nowIso(),
+        metricsSource,
+        input.windowLabel,
       )
 
     // Also append to legacy content_metrics for Daily Engine compatibility
@@ -191,16 +244,24 @@ export class AnalyticsService {
       eventType: 'metrics.snapshot_created',
       entityType: 'metric_snapshot',
       entityId: id,
-      reality: 'MOCK',
-      payload: { publicationId: pubId, scenario: fetched.scenario },
+      reality,
+      payload: { publicationId: pubId, scenario: fetched.scenario, metricsSource },
     })
     emitEvent({
       workspaceId: input.workspaceId,
       eventType: 'metrics.updated',
       entityType: 'content',
       entityId: contentId,
-      reality: 'MOCK',
-      payload: { snapshotId: id, views: metrics.views },
+      reality,
+      payload: { snapshotId: id, views: metrics.views, metricsSource },
+    })
+    emitEvent({
+      workspaceId: input.workspaceId,
+      eventType: 'metrics.sync_completed',
+      entityType: 'metric_snapshot',
+      entityId: id,
+      reality,
+      payload: { publicationId: pubId, metricsSource },
     })
 
     return id

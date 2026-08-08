@@ -229,21 +229,33 @@ export class StrategyService {
         samples: bucket.dnas.slice(0, 5),
         recommendation: this.humanize(bucket),
       }
+      // Origin: REAL only if all source contents have REAL publication; else MOCK
+      const origins = db
+        .prepare(
+          `SELECT DISTINCT publication_source FROM publication_runs
+           WHERE content_id IN (${bucket.contentIds.map(() => '?').join(',')}) AND status='PUBLISHED'`,
+        )
+        .all(...bucket.contentIds) as Array<{ publication_source: string }>
+      const dataOrigin =
+        origins.length && origins.every((o) => o.publication_source === 'REAL') ? 'REAL' : 'MOCK'
+
       db.prepare(
         `INSERT INTO strategy_recommendations
-         (id, workspace_id, window_days, payload, reality, created_at, kind, confidence, evidence_count, source_content_ids, status)
-         VALUES (?, ?, ?, ?, 'MOCK', ?, ?, ?, ?, ?, ?)`,
+         (id, workspace_id, window_days, payload, reality, created_at, kind, confidence, evidence_count, source_content_ids, status, data_origin)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       ).run(
         id,
         workspaceId,
         windowDays,
         JSON.stringify(payload),
+        dataOrigin,
         nowIso(),
         bucket.kind,
         confidence,
         evidenceCount,
         JSON.stringify(bucket.contentIds),
         status,
+        dataOrigin,
       )
       recommendations.push({ id, kind: bucket.kind, status, confidence, evidenceCount, pattern: bucket.key })
       if (status === 'strong') strong.push(id)

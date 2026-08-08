@@ -186,6 +186,7 @@ export class AutomationService {
             publicationVersion: payload.publicationVersion
               ? Number(payload.publicationVersion)
               : undefined,
+            forceReal: Boolean(payload.forceReal),
           })) as unknown as Record<string, unknown>
         }
       } else if (workflow === 'analytics_sync') {
@@ -196,6 +197,8 @@ export class AutomationService {
           scenario: payload.scenario as MockScenario | undefined,
           executionId,
           forceFailTimes: Number(payload.forceFailTimes || 0),
+          preferReal: Boolean(payload.preferReal),
+          windowLabel: payload.windowLabel ? String(payload.windowLabel) : undefined,
         })) as unknown as Record<string, unknown>
       } else if (workflow === 'winner_engine') {
         result = (await winnerDetectionService.detect({

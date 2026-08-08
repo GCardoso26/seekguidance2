@@ -14,6 +14,8 @@
 | `10-cwm-content-recycling.json` | CWM — Content Recycling Engine | `content_recycling` | webhook |
 | `11-cwm-monetization-engine.json` | CWM — Monetization Engine | `monetization_engine` | webhook |
 | `12-cwm-daily-strategy-agent.json` | CWM — Daily Strategy Agent | `daily_strategy_agent` | Cron 05:00 + webhook → `/api/strategy/analyze` (v2) |
+| `13-cwm-publication-monitoring.json` | CWM — Publication Monitoring | `publication_monitoring` | Cron hourly + webhook |
+| `14-cwm-real-analytics-windows.json` | CWM — Real Analytics Windows | `real_analytics_windows` | Cron hourly + webhook → analytics preferReal |
 | `18-cwm-30-day-war-mode.json` | CWM — 30 Day War Mode | `war_30_day` | Cron + webhook |
 
 ## Daily Content Engine — detalhe

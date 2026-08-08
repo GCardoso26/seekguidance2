@@ -1,0 +1,67 @@
+{
+  "name": "CWM — Publication Monitoring",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [{ "field": "cronExpression", "expression": "15 * * * *" }]
+        }
+      },
+      "id": "cron",
+      "name": "Hourly Monitor",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "cwm/publication-monitoring",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [200, 480]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{$env.CWM_API_BASE}}/api/publishing/workspaces/{{$json.body.workspaceId || $env.CWM_DEFAULT_WORKSPACE_ID}}/runs"
+      },
+      "id": "list",
+      "name": "List Publications",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [480, 390]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{$json}}"
+      },
+      "id": "respond",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [720, 480]
+    }
+  ],
+  "connections": {
+    "Hourly Monitor": { "main": [[{ "node": "List Publications", "type": "main", "index": 0 }]] },
+    "Webhook": { "main": [[{ "node": "List Publications", "type": "main", "index": 0 }]] },
+    "List Publications": { "main": [[{ "node": "Respond", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "meta": {
+    "cwm": {
+      "workflowKey": "publication_monitoring",
+      "version": 1,
+      "purpose": "Monitor UNKNOWN/FAILED publications; Control Plane checks remote status before retry",
+      "tables": ["publication_runs"],
+      "controlPlane": "/api/publishing/workspaces/:id/runs"
+    }
+  }
+}

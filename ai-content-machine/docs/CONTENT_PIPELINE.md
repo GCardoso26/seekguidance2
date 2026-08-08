@@ -18,5 +18,9 @@ Research → Script → Production → READY_FOR_PUBLISH
 | Strategy | `/api/strategy/analyze` | WF 12 | StrategyService |
 | Daily Engine | `/api/automation/trigger` | WF 01 | dailyContentEngine (inalterado no core) |
 
-Feedback loop fecha o CWM: produzir → publicar → medir → aprender → pesquisar de novo.  
-Publicação real (OAuth) permanece NOT_CONFIGURED.
+Feedback loop fecha o CWM: produzir → publicar → medir → aprender → pesquisar de novo.
+
+### Fase 5 — YouTube controlado
+
+Mocks permanecem. YouTube OAuth + publisher/analytics reais atrás de kill switch, dry-run, daily limit e `approvedForPublishing`.  
+TikTok/Instagram/Pinterest: NOT_CONFIGURED. Ver `docs/YOUTUBE_CONTROLLED_PUBLISHING.md`.

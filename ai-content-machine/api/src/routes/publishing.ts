@@ -19,6 +19,7 @@ export async function publishingRoutes(app: FastifyInstance) {
       publicationVersion: z.number().int().optional(),
       feedbackLoop: z.boolean().optional(),
       scenario: z.enum(['WINNER', 'NORMAL', 'LOSER', 'INSUFFICIENT_DATA']).optional(),
+      forceReal: z.boolean().optional(),
     })
     const parsed = schema.safeParse(req.body)
     if (!parsed.success) return reply.code(400).send({ error: parsed.error.flatten() })
@@ -31,6 +32,7 @@ export async function publishingRoutes(app: FastifyInstance) {
       publicationVersion: parsed.data.publicationVersion,
       feedbackLoop: parsed.data.feedbackLoop,
       scenario: parsed.data.scenario,
+      forceReal: parsed.data.forceReal,
     }
 
     if (parsed.data.await === true) {
@@ -115,6 +117,7 @@ export async function publishingRoutes(app: FastifyInstance) {
       scenario: z.enum(['WINNER', 'NORMAL', 'LOSER', 'INSUFFICIENT_DATA']).optional(),
       await: z.boolean().optional(),
       forceFailTimes: z.number().int().optional(),
+      preferReal: z.boolean().optional(),
     })
     const parsed = schema.safeParse(req.body)
     if (!parsed.success) return reply.code(400).send({ error: parsed.error.flatten() })

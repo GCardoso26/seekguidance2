@@ -7,7 +7,15 @@ import { withRetry } from '../lib/retry.js'
 import { recordAiCost } from '../services/AiCostService.js'
 import { resolvePlatform } from '../scriptFactory/PlatformProfiles.js'
 import { MockPublisher } from './MockPublisher.js'
+import { youtubePublisher } from './youtube/YouTubePublisher.js'
+import {
+  tiktokPublisher,
+  instagramPublisher,
+  pinterestPublisher,
+} from './adapters.js'
 import { buildPublicationMetadata } from './PublicationMetadataBuilder.js'
+import { evaluatePublishingSafety, safetySnapshot } from './PublishingSafety.js'
+import type { PlatformPublisher } from './PlatformPublisher.js'
 import type { PublicationPlatform, PublicationStatus } from './types.js'
 
 export type PublishingRunInput = {
@@ -19,6 +27,8 @@ export type PublishingRunInput = {
   publicationVersion?: number
   forceFailTimes?: number
   skipFeedback?: boolean
+  /** Opt-in for REAL_PROVIDER_E2E — still subject to kill switches */
+  forceReal?: boolean
 }
 
 function pubIdemKey(workspaceId: string, contentId: string, platform: string, version: number) {
@@ -26,17 +36,28 @@ function pubIdemKey(workspaceId: string, contentId: string, platform: string, ve
 }
 
 export class PublishingService {
-  private publisher = new MockPublisher()
+  private mock = new MockPublisher()
   private failCounters = new Map<string, number>()
 
   providersStatus() {
     return {
-      mock: this.publisher.status(),
-      youtube: 'NOT_CONFIGURED',
-      tiktok: 'NOT_CONFIGURED',
-      instagram: 'NOT_CONFIGURED',
-      pinterest: 'NOT_CONFIGURED',
+      mock: this.mock.status(),
+      youtube: youtubePublisher.status(),
+      tiktok: tiktokPublisher.status(),
+      instagram: instagramPublisher.status(),
+      pinterest: pinterestPublisher.status(),
+      safety: safetySnapshot(),
     }
+  }
+
+  resolvePublisher(platform: string, useReal: boolean): PlatformPublisher {
+    const p = platform.toUpperCase()
+    if (!useReal) return this.mock
+    if (p.includes('YOUTUBE')) return youtubePublisher
+    if (p.includes('TIKTOK')) return tiktokPublisher
+    if (p.includes('INSTAGRAM')) return instagramPublisher
+    if (p.includes('PINTEREST')) return pinterestPublisher
+    return this.mock
   }
 
   getPublication(id: string) {
@@ -270,12 +291,25 @@ export class PublishingService {
     })
 
     const metadata = buildPublicationMetadata(input.contentId, input.scheduledAt)
+    const safety = evaluatePublishingSafety({
+      workspaceId: input.workspaceId,
+      contentId: input.contentId,
+      platform,
+      forceReal: input.forceReal,
+    })
+    const useReal = safety.allowReal
+    const publicationSource = useReal ? 'REAL' : 'MOCK'
+    const publisher = this.resolvePublisher(platform, useReal)
+
     db.prepare(
-      `UPDATE publication_runs SET metadata=?, production_run_id=?, package_id=?, updated_at=? WHERE id=?`,
+      `UPDATE publication_runs SET metadata=?, production_run_id=?, package_id=?, publication_source=?,
+       dry_run=?, updated_at=? WHERE id=?`,
     ).run(
       JSON.stringify(metadata),
       validation.productionRunId ?? null,
       validation.packageId ?? null,
+      publicationSource,
+      safety.dryRun ? 1 : 0,
       nowIso(),
       runId,
     )
@@ -291,22 +325,101 @@ export class PublishingService {
       scheduledAt: input.scheduledAt,
     }
 
+    // Dry-run real path: validate + prepare, never upload
+    const mode = process.env.AUTOMATION_MODE || config.automationMode
+    if (safety.dryRun && (input.forceReal || mode === 'production')) {
+      const dry =
+        publisher === youtubePublisher
+          ? await youtubePublisher.prepareDryRun(publishInput)
+          : {
+              wouldPublish: false,
+              contentId: input.contentId,
+              platform,
+              title: metadata.title,
+              file: publishInput.videoUri,
+              thumbnail: publishInput.thumbnailUri,
+              metadata,
+              validation: { ok: true, issues: [], reason: safety.reason },
+            }
+      db.prepare(
+        `UPDATE publication_runs SET status='REQUIRES_REVIEW', dry_run=1, upload_outcome='DRY_RUN',
+         result=?, completed_at=?, updated_at=?, error=? WHERE id=?`,
+      ).run(
+        JSON.stringify({ dryRun: true, safety, wouldPublish: dry }),
+        nowIso(),
+        nowIso(),
+        safety.reason || 'DRY_RUN',
+        runId,
+      )
+      emitEvent({
+        workspaceId: input.workspaceId,
+        eventType: 'publication.upload_started',
+        entityType: 'publication_run',
+        entityId: runId,
+        reality: 'MOCK',
+        payload: { dryRun: true, code: safety.code },
+      })
+      return {
+        skipped: false,
+        publicationRunId: runId,
+        status: 'REQUIRES_REVIEW' as const,
+        dryRun: true,
+        safety,
+        wouldPublish: dry,
+        reality: 'MOCK' as const,
+      }
+    }
+
     const failKey = `${runId}:publish`
     const retried = await withRetry(async () => {
       const n = (this.failCounters.get(failKey) || 0) + 1
       this.failCounters.set(failKey, n)
       if (n <= (input.forceFailTimes ?? 0)) throw new Error(`forced_publish_fail_${n}`)
 
+      // Before unsafe upload retry: check remote status if we may have succeeded
+      if (n > 1 && useReal && publisher === youtubePublisher) {
+        const prev = db.prepare(`SELECT external_id, upload_outcome FROM publication_runs WHERE id=?`).get(runId) as
+          | { external_id: string | null; upload_outcome: string | null }
+          | undefined
+        if (prev?.external_id || prev?.upload_outcome === 'UNKNOWN') {
+          emitEvent({
+            workspaceId: input.workspaceId,
+            eventType: 'publication.status_checked',
+            entityType: 'publication_run',
+            entityId: runId,
+            reality: 'REAL',
+            payload: { attempt: n },
+          })
+          if (prev.external_id) {
+            const remote = await youtubePublisher.getPublication(prev.external_id, input.workspaceId)
+            if (remote.found) {
+              return {
+                mode: 'published' as const,
+                result: {
+                  ok: true,
+                  reality: 'PENDING' as const,
+                  externalId: remote.externalId,
+                  externalUrl: remote.externalUrl,
+                  publishedAt: nowIso(),
+                  confirmation: 'recovered_from_remote_status',
+                },
+                uploadOutcome: 'SUCCESS' as const,
+              }
+            }
+          }
+        }
+      }
+
       if (input.scheduledAt && new Date(input.scheduledAt).getTime() > Date.now() + 1000) {
         this.setStatus(runId, 'SCHEDULED')
-        const scheduled = await this.publisher.schedule(publishInput)
+        const scheduled = await publisher.schedule(publishInput)
         if (!scheduled.ok) throw new Error(scheduled.error || 'schedule_failed')
         emitEvent({
           workspaceId: input.workspaceId,
           eventType: 'publication.scheduled',
           entityType: 'publication_run',
           entityId: runId,
-          reality: 'MOCK',
+          reality: publicationSource === 'REAL' ? 'REAL' : 'MOCK',
           payload: { scheduledAt: scheduled.scheduledAt },
         })
         db.prepare(
@@ -320,16 +433,71 @@ export class PublishingService {
           nowIso(),
           runId,
         )
-        return { mode: 'scheduled' as const, result: scheduled }
+        return { mode: 'scheduled' as const, result: scheduled, uploadOutcome: 'SUCCESS' as const }
       }
 
       this.setStatus(runId, 'PUBLISHING')
-      const published = await this.publisher.publish(publishInput)
-      if (!published.ok) throw new Error(published.error || 'publish_failed')
-      return { mode: 'published' as const, result: published }
+      emitEvent({
+        workspaceId: input.workspaceId,
+        eventType: 'publication.upload_started',
+        entityType: 'publication_run',
+        entityId: runId,
+        reality: publicationSource === 'REAL' ? 'REAL' : 'MOCK',
+        payload: { provider: publisher.name },
+      })
+      const published = (await publisher.publish(publishInput)) as {
+        ok: boolean
+        reality: 'MOCK' | 'FAILED' | 'PENDING'
+        externalId?: string
+        externalUrl?: string
+        publishedAt?: string
+        confirmation?: string
+        error?: string
+        uploadOutcome?: string
+      }
+      if (!published.ok) {
+        if (published.uploadOutcome === 'UNKNOWN') {
+          db.prepare(
+            `UPDATE publication_runs SET upload_outcome='UNKNOWN', remote_status='UNKNOWN', error=?, updated_at=? WHERE id=?`,
+          ).run(published.error || 'unknown', nowIso(), runId)
+          emitEvent({
+            workspaceId: input.workspaceId,
+            eventType: 'publication.upload_unknown',
+            entityType: 'publication_run',
+            entityId: runId,
+            reality: 'PENDING',
+            payload: { error: published.error },
+          })
+          // Do not auto-FAIL — surface UNKNOWN without aggressive retry as FAILED
+          throw new Error(`UNKNOWN_OUTCOME:${published.error || 'upload'}`)
+        }
+        if (published.uploadOutcome === 'RATE_LIMITED') {
+          throw new Error(`RETRY_SCHEDULED:${published.error}`)
+        }
+        throw new Error(published.error || 'publish_failed')
+      }
+      return {
+        mode: 'published' as const,
+        result: published,
+        uploadOutcome: (published.uploadOutcome || 'SUCCESS') as string,
+      }
     })
 
     if (!retried.ok) {
+      const unknown = retried.failure.error.startsWith('UNKNOWN_OUTCOME')
+      if (unknown) {
+        db.prepare(
+          `UPDATE publication_runs SET status='REQUIRES_REVIEW', upload_outcome='UNKNOWN', completed_at=?, updated_at=?, error=? WHERE id=?`,
+        ).run(nowIso(), nowIso(), retried.failure.error, runId)
+        return {
+          skipped: false,
+          publicationRunId: runId,
+          status: 'REQUIRES_REVIEW' as const,
+          uploadOutcome: 'UNKNOWN',
+          error: retried.failure.error,
+          reality: 'PENDING' as const,
+        }
+      }
       this.fail(runId, retried.failure.error, input, retried.failure.attempts)
       return {
         skipped: false,
@@ -350,25 +518,27 @@ export class PublishingService {
       recordAiCost({
         workspaceId: input.workspaceId,
         operation: 'publishing',
-        provider: 'mock_publisher',
-        model: 'mock',
+        provider: publisher.name,
+        model: publicationSource === 'REAL' ? 'youtube' : 'mock',
         estimatedCostCents: 0,
-        reality: 'MOCK',
+        reality: publicationSource === 'REAL' ? 'REAL' : 'MOCK',
       })
       return {
         skipped: false,
         publicationRunId: runId,
         status: 'SCHEDULED' as const,
-        reality: 'MOCK' as const,
+        reality: (publicationSource === 'REAL' ? 'REAL' : 'MOCK') as 'REAL' | 'MOCK',
+        publicationSource,
         result: retried.value.result,
         costCents: 0,
       }
     }
 
     const pub = retried.value.result
+    const reality = publicationSource === 'REAL' ? 'REAL' : 'MOCK'
     db.prepare(
       `UPDATE publication_runs SET status='PUBLISHED', published_at=?, external_id=?, external_url=?,
-       completed_at=?, updated_at=?, result=?, reality='MOCK' WHERE id=?`,
+       completed_at=?, updated_at=?, result=?, reality=?, publication_source=?, upload_outcome=? WHERE id=?`,
     ).run(
       pub.publishedAt ?? nowIso(),
       pub.externalId ?? null,
@@ -376,6 +546,9 @@ export class PublishingService {
       nowIso(),
       nowIso(),
       JSON.stringify(pub),
+      reality,
+      publicationSource,
+      retried.value.uploadOutcome || 'SUCCESS',
       runId,
     )
 
@@ -398,7 +571,12 @@ export class PublishingService {
       pub.publishedAt ?? nowIso(),
       pub.externalId ?? null,
       nowIso(),
-      JSON.stringify({ ...prevMeta, publicationRunId: runId, packageStatus: 'PUBLISHED' }),
+      JSON.stringify({
+        ...prevMeta,
+        publicationRunId: runId,
+        packageStatus: 'PUBLISHED',
+        publicationSource,
+      }),
       input.contentId,
     )
 
@@ -411,26 +589,33 @@ export class PublishingService {
 
     emitEvent({
       workspaceId: input.workspaceId,
+      eventType: 'publication.upload_completed',
+      entityType: 'publication_run',
+      entityId: runId,
+      reality,
+      payload: { externalId: pub.externalId, publicationSource },
+    })
+    emitEvent({
+      workspaceId: input.workspaceId,
       eventType: 'publication.published',
       entityType: 'publication_run',
       entityId: runId,
-      reality: 'MOCK',
+      reality,
       payload: {
         externalId: pub.externalId,
         externalUrl: pub.externalUrl,
         platform,
         confirmation: pub.confirmation,
+        publicationSource,
       },
     })
-
-    // Also keep legacy content.published for Daily Engine compatibility
     emitEvent({
       workspaceId: input.workspaceId,
       eventType: 'content.published',
       entityType: 'content',
       entityId: input.contentId,
-      reality: 'MOCK',
-      payload: { publicationRunId: runId, externalId: pub.externalId },
+      reality,
+      payload: { publicationRunId: runId, externalId: pub.externalId, publicationSource },
     })
 
     markProcessed({
@@ -443,10 +628,10 @@ export class PublishingService {
     recordAiCost({
       workspaceId: input.workspaceId,
       operation: 'publishing',
-      provider: 'mock_publisher',
-      model: 'mock',
+      provider: publisher.name,
+      model: publicationSource === 'REAL' ? 'youtube' : 'mock',
       estimatedCostCents: 0,
-      reality: 'MOCK',
+      reality,
     })
 
     return {
@@ -455,7 +640,8 @@ export class PublishingService {
       status: 'PUBLISHED' as const,
       externalId: pub.externalId,
       externalUrl: pub.externalUrl,
-      reality: 'MOCK' as const,
+      reality,
+      publicationSource,
       result: pub,
       costCents: 0,
       contentId: input.contentId,

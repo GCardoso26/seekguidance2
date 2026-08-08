@@ -67,6 +67,7 @@ export function AutomationCenter() {
   const [publicationRuns, setPublicationRuns] = useState<Array<Record<string, unknown>>>([])
   const [metricSnapshots, setMetricSnapshots] = useState<Array<Record<string, unknown>>>([])
   const [recommendations, setRecommendations] = useState<Array<Record<string, unknown>>>([])
+  const [connections, setConnections] = useState<Record<string, unknown> | null>(null)
   const [selectedProduction, setSelectedProduction] = useState<Record<string, unknown> | null>(null)
   const [windowFilter, setWindowFilter] = useState<'24h' | '7d' | '30d'>('24h')
   const [workflowFilter, setWorkflowFilter] = useState('')
@@ -103,6 +104,10 @@ export function AutomationCenter() {
       setPublicationRuns(pub.runs || [])
       setMetricSnapshots(snaps.snapshots || [])
       setRecommendations(recs.recommendations || [])
+      const conn = await fetch(`${API}/api/publishing/connections?workspaceId=${workspaceId}`).then((r) =>
+        r.json(),
+      )
+      setConnections(conn)
     }
   }
 
@@ -577,6 +582,46 @@ export function AutomationCenter() {
               Error: {String(selectedProduction.error || '-')}
             </pre>
           ) : null}
+        </div>
+
+        <h2 style={{ marginTop: '2rem', fontFamily: 'var(--font-display)', letterSpacing: '-0.04em' }}>
+          Connections
+        </h2>
+        <div className="kit-grid">
+          <pre>
+            {((connections?.connections as Array<Record<string, unknown>>) || [])
+              .map(
+                (c) =>
+                  `${c.platform}: ${c.status || c.publisher} ${c.lastVerifiedAt ? `· verified ${c.lastVerifiedAt}` : ''}`,
+              )
+              .join('\n') || 'Carregue um workspace para ver conexões.'}
+          </pre>
+        </div>
+
+        <h2 style={{ marginTop: '2rem', fontFamily: 'var(--font-display)', letterSpacing: '-0.04em' }}>
+          Publishing Safety
+        </h2>
+        <div className="flow-strip">
+          <div>
+            <strong>{String((connections?.safety as { publishingEnabled?: boolean })?.publishingEnabled ?? false)}</strong>
+            <span>Publishing Enabled</span>
+          </div>
+          <div>
+            <strong>{String((connections?.safety as { dryRun?: boolean })?.dryRun ?? true)}</strong>
+            <span>Dry Run</span>
+          </div>
+          <div>
+            <strong>
+              {String((connections?.safety as { globalPublishingKillSwitch?: boolean })?.globalPublishingKillSwitch ?? true)}
+            </strong>
+            <span>Kill Switch</span>
+          </div>
+          <div>
+            <strong>
+              {(connections?.safety as { maxPublicationsPerDay?: number })?.maxPublicationsPerDay ?? 1}
+            </strong>
+            <span>Daily Limit</span>
+          </div>
         </div>
 
         <h2 style={{ marginTop: '2rem', fontFamily: 'var(--font-display)', letterSpacing: '-0.04em' }}>

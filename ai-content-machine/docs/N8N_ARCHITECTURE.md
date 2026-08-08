@@ -119,4 +119,10 @@ Workflow especial + tabela `war_campaigns` com progresso diário adaptativo (`Ad
 - **StrategyService** → research feedback (`api/src/strategy/`)
 - Tabelas: `publication_runs`, `metric_snapshots` (+ reuse `strategy_recommendations`, `content_metrics`)
 - WF 07/08/09/12 v2 → Control Plane APIs
-- **Não** implementa OAuth real / ads / monetização real
+## Fase 5 — YouTube Controlled Publishing
+
+- CredentialVault + EncryptedCredentialProvider + YouTube OAuth
+- YouTubePublisher / YouTubeAnalyticsProvider (REAL READY only when flags+creds allow)
+- Safety: kill switch, dry-run, daily limit, human approval
+- WF 13 publication monitoring · WF 14 analytics windows (10/11 preserved)
+- TikTok/IG/Pin + ads/monetização: NOT_CONFIGURED / BLOCKED

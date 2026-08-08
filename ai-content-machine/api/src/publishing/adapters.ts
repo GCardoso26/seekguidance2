@@ -1,5 +1,6 @@
 import type { PlatformPublisher, PublishInput } from './PlatformPublisher.js'
 import type { PublicationResult, ValidationResult } from './types.js'
+import { youtubePublisher } from './youtube/YouTubePublisher.js'
 
 function notConfigured(name: string): PlatformPublisher {
   return {
@@ -17,7 +18,7 @@ function notConfigured(name: string): PlatformPublisher {
   }
 }
 
-export const youtubePublisher = notConfigured('youtube')
+export { youtubePublisher }
 export const tiktokPublisher = notConfigured('tiktok')
 export const instagramPublisher = notConfigured('instagram')
 export const pinterestPublisher = notConfigured('pinterest')
