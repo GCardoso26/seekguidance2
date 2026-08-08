@@ -1,0 +1,45 @@
+{
+  "name": "CWM — Content Publisher",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "cwm/content-publisher",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "webhook",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.CWM_API_BASE}}/api/automation/trigger",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"workflow\": \"content_publisher\",\n  \"workspaceId\": \"{{$json.body.workspaceId}}\",\n  \"payload\": { \"contentId\": \"{{$json.body.contentId}}\" }\n}"
+      },
+      "id": "trigger",
+      "name": "Trigger Publisher",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [520, 300],
+      "notes": "Never mark PUBLISHED without platform confirmation. Retries + DLQ handled in Control Plane."
+    }
+  ],
+  "connections": {
+    "Webhook": { "main": [[{ "node": "Trigger Publisher", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "meta": {
+    "cwm": {
+      "workflowKey": "content_publisher",
+      "version": 1,
+      "purpose": "Publish with confirmation; retry/backoff/dead-letter on failure",
+      "tables": ["contents", "automation_failures"]
+    }
+  }
+}

@@ -1,54 +1,64 @@
-# NEXUS IA — Máquina de conteúdo dark multiplataforma
+# Content War Machine (NEXUS IA) — n8n-first
 
-Fábrica de distribuição para **TikTok + YouTube Shorts + Instagram Reels + Pinterest**, com funil:
+Máquina de conteúdo dark multiplataforma com arquitetura:
 
-```
-Vídeo → link na bio → página gratuita → Starter Kit lite
-→ e-mail/WhatsApp → produto R$67 → upsell R$397 → afiliados
-```
-
-**Promessa:** como usar IA para economizar tempo e ganhar dinheiro — sem aparecer no vídeo.
-
-## Estrutura
+- **Control Plane** — `web/` + `api/`
+- **Orchestration Plane** — `n8n/workflows/` (+ LocalOrchestrator em mock)
+- **Data Plane** — PostgreSQL (`db/migrations/001_init.sql`) / SQLite local
 
 ```
-ai-content-machine/
-├── brand/           # Posicionamento, avatar, identidade
-├── channels/        # 3 faces de audiência, 1 monetização
-├── content/         # 50 ideias, 30 roteiros, matriz 1→12
-├── funnel/          # Sequências e-mail e WhatsApp
-├── metrics/         # Painel CSV (views → vendas)
-├── n8n/             # Workflows importáveis
-├── product/         # Starter Kit + Content Machine
-└── web/             # Landing + obrigado + oferta + upsell + kit
+PESQUISA → IDEIAS → ROTEIRO → PRODUÇÃO → QA → APROVAÇÃO
+→ PUBLISH → ANALYTICS → WINNER → RECICLAGEM → MONETIZAÇÃO
 ```
 
-## Subir o funil web
+## Quickstart (mock)
 
 ```bash
-cd ai-content-machine/web
-npm install
-npm run dev
+cd ai-content-machine
+npm run n8n:validate
+cd api && npm install
+AUTOMATION_MODE=mock npm test
+AUTOMATION_MODE=mock npm run start
 ```
 
-Abra `http://localhost:5173`.
+Em outro terminal:
 
-### Variáveis
+```bash
+cd web && npm install && npm run dev
+```
 
-Copie `web/.env.example` → `web/.env` e preencha:
+Abra:
 
-- `VITE_N8N_LEAD_WEBHOOK` — captura de leads
-- `VITE_CHECKOUT_STARTER_URL` — checkout R$67
-- `VITE_CHECKOUT_MACHINE_URL` — checkout R$397
+- Funil: `http://localhost:5173/`
+- Automation Center: `http://localhost:5173/app/automation`
 
-Sem webhook, leads ficam em `localStorage` (modo demo).
+## Aceite MVP (mock)
 
-## Plano 30 dias
+1. Create Workspace  
+2. Start 30-Day War  
+3. Run Daily Engine  
+4. Ver topics → ideas → scripts → contents → published(MOCK) → metrics → winners → derivatives  
 
-Ver `PLAYBOOK-30-DIAS.md`.
+## Scripts
 
-## Regra nº 1
+| Script | Função |
+|--------|--------|
+| `npm run n8n:validate` | Valida JSONs dos workflows |
+| `npm run n8n:import` | Importa no n8n (API) |
+| `npm run n8n:export` | Exporta do n8n |
+| `npm run api:test` | Testes do pipeline mock |
 
-Não crie um canal. Crie uma fábrica.  
-1 roteiro = unidade de conteúdo → 10–20 derivados.  
-Recicle **informação**, não propriedade intelectual.
+## Docs
+
+- `docs/N8N_ARCHITECTURE.md`
+- `docs/N8N_SETUP.md`
+- `docs/N8N_WORKFLOWS.md`
+- `docs/N8N_CREDENTIALS.md`
+- `docs/AUTOMATION_EVENTS.md`
+- `docs/AUTOMATION_TROUBLESHOOTING.md`
+- `docs/AUDIT.md`
+
+## Princípio de não-fingimento
+
+Publicação, venda e analytics sempre carregam `reality`: `REAL | MOCK | SIMULATED | FAILED | PENDING`.  
+Mock nunca é apresentado como produção.

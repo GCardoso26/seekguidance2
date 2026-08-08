@@ -1,0 +1,61 @@
+{
+  "name": "CWM — 30 Day War Mode",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [{ "field": "cronExpression", "expression": "0 7 * * *" }]
+        }
+      },
+      "id": "cron",
+      "name": "War Daily 07:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "cwm/war-30-day",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "webhook",
+      "name": "Start/Continue War",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 500]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.CWM_API_BASE}}/api/automation/trigger",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"workflow\": \"war_30_day\",\n  \"workspaceId\": \"{{$json.body.workspaceId || $env.CWM_DEFAULT_WORKSPACE_ID}}\",\n  \"payload\": { \"mode\": \"war\" }\n}"
+      },
+      "id": "trigger",
+      "name": "Trigger War Day",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [540, 400]
+    }
+  ],
+  "connections": {
+    "War Daily 07:00": {
+      "main": [[{ "node": "Trigger War Day", "type": "main", "index": 0 }]]
+    },
+    "Start/Continue War": {
+      "main": [[{ "node": "Trigger War Day", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": { "executionOrder": "v1" },
+  "meta": {
+    "cwm": {
+      "workflowKey": "war_30_day",
+      "version": 1,
+      "purpose": "30-day adaptive research→publish→analyze→optimize loop",
+      "tables": ["war_campaigns", "contents", "automation_runs"]
+    }
+  }
+}

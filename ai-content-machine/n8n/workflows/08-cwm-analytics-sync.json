@@ -1,0 +1,45 @@
+{
+  "name": "CWM — Analytics Sync",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [{ "field": "cronExpression", "expression": "0 */6 * * *" }]
+        }
+      },
+      "id": "cron",
+      "name": "Every 6 Hours",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.CWM_API_BASE}}/api/automation/trigger",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"workflow\": \"analytics_sync\",\n  \"workspaceId\": \"{{$env.CWM_DEFAULT_WORKSPACE_ID}}\",\n  \"payload\": { \"source\": \"n8n-analytics\" }\n}"
+      },
+      "id": "trigger",
+      "name": "Trigger Analytics Sync",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [520, 300]
+    }
+  ],
+  "connections": {
+    "Every 6 Hours": {
+      "main": [[{ "node": "Trigger Analytics Sync", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": { "executionOrder": "v1" },
+  "meta": {
+    "cwm": {
+      "workflowKey": "analytics_sync",
+      "version": 1,
+      "purpose": "Fetch platform metrics every 6h; never mark synced without data",
+      "tables": ["content_metrics", "contents"]
+    }
+  }
+}

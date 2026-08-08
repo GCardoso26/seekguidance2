@@ -1,0 +1,44 @@
+{
+  "name": "CWM — Content Production",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "cwm/content-production",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "webhook",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.CWM_API_BASE}}/api/automation/trigger",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"workflow\": \"content_production\",\n  \"workspaceId\": \"{{$json.body.workspaceId}}\",\n  \"payload\": { \"contentId\": \"{{$json.body.contentId}}\" }\n}"
+      },
+      "id": "trigger",
+      "name": "Trigger Production",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [520, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": { "main": [[{ "node": "Trigger Production", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "meta": {
+    "cwm": {
+      "workflowKey": "content_production",
+      "version": 1,
+      "purpose": "Voiceover/visuals/subtitles/compose + asset validation before complete",
+      "tables": ["contents"]
+    }
+  }
+}

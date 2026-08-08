@@ -1,0 +1,59 @@
+{
+  "name": "CWM — Daily Strategy Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [{ "field": "cronExpression", "expression": "0 5 * * *" }]
+        }
+      },
+      "id": "cron",
+      "name": "Morning Strategy",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{$env.CWM_API_BASE}}/api/ai/prompts/strategy_agent"
+      },
+      "id": "prompt",
+      "name": "Load Strategy Prompt",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [480, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.CWM_API_BASE}}/api/automation/trigger",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"workflow\": \"daily_strategy_agent\",\n  \"workspaceId\": \"{{$env.CWM_DEFAULT_WORKSPACE_ID}}\",\n  \"payload\": { \"windows\": [7, 14, 30] }\n}"
+      },
+      "id": "trigger",
+      "name": "Trigger Strategy Agent",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [720, 300]
+    }
+  ],
+  "connections": {
+    "Morning Strategy": {
+      "main": [[{ "node": "Load Strategy Prompt", "type": "main", "index": 0 }]]
+    },
+    "Load Strategy Prompt": {
+      "main": [[{ "node": "Trigger Strategy Agent", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": { "executionOrder": "v1" },
+  "meta": {
+    "cwm": {
+      "workflowKey": "daily_strategy_agent",
+      "version": 1,
+      "purpose": "Morning recommendations from 7/14/30d performance",
+      "tables": ["strategy_recommendations", "contents", "content_metrics"]
+    }
+  }
+}

@@ -12,6 +12,7 @@ export function Layout({ children }: { children: ReactNode }) {
           <Link to="/oferta">Starter Kit</Link>
           <Link to="/upsell">Content Machine</Link>
           <Link to="/kit">Kit grátis</Link>
+          <Link to="/app/automation">Automation</Link>
         </nav>
       </header>
       <main>{children}</main>

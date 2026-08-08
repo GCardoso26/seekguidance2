@@ -1,32 +1,25 @@
-# Automações n8n — NEXUS IA
+# n8n — Orchestration Plane
 
-## Arquitetura
+## Layout
 
 ```
-PESQUISA → BANCO DE IDEIAS → LLM → ROTEIROS
-        → VÍDEO / CARROSSEL / POST
-        → SHORTS / IG / TIKTOK / PINTEREST
-        → TRÁFEGO → FUNIL → VENDA
+n8n/
+  workflows/     # CWM workflows importáveis (fonte da verdade no git)
+  legacy/        # stubs NEXUS anteriores
 ```
 
-## Workflows incluídos
+## Validate / import / export
 
-| Arquivo | Função |
-|---------|--------|
-| `01-idea-to-script.json` | Ideia → roteiro estruturado via LLM |
-| `02-lead-capture-notify.json` | Webhook lead → e-mail + planilha + WhatsApp |
-| `03-content-derivation.json` | Roteiro → 12 derivados (textos) |
+From `ai-content-machine/`:
 
-## Variáveis de ambiente necessárias
+```bash
+npm run n8n:validate
+N8N_BASE_URL=... N8N_API_KEY=... npm run n8n:import
+N8N_BASE_URL=... N8N_API_KEY=... npm run n8n:export
+```
 
-- `OPENAI_API_KEY` ou equivalente LLM  
-- `RESEND_API_KEY` / SMTP  
-- `SHEET_WEBHOOK` ou Google Sheets node  
-- `WHATSAPP_TOKEN` (opcional)
+## Design
 
-## Como importar
-
-1. Abra n8n → Workflows → Import from File  
-2. Selecione o JSON  
-3. Configure credenciais  
-4. Ative
+Workflows chamam o Control Plane (`CWM_API_BASE`) e **não** guardam estado de negócio.  
+Prompts vêm de `GET /api/ai/prompts/:name`.  
+Credenciais apenas via env / n8n Credentials store.

@@ -1,0 +1,44 @@
+{
+  "name": "CWM — Monetization Engine",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "cwm/monetization-engine",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "webhook",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.CWM_API_BASE}}/api/automation/trigger",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"workflow\": \"monetization_engine\",\n  \"workspaceId\": \"{{$json.body.workspaceId}}\",\n  \"payload\": {\n    \"contentId\": \"{{$json.body.contentId}}\",\n    \"offerId\": \"{{$json.body.offerId}}\"\n  }\n}"
+      },
+      "id": "trigger",
+      "name": "Trigger Monetization",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [520, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": { "main": [[{ "node": "Trigger Monetization", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "meta": {
+    "cwm": {
+      "workflowKey": "monetization_engine",
+      "version": 1,
+      "purpose": "Attribute clicks/leads/sales to content+offer; never fake sales",
+      "tables": ["offers", "leads", "sales", "contents"]
+    }
+  }
+}

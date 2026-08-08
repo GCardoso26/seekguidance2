@@ -4,6 +4,7 @@ import { Thanks } from './pages/Thanks'
 import { Offer } from './pages/Offer'
 import { Upsell } from './pages/Upsell'
 import { Kit } from './pages/Kit'
+import { AutomationCenter } from './pages/AutomationCenter'
 import './App.css'
 
 export default function App() {
@@ -15,6 +16,7 @@ export default function App() {
         <Route path="/oferta" element={<Offer />} />
         <Route path="/upsell" element={<Upsell />} />
         <Route path="/kit" element={<Kit />} />
+        <Route path="/app/automation" element={<AutomationCenter />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
