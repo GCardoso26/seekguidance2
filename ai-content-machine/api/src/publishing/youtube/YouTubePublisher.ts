@@ -40,18 +40,23 @@ export class YouTubePublisher implements PlatformPublisher {
     const st = fs.existsSync(input.videoUri || '') ? fs.statSync(input.videoUri!) : null
     return {
       wouldPublish: validation.ok,
+      wouldUpload: false as const,
       contentId: input.contentId,
       platform: 'YOUTUBE',
       title: input.metadata.title,
+      description: input.metadata.description,
       durationHint: input.metadata.description?.slice(0, 40),
       file: input.videoUri,
       fileSize: st?.size ?? 0,
       thumbnail: input.thumbnailUri,
+      visibility: 'private_or_unlisted_first_experiment',
+      scheduledTime: input.scheduledAt ?? null,
       metadata: {
         title: input.metadata.title,
         description: input.metadata.description,
         tags: input.metadata.tags,
         language: input.metadata.language,
+        caption: input.metadata.caption,
       },
       validation,
     }

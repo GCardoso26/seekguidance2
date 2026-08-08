@@ -11,6 +11,7 @@ import { scriptRoutes } from './routes/scripts.js'
 import { productionRoutes } from './routes/production.js'
 import { publishingRoutes } from './routes/publishing.js'
 import { connectionRoutes } from './routes/connections.js'
+import { validationRoutes } from './routes/validation.js'
 
 export async function buildServer() {
   getDb()
@@ -32,6 +33,7 @@ export async function buildServer() {
   await app.register(productionRoutes)
   await app.register(publishingRoutes)
   await app.register(connectionRoutes)
+  await app.register(validationRoutes)
 
   return app
 }

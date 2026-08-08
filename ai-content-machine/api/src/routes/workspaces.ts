@@ -118,14 +118,15 @@ export async function workspaceRoutes(app: FastifyInstance) {
 
   app.post('/api/contents/:contentId/approve', async (req) => {
     const { contentId } = req.params as { contentId: string }
-    const body = (req.body || {}) as { forPublishing?: boolean }
+    const body = (req.body || {}) as { forPublishing?: boolean; approvedBy?: string }
     if (body.forPublishing) {
+      const at = nowIso()
       getDb()
         .prepare(
           `UPDATE contents SET status='approved', approval_required=0, updated_at=?,
-           approved_for_publishing=1, approved_for_publishing_at=? WHERE id=?`,
+           approved_for_publishing=1, approved_for_publishing_at=?, approved_by=? WHERE id=?`,
         )
-        .run(nowIso(), nowIso(), contentId)
+        .run(at, at, body.approvedBy || 'operator', contentId)
     } else {
       getDb()
         .prepare(

@@ -63,3 +63,13 @@ DRY_RUN=false
 ```
 
 + OAuth credentials configuradas.
+
+## Fase 5.1 — Validação operacional
+
+Código pronto ≠ evidência real. Ver:
+
+- `docs/PRODUCTION_RUNBOOK.md` — passo a passo do 1º vídeo
+- `docs/PHASE5_1_PRODUCTION_REPORT.md` — registro de evidência
+- API `/api/validation/*` — preflight, dry-run report, experiments, safety defaults
+
+Não declarar **REAL PROVEN** até o checklist do relatório 5.1 estar completo.

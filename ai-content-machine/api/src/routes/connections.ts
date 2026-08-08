@@ -81,16 +81,20 @@ export async function connectionRoutes(app: FastifyInstance) {
     const schema = z.object({
       workspaceId: z.string().uuid(),
       contentId: z.string().uuid(),
+      approvedBy: z.string().min(1).optional(),
     })
     const parsed = schema.safeParse(req.body)
     if (!parsed.success) return reply.code(400).send({ error: parsed.error.flatten() })
     const { nowIso } = await import('../db/client.js')
+    const at = nowIso()
+    const by = parsed.data.approvedBy || 'operator'
     getDb()
       .prepare(
-        `UPDATE contents SET approved_for_publishing=1, approved_for_publishing_at=?, status='approved', updated_at=?
+        `UPDATE contents SET approved_for_publishing=1, approved_for_publishing_at=?, approved_by=?,
+         status='approved', updated_at=?
          WHERE id=? AND workspace_id=?`,
       )
-      .run(nowIso(), nowIso(), parsed.data.contentId, parsed.data.workspaceId)
-    return { ok: true, approvedForPublishing: true }
+      .run(at, by, at, parsed.data.contentId, parsed.data.workspaceId)
+    return { ok: true, approvedForPublishing: true, approvedAt: at, approvedBy: by }
   })
 }

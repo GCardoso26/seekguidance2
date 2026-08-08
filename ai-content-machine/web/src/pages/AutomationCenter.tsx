@@ -68,6 +68,8 @@ export function AutomationCenter() {
   const [metricSnapshots, setMetricSnapshots] = useState<Array<Record<string, unknown>>>([])
   const [recommendations, setRecommendations] = useState<Array<Record<string, unknown>>>([])
   const [connections, setConnections] = useState<Record<string, unknown> | null>(null)
+  const [preflight, setPreflight] = useState<Record<string, unknown> | null>(null)
+  const [experiments, setExperiments] = useState<Array<Record<string, unknown>>>([])
   const [selectedProduction, setSelectedProduction] = useState<Record<string, unknown> | null>(null)
   const [windowFilter, setWindowFilter] = useState<'24h' | '7d' | '30d'>('24h')
   const [workflowFilter, setWorkflowFilter] = useState('')
@@ -108,6 +110,14 @@ export function AutomationCenter() {
         r.json(),
       )
       setConnections(conn)
+      const pf = await fetch(`${API}/api/validation/preflight?workspaceId=${workspaceId}`).then((r) =>
+        r.json(),
+      )
+      setPreflight(pf)
+      const ex = await fetch(`${API}/api/validation/experiments?workspaceId=${workspaceId}`).then((r) =>
+        r.json(),
+      )
+      setExperiments(ex.experiments || [])
     }
   }
 
@@ -582,6 +592,90 @@ export function AutomationCenter() {
               Error: {String(selectedProduction.error || '-')}
             </pre>
           ) : null}
+        </div>
+
+        <h2 style={{ marginTop: '2rem', fontFamily: 'var(--font-display)', letterSpacing: '-0.04em' }}>
+          Production Validation
+        </h2>
+        <p className="promise" style={{ maxWidth: '42rem', marginBottom: '0.75rem' }}>
+          SAFE ≠ READY TO PUBLISH. Infraestrutura pronta é diferente de janela de publicação aberta.
+          Evidência real ainda é pendente até o primeiro publish YouTube controlado.
+        </p>
+        <div className="flow-strip">
+          <div>
+            <strong>{String(preflight?.overall || '…')}</strong>
+            <span>Preflight</span>
+          </div>
+          <div>
+            <strong>{preflight?.safe ? 'SAFE' : 'WINDOW?'}</strong>
+            <span>Safety posture</span>
+          </div>
+          <div>
+            <strong>{preflight?.readyToPublish ? 'YES' : 'NO'}</strong>
+            <span>Ready to publish</span>
+          </div>
+          <div>
+            <strong>{experiments[0] ? String(experiments[0].experiment_status) : '—'}</strong>
+            <span>Current experiment</span>
+          </div>
+        </div>
+        <div className="kit-grid">
+          <pre>
+            {(((preflight?.checks as Array<Record<string, unknown>>) || [])
+              .map((c) => `[${c.status}] ${c.label}${c.detail ? ` — ${c.detail}` : ''}`)
+              .join('\n') || 'Carregue um workspace para ver Production Readiness.')}
+          </pre>
+          <pre>
+            {experiments
+              .slice(0, 5)
+              .map(
+                (e) =>
+                  `${e.experiment_status} | ${e.platform} | origin=${e.data_origin} | content=${String(e.content_id || '-').slice(0, 8)} | ext=${e.external_id || '-'}`,
+              )
+              .join('\n') || 'Nenhum experimento 5.1. Ver docs/PRODUCTION_RUNBOOK.md'}
+          </pre>
+        </div>
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.75rem' }}>
+          <button
+            type="button"
+            className="btn btn-ghost"
+            disabled={!workspaceId || busy}
+            onClick={async () => {
+              if (!workspaceId) return
+              setBusy(true)
+              try {
+                const res = await fetch(`${API}/api/validation/safety/restore-defaults`, {
+                  method: 'POST',
+                }).then((r) => r.json())
+                setLog(JSON.stringify(res, null, 2))
+                await refresh()
+              } finally {
+                setBusy(false)
+              }
+            }}
+          >
+            Restaurar safety defaults
+          </button>
+          <button
+            type="button"
+            className="btn btn-ghost"
+            disabled={!workspaceId || busy}
+            onClick={async () => {
+              if (!workspaceId) return
+              setBusy(true)
+              try {
+                const res = await fetch(`${API}/api/validation/preflight?workspaceId=${workspaceId}`).then(
+                  (r) => r.json(),
+                )
+                setPreflight(res)
+                setLog(JSON.stringify(res, null, 2))
+              } finally {
+                setBusy(false)
+              }
+            }}
+          >
+            Rodar preflight
+          </button>
         </div>
 
         <h2 style={{ marginTop: '2rem', fontFamily: 'var(--font-display)', letterSpacing: '-0.04em' }}>
