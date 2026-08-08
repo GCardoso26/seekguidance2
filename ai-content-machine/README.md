@@ -39,6 +39,22 @@ Abra:
 3. Run Daily Engine  
 4. Ver topics → ideas → scripts → contents → published(MOCK) → metrics → winners → derivatives  
 
+## Fase 2 — Research + Script Factory
+
+```bash
+# Research independente
+curl -X POST localhost:8787/api/research/run \
+  -H 'content-type: application/json' \
+  -d '{"workspaceId":"...","nicheId":"...","await":true}'
+
+# Script Factory independente
+curl -X POST localhost:8787/api/scripts/generate \
+  -H 'content-type: application/json' \
+  -d '{"workspaceId":"...","contentIdeaId":"...","platform":"TIKTOK"}'
+```
+
+Docs: `docs/RESEARCH_ENGINE.md`, `docs/SCRIPT_FACTORY.md`
+
 ## Scripts
 
 | Script | Função |
