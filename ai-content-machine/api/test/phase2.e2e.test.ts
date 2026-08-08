@@ -63,7 +63,12 @@ describe('Phase 2 E2E research → idea → script + daily regression', () => {
     const res = await app.inject({
       method: 'POST',
       url: '/api/scripts/generate',
-      payload: { workspaceId, contentIdeaId: ideaId, platform: 'INSTAGRAM_REEL' },
+      payload: {
+        workspaceId,
+        contentIdeaId: ideaId,
+        platform: 'INSTAGRAM_REEL',
+        await: true,
+      },
     })
     assert.equal(res.statusCode, 200)
     const body = res.json()
@@ -74,6 +79,49 @@ describe('Phase 2 E2E research → idea → script + daily regression', () => {
     const run = await app.inject({ method: 'GET', url: `/api/scripts/runs/${body.scriptRunId}` })
     assert.equal(run.statusCode, 200)
     assert.equal(run.json().status, 'COMPLETED')
+  })
+
+  it('research and script endpoints enqueue without blocking by default', async () => {
+    const topic = getDb()
+      .prepare(`SELECT id FROM topics WHERE workspace_id = ? LIMIT 1`)
+      .get(workspaceId) as { id: string }
+    const ideaId = uid()
+    getDb()
+      .prepare(
+        `INSERT INTO content_ideas
+         (id, workspace_id, topic_id, title, hooks, angles, formats, opportunity_score, status, reality, created_at)
+         VALUES (?, ?, ?, ?, '[]', '["lista"]', '["short"]', 0.9, 'selected', 'MOCK', ?)`,
+      )
+      .run(ideaId, workspaceId, topic.id, 'Ideia Async Queue', nowIso())
+
+    const niche = getDb()
+      .prepare(`SELECT id FROM niches WHERE workspace_id = ? LIMIT 1`)
+      .get(workspaceId) as { id: string }
+
+    const research = await app.inject({
+      method: 'POST',
+      url: '/api/research/run',
+      payload: { workspaceId, nicheId: niche.id },
+    })
+    assert.equal(research.statusCode, 202)
+    assert.equal(research.json().status, 'queued')
+    assert.ok(research.json().executionId)
+
+    const script = await app.inject({
+      method: 'POST',
+      url: '/api/scripts/generate',
+      payload: { workspaceId, contentIdeaId: ideaId, platform: 'TIKTOK' },
+    })
+    assert.equal(script.statusCode, 202)
+    assert.equal(script.json().status, 'queued')
+    assert.ok(script.json().executionId)
+
+    // allow background workers to finish
+    await new Promise((r) => setTimeout(r, 50))
+    const exec = automationService.getWorkflowStatus(script.json().executionId) as {
+      status: string
+    }
+    assert.ok(['queued', 'running', 'completed', 'failed'].includes(exec.status))
   })
 
   it('daily engine regression still works', async () => {

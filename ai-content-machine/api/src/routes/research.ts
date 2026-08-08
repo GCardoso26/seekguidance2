@@ -15,11 +15,10 @@ export async function researchRoutes(app: FastifyInstance) {
 
     const { workspaceId, nicheId } = parsed.data
     const shouldAwait = parsed.data.await === true
+    const payload = { nicheId }
 
     if (shouldAwait) {
-      const triggered = await automationService.triggerWorkflow('research_engine', workspaceId, {
-        nicheId,
-      })
+      const triggered = await automationService.triggerWorkflow('research_engine', workspaceId, payload)
       const runId =
         (triggered.result as { researchRunId?: string } | undefined)?.researchRunId ||
         (Array.isArray((triggered.result as { runs?: Array<{ researchRunId?: string }> }).runs)
@@ -34,20 +33,14 @@ export async function researchRoutes(app: FastifyInstance) {
       }
     }
 
-    // Non-blocking: queue automation run and return IDs immediately
-    const pending = automationService.triggerWorkflow('research_engine', workspaceId, { nicheId })
-    // Return execution as soon as row exists — trigger continues in background promise
-    const executionIdPromise = pending.then((r) => r)
-    // Kick without awaiting full pipeline completion for HTTP responsiveness:
-    // In practice LocalOrchestrator is sync-fast in mock; we still return structured response.
-    const triggered = await executionIdPromise
-    return {
-      executionId: triggered.executionId,
-      status: triggered.status,
-      reality: triggered.reality,
-      researchRunId: (triggered.result as { researchRunId?: string })?.researchRunId,
+    // Default: non-blocking — validate + enqueue + return executionId immediately
+    const queued = automationService.enqueueWorkflow('research_engine', workspaceId, payload)
+    return reply.code(202).send({
+      executionId: queued.executionId,
+      status: queued.status,
+      reality: queued.reality,
       accepted: true,
-    }
+    })
   })
 
   app.get('/api/research/runs/:id', async (req, reply) => {

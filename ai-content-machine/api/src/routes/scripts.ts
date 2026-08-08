@@ -16,25 +16,40 @@ export async function scriptRoutes(app: FastifyInstance) {
     const parsed = schema.safeParse(req.body)
     if (!parsed.success) return reply.code(400).send({ error: parsed.error.flatten() })
 
-    const triggered = await automationService.triggerWorkflow(
+    const payload = {
+      contentIdeaId: parsed.data.contentIdeaId,
+      platform: parsed.data.platform,
+      forceQaFail: parsed.data.forceQaFail,
+      forceAiFailTimes: parsed.data.forceAiFailTimes,
+    }
+
+    if (parsed.data.await === true) {
+      const triggered = await automationService.triggerWorkflow(
+        'script_factory',
+        parsed.data.workspaceId,
+        payload,
+      )
+      return {
+        executionId: triggered.executionId,
+        scriptRunId: (triggered.result as { scriptRunId?: string })?.scriptRunId,
+        status: triggered.status,
+        reality: triggered.reality,
+        result: triggered.result,
+        accepted: true,
+      }
+    }
+
+    const queued = automationService.enqueueWorkflow(
       'script_factory',
       parsed.data.workspaceId,
-      {
-        contentIdeaId: parsed.data.contentIdeaId,
-        platform: parsed.data.platform,
-        forceQaFail: parsed.data.forceQaFail,
-        forceAiFailTimes: parsed.data.forceAiFailTimes,
-      },
+      payload,
     )
-
-    return {
-      executionId: triggered.executionId,
-      scriptRunId: (triggered.result as { scriptRunId?: string })?.scriptRunId,
-      status: triggered.status,
-      reality: triggered.reality,
-      result: triggered.result,
+    return reply.code(202).send({
+      executionId: queued.executionId,
+      status: queued.status,
+      reality: queued.reality,
       accepted: true,
-    }
+    })
   })
 
   app.get('/api/scripts/runs/:id', async (req, reply) => {

@@ -7,12 +7,21 @@ const API = import.meta.env.VITE_CWM_API_BASE || 'http://127.0.0.1:8787'
 type Health = {
   mode: string
   systemReady: { ok: boolean; reason?: string }
+  window?: string
   today: { completed: number; failed: number; running: number; queued: number }
   openFailures: number
   workflows: Record<string, string>
   researchRuns?: Array<{ status: string; c: number }>
   scriptRuns?: Array<{ status: string; c: number }>
   aiCostCents?: number
+  observability?: {
+    successRate: number
+    failureRate: number
+    averageDurationMs: number
+    retryCount: number
+    dlqCount: number
+    aiCostCents: number
+  }
 }
 
 type Execution = {
@@ -49,12 +58,16 @@ export function AutomationCenter() {
   const [busy, setBusy] = useState(false)
   const [researchRuns, setResearchRuns] = useState<Array<Record<string, unknown>>>([])
   const [scriptRuns, setScriptRuns] = useState<Array<Record<string, unknown>>>([])
+  const [windowFilter, setWindowFilter] = useState<'24h' | '7d' | '30d'>('24h')
+  const [workflowFilter, setWorkflowFilter] = useState('')
+  const [providerFilter, setProviderFilter] = useState('')
 
   async function refresh() {
-    const healthUrl = workspaceId
-      ? `${API}/api/automation/health?workspaceId=${workspaceId}`
-      : `${API}/api/automation/health`
-    const h = await fetch(healthUrl).then((r) => r.json())
+    const params = new URLSearchParams({ window: windowFilter })
+    if (workspaceId) params.set('workspaceId', workspaceId)
+    if (workflowFilter) params.set('workflow', workflowFilter)
+    if (providerFilter) params.set('provider', providerFilter)
+    const h = await fetch(`${API}/api/automation/health?${params}`).then((r) => r.json())
     setHealth(h)
     if (workspaceId) {
       const s = await fetch(`${API}/api/workspaces/${workspaceId}`).then((r) => r.json())
@@ -70,7 +83,7 @@ export function AutomationCenter() {
     void refresh()
     const t = setInterval(() => void refresh(), 5000)
     return () => clearInterval(t)
-  }, [workspaceId])
+  }, [workspaceId, windowFilter, workflowFilter, providerFilter])
 
   async function createWorkspace(e: FormEvent) {
     e.preventDefault()
@@ -201,6 +214,7 @@ export function AutomationCenter() {
                     workspaceId,
                     contentIdeaId: idea.id,
                     platform: 'TIKTOK',
+                    await: true,
                   }),
                 })
                 setLog(JSON.stringify(await res.json(), null, 2))
@@ -214,7 +228,61 @@ export function AutomationCenter() {
           </button>
         </div>
 
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginTop: '1.25rem' }}>
+          {(['24h', '7d', '30d'] as const).map((w) => (
+            <button
+              key={w}
+              type="button"
+              className={windowFilter === w ? 'btn btn-signal' : 'btn btn-ghost'}
+              onClick={() => setWindowFilter(w)}
+            >
+              {w}
+            </button>
+          ))}
+          <select
+            value={workflowFilter}
+            onChange={(e) => setWorkflowFilter(e.target.value)}
+            style={{ padding: '0.6rem 0.8rem', border: '1px solid var(--line)', background: 'var(--white)' }}
+          >
+            <option value="">Todos workflows</option>
+            {Object.keys(health?.workflows || {}).map((k) => (
+              <option key={k} value={k}>
+                {k}
+              </option>
+            ))}
+          </select>
+          <input
+            value={providerFilter}
+            onChange={(e) => setProviderFilter(e.target.value)}
+            placeholder="provider"
+            style={{ padding: '0.6rem 0.8rem', border: '1px solid var(--line)', background: 'var(--white)' }}
+          />
+        </div>
+
         <div className="flow-strip" style={{ marginTop: '1.25rem' }}>
+          <div>
+            <strong>{Math.round((health?.observability?.successRate ?? 0) * 100)}%</strong>
+            <span>Success rate ({health?.window || windowFilter})</span>
+          </div>
+          <div>
+            <strong>{Math.round((health?.observability?.failureRate ?? 0) * 100)}%</strong>
+            <span>Failure rate</span>
+          </div>
+          <div>
+            <strong>{health?.observability?.averageDurationMs ?? 0}ms</strong>
+            <span>Avg duration</span>
+          </div>
+          <div>
+            <strong>{health?.observability?.retryCount ?? 0}</strong>
+            <span>Retries</span>
+          </div>
+          <div>
+            <strong>{health?.observability?.dlqCount ?? health?.openFailures ?? 0}</strong>
+            <span>DLQ</span>
+          </div>
+        </div>
+
+        <div className="flow-strip" style={{ marginTop: '0.75rem' }}>
           <div>
             <strong>{health?.aiCostCents ?? 0}</strong>
             <span>AI cost (¢)</span>
@@ -228,15 +296,15 @@ export function AutomationCenter() {
             <span>Script runs</span>
           </div>
           <div>
-            <strong>{health?.openFailures ?? 0}</strong>
-            <span>DLQ</span>
-          </div>
-          <div>
             <strong>
               {scriptRuns.filter((r) => r.status === 'COMPLETED').length}/
               {Math.max(scriptRuns.length, 1)}
             </strong>
             <span>Script success</span>
+          </div>
+          <div>
+            <strong>{health?.today.completed ?? 0}</strong>
+            <span>Completed</span>
           </div>
         </div>
 

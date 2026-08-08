@@ -10,8 +10,18 @@ const triggerSchema = z.object({
 
 export async function automationRoutes(app: FastifyInstance) {
   app.get('/api/automation/health', async (req) => {
-    const workspaceId = (req.query as { workspaceId?: string }).workspaceId
-    return automationService.getHealth(workspaceId)
+    const q = req.query as {
+      workspaceId?: string
+      window?: '24h' | '7d' | '30d'
+      workflow?: string
+      provider?: string
+    }
+    return automationService.getHealth({
+      workspaceId: q.workspaceId,
+      window: q.window,
+      workflow: q.workflow,
+      provider: q.provider,
+    })
   })
 
   app.get('/api/automation/workflows', async () => ({ workflows: WORKFLOWS }))

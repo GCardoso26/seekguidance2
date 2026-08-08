@@ -24,36 +24,74 @@ export const WORKFLOWS = {
 export type WorkflowKey = keyof typeof WORKFLOWS
 
 export class AutomationService {
-  async triggerWorkflow(workflow: WorkflowKey | string, workspaceId: string, payload: Record<string, unknown> = {}) {
-    const ready = systemReady()
-    if (!ready.ok) {
-      throw new Error(ready.reason)
+  private assertWorkflow(workflow: string): asserts workflow is WorkflowKey {
+    if (!Object.keys(WORKFLOWS).includes(workflow)) {
+      throw new Error(`unknown_workflow:${workflow}`)
     }
+  }
 
-    if (!(workflow in WORKFLOWS) && workflow !== 'content_daily_pipeline') {
-      // allow known keys only
-      if (!Object.keys(WORKFLOWS).includes(workflow)) {
-        throw new Error(`unknown_workflow:${workflow}`)
-      }
-    }
+  private createQueuedRun(
+    workflow: WorkflowKey,
+    workspaceId: string,
+    payload: Record<string, unknown>,
+  ): { executionId: string; reality: 'MOCK' | 'PENDING' } {
+    const ready = systemReady()
+    if (!ready.ok) throw new Error(ready.reason)
 
     const executionId = uid()
     const reality = config.automationMode === 'mock' ? 'MOCK' : 'PENDING'
-    const id = uid()
     getDb()
       .prepare(
         `INSERT INTO automation_runs
          (id, workspace_id, workflow, execution_id, status, reality, payload, created_at)
          VALUES (?, ?, ?, ?, 'queued', ?, ?, ?)`,
       )
-      .run(id, workspaceId, workflow, executionId, reality, JSON.stringify(payload), nowIso())
+      .run(uid(), workspaceId, workflow, executionId, reality, JSON.stringify(payload), nowIso())
+    return { executionId, reality }
+  }
 
-    // Orchestration: mock local OR n8n remote
+  /** Synchronous execution (tests / await:true). */
+  async triggerWorkflow(workflow: WorkflowKey | string, workspaceId: string, payload: Record<string, unknown> = {}) {
+    this.assertWorkflow(String(workflow))
+    const { executionId } = this.createQueuedRun(workflow as WorkflowKey, workspaceId, payload)
+
     if (config.automationMode === 'mock' || !config.n8nBaseUrl) {
       return this.runLocal(executionId, workflow as WorkflowKey, workspaceId, payload)
     }
-
     return this.runRemoteN8n(executionId, workflow as WorkflowKey, workspaceId, payload)
+  }
+
+  /**
+   * Non-blocking enqueue: returns executionId immediately and processes in background.
+   * Use for HTTP endpoints that must not wait for long generation.
+   */
+  enqueueWorkflow(workflow: WorkflowKey | string, workspaceId: string, payload: Record<string, unknown> = {}) {
+    this.assertWorkflow(String(workflow))
+    const { executionId, reality } = this.createQueuedRun(workflow as WorkflowKey, workspaceId, payload)
+
+    const run =
+      config.automationMode === 'mock' || !config.n8nBaseUrl
+        ? () => this.runLocal(executionId, workflow as WorkflowKey, workspaceId, payload)
+        : () => this.runRemoteN8n(executionId, workflow as WorkflowKey, workspaceId, payload)
+
+    setImmediate(() => {
+      void run().catch((err) => {
+        const message = err instanceof Error ? err.message : String(err)
+        getDb()
+          .prepare(
+            `UPDATE automation_runs SET status='failed', finished_at=?, error=?, reality='FAILED'
+             WHERE execution_id=? AND status IN ('queued','running')`,
+          )
+          .run(nowIso(), message, executionId)
+      })
+    })
+
+    return {
+      executionId,
+      status: 'queued' as const,
+      reality,
+      accepted: true,
+    }
   }
 
   private async runLocal(
@@ -246,62 +284,99 @@ export class AutomationService {
     return this.getWorkflowStatus(executionId)
   }
 
-  getHealth(workspaceId?: string) {
+  getHealth(opts?: {
+    workspaceId?: string
+    window?: '24h' | '7d' | '30d'
+    workflow?: string
+    provider?: string
+  }) {
     const db = getDb()
-    const today = new Date().toISOString().slice(0, 10)
-    const base = workspaceId
-      ? db
-          .prepare(
-            `SELECT status, COUNT(*) as c FROM automation_runs
-             WHERE workspace_id = ? AND created_at LIKE ? GROUP BY status`,
-          )
-          .all(workspaceId, `${today}%`)
-      : db
-          .prepare(
-            `SELECT status, COUNT(*) as c FROM automation_runs
-             WHERE created_at LIKE ? GROUP BY status`,
-          )
-          .all(`${today}%`)
+    const workspaceId = opts?.workspaceId
+    const window = opts?.window ?? '24h'
+    const sinceMs =
+      window === '30d' ? 30 * 864e5 : window === '7d' ? 7 * 864e5 : 24 * 3600e3
+    const since = new Date(Date.now() - sinceMs).toISOString()
 
-    const counts = Object.fromEntries(
-      (base as Array<{ status: string; c: number }>).map((r) => [r.status, r.c]),
+    let runSql = `SELECT status, COUNT(*) as c, AVG(duration_ms) as avg_ms FROM automation_runs WHERE created_at >= ?`
+    const runParams: unknown[] = [since]
+    if (workspaceId) {
+      runSql += ` AND workspace_id = ?`
+      runParams.push(workspaceId)
+    }
+    if (opts?.workflow) {
+      runSql += ` AND workflow = ?`
+      runParams.push(opts.workflow)
+    }
+    runSql += ` GROUP BY status`
+    const base = db.prepare(runSql).all(...runParams) as Array<{
+      status: string
+      c: number
+      avg_ms: number | null
+    }>
+
+    const counts = Object.fromEntries(base.map((r) => [r.status, r.c]))
+    const completed = counts.completed ?? 0
+    const failed = counts.failed ?? 0
+    const totalFinished = completed + failed
+    const avgDuration = base.reduce((acc, r) => acc + (r.avg_ms || 0) * r.c, 0) / Math.max(
+      base.reduce((a, r) => a + r.c, 0),
+      1,
     )
-    const failures = workspaceId
-      ? db
-          .prepare(
-            `SELECT COUNT(*) as c FROM automation_failures WHERE status='open' AND created_at LIKE ?`,
-          )
-          .get(`${today}%`)
-      : db.prepare(`SELECT COUNT(*) as c FROM automation_failures WHERE status='open'`).get()
 
-    const researchStats = workspaceId
-      ? db
-          .prepare(
-            `SELECT status, COUNT(*) as c FROM research_runs WHERE workspace_id = ? GROUP BY status`,
-          )
-          .all(workspaceId)
-      : []
-    const scriptStats = workspaceId
-      ? db
-          .prepare(
-            `SELECT status, COUNT(*) as c FROM script_runs WHERE workspace_id = ? GROUP BY status`,
-          )
-          .all(workspaceId)
-      : []
+    let failSql = `SELECT COUNT(*) as c, COALESCE(SUM(attempts),0) as retries FROM automation_failures WHERE created_at >= ?`
+    const failParams: unknown[] = [since]
+    if (opts?.workflow) {
+      failSql += ` AND workflow = ?`
+      failParams.push(opts.workflow)
+    }
+    const failures = db.prepare(failSql).get(...failParams) as { c: number; retries: number }
+
+    let researchSql = `SELECT status, COUNT(*) as c FROM research_runs WHERE created_at >= ?`
+    const researchParams: unknown[] = [since]
+    if (workspaceId) {
+      researchSql += ` AND workspace_id = ?`
+      researchParams.push(workspaceId)
+    }
+    if (opts?.provider) {
+      researchSql += ` AND provider LIKE ?`
+      researchParams.push(`%${opts.provider}%`)
+    }
+    researchSql += ` GROUP BY status`
+
+    let scriptSql = `SELECT status, COUNT(*) as c FROM script_runs WHERE created_at >= ?`
+    const scriptParams: unknown[] = [since]
+    if (workspaceId) {
+      scriptSql += ` AND workspace_id = ?`
+      scriptParams.push(workspaceId)
+    }
+    if (opts?.provider) {
+      scriptSql += ` AND provider = ?`
+      scriptParams.push(opts.provider)
+    }
+    scriptSql += ` GROUP BY status`
 
     return {
       mode: config.automationMode,
       systemReady: systemReady(),
       workflows: WORKFLOWS,
+      window,
       today: {
-        completed: counts.completed ?? 0,
-        failed: counts.failed ?? 0,
+        completed,
+        failed,
         running: counts.running ?? 0,
         queued: counts.queued ?? 0,
       },
-      openFailures: (failures as { c: number }).c,
-      researchRuns: researchStats,
-      scriptRuns: scriptStats,
+      observability: {
+        successRate: totalFinished ? completed / totalFinished : 0,
+        failureRate: totalFinished ? failed / totalFinished : 0,
+        averageDurationMs: Math.round(avgDuration || 0),
+        retryCount: failures.retries,
+        dlqCount: failures.c,
+        aiCostCents: workspaceId ? sumAiCost(workspaceId) : 0,
+      },
+      openFailures: failures.c,
+      researchRuns: db.prepare(researchSql).all(...researchParams),
+      scriptRuns: db.prepare(scriptSql).all(...scriptParams),
       aiCostCents: workspaceId ? sumAiCost(workspaceId) : 0,
     }
   }
