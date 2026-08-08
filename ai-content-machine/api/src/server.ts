@@ -6,6 +6,8 @@ import { automationRoutes } from './routes/automation.js'
 import { webhookRoutes } from './routes/webhooks.js'
 import { promptRoutes } from './routes/prompts.js'
 import { workspaceRoutes } from './routes/workspaces.js'
+import { researchRoutes } from './routes/research.js'
+import { scriptRoutes } from './routes/scripts.js'
 
 export async function buildServer() {
   getDb()
@@ -22,6 +24,8 @@ export async function buildServer() {
   await app.register(webhookRoutes)
   await app.register(promptRoutes)
   await app.register(workspaceRoutes)
+  await app.register(researchRoutes)
+  await app.register(scriptRoutes)
 
   return app
 }

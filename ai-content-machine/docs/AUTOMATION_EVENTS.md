@@ -4,8 +4,17 @@
 
 | Event | Quando |
 |-------|--------|
+| `research.started` | Research run iniciada |
+| `research.completed` | Research concluída |
+| `research.partial` | Alguns providers falharam, outros ok |
+| `research.failed` | Todos providers configurados falharam |
+| `source.discovered` | Fonte bruta descoberta |
 | `topic.created` | Tópico de pesquisa persistido |
+| `topic.updated` | Tópico re-scoreado (fingerprint existente) |
 | `idea.created` | Ideia gerada |
+| `script.started` | Script run iniciada |
+| `script.completed` | Script run concluída |
+| `script.failed` | Script run falhou / DLQ |
 | `script.created` | Roteiro gerado |
 | `content.created` | Content record criado |
 | `content.approved` | Aprovado (humano ou auto) |

@@ -1,6 +1,9 @@
 import { config, systemReady } from '../config.js'
 import { getDb, uid, nowIso } from '../db/client.js'
 import { runDailyContentEngine, runResearchEngine } from './pipelines/dailyContentEngine.js'
+import { researchService } from '../research/ResearchService.js'
+import { scriptFactoryService } from '../scriptFactory/ScriptFactoryService.js'
+import { sumAiCost } from './AiCostService.js'
 
 export const WORKFLOWS = {
   content_daily_pipeline: 'CWM — Daily Content Engine',
@@ -72,7 +75,29 @@ export class AutomationService {
           unknown
         >
       } else if (workflow === 'research_engine') {
-        result = (await runResearchEngine(workspaceId)) as unknown as Record<string, unknown>
+        if (payload.nicheId) {
+          result = (await researchService.run({
+            workspaceId,
+            nicheId: String(payload.nicheId),
+            executionId,
+          })) as unknown as Record<string, unknown>
+        } else {
+          result = (await runResearchEngine(workspaceId, executionId)) as unknown as Record<
+            string,
+            unknown
+          >
+        }
+      } else if (workflow === 'script_factory') {
+        const contentIdeaId = String(payload.contentIdeaId || '')
+        if (!contentIdeaId) throw new Error('contentIdeaId_required')
+        result = (await scriptFactoryService.run({
+          workspaceId,
+          contentIdeaId,
+          platform: payload.platform ? String(payload.platform) : undefined,
+          executionId,
+          forceQaFail: Boolean(payload.forceQaFail),
+          forceAiFailTimes: Number(payload.forceAiFailTimes || 0),
+        })) as unknown as Record<string, unknown>
       } else {
         // Other CWM workflows are triggered via n8n JSON in production.
         // In mock MVP we acknowledge the trigger without fabricating REAL side-effects.
@@ -86,24 +111,44 @@ export class AutomationService {
 
       const duration = Date.now() - started
       const created = (result.created as { contents?: string[] } | undefined) ?? {}
+      const itemsOutput = created.contents?.length
+        ? created.contents.length
+        : Array.isArray(result.topicsCreated)
+          ? result.topicsCreated.length
+          : result.scriptId
+            ? 1
+            : Number(result.itemsFound ?? 0)
+      const runStatus =
+        result.status === 'FAILED' || result.status === 'failed'
+          ? 'failed'
+          : result.status === 'PARTIAL'
+            ? 'completed'
+            : 'completed'
       getDb()
         .prepare(
           `UPDATE automation_runs SET
-            status='completed', finished_at=?, duration_ms=?, items_output=?,
-            tokens=?, cost_cents=?, result=?, reality='MOCK'
+            status=?, finished_at=?, duration_ms=?, items_output=?,
+            tokens=?, cost_cents=?, result=?, reality=?
            WHERE execution_id=?`,
         )
         .run(
+          runStatus,
           nowIso(),
           duration,
-          created.contents?.length ?? 0,
+          Number(itemsOutput) || 0,
           Number(result.tokens ?? 0),
           Number(result.costCents ?? 0),
           JSON.stringify(result),
+          result.reality === 'FAILED' ? 'FAILED' : 'MOCK',
           executionId,
         )
 
-      return { executionId, status: 'completed' as const, reality: 'MOCK' as const, result }
+      return {
+        executionId,
+        status: runStatus === 'failed' ? ('failed' as const) : ('completed' as const),
+        reality: (result.reality === 'FAILED' ? 'FAILED' : 'MOCK') as 'MOCK' | 'FAILED',
+        result,
+      }
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err)
       getDb()
@@ -229,6 +274,21 @@ export class AutomationService {
           .get(`${today}%`)
       : db.prepare(`SELECT COUNT(*) as c FROM automation_failures WHERE status='open'`).get()
 
+    const researchStats = workspaceId
+      ? db
+          .prepare(
+            `SELECT status, COUNT(*) as c FROM research_runs WHERE workspace_id = ? GROUP BY status`,
+          )
+          .all(workspaceId)
+      : []
+    const scriptStats = workspaceId
+      ? db
+          .prepare(
+            `SELECT status, COUNT(*) as c FROM script_runs WHERE workspace_id = ? GROUP BY status`,
+          )
+          .all(workspaceId)
+      : []
+
     return {
       mode: config.automationMode,
       systemReady: systemReady(),
@@ -240,6 +300,9 @@ export class AutomationService {
         queued: counts.queued ?? 0,
       },
       openFailures: (failures as { c: number }).c,
+      researchRuns: researchStats,
+      scriptRuns: scriptStats,
+      aiCostCents: workspaceId ? sumAiCost(workspaceId) : 0,
     }
   }
 }

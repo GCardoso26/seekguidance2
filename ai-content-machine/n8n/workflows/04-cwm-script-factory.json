@@ -5,56 +5,121 @@
       "parameters": {
         "httpMethod": "POST",
         "path": "cwm/script-factory",
-        "responseMode": "lastNode",
+        "responseMode": "responseNode",
         "options": {}
       },
       "id": "webhook",
       "name": "Webhook",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
-      "position": [240, 300]
+      "position": [200, 320]
     },
     {
       "parameters": {
         "method": "GET",
         "url": "={{$env.CWM_API_BASE}}/api/ai/prompts/script_generator"
       },
-      "id": "prompt",
+      "id": "prompt-script",
       "name": "Load Script Prompt",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [480, 300]
+      "position": [440, 200]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{$env.CWM_API_BASE}}/api/ai/prompts/hook_generator"
+      },
+      "id": "prompt-hook",
+      "name": "Load Hook Prompt",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 380]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{$env.CWM_API_BASE}}/api/ai/prompts/script_qa"
+      },
+      "id": "prompt-qa",
+      "name": "Load QA Prompt",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 560]
     },
     {
       "parameters": {
         "method": "POST",
-        "url": "={{$env.CWM_API_BASE}}/api/automation/trigger",
+        "url": "={{$env.CWM_API_BASE}}/api/scripts/generate",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"workflow\": \"script_factory\",\n  \"workspaceId\": \"{{$('Webhook').item.json.body.workspaceId}}\",\n  \"payload\": {\n    \"contentIdeaId\": \"{{$('Webhook').item.json.body.contentIdeaId}}\"\n  }\n}"
+        "jsonBody": "={\n  \"workspaceId\": \"{{$('Webhook').item.json.body.workspaceId}}\",\n  \"contentIdeaId\": \"{{$('Webhook').item.json.body.contentIdeaId}}\",\n  \"platform\": \"{{$('Webhook').item.json.body.platform || 'TIKTOK'}}\",\n  \"await\": true\n}",
+        "options": { "timeout": 120000 }
       },
-      "id": "trigger",
-      "name": "Trigger Script Factory",
+      "id": "generate",
+      "name": "Generate Script Run",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [720, 300]
+      "position": [700, 380]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{$env.CWM_API_BASE}}/api/scripts/runs/{{$json.scriptRunId}}"
+      },
+      "id": "load-run",
+      "name": "Load Script Run",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [940, 380]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{$json}}"
+      },
+      "id": "respond",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1160, 380]
     }
   ],
   "connections": {
     "Webhook": {
-      "main": [[{ "node": "Load Script Prompt", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          { "node": "Load Script Prompt", "type": "main", "index": 0 },
+          { "node": "Load Hook Prompt", "type": "main", "index": 0 },
+          { "node": "Load QA Prompt", "type": "main", "index": 0 }
+        ]
+      ]
     },
     "Load Script Prompt": {
-      "main": [[{ "node": "Trigger Script Factory", "type": "main", "index": 0 }]]
+      "main": [[{ "node": "Generate Script Run", "type": "main", "index": 0 }]]
+    },
+    "Load Hook Prompt": {
+      "main": [[{ "node": "Generate Script Run", "type": "main", "index": 0 }]]
+    },
+    "Load QA Prompt": {
+      "main": [[{ "node": "Generate Script Run", "type": "main", "index": 0 }]]
+    },
+    "Generate Script Run": {
+      "main": [[{ "node": "Load Script Run", "type": "main", "index": 0 }]]
+    },
+    "Load Script Run": {
+      "main": [[{ "node": "Respond", "type": "main", "index": 0 }]]
     }
   },
   "settings": { "executionOrder": "v1" },
   "meta": {
     "cwm": {
       "workflowKey": "script_factory",
-      "version": 1,
-      "purpose": "idea → script + CTA + caption + visual brief + QA",
-      "tables": ["scripts", "content_ideas"]
+      "version": 2,
+      "purpose": "Independent script factory with context builder, hooks, QA, cost tracking",
+      "tables": ["script_runs", "scripts", "ai_cost_events", "automation_failures"],
+      "retry": "maxAttempts=3 in ScriptFactoryService",
+      "prompts": ["script_generator", "hook_generator", "cta_generator", "caption_generator", "visual_brief_generator", "script_qa"]
     }
   }
 }

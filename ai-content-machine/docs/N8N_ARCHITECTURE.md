@@ -95,3 +95,10 @@ Exponential backoff → `automation_failures` (Dead Letter). Dashboard Automatio
 ## 30-Day War Mode
 
 Workflow especial + tabela `war_campaigns` com progresso diário adaptativo (`AdaptiveContentPlanner`).
+
+## Fase 2 — Pipelines independentes
+
+- **ResearchService** (`api/src/research/`) — providers, normalize, dedupe, score, `research_runs`
+- **ScriptFactoryService** (`api/src/scriptFactory/`) — context, hooks, script, CTA, caption, visual brief, QA, `script_runs`, `ai_cost_events`
+- Daily Engine **não** foi reescrito; `runResearchEngine` delega ao ResearchService
+- LocalOrchestrator (mock) executa ambos via AutomationService

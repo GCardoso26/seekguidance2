@@ -10,6 +10,9 @@ type Health = {
   today: { completed: number; failed: number; running: number; queued: number }
   openFailures: number
   workflows: Record<string, string>
+  researchRuns?: Array<{ status: string; c: number }>
+  scriptRuns?: Array<{ status: string; c: number }>
+  aiCostCents?: number
 }
 
 type Execution = {
@@ -44,13 +47,22 @@ export function AutomationCenter() {
   const [snap, setSnap] = useState<Snapshot | null>(null)
   const [log, setLog] = useState('')
   const [busy, setBusy] = useState(false)
+  const [researchRuns, setResearchRuns] = useState<Array<Record<string, unknown>>>([])
+  const [scriptRuns, setScriptRuns] = useState<Array<Record<string, unknown>>>([])
 
   async function refresh() {
-    const h = await fetch(`${API}/api/automation/health`).then((r) => r.json())
+    const healthUrl = workspaceId
+      ? `${API}/api/automation/health?workspaceId=${workspaceId}`
+      : `${API}/api/automation/health`
+    const h = await fetch(healthUrl).then((r) => r.json())
     setHealth(h)
     if (workspaceId) {
       const s = await fetch(`${API}/api/workspaces/${workspaceId}`).then((r) => r.json())
       if (!s.error) setSnap(s)
+      const rr = await fetch(`${API}/api/research/workspaces/${workspaceId}/runs`).then((r) => r.json())
+      const sr = await fetch(`${API}/api/scripts/workspaces/${workspaceId}/runs`).then((r) => r.json())
+      setResearchRuns(rr.runs || [])
+      setScriptRuns(sr.runs || [])
     }
   }
 
@@ -169,6 +181,63 @@ export function AutomationCenter() {
           >
             Run Research
           </button>
+          <button
+            className="btn btn-ghost"
+            disabled={busy || !workspaceId}
+            onClick={async () => {
+              if (!workspaceId) return
+              setBusy(true)
+              try {
+                const ws = await fetch(`${API}/api/workspaces/${workspaceId}`).then((r) => r.json())
+                const idea = (ws.ideas || [])[0]
+                if (!idea) {
+                  setLog('Nenhuma idea — rode Research + Daily primeiro')
+                  return
+                }
+                const res = await fetch(`${API}/api/scripts/generate`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    workspaceId,
+                    contentIdeaId: idea.id,
+                    platform: 'TIKTOK',
+                  }),
+                })
+                setLog(JSON.stringify(await res.json(), null, 2))
+                await refresh()
+              } finally {
+                setBusy(false)
+              }
+            }}
+          >
+            Run Script Factory
+          </button>
+        </div>
+
+        <div className="flow-strip" style={{ marginTop: '1.25rem' }}>
+          <div>
+            <strong>{health?.aiCostCents ?? 0}</strong>
+            <span>AI cost (¢)</span>
+          </div>
+          <div>
+            <strong>{researchRuns.length}</strong>
+            <span>Research runs</span>
+          </div>
+          <div>
+            <strong>{scriptRuns.length}</strong>
+            <span>Script runs</span>
+          </div>
+          <div>
+            <strong>{health?.openFailures ?? 0}</strong>
+            <span>DLQ</span>
+          </div>
+          <div>
+            <strong>
+              {scriptRuns.filter((r) => r.status === 'COMPLETED').length}/
+              {Math.max(scriptRuns.length, 1)}
+            </strong>
+            <span>Script success</span>
+          </div>
         </div>
 
         {workspaceId ? (
@@ -202,6 +271,36 @@ export function AutomationCenter() {
             </article>
           </div>
         ) : null}
+
+        <h2 style={{ marginTop: '3rem', fontFamily: 'var(--font-display)', letterSpacing: '-0.04em' }}>
+          Research Runs
+        </h2>
+        <div className="kit-grid">
+          <pre>
+            {researchRuns
+              .slice(0, 10)
+              .map(
+                (r) =>
+                  `${r.created_at} | ${r.status} | items=${r.items_found} topics=${r.topics_created} | ${r.provider || '-'}`,
+              )
+              .join('\n') || 'Nenhum research run.'}
+          </pre>
+        </div>
+
+        <h2 style={{ marginTop: '2rem', fontFamily: 'var(--font-display)', letterSpacing: '-0.04em' }}>
+          Script Runs
+        </h2>
+        <div className="kit-grid">
+          <pre>
+            {scriptRuns
+              .slice(0, 10)
+              .map(
+                (r) =>
+                  `${r.created_at} | ${r.status} | ${r.platform || '-'} | cost=${r.estimated_cost_cents}¢ | tokens=${Number(r.tokens_input || 0) + Number(r.tokens_output || 0)}`,
+              )
+              .join('\n') || 'Nenhum script run.'}
+          </pre>
+        </div>
 
         <h2 style={{ marginTop: '3rem', fontFamily: 'var(--font-display)', letterSpacing: '-0.04em' }}>
           Executions

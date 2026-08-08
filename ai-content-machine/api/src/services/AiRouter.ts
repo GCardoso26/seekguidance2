@@ -2,6 +2,8 @@ export type AiTask =
   | 'classification'
   | 'idea_generation'
   | 'script_generation'
+  | 'hook_generation'
+  | 'qa'
   | 'strategy'
   | 'recycling'
 
@@ -33,6 +35,24 @@ export function routeAi(task: AiTask, opts?: { budgetCents?: number; preferSpeed
     }
   }
 
+  if (task === 'hook_generation') {
+    return {
+      provider: 'openai_compatible',
+      model: 'gpt-4o-mini',
+      estimatedCostCents: 2,
+      quality: 'medium',
+    }
+  }
+
+  if (task === 'qa') {
+    return {
+      provider: 'openai_compatible',
+      model: 'gpt-4o-mini',
+      estimatedCostCents: 1,
+      quality: 'low',
+    }
+  }
+
   if (task === 'script_generation' || task === 'recycling') {
     return {
       provider: 'openai_compatible',
@@ -48,4 +68,13 @@ export function routeAi(task: AiTask, opts?: { budgetCents?: number; preferSpeed
     estimatedCostCents: 2,
     quality: 'medium',
   }
+}
+
+/** In AUTOMATION_MODE=mock, force mock provider label while keeping model choice for cost telemetry. */
+export function resolveRouteForMode(task: AiTask, mode: 'mock' | 'production', opts?: { budgetCents?: number; preferSpeed?: boolean }): AiRoute {
+  const route = routeAi(task, opts)
+  if (mode === 'mock') {
+    return { ...route, provider: 'mock' }
+  }
+  return route
 }

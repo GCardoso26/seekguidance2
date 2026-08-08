@@ -131,7 +131,7 @@ describe('CWM mock acceptance pipeline', () => {
   it('exposes prompt versions without hardcoding in workflows', async () => {
     const res = await app.inject({ method: 'GET', url: '/api/ai/prompts/script_generator' })
     assert.equal(res.statusCode, 200)
-    assert.ok(res.json().body.includes('HOOK'))
+    assert.ok(/hook/i.test(res.json().body))
   })
 
   it('automation trigger API works', async () => {

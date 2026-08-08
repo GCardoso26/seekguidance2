@@ -487,42 +487,27 @@ export async function runDailyContentEngine(workspaceId: string, executionId: st
   }
 }
 
-export async function runResearchEngine(workspaceId: string) {
+/** Delegates to independent ResearchService (Phase 2) — Daily Engine not rewritten. */
+export async function runResearchEngine(workspaceId: string, executionId?: string) {
+  const { researchService } = await import('../../research/ResearchService.js')
   const db = getDb()
   const niches = db
-    .prepare(`SELECT * FROM niches WHERE workspace_id = ? AND active = 1`)
-    .all(workspaceId) as Array<{ id: string; name: string }>
+    .prepare(`SELECT id FROM niches WHERE workspace_id = ? AND active = 1`)
+    .all(workspaceId) as Array<{ id: string }>
   const topicIds: string[] = []
+  const runs: unknown[] = []
   for (const niche of niches) {
-    const research = await mockResearch(niche.name)
-    for (const hit of research.hits) {
-      const topicId = uid()
-      db.prepare(
-        `INSERT INTO topics
-         (id, workspace_id, niche_id, title, source_trace, opportunity_score, trend_score, gap_score, reality, created_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'MOCK', ?)`,
-      ).run(
-        topicId,
-        workspaceId,
-        niche.id,
-        hit.title,
-        JSON.stringify([{ source: hit.source, questions: hit.questions }]),
-        (hit.trendScore + hit.gapScore) / 2,
-        hit.trendScore,
-        hit.gapScore,
-        nowIso(),
-      )
-      topicIds.push(topicId)
-      emitEvent({
-        workspaceId,
-        eventType: 'topic.created',
-        entityType: 'topic',
-        entityId: topicId,
-        reality: 'MOCK',
-      })
+    const result = await researchService.run({
+      workspaceId,
+      nicheId: niche.id,
+      executionId,
+    })
+    runs.push(result)
+    if (!result.skipped && 'topicsCreated' in result) {
+      topicIds.push(...(result.topicsCreated as string[]))
     }
   }
-  return { topicIds, reality: 'MOCK' as const }
+  return { topicIds, runs, reality: 'MOCK' as const }
 }
 
 export async function bootstrapWorkspace(input: {

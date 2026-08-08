@@ -3,9 +3,9 @@
 | File | Name | Key | Trigger |
 |------|------|-----|---------|
 | `01-cwm-daily-content-engine.json` | CWM — Daily Content Engine | `content_daily_pipeline` | Cron 07:00 + webhook |
-| `02-cwm-research-engine.json` | CWM — Research Engine | `research_engine` | Cron 06:00 + webhook |
+| `02-cwm-research-engine.json` | CWM — Research Engine | `research_engine` | Cron 06:00 + webhook → `/api/research/run` (v2) |
 | `03-cwm-idea-generator.json` | CWM — Idea Generator | `idea_generator` | webhook |
-| `04-cwm-script-factory.json` | CWM — Script Factory | `script_factory` | webhook |
+| `04-cwm-script-factory.json` | CWM — Script Factory | `script_factory` | webhook → prompts + `/api/scripts/generate` (v2) |
 | `05-cwm-content-production.json` | CWM — Content Production | `content_production` | webhook |
 | `06-cwm-human-approval-gate.json` | CWM — Human Approval Gate | `human_approval_gate` | webhook |
 | `07-cwm-content-publisher.json` | CWM — Content Publisher | `content_publisher` | webhook |
