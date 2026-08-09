@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import json
 import secrets
 import uuid
+from datetime import datetime
 from typing import Any
 
 from fastapi import HTTPException
@@ -30,6 +32,18 @@ from app.tournament_platform.domain.enums import (
     StoreEventVisibility,
 )
 from app.tournament_platform.observability import emit
+
+
+def _parse_timestamptz(value: str | datetime | None) -> datetime | None:
+    """asyncpg exige datetime (não ISO string) em binds tipados como timestamptz."""
+    if value is None or value == "":
+        return None
+    if isinstance(value, datetime):
+        return value
+    raw = str(value).strip()
+    if raw.endswith("Z"):
+        raw = raw[:-1] + "+00:00"
+    return datetime.fromisoformat(raw)
 
 
 def _row_event(row: Any) -> StoreEvent:
@@ -106,7 +120,7 @@ class EventService:
                 ) VALUES (
                   CAST(:id AS uuid), CAST(:store_id AS uuid), :name, :description, :game, :format,
                   :category, :event_type, :capacity,
-                  CASE WHEN :starts_at IS NULL THEN NULL ELSE CAST(:starts_at AS timestamptz) END,
+                  CAST(:starts_at AS timestamptz),
                   :venue, :organizer_id, :rules, CAST(:policies AS jsonb),
                   :banner_url, :image_url, :visibility, :status
                 )
@@ -122,11 +136,11 @@ class EventService:
                 "category": category,
                 "event_type": event_type.value,
                 "capacity": capacity,
-                "starts_at": starts_at,
+                "starts_at": _parse_timestamptz(starts_at),
                 "venue": venue,
                 "organizer_id": organizer_id,
                 "rules": rules,
-                "policies": __import__("json").dumps(policies or {}),
+                "policies": json.dumps(policies or {}),
                 "banner_url": banner_url,
                 "image_url": image_url,
                 "visibility": vis,
@@ -423,9 +437,9 @@ class TicketService:
                   counter_payment_forbidden, store_product_id, status
                 ) VALUES (
                   CAST(:id AS uuid), CAST(:eid AS uuid),
-                  CASE WHEN :tid IS NULL THEN NULL ELSE CAST(:tid AS uuid) END,
+                  CAST(:tid AS uuid),
                   :name, :price, :qty, :capacity, :avail, :lot, TRUE, TRUE, TRUE,
-                  CASE WHEN :spid IS NULL THEN NULL ELSE CAST(:spid AS uuid) END,
+                  CAST(:spid AS uuid),
                   'active'
                 )
                 """

@@ -44,10 +44,14 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    const headers = await tournamentProxyHeaders(req);
+    if (!headers["X-Judge-User-Id"] || !headers.Authorization) {
+      return NextResponse.json({ detail: "Autenticação necessária" }, { status: 401 });
+    }
     const body = await req.text();
     const res = await fetchApiResilient(`/runtime/judge/tournament-platform/events`, {
       method: "POST",
-      headers: await tournamentProxyHeaders(req),
+      headers,
       body,
       cache: "no-store",
     });

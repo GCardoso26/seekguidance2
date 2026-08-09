@@ -37,7 +37,13 @@ export function EventBannerUpload({ value, onChange, className }: Props) {
       }
       setLoading(true);
       try {
-        const local = URL.createObjectURL(file);
+        // data: evita CSP img-src sem blob: (prod vercel.json / next.config)
+        const local = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(String(reader.result || ""));
+          reader.onerror = () => reject(new Error("Falha ao ler imagem"));
+          reader.readAsDataURL(file);
+        });
         setPreview(local);
         const supabase = createSupabaseBrowserClient();
         const {
