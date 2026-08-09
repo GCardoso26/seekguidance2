@@ -8,6 +8,13 @@ export type SellerStore = {
   slug?: string;
   name?: string;
   owner_id?: string;
+  city?: string | null;
+  state?: string | null;
+  postal_code?: string | null;
+  phone?: string | null;
+  address?: string | null;
+  lat?: number | null;
+  lng?: number | null;
 };
 
 export function useSellerStore() {
@@ -48,9 +55,34 @@ export function useSellerStore() {
   const dashboardStore = dashboardQuery.data?.store as Record<string, unknown> | undefined;
   const dashboardStoreId = dashboardStore?.id ? String(dashboardStore.id) : null;
   // Preferir a loja do dashboard (mesma regra do backend) para PIX/Stripe não “sumirem”
-  const store =
+  const baseStore =
     (dashboardStoreId ? stores.find((s) => s.id === dashboardStoreId) : undefined) ??
     fallbackStore;
+
+  const store: SellerStore | null = baseStore
+    ? {
+        ...baseStore,
+        city: (baseStore.city ?? dashboardStore?.city ?? null) as string | null,
+        state: (baseStore.state ?? dashboardStore?.state ?? null) as string | null,
+        postal_code: (baseStore.postal_code ??
+          dashboardStore?.postal_code ??
+          null) as string | null,
+        phone: (baseStore.phone ?? dashboardStore?.phone ?? null) as string | null,
+        address: (baseStore.address ?? dashboardStore?.address ?? null) as string | null,
+        lat:
+          baseStore.lat != null
+            ? Number(baseStore.lat)
+            : dashboardStore?.lat != null
+              ? Number(dashboardStore.lat)
+              : null,
+        lng:
+          baseStore.lng != null
+            ? Number(baseStore.lng)
+            : dashboardStore?.lng != null
+              ? Number(dashboardStore.lng)
+              : null,
+      }
+    : null;
   const storeId = store?.id ?? dashboardStoreId ?? null;
 
   const plan = String(dashboardStore?.subscription_plan ?? "free");

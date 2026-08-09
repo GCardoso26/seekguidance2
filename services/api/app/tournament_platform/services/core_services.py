@@ -76,19 +76,39 @@ class EventService:
         venue: str | None = None,
         rules: str | None = None,
         policies: dict[str, Any] | None = None,
+        banner_url: str | None = None,
+        image_url: str | None = None,
+        visibility: str | StoreEventVisibility = StoreEventVisibility.PUBLIC,
+        status: str | StoreEventStatus = StoreEventStatus.REGISTRATION_OPEN,
     ) -> StoreEvent:
         eid = str(uuid.uuid4())
+        vis = (
+            visibility.value
+            if isinstance(visibility, StoreEventVisibility)
+            else str(visibility or "public")
+        )
+        st = (
+            status.value
+            if isinstance(status, StoreEventStatus)
+            else str(status or "registration_open")
+        )
+        if vis not in {v.value for v in StoreEventVisibility}:
+            vis = StoreEventVisibility.PUBLIC.value
+        if st not in {s.value for s in StoreEventStatus}:
+            st = StoreEventStatus.REGISTRATION_OPEN.value
         await self.session.execute(
             text(
                 """
                 INSERT INTO tcg_judge.store_events (
                   id, store_id, name, description, game, format, category,
-                  event_type, capacity, starts_at, venue, organizer_id, rules, policies, status
+                  event_type, capacity, starts_at, venue, organizer_id, rules, policies,
+                  banner_url, image_url, visibility, status
                 ) VALUES (
                   CAST(:id AS uuid), CAST(:store_id AS uuid), :name, :description, :game, :format,
                   :category, :event_type, :capacity,
                   CASE WHEN :starts_at IS NULL THEN NULL ELSE CAST(:starts_at AS timestamptz) END,
-                  :venue, :organizer_id, :rules, CAST(:policies AS jsonb), 'draft'
+                  :venue, :organizer_id, :rules, CAST(:policies AS jsonb),
+                  :banner_url, :image_url, :visibility, :status
                 )
                 """
             ),
@@ -107,6 +127,10 @@ class EventService:
                 "organizer_id": organizer_id,
                 "rules": rules,
                 "policies": __import__("json").dumps(policies or {}),
+                "banner_url": banner_url,
+                "image_url": image_url,
+                "visibility": vis,
+                "status": st,
             },
         )
         await self.session.commit()
@@ -150,6 +174,58 @@ class EventService:
         ).mappings().all()
         return [_row_event(r) for r in rows]
 
+    async def list_for_store_enriched(self, store_id: str, *, limit: int = 100) -> list[dict[str, Any]]:
+        rows = (
+            await self.session.execute(
+                text(
+                    """
+                    SELECT e.id::text, e.store_id::text, e.name, e.description, e.game, e.format,
+                           e.category, e.event_type, e.capacity, e.starts_at, e.ends_at, e.venue,
+                           e.status, e.visibility, e.image_url, e.banner_url, e.organizer_id,
+                           e.rules, e.policies,
+                           s.name AS store_name, s.slug AS store_slug, s.city AS store_city,
+                           s.state AS store_state, s.postal_code AS store_postal_code,
+                           COALESCE(
+                             (SELECT SUM(COALESCE(t.availability, 0))
+                              FROM tcg_judge.event_tickets t
+                              WHERE t.store_event_id = e.id AND t.status = 'active'),
+                             e.capacity
+                           ) AS tickets_remaining,
+                           COALESCE(
+                             (SELECT SUM(COALESCE(t.capacity, t.quantity, 0))
+                              FROM tcg_judge.event_tickets t
+                              WHERE t.store_event_id = e.id AND t.status = 'active'),
+                             e.capacity
+                           ) AS tickets_capacity
+                    FROM tcg_judge.store_events e
+                    LEFT JOIN tcg_judge.stores s ON s.id = e.store_id
+                    WHERE e.store_id = CAST(:store_id AS uuid)
+                    ORDER BY e.starts_at DESC NULLS LAST, e.created_at DESC
+                    LIMIT :lim
+                    """
+                ),
+                {"store_id": store_id, "lim": limit},
+            )
+        ).mappings().all()
+        out: list[dict[str, Any]] = []
+        for r in rows:
+            ev = _row_event(r).to_dict()
+            remaining = r.get("tickets_remaining")
+            capacity = r.get("tickets_capacity")
+            ev["store_name"] = r.get("store_name")
+            ev["store_slug"] = r.get("store_slug")
+            ev["store_city"] = r.get("store_city")
+            ev["store_state"] = r.get("store_state")
+            ev["store_postal_code"] = r.get("store_postal_code")
+            ev["tickets_remaining"] = int(remaining) if remaining is not None else None
+            ev["tickets_capacity"] = int(capacity) if capacity is not None else ev.get("capacity")
+            if ev["tickets_capacity"] is not None and ev["tickets_remaining"] is not None:
+                ev["tickets_sold"] = max(0, int(ev["tickets_capacity"]) - int(ev["tickets_remaining"]))
+            else:
+                ev["tickets_sold"] = None
+            out.append(ev)
+        return out
+
     async def list_public(self, limit: int = 50) -> list[StoreEvent]:
         rows = (
             await self.session.execute(
@@ -168,6 +244,74 @@ class EventService:
             )
         ).mappings().all()
         return [_row_event(r) for r in rows]
+
+    async def list_public_enriched(
+        self,
+        *,
+        limit: int = 50,
+        store_id: str | None = None,
+        game: str | None = None,
+    ) -> list[dict[str, Any]]:
+        """Public events with ticket availability + store name for hub/vitrine."""
+        clauses = ["e.visibility = 'public'", "e.status NOT IN ('draft', 'cancelled')"]
+        params: dict[str, Any] = {"lim": limit}
+        if store_id:
+            clauses.append("e.store_id = CAST(:store_id AS uuid)")
+            params["store_id"] = store_id
+        if game:
+            clauses.append("UPPER(COALESCE(e.game, '')) = UPPER(:game)")
+            params["game"] = game
+        where = " AND ".join(clauses)
+        rows = (
+            await self.session.execute(
+                text(
+                    f"""
+                    SELECT e.id::text, e.store_id::text, e.name, e.description, e.game, e.format,
+                           e.category, e.event_type, e.capacity, e.starts_at, e.ends_at, e.venue,
+                           e.status, e.visibility, e.image_url, e.banner_url, e.organizer_id,
+                           e.rules, e.policies,
+                           s.name AS store_name, s.slug AS store_slug, s.city AS store_city,
+                           s.state AS store_state, s.postal_code AS store_postal_code,
+                           COALESCE(
+                             (SELECT SUM(COALESCE(t.availability, 0))
+                              FROM tcg_judge.event_tickets t
+                              WHERE t.store_event_id = e.id AND t.status = 'active'),
+                             e.capacity
+                           ) AS tickets_remaining,
+                           COALESCE(
+                             (SELECT SUM(COALESCE(t.capacity, t.quantity, 0))
+                              FROM tcg_judge.event_tickets t
+                              WHERE t.store_event_id = e.id AND t.status = 'active'),
+                             e.capacity
+                           ) AS tickets_capacity
+                    FROM tcg_judge.store_events e
+                    LEFT JOIN tcg_judge.stores s ON s.id = e.store_id
+                    WHERE {where}
+                    ORDER BY e.starts_at ASC NULLS LAST
+                    LIMIT :lim
+                    """
+                ),
+                params,
+            )
+        ).mappings().all()
+        out: list[dict[str, Any]] = []
+        for r in rows:
+            ev = _row_event(r).to_dict()
+            remaining = r.get("tickets_remaining")
+            capacity = r.get("tickets_capacity")
+            ev["store_name"] = r.get("store_name")
+            ev["store_slug"] = r.get("store_slug")
+            ev["store_city"] = r.get("store_city")
+            ev["store_state"] = r.get("store_state")
+            ev["store_postal_code"] = r.get("store_postal_code")
+            ev["tickets_remaining"] = int(remaining) if remaining is not None else None
+            ev["tickets_capacity"] = int(capacity) if capacity is not None else ev.get("capacity")
+            sold = None
+            if ev["tickets_capacity"] is not None and ev["tickets_remaining"] is not None:
+                sold = max(0, int(ev["tickets_capacity"]) - int(ev["tickets_remaining"]))
+            ev["tickets_sold"] = sold
+            out.append(ev)
+        return out
 
     async def ensure_from_tournament(
         self, tournament_id: str, *, store_id: str, organizer_id: str

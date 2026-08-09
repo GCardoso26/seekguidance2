@@ -31,6 +31,8 @@ import {
 
   Store,
 
+  Ticket,
+
   TrendingUp,
 
   Truck,
@@ -354,6 +356,14 @@ export const SIDEBAR_ITEMS: SidebarItem[] = [
     children: [
 
       { id: "coupons", label: "Cupons", icon: Megaphone, href: "/vendedor/painel/cupons" },
+
+      {
+        id: "ingressos",
+        label: "Ingressos de Eventos",
+        icon: Ticket,
+        href: "/vendedor/painel/ingressos",
+        feature: "tournaments",
+      },
 
       {
 

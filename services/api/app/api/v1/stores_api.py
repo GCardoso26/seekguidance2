@@ -22,6 +22,10 @@ class StoreCreateBody(BaseModel):
     description: str | None = None
     email: str
     city: str | None = None
+    state: str | None = None
+    postal_code: str | None = None
+    phone: str | None = None
+    address: str | None = None
     country: str = "BR"
 
 
@@ -33,6 +37,12 @@ class StoreUpdateBody(BaseModel):
     website: str | None = None
     discord: str | None = None
     city: str | None = None
+    state: str | None = None
+    postal_code: str | None = None
+    phone: str | None = None
+    address: str | None = None
+    lat: float | None = None
+    lng: float | None = None
 
 
 class VerifyBody(BaseModel):

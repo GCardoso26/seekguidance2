@@ -20,6 +20,21 @@ export type LiveEvent = {
   starts_at?: string;
   status?: string;
   game?: string;
+  format?: string;
+  banner_url?: string | null;
+  image_url?: string | null;
+  venue?: string | null;
+  capacity?: number | null;
+  store_id?: string;
+  store_name?: string | null;
+  store_slug?: string | null;
+  policies?: Record<string, unknown>;
+  tickets_remaining?: number | null;
+  tickets_capacity?: number | null;
+  tickets_sold?: number | null;
+  store_city?: string | null;
+  store_state?: string | null;
+  store_postal_code?: string | null;
 };
 
 async function softJson<T>(url: string, fallback: T): Promise<T> {

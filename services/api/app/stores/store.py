@@ -148,7 +148,7 @@ async def list_stores(
 async def update_store(session: AsyncSession, store_id: str, owner_id: str, fields: dict[str, Any]) -> dict[str, Any]:
     allowed = {
         "name", "description", "logo_url", "banner_url", "address", "city", "state",
-        "country", "phone", "email", "website", "discord", "lat", "lng",
+        "country", "phone", "email", "website", "discord", "lat", "lng", "postal_code",
     }
     sets = []
     params: dict[str, Any] = {"id": store_id, "oid": owner_id}

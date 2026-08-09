@@ -53,6 +53,10 @@ class EventCreateBody(BaseModel):
     venue: str | None = None
     rules: str | None = None
     policies: dict[str, Any] | None = None
+    banner_url: str | None = None
+    image_url: str | None = None
+    visibility: str = "public"
+    status: str = "registration_open"
 
 
 class TicketCreateBody(BaseModel):
@@ -143,6 +147,10 @@ async def create_event(
         venue=body.venue,
         rules=body.rules,
         policies=body.policies,
+        banner_url=body.banner_url,
+        image_url=body.image_url,
+        visibility=body.visibility,
+        status=body.status,
     )
     return {"event": ev.to_dict()}
 
@@ -327,15 +335,23 @@ async def pairing_formats(session: DbSession) -> dict[str, Any]:
 async def runtime_events(
     session: DbSession,
     store_id: str | None = Query(default=None),
+    game: str | None = Query(default=None),
+    limit: int = Query(default=50, ge=1, le=100),
+    owner: bool = Query(default=False),
     x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
 ) -> dict[str, Any]:
-    """Lista pública de eventos (portal). Filtro por loja exige autenticação."""
-    if store_id:
+    """Lista pública de eventos. Com owner=1 + auth, lista todos os eventos da loja."""
+    if owner and store_id:
         _require_user(x_judge_user_id)
-        events = await EventService(session).list_for_store(store_id)
-    else:
-        events = await EventService(session).list_public()
-    return {"events": [e.to_dict() for e in events]}
+        payload = await EventService(session).list_for_store_enriched(store_id, limit=limit)
+        if game:
+            g = game.upper()
+            payload = [e for e in payload if str(e.get("game") or "").upper() == g]
+        return {"events": payload}
+    enriched = await EventService(session).list_public_enriched(
+        limit=limit, store_id=store_id, game=game
+    )
+    return {"events": enriched}
 
 
 @router.get("/runtime/event-dashboard")
