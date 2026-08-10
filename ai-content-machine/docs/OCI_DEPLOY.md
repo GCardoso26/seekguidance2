@@ -154,12 +154,17 @@ EOF
 sudo systemctl reload caddy
 ```
 
-Ajuste `WEBHOOK_URL` / `N8N_HOST` / `VITE_CWM_API_BASE` no `.env` para o domínio e rebuild do `web` se necessário:
+Ajuste `WEBHOOK_URL` / `N8N_HOST` / `VITE_CWM_API_BASE` no `.env` para o IP ou domínio e **rebuild** do `web`:
 
 ```bash
-docker compose up -d --build web
+# Correto (HTTP + porta da API, sem /api no final):
+# VITE_CWM_API_BASE=http://SEU_IP:8787
+
+sed -i 's|^VITE_CWM_API_BASE=.*|VITE_CWM_API_BASE=http://164.152.28.87:8787|' .env
+docker compose --env-file .env up -d --build web
 ```
 
+**Errado:** `https://IP/api` → o browser tenta `https://IP/api/api/...` na porta 443 (recusado).
 ---
 
 ## 7. Configurar n8n + importar automações
