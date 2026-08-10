@@ -134,9 +134,16 @@ export function AutomationCenter() {
       const res = await fetch(`${API}/api/workspaces`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'NEXUS War Machine', email: 'ops@nexus.local' }),
+        body: JSON.stringify({
+          name: 'NEXUS War Machine',
+          email: `ops+${Date.now()}@nexus.local`,
+        }),
       })
       const data = await res.json()
+      if (!res.ok) {
+        setLog(JSON.stringify(data, null, 2))
+        return
+      }
       setWorkspaceId(data.workspaceId)
       localStorage.setItem('cwm_workspace', data.workspaceId)
       setLog(`Workspace criado: ${data.workspaceId}`)
