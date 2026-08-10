@@ -6,6 +6,7 @@ import { winnerDetectionService } from '../winner/WinnerDetectionService.js'
 import { strategyService } from '../strategy/StrategyService.js'
 import { feedbackLoopService } from '../publishing/FeedbackLoopService.js'
 import { automationService } from '../services/AutomationService.js'
+import { optionalUuid, uuid } from '../lib/zodUuid.js'
 
 export async function publishingRoutes(app: FastifyInstance) {
   app.post('/api/publishing/run', async (req, reply) => {
@@ -111,17 +112,21 @@ export async function publishingRoutes(app: FastifyInstance) {
 
   app.post('/api/analytics/sync', async (req, reply) => {
     const schema = z.object({
-      workspaceId: z.string().uuid(),
-      publicationId: z.string().uuid().optional(),
-      contentId: z.string().uuid().optional(),
+      workspaceId: uuid,
+      publicationId: optionalUuid,
+      contentId: optionalUuid,
       scenario: z.enum(['WINNER', 'NORMAL', 'LOSER', 'INSUFFICIENT_DATA']).optional(),
       await: z.boolean().optional(),
       forceFailTimes: z.number().int().optional(),
       preferReal: z.boolean().optional(),
     })
     const parsed = schema.safeParse(req.body)
-    if (!parsed.success) return reply.code(400).send({ error: parsed.error.flatten() })
-
+    if (!parsed.success) {
+      return reply.code(400).send({
+        error: parsed.error.flatten(),
+        hint: 'Cron precisa de CWM_DEFAULT_WORKSPACE_ID no n8n; publicationId vazio deve ser omitido',
+      })
+    }
     if (parsed.data.await === true) {
       const triggered = await automationService.triggerWorkflow(
         'analytics_sync',
@@ -145,15 +150,19 @@ export async function publishingRoutes(app: FastifyInstance) {
 
   app.post('/api/winners/detect', async (req, reply) => {
     const schema = z.object({
-      workspaceId: z.string().uuid(),
-      publicationId: z.string().uuid().optional(),
-      contentId: z.string().uuid().optional(),
+      workspaceId: uuid,
+      publicationId: optionalUuid,
+      contentId: optionalUuid,
       await: z.boolean().optional(),
       ageHoursOverride: z.number().optional(),
     })
     const parsed = schema.safeParse(req.body)
-    if (!parsed.success) return reply.code(400).send({ error: parsed.error.flatten() })
-
+    if (!parsed.success) {
+      return reply.code(400).send({
+        error: parsed.error.flatten(),
+        hint: 'Cron precisa de CWM_DEFAULT_WORKSPACE_ID no n8n; publicationId vazio deve ser omitido',
+      })
+    }
     if (parsed.data.await === true) {
       const triggered = await automationService.triggerWorkflow(
         'winner_engine',

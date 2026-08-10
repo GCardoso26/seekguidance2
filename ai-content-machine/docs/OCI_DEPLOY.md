@@ -192,7 +192,10 @@ npm run n8n:import
 (Se a VM não tiver Node na host, rode via container node one-shot ou importe manualmente pela UI.)
 
 7. No n8n UI: **ative** cada workflow CWM necessário (Daily Engine, Research, Script, Production, Publisher, Analytics, Winner, Strategy, WF 13/14…).
-8. Confirme variável de ambiente no container n8n: `CWM_API_BASE=http://api:8787` (já no compose — comunicação interna Docker).
+8. Confirme variáveis no container n8n:
+   - `CWM_API_BASE=http://api:8787` (já no compose)
+   - `CWM_DEFAULT_WORKSPACE_ID=<uuid-do-workspace>` no `.env` (obrigatório para crons Analytics/Winner — sem isso o body chega com `workspaceId: ""` e a API responde 400)
+9. Reimporte workflows após `git pull` se os JSON em `n8n/workflows/` mudarem (`npm run n8n:import` ou UI).
 
 ---
 

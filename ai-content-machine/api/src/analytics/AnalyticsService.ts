@@ -42,8 +42,17 @@ export class AnalyticsService {
         .all(input.workspaceId) as Array<Record<string, unknown>>
     }
 
-    if (!pubs.length) throw new Error('no_published_publications')
-
+    if (!pubs.length) {
+      if (input.publicationId) throw new Error('publication_not_found')
+      // Cron workspace-wide sync with zero publications must not fail the workflow
+      return {
+        status: 'COMPLETED' as const,
+        reality: 'MOCK' as const,
+        snapshots: [],
+        count: 0,
+        note: 'no_published_publications',
+      }
+    }
     const snapshots: string[] = []
     for (const pub of pubs) {
       const snapId = await this.captureSnapshot({

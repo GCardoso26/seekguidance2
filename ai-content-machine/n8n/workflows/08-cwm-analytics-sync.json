@@ -32,7 +32,7 @@
         "url": "={{$env.CWM_API_BASE}}/api/analytics/sync",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"workspaceId\": \"{{$json.body.workspaceId || $env.CWM_DEFAULT_WORKSPACE_ID}}\",\n  \"publicationId\": \"{{$json.body.publicationId || undefined}}\",\n  \"await\": true\n}",
+        "jsonBody": "={{ (() => { const body = ($json && $json.body) ? $json.body : $json; const workspaceId = (body && body.workspaceId) || $env.CWM_DEFAULT_WORKSPACE_ID; const publicationId = body && body.publicationId; const out = { workspaceId, await: true }; if (publicationId) out.publicationId = publicationId; return out; })() }}",
         "options": { "timeout": 120000 }
       },
       "id": "sync",

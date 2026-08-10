@@ -71,6 +71,8 @@ services:
       GENERIC_TIMEZONE: America/Sao_Paulo
       TZ: America/Sao_Paulo
       CWM_API_BASE: http://api:8787
+      # Workspace usado pelos crons n8n quando o body não traz workspaceId
+      CWM_DEFAULT_WORKSPACE_ID: ${CWM_DEFAULT_WORKSPACE_ID:-}
       N8N_WEBHOOK_SECRET: ${N8N_WEBHOOK_SECRET:-dev-webhook-secret-change-me}
     depends_on:
       postgres_n8n:
