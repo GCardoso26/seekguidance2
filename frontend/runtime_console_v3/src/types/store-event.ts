@@ -16,10 +16,19 @@ export type StoreEventRow = {
   addressState: string | null;
   addressCep: string | null;
   contactPhone: string | null;
+  pairingFormat: string | null;
   ticketsRemaining: number | null;
   ticketsCapacity: number | null;
   ticketsSold: number | null;
+  priceCents: number | null;
+  rules: string | null;
+  visibility: string | null;
 };
+
+export function formatEventPriceBrl(priceCents: number | null | undefined): string {
+  if (priceCents == null || priceCents <= 0) return "Grátis";
+  return (priceCents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
 
 export function normalizeStoreEvent(row: Record<string, unknown>): StoreEventRow {
   const policies = (row.policies ?? {}) as Record<string, unknown>;
@@ -53,6 +62,7 @@ export function normalizeStoreEvent(row: Record<string, unknown>): StoreEventRow
         ? String(row.store_postal_code)
         : null,
     contactPhone: policies.contact_phone ? String(policies.contact_phone) : null,
+    pairingFormat: policies.pairing_format ? String(policies.pairing_format) : null,
     ticketsRemaining: row.tickets_remaining != null ? Number(row.tickets_remaining) : null,
     ticketsCapacity:
       row.tickets_capacity != null
@@ -61,5 +71,8 @@ export function normalizeStoreEvent(row: Record<string, unknown>): StoreEventRow
           ? Number(row.capacity)
           : null,
     ticketsSold: row.tickets_sold != null ? Number(row.tickets_sold) : null,
+    priceCents: row.price_cents != null ? Number(row.price_cents) : null,
+    rules: row.rules ? String(row.rules) : policies.notes ? String(policies.notes) : null,
+    visibility: row.visibility ? String(row.visibility) : null,
   };
 }

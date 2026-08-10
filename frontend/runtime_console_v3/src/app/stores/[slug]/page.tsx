@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ReviewCard } from "@/components/reviews/ReviewCard";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import { Button } from "@/components/ui/button";
-import { normalizeStoreEvent } from "@/types/store-event";
+import { formatEventPriceBrl, normalizeStoreEvent } from "@/types/store-event";
 
 export default function StorePage() {
   const params = useParams();
@@ -104,6 +104,8 @@ export default function StorePage() {
                             : ev.venue ?? "—"}
                         </p>
                         <p className="mt-1 text-xs">
+                          <span className="text-muted-foreground">{formatEventPriceBrl(ev.priceCents)}</span>
+                          {" · "}
                           {soldOut ? (
                             <span className="font-medium text-danger">Esgotado</span>
                           ) : remaining != null && capacity != null ? (
@@ -120,7 +122,7 @@ export default function StorePage() {
                           </Button>
                         ) : (
                           <Button asChild size="sm" className="mt-2" data-testid={`store-event-cta-${ev.id}`}>
-                            <Link href={`/tournament/${ev.id}`}>Garantir vaga</Link>
+                            <Link href={`/torneio/${ev.id}`}>Garantir vaga</Link>
                           </Button>
                         )}
                       </div>

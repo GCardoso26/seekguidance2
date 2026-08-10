@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useQueryClient } from "@tanstack/react-query";
 import { EventTicketCreateModal } from "@/components/seller-dashboard/event-tickets/EventTicketCreateModal";
+import { EventTicketEditModal } from "@/components/seller-dashboard/event-tickets/EventTicketEditModal";
 import {
   AsyncPageBody,
   PageEmpty,
@@ -17,11 +18,13 @@ import { Button } from "@/components/ui/button";
 import { useSellerStore } from "@/hooks/useSellerStore";
 import { useSellerStoreEvents } from "@/hooks/useSellerStoreEvents";
 import { planHasFeature } from "@/lib/seller-plans";
+import { formatEventPriceBrl, type StoreEventRow } from "@/types/store-event";
 
 export default function IngressosPage() {
   const { storeId, store, hasStore, plan, isLoading: storeLoading } = useSellerStore();
   const qc = useQueryClient();
   const [createOpen, setCreateOpen] = useState(false);
+  const [editEvent, setEditEvent] = useState<StoreEventRow | null>(null);
   const canTournaments = planHasFeature(plan, "tournaments");
 
   const { data, isLoading, isError, error, refetch } = useSellerStoreEvents(
@@ -142,21 +145,42 @@ export default function IngressosPage() {
                           : ev.venue ?? "—"}
                       </p>
                       <p className="mt-1 text-xs text-muted-foreground">
-                        Vagas:{" "}
+                        {formatEventPriceBrl(ev.priceCents)} · Vagas:{" "}
                         {ev.ticketsRemaining != null && ev.ticketsCapacity != null
                           ? `${ev.ticketsRemaining}/${ev.ticketsCapacity}`
                           : ev.capacity ?? "—"}{" "}
-                        · {ev.status}
+                        ·{" "}
+                        {ev.status === "registration_open"
+                          ? "Inscrições abertas"
+                          : ev.status === "published"
+                            ? "Inscrições fechadas"
+                            : ev.status}
                       </p>
                     </div>
-                    {store?.slug && (
-                      <Link
-                        href={`/stores/${store.slug}`}
-                        className="text-xs text-primary hover:underline"
+                    <div className="flex flex-wrap gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        data-testid={`event-edit-btn-${ev.id}`}
+                        onClick={() => setEditEvent(ev)}
                       >
-                        Ver vitrine →
+                        Editar
+                      </Button>
+                      <Link
+                        href={`/torneio/${ev.id}`}
+                        className="inline-flex items-center text-xs text-primary hover:underline"
+                      >
+                        Ver página →
                       </Link>
-                    )}
+                      {store?.slug && (
+                        <Link
+                          href={`/stores/${store.slug}`}
+                          className="inline-flex items-center text-xs text-primary hover:underline"
+                        >
+                          Vitrine →
+                        </Link>
+                      )}
+                    </div>
                   </li>
                 ))}
               </ul>
@@ -166,13 +190,24 @@ export default function IngressosPage() {
       </PageShell>
 
       {storeId && (
-        <EventTicketCreateModal
-          storeId={storeId}
-          store={store}
-          open={createOpen}
-          onOpenChange={setCreateOpen}
-          onCreated={onUpdated}
-        />
+        <>
+          <EventTicketCreateModal
+            storeId={storeId}
+            store={store}
+            open={createOpen}
+            onOpenChange={setCreateOpen}
+            onCreated={onUpdated}
+          />
+          <EventTicketEditModal
+            storeId={storeId}
+            event={editEvent}
+            open={Boolean(editEvent)}
+            onOpenChange={(open) => {
+              if (!open) setEditEvent(null);
+            }}
+            onUpdated={onUpdated}
+          />
+        </>
       )}
     </>
   );

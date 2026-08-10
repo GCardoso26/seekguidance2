@@ -70,6 +70,45 @@ def _row_event(row: Any) -> StoreEvent:
     )
 
 
+_TICKET_AGG_SQL = """
+COALESCE(
+  (SELECT SUM(COALESCE(t.availability, 0))
+   FROM tcg_judge.event_tickets t
+   WHERE t.store_event_id = e.id AND t.status = 'active'),
+  e.capacity
+) AS tickets_remaining,
+COALESCE(
+  (SELECT SUM(COALESCE(t.capacity, t.quantity, 0))
+   FROM tcg_judge.event_tickets t
+   WHERE t.store_event_id = e.id AND t.status = 'active'),
+  e.capacity
+) AS tickets_capacity,
+(SELECT MIN(t.price_cents)
+ FROM tcg_judge.event_tickets t
+ WHERE t.store_event_id = e.id AND t.status = 'active') AS price_cents
+"""
+
+
+def _dict_from_enriched_row(r: Any) -> dict[str, Any]:
+    ev = _row_event(r).to_dict()
+    remaining = r.get("tickets_remaining")
+    capacity = r.get("tickets_capacity")
+    ev["store_name"] = r.get("store_name")
+    ev["store_slug"] = r.get("store_slug")
+    ev["store_city"] = r.get("store_city")
+    ev["store_state"] = r.get("store_state")
+    ev["store_postal_code"] = r.get("store_postal_code")
+    ev["tickets_remaining"] = int(remaining) if remaining is not None else None
+    ev["tickets_capacity"] = int(capacity) if capacity is not None else ev.get("capacity")
+    if ev["tickets_capacity"] is not None and ev["tickets_remaining"] is not None:
+        ev["tickets_sold"] = max(0, int(ev["tickets_capacity"]) - int(ev["tickets_remaining"]))
+    else:
+        ev["tickets_sold"] = None
+    price = r.get("price_cents")
+    ev["price_cents"] = int(price) if price is not None else None
+    return ev
+
+
 class EventService:
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
@@ -169,6 +208,95 @@ class EventService:
         ).mappings().first()
         return _row_event(row) if row else None
 
+    async def get_enriched(self, event_id: str) -> dict[str, Any] | None:
+        row = (
+            await self.session.execute(
+                text(
+                    f"""
+                    SELECT e.id::text, e.store_id::text, e.name, e.description, e.game, e.format,
+                           e.category, e.event_type, e.capacity, e.starts_at, e.ends_at, e.venue,
+                           e.status, e.visibility, e.image_url, e.banner_url, e.organizer_id,
+                           e.rules, e.policies,
+                           s.name AS store_name, s.slug AS store_slug, s.city AS store_city,
+                           s.state AS store_state, s.postal_code AS store_postal_code,
+                           {_TICKET_AGG_SQL}
+                    FROM tcg_judge.store_events e
+                    LEFT JOIN tcg_judge.stores s ON s.id = e.store_id
+                    WHERE e.id = CAST(:id AS uuid)
+                    LIMIT 1
+                    """
+                ),
+                {"id": event_id},
+            )
+        ).mappings().first()
+        return _dict_from_enriched_row(row) if row else None
+
+    async def update(self, event_id: str, **fields: Any) -> StoreEvent:
+        allowed = {
+            "name",
+            "description",
+            "game",
+            "format",
+            "category",
+            "capacity",
+            "starts_at",
+            "venue",
+            "rules",
+            "policies",
+            "banner_url",
+            "image_url",
+            "visibility",
+            "status",
+        }
+        sets: list[str] = []
+        params: dict[str, Any] = {"id": event_id}
+        for key, value in fields.items():
+            if key not in allowed:
+                continue
+            if key == "starts_at":
+                sets.append("starts_at = CAST(:starts_at AS timestamptz)")
+                params["starts_at"] = _parse_timestamptz(value)
+            elif key == "policies":
+                sets.append("policies = CAST(:policies AS jsonb)")
+                params["policies"] = json.dumps(value or {})
+            elif key == "visibility":
+                vis = value.value if isinstance(value, StoreEventVisibility) else str(value)
+                if vis not in {v.value for v in StoreEventVisibility}:
+                    continue
+                sets.append("visibility = :visibility")
+                params["visibility"] = vis
+            elif key == "status":
+                st = value.value if isinstance(value, StoreEventStatus) else str(value)
+                if st not in {s.value for s in StoreEventStatus}:
+                    continue
+                sets.append("status = :status")
+                params["status"] = st
+            else:
+                sets.append(f"{key} = :{key}")
+                params[key] = value
+        if not sets:
+            ev = await self.get(event_id)
+            if not ev:
+                raise HTTPException(status_code=404, detail="event_not_found")
+            return ev
+        sets.append("updated_at = NOW()")
+        await self.session.execute(
+            text(
+                f"""
+                UPDATE tcg_judge.store_events
+                SET {", ".join(sets)}
+                WHERE id = CAST(:id AS uuid)
+                """
+            ),
+            params,
+        )
+        await self.session.commit()
+        emit("event_updated", {"store_event_id": event_id})
+        ev = await self.get(event_id)
+        if not ev:
+            raise HTTPException(status_code=404, detail="event_not_found")
+        return ev
+
     async def list_for_store(self, store_id: str) -> list[StoreEvent]:
         rows = (
             await self.session.execute(
@@ -192,25 +320,14 @@ class EventService:
         rows = (
             await self.session.execute(
                 text(
-                    """
+                    f"""
                     SELECT e.id::text, e.store_id::text, e.name, e.description, e.game, e.format,
                            e.category, e.event_type, e.capacity, e.starts_at, e.ends_at, e.venue,
                            e.status, e.visibility, e.image_url, e.banner_url, e.organizer_id,
                            e.rules, e.policies,
                            s.name AS store_name, s.slug AS store_slug, s.city AS store_city,
                            s.state AS store_state, s.postal_code AS store_postal_code,
-                           COALESCE(
-                             (SELECT SUM(COALESCE(t.availability, 0))
-                              FROM tcg_judge.event_tickets t
-                              WHERE t.store_event_id = e.id AND t.status = 'active'),
-                             e.capacity
-                           ) AS tickets_remaining,
-                           COALESCE(
-                             (SELECT SUM(COALESCE(t.capacity, t.quantity, 0))
-                              FROM tcg_judge.event_tickets t
-                              WHERE t.store_event_id = e.id AND t.status = 'active'),
-                             e.capacity
-                           ) AS tickets_capacity
+                           {_TICKET_AGG_SQL}
                     FROM tcg_judge.store_events e
                     LEFT JOIN tcg_judge.stores s ON s.id = e.store_id
                     WHERE e.store_id = CAST(:store_id AS uuid)
@@ -221,24 +338,7 @@ class EventService:
                 {"store_id": store_id, "lim": limit},
             )
         ).mappings().all()
-        out: list[dict[str, Any]] = []
-        for r in rows:
-            ev = _row_event(r).to_dict()
-            remaining = r.get("tickets_remaining")
-            capacity = r.get("tickets_capacity")
-            ev["store_name"] = r.get("store_name")
-            ev["store_slug"] = r.get("store_slug")
-            ev["store_city"] = r.get("store_city")
-            ev["store_state"] = r.get("store_state")
-            ev["store_postal_code"] = r.get("store_postal_code")
-            ev["tickets_remaining"] = int(remaining) if remaining is not None else None
-            ev["tickets_capacity"] = int(capacity) if capacity is not None else ev.get("capacity")
-            if ev["tickets_capacity"] is not None and ev["tickets_remaining"] is not None:
-                ev["tickets_sold"] = max(0, int(ev["tickets_capacity"]) - int(ev["tickets_remaining"]))
-            else:
-                ev["tickets_sold"] = None
-            out.append(ev)
-        return out
+        return [_dict_from_enriched_row(r) for r in rows]
 
     async def list_public(self, limit: int = 50) -> list[StoreEvent]:
         rows = (
@@ -286,18 +386,7 @@ class EventService:
                            e.rules, e.policies,
                            s.name AS store_name, s.slug AS store_slug, s.city AS store_city,
                            s.state AS store_state, s.postal_code AS store_postal_code,
-                           COALESCE(
-                             (SELECT SUM(COALESCE(t.availability, 0))
-                              FROM tcg_judge.event_tickets t
-                              WHERE t.store_event_id = e.id AND t.status = 'active'),
-                             e.capacity
-                           ) AS tickets_remaining,
-                           COALESCE(
-                             (SELECT SUM(COALESCE(t.capacity, t.quantity, 0))
-                              FROM tcg_judge.event_tickets t
-                              WHERE t.store_event_id = e.id AND t.status = 'active'),
-                             e.capacity
-                           ) AS tickets_capacity
+                           {_TICKET_AGG_SQL}
                     FROM tcg_judge.store_events e
                     LEFT JOIN tcg_judge.stores s ON s.id = e.store_id
                     WHERE {where}
@@ -308,24 +397,7 @@ class EventService:
                 params,
             )
         ).mappings().all()
-        out: list[dict[str, Any]] = []
-        for r in rows:
-            ev = _row_event(r).to_dict()
-            remaining = r.get("tickets_remaining")
-            capacity = r.get("tickets_capacity")
-            ev["store_name"] = r.get("store_name")
-            ev["store_slug"] = r.get("store_slug")
-            ev["store_city"] = r.get("store_city")
-            ev["store_state"] = r.get("store_state")
-            ev["store_postal_code"] = r.get("store_postal_code")
-            ev["tickets_remaining"] = int(remaining) if remaining is not None else None
-            ev["tickets_capacity"] = int(capacity) if capacity is not None else ev.get("capacity")
-            sold = None
-            if ev["tickets_capacity"] is not None and ev["tickets_remaining"] is not None:
-                sold = max(0, int(ev["tickets_capacity"]) - int(ev["tickets_remaining"]))
-            ev["tickets_sold"] = sold
-            out.append(ev)
-        return out
+        return [_dict_from_enriched_row(r) for r in rows]
 
     async def ensure_from_tournament(
         self, tournament_id: str, *, store_id: str, organizer_id: str
@@ -460,6 +532,85 @@ class TicketService:
         await self.session.commit()
         emit("ticket_created", {"ticket_id": ticket.id, "store_event_id": store_event_id})
         return ticket
+
+    async def get(self, ticket_id: str) -> dict[str, Any] | None:
+        row = (
+            await self.session.execute(
+                text(
+                    """
+                    SELECT id::text, store_event_id::text, tournament_id::text, name, price_cents,
+                           quantity, capacity, availability, lot, sales_deadline::text,
+                           require_checkin, online_payment_required, counter_payment_forbidden,
+                           store_product_id::text, currency, status
+                    FROM tcg_judge.event_tickets
+                    WHERE id = CAST(:id AS uuid)
+                    LIMIT 1
+                    """
+                ),
+                {"id": ticket_id},
+            )
+        ).mappings().first()
+        return dict(row) if row else None
+
+    async def update(
+        self,
+        ticket_id: str,
+        *,
+        price_cents: int | None = None,
+        quantity: int | None = None,
+        capacity: int | None = None,
+        availability: int | None = None,
+    ) -> dict[str, Any]:
+        current = await self.get(ticket_id)
+        if not current:
+            raise HTTPException(status_code=404, detail="ticket_not_found")
+        sets: list[str] = []
+        params: dict[str, Any] = {"id": ticket_id}
+        if price_cents is not None:
+            if price_cents < 0:
+                raise HTTPException(status_code=400, detail="price_cents_invalid")
+            sets.append("price_cents = :price")
+            params["price"] = price_cents
+        if quantity is not None:
+            sets.append("quantity = :qty")
+            params["qty"] = quantity
+        if capacity is not None:
+            sets.append("capacity = :capacity")
+            params["capacity"] = capacity
+        if availability is not None:
+            sets.append("availability = :avail")
+            params["avail"] = availability
+        elif capacity is not None and quantity is not None:
+            # realinha disponibilidade sem inventar vendas: sold = old_cap - old_avail
+            old_cap = int(current.get("capacity") or current.get("quantity") or 0)
+            old_avail = int(current.get("availability") or 0)
+            sold = max(0, old_cap - old_avail)
+            new_cap = int(capacity)
+            sets.append("availability = :avail")
+            params["avail"] = max(0, new_cap - sold)
+        elif capacity is not None:
+            old_cap = int(current.get("capacity") or current.get("quantity") or 0)
+            old_avail = int(current.get("availability") or 0)
+            sold = max(0, old_cap - old_avail)
+            sets.append("availability = :avail")
+            params["avail"] = max(0, int(capacity) - sold)
+        if not sets:
+            return current
+        await self.session.execute(
+            text(
+                f"""
+                UPDATE tcg_judge.event_tickets
+                SET {", ".join(sets)}
+                WHERE id = CAST(:id AS uuid)
+                """
+            ),
+            params,
+        )
+        await self.session.commit()
+        emit("ticket_updated", {"ticket_id": ticket_id})
+        updated = await self.get(ticket_id)
+        assert updated is not None
+        return updated
 
     async def list_for_event(self, store_event_id: str) -> list[dict[str, Any]]:
         rows = (

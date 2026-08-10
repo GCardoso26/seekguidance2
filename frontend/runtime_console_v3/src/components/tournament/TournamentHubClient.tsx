@@ -7,7 +7,7 @@ import { fetchPublicEvents } from "@/lib/live-data/fetchers";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { TOURNAMENT_GAME_OPTIONS } from "@/lib/seller-tournament-form";
-import { normalizeStoreEvent } from "@/types/store-event";
+import { formatEventPriceBrl, normalizeStoreEvent } from "@/types/store-event";
 import { distanceLabelFromCep } from "@/lib/geo/sp-distance";
 
 async function fetchTournaments() {
@@ -119,8 +119,9 @@ export function TournamentHubClient() {
               return (
                 <li key={e.id}>
                   <Link
-                    href={`/tournament/${e.id}`}
+                    href={`/torneio/${e.id}`}
                     className="flex gap-3 rounded-xl border border-border bg-card/40 p-4 transition hover:border-primary/40"
+                    data-testid={`hub-event-${e.id}`}
                   >
                     {e.bannerUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
@@ -156,6 +157,8 @@ export function TournamentHubClient() {
                         <EventDistance cep={e.addressCep} />
                       </p>
                       <p className="mt-1 text-xs">
+                        <span className="text-muted-foreground">{formatEventPriceBrl(e.priceCents)}</span>
+                        {" · "}
                         {soldOut ? (
                           <span className="font-medium text-danger">Esgotado</span>
                         ) : remaining != null && capacity != null ? (
@@ -165,6 +168,9 @@ export function TournamentHubClient() {
                         ) : (
                           <span className="text-muted-foreground">Vagas sob consulta</span>
                         )}
+                        {e.status === "published" ? (
+                          <span className="text-muted-foreground"> · Inscrições fechadas</span>
+                        ) : null}
                       </p>
                     </div>
                   </Link>

@@ -69,6 +69,30 @@ class TicketCreateBody(BaseModel):
     lot: str | None = None
 
 
+class EventUpdateBody(BaseModel):
+    name: str | None = None
+    description: str | None = None
+    game: str | None = None
+    format: str | None = None
+    category: str | None = None
+    capacity: int | None = None
+    starts_at: str | None = None
+    venue: str | None = None
+    rules: str | None = None
+    policies: dict[str, Any] | None = None
+    banner_url: str | None = None
+    image_url: str | None = None
+    visibility: str | None = None
+    status: str | None = None
+
+
+class TicketUpdateBody(BaseModel):
+    price_cents: int | None = None
+    quantity: int | None = None
+    capacity: int | None = None
+    availability: int | None = None
+
+
 class RegisterBody(BaseModel):
     store_event_id: str
     tournament_id: str | None = None
@@ -156,12 +180,42 @@ async def create_event(
 
 
 @tp.get("/events/{event_id}")
-async def get_event(event_id: str, session: DbSession) -> dict[str, Any]:
-    ev = await EventService(session).get(event_id)
-    if not ev:
+async def get_event(
+    event_id: str,
+    session: DbSession,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    enriched = await EventService(session).get_enriched(event_id)
+    if not enriched:
         raise HTTPException(status_code=404, detail="event_not_found")
+    status = str(enriched.get("status") or "")
+    visibility = str(enriched.get("visibility") or "")
+    public_ok = visibility == "public" and status not in ("draft", "cancelled")
+    if not public_ok:
+        user_id = _require_user(x_judge_user_id)
+        if not await can_event(session, user_id, store_id=str(enriched["store_id"]), action="view"):
+            raise HTTPException(status_code=404, detail="event_not_found")
     tournaments = await TournamentOrgService(session).list_tournaments(event_id)
-    return {"event": ev.to_dict(), "tournaments": tournaments}
+    return {"event": enriched, "tournaments": tournaments}
+
+
+@tp.patch("/events/{event_id}")
+async def update_event(
+    event_id: str,
+    body: EventUpdateBody,
+    session: DbSession,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    existing = await EventService(session).get(event_id)
+    if not existing:
+        raise HTTPException(status_code=404, detail="event_not_found")
+    if not await can_event(session, user_id, store_id=existing.store_id, action="edit"):
+        raise HTTPException(status_code=403, detail="forbidden_event_edit")
+    patch = body.model_dump(exclude_unset=True)
+    ev = await EventService(session).update(event_id, **patch)
+    enriched = await EventService(session).get_enriched(event_id)
+    return {"event": enriched or ev.to_dict()}
 
 
 @tp.post("/events/{event_id}/link-tournament")
@@ -200,6 +254,28 @@ async def create_ticket(
 @tp.get("/events/{event_id}/tickets")
 async def list_tickets(event_id: str, session: DbSession) -> dict[str, Any]:
     return {"tickets": await TicketService(session).list_for_event(event_id)}
+
+
+@tp.patch("/tickets/{ticket_id}")
+async def update_ticket(
+    ticket_id: str,
+    body: TicketUpdateBody,
+    session: DbSession,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    ticket = await TicketService(session).get(ticket_id)
+    if not ticket:
+        raise HTTPException(status_code=404, detail="ticket_not_found")
+    ev = await EventService(session).get(str(ticket["store_event_id"]))
+    if not ev:
+        raise HTTPException(status_code=404, detail="event_not_found")
+    if not await can_event(session, user_id, store_id=ev.store_id, action="tickets"):
+        if not await can_event(session, user_id, store_id=ev.store_id, action="edit"):
+            raise HTTPException(status_code=403, detail="forbidden_ticket_edit")
+    patch = body.model_dump(exclude_unset=True)
+    updated = await TicketService(session).update(ticket_id, **patch)
+    return {"ticket": updated}
 
 
 @tp.post("/registrations")

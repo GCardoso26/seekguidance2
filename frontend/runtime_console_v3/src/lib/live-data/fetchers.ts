@@ -32,6 +32,7 @@ export type LiveEvent = {
   tickets_remaining?: number | null;
   tickets_capacity?: number | null;
   tickets_sold?: number | null;
+  price_cents?: number | null;
   store_city?: string | null;
   store_state?: string | null;
   store_postal_code?: string | null;
