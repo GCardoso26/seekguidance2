@@ -69,6 +69,10 @@ const marketplaceRedirects = [
   { source: "/decks/:deckId/edit", destination: "/decks/:deckId/build", permanent: true },
   { source: "/stores/create", destination: "/vendedor/painel/onboarding", permanent: true },
 
+  // Eventos canônicos em /search/torneios (store events / ingressos)
+  { source: "/torneio", destination: "/search/torneios", permanent: true },
+  { source: "/torneio/:id", destination: "/search/torneios/:id", permanent: true },
+
   // Expansão canônica /sets (Epic 6)
   { source: "/:game/expansions/:set", destination: "/:game/sets/:set", permanent: true },
 

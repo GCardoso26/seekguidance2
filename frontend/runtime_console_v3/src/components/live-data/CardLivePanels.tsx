@@ -93,7 +93,7 @@ export function CardLivePanels({
               : "Acompanhe aparições em eventos e decklists."}
           </p>
           <div className="mt-3 flex flex-wrap gap-3">
-            <Link href="/torneio" className="text-sm text-primary hover:underline">
+            <Link href="/search/torneios" className="text-sm text-primary hover:underline">
               Tournament Hub →
             </Link>
             <Link href="/loja/tendencias" className="text-sm text-primary hover:underline">

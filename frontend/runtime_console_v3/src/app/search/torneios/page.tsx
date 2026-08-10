@@ -1,132 +1,170 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { CheckoutForm } from "@/components/payments/CheckoutForm";
-import { useTournamentSearch } from "@/hooks/useTournamentSearch";
+import { useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { MobileLayout } from "@/components/layout/MobileLayout";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
+import { fetchPublicEvents } from "@/lib/live-data/fetchers";
+import { TOURNAMENT_GAME_OPTIONS } from "@/lib/seller-tournament-form";
+import { formatEventPriceBrl, normalizeStoreEvent } from "@/types/store-event";
 
-const qc = new QueryClient();
-/** ADR-016: SWU hard-exited from product ecosystem. */
-const GAMES = ["MTG", "POKEMON", "LORCANA"];
-
-function TorneiosSearchPage() {
+export default function EventosSearchPage() {
   const [q, setQ] = useState("");
   const [selectedGames, setSelectedGames] = useState<string[]>([]);
-  const [freeOnly, setFreeOnly] = useState(false);
-  const [checkoutId, setCheckoutId] = useState<string | null>(null);
 
-  const { data, isLoading } = useTournamentSearch({
-    q: q || undefined,
-    game: selectedGames.length ? selectedGames : undefined,
-    freeOnly,
+  const eventsQ = useQuery({
+    queryKey: ["search-torneios-events"],
+    queryFn: async () => {
+      const raw = await fetchPublicEvents(48);
+      return raw.map((e) => normalizeStoreEvent(e as unknown as Record<string, unknown>));
+    },
+    staleTime: 60_000,
   });
 
-  const items = (data as { items?: Array<Record<string, unknown>> })?.items ?? [];
+  const items = useMemo(() => {
+    const list = eventsQ.data ?? [];
+    const query = q.trim().toLowerCase();
+    return list.filter((ev) => {
+      if (selectedGames.length && !selectedGames.includes((ev.game ?? "").toUpperCase())) {
+        return false;
+      }
+      if (!query) return true;
+      const hay = [ev.name, ev.storeName, ev.addressCity, ev.game, ev.format]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      return hay.includes(query);
+    });
+  }, [eventsQ.data, q, selectedGames]);
 
   const toggleGame = (g: string) => {
     setSelectedGames((prev) => (prev.includes(g) ? prev.filter((x) => x !== g) : [...prev, g]));
   };
 
   return (
-    <div className="luxury-page pb-8">
-      <header className="border-b border-border px-4 py-4">
-        <div className="container mx-auto">
-          <Link href="/" className="text-sm text-muted-foreground">
-            ← Início
-          </Link>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Procurando cartas ou produtos?{" "}
-            <Link href="/loja/busca" className="underline hover:text-foreground">
-              Ir para a loja
-            </Link>
-          </p>
-          <h1 className="mt-2 text-2xl font-bold" data-testid="torneios-title">
-            Descobrir Torneios
-          </h1>
-        </div>
-      </header>
-      <main className="container mx-auto grid gap-8 px-4 py-8 lg:grid-cols-3">
-        <div className="space-y-4 lg:col-span-2">
+    <MobileLayout>
+      <div className="luxury-page pb-8" data-testid="eventos-search-page">
+        <header className="border-b border-border px-4 py-4">
+          <div className="container mx-auto max-w-5xl">
+            <Breadcrumbs
+              items={[
+                { label: "Home", href: "/" },
+                { label: "Eventos" },
+              ]}
+            />
+            <p className="mt-2 text-sm text-muted-foreground">
+              Procurando cartas ou produtos?{" "}
+              <Link href="/loja/busca" className="underline hover:text-foreground">
+                Ir para a loja
+              </Link>
+            </p>
+            <h1 className="mt-2 text-2xl font-bold" data-testid="torneios-title">
+              Eventos
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Ingressos de lojas — filtre por jogo e garanta sua vaga no checkout.
+            </p>
+          </div>
+        </header>
+
+        <main className="container mx-auto max-w-5xl space-y-4 px-4 py-8">
           <input
             type="search"
-            placeholder="Buscar torneios…"
+            placeholder="Buscar eventos, loja ou cidade…"
             value={q}
             onChange={(e) => setQ(e.target.value)}
             className="w-full surface-card rounded-lg px-4 py-2"
             data-testid="torneios-search-input"
           />
           <div className="flex flex-wrap gap-2">
-            {GAMES.map((g) => (
+            {TOURNAMENT_GAME_OPTIONS.map((g) => (
               <button
-                key={g}
+                key={g.id}
                 type="button"
-                onClick={() => toggleGame(g)}
-                className={`rounded-full px-3 py-1 text-sm ${selectedGames.includes(g) ? "bg-primary text-primary-foreground" : "border border-border"}`}
+                onClick={() => toggleGame(g.id)}
+                className={`rounded-full px-3 py-1 text-sm ${
+                  selectedGames.includes(g.id)
+                    ? "bg-primary text-primary-foreground"
+                    : "border border-border"
+                }`}
               >
-                {g}
+                {g.name}
               </button>
             ))}
-            <button
-              type="button"
-              onClick={() => setFreeOnly((v) => !v)}
-              className={`rounded-full px-3 py-1 text-sm ${freeOnly ? "bg-primary" : "border border-border"}`}
-            >
-              Gratuito
-            </button>
           </div>
 
-          {isLoading && <p className="text-muted-foreground">Buscando…</p>}
-          <div className="space-y-4">
-            {items.map((t) => (
-              <article key={String(t.id)} className="rounded-xl border border-border p-4">
-                <h2 className="text-lg font-semibold">{String(t.name)}</h2>
-                <p className="text-sm text-muted-foreground">
-                  {String(t.game_code)} · {String(t.city ?? "Online")} ·{" "}
-                  {Number(t.entry_fee_cents) > 0
-                    ? `R$ ${(Number(t.entry_fee_cents) / 100).toFixed(2)}`
-                    : "Gratuito"}
-                </p>
-                <p className="text-sm text-muted-foreground/70">
-                  👥 {String(t.registered)}/{String(t.max_players ?? "?")} inscritos
-                </p>
-                <button
-                  type="button"
-                  onClick={() => setCheckoutId(String(t.id))}
-                  className="mt-3 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
-                >
-                  Inscrever-se
-                </button>
-              </article>
-            ))}
-          </div>
-        </div>
+          {eventsQ.isLoading && <p className="text-muted-foreground">Buscando…</p>}
+          {eventsQ.isError && (
+            <p className="text-sm text-danger">Não foi possível carregar os eventos.</p>
+          )}
+          {!eventsQ.isLoading && items.length === 0 && (
+            <p className="text-sm text-muted-foreground">Nenhum evento encontrado.</p>
+          )}
 
-        {checkoutId && (
-          <div>
-            {(() => {
-              const t = items.find((x) => String(x.id) === checkoutId);
-              if (!t) return null;
+          <ul className="grid gap-3 sm:grid-cols-2">
+            {items.map((ev) => {
+              const remaining = ev.ticketsRemaining;
+              const capacity = ev.ticketsCapacity ?? ev.capacity;
+              const soldOut = remaining != null ? remaining <= 0 : false;
               return (
-                <CheckoutForm
-                  tournamentId={checkoutId}
-                  tournamentName={String(t.name)}
-                  feeCents={Number(t.entry_fee_cents ?? 0)}
-                  currency={String(t.entry_fee_currency ?? "BRL")}
-                />
+                <li key={ev.id}>
+                  <Link
+                    href={`/search/torneios/${ev.id}`}
+                    className="flex gap-3 rounded-xl border border-border bg-card/40 p-4 transition hover:border-primary/40"
+                    data-testid={`event-card-${ev.id}`}
+                  >
+                    {ev.bannerUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={ev.bannerUrl}
+                        alt=""
+                        className="h-[100px] w-[70px] shrink-0 rounded object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-[100px] w-[70px] shrink-0 items-center justify-center rounded bg-muted text-xs text-muted-foreground">
+                        —
+                      </div>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="font-medium">{ev.name}</p>
+                        {ev.game && (
+                          <span className="rounded-full border border-border px-2 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
+                            {ev.game}
+                          </span>
+                        )}
+                      </div>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {ev.startsAt
+                          ? new Date(ev.startsAt).toLocaleString("pt-BR")
+                          : "Data a definir"}
+                        {ev.storeName ? ` · ${ev.storeName}` : ""}
+                        {ev.addressCity && ev.addressState
+                          ? ` · ${ev.addressCity}/${ev.addressState}`
+                          : ""}
+                      </p>
+                      <p className="mt-1 text-sm">
+                        <span className="font-medium">{formatEventPriceBrl(ev.priceCents)}</span>
+                        {" · "}
+                        {soldOut ? (
+                          <span className="text-danger">Esgotado</span>
+                        ) : remaining != null && capacity != null ? (
+                          <span className="text-muted-foreground">
+                            {remaining}/{capacity} vagas
+                          </span>
+                        ) : (
+                          <span className="text-muted-foreground">Vagas sob consulta</span>
+                        )}
+                      </p>
+                    </div>
+                  </Link>
+                </li>
               );
-            })()}
-          </div>
-        )}
-      </main>
-    </div>
-  );
-}
-
-export default function Page() {
-  return (
-    <QueryClientProvider client={qc}>
-      <TorneiosSearchPage />
-    </QueryClientProvider>
+            })}
+          </ul>
+        </main>
+      </div>
+    </MobileLayout>
   );
 }

@@ -119,7 +119,7 @@ export function TournamentHubClient() {
               return (
                 <li key={e.id}>
                   <Link
-                    href={`/torneio/${e.id}`}
+                    href={`/search/torneios/${e.id}`}
                     className="flex gap-3 rounded-xl border border-border bg-card/40 p-4 transition hover:border-primary/40"
                     data-testid={`hub-event-${e.id}`}
                   >

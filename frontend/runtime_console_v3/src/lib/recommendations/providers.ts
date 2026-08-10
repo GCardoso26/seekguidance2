@@ -236,7 +236,7 @@ export const defaultTournamentAdvisor: TournamentAdvisor = {
           id: "tour-hub",
           title: "Tournament Hub",
           detail: "Calendário, resultados e decklists.",
-          href: "/torneio",
+          href: "/search/torneios",
           ctaLabel: "Abrir hub",
         },
       ];

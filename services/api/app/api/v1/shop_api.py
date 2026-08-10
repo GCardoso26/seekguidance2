@@ -13,6 +13,7 @@ from app.marketplace import (
     shop_buylist,
     shop_cart,
     shop_connect,
+    shop_counter,
     shop_coupons,
     shop_crm,
     shop_escrow,
@@ -74,6 +75,10 @@ class CheckoutBody(BaseModel):
     store_id: str | None = None
     checkout_session_id: str | None = None
     use_escrow: bool = False
+
+
+class CounterCheckoutBody(BaseModel):
+    checkout_session_id: str | None = None
 
 
 class EscrowDisputeBody(BaseModel):
@@ -451,6 +456,41 @@ async def checkout_pix(
         checkout_session_id=body.checkout_session_id,
         use_escrow=body.use_escrow,
     )
+
+
+@router.post("/runtime/judge/marketplace/shop/checkout/counter")
+async def checkout_counter(
+    session: DbSession,
+    body: CounterCheckoutBody,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    return await shop_counter.create_counter_checkout(
+        session,
+        user_id,
+        checkout_session_id=body.checkout_session_id,
+    )
+
+
+@router.get("/runtime/judge/marketplace/shop/stores/{store_id}/counter-orders")
+async def list_counter_orders(
+    session: DbSession,
+    store_id: str,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    orders = await shop_counter.list_store_counter_orders(session, store_id, user_id)
+    return {"orders": orders}
+
+
+@router.post("/runtime/judge/marketplace/shop/orders/{order_id}/confirm-counter")
+async def confirm_counter_order(
+    session: DbSession,
+    order_id: str,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    return await shop_counter.confirm_counter_payment(session, order_id, user_id)
 
 
 @router.post("/runtime/judge/marketplace/shop/pix/webhook")

@@ -122,7 +122,7 @@ export default function StorePage() {
                           </Button>
                         ) : (
                           <Button asChild size="sm" className="mt-2" data-testid={`store-event-cta-${ev.id}`}>
-                            <Link href={`/torneio/${ev.id}`}>Garantir vaga</Link>
+                            <Link href={`/search/torneios/${ev.id}`}>Garantir vaga</Link>
                           </Button>
                         )}
                       </div>

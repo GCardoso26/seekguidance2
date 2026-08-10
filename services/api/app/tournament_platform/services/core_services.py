@@ -85,7 +85,12 @@ COALESCE(
 ) AS tickets_capacity,
 (SELECT MIN(t.price_cents)
  FROM tcg_judge.event_tickets t
- WHERE t.store_event_id = e.id AND t.status = 'active') AS price_cents
+ WHERE t.store_event_id = e.id AND t.status = 'active') AS price_cents,
+(SELECT t.store_product_id::text
+ FROM tcg_judge.event_tickets t
+ WHERE t.store_event_id = e.id AND t.status = 'active' AND t.store_product_id IS NOT NULL
+ ORDER BY t.created_at
+ LIMIT 1) AS store_product_id
 """
 
 
@@ -106,6 +111,9 @@ def _dict_from_enriched_row(r: Any) -> dict[str, Any]:
         ev["tickets_sold"] = None
     price = r.get("price_cents")
     ev["price_cents"] = int(price) if price is not None else None
+    spid = r.get("store_product_id")
+    ev["store_product_id"] = str(spid) if spid else None
+    ev["primary_store_product_id"] = ev["store_product_id"]
     return ev
 
 
@@ -209,6 +217,7 @@ class EventService:
         return _row_event(row) if row else None
 
     async def get_enriched(self, event_id: str) -> dict[str, Any] | None:
+        await TicketService(self.session).ensure_products_for_event(event_id)
         row = (
             await self.session.execute(
                 text(
@@ -473,6 +482,101 @@ class TicketService:
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
+    async def _event_context(self, store_event_id: str) -> dict[str, Any]:
+        row = (
+            await self.session.execute(
+                text(
+                    """
+                    SELECT e.id::text, e.store_id::text, e.name, e.game, e.banner_url, e.image_url
+                    FROM tcg_judge.store_events e
+                    WHERE e.id = CAST(:eid AS uuid)
+                    LIMIT 1
+                    """
+                ),
+                {"eid": store_event_id},
+            )
+        ).mappings().first()
+        if not row:
+            raise HTTPException(status_code=404, detail="event_not_found")
+        return dict(row)
+
+    async def _upsert_ticket_product(
+        self,
+        *,
+        ticket_id: str,
+        store_id: str,
+        product_name: str,
+        price_cents: int,
+        stock: int,
+        tcg_id: str | None,
+        banner_url: str | None,
+        store_product_id: str | None,
+        store_event_id: str,
+    ) -> str:
+        images = [banner_url] if banner_url else []
+        sku = f"event_ticket:{ticket_id}"
+        description = f"Ingresso do evento · event_id={store_event_id} · ticket_id={ticket_id}"
+        if store_product_id:
+            await self.session.execute(
+                text(
+                    """
+                    UPDATE tcg_judge.store_products
+                    SET name = :name,
+                        description = :desc,
+                        tcg_id = :tcg,
+                        price_cents = :price,
+                        stock = :stock,
+                        images = CAST(:images AS text[]),
+                        sku = :sku,
+                        category = 'event',
+                        is_active = true,
+                        updated_at = NOW()
+                    WHERE id = CAST(:pid AS uuid)
+                    """
+                ),
+                {
+                    "pid": store_product_id,
+                    "name": product_name[:200],
+                    "desc": description,
+                    "tcg": (tcg_id or "MTG")[:32],
+                    "price": max(0, int(price_cents)),
+                    "stock": max(0, int(stock)),
+                    "images": images,
+                    "sku": sku,
+                },
+            )
+            return store_product_id
+
+        row = (
+            await self.session.execute(
+                text(
+                    """
+                    INSERT INTO tcg_judge.store_products (
+                      store_id, name, description, tcg_id, category,
+                      price_cents, stock, reserved_stock, images, sku, is_active
+                    ) VALUES (
+                      CAST(:sid AS uuid), :name, :desc, :tcg, 'event',
+                      :price, :stock, 0, CAST(:images AS text[]), :sku, true
+                    )
+                    RETURNING id::text
+                    """
+                ),
+                {
+                    "sid": store_id,
+                    "name": product_name[:200],
+                    "desc": description,
+                    "tcg": (tcg_id or "MTG")[:32],
+                    "price": max(0, int(price_cents)),
+                    "stock": max(0, int(stock)),
+                    "images": images,
+                    "sku": sku,
+                },
+            )
+        ).mappings().first()
+        if not row:
+            raise HTTPException(status_code=500, detail="ticket_product_create_failed")
+        return str(row["id"])
+
     async def create(
         self,
         *,
@@ -485,17 +589,35 @@ class TicketService:
         store_product_id: str | None = None,
         lot: str | None = None,
     ) -> EventTicket:
+        ctx = await self._event_context(store_event_id)
+        ticket_id = str(uuid.uuid4())
+        cap = capacity if capacity is not None else quantity
+        product_name = f"{ctx['name']} — {name}" if name and name != ctx["name"] else str(ctx["name"])
+        if not store_product_id:
+            store_product_id = await self._upsert_ticket_product(
+                ticket_id=ticket_id,
+                store_id=str(ctx["store_id"]),
+                product_name=product_name,
+                price_cents=price_cents,
+                stock=int(cap or quantity or 0),
+                tcg_id=ctx.get("game"),
+                banner_url=ctx.get("banner_url") or ctx.get("image_url"),
+                store_product_id=None,
+                store_event_id=store_event_id,
+            )
         ticket = EventTicket(
-            id=str(uuid.uuid4()),
+            id=ticket_id,
             store_event_id=store_event_id,
             name=name,
             price_cents=price_cents,
             quantity=quantity,
-            capacity=capacity,
+            capacity=cap,
             availability=quantity,
             tournament_id=tournament_id,
             store_product_id=store_product_id,
             lot=lot,
+            online_payment_required=False,
+            counter_payment_forbidden=False,
         )
         errs = validate_ticket_policy(ticket)
         if errs:
@@ -510,7 +632,7 @@ class TicketService:
                 ) VALUES (
                   CAST(:id AS uuid), CAST(:eid AS uuid),
                   CAST(:tid AS uuid),
-                  :name, :price, :qty, :capacity, :avail, :lot, TRUE, TRUE, TRUE,
+                  :name, :price, :qty, :capacity, :avail, :lot, TRUE, FALSE, FALSE,
                   CAST(:spid AS uuid),
                   'active'
                 )
@@ -523,7 +645,7 @@ class TicketService:
                 "name": name,
                 "price": price_cents,
                 "qty": quantity,
-                "capacity": capacity,
+                "capacity": cap,
                 "avail": quantity,
                 "lot": lot,
                 "spid": store_product_id,
@@ -551,6 +673,57 @@ class TicketService:
             )
         ).mappings().first()
         return dict(row) if row else None
+
+    async def ensure_products_for_event(self, store_event_id: str) -> None:
+        """Backfill store_product mirror for tickets still sem produto (eventos antigos)."""
+        rows = (
+            await self.session.execute(
+                text(
+                    """
+                    SELECT id::text, store_event_id::text, name, price_cents, quantity, capacity,
+                           store_product_id::text
+                    FROM tcg_judge.event_tickets
+                    WHERE store_event_id = CAST(:eid AS uuid)
+                      AND status = 'active'
+                      AND store_product_id IS NULL
+                    """
+                ),
+                {"eid": store_event_id},
+            )
+        ).mappings().all()
+        if not rows:
+            return
+        ctx = await self._event_context(store_event_id)
+        for r in rows:
+            tid = str(r["id"])
+            stock = int(r.get("capacity") or r.get("quantity") or 0)
+            product_name = (
+                f"{ctx['name']} — {r['name']}"
+                if r.get("name") and r["name"] != ctx["name"]
+                else str(ctx["name"])
+            )
+            prod_id = await self._upsert_ticket_product(
+                ticket_id=tid,
+                store_id=str(ctx["store_id"]),
+                product_name=product_name,
+                price_cents=int(r.get("price_cents") or 0),
+                stock=stock,
+                tcg_id=ctx.get("game"),
+                banner_url=ctx.get("banner_url") or ctx.get("image_url"),
+                store_product_id=None,
+                store_event_id=store_event_id,
+            )
+            await self.session.execute(
+                text(
+                    """
+                    UPDATE tcg_judge.event_tickets
+                    SET store_product_id = CAST(:spid AS uuid)
+                    WHERE id = CAST(:id AS uuid)
+                    """
+                ),
+                {"id": tid, "spid": prod_id},
+            )
+        await self.session.commit()
 
     async def update(
         self,
@@ -605,6 +778,55 @@ class TicketService:
                 """
             ),
             params,
+        )
+        updated_mid = await self.get(ticket_id)
+        assert updated_mid is not None
+        ctx = await self._event_context(str(updated_mid["store_event_id"]))
+        new_stock = int(updated_mid.get("capacity") or updated_mid.get("quantity") or 0)
+        product_name = (
+            f"{ctx['name']} — {updated_mid['name']}"
+            if updated_mid.get("name") and updated_mid["name"] != ctx["name"]
+            else str(ctx["name"])
+        )
+        prod_id = await self._upsert_ticket_product(
+            ticket_id=ticket_id,
+            store_id=str(ctx["store_id"]),
+            product_name=product_name,
+            price_cents=int(updated_mid.get("price_cents") or 0),
+            stock=new_stock,
+            tcg_id=ctx.get("game"),
+            banner_url=ctx.get("banner_url") or ctx.get("image_url"),
+            store_product_id=updated_mid.get("store_product_id"),
+            store_event_id=str(updated_mid["store_event_id"]),
+        )
+        if not updated_mid.get("store_product_id"):
+            await self.session.execute(
+                text(
+                    """
+                    UPDATE tcg_judge.event_tickets
+                    SET store_product_id = CAST(:spid AS uuid)
+                    WHERE id = CAST(:id AS uuid)
+                    """
+                ),
+                {"id": ticket_id, "spid": prod_id},
+            )
+        await self.session.execute(
+            text(
+                """
+                UPDATE tcg_judge.event_tickets t
+                SET availability = GREATEST(
+                  COALESCE(
+                    (SELECT p.stock - COALESCE(p.reserved_stock, 0)
+                     FROM tcg_judge.store_products p
+                     WHERE p.id = t.store_product_id),
+                    t.availability
+                  ),
+                  0
+                )
+                WHERE t.id = CAST(:id AS uuid)
+                """
+            ),
+            {"id": ticket_id},
         )
         await self.session.commit()
         emit("ticket_updated", {"ticket_id": ticket_id})

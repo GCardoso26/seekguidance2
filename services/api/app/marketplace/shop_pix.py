@@ -134,6 +134,7 @@ async def get_checkout_methods(session: AsyncSession, user_id: str) -> dict[str,
 
     stores: dict[str, dict[str, Any]] = {}
     total_cents = 0
+    categories: list[str] = []
 
     for item in items:
         product = (
@@ -141,7 +142,7 @@ async def get_checkout_methods(session: AsyncSession, user_id: str) -> dict[str,
                 text(
                     """
                     SELECT p.id, p.price_cents, p.stock, COALESCE(p.reserved_stock, 0) AS reserved_stock,
-                           p.name, p.store_id,
+                           p.name, p.store_id, p.category,
                            s.name AS store_name, s.pix_key, s.payment_method_preference,
                            s.stripe_account_id, s.stripe_onboarding_complete, s.shop_enabled,
                            s.verification_status, s.average_rating, s.review_count
@@ -156,7 +157,10 @@ async def get_checkout_methods(session: AsyncSession, user_id: str) -> dict[str,
         if not product:
             raise HTTPException(400, f"Produto indisponível: {item.get('name')}")
         store = dict(product)
-        if not store_is_sellable(store):
+        category = str(store.get("category") or "single")
+        categories.append(category)
+        is_event = category == "event"
+        if not is_event and not store_is_sellable(store):
             raise HTTPException(400, f"Loja não configurou pagamentos: {store.get('store_name')}")
 
         qty = int(item.get("quantity", 0))
@@ -184,11 +188,16 @@ async def get_checkout_methods(session: AsyncSession, user_id: str) -> dict[str,
                 "review_count": int(store.get("review_count") or 0),
             }
 
+    event_only = bool(categories) and all(c == "event" for c in categories)
     pix_ok = all(s["pix_available"] for s in stores.values())
     stripe_ok = all(s["stripe_available"] for s in stores.values())
+    # Balcão: carrinho 100% EVENT (ingressos)
+    counter_ok = event_only
 
     default_method = "pix"
-    if not pix_ok and stripe_ok:
+    if event_only and not pix_ok and not stripe_ok and counter_ok:
+        default_method = "counter"
+    elif not pix_ok and stripe_ok:
         default_method = "stripe"
     elif pix_ok and not stripe_ok:
         default_method = "pix"
@@ -199,10 +208,12 @@ async def get_checkout_methods(session: AsyncSession, user_id: str) -> dict[str,
         "methods": {
             "pix": pix_ok,
             "stripe": stripe_ok,
-            "escrow": len(stores) == 1,
+            "counter": counter_ok,
+            "escrow": len(stores) == 1 and not event_only,
         },
-        "escrow_fee_cents": round(total_cents * 0.03) if len(stores) == 1 else 0,
+        "escrow_fee_cents": round(total_cents * 0.03) if len(stores) == 1 and not event_only else 0,
         "default_method": default_method,
+        "cart_is_event_only": event_only,
     }
 
 

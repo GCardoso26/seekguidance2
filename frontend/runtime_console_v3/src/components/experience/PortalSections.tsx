@@ -311,11 +311,11 @@ export function PortalSections({ cardCount = 0, healthLoading }: Props) {
       <section className="portal-section container mx-auto max-w-6xl px-4 py-12">
         <div className="grid gap-10 lg:grid-cols-2">
           <div>
-            <SectionHeader title="Eventos" href="/torneio" />
+            <SectionHeader title="Eventos" href="/search/torneios" />
             <ul className="grid gap-4 sm:grid-cols-2">
               <li>
                 <EventCard
-                  href="/torneio"
+                  href="/search/torneios"
                   title={`Torneios ${theme.name}`}
                   subtitle="Calendário e inscrição — em desenvolvimento"
                   when="Em breve"

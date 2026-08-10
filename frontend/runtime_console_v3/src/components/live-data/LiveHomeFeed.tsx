@@ -168,7 +168,7 @@ export function LiveHomeFeed() {
       <Section title="Mais desejadas / em tendência" href="/loja/tendencias">
         <ChipList items={desired} />
       </Section>
-      <Section title="Eventos próximos" href="/torneio">
+      <Section title="Eventos próximos" href="/search/torneios">
         <ChipList items={events} />
       </Section>
       <Section title="Produtos em destaque · para você" href="/loja/busca">
@@ -192,7 +192,7 @@ export function LiveHomeFeed() {
             {
               id: "tournaments",
               label: "Tournament Hub",
-              href: "/torneio",
+              href: "/search/torneios",
               meta: "Resultados e calendário",
             },
             {

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { EventTicketCreateModal } from "@/components/seller-dashboard/event-tickets/EventTicketCreateModal";
 import { EventTicketEditModal } from "@/components/seller-dashboard/event-tickets/EventTicketEditModal";
 import {
@@ -17,8 +17,105 @@ import { SellerHeader } from "@/components/seller-dashboard/SellerHeader";
 import { Button } from "@/components/ui/button";
 import { useSellerStore } from "@/hooks/useSellerStore";
 import { useSellerStoreEvents } from "@/hooks/useSellerStoreEvents";
+import { formatShopPrice } from "@/lib/marketplace-shop";
 import { planHasFeature } from "@/lib/seller-plans";
 import { formatEventPriceBrl, type StoreEventRow } from "@/types/store-event";
+
+type CounterOrder = {
+  id: string;
+  status: string;
+  total_cents: number;
+  expires_at?: string | null;
+  created_at?: string | null;
+  buyer_id?: string;
+  items?: Array<{ product_name?: string; quantity?: number; unit_price_cents?: number }>;
+};
+
+function CounterOrdersSection({ storeId }: { storeId: string }) {
+  const qc = useQueryClient();
+  const q = useQuery({
+    queryKey: ["seller-counter-orders", storeId],
+    queryFn: async (): Promise<CounterOrder[]> => {
+      const res = await fetch(
+        `/api/marketplace/shop/stores/${encodeURIComponent(storeId)}/counter-orders`,
+        { cache: "no-store" },
+      );
+      if (!res.ok) throw new Error("counter_orders_failed");
+      const data = (await res.json()) as { orders?: CounterOrder[] };
+      return data.orders ?? [];
+    },
+    staleTime: 15_000,
+  });
+
+  const confirm = useMutation({
+    mutationFn: async (orderId: string) => {
+      const res = await fetch(
+        `/api/marketplace/shop/orders/${encodeURIComponent(orderId)}/confirm-counter`,
+        { method: "POST" },
+      );
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(
+          typeof body.detail === "string" ? body.detail : "Falha ao confirmar pagamento",
+        );
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ["seller-counter-orders", storeId] });
+      void qc.invalidateQueries({ queryKey: ["seller-store-events", storeId] });
+    },
+  });
+
+  const orders = q.data ?? [];
+
+  return (
+    <section className="space-y-3" data-testid="counter-orders-section">
+      <h2 className="text-lg font-semibold">Pedidos balcão (ingressos)</h2>
+      <p className="text-sm text-muted-foreground">
+        Confirme o pagamento na loja em até 24h — senão a vaga é liberada automaticamente.
+      </p>
+      {q.isLoading && <p className="text-sm text-muted-foreground">Carregando pedidos…</p>}
+      {q.isError && (
+        <p className="text-sm text-danger">Não foi possível carregar pedidos balcão.</p>
+      )}
+      {!q.isLoading && orders.length === 0 && (
+        <p className="text-sm text-muted-foreground">Nenhum pedido aguardando confirmação.</p>
+      )}
+      <ul className="space-y-2">
+        {orders.map((o) => (
+          <li
+            key={o.id}
+            className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border px-4 py-3"
+          >
+            <div className="min-w-0 text-sm">
+              <p className="font-medium">{formatShopPrice(o.total_cents)}</p>
+              <p className="text-xs text-muted-foreground">
+                {(o.items ?? []).map((i) => i.product_name).filter(Boolean).join(", ") || "Ingresso"}
+                {o.expires_at
+                  ? ` · expira ${new Date(o.expires_at).toLocaleString("pt-BR")}`
+                  : ""}
+              </p>
+            </div>
+            <Button
+              size="sm"
+              data-testid={`confirm-counter-${o.id}`}
+              disabled={confirm.isPending}
+              onClick={() => confirm.mutate(o.id)}
+            >
+              Confirmar pagamento
+            </Button>
+          </li>
+        ))}
+      </ul>
+      {confirm.isError && (
+        <p className="text-sm text-danger">
+          {confirm.error instanceof Error ? confirm.error.message : "Erro ao confirmar"}
+        </p>
+      )}
+    </section>
+  );
+}
 
 export default function IngressosPage() {
   const { storeId, store, hasStore, plan, isLoading: storeLoading } = useSellerStore();
@@ -34,6 +131,7 @@ export default function IngressosPage() {
   function onUpdated() {
     void qc.invalidateQueries({ queryKey: ["seller-store-events", storeId] });
     void qc.invalidateQueries({ queryKey: ["tournament-hub-events"] });
+    void qc.invalidateQueries({ queryKey: ["search-torneios-events"] });
     void refetch();
   }
 
@@ -95,8 +193,10 @@ export default function IngressosPage() {
       <PageShell className="space-y-6">
         <PageHeader
           title="Ingressos de Eventos"
-          description="Publique eventos na vitrine da loja e no Tournament Hub."
+          description="Publique eventos na vitrine da loja e em Eventos (/search/torneios)."
         />
+
+        {storeId && <CounterOrdersSection storeId={storeId} />}
 
         {isError ? (
           <PageError message="Não foi possível carregar os eventos." onRetry={() => void refetch()} />
@@ -167,7 +267,7 @@ export default function IngressosPage() {
                         Editar
                       </Button>
                       <Link
-                        href={`/torneio/${ev.id}`}
+                        href={`/search/torneios/${ev.id}`}
                         className="inline-flex items-center text-xs text-primary hover:underline"
                       >
                         Ver página →

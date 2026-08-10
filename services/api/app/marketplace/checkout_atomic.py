@@ -212,6 +212,7 @@ async def initiate_checkout(
         # Keep in-memory reserved in sync for duplicate lines in same cart
         product["reserved_stock"] = int(product["reserved_stock"]) + requested_qty
         listing_id = await _sync_listing_reserve(session, product_id, requested_qty)
+        await sync_event_ticket_availability(session, product_id)
 
         unit_price = int(product["price_cents"])
         total_cents += unit_price * requested_qty
@@ -328,6 +329,7 @@ async def _release_session_stock(session: AsyncSession, checkout_session: dict[s
                 ),
                 {"pid": product_id, "qty": qty},
             )
+            await sync_event_ticket_availability(session, str(product_id))
         listing_id = item.get("listing_id")
         if listing_id:
             await session.execute(
@@ -588,6 +590,7 @@ async def finalize_checkout(
                 listing_id=str(item["listing_id"]) if item.get("listing_id") else None,
                 require_reserved=True,
             )
+            await sync_event_ticket_availability(session, str(product_id))
 
         await session.execute(
             text(
@@ -606,9 +609,37 @@ async def finalize_checkout(
     return {"status": "completed", "session_id": session_id}
 
 
+async def sync_event_ticket_availability(session: AsyncSession, product_id: str) -> None:
+    """Espelha availability do event_ticket a partir de stock - reserved do produto EVENT."""
+    await session.execute(
+        text(
+            """
+            UPDATE tcg_judge.event_tickets t
+            SET availability = GREATEST(
+                  COALESCE(
+                    (SELECT p.stock - COALESCE(p.reserved_stock, 0)
+                     FROM tcg_judge.store_products p
+                     WHERE p.id = t.store_product_id AND p.category = 'event'),
+                    t.availability
+                  ),
+                  0
+                ),
+                updated_at = NOW()
+            WHERE t.store_product_id = CAST(:pid AS uuid)
+            """
+        ),
+        {"pid": product_id},
+    )
+
+
 async def expire_stale_sessions(session: AsyncSession) -> int:
     result = await session.execute(text("SELECT tcg_judge.expire_checkout_sessions()"))
     count = int(result.scalar() or 0)
+    try:
+        result2 = await session.execute(text("SELECT tcg_judge.expire_counter_orders()"))
+        count += int(result2.scalar() or 0)
+    except Exception as exc:
+        logger.warning("expire_counter_orders_skipped", error=str(exc))
     await session.commit()
     return count
 

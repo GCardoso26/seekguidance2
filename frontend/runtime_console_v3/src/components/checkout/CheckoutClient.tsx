@@ -44,9 +44,10 @@ const EnhancedPixCheckoutPanel = dynamic(
 
 type Methods = {
   total_cents: number;
-  methods: { pix: boolean; stripe: boolean; escrow?: boolean };
+  methods: { pix: boolean; stripe: boolean; counter?: boolean; escrow?: boolean };
   escrow_fee_cents?: number;
-  default_method: "pix" | "stripe";
+  default_method: "pix" | "stripe" | "counter";
+  cart_is_event_only?: boolean;
   stores?: Array<{
     store_id: string;
     store_name: string;
@@ -101,7 +102,7 @@ export function CheckoutClient() {
   const { data: smartCart } = useSmartCart("best_value");
   const [cpfModal, setCpfModal] = useState(false);
   const [methods, setMethods] = useState<Methods | null>(null);
-  const [method, setMethod] = useState<"pix" | "stripe">("pix");
+  const [method, setMethod] = useState<"pix" | "stripe" | "counter">("pix");
   const [pixData, setPixData] = useState<PixData | null>(null);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [checkoutSession, setCheckoutSession] = useState<CheckoutSessionInfo | null>(null);
@@ -112,6 +113,8 @@ export function CheckoutClient() {
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; storeId: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [pixLoading, setPixLoading] = useState(false);
+  const [counterLoading, setCounterLoading] = useState(false);
+  const [counterDone, setCounterDone] = useState<{ orderId: string; expiresAt: string } | null>(null);
   const [useEscrow, setUseEscrow] = useState(false);
   const [shippingSelection, setShippingSelection] = useState<SelectedShippingQuote | null>(null);
   const bootStarted = useRef(false);
@@ -149,9 +152,13 @@ export function CheckoutClient() {
       const methodsData = (await methodsRes.json()) as Methods;
       setMethods(methodsData);
       setTotalCents(methodsData.total_cents);
-      setMethod(
-        methodsData.default_method === "stripe" && methodsData.methods.stripe ? "stripe" : "pix",
-      );
+      if (methodsData.default_method === "counter" && methodsData.methods.counter) {
+        setMethod("counter");
+      } else if (methodsData.default_method === "stripe" && methodsData.methods.stripe) {
+        setMethod("stripe");
+      } else {
+        setMethod("pix");
+      }
 
       const initRes = await fetch("/api/checkout/initiate", {
         method: "POST",
@@ -253,11 +260,41 @@ export function CheckoutClient() {
     setLoading(false);
   }
 
+  async function startCounter() {
+    setCounterLoading(true);
+    setInitError(null);
+    const res = await fetch("/api/marketplace/shop/checkout/counter", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        checkout_session_id: checkoutSession?.session_id ?? null,
+      }),
+    });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      setInitError(formatApiDetail(body.detail, "Erro ao reservar no balcão"));
+      setCounterLoading(false);
+      return;
+    }
+    const data = (await res.json()) as { order_id?: string; expires_at?: string };
+    setCounterDone({
+      orderId: String(data.order_id ?? ""),
+      expiresAt: String(data.expires_at ?? ""),
+    });
+    void trackEvent("checkout_started", {
+      payment_method: "counter",
+      total_cents: totalCents,
+      order_id: data.order_id,
+    });
+    setCounterLoading(false);
+  }
+
   useEffect(() => {
     if (!methods || !checkoutSession || pixData || clientSecret || reservationError || initError || loading) return;
+    if (method === "counter" || counterDone) return;
     if (method === "stripe" && methods.methods.stripe) void startStripe();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [method, methods, checkoutSession, reservationError, initError, loading]);
+  }, [method, methods, checkoutSession, reservationError, initError, loading, counterDone]);
 
   function handleCouponApplied(discount: number, code: string) {
     setDiscountCents(discount);
@@ -282,7 +319,14 @@ export function CheckoutClient() {
   const summaryTotal = pixData?.amount_cents ?? previewTotal;
   const cartItems = cart?.items ?? [];
   const showPaymentStep =
-    methods && (methods.methods.pix || methods.methods.stripe) && !pixData && !clientSecret && checkoutSession && !reservationError;
+    methods &&
+    (methods.methods.pix || methods.methods.stripe || methods.methods.counter) &&
+    !pixData &&
+    !clientSecret &&
+    !counterDone &&
+    checkoutSession &&
+    !reservationError;
+  const eventOnly = Boolean(methods?.cart_is_event_only);
 
   return (
     <>
@@ -347,7 +391,7 @@ export function CheckoutClient() {
               </Card>
             )}
 
-            {checkoutSession && !reservationError && (
+            {checkoutSession && !reservationError && !eventOnly && (
               <Card variant="muted" padding="md">
                 <CardHeader className="flex-row items-center gap-2 space-y-0 p-0 pb-3">
                   <Truck className="h-4 w-4 text-primary" aria-hidden />
@@ -372,7 +416,7 @@ export function CheckoutClient() {
               </Card>
             )}
 
-            {methods?.stores?.length === 1 && checkoutSession && !reservationError && (
+            {methods?.stores?.length === 1 && checkoutSession && !reservationError && !eventOnly && (
               <div className="space-y-4">
                 <EscrowToggle
                   enabled={useEscrow}
@@ -399,16 +443,23 @@ export function CheckoutClient() {
                   method={method}
                   pixAvailable={methods.methods.pix}
                   stripeAvailable={methods.methods.stripe}
+                  counterAvailable={Boolean(methods.methods.counter)}
                   onSelectPix={() => {
                     setPixData(null);
                     setClientSecret(null);
-                    setMethod("pix");
+                    setMethod(methods.methods.pix ? "pix" : "stripe");
                   }}
                   onSelectStripe={() => {
                     setPixData(null);
                     setClientSecret(null);
                     setMethod("stripe");
                     void startStripe();
+                  }}
+                  onSelectCounter={() => {
+                    setPixData(null);
+                    setClientSecret(null);
+                    stripeStarted.current = false;
+                    setMethod("counter");
                   }}
                 />
 
@@ -425,6 +476,44 @@ export function CheckoutClient() {
                     Gerar código PIX
                   </Button>
                 )}
+
+                {method === "counter" && methods.methods.counter && (
+                  <Button
+                    type="button"
+                    size="lg"
+                    className="w-full"
+                    data-testid="confirm-counter-hold"
+                    disabled={counterLoading}
+                    loading={counterLoading}
+                    onClick={() => void startCounter()}
+                  >
+                    Reservar vaga (pagar no balcão)
+                  </Button>
+                )}
+              </Card>
+            )}
+
+            {counterDone && (
+              <Card padding="md">
+                <CardHeader className="p-0 pb-4">
+                  <CardTitle className="text-h3">Vaga reservada</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3 p-0 text-sm text-muted-foreground">
+                  <p>
+                    Pagamento no balcão. Sua vaga fica reservada por 24 horas até a loja confirmar.
+                  </p>
+                  {counterDone.expiresAt && (
+                    <p>
+                      Expira em{" "}
+                      <span className="font-medium text-foreground">
+                        {new Date(counterDone.expiresAt).toLocaleString("pt-BR")}
+                      </span>
+                    </p>
+                  )}
+                  <Button asChild variant="outline" className="w-full">
+                    <Link href="/perfil/pedidos">Ver meus pedidos</Link>
+                  </Button>
+                </CardContent>
               </Card>
             )}
 

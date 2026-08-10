@@ -209,7 +209,8 @@ async def add_to_cart(
     _assert_product_matches_expected_card(dict(product), expected_card_id)
 
     store_row = dict(product)
-    if not store_is_sellable(store_row):
+    is_event = str(product.get("category") or "") == "event"
+    if not is_event and not store_is_sellable(store_row):
         raise HTTPException(
             400,
             f"A loja '{product.get('store_name') or 'do vendedor'}' ainda não habilitou vendas (PIX ou Stripe).",
@@ -233,6 +234,7 @@ async def add_to_cart(
             if new_qty > available:
                 raise HTTPException(400, "Estoque insuficiente")
             item["quantity"] = new_qty
+            item["category"] = str(product.get("category") or item.get("category") or "single")
             found = True
             break
 
@@ -245,6 +247,7 @@ async def add_to_cart(
                 "image": image,
                 "price_cents": int(product["price_cents"]),
                 "quantity": quantity,
+                "category": str(product.get("category") or "single"),
             }
         )
 

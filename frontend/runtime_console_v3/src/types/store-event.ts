@@ -21,6 +21,7 @@ export type StoreEventRow = {
   ticketsCapacity: number | null;
   ticketsSold: number | null;
   priceCents: number | null;
+  storeProductId: string | null;
   rules: string | null;
   visibility: string | null;
 };
@@ -72,6 +73,11 @@ export function normalizeStoreEvent(row: Record<string, unknown>): StoreEventRow
           : null,
     ticketsSold: row.tickets_sold != null ? Number(row.tickets_sold) : null,
     priceCents: row.price_cents != null ? Number(row.price_cents) : null,
+    storeProductId: row.store_product_id
+      ? String(row.store_product_id)
+      : row.primary_store_product_id
+        ? String(row.primary_store_product_id)
+        : null,
     rules: row.rules ? String(row.rules) : policies.notes ? String(policies.notes) : null,
     visibility: row.visibility ? String(row.visibility) : null,
   };

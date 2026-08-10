@@ -94,7 +94,7 @@ export function PortalLiveBlocks() {
           ))}
         </LiveColumn>
 
-        <LiveColumn title="Eventos & ranking" href="/torneio">
+        <LiveColumn title="Eventos & ranking" href="/search/torneios">
           {(eventsQ.data ?? []).slice(0, 4).map((e) => (
             <Link
               key={e.id}
@@ -107,7 +107,7 @@ export function PortalLiveBlocks() {
           <Link href="/comunidade/leaderboard" className="portal-link mt-2 inline-flex text-xs hover:underline">
             Ranking / Top players →
           </Link>
-          <Link href="/torneio" className="portal-link mt-1 inline-flex text-xs hover:underline">
+          <Link href="/search/torneios" className="portal-link mt-1 inline-flex text-xs hover:underline">
             Calendário completo →
           </Link>
         </LiveColumn>

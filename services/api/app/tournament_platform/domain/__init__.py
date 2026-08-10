@@ -87,8 +87,8 @@ class EventTicket:
     lot: str | None = None
     sales_deadline: str | None = None
     require_checkin: bool = True
-    online_payment_required: bool = True
-    counter_payment_forbidden: bool = True
+    online_payment_required: bool = False
+    counter_payment_forbidden: bool = False
     store_product_id: str | None = None
     tournament_id: str | None = None
     currency: str = "BRL"

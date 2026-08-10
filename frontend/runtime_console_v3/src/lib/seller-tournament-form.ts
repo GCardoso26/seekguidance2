@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { GAME_TOKENS, PRODUCT_GAME_IDS } from "@/lib/tcg-tokens";
 import type { SellerTournamentPairingFormat, SellerTournamentRow } from "@/types/seller-tournament";
 
 export const PAIRING_FORMATS = [
@@ -8,12 +9,11 @@ export const PAIRING_FORMATS = [
   { value: "round_robin", label: "Round robin" },
 ] as const;
 
-/** ADR-016: SWU hard-exited from product ecosystem. */
-export const TOURNAMENT_GAME_OPTIONS = [
-  { id: "MTG", name: "Magic: The Gathering" },
-  { id: "POKEMON", name: "Pokémon TCG" },
-  { id: "LORCANA", name: "Disney Lorcana" },
-] as const;
+/** ADR-016: allowlist viva (sem SWU). Alinhado a GAME_TOKENS / catálogo. */
+export const TOURNAMENT_GAME_OPTIONS = PRODUCT_GAME_IDS.map((id) => ({
+  id,
+  name: GAME_TOKENS[id].name,
+})) as ReadonlyArray<{ id: string; name: string }>;
 
 const sellerTournamentFormBase = z.object({
   name: z

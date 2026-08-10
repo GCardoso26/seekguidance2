@@ -72,7 +72,7 @@ export function DeckLivePanels({ deckId, gameId, deckName }: Props) {
               </li>
             ))}
           </ul>
-          <Link href="/torneio" className="mt-2 inline-flex text-sm text-primary hover:underline">
+          <Link href="/search/torneios" className="mt-2 inline-flex text-sm text-primary hover:underline">
             Tournament Hub →
           </Link>
         </div>

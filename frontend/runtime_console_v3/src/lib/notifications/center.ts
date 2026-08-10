@@ -97,7 +97,7 @@ export function actionForNotification(n: AppNotification): NotificationAction | 
       return { label: "Ver pedido", href: "/marketplace/orders" };
     case "tournament_reminder":
     case "tournament_result":
-      return { label: "Tournament Hub", href: "/torneio" };
+      return { label: "Eventos", href: "/search/torneios" };
     case "message":
       return { label: "Mensagens", href: "/social/messages" };
     case "xp_earned":

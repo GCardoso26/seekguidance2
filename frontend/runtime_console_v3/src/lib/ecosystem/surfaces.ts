@@ -73,7 +73,7 @@ export const ECOSYSTEM_SURFACES: EcosystemSurface[] = [
   {
     id: "tournament_tools",
     title: "Ferramentas para torneios",
-    entrypoint: "/torneio",
+    entrypoint: "/search/torneios",
     notes: "Tournament Hub + ops dashboards.",
   },
   {
@@ -92,7 +92,7 @@ export const ECOSYSTEM_SURFACES: EcosystemSurface[] = [
     id: "deep_links",
     title: "Deep links",
     entrypoint: "/u/{username}",
-    notes: "Portais /cards /sets /decks /torneio.",
+    notes: "Portais /cards /sets /decks /search/torneios.",
   },
   {
     id: "future_integrations",
