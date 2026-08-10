@@ -25,7 +25,7 @@ export class YouTubeOAuthService {
       throw Object.assign(new Error('credentials_encryption_key_required'), { code: 'NOT_CONFIGURED' })
     }
     const state = randomBytes(24).toString('hex')
-    const expires = new Date(Date.now() + 10 * 60_000).toISOString()
+    const expires = new Date(Date.now() + 30 * 60_000).toISOString()
     getDb()
       .prepare(
         `INSERT INTO oauth_states (state, workspace_id, platform, created_at, expires_at) VALUES (?, ?, 'YOUTUBE', ?, ?)`,

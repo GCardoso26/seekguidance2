@@ -47,12 +47,16 @@ export async function connectionRoutes(app: FastifyInstance) {
   })
 
   app.get('/api/publishing/connections/youtube/callback', async (req, reply) => {
-    const schema = z.object({ code: z.string(), state: z.string() })
-    const parsed = schema.safeParse(req.query)
-    if (!parsed.success) return reply.code(400).send({ error: 'invalid_callback' })
+    const q = req.query as Record<string, unknown>
+    // Google/browsers às vezes duplicam ?state= — normalizar para string
+    const rawState = q.state
+    const state = Array.isArray(rawState) ? String(rawState[0] ?? '') : String(rawState ?? '')
+    const code = Array.isArray(q.code) ? String(q.code[0] ?? '') : String(q.code ?? '')
+    if (!code || !state) {
+      return reply.code(400).send({ error: 'invalid_callback', hint: 'missing code or state' })
+    }
     try {
-      const result = await youtubeOAuthService.callback(parsed.data)
-      // Never return tokens — redirect-style JSON for Automation Center
+      const result = await youtubeOAuthService.callback({ code, state: state.replace(/^"|"$/g, '') })
       return { ok: true, ...result }
     } catch (err) {
       return reply.code(400).send({ error: err instanceof Error ? err.message : String(err) })
