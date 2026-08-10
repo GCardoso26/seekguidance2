@@ -13,9 +13,10 @@ function phoneTelHref(phone: string): string {
   return digits ? `tel:+55${digits}` : `tel:${phone}`;
 }
 
+/** Detalhe de store_event. Segmento dinâmico deve ser `[id]` (já usado por ops-dashboard). */
 export default function StoreEventDetailPage() {
-  const params = useParams<{ eventId: string }>();
-  const eventId = params?.eventId ?? "";
+  const params = useParams<{ id: string }>();
+  const eventId = params?.id ?? "";
 
   const q = useQuery({
     queryKey: ["store-event-detail", eventId],
