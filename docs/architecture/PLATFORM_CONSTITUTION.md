@@ -3,7 +3,7 @@
 **Status:** Em vigor (pós-R3)  
 **Tipo:** Constituição de plataforma — **não** é ADR, **não** é roadmap, **não** é Sprint Plan  
 **Data:** 2026-07-20  
-**Relaciona:** [ADRs](./adr/README.md) · [FOUNDATION_FREEZE.md](./FOUNDATION_FREEZE.md) · [North Star R1](../product/NORTH_STAR_RELEASE_1.md) · [TECHNICAL_DEBT_REGISTER.md](./TECHNICAL_DEBT_REGISTER.md) · [EVIDENCE_RELEASE_R4.md](../operations/EVIDENCE_RELEASE_R4.md) · [MARKET_LEARNING_R5.md](../operations/MARKET_LEARNING_R5.md) · [`PROJECT_STATUS.md`](../../PROJECT_STATUS.md)
+**Relaciona:** [ADRs](./adr/README.md) · [FOUNDATION_FREEZE.md](./FOUNDATION_FREEZE.md) · [North Star R1](../product/NORTH_STAR_RELEASE_1.md) · [Especificação Funcional](../product/PLATFORM_FUNCTIONAL_SPECIFICATION.md) · [TECHNICAL_DEBT_REGISTER.md](./TECHNICAL_DEBT_REGISTER.md) · [EVIDENCE_RELEASE_R4.md](../operations/EVIDENCE_RELEASE_R4.md) · [MARKET_LEARNING_R5.md](../operations/MARKET_LEARNING_R5.md) · [`PROJECT_STATUS.md`](../../PROJECT_STATUS.md)
 
 ---
 
