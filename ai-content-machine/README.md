@@ -27,10 +27,27 @@ Em outro terminal:
 cd web && npm install && npm run dev
 ```
 
-Abra:
+## Deploy OCI + n8n
+
+Guia completo: **`docs/OCI_DEPLOY.md`**
+
+```bash
+cd ai-content-machine
+cp .env.oci.example .env
+# edite secrets
+docker compose --env-file .env up -d --build
+```
+
+Abra (local dev):
 
 - Funil: `http://localhost:5173/`
 - Automation Center: `http://localhost:5173/app/automation`
+
+Abra (Docker/OCI):
+
+- Web: `http://SEU_IP:8080/`
+- API: `http://SEU_IP:8787/health`
+- n8n: `http://SEU_IP:5678/` (só em rede privada; preferir proxy HTTPS)
 
 ## Aceite MVP (mock)
 
