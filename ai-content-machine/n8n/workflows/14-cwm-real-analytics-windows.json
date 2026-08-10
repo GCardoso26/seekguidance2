@@ -62,12 +62,12 @@
   "meta": {
     "cwm": {
       "workflowKey": "real_analytics_windows",
-      "version": 1,
+      "version": 2,
       "purpose": "Poll metrics windows (1h/6h/24h/48h/7d) for REAL publications without aggressive looping",
       "tables": ["metric_snapshots", "publication_runs"],
       "controlPlane": "/api/analytics/sync",
       "windows": ["1h", "6h", "24h", "48h", "7d"],
-      "note": "WF 10/11 preserved as recycling/monetization; this is WF 14"
+      "note": "Requires CWM_DEFAULT_WORKSPACE_ID on n8n+api. Cron omits publicationId when empty."
     }
   }
 }

@@ -43,6 +43,9 @@ export const config = {
   ),
   /** 32+ char secret for token encryption at rest */
   credentialsEncryptionKey: env('CWM_CREDENTIALS_ENCRYPTION_KEY', ''),
+
+  /** Fallback workspace for n8n crons that omit workspaceId */
+  defaultWorkspaceId: env('CWM_DEFAULT_WORKSPACE_ID', ''),
 }
 
 export function systemReady(): { ok: boolean; reason?: string } {

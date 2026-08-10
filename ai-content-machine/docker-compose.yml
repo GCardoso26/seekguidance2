@@ -73,6 +73,8 @@ services:
       CWM_API_BASE: http://api:8787
       # Workspace usado pelos crons n8n quando o body não traz workspaceId
       CWM_DEFAULT_WORKSPACE_ID: ${CWM_DEFAULT_WORKSPACE_ID:-}
+      # Permite $env.* nas expressões dos workflows (CWM_API_BASE, CWM_DEFAULT_WORKSPACE_ID)
+      N8N_BLOCK_ENV_ACCESS_IN_NODE: "false"
       N8N_WEBHOOK_SECRET: ${N8N_WEBHOOK_SECRET:-dev-webhook-secret-change-me}
     depends_on:
       postgres_n8n:
@@ -95,6 +97,7 @@ services:
       N8N_API_KEY: ${N8N_API_KEY:-}
       N8N_WEBHOOK_SECRET: ${N8N_WEBHOOK_SECRET:-dev-webhook-secret-change-me}
       CWM_API_BASE: http://api:8787
+      CWM_DEFAULT_WORKSPACE_ID: ${CWM_DEFAULT_WORKSPACE_ID:-}
       DRY_RUN: ${DRY_RUN:-true}
       PUBLISHING_ENABLED: ${PUBLISHING_ENABLED:-false}
       YOUTUBE_PUBLISHING_ENABLED: ${YOUTUBE_PUBLISHING_ENABLED:-false}
