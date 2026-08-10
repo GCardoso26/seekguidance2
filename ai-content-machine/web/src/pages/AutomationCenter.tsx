@@ -4,6 +4,17 @@ import { Layout } from '../components/Layout'
 
 const API = import.meta.env.VITE_CWM_API_BASE || 'http://127.0.0.1:8787'
 
+function isWorkspaceId(value: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)
+}
+
+function readStoredWorkspaceId(): string {
+  const v = localStorage.getItem('cwm_workspace') || ''
+  if (isWorkspaceId(v)) return v
+  if (v) localStorage.removeItem('cwm_workspace')
+  return ''
+}
+
 type Health = {
   mode: string
   systemReady: { ok: boolean; reason?: string }
@@ -57,7 +68,7 @@ type Snapshot = {
 
 export function AutomationCenter() {
   const [health, setHealth] = useState<Health | null>(null)
-  const [workspaceId, setWorkspaceId] = useState(localStorage.getItem('cwm_workspace') || '')
+  const [workspaceId, setWorkspaceId] = useState(readStoredWorkspaceId)
   const [snap, setSnap] = useState<Snapshot | null>(null)
   const [log, setLog] = useState('')
   const [busy, setBusy] = useState(false)
@@ -80,14 +91,14 @@ export function AutomationCenter() {
 
   async function refresh() {
     const params = new URLSearchParams({ window: windowFilter })
-    if (workspaceId) params.set('workspaceId', workspaceId)
+    if (isWorkspaceId(workspaceId)) params.set('workspaceId', workspaceId)
     if (workflowFilter) params.set('workflow', workflowFilter)
     if (providerFilter) params.set('provider', providerFilter)
     const h = await fetch(`${API}/api/automation/health?${params}`).then((r) => r.json())
     setHealth(h)
     const listed = await fetch(`${API}/api/workspaces`).then((r) => r.json())
     setWorkspaceList(listed.workspaces || [])
-    if (workspaceId) {
+    if (isWorkspaceId(workspaceId)) {
       const s = await fetch(`${API}/api/workspaces/${workspaceId}`).then((r) => r.json())
       if (!s.error) setSnap(s)
       const rr = await fetch(`${API}/api/research/workspaces/${workspaceId}/runs`).then((r) => r.json())
@@ -144,6 +155,10 @@ export function AutomationCenter() {
       })
       const data = await res.json()
       if (!res.ok) {
+        setLog(JSON.stringify(data, null, 2))
+        return
+      }
+      if (!isWorkspaceId(String(data.workspaceId || ''))) {
         setLog(JSON.stringify(data, null, 2))
         return
       }
@@ -241,7 +256,7 @@ export function AutomationCenter() {
               onChange={(e) => {
                 const v = e.target.value.trim()
                 setWorkspaceId(v)
-                if (v) localStorage.setItem('cwm_workspace', v)
+                if (isWorkspaceId(v)) localStorage.setItem('cwm_workspace', v)
                 else localStorage.removeItem('cwm_workspace')
               }}
               placeholder="cole o UUID do workspace"
@@ -256,7 +271,8 @@ export function AutomationCenter() {
                 onChange={(e) => {
                   const v = e.target.value
                   setWorkspaceId(v)
-                  if (v) localStorage.setItem('cwm_workspace', v)
+                  if (isWorkspaceId(v)) localStorage.setItem('cwm_workspace', v)
+                  else localStorage.removeItem('cwm_workspace')
                 }}
                 style={{ minWidth: '16rem', padding: '0.55rem 0.75rem' }}
               >
