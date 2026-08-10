@@ -139,6 +139,24 @@ export class ProductionPreflightService {
       })
     }
 
+    // FFmpeg (required for Production Engine mock voice/visual/compose)
+    try {
+      const { ffmpegService } = await import('../production/FFmpegService.js')
+      checks.push({
+        id: 'ffmpeg',
+        label: 'FFmpeg',
+        status: ffmpegService.available() ? 'PASS' : 'FAIL',
+        detail: ffmpegService.available() ? 'ffmpeg_and_ffprobe_available' : 'ffmpeg_not_available',
+      })
+    } catch (err) {
+      checks.push({
+        id: 'ffmpeg',
+        label: 'FFmpeg',
+        status: 'FAIL',
+        detail: err instanceof Error ? err.message : 'ffmpeg_check_failed',
+      })
+    }
+
     // Publishing / analytics providers (code readiness — not proven)
     checks.push({
       id: 'publishing_service',
@@ -200,6 +218,7 @@ export class ProductionPreflightService {
       'youtube_oauth_client',
       'youtube_connection',
       'storage',
+      'ffmpeg',
       'publishing_service',
       'analytics_provider',
     ])
