@@ -50,16 +50,28 @@ export async function connectionRoutes(app: FastifyInstance) {
     const q = req.query as Record<string, unknown>
     // Google/browsers às vezes duplicam ?state= — normalizar para string
     const rawState = q.state
-    const state = Array.isArray(rawState) ? String(rawState[0] ?? '') : String(rawState ?? '')
+    let state = Array.isArray(rawState) ? String(rawState[0] ?? '') : String(rawState ?? '')
     const code = Array.isArray(q.code) ? String(q.code[0] ?? '') : String(q.code ?? '')
+    state = state.trim().replace(/^"|"$/g, '')
+    // Copy/paste do JSON do /start gruda `","state":"...` no state — recuperar hex de 48 chars
+    const hexState = state.match(/^[a-f0-9]{48}/i)
+    if (hexState) state = hexState[0].toLowerCase()
     if (!code || !state) {
       return reply.code(400).send({ error: 'invalid_callback', hint: 'missing code or state' })
     }
     try {
-      const result = await youtubeOAuthService.callback({ code, state: state.replace(/^"|"$/g, '') })
+      const result = await youtubeOAuthService.callback({ code, state })
       return { ok: true, ...result }
     } catch (err) {
-      return reply.code(400).send({ error: err instanceof Error ? err.message : String(err) })
+      const message = err instanceof Error ? err.message : String(err)
+      return reply.code(400).send({
+        error: message,
+        hint:
+          message === 'invalid_oauth_state'
+            ? 'Gere um authorizeUrl novo via POST /youtube/start e abra só o campo authorizeUrl (sem colar JSON). Confira se já está CONNECTED.'
+            : undefined,
+        stateLen: state.length,
+      })
     }
   })
 

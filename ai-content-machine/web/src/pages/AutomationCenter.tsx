@@ -745,6 +745,54 @@ export function AutomationCenter() {
         <h2 style={{ marginTop: '2rem', fontFamily: 'var(--font-display)', letterSpacing: '-0.04em' }}>
           Connections
         </h2>
+        <div className="action-row" style={{ marginBottom: '0.75rem' }}>
+          <button
+            type="button"
+            className="btn"
+            disabled={busy || !workspaceId}
+            onClick={async () => {
+              if (!workspaceId) return
+              setBusy(true)
+              try {
+                const res = await fetch(`${API}/api/publishing/connections/youtube/start`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ workspaceId }),
+                })
+                const data = await res.json()
+                setLog(JSON.stringify(data, null, 2))
+                if (!res.ok || !data.authorizeUrl) return
+                // Abre URL limpa — evita invalid_oauth_state por copy/paste do JSON
+                window.open(String(data.authorizeUrl), '_blank', 'noopener,noreferrer')
+                await refresh()
+              } finally {
+                setBusy(false)
+              }
+            }}
+          >
+            Conectar YouTube (OAuth)
+          </button>
+          <button
+            type="button"
+            className="btn secondary"
+            disabled={busy || !workspaceId}
+            onClick={async () => {
+              if (!workspaceId) return
+              setBusy(true)
+              try {
+                const conn = await fetch(
+                  `${API}/api/publishing/connections?workspaceId=${workspaceId}`,
+                ).then((r) => r.json())
+                setConnections(conn)
+                setLog(JSON.stringify(conn, null, 2))
+              } finally {
+                setBusy(false)
+              }
+            }}
+          >
+            Atualizar status conexões
+          </button>
+        </div>
         <div className="kit-grid">
           <pre>
             {((connections?.connections as Array<Record<string, unknown>>) || [])
