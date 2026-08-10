@@ -9,6 +9,13 @@ import { getDb, nowIso, uid } from '../db/client.js'
 import { emitEvent } from '../services/EventService.js'
 
 export async function workspaceRoutes(app: FastifyInstance) {
+  app.get('/api/workspaces', async () => {
+    const rows = getDb()
+      .prepare(`SELECT id, name, created_at FROM workspaces ORDER BY created_at DESC LIMIT 50`)
+      .all()
+    return { workspaces: rows }
+  })
+
   app.post('/api/workspaces', async (req, reply) => {
     const schema = z.object({ name: z.string().min(2), email: z.string().email().optional() })
     const parsed = schema.safeParse(req.body)
