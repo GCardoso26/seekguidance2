@@ -70,6 +70,7 @@ export function AutomationCenter() {
   const [connections, setConnections] = useState<Record<string, unknown> | null>(null)
   const [preflight, setPreflight] = useState<Record<string, unknown> | null>(null)
   const [experiments, setExperiments] = useState<Array<Record<string, unknown>>>([])
+  const [workspaceList, setWorkspaceList] = useState<Array<{ id: string; name: string }>>([])
   const [selectedProduction, setSelectedProduction] = useState<Record<string, unknown> | null>(null)
   const [windowFilter, setWindowFilter] = useState<'24h' | '7d' | '30d'>('24h')
   const [workflowFilter, setWorkflowFilter] = useState('')
@@ -84,6 +85,8 @@ export function AutomationCenter() {
     if (providerFilter) params.set('provider', providerFilter)
     const h = await fetch(`${API}/api/automation/health?${params}`).then((r) => r.json())
     setHealth(h)
+    const listed = await fetch(`${API}/api/workspaces`).then((r) => r.json())
+    setWorkspaceList(listed.workspaces || [])
     if (workspaceId) {
       const s = await fetch(`${API}/api/workspaces/${workspaceId}`).then((r) => r.json())
       if (!s.error) setSnap(s)
@@ -220,6 +223,60 @@ export function AutomationCenter() {
             <strong>{health?.openFailures ?? 0}</strong>
             <span>Dead letters</span>
           </div>
+        </div>
+
+        <div
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: '0.75rem',
+            marginTop: '1.5rem',
+            alignItems: 'center',
+          }}
+        >
+          <label className="fine" style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+            Workspace ID
+            <input
+              value={workspaceId}
+              onChange={(e) => {
+                const v = e.target.value.trim()
+                setWorkspaceId(v)
+                if (v) localStorage.setItem('cwm_workspace', v)
+                else localStorage.removeItem('cwm_workspace')
+              }}
+              placeholder="cole o UUID do workspace"
+              style={{ minWidth: '22rem', padding: '0.55rem 0.75rem' }}
+            />
+          </label>
+          {workspaceList.length ? (
+            <label className="fine" style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+              Existentes
+              <select
+                value={workspaceId}
+                onChange={(e) => {
+                  const v = e.target.value
+                  setWorkspaceId(v)
+                  if (v) localStorage.setItem('cwm_workspace', v)
+                }}
+                style={{ minWidth: '16rem', padding: '0.55rem 0.75rem' }}
+              >
+                <option value="">— selecionar —</option>
+                {workspaceList.map((w) => (
+                  <option key={w.id} value={w.id}>
+                    {w.name} ({w.id.slice(0, 8)}…)
+                  </option>
+                ))}
+              </select>
+            </label>
+          ) : null}
+          <button
+            type="button"
+            className="btn btn-ghost"
+            style={{ alignSelf: 'flex-end' }}
+            onClick={() => void refresh()}
+          >
+            Aplicar
+          </button>
         </div>
 
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginTop: '2rem' }}>
