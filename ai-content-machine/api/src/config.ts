@@ -21,6 +21,8 @@ export const config = {
   port: Number(env('PORT', '8787')),
   root,
   dbPath: env('CWM_DB_PATH', path.join(root, 'data', 'cwm.sqlite')),
+  /** Media assets (voice/visual/final). Prefer a volume path in Docker. */
+  assetsPath: env('CWM_ASSETS_PATH', path.join(root, 'data', 'assets')),
   automationMode: (env('AUTOMATION_MODE', 'mock') as AutomationMode),
   n8nBaseUrl: env('N8N_BASE_URL', ''),
   n8nApiKey: env('N8N_API_KEY', ''),

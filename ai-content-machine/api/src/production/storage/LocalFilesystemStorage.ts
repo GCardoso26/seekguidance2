@@ -16,7 +16,7 @@ export class LocalFilesystemStorage implements AssetStorage {
   private base: string
 
   constructor(baseDir?: string) {
-    this.base = path.resolve(baseDir || path.join(config.root, 'data', 'assets'))
+    this.base = path.resolve(baseDir || config.assetsPath)
     fs.mkdirSync(this.base, { recursive: true })
   }
 

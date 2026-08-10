@@ -93,6 +93,7 @@ services:
       AUTOMATION_MODE: ${AUTOMATION_MODE:-mock}
       PORT: 8787
       CWM_DB_PATH: /data/cwm.sqlite
+      CWM_ASSETS_PATH: /data/assets
       N8N_BASE_URL: http://n8n:5678
       N8N_API_KEY: ${N8N_API_KEY:-}
       N8N_WEBHOOK_SECRET: ${N8N_WEBHOOK_SECRET:-dev-webhook-secret-change-me}
