@@ -13,8 +13,20 @@ export async function workspaceRoutes(app: FastifyInstance) {
     const schema = z.object({ name: z.string().min(2), email: z.string().email().optional() })
     const parsed = schema.safeParse(req.body)
     if (!parsed.success) return reply.code(400).send({ error: parsed.error.flatten() })
-    const created = await bootstrapWorkspace(parsed.data)
-    return created
+    try {
+      const created = await bootstrapWorkspace(parsed.data)
+      return created
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
+      if (/UNIQUE|unique/i.test(msg)) {
+        return reply.code(409).send({
+          error: 'email_already_used',
+          hint: 'Reuse o workspaceId existente ou envie outro email',
+        })
+      }
+      req.log.error(err)
+      return reply.code(500).send({ error: msg })
+    }
   })
 
   app.get('/api/workspaces/:workspaceId', async (req, reply) => {
