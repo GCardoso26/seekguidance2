@@ -145,8 +145,7 @@
     }
   },
   "settings": {
-    "executionOrder": "v1",
-    "callerPolicy": "workflowsFromSameOwner"
+    "executionOrder": "v1"
   },
   "meta": {
     "templateCredsSetupCompleted": false,
