@@ -274,6 +274,79 @@ describe('Phase 4 Publishing + Feedback Loop', () => {
     void contentIds
   })
 
+  it('REAL publication without WINNER still yields exploratory strategy hypotheses', async () => {
+    const boot = await bootstrapWorkspace({ name: 'P4 Exploratory', email: 'p4-exp@cwm.test' })
+    const ws = boot.workspaceId
+    const { contentId } = await seedReadyContent(ws)
+    const pub = await publishingService.run({ workspaceId: ws, contentId, platform: 'YOUTUBE_SHORT' })
+    getDb()
+      .prepare(
+        `UPDATE publication_runs SET publication_source='REAL', external_id=?, status='PUBLISHED' WHERE id=?`,
+      )
+      .run('exploratoryVideoId', pub.publicationRunId)
+
+    const { config } = await import('../src/config.js')
+    const prevId = config.youtubeClientId
+    const prevSecret = config.youtubeClientSecret
+    config.youtubeClientId = 'test-client-id'
+    config.youtubeClientSecret = 'test-client-secret'
+    const { youtubeAnalyticsProvider } = await import('../src/analytics/YouTubeAnalyticsProvider.js')
+    const originalFetch = youtubeAnalyticsProvider.fetch.bind(youtubeAnalyticsProvider)
+    youtubeAnalyticsProvider.fetch = async () => ({
+      metrics: {
+        views: 1,
+        likes: 0,
+        comments: 0,
+        shares: 0,
+        saves: 0,
+        watchTime: 0,
+        averageViewDuration: 0,
+        completionRate: 0,
+        followersGained: 0,
+        clicks: 0,
+        conversions: 0,
+      },
+      raw: { viewCount: 1 },
+      source: 'YOUTUBE',
+      status: 'WAITING_FOR_METRICS',
+    })
+
+    try {
+      await analyticsService.sync({
+        workspaceId: ws,
+        publicationId: pub.publicationRunId,
+        preferReal: true,
+        windowLabel: 'exploratory',
+      })
+      const winners = await winnerDetectionService.detect({
+        workspaceId: ws,
+        publicationId: pub.publicationRunId,
+        ageHoursOverride: 0.1,
+      })
+      assert.equal(winners.reality, 'REAL')
+      assert.equal(winners.results[0].state, 'INSUFFICIENT_DATA')
+
+      const strat = await strategyService.analyze({
+        workspaceId: ws,
+        minimumEvidence: 3,
+        feedResearch: false,
+      })
+      assert.equal(strat.reality, 'REAL')
+      assert.equal(strat.exploratory, true)
+      assert.ok(strat.hypotheses.length >= 1)
+      assert.equal(strat.strong.length, 0)
+      const rec = getDb()
+        .prepare(`SELECT data_origin, status FROM strategy_recommendations WHERE id=?`)
+        .get(strat.hypotheses[0]) as { data_origin: string; status: string }
+      assert.equal(rec.data_origin, 'REAL')
+      assert.equal(rec.status, 'hypothesis')
+    } finally {
+      youtubeAnalyticsProvider.fetch = originalFetch
+      config.youtubeClientId = prevId
+      config.youtubeClientSecret = prevSecret
+    }
+  })
+
   it('API publishing run default 202 + await feedback loop', async () => {
     const { contentId } = await seedReadyContent(workspaceId)
     const queued = await app.inject({

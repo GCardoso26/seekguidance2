@@ -1,9 +1,10 @@
 # Strategy Engine
 
-Transforma vencedores em conhecimento reutilizável.
+Transforma vencedores (e, sem WINNER, publicações REAL rastreadas) em conhecimento reutilizável.
 
 ```
 Winner(s) → pattern buckets → strategy_recommendations → Research feedback
+       ↘ (0 winners) REAL published + snapshot → hipóteses exploratórias
 ```
 
 ## Kinds
@@ -14,8 +15,11 @@ Winner(s) → pattern buckets → strategy_recommendations → Research feedback
 
 - 1 winner → `hypothesis` (não strong)
 - `minimumEvidence` (default 3) → `strong` recommendation
+- 0 winners + publicação `publication_source=REAL` com snapshot → `hypothesis` exploratória (`data_origin=REAL`), nunca strong
 
-Campos: confidence, evidence_count, source_content_ids, status
+Campos: confidence, evidence_count, source_content_ids, status, data_origin
+
+Envelope `reality` do analyze = `REAL` se alguma recommendation tiver `data_origin=REAL`.
 
 ## Research feedback
 

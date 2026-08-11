@@ -1,8 +1,8 @@
 # CWM — Fase 5.1 Production Report
 
 **Status do código:** CODE READY + PRODUCTION CONTROLLED  
-**Status da evidência:** ✅ **REAL PROVEN (1 vídeo + 1 snapshot analytics REAL)** — upload YouTube + sync `preferReal` pós-fix.  
-Winner / strategy ainda pendentes; métricas de janela 1h–7d a preencher (views 0 cedo = WAITING).
+**Status da evidência:** ✅ **REAL PROVEN (1 vídeo + snapshot YOUTUBE + winner INSUFFICIENT_DATA)**  
+Strategy hypothesis exploratória: deploy do fix seguinte (sem WINNER → hipóteses a partir de pub REAL).
 
 Preencher após o primeiro experimento real. Não inventar métricas.
 
@@ -87,48 +87,63 @@ Notas (sem secrets): dry-run com `validation.ok=true` / `videoExists=true` antes
 | Fix | Commit na branch: passar `preferReal`; REAL se `preferReal` **ou** `publication_source=REAL` + YouTube + `external_id` (sem gate de mock mode); fallback MOCK se API YouTube falhar |
 | `metrics_source` pós-deploy | `YOUTUBE` (`reality: REAL`) ✅ |
 | First snapshot MOCK | `ea021b5f-70a0-463f-9bc0-ad0404d344cc` (2026-08-11T18:41:59Z) — histórico |
-| First snapshot REAL | `4d06919a-19c0-4c02-bf62-a019d7fece6b` (sync `776a39b5-…`, 2026-08-11 ~18:59Z OCI) |
+| First snapshot REAL | `4d06919a-19c0-4c02-bf62-a019d7fece6b` @ `2026-08-11T18:59:27.135Z` |
 | Sync result | `status: COMPLETED`, `reality: REAL`, `count: 1` |
+| Snapshot fields | `metrics_source=YOUTUBE`, `views=1`, `likes=0`, `comments=0`, `completion_rate=0` |
 
 ### Re-sync na OCI (executado)
 
-Deploy `36966b54` + rebuild `api` + sync `preferReal:true` → **REAL**. Confirmar campos do snapshot:
+Deploy `36966b54` + rebuild `api` + sync `preferReal:true` → **REAL** confirmado com 1 view YouTube.
 
-```bash
-curl -s "http://127.0.0.1:8787/api/analytics/workspaces/86e1e2c0-38a0-44cb-962f-2def3227f516/snapshots" \
-  | jq '.snapshots[] | select(.id=="4d06919a-19c0-4c02-bf62-a019d7fece6b") | {id, metrics_source, reality, source, views, likes, comments, completion_rate, created_at}'
-```
-
-Views `0` cedo = normal (`WAITING_FOR_METRICS`). Re-sync nas janelas 1h / 6h / 24h com o mesmo body.
+Re-sync nas janelas 1h / 6h / 24h com o mesmo body `preferReal:true`.
 
 ## METRICS SNAPSHOTS
 
 | Window | Views | Completion | AVD | Engagement | Shares | Saves | Followers | Clicks |
 |--------|-------|------------|-----|------------|--------|-------|-----------|--------|
+| ~20min (`4d06919a`) | 1 | 0 | 0 | — | 0 | 0 | 0 | 0 |
 | 1h | null | null | null | null | null | null | null | null |
 | 6h | null | null | null | null | null | null | null | null |
 | 24h | null | null | null | null | null | null | null | null |
 | 48h | null | null | null | null | null | null | null | null |
 | 7d | null | null | null | null | null | null | null | null |
 
-Ausente = `null` (nunca fabricar 0).
+Ausente = `null` (nunca fabricar). `0` só quando o YouTube reportou 0.
 
 ## WINNER
 
 | Item | Valor |
 |------|-------|
-| State | INSUFFICIENT_DATA (1 evidence) |
-| Score | — |
-| Strong winner declared? | **No** (1 evidence) |
+| Execution | `dd51ea5b-c5a3-49d3-ad72-6adc1954f0b3` |
+| State | `INSUFFICIENT_DATA` ✅ |
+| Score | 0 |
+| Metrics used | views=1 (snapshot YOUTUBE) |
+| Envelope `reality` (pré-fix) | `MOCK` (hardcode automation) — corrigido no código para `REAL` quando pub/métricas REAL |
+| Strong winner declared? | **No** |
 
 ## STRATEGY
 
 | Item | Valor |
 |------|-------|
-| `data_origin` | REAL (quando analyze rodar) |
-| Status | hypothesis |
-| Patterns noted | — |
-| Strong recommendation? | **No** unless evidence ≥ 3 |
+| Execution (pré-fix) | `567a3f32-…` → `recommendations=[]` (só lia `performance_class=WINNER`) |
+| Fix | Sem WINNER → hipóteses exploratórias de pubs `publication_source=REAL` + snapshot; `data_origin=REAL`; nunca strong |
+| Status esperado pós-deploy | `hypothesis` / `reality: REAL` / `exploratory: true` |
+| Strong recommendation? | **No** |
+
+### Re-rodar após deploy do fix strategy/winner
+
+```bash
+cd ~/seekguidance2 && git pull
+cd ai-content-machine && docker compose build api && docker compose up -d api
+
+curl -s -X POST http://127.0.0.1:8787/api/winners/detect \
+  -H 'content-type: application/json' \
+  -d '{"workspaceId":"86e1e2c0-38a0-44cb-962f-2def3227f516","await":true}' | jq '{reality:.result.reality, state:.result.results[0].state, views:.result.results[0].metrics.views}'
+
+curl -s -X POST http://127.0.0.1:8787/api/strategy/analyze \
+  -H 'content-type: application/json' \
+  -d '{"workspaceId":"86e1e2c0-38a0-44cb-962f-2def3227f516","await":true}' | jq '{reality:.result.reality, exploratory:.result.exploratory, hypotheses:(.result.hypotheses|length), strong:(.result.strong|length)}'
+```
 
 ## FEEDBACK LOOP
 
@@ -163,7 +178,7 @@ Ausente = `null` (nunca fabricar 0).
 
 | Gate | Result |
 |------|--------|
-| `npm test` | 71/71 (branch) |
+| `npm test` | 72/72 (branch) |
 | `npm run n8n:validate` | 15/15 VALID |
 
 ## REAL EVIDENCE checklist (conclusão 5.1)
@@ -174,16 +189,16 @@ Ausente = `null` (nunca fabricar 0).
 - [x] human approval registrado (`approved_by`)
 - [x] 1 publicação REAL
 - [x] external ID confirmado (upload API)
-- [x] ≥ 1 snapshot REAL (`4d06919a-…`, sync `reality: REAL`)
-- [ ] `data_origin=REAL` em strategy
-- [ ] winner / insufficient-data processado
-- [ ] strategy hypothesis gerada
+- [x] ≥ 1 snapshot REAL (`4d06919a-…`, views=1 YOUTUBE)
+- [ ] `data_origin=REAL` em strategy (após deploy fix exploratório)
+- [x] winner / insufficient-data processado (`INSUFFICIENT_DATA`, score 0)
+- [ ] strategy hypothesis gerada (após deploy fix exploratório)
 - [x] safety defaults restaurados
 
 ## REMAINING GAPS
 
-- Inspecionar snapshot `4d06919a-…` (views / `metrics_source`) e re-sync nas janelas 1h–7d
-- Rodar winner + strategy com origem REAL (sem strong winner com 1 evidência)
+- Deploy fix winner/strategy reality + hipóteses exploratórias → re-rodar detect/analyze
+- Re-sync analytics nas janelas 1h–7d
 - Confirmar no Studio YouTube o vídeo unlisted `ouHb2NDU2gM`
 
 ## NEXT STAGE

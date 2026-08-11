@@ -183,6 +183,7 @@ export class WinnerDetectionService {
     if (!pubs.length) throw new Error('no_publications_for_winner')
 
     const results = []
+    let anyReal = false
     for (const pub of pubs) {
       const failKey = `${pub.id}:winner`
       const retried = await withRetry(async () => {
@@ -208,8 +209,17 @@ export class WinnerDetectionService {
         )
         throw new Error(retried.failure.error)
       }
+      if (
+        String(pub.publication_source || '') === 'REAL' ||
+        retried.value.metricsSource === 'YOUTUBE' ||
+        retried.value.metricsReality === 'REAL'
+      ) {
+        anyReal = true
+      }
       results.push(retried.value)
     }
+
+    const reality = anyReal ? ('REAL' as const) : ('MOCK' as const)
 
     recordAiCost({
       workspaceId: input.workspaceId,
@@ -217,12 +227,12 @@ export class WinnerDetectionService {
       provider: 'winner_engine',
       model: 'rules',
       estimatedCostCents: 0,
-      reality: 'MOCK',
+      reality,
     })
 
     return {
       status: 'COMPLETED' as const,
-      reality: 'MOCK' as const,
+      reality,
       results,
       winners: results.filter((r) => r.state === 'WINNER'),
     }
@@ -239,7 +249,10 @@ export class WinnerDetectionService {
     const platform = String(pub.platform)
     const snap = db
       .prepare(
-        `SELECT * FROM metric_snapshots WHERE publication_id = ? ORDER BY captured_at DESC LIMIT 1`,
+        `SELECT * FROM metric_snapshots WHERE publication_id = ?
+         ORDER BY CASE WHEN metrics_source = 'YOUTUBE' OR reality = 'REAL' THEN 0 ELSE 1 END,
+                  captured_at DESC
+         LIMIT 1`,
       )
       .get(String(pub.id)) as
       | {
@@ -254,6 +267,8 @@ export class WinnerDetectionService {
           followers_gained: number
           clicks: number
           conversions: number
+          metrics_source?: string
+          reality?: string
         }
       | undefined
 
@@ -264,6 +279,8 @@ export class WinnerDetectionService {
         state: 'INSUFFICIENT_DATA' as WinnerState,
         score: 0,
         winningFactors: [] as string[],
+        metricsSource: null as string | null,
+        metricsReality: null as string | null,
       }
     }
 
@@ -309,13 +326,20 @@ export class WinnerDetectionService {
       `UPDATE contents SET performance_class=?, performance_score=?, updated_at=? WHERE id=?`,
     ).run(perfClass, score, nowIso(), contentId)
 
+    const eventReality =
+      String(pub.publication_source || '') === 'REAL' ||
+      snap.metrics_source === 'YOUTUBE' ||
+      snap.reality === 'REAL'
+        ? 'REAL'
+        : 'MOCK'
+
     if (state === 'WINNER') {
       emitEvent({
         workspaceId: String(pub.workspace_id),
         eventType: 'content.winner_detected',
         entityType: 'content',
         entityId: contentId,
-        reality: 'MOCK',
+        reality: eventReality,
         payload: {
           contentId,
           publicationId: String(pub.id),
@@ -337,6 +361,8 @@ export class WinnerDetectionService {
       metrics,
       winningFactors,
       dna,
+      metricsSource: snap.metrics_source || null,
+      metricsReality: snap.reality || null,
     }
   }
 }

@@ -98,7 +98,7 @@ export class StrategyService {
       provider: 'strategy_engine',
       model: 'pattern_rules',
       estimatedCostCents: 0,
-      reality: 'MOCK',
+      reality: retried.value.reality,
     })
 
     let researchFeedback: unknown = null
@@ -111,17 +111,17 @@ export class StrategyService {
       eventType: 'strategy.recommended',
       entityType: 'workspace',
       entityId: input.workspaceId,
-      reality: 'MOCK',
+      reality: retried.value.reality,
       payload: {
         count: retried.value.recommendations.length,
         strong: retried.value.strong.length,
         hypotheses: retried.value.hypotheses.length,
+        exploratory: retried.value.exploratory,
       },
     })
 
     return {
       status: 'COMPLETED' as const,
-      reality: 'MOCK' as const,
       ...retried.value,
       researchFeedback,
     }
@@ -132,7 +132,7 @@ export class StrategyService {
     const since = new Date(Date.now() - windowDays * 864e5).toISOString()
     const winners = db
       .prepare(
-        `SELECT c.id, c.performance_score, p.platform, p.id as publication_id
+        `SELECT c.id, c.performance_score, p.platform, p.id as publication_id, p.publication_source
          FROM contents c
          JOIN publication_runs p ON p.content_id = c.id AND p.status = 'PUBLISHED'
          WHERE c.workspace_id = ? AND c.performance_class = 'WINNER' AND c.updated_at >= ?`,
@@ -142,13 +142,33 @@ export class StrategyService {
       performance_score: number
       platform: string
       publication_id: string
+      publication_source: string
     }>
 
+    // Sem WINNER: hipóteses exploratórias a partir de publicações REAL com snapshot (Fase 5.1)
+    let exploratory = false
+    let sources = winners
+    if (!winners.length) {
+      exploratory = true
+      sources = db
+        .prepare(
+          `SELECT c.id, c.performance_score, p.platform, p.id as publication_id, p.publication_source
+           FROM contents c
+           JOIN publication_runs p ON p.content_id = c.id AND p.status = 'PUBLISHED'
+           WHERE c.workspace_id = ? AND p.publication_source = 'REAL' AND p.created_at >= ?
+           ORDER BY p.created_at DESC LIMIT 20`,
+        )
+        .all(workspaceId, since) as typeof winners
+    }
+
     const dnas: Array<{ contentId: string; dna: ContentDNA }> = []
-    for (const w of winners) {
+    for (const w of sources) {
       const snap = db
         .prepare(
-          `SELECT * FROM metric_snapshots WHERE publication_id = ? ORDER BY captured_at DESC LIMIT 1`,
+          `SELECT * FROM metric_snapshots WHERE publication_id = ?
+           ORDER BY CASE WHEN metrics_source = 'YOUTUBE' OR reality = 'REAL' THEN 0 ELSE 1 END,
+                    captured_at DESC
+           LIMIT 1`,
         )
         .get(w.publication_id) as
         | {
@@ -182,7 +202,7 @@ export class StrategyService {
           clicks: snap.clicks,
           conversions: snap.conversions,
         },
-        state: 'WINNER',
+        state: exploratory ? 'INSUFFICIENT_DATA' : 'WINNER',
         score: w.performance_score || 0,
       })
       dnas.push({ contentId: w.id, dna })
@@ -216,20 +236,22 @@ export class StrategyService {
     const recommendations: Array<Record<string, unknown>> = []
     const strong: string[] = []
     const hypotheses: string[] = []
+    let anyRealOrigin = false
 
     for (const bucket of buckets.values()) {
       const evidenceCount = bucket.contentIds.length
-      // Single winner → hypothesis only; strong needs minimumEvidence
-      const status = evidenceCount >= minEvidence ? 'strong' : 'hypothesis'
+      // Exploratory / single winner → hypothesis only; strong needs winners + minimumEvidence
+      const status =
+        !exploratory && evidenceCount >= minEvidence ? 'strong' : 'hypothesis'
       const confidence = Math.min(0.95, evidenceCount / Math.max(minEvidence, 1))
       const id = uid()
       const payload = {
         kind: bucket.kind,
         pattern: bucket.key,
         samples: bucket.dnas.slice(0, 5),
-        recommendation: this.humanize(bucket),
+        recommendation: this.humanize(bucket, exploratory),
+        exploratory,
       }
-      // Origin: REAL only if all source contents have REAL publication; else MOCK
       const origins = db
         .prepare(
           `SELECT DISTINCT publication_source FROM publication_runs
@@ -238,6 +260,7 @@ export class StrategyService {
         .all(...bucket.contentIds) as Array<{ publication_source: string }>
       const dataOrigin =
         origins.length && origins.every((o) => o.publication_source === 'REAL') ? 'REAL' : 'MOCK'
+      if (dataOrigin === 'REAL') anyRealOrigin = true
 
       db.prepare(
         `INSERT INTO strategy_recommendations
@@ -257,15 +280,34 @@ export class StrategyService {
         status,
         dataOrigin,
       )
-      recommendations.push({ id, kind: bucket.kind, status, confidence, evidenceCount, pattern: bucket.key })
+      recommendations.push({
+        id,
+        kind: bucket.kind,
+        status,
+        confidence,
+        evidenceCount,
+        pattern: bucket.key,
+        dataOrigin,
+      })
       if (status === 'strong') strong.push(id)
       else hypotheses.push(id)
     }
 
-    return { recommendations, strong, hypotheses, winnerCount: winners.length }
+    return {
+      reality: (anyRealOrigin ? 'REAL' : 'MOCK') as 'REAL' | 'MOCK',
+      recommendations,
+      strong,
+      hypotheses,
+      winnerCount: winners.length,
+      exploratory,
+      trackedCount: sources.length,
+    }
   }
 
-  private humanize(bucket: PatternBucket): string {
+  private humanize(bucket: PatternBucket, exploratory = false): string {
+    if (exploratory) {
+      return `Hipótese exploratória (sem WINNER ainda): observar padrão ${bucket.kind}="${bucket.key}" (evidência ${bucket.contentIds.length})`
+    }
     return `Repetir padrão ${bucket.kind}="${bucket.key}" (evidência ${bucket.contentIds.length})`
   }
 

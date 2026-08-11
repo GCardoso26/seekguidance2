@@ -263,14 +263,18 @@ export class AutomationService {
           Number(result.tokens ?? 0),
           Number(result.costCents ?? 0),
           JSON.stringify(result),
-          result.reality === 'FAILED' ? 'FAILED' : 'MOCK',
+          result.reality === 'FAILED' ? 'FAILED' : result.reality === 'REAL' ? 'REAL' : 'MOCK',
           executionId,
         )
 
       return {
         executionId,
         status: runStatus === 'failed' ? ('failed' as const) : ('completed' as const),
-        reality: (result.reality === 'FAILED' ? 'FAILED' : 'MOCK') as 'MOCK' | 'FAILED',
+        reality: (result.reality === 'FAILED'
+          ? 'FAILED'
+          : result.reality === 'REAL'
+            ? 'REAL'
+            : 'MOCK') as 'MOCK' | 'REAL' | 'FAILED',
         result,
       }
     } catch (err) {
