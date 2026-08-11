@@ -3,8 +3,12 @@
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
+import { useReducedMotion } from "motion/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { MobileLayout } from "@/components/layout/MobileLayout";
+import { GalleryCountUp } from "@/components/gallery/GalleryMotion";
+import GradualBlur from "@/components/react-bits/GradualBlur";
+import Magnet from "@/components/react-bits/Magnet";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { useJudgeAuth } from "@/features/auth/AuthProvider";
@@ -24,6 +28,7 @@ export default function StoreEventDetailPage() {
   const openCart = useCartStore((s) => s.openCart);
   const { cart: cartToast, error: errorToast } = useJudgeToast();
   const [adding, setAdding] = useState(false);
+  const reduceMotion = useReducedMotion();
 
   const q = useQuery({
     queryKey: ["store-event-detail", eventId],
@@ -76,6 +81,24 @@ export default function StoreEventDetailPage() {
     }
   }
 
+  const ctaButton = ctaEnabled ? (
+    <Button
+      data-testid="event-detail-cta"
+      disabled={adding}
+      onClick={() => void handleAddToCart()}
+    >
+      {adding ? "Adicionando…" : "Adicionar ao carrinho"}
+    </Button>
+  ) : (
+    <Button disabled data-testid="event-detail-cta">
+      {soldOut
+        ? "Esgotado"
+        : !productId
+          ? "Ingresso indisponível"
+          : "Inscrições fechadas"}
+    </Button>
+  );
+
   return (
     <MobileLayout>
       <div className="container mx-auto max-w-3xl space-y-6 px-4 py-8" data-testid="store-event-detail">
@@ -118,7 +141,7 @@ export default function StoreEventDetailPage() {
               <div className="flex flex-wrap items-center gap-2">
                 <h1 className="font-display text-2xl font-semibold tracking-tight">{ev.name}</h1>
                 {ev.game && (
-                  <span className="rounded-full border border-border px-2 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
+                  <span className="rounded-full border border-border px-2 py-0.5 text-caption uppercase tracking-wide text-muted-foreground">
                     {ev.game}
                   </span>
                 )}
@@ -147,8 +170,9 @@ export default function StoreEventDetailPage() {
                 {soldOut ? (
                   <span className="font-medium text-danger">Esgotado</span>
                 ) : remaining != null && capacity != null ? (
-                  <span className="text-muted-foreground">
-                    {remaining}/{capacity} vagas
+                  <span className="text-muted-foreground tabular-nums">
+                    <GalleryCountUp to={remaining} className="inline" duration={1} />/
+                    <GalleryCountUp to={capacity} className="inline" duration={1} /> vagas
                   </span>
                 ) : (
                   <span className="text-muted-foreground">Vagas sob consulta</span>
@@ -169,25 +193,33 @@ export default function StoreEventDetailPage() {
               </p>
               {ev.description && <p className="text-sm text-muted-foreground">{ev.description}</p>}
               {ev.rules && (
-                <p className="whitespace-pre-wrap text-sm text-muted-foreground">{ev.rules}</p>
+                <div className="relative max-h-48 overflow-hidden rounded-lg border border-border/60 bg-muted/20 p-3">
+                  <p className="whitespace-pre-wrap pb-8 text-sm text-muted-foreground">{ev.rules}</p>
+                  {!reduceMotion && (
+                    <GradualBlur
+                      preset="subtle"
+                      position="bottom"
+                      height="3.5rem"
+                      strength={1.2}
+                      opacity={0.9}
+                      target="parent"
+                      className="pointer-events-none"
+                    />
+                  )}
+                </div>
               )}
               <div className="pt-2">
-                {ctaEnabled ? (
-                  <Button
-                    data-testid="event-detail-cta"
-                    disabled={adding}
-                    onClick={() => void handleAddToCart()}
-                  >
-                    {adding ? "Adicionando…" : "Adicionar ao carrinho"}
-                  </Button>
+                {reduceMotion || !ctaEnabled ? (
+                  ctaButton
                 ) : (
-                  <Button disabled data-testid="event-detail-cta">
-                    {soldOut
-                      ? "Esgotado"
-                      : !productId
-                        ? "Ingresso indisponível"
-                        : "Inscrições fechadas"}
-                  </Button>
+                  <Magnet
+                    padding={48}
+                    magnetStrength={3}
+                    wrapperClassName="inline-flex"
+                    innerClassName="inline-flex"
+                  >
+                    {ctaButton}
+                  </Magnet>
                 )}
               </div>
             </div>

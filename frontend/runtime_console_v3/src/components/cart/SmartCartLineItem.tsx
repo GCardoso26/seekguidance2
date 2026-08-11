@@ -1,7 +1,9 @@
 "use client";
 
 import Image from "next/image";
+import { useReducedMotion } from "motion/react";
 import { Minus, Plus, Trash2 } from "lucide-react";
+import Counter from "@/components/react-bits/Counter";
 import { Button } from "@/components/ui/button";
 import { formatShopPrice } from "@/lib/marketplace-shop";
 import type { ShopCartItem } from "@/lib/marketplace-shop";
@@ -14,6 +16,8 @@ type Props = {
 };
 
 export function SmartCartLineItem({ item, onUpdateQty, className }: Props) {
+  const reduceMotion = useReducedMotion();
+
   return (
     <div
       className={cn(
@@ -52,7 +56,23 @@ export function SmartCartLineItem({ item, onUpdateQty, className }: Props) {
             {item.quantity <= 1 ? <Trash2 className="h-3.5 w-3.5" /> : <Minus className="h-3.5 w-3.5" />}
           </Button>
           <span className="min-w-[1.5rem] text-center text-small font-medium tabular-nums" aria-live="polite">
-            {item.quantity}
+            {reduceMotion ? (
+              item.quantity
+            ) : (
+              <Counter
+                value={item.quantity}
+                fontSize={14}
+                padding={0}
+                gap={0}
+                horizontalPadding={0}
+                borderRadius={0}
+                gradientHeight={0}
+                gradientFrom="transparent"
+                gradientTo="transparent"
+                textColor="inherit"
+                fontWeight={500}
+              />
+            )}
           </span>
           <Button
             type="button"

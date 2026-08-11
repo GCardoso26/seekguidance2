@@ -2,8 +2,11 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useReducedMotion } from "motion/react";
 import { useGamePortal } from "@/components/experience/GameProvider";
 import { HeroAssetFrame } from "@/components/assets/HeroAssetFrame";
+import { GalleryCountUp } from "@/components/gallery/GalleryMotion";
+import SoftAurora from "@/components/react-bits/SoftAurora";
 import {
   gameCardsPath,
   gameExpansionsPath,
@@ -41,6 +44,7 @@ export function GameHero({
   const { theme, slug, gameId } = useGamePortal();
   const hero = theme.hero;
   const expansionsHref = latestSetHref ?? gameExpansionsPath(slug);
+  const reduceMotion = useReducedMotion();
 
   const carousel =
     backgroundImages && backgroundImages.length > 0
@@ -115,8 +119,24 @@ export function GameHero({
 
       <div className="game-hero__overlay" data-overlay={overlayMode} />
       <div className="game-hero__fx" data-anim={hero.animation} />
+      {!reduceMotion && !hasCarousel && (
+        <div
+          className="pointer-events-none absolute inset-0 z-[1] opacity-35 mix-blend-soft-light"
+          aria-hidden
+          data-testid="game-hero-soft-aurora"
+        >
+          <SoftAurora
+            speed={0.45}
+            brightness={0.55}
+            color1="#1e293b"
+            color2="#334155"
+            enableMouseInteraction={false}
+            bandHeight={0.55}
+          />
+        </div>
+      )}
 
-      <div className="game-hero__content container relative mx-auto flex max-w-6xl flex-col justify-end gap-8 px-4 py-14 md:min-h-[min(72vh,640px)] md:py-20">
+      <div className="game-hero__content container relative z-[2] mx-auto flex max-w-6xl flex-col justify-end gap-8 px-4 py-14 md:min-h-[min(72vh,640px)] md:py-20">
         <Link
           href="/"
           className={cn(
@@ -157,13 +177,19 @@ export function GameHero({
             {healthLoading
               ? "Sincronizando o universo…"
               : cardCount > 0
-                ? `${hero.description} · ${cardCount.toLocaleString("pt-BR")} cartas no catálogo`
+                ? (
+                  <>
+                    {hero.description} ·{" "}
+                    <GalleryCountUp to={cardCount} className="inline tabular-nums" /> cartas no catálogo
+                  </>
+                )
                 : hero.description}
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
             <Link
               href={gameCardsPath(slug)}
               className="game-cta inline-flex min-h-12 items-center px-6 text-sm font-semibold"
+              data-testid="game-cta-primary"
             >
               {hero.ctaPrimary}
             </Link>

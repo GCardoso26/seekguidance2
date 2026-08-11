@@ -2,16 +2,22 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { useReducedMotion } from "motion/react";
 import { useQuery } from "@tanstack/react-query";
 import { MobileLayout } from "@/components/layout/MobileLayout";
+import { GalleryCountUp, GalleryFade, GalleryHeading } from "@/components/gallery/GalleryMotion";
+import RotatingText from "@/components/react-bits/RotatingText";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { fetchPublicEvents } from "@/lib/live-data/fetchers";
 import { TOURNAMENT_GAME_OPTIONS } from "@/lib/seller-tournament-form";
 import { formatEventPriceBrl, normalizeStoreEvent } from "@/types/store-event";
 
+const FORMAT_ROTATE = ["Swiss", "Draft", "Sealed", "Commander", "Standard"];
+
 export default function EventosSearchPage() {
   const [q, setQ] = useState("");
   const [selectedGames, setSelectedGames] = useState<string[]>([]);
+  const reduceMotion = useReducedMotion();
 
   const eventsQ = useQuery({
     queryKey: ["search-torneios-events"],
@@ -59,11 +65,29 @@ export default function EventosSearchPage() {
                 Ir para a loja
               </Link>
             </p>
-            <h1 className="mt-2 text-2xl font-bold" data-testid="torneios-title">
-              Eventos
-            </h1>
+            <div className="mt-2" data-testid="torneios-title">
+              <GalleryHeading text="Eventos" className="text-2xl font-bold text-foreground" />
+            </div>
             <p className="mt-1 text-sm text-muted-foreground">
               Ingressos de lojas — filtre por jogo e garanta sua vaga no checkout.
+              {!reduceMotion && (
+                <>
+                  {" "}
+                  Formatos:{" "}
+                  <RotatingText
+                    texts={FORMAT_ROTATE}
+                    mainClassName="inline-flex overflow-hidden align-bottom text-foreground"
+                    staggerFrom="last"
+                    initial={{ y: "100%" }}
+                    animate={{ y: 0 }}
+                    exit={{ y: "-120%" }}
+                    staggerDuration={0.02}
+                    splitLevelClassName="overflow-hidden"
+                    transition={{ type: "spring", damping: 28, stiffness: 280 }}
+                    rotationInterval={2400}
+                  />
+                </>
+              )}
             </p>
           </div>
         </header>
@@ -102,67 +126,70 @@ export default function EventosSearchPage() {
             <p className="text-sm text-muted-foreground">Nenhum evento encontrado.</p>
           )}
 
-          <ul className="grid gap-3 sm:grid-cols-2">
-            {items.map((ev) => {
-              const remaining = ev.ticketsRemaining;
-              const capacity = ev.ticketsCapacity ?? ev.capacity;
-              const soldOut = remaining != null ? remaining <= 0 : false;
-              return (
-                <li key={ev.id}>
-                  <Link
-                    href={`/search/torneios/${ev.id}`}
-                    className="flex gap-3 rounded-xl border border-border bg-card/40 p-4 transition hover:border-primary/40"
-                    data-testid={`event-card-${ev.id}`}
-                  >
-                    {ev.bannerUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={ev.bannerUrl}
-                        alt=""
-                        className="h-[100px] w-[70px] shrink-0 rounded object-cover"
-                      />
-                    ) : (
-                      <div className="flex h-[100px] w-[70px] shrink-0 items-center justify-center rounded bg-muted text-xs text-muted-foreground">
-                        —
+          <GalleryFade>
+            <ul className="grid gap-3 sm:grid-cols-2">
+              {items.map((ev) => {
+                const remaining = ev.ticketsRemaining;
+                const capacity = ev.ticketsCapacity ?? ev.capacity;
+                const soldOut = remaining != null ? remaining <= 0 : false;
+                return (
+                  <li key={ev.id}>
+                    <Link
+                      href={`/search/torneios/${ev.id}`}
+                      className="flex gap-3 rounded-xl border border-border bg-card/40 p-4 transition hover:border-primary/40"
+                      data-testid={`event-card-${ev.id}`}
+                    >
+                      {ev.bannerUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={ev.bannerUrl}
+                          alt=""
+                          className="h-[100px] w-[70px] shrink-0 rounded object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-[100px] w-[70px] shrink-0 items-center justify-center rounded bg-muted text-xs text-muted-foreground">
+                          —
+                        </div>
+                      )}
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <p className="font-medium">{ev.name}</p>
+                          {ev.game && (
+                            <span className="rounded-full border border-border px-2 py-0.5 text-caption uppercase tracking-wide text-muted-foreground">
+                              {ev.game}
+                            </span>
+                          )}
+                        </div>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          {ev.startsAt
+                            ? new Date(ev.startsAt).toLocaleString("pt-BR")
+                            : "Data a definir"}
+                          {ev.storeName ? ` · ${ev.storeName}` : ""}
+                          {ev.addressCity && ev.addressState
+                            ? ` · ${ev.addressCity}/${ev.addressState}`
+                            : ""}
+                        </p>
+                        <p className="mt-1 text-sm">
+                          <span className="font-medium">{formatEventPriceBrl(ev.priceCents)}</span>
+                          {" · "}
+                          {soldOut ? (
+                            <span className="text-danger">Esgotado</span>
+                          ) : remaining != null && capacity != null ? (
+                            <span className="text-muted-foreground tabular-nums">
+                              <GalleryCountUp to={remaining} className="inline" duration={0.9} />/
+                              <GalleryCountUp to={capacity} className="inline" duration={0.9} /> vagas
+                            </span>
+                          ) : (
+                            <span className="text-muted-foreground">Vagas sob consulta</span>
+                          )}
+                        </p>
                       </div>
-                    )}
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <p className="font-medium">{ev.name}</p>
-                        {ev.game && (
-                          <span className="rounded-full border border-border px-2 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
-                            {ev.game}
-                          </span>
-                        )}
-                      </div>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        {ev.startsAt
-                          ? new Date(ev.startsAt).toLocaleString("pt-BR")
-                          : "Data a definir"}
-                        {ev.storeName ? ` · ${ev.storeName}` : ""}
-                        {ev.addressCity && ev.addressState
-                          ? ` · ${ev.addressCity}/${ev.addressState}`
-                          : ""}
-                      </p>
-                      <p className="mt-1 text-sm">
-                        <span className="font-medium">{formatEventPriceBrl(ev.priceCents)}</span>
-                        {" · "}
-                        {soldOut ? (
-                          <span className="text-danger">Esgotado</span>
-                        ) : remaining != null && capacity != null ? (
-                          <span className="text-muted-foreground">
-                            {remaining}/{capacity} vagas
-                          </span>
-                        ) : (
-                          <span className="text-muted-foreground">Vagas sob consulta</span>
-                        )}
-                      </p>
-                    </div>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </GalleryFade>
         </main>
       </div>
     </MobileLayout>

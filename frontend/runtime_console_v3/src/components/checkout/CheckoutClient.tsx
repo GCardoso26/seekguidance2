@@ -8,6 +8,7 @@ import { CheckoutOrderSummary } from "@/components/checkout/CheckoutOrderSummary
 import { CheckoutPaymentMethodPicker } from "@/components/checkout/CheckoutPaymentMethodPicker";
 import { CartShippingQuotePanel, type SelectedShippingQuote } from "@/components/cart/CartShippingQuotePanel";
 import { CouponApply } from "@/components/checkout/CouponApply";
+import { GalleryFade } from "@/components/gallery/GalleryMotion";
 import { CpfCheckoutModal } from "@/components/kyc/CpfCheckoutModal";
 import { InlineLoading } from "@/components/ui/async-state";
 import { Button } from "@/components/ui/button";
@@ -544,9 +545,11 @@ export function CheckoutClient() {
                   />
                   <div className="rounded-xl bg-muted/40 px-4 py-3 text-center">
                     <p className="text-caption text-muted-foreground">Valor total</p>
-                    <p className="font-mono text-2xl font-bold" data-testid="final-amount">
-                      {formatShopPrice(pixData.amount_cents)}
-                    </p>
+                    <GalleryFade>
+                      <p className="font-mono text-2xl font-bold" data-testid="final-amount">
+                        {formatShopPrice(pixData.amount_cents)}
+                      </p>
+                    </GalleryFade>
                   </div>
                   <Button asChild variant="outline" className="w-full">
                     <Link href="/marketplace/orders">Ver meus pedidos</Link>

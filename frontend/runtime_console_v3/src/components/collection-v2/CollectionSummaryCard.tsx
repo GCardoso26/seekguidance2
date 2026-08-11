@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
+import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 type Props = {
   label: string;
-  value: string;
+  value: ReactNode;
   hint?: string;
   href?: string;
   icon?: LucideIcon;

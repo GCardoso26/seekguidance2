@@ -10,6 +10,7 @@ import { AskButton } from "@/components/judge/AskButton";
 
 
 import { EmptyTableState } from "@/components/judge/EmptyTableState";
+import { GalleryFade } from "@/components/gallery/GalleryMotion";
 import { ErrorCardState } from "@/components/judge/ErrorCardState";
 import { JudgeToast } from "@/components/judge/JudgeToast";
 import { TCGDropZone, TCGSelector, TCGSelectorProvider } from "@/components/judge/TcgSelector";
@@ -627,11 +628,13 @@ export function JudgePageClient() {
 
         {showEmpty && (
           <TCGDropZone>
-            <EmptyTableState
-              tcg={tcg}
-              tcgSelected
-              onExampleClick={(example) => void runQuestion(example, tcg)}
-            />
+            <GalleryFade>
+              <EmptyTableState
+                tcg={tcg}
+                tcgSelected
+                onExampleClick={(example) => void runQuestion(example, tcg)}
+              />
+            </GalleryFade>
           </TCGDropZone>
         )}
       </div>

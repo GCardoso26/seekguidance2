@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { GalleryFade } from "@/components/gallery/GalleryMotion";
 import { PageHeader, PageShell } from "@/components/seller-dashboard/PageShell";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useUserRole } from "@/hooks/useUserRole";
@@ -16,7 +17,7 @@ export default function AdminConsolePage() {
         description="Ferramentas operacionais do Judge TCG (métricas, ingestão e corpus)."
       />
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <GalleryFade className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {isAdmin && (
           <Card className="border-border bg-muted/50">
             <CardHeader>
@@ -88,7 +89,7 @@ export default function AdminConsolePage() {
             </CardContent>
           </Card>
         )}
-      </div>
+      </GalleryFade>
     </PageShell>
   );
 }

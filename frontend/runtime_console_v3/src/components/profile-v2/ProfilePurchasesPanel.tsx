@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Heart, Package, ShoppingBag, Truck } from "lucide-react";
+import { GalleryCountUp, GalleryFade } from "@/components/gallery/GalleryMotion";
 import { ProfileSummaryCard } from "@/components/profile-v2/ProfileSummaryCard";
 import { useBuyerDashboard } from "@/hooks/useBuyerExperience";
 import { formatCurrency } from "@/lib/format-currency";
@@ -52,16 +53,16 @@ export function ProfilePurchasesPanel() {
           </Link>
         </p>
       </header>
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <GalleryFade className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <ProfileSummaryCard
           label="Pedidos"
-          value={String(data.orders.total)}
+          value={<GalleryCountUp to={data.orders.total} className="inline tabular-nums" />}
           href="/marketplace/orders"
           icon={ShoppingBag}
         />
         <ProfileSummaryCard
           label="Em trânsito / andamento"
-          value={String(inTransit.length)}
+          value={<GalleryCountUp to={inTransit.length} className="inline tabular-nums" />}
           icon={Truck}
         />
         <ProfileSummaryCard
@@ -72,13 +73,18 @@ export function ProfilePurchasesPanel() {
         />
         <ProfileSummaryCard
           label="Lojas favoritas"
-          value={String(data.favorite_stores?.length ?? 0)}
+          value={
+            <GalleryCountUp
+              to={data.favorite_stores?.length ?? 0}
+              className="inline tabular-nums"
+            />
+          }
           href="/perfil/favoritos"
           icon={Heart}
         />
-      </div>
+      </GalleryFade>
 
-      <section className="space-y-2">
+      <GalleryFade className="space-y-2">
         <h2 className="text-sm font-medium">Últimos pedidos</h2>
         {recent.length === 0 ? (
           <p className="text-small text-muted-foreground">Nenhum pedido recente.</p>
@@ -105,7 +111,7 @@ export function ProfilePurchasesPanel() {
             ))}
           </ul>
         )}
-      </section>
+      </GalleryFade>
 
       {data.favorite_stores?.length ? (
         <section className="space-y-2">

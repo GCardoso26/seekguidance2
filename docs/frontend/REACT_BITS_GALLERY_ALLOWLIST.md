@@ -72,16 +72,18 @@ Só hubs / coleções / lançamentos / leilão futuro. Índigo atenuado ou cor �
 
 ## Mapa de colocação (rotas atualizadas)
 
-| Superfície | Uso recomendado | Jamais |
-|------------|-----------------|--------|
-| Vitrine `/loja` | SplitText, GlareHover, CountUp, SpotlightCard, ShinyText (foil) | Background animado atrás da grade; cursors |
-| Coleção `/colecao` | Masonry + FadeContent, ScrollStack, Iridescence (foil) | OrbitImages em excesso; glass |
-| Eventos `/search/torneios` (+ redirect `/torneio`) | AnimatedList, RotatingText (hub), CountUp vagas | Glitch; fundos escuros no fluxo de inscrição/checkout de ingresso |
-| Detalhe evento `/search/torneios/[id]` | CountUp vagas, Magnet no CTA, GradualBlur em regras | Soft Aurora / WebGL |
-| Hubs `/[jogo]` (Noite de Leilão) | SoftAurora, LightRays, MagicBento, BorderGlow | Hyperspeed, Galaxy, Balatro, prismas |
-| Leilão (futuro) | CountUp lances, CircularText, BorderGlow | StarBorder, LiquidChrome, cursors |
-| `/carrinho` `/checkout` `/perfil/pedidos` | Só fade de estado + Counter qty | **Tudo o mais** |
-| Painéis `/vendedor/*`, judge, admin | AnimatedList, FadeContent, CountUp KPIs | Backgrounds animados / WebGL |
+| Superfície | Uso recomendado | Jamais | Status wiring |
+|------------|-----------------|--------|---------------|
+| Vitrine `/loja` | SplitText*, GlareHover, CountUp, SpotlightCard, Noise | Background atrás da grade | wired |
+| Coleção `/colecao` | FadeContent, CountUp, Iridescence (foil) | OrbitImages em excesso; glass | wired |
+| Eventos `/search/torneios` (+ redirect `/torneio`) | RotatingText, CountUp vagas, FadeContent | Glitch; fundos escuros no checkout | wired |
+| Detalhe `/search/torneios/[id]` | CountUp vagas, Magnet CTA, GradualBlur regras | Soft Aurora / WebGL | wired |
+| Hubs `/[jogo]` (Noite) | SoftAurora (1), CountUp | Hyperspeed, Galaxy, Balatro; BorderGlow/MagicBento adiados (layout) | wired |
+| `/carrinho` `/checkout` `/perfil/compras` | Counter qty + Fade | **Tudo o mais** | wired |
+| Painéis `/vendedor`, judge, admin | Fade + CountUp KPIs | Backgrounds / WebGL | wired |
+
+\* SplitText/DotGrid/Masonry/ScrollStack/MagicBento/LightRays: instalados; SplitText/DotGrid exigem GSAP Club; Masonry/ScrollStack/MagicBento adiados (risco de layout).
+
 
 ## Guardrails de implementação
 

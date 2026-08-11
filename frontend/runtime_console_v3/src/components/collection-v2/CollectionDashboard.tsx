@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useReducedMotion } from "motion/react";
 import {
   Gem,
   Heart,
@@ -19,6 +20,8 @@ import { CollectionIntelligencePanel } from "@/components/intelligence/Intellige
 import { CollectionRecommendationPanel } from "@/components/recommendations/RecommendationPanels";
 import { ContextualAssistantStrip } from "@/components/ai-assistants/ContextualAssistantStrip";
 import { SharePlayerArtifactButton } from "@/components/social/SharePlayerArtifactButton";
+import { GalleryCountUp, GalleryFade, GalleryHeading } from "@/components/gallery/GalleryMotion";
+import Iridescence from "@/components/react-bits/Iridescence";
 import { stubCollectionAssistant } from "@/lib/ai-assistants/interfaces";
 import { useCollectionInsights } from "@/hooks/useCollectionInsights";
 import { useWishlist } from "@/hooks/useWishlist";
@@ -42,6 +45,7 @@ export function CollectionDashboard() {
   const { data, isLoading, isError, error } = useCollectionInsights();
   const { data: wishlist } = useWishlist();
   const wishlistCount = wishlist?.items?.length ?? 0;
+  const reduceMotion = useReducedMotion();
 
   if (isLoading) {
     return (
@@ -96,14 +100,14 @@ export function CollectionDashboard() {
       </div>
       <CollectionRecommendationPanel />
       <header className="space-y-2">
-        <h1 className="text-display text-foreground sm:text-3xl">Minha Coleção</h1>
+        <GalleryHeading text="Minha Coleção" className="text-display text-foreground sm:text-3xl" />
         <p className="text-small text-muted-foreground">
           Biblioteca viva — valor, progresso por jogo e descoberta. Atualizado{" "}
           {new Date(data.updatedAt).toLocaleString("pt-BR")}.
         </p>
       </header>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <GalleryFade className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <CollectionSummaryCard
           label="Valor total"
           value={data.totalValue != null ? formatCurrency(data.totalValue, currency) : "—"}
@@ -122,25 +126,36 @@ export function CollectionDashboard() {
         />
         <CollectionSummaryCard
           label="Cartas"
-          value={String(data.totalCards)}
+          value={
+            <GalleryCountUp to={data.totalCards} className="inline tabular-nums" />
+          }
           hint={`${data.uniqueCards} únicas`}
           href="/colecao/cartas"
           icon={Layers}
         />
         <CollectionSummaryCard
           label="Duplicatas"
-          value={String(data.duplicates)}
+          value={<GalleryCountUp to={data.duplicates} className="inline tabular-nums" />}
           href="/colecao/duplicatas"
           icon={Repeat2}
         />
-        <CollectionSummaryCard
-          label="Foil / Premium"
-          value={`${data.foilCount} / ${data.premiumCount}`}
-          icon={Sparkles}
-        />
+        <div className="relative overflow-hidden rounded-xl">
+          {!reduceMotion && (
+            <div className="pointer-events-none absolute inset-0 opacity-25" aria-hidden>
+              <Iridescence color={[0.55, 0.62, 0.85]} speed={0.35} amplitude={0.06} mouseReact={false} />
+            </div>
+          )}
+          <div className="relative">
+            <CollectionSummaryCard
+              label="Foil / Premium"
+              value={`${data.foilCount} / ${data.premiumCount}`}
+              icon={Sparkles}
+            />
+          </div>
+        </div>
         <CollectionSummaryCard
           label="Wishlist"
-          value={String(wishlistCount)}
+          value={<GalleryCountUp to={wishlistCount} className="inline tabular-nums" />}
           href="/colecao/wishlist"
           icon={Heart}
         />
@@ -164,7 +179,7 @@ export function CollectionDashboard() {
           }
           icon={Gem}
         />
-      </div>
+      </GalleryFade>
 
       <CollectionValueChart
         series7d={data.series7d}
@@ -185,7 +200,9 @@ export function CollectionDashboard() {
         <CollectionGameProgress games={data.byGame} currency={currency} />
       </section>
 
-      <CollectionTimeline acquisitions={data.recentAcquisitions} />
+      <GalleryFade>
+        <CollectionTimeline acquisitions={data.recentAcquisitions} />
+      </GalleryFade>
     </div>
   );
 }
