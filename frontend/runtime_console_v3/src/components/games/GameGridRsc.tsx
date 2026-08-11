@@ -1,4 +1,5 @@
 import { GameCard } from "@/components/games/GameCard";
+import { GameGridGallery } from "@/components/games/GameGridGallery";
 import { fetchCatalogHealth } from "@/lib/seo-metadata";
 import { mapHealthToGames, MOCK_CATALOG_HEALTH } from "@/lib/catalog-games";
 import { DEFAULT_GAME_ORDER } from "@/lib/games";
@@ -15,7 +16,7 @@ export type StoreGameItem = {
   isAvailable: boolean;
 };
 
-function asHealth(
+export function asHealth(
   raw: { total_cards?: number; by_game?: Record<string, number> } | null,
 ): CatalogHealthReport {
   if (!raw) return MOCK_CATALOG_HEALTH;
@@ -67,11 +68,11 @@ export function GameGridView({
 
 /** First paint imediato (mock/local logos) — sem client fetch waterfall. */
 export function GameGridBootstrap() {
-  return <GameGridView games={buildStoreGames(MOCK_CATALOG_HEALTH)} />;
+  return <GameGridGallery games={buildStoreGames(MOCK_CATALOG_HEALTH)} />;
 }
 
-/** Stream opcional com contagens reais (mesmos logos token). */
+/** Stream opcional com contagens reais (mesmos logos token) + allowlist Galeria. */
 export async function GameGridStream() {
   const raw = await fetchCatalogHealth();
-  return <GameGridView games={buildStoreGames(asHealth(raw))} />;
+  return <GameGridGallery games={buildStoreGames(asHealth(raw))} />;
 }
