@@ -1,8 +1,8 @@
 # CWM — Fase 5.1 Production Report
 
 **Status do código:** CODE READY + PRODUCTION CONTROLLED  
-**Status da evidência:** ✅ **REAL PROVEN (1 vídeo)** — upload YouTube confirmado + safety restaurada.  
-Snapshots analytics / winner / strategy ainda podem ser preenchidos nas janelas 1h–7d.
+**Status da evidência:** ✅ **REAL PROVEN (1 vídeo + 1 snapshot analytics REAL)** — upload YouTube + sync `preferReal` pós-fix.  
+Winner / strategy ainda pendentes; métricas de janela 1h–7d a preencher (views 0 cedo = WAITING).
 
 Preencher após o primeiro experimento real. Não inventar métricas.
 
@@ -85,25 +85,21 @@ Notas (sem secrets): dry-run com `validation.ok=true` / `videoExists=true` antes
 | Workflow / trigger | WF 14 / `POST /api/analytics/sync` `preferReal:true` |
 | Bug observado (pré-fix) | Sync gravava `MOCK` (views 800) mesmo com `preferReal` — `preferReal` não era passado a `captureSnapshot` e `AUTOMATION_MODE=mock` bloqueava YouTube |
 | Fix | Commit na branch: passar `preferReal`; REAL se `preferReal` **ou** `publication_source=REAL` + YouTube + `external_id` (sem gate de mock mode); fallback MOCK se API YouTube falhar |
-| `metrics_source` esperado pós-deploy | `YOUTUBE` (`reality: REAL`) |
-| First snapshot MOCK | `ea021b5f-70a0-463f-9bc0-ad0404d344cc` (2026-08-11T18:41:59Z) — manter histórico |
-| First snapshot REAL | ⏳ após `git pull` + rebuild `api` + re-sync abaixo |
+| `metrics_source` pós-deploy | `YOUTUBE` (`reality: REAL`) ✅ |
+| First snapshot MOCK | `ea021b5f-70a0-463f-9bc0-ad0404d344cc` (2026-08-11T18:41:59Z) — histórico |
+| First snapshot REAL | `4d06919a-19c0-4c02-bf62-a019d7fece6b` (sync `776a39b5-…`, 2026-08-11 ~18:59Z OCI) |
+| Sync result | `status: COMPLETED`, `reality: REAL`, `count: 1` |
 
-### Re-sync na OCI (após deploy do fix)
+### Re-sync na OCI (executado)
+
+Deploy `36966b54` + rebuild `api` + sync `preferReal:true` → **REAL**. Confirmar campos do snapshot:
 
 ```bash
-cd ~/seekguidance2 && git pull
-cd ai-content-machine && docker compose build api && docker compose up -d api
-
-curl -s -X POST http://127.0.0.1:8787/api/analytics/sync \
-  -H 'content-type: application/json' \
-  -d '{"workspaceId":"86e1e2c0-38a0-44cb-962f-2def3227f516","publicationId":"f3c17638-a360-477b-84bd-369543e92bf7","preferReal":true,"await":true}'
-
 curl -s "http://127.0.0.1:8787/api/analytics/workspaces/86e1e2c0-38a0-44cb-962f-2def3227f516/snapshots" \
-  | jq '[.snapshots[] | select(.publication_id=="f3c17638-a360-477b-84bd-369543e92bf7")] | .[0] | {id, metrics_source, reality, source, views, completion_rate, created_at}'
+  | jq '.snapshots[] | select(.id=="4d06919a-19c0-4c02-bf62-a019d7fece6b") | {id, metrics_source, reality, source, views, likes, comments, completion_rate, created_at}'
 ```
 
-Esperado: `metrics_source: "YOUTUBE"`, `reality: "REAL"`. Views `0` cedo = normal (`WAITING_FOR_METRICS`).
+Views `0` cedo = normal (`WAITING_FOR_METRICS`). Re-sync nas janelas 1h / 6h / 24h com o mesmo body.
 
 ## METRICS SNAPSHOTS
 
@@ -167,7 +163,7 @@ Ausente = `null` (nunca fabricar 0).
 
 | Gate | Result |
 |------|--------|
-| `npm test` | 70/70 (branch) |
+| `npm test` | 71/71 (branch) |
 | `npm run n8n:validate` | 15/15 VALID |
 
 ## REAL EVIDENCE checklist (conclusão 5.1)
@@ -178,7 +174,7 @@ Ausente = `null` (nunca fabricar 0).
 - [x] human approval registrado (`approved_by`)
 - [x] 1 publicação REAL
 - [x] external ID confirmado (upload API)
-- [ ] ≥ 1 snapshot REAL
+- [x] ≥ 1 snapshot REAL (`4d06919a-…`, sync `reality: REAL`)
 - [ ] `data_origin=REAL` em strategy
 - [ ] winner / insufficient-data processado
 - [ ] strategy hypothesis gerada
@@ -186,7 +182,7 @@ Ausente = `null` (nunca fabricar 0).
 
 ## REMAINING GAPS
 
-- Deploy do fix analytics na OCI → re-sync `preferReal` → preencher snapshot REAL neste relatório
+- Inspecionar snapshot `4d06919a-…` (views / `metrics_source`) e re-sync nas janelas 1h–7d
 - Rodar winner + strategy com origem REAL (sem strong winner com 1 evidência)
 - Confirmar no Studio YouTube o vídeo unlisted `ouHb2NDU2gM`
 
