@@ -161,6 +161,64 @@ describe('Phase 4 Publishing + Feedback Loop', () => {
     assert.ok(snaps.every((s) => s.views === 12000))
   })
 
+  it('preferReal + publication REAL yields YOUTUBE snapshot even when AUTOMATION_MODE=mock', async () => {
+    const { config } = await import('../src/config.js')
+    const prevId = config.youtubeClientId
+    const prevSecret = config.youtubeClientSecret
+    config.youtubeClientId = 'test-client-id'
+    config.youtubeClientSecret = 'test-client-secret'
+
+    const { youtubeAnalyticsProvider } = await import('../src/analytics/YouTubeAnalyticsProvider.js')
+    const originalFetch = youtubeAnalyticsProvider.fetch.bind(youtubeAnalyticsProvider)
+    youtubeAnalyticsProvider.fetch = async () => ({
+      metrics: {
+        views: 7,
+        likes: 2,
+        comments: 1,
+        shares: 0,
+        saves: 0,
+        watchTime: 0,
+        averageViewDuration: 9,
+        completionRate: 0.3,
+        followersGained: 0,
+        clicks: 0,
+        conversions: 0,
+      },
+      raw: { viewCount: 7, provider: 'youtube_analytics' },
+      source: 'YOUTUBE',
+      status: 'TRACKING',
+    })
+
+    try {
+      const { contentId } = await seedReadyContent(workspaceId)
+      const pub = await publishingService.run({ workspaceId, contentId, platform: 'YOUTUBE_SHORT' })
+      getDb()
+        .prepare(
+          `UPDATE publication_runs SET publication_source='REAL', external_id=?, status='PUBLISHED' WHERE id=?`,
+        )
+        .run('fakeVideoIdPreferReal', pub.publicationRunId)
+
+      const sync = await analyticsService.sync({
+        workspaceId,
+        publicationId: pub.publicationRunId,
+        preferReal: true,
+        windowLabel: 'prefer-real-test',
+      })
+      assert.equal(sync.reality, 'REAL')
+      assert.equal(sync.status, 'COMPLETED')
+      const row = getDb()
+        .prepare(`SELECT metrics_source, reality, views FROM metric_snapshots WHERE id=?`)
+        .get(sync.snapshots[0]) as { metrics_source: string; reality: string; views: number }
+      assert.equal(row.metrics_source, 'YOUTUBE')
+      assert.equal(row.reality, 'REAL')
+      assert.equal(row.views, 7)
+    } finally {
+      youtubeAnalyticsProvider.fetch = originalFetch
+      config.youtubeClientId = prevId
+      config.youtubeClientSecret = prevSecret
+    }
+  })
+
   it('Winner engine classifies WINNER/NORMAL/LOSER/INSUFFICIENT_DATA deterministically', () => {
     const profiles = ['WINNER', 'NORMAL', 'LOSER', 'INSUFFICIENT_DATA'] as const
     for (const scenario of profiles) {

@@ -54,6 +54,7 @@ export class AnalyticsService {
       }
     }
     const snapshots: string[] = []
+    let anyReal = false
     for (const pub of pubs) {
       const snapId = await this.captureSnapshot({
         workspaceId: input.workspaceId,
@@ -62,22 +63,27 @@ export class AnalyticsService {
         executionId: input.executionId,
         forceFailTimes: input.forceFailTimes,
         windowLabel: input.windowLabel || 'latest',
+        preferReal: input.preferReal,
       })
       snapshots.push(snapId)
+      const row = db
+        .prepare(`SELECT metrics_source, reality FROM metric_snapshots WHERE id=?`)
+        .get(snapId) as { metrics_source?: string; reality?: string } | undefined
+      if (row?.metrics_source === 'YOUTUBE' || row?.reality === 'REAL') anyReal = true
     }
 
     recordAiCost({
       workspaceId: input.workspaceId,
       operation: 'analytics',
-      provider: 'mock_analytics',
-      model: 'deterministic',
+      provider: anyReal ? 'youtube_analytics' : 'mock_analytics',
+      model: anyReal ? 'youtube_data_api' : 'deterministic',
       estimatedCostCents: 0,
-      reality: 'MOCK',
+      reality: anyReal ? 'REAL' : 'MOCK',
     })
 
     return {
       status: 'COMPLETED' as const,
-      reality: 'MOCK' as const,
+      reality: (anyReal ? 'REAL' : 'MOCK') as 'REAL' | 'MOCK',
       snapshots,
       count: snapshots.length,
     }
@@ -90,6 +96,7 @@ export class AnalyticsService {
     executionId?: string
     forceFailTimes?: number
     windowLabel: string
+    preferReal?: boolean
   }) {
     const pubId = String(input.publication.id)
     const failKey = `${pubId}:analytics`
@@ -101,10 +108,12 @@ export class AnalyticsService {
       const externalId = String(input.publication.external_id || '')
       const platform = String(input.publication.platform || 'TIKTOK')
       const publicationSource = String(input.publication.publication_source || 'MOCK')
+      // preferReal / publication REAL overrides AUTOMATION_MODE=mock (same idea as forceReal publish)
       const wantReal =
-        (input.preferReal || publicationSource === 'REAL') &&
+        (Boolean(input.preferReal) || publicationSource === 'REAL') &&
         platform.toUpperCase().includes('YOUTUBE') &&
-        config.automationMode !== 'mock'
+        Boolean(externalId) &&
+        youtubeAnalyticsProvider.status() === 'READY'
 
       emitEvent({
         workspaceId: input.workspaceId,
@@ -112,22 +121,37 @@ export class AnalyticsService {
         entityType: 'publication_run',
         entityId: pubId,
         reality: wantReal ? 'REAL' : 'MOCK',
-        payload: { window: input.windowLabel },
+        payload: { window: input.windowLabel, preferReal: Boolean(input.preferReal) },
       })
 
-      if (wantReal && youtubeAnalyticsProvider.status() === 'READY') {
-        const real = await youtubeAnalyticsProvider.fetch({
-          externalId,
-          platform,
-          workspaceId: input.workspaceId,
-        })
-        return {
-          fetched: { raw: real.raw, scenario: real.status },
-          metrics: real.metrics,
-          platform,
-          externalId,
-          metricsSource: 'YOUTUBE' as const,
-          reality: 'REAL' as const,
+      if (wantReal) {
+        try {
+          const real = await youtubeAnalyticsProvider.fetch({
+            externalId,
+            platform,
+            workspaceId: input.workspaceId,
+          })
+          return {
+            fetched: { raw: real.raw, scenario: real.status },
+            metrics: real.metrics,
+            platform,
+            externalId,
+            metricsSource: 'YOUTUBE' as const,
+            reality: 'REAL' as const,
+          }
+        } catch (err) {
+          emitEvent({
+            workspaceId: input.workspaceId,
+            eventType: 'metrics.sync_fallback_mock',
+            entityType: 'publication_run',
+            entityId: pubId,
+            reality: 'MOCK',
+            payload: {
+              preferReal: Boolean(input.preferReal),
+              error: err instanceof Error ? err.message : String(err),
+            },
+          })
+          // fall through to mock envelope
         }
       }
 
@@ -227,7 +251,7 @@ export class AnalyticsService {
         `INSERT INTO content_metrics
          (id, content_id, views, likes, comments, shares, saves, watch_time_sec, retention_pct,
           ctr, clicks, followers_gained, reality, fetched_at, publication_id, platform, snapshot_id)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'MOCK', ?, ?, ?, ?)`,
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       )
       .run(
         metricRowId,
@@ -242,6 +266,7 @@ export class AnalyticsService {
         metrics.views ? (metrics.clicks / metrics.views) * 100 : 0,
         metrics.clicks,
         metrics.followersGained,
+        reality,
         nowIso(),
         pubId,
         platform,
