@@ -146,7 +146,7 @@ def _build_where(
 
     if game:
         clauses.append("cc.game_code = :game")
-        params["game"] = game.upper()
+        params["game"] = game
 
     if set_code:
         clauses.append("LOWER(cc.set_code) = LOWER(:set_code)")
@@ -281,7 +281,9 @@ async def search_catalog_cards(
         cached = get_search_cache(**cache_params)
         if cached is not None:
             return {**cached, "cached": True}
-    game_code = game.upper() if game else None
+    from app.catalog.game_codes import resolve_game_code
+
+    game_code = resolve_game_code(game) if game else None
     offset = (page - 1) * limit
     week_ago = datetime.now(UTC) - timedelta(days=7)
 

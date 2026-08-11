@@ -12,12 +12,21 @@ from app.tcg_adapters.sync_github_apitcg import fetch_apitcg_repo_cards, resolve
 
 APITCG_REPO = "dragon-ball-fusion-tcg-data"
 
+# Mercado (TCGCSV) chama SB01 de "Story Booster 01"; apitcg usa "MANGA BOOSTER 01[SB01]".
+DBFW_SET_DISPLAY_NAMES: dict[str, str] = {
+    "sb01": "Story Booster 01 [SB01]",
+}
+
 
 def _dbfw_image(card: dict[str, Any]) -> str | None:
     images = card.get("images") or {}
     if isinstance(images, dict):
         return images.get("large") or images.get("small")
     return None
+
+
+def _dbfw_display_name(set_code: str, set_name: str) -> str:
+    return DBFW_SET_DISPLAY_NAMES.get(set_code.lower(), set_name)
 
 
 async def sync_dbfw(session: AsyncSession, *, limit: int | None = None) -> dict[str, Any]:
@@ -35,6 +44,7 @@ async def sync_dbfw(session: AsyncSession, *, limit: int | None = None) -> dict[
             if limit is not None and count >= limit:
                 break
             set_code, set_name = resolve_apitcg_set(card, default_code="FB")
+            set_name = _dbfw_display_name(set_code, str(set_name))
             if set_code not in seen_sets:
                 await upsert_set(
                     session,

@@ -8,59 +8,15 @@ import structlog
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.catalog.game_codes import CODE_TO_SLUG, SLUG_TO_CODE, resolve_game_code
 from app.catalog.search_service import search_catalog_cards
 
 logger = structlog.get_logger(__name__)
 
-SLUG_TO_CODE: dict[str, str] = {
-    "mtg": "MTG",
-    "magic": "MTG",
-    "pokemon": "POKEMON",
-    "yugioh": "YGO",
-    "ygo": "YGO",
-    "lorcana": "LORCANA",
-    "onepiece": "ONEPIECE",
-    "fab": "FAB",
-    "digimon": "DIGIMON",
-    "swu": "SWU",
-    "riftbound": "RIFTBOUND",
-    "sorcery": "SORCERY",
-    "gundam": "GUNDAM",
-    "gundam-card-game": "GUNDAM",
-    "unionarena": "UARENA",
-    "union-arena": "UARENA",
-    "dbfw": "DBFW",
-    "db-fusion-world": "DBFW",
-    "dragonball": "DBFW",
-    "dragon_ball": "DBFW",
-    "vanguard": "VANGUARD",
-    "cardfight-vanguard": "VANGUARD",
-}
-
-CODE_TO_SLUG: dict[str, str] = {
-    "MTG": "mtg",
-    "POKEMON": "pokemon",
-    "YGO": "yugioh",
-    "LORCANA": "lorcana",
-    "ONEPIECE": "onepiece",
-    "FAB": "fab",
-    "DIGIMON": "digimon",
-    "SWU": "swu",
-    "RIFTBOUND": "riftbound",
-    "SORCERY": "sorcery",
-    "GUNDAM": "gundam",
-    "UARENA": "union-arena",
-    "DBFW": "dbfw",
-    "VANGUARD": "vanguard",
-}
-
 
 def game_code_from_slug(slug: str) -> str | None:
-    normalized = slug.lower().strip().replace("-", "")
-    for key, code in SLUG_TO_CODE.items():
-        if key.replace("-", "") == normalized:
-            return code
-    return SLUG_TO_CODE.get(slug.lower())
+    code = resolve_game_code(slug)
+    return code if code in CODE_TO_SLUG else None
 
 
 def _row_to_game(row: dict[str, Any]) -> dict[str, Any]:
@@ -169,9 +125,7 @@ async def get_catalog_game(session: AsyncSession, slug: str) -> dict[str, Any] |
 
 
 def _resolve_game_code(game: str | None) -> str | None:
-    if not game:
-        return None
-    return game_code_from_slug(game) or game.strip().upper()
+    return resolve_game_code(game)
 
 
 async def list_merged_catalog_sets(

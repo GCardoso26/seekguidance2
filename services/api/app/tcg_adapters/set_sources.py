@@ -47,6 +47,14 @@ SOURCE_GAP_SETS: dict[str, frozenset[str]] = {
     "LORCANA": frozenset({"QU1"}),
     "YGO": frozenset({"YUCB", "ADC1"}),
     "SWU": frozenset({"TASH", "SOROPJ", "SS2J"}),
+    # RiftScribe lista VEN mas /cards?set_id=VEN retorna []
+    "RIFTBOUND": frozenset({"VEN"}),
+    # optcgapi allSets para em OP-16; TCGCSV já tem OP17 sealed
+    "ONEPIECE": frozenset({"OP-17", "OP17"}),
+    # apitcg gundam-tcg-data ainda sem gd05.json (Freedom Ascension)
+    "GUNDAM": frozenset({"gd05", "GD05"}),
+    # fab-cube IAR ainda placeholder ("??? Set 20 ???") — Usurp the Shadow Throne
+    "FAB": frozenset({"IAR"}),
 }
 
 

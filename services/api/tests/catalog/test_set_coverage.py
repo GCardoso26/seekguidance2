@@ -29,3 +29,7 @@ def test_classify_empty_set_metadata_and_source_gap():
         _classify_empty_set("SWU", "TASH", {"card_count": 3}, source_cards=0) == "source_gap"
     )
     assert _classify_empty_set("YGO", "YS15", {"card_count": 42}, source_cards=None) == "sync_gap"
+    assert _classify_empty_set("RIFTBOUND", "VEN", {"card_count": 100}, source_cards=0) == "source_gap"
+    assert _classify_empty_set("ONEPIECE", "OP-17", {"card_count": 120}, source_cards=0) == "source_gap"
+    assert _classify_empty_set("GUNDAM", "gd05", {"card_count": 100}, source_cards=0) == "source_gap"
+    assert _classify_empty_set("FAB", "IAR", {"card_count": 80}, source_cards=0) == "source_gap"
