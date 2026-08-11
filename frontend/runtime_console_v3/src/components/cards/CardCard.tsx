@@ -3,7 +3,7 @@
 import { Eye, Layers, ShoppingCart } from "lucide-react";
 import { CardImage } from "@/components/ui/CardImage";
 import { PriceSparkline } from "@/components/cards/PriceSparkline";
-import { Badge } from "@/components/ui/badge";
+import { FoilShinyText } from "@/components/gallery/FoilShinyText";
 import { RarityBadge } from "@/components/catalog/RarityBadge";
 import { formatRarityDisplay } from "@/lib/game-config/rarity";
 import { Button } from "@/components/ui/button";
@@ -82,8 +82,8 @@ export function CardCard({
         />
 
         {hasFoil && (
-          <div className="absolute right-2 top-2" aria-label="Versão Foil">
-            <Badge variant="warning">Foil</Badge>
+          <div className="absolute right-2 top-2 rounded-md border border-border bg-card/95 px-1.5 py-0.5" aria-label="Versão Foil">
+            <FoilShinyText text="Foil" variant="seal" />
           </div>
         )}
 

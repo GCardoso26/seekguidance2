@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { Image as ImageIcon, ZoomIn } from "lucide-react";
+import { FoilShinyText } from "@/components/gallery/FoilShinyText";
 import { Badge } from "@/components/ui/badge";
 import { RarityBadge } from "@/components/catalog/RarityBadge";
 import { cardImageUrl, shouldBypassImageOptimizer } from "@/lib/format-currency";
@@ -64,7 +65,9 @@ export function CardDetailHero({ card, imageError, onImageError, onZoom, classNa
 
       <div className="flex flex-wrap items-center justify-center gap-2">
         {hasFoil && (
-          <Badge variant="warning">Foil</Badge>
+          <span className="rounded-md border border-border bg-card px-2 py-1" data-testid="card-foil-seal">
+            <FoilShinyText text="Foil" variant="seal" />
+          </span>
         )}
         {card.rarity && <RarityBadge game={card.game} rarity={card.rarity} />}
         {card.set?.name && <Badge variant="outline">{card.set.name}</Badge>}

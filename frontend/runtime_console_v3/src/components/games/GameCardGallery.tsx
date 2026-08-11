@@ -17,7 +17,8 @@ type Props = GameCardProps & {
 };
 
 /**
- * Card de universo TCG com GlareHover + CountUp + AnimatedContent (allowlist /loja).
+ * Card de universo TCG — parede neutra + selo taxonômico 1px + GlareHover.
+ * A cor do jogo não lava a superfície (tese Galeria).
  */
 export function GameCardGallery({
   slug,
@@ -37,22 +38,20 @@ export function GameCardGallery({
     <Link
       href={gameLandingPath(slug)}
       className={cn(
-        "group relative flex h-full w-full flex-col overflow-hidden rounded-2xl border bg-card p-5 transition-all hover:-translate-y-0.5 hover:shadow-lg",
+        "group relative flex h-full w-full flex-col overflow-hidden rounded-xl border border-border bg-card p-5 transition-colors hover:bg-[color:var(--surface-2,var(--card))]",
         !isAvailable && "opacity-60",
         className,
       )}
-      style={{ borderColor: `${primaryColor}30` }}
       data-testid={`store-game-card-${slug}`}
     >
-      <div
-        className="absolute inset-0 opacity-0 transition-opacity group-hover:opacity-100"
-        style={{ background: `linear-gradient(135deg, ${primaryColor}08, transparent)` }}
+      {/* Selo taxonômico — fio 1px no topo, única cor do jogo */}
+      <span
+        className="absolute inset-x-0 top-0 h-px"
+        style={{ backgroundColor: primaryColor }}
+        aria-hidden
       />
       <div className="relative flex items-start gap-4">
-        <div
-          className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl p-2"
-          style={{ backgroundColor: `${primaryColor}15` }}
-        >
+        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg border border-border bg-muted/40 p-2">
           <Image
             src={logoUrl}
             alt=""
@@ -103,9 +102,9 @@ export function GameCardGallery({
       height="100%"
       background="transparent"
       borderColor="transparent"
-      borderRadius="1rem"
-      glareColor="#ffffff"
-      glareOpacity={0.22}
+      borderRadius="0.75rem"
+      glareColor="rgba(255,255,255,0.85)"
+      glareOpacity={0.18}
       glareSize={220}
       transitionDuration={550}
       className="!h-full !w-full !min-h-0 place-items-stretch border-0"

@@ -8,7 +8,6 @@ import BlurText from "@/components/react-bits/BlurText";
 import CountUp from "@/components/react-bits/CountUp";
 import Magnet from "@/components/react-bits/Magnet";
 import Noise from "@/components/react-bits/Noise";
-import SpotlightCard from "@/components/react-bits/SpotlightCard";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { Button } from "@/components/ui/button";
 
@@ -18,19 +17,19 @@ type Props = {
 };
 
 /**
- * Hero Galeria de /loja — Noise + BlurText + CountUp + Magnet/Spotlight no CTA.
- * SplitText/DotGrid ficam na allowlist mas exigem plugins GSAP Club (não instalados).
+ * Hero Galeria de /loja — Noise + BlurText (proxy SplitText) + CountUp + Magnet no CTA.
+ * Um floreio de interação por ação (Magnet). Sem wash de primary no fundo.
  */
 export function LojaHeroGallery({ totalCards = 0, gameCount = 0 }: Props) {
   const reduceMotion = useReducedMotion();
 
   return (
     <div
-      className="relative overflow-hidden border-b border-border bg-gradient-to-b from-primary/5 to-transparent"
+      className="relative overflow-hidden border-b border-border bg-background"
       data-testid="loja-hero-gallery"
     >
       {!reduceMotion && (
-        <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden opacity-40" aria-hidden>
+        <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden opacity-35" aria-hidden>
           <Noise patternAlpha={10} patternRefreshInterval={4} patternSize={250} />
         </div>
       )}
@@ -89,24 +88,19 @@ export function LojaHeroGallery({ totalCards = 0, gameCount = 0 }: Props) {
         )}
 
         <div className="mt-6 flex flex-wrap gap-3">
-          <SpotlightCard
-            className="rounded-lg border-0 bg-transparent p-0 shadow-none"
-            spotlightColor="rgba(37, 99, 235, 0.18)"
+          <Magnet
+            padding={48}
+            magnetStrength={3}
+            disabled={Boolean(reduceMotion)}
+            wrapperClassName="inline-flex"
+            innerClassName="inline-flex"
           >
-            <Magnet
-              padding={48}
-              magnetStrength={3}
-              disabled={Boolean(reduceMotion)}
-              wrapperClassName="inline-flex"
-              innerClassName="inline-flex"
-            >
-              <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90">
-                <Link href="/loja/busca" prefetch>
-                  Buscar singles
-                </Link>
-              </Button>
-            </Magnet>
-          </SpotlightCard>
+            <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90">
+              <Link href="/loja/busca" prefetch>
+                Buscar singles
+              </Link>
+            </Button>
+          </Magnet>
           <Button asChild variant="outline" className="border-border">
             <Link href="/loja/selados" prefetch={false}>
               Produtos selados

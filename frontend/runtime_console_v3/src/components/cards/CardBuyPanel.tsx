@@ -16,6 +16,7 @@ import {
   PdpPurchaseAssurance,
   PdpShippingCepField,
 } from "@/components/cards/PdpTrustExtras";
+import { FoilShinyText } from "@/components/gallery/FoilShinyText";
 import { formatCurrency } from "@/lib/format-currency";
 import { isListingPurchasable } from "@/lib/listing-utils";
 import { sellerInitial } from "@/lib/normalize-card-listing";
@@ -94,7 +95,19 @@ export function CardBuyPanel({
               {purchasable.length > 1 ? "A partir de" : "Oferta"}
             </p>
             <p className="mt-1 font-mono text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-              {bestPrice != null ? formatCurrency(bestPrice, currency) : "Indisponível"}
+              {bestPrice != null ? (
+                best?.foil ? (
+                  <FoilShinyText
+                    text={formatCurrency(bestPrice, currency)}
+                    variant="price"
+                    className="text-3xl sm:text-4xl"
+                  />
+                ) : (
+                  formatCurrency(bestPrice, currency)
+                )
+              ) : (
+                "Indisponível"
+              )}
             </p>
             {marketSummary?.avgPrice != null && bestPrice != null && marketSummary.avgPrice > bestPrice && (
               <p className="mt-1 text-caption text-muted-foreground">

@@ -119,19 +119,21 @@ export function GameHero({
 
       <div className="game-hero__overlay" data-overlay={overlayMode} />
       <div className="game-hero__fx" data-anim={hero.animation} />
-      {!reduceMotion && !hasCarousel && (
+      {!reduceMotion && !hasCarousel && !hasStill && (
         <div
-          className="pointer-events-none absolute inset-0 z-[1] opacity-35 mix-blend-soft-light"
+          className="pointer-events-none absolute inset-0 z-[1] opacity-30 mix-blend-soft-light"
           aria-hidden
           data-testid="game-hero-soft-aurora"
         >
+          {/* SoftAurora exige hex; valores = Noite canônica (índigo atenuado), não neon default. */}
           <SoftAurora
-            speed={0.45}
-            brightness={0.55}
-            color1="#1e293b"
-            color2="#334155"
+            speed={0.4}
+            brightness={0.42}
+            color1="#2a3148"
+            color2="#3d4560"
             enableMouseInteraction={false}
-            bandHeight={0.55}
+            bandHeight={0.5}
+            noiseAmplitude={0.7}
           />
         </div>
       )}
