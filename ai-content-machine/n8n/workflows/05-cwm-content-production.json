@@ -20,7 +20,7 @@
         "url": "={{$env.CWM_API_BASE}}/api/production/run",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"workspaceId\": \"{{$json.body.workspaceId}}\",\n  \"scriptId\": \"{{$json.body.scriptId}}\",\n  \"contentId\": \"{{$json.body.contentId || undefined}}\",\n  \"platform\": \"{{$json.body.platform || 'YOUTUBE_SHORT'}}\",\n  \"await\": true\n}",
+        "jsonBody": "={{ (() => { const body = ($json && $json.body) ? $json.body : $json; const workspaceId = (body && body.workspaceId) || $env.CWM_DEFAULT_WORKSPACE_ID; const out = { workspaceId, scriptId: body && body.scriptId, platform: (body && body.platform) || 'YOUTUBE_SHORT', await: true }; if (body && body.contentId) out.contentId = body.contentId; if (body && body.allowUnapproved) out.allowUnapproved = body.allowUnapproved; if (body && body.regenerate) out.regenerate = body.regenerate; return out; })() }}",
         "options": { "timeout": 300000 }
       },
       "id": "run-production",

@@ -3,13 +3,14 @@ import { z } from 'zod'
 import { productionService } from '../production/ProductionService.js'
 import { automationService } from '../services/AutomationService.js'
 import type { ProductionStage } from '../production/types.js'
+import { optionalUuid, workspaceIdField } from '../lib/zodUuid.js'
 
 export async function productionRoutes(app: FastifyInstance) {
   app.post('/api/production/run', async (req, reply) => {
     const schema = z.object({
-      workspaceId: z.string().uuid(),
+      workspaceId: workspaceIdField,
       scriptId: z.string().uuid(),
-      contentId: z.string().uuid().optional(),
+      contentId: optionalUuid,
       platform: z.string().optional(),
       await: z.boolean().optional(),
       allowUnapproved: z.boolean().optional(),

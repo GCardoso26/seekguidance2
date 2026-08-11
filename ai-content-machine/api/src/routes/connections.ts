@@ -75,6 +75,18 @@ export async function connectionRoutes(app: FastifyInstance) {
     }
   })
 
+  app.post('/api/publishing/connections/youtube/refresh', async (req, reply) => {
+    const schema = z.object({ workspaceId: z.string().uuid() })
+    const parsed = schema.safeParse(req.body)
+    if (!parsed.success) return reply.code(400).send({ error: parsed.error.flatten() })
+    const result = await youtubeOAuthService.refreshIfNeeded(parsed.data.workspaceId)
+    return {
+      refresh: result,
+      ...youtubeOAuthService.status(parsed.data.workspaceId),
+      vault: await credentialVault.status('YOUTUBE', parsed.data.workspaceId),
+    }
+  })
+
   app.delete('/api/publishing/connections/youtube', async (req, reply) => {
     const schema = z.object({ workspaceId: z.string().uuid() })
     const parsed = schema.safeParse(req.body)

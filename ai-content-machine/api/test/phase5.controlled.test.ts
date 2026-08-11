@@ -209,6 +209,33 @@ describe('Phase 5 controlled publishing safety', () => {
     assert.ok(body.includes('safety'))
   })
 
+  it('OAuth status reports EXPIRED when access token past expiry but refresh exists', () => {
+    const id = uid()
+    const accessEnc = encryptSecret('access-token-value')
+    const refreshEnc = encryptSecret('refresh-token-value')
+    assert.ok(accessEnc && refreshEnc)
+    getDb()
+      .prepare(
+        `INSERT INTO platform_connections
+         (id, workspace_id, platform, status, scopes, access_token_enc, refresh_token_enc,
+          token_expires_at, last_verified_at, metadata, reality, created_at, updated_at)
+         VALUES (?, ?, 'YOUTUBE', 'CONNECTED', '[]', ?, ?, ?, ?, '{}', 'REAL', ?, ?)`,
+      )
+      .run(
+        id,
+        workspaceId,
+        accessEnc,
+        refreshEnc,
+        new Date(Date.now() - 60_000).toISOString(),
+        nowIso(),
+        nowIso(),
+        nowIso(),
+      )
+    const st = youtubeOAuthService.status(workspaceId)
+    assert.equal(st.status, 'EXPIRED')
+    assert.equal(st.canRefresh, true)
+  })
+
   it('approve-for-publish sets flag', async () => {
     const contentId = await seedReady(workspaceId)
     const res = await app.inject({

@@ -83,6 +83,7 @@ export function AutomationCenter() {
   const [experiments, setExperiments] = useState<Array<Record<string, unknown>>>([])
   const [workspaceList, setWorkspaceList] = useState<Array<{ id: string; name: string }>>([])
   const [selectedProduction, setSelectedProduction] = useState<Record<string, unknown> | null>(null)
+  const [publishContentId, setPublishContentId] = useState('')
   const [windowFilter, setWindowFilter] = useState<'24h' | '7d' | '30d'>('24h')
   const [workflowFilter, setWorkflowFilter] = useState('')
   const [providerFilter, setProviderFilter] = useState('')
@@ -758,6 +759,149 @@ export function AutomationCenter() {
           </button>
         </div>
 
+        <h3 style={{ marginTop: '1.5rem', fontFamily: 'var(--font-display)', letterSpacing: '-0.03em' }}>
+          Gate de publish (Fase 5.1)
+        </h3>
+        <p className="fine" style={{ maxWidth: '40rem' }}>
+          Use o <code>content_id</code> do production run (não o packageId). Ordem: dry-run → approve →
+          open-window → forceReal → restore.
+        </p>
+        <label className="fine" style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', maxWidth: '28rem' }}>
+          Content ID para publish
+          <input
+            value={publishContentId}
+            onChange={(e) => setPublishContentId(e.target.value.trim())}
+            placeholder="uuid do content READY_FOR_PUBLISH"
+            style={{ padding: '0.55rem 0.75rem' }}
+          />
+        </label>
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.75rem' }}>
+          <button
+            type="button"
+            className="btn btn-ghost"
+            disabled={busy || !workspaceId}
+            onClick={() => {
+              const ready = productionRuns.find((r) => r.package_status === 'READY_FOR_PUBLISH')
+              const id = String(ready?.content_id || '')
+              if (id) setPublishContentId(id)
+              else setLog('Nenhum production run com package_status READY_FOR_PUBLISH')
+            }}
+          >
+            Usar último READY_FOR_PUBLISH
+          </button>
+          <button
+            type="button"
+            className="btn btn-ghost"
+            disabled={busy || !workspaceId || !isWorkspaceId(publishContentId)}
+            onClick={async () => {
+              if (!workspaceId || !publishContentId) return
+              setBusy(true)
+              try {
+                const res = await fetch(`${API}/api/validation/dry-run-report`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    workspaceId,
+                    contentId: publishContentId,
+                    platform: 'YOUTUBE_SHORT',
+                  }),
+                }).then((r) => r.json())
+                setLog(JSON.stringify(res, null, 2))
+              } finally {
+                setBusy(false)
+              }
+            }}
+          >
+            Dry-run report
+          </button>
+          <button
+            type="button"
+            className="btn btn-ghost"
+            disabled={busy || !workspaceId || !isWorkspaceId(publishContentId)}
+            onClick={async () => {
+              if (!workspaceId || !publishContentId) return
+              setBusy(true)
+              try {
+                const res = await fetch(`${API}/api/publishing/approve-for-publish`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    workspaceId,
+                    contentId: publishContentId,
+                    approvedBy: 'operator@nexus',
+                  }),
+                }).then((r) => r.json())
+                setLog(JSON.stringify(res, null, 2))
+                await refresh()
+              } finally {
+                setBusy(false)
+              }
+            }}
+          >
+            Approve for publish
+          </button>
+          <button
+            type="button"
+            className="btn btn-ghost"
+            disabled={busy}
+            onClick={async () => {
+              setBusy(true)
+              try {
+                const res = await fetch(`${API}/api/validation/safety/open-window`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ confirm: 'OPEN_PUBLISH_WINDOW', maxPublicationsPerDay: 1 }),
+                }).then((r) => r.json())
+                setLog(JSON.stringify(res, null, 2))
+                await refresh()
+              } finally {
+                setBusy(false)
+              }
+            }}
+          >
+            Abrir janela (1 vídeo)
+          </button>
+          <button
+            type="button"
+            className="btn btn-signal"
+            disabled={busy || !workspaceId || !isWorkspaceId(publishContentId)}
+            onClick={async () => {
+              if (!workspaceId || !publishContentId) return
+              if (
+                !window.confirm(
+                  'Publicar 1 YouTube Short REAL (forceReal)? Confirme dry-run ok e janela aberta.',
+                )
+              ) {
+                return
+              }
+              setBusy(true)
+              try {
+                const res = await fetch(`${API}/api/publishing/run`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    workspaceId,
+                    contentId: publishContentId,
+                    platform: 'YOUTUBE_SHORT',
+                    await: true,
+                    forceReal: true,
+                  }),
+                }).then((r) => r.json())
+                setLog(JSON.stringify(res, null, 2))
+                const restored = await fetch(`${API}/api/validation/safety/restore-defaults`, {
+                  method: 'POST',
+                }).then((r) => r.json())
+                setLog((prev) => `${prev}\n\n--- restore ---\n${JSON.stringify(restored, null, 2)}`)
+                await refresh()
+              } finally {
+                setBusy(false)
+              }
+            }}
+          >
+            Publish REAL + restore
+          </button>
+        </div>
+
         <h2 style={{ marginTop: '2rem', fontFamily: 'var(--font-display)', letterSpacing: '-0.04em' }}>
           Connections
         </h2>
@@ -796,6 +940,28 @@ export function AutomationCenter() {
               if (!workspaceId) return
               setBusy(true)
               try {
+                const res = await fetch(`${API}/api/publishing/connections/youtube/refresh`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ workspaceId }),
+                }).then((r) => r.json())
+                setLog(JSON.stringify(res, null, 2))
+                await refresh()
+              } finally {
+                setBusy(false)
+              }
+            }}
+          >
+            Refresh token YouTube
+          </button>
+          <button
+            type="button"
+            className="btn secondary"
+            disabled={busy || !workspaceId}
+            onClick={async () => {
+              if (!workspaceId) return
+              setBusy(true)
+              try {
                 const conn = await fetch(
                   `${API}/api/publishing/connections?workspaceId=${workspaceId}`,
                 ).then((r) => r.json())
@@ -812,10 +978,13 @@ export function AutomationCenter() {
         <div className="kit-grid">
           <pre>
             {((connections?.connections as Array<Record<string, unknown>>) || [])
-              .map(
-                (c) =>
-                  `${c.platform}: ${c.status || c.publisher} ${c.lastVerifiedAt ? `· verified ${c.lastVerifiedAt}` : ''}`,
-              )
+              .map((c) => {
+                const extra =
+                  c.platform === 'YOUTUBE' && c.canRefresh != null
+                    ? ` · refresh=${c.canRefresh ? 'yes' : 'no'}`
+                    : ''
+                return `${c.platform}: ${c.status || c.publisher}${c.lastVerifiedAt ? ` · verified ${c.lastVerifiedAt}` : ''}${extra}`
+              })
               .join('\n') || 'Carregue um workspace para ver conexões.'}
           </pre>
         </div>

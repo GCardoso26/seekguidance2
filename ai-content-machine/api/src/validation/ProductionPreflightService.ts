@@ -73,12 +73,18 @@ export class ProductionPreflightService {
     try {
       const st = youtubeOAuthService.status(input.workspaceId)
       connStatus = st.status
+      const connOk = st.status === 'CONNECTED' || (st.status === 'EXPIRED' && st.canRefresh)
       checks.push({
         id: 'youtube_connection',
         label: 'YouTube connection',
-        status: st.status === 'CONNECTED' ? 'PASS' : 'FAIL',
-        detail: st.status,
+        status: connOk ? (st.status === 'EXPIRED' ? 'WARN' : 'PASS') : 'FAIL',
+        detail:
+          st.status === 'EXPIRED'
+            ? 'EXPIRED_with_refresh_token — will refresh on publish'
+            : st.status,
       })
+      // Treat refreshable EXPIRED as connected for readyToPublish gate
+      if (connOk) connStatus = 'CONNECTED'
     } catch {
       checks.push({
         id: 'youtube_connection',

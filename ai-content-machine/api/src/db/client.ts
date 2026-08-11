@@ -1,5 +1,6 @@
 import fs from 'node:fs'
 import path from 'node:path'
+import { randomUUID } from 'node:crypto'
 import Database from 'better-sqlite3'
 import { config } from '../config.js'
 import { migrate } from './migrate.js'
@@ -28,7 +29,7 @@ export function resetDbForTests(tmpPath: string): Database.Database {
 }
 
 export function uid(): string {
-  return crypto.randomUUID()
+  return randomUUID()
 }
 
 export function nowIso(): string {

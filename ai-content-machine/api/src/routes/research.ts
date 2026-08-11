@@ -2,12 +2,13 @@ import type { FastifyInstance } from 'fastify'
 import { z } from 'zod'
 import { researchService } from '../research/ResearchService.js'
 import { automationService } from '../services/AutomationService.js'
+import { optionalUuid, workspaceIdField } from '../lib/zodUuid.js'
 
 export async function researchRoutes(app: FastifyInstance) {
   app.post('/api/research/run', async (req, reply) => {
     const schema = z.object({
-      workspaceId: z.string().uuid(),
-      nicheId: z.string().uuid().optional(),
+      workspaceId: workspaceIdField,
+      nicheId: optionalUuid,
       await: z.boolean().optional(),
     })
     const parsed = schema.safeParse(req.body)

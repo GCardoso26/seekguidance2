@@ -54,7 +54,7 @@
         "url": "={{$env.CWM_API_BASE}}/api/research/run",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"workspaceId\": \"{{$('Webhook').item.json.body.workspaceId || $env.CWM_DEFAULT_WORKSPACE_ID}}\",\n  \"nicheId\": \"{{$('Webhook').item.json.body.nicheId || ''}}\",\n  \"await\": true\n}",
+        "jsonBody": "={{ (() => { const src = $('Webhook').item.json.body || {}; const workspaceId = src.workspaceId || $env.CWM_DEFAULT_WORKSPACE_ID; const out = { workspaceId, await: true }; if (src.nicheId) out.nicheId = src.nicheId; return out; })() }}",
         "options": {
           "timeout": 120000
         }

@@ -205,7 +205,7 @@ export class YouTubeOAuthService {
   status(workspaceId: string) {
     const row = getDb()
       .prepare(
-        `SELECT status, account_label, last_verified_at, token_expires_at, reality FROM platform_connections
+        `SELECT status, account_label, last_verified_at, token_expires_at, reality, refresh_token_enc FROM platform_connections
          WHERE workspace_id=? AND platform='YOUTUBE'`,
       )
       .get(workspaceId) as
@@ -215,16 +215,26 @@ export class YouTubeOAuthService {
           last_verified_at: string | null
           token_expires_at: string | null
           reality: string
+          refresh_token_enc: string | null
         }
       | undefined
+
+    let status = row?.status || 'NOT_CONNECTED'
+    const expired =
+      Boolean(row?.token_expires_at) && new Date(String(row?.token_expires_at)).getTime() < Date.now()
+    if (row && expired && status === 'CONNECTED') {
+      status = row.refresh_token_enc ? 'EXPIRED' : 'REQUIRES_REAUTH'
+    }
+
     return {
       platform: 'YOUTUBE',
-      status: row?.status || 'NOT_CONNECTED',
+      status,
       accountLabel: row?.account_label || null,
       lastVerifiedAt: row?.last_verified_at || null,
       tokenExpiresAt: row?.token_expires_at || null,
       reality: row?.reality || 'PENDING',
       oauthConfigured: this.configured(),
+      canRefresh: Boolean(row?.refresh_token_enc),
       // never include tokens
     }
   }

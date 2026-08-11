@@ -26,17 +26,40 @@ export class YouTubePublisher implements PlatformPublisher {
     if (!input.thumbnailUri || !fs.existsSync(input.thumbnailUri)) issues.push('missing_thumbnail')
     const creds = await credentialVault.get('YOUTUBE', input.workspaceId)
     if (!creds) issues.push('youtube_not_connected')
-    else if (creds.status === 'REQUIRES_REAUTH' || creds.status === 'EXPIRED') {
+    else if (creds.status === 'REQUIRES_REAUTH') {
+      // EXPIRED is recoverable via refresh_token — only hard-fail when reauth is required
       issues.push('youtube_requires_reauth')
+    } else if (creds.status === 'EXPIRED') {
+      // Soft: refresh will run in publish/prepareDryRun
+      issues.push('youtube_token_expired_will_refresh')
     }
-    return { ok: issues.length === 0, issues, requiresReview: issues.length > 0 }
+    const hard = issues.filter((i) => i !== 'youtube_token_expired_will_refresh')
+    return {
+      ok: hard.length === 0,
+      issues,
+      requiresReview: hard.length > 0,
+    }
   }
 
   /**
    * Dry-run: validate + authenticate + prepare, no upload.
    */
   async prepareDryRun(input: PublishInput) {
+    // Attempt refresh before judging auth — EXPIRED with refresh_token is OK
+    const refresh = await youtubeOAuthService.refreshIfNeeded(input.workspaceId)
     const validation = await this.validate(input)
+    if (refresh === 'REQUIRES_REAUTH' && !validation.issues.includes('youtube_requires_reauth')) {
+      validation.issues.push('youtube_requires_reauth')
+      validation.ok = false
+      validation.requiresReview = true
+    }
+    // Drop soft expiry warning after successful refresh
+    if (refresh === 'ok') {
+      validation.issues = validation.issues.filter((i) => i !== 'youtube_token_expired_will_refresh')
+      const hard = validation.issues.filter((i) => i !== 'youtube_token_expired_will_refresh')
+      validation.ok = hard.length === 0
+      validation.requiresReview = hard.length > 0
+    }
     const st = fs.existsSync(input.videoUri || '') ? fs.statSync(input.videoUri!) : null
     return {
       wouldPublish: validation.ok,
@@ -51,6 +74,7 @@ export class YouTubePublisher implements PlatformPublisher {
       thumbnail: input.thumbnailUri,
       visibility: 'private_or_unlisted_first_experiment',
       scheduledTime: input.scheduledAt ?? null,
+      refresh,
       metadata: {
         title: input.metadata.title,
         description: input.metadata.description,
@@ -63,22 +87,23 @@ export class YouTubePublisher implements PlatformPublisher {
   }
 
   async publish(input: PublishInput): Promise<PublicationResult & { uploadOutcome?: UploadOutcome }> {
-    const validation = await this.validate(input)
-    if (!validation.ok) {
-      return {
-        ok: false,
-        reality: 'FAILED',
-        error: `validation_failed:${validation.issues.join(',')}`,
-        uploadOutcome: 'FAILED',
-      }
-    }
-
+    // Refresh first so EXPIRED access tokens don't fail validate
     const refresh = await youtubeOAuthService.refreshIfNeeded(input.workspaceId)
     if (refresh === 'REQUIRES_REAUTH') {
       return {
         ok: false,
         reality: 'FAILED',
         error: 'youtube_requires_reauth',
+        uploadOutcome: 'FAILED',
+      }
+    }
+
+    const validation = await this.validate(input)
+    if (!validation.ok) {
+      return {
+        ok: false,
+        reality: 'FAILED',
+        error: `validation_failed:${validation.issues.join(',')}`,
         uploadOutcome: 'FAILED',
       }
     }
