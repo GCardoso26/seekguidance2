@@ -113,22 +113,37 @@ import GlareHover from "@/components/react-bits/GlareHover";
 
 ## Instalação (allowlist)
 
+Os componentes **já estão** em `src/components/react-bits/` no repo. Só rode o CLI se for **adicionar** uma peça nova da allowlist.
+
+**PowerShell (Windows):** não use `\` no fim da linha — o shadcn interpreta `\` como nome de item e falha com `…/new-york/\.json`. Use uma linha só, ou `` ` `` para continuar.
+
+```powershell
+cd frontend/runtime_console_v3
+
+# Núcleo (+ FadeContent auxiliar) — uma linha
+npx shadcn@latest add @react-bits/Noise-TS-TW @react-bits/Grainient-TS-TW @react-bits/DotGrid-TS-TW @react-bits/SplitText-TS-TW @react-bits/CountUp-TS-TW @react-bits/BlurText-TS-TW @react-bits/ShinyText-TS-TW @react-bits/AnimatedContent-TS-TW @react-bits/GlareHover-TS-TW @react-bits/SpotlightCard-TS-TW @react-bits/Magnet-TS-TW @react-bits/GradualBlur-TS-TW @react-bits/AnimatedList-TS-TW @react-bits/Masonry-TS-TW @react-bits/Carousel-TS-TW @react-bits/Counter-TS-TW @react-bits/FadeContent-TS-TW
+
+# Contextuais — uma linha
+npx shadcn@latest add @react-bits/SoftAurora-TS-TW @react-bits/Aurora-TS-TW @react-bits/LightRays-TS-TW @react-bits/Iridescence-TS-TW @react-bits/Threads-TS-TW @react-bits/RotatingText-TS-TW @react-bits/CircularText-TS-TW @react-bits/OrbitImages-TS-TW @react-bits/ScrollStack-TS-TW @react-bits/BorderGlow-TS-TW @react-bits/MagicBento-TS-TW
+```
+
+**bash / zsh** (continuações com `\` ok):
+
 ```bash
 cd frontend/runtime_console_v3
-# Núcleo (+ FadeContent auxiliar)
 npx shadcn@latest add @react-bits/Noise-TS-TW @react-bits/Grainient-TS-TW @react-bits/DotGrid-TS-TW \
   @react-bits/SplitText-TS-TW @react-bits/CountUp-TS-TW @react-bits/BlurText-TS-TW @react-bits/ShinyText-TS-TW \
   @react-bits/AnimatedContent-TS-TW @react-bits/GlareHover-TS-TW @react-bits/SpotlightCard-TS-TW \
   @react-bits/Magnet-TS-TW @react-bits/GradualBlur-TS-TW \
   @react-bits/AnimatedList-TS-TW @react-bits/Masonry-TS-TW @react-bits/Carousel-TS-TW @react-bits/Counter-TS-TW \
   @react-bits/FadeContent-TS-TW
-# Contextuais
 npx shadcn@latest add @react-bits/SoftAurora-TS-TW @react-bits/Aurora-TS-TW @react-bits/LightRays-TS-TW \
   @react-bits/Iridescence-TS-TW @react-bits/Threads-TS-TW \
   @react-bits/RotatingText-TS-TW @react-bits/CircularText-TS-TW \
   @react-bits/OrbitImages-TS-TW @react-bits/ScrollStack-TS-TW @react-bits/BorderGlow-TS-TW @react-bits/MagicBento-TS-TW
-# Em seguida mover para src/components/react-bits/ se o CLI gravar em src/components/
 ```
+
+Depois: mover para `src/components/react-bits/` se o CLI gravar em `src/components/`. Registry em `components.json`: `"@react-bits": "https://reactbits.dev/r/{name}.json"`.
 
 ## Relaciona
 
