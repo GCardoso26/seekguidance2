@@ -15,6 +15,15 @@ function readStoredWorkspaceId(): string {
   return ''
 }
 
+async function fetchJson(url: string, init?: RequestInit): Promise<unknown> {
+  const res = await fetch(url, init)
+  if (!res.ok) {
+    const text = await res.text().catch(() => '')
+    throw new Error(`HTTP ${res.status} ${url}${text ? ` — ${text.slice(0, 180)}` : ''}`)
+  }
+  return res.json()
+}
+
 type Health = {
   mode: string
   systemReady: { ok: boolean; reason?: string }
@@ -89,50 +98,72 @@ export function AutomationCenter() {
   const [providerFilter, setProviderFilter] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
   const [stageFilter, setStageFilter] = useState('')
+  const [apiOnline, setApiOnline] = useState<boolean | null>(null)
 
   async function refresh() {
     const params = new URLSearchParams({ window: windowFilter })
     if (isWorkspaceId(workspaceId)) params.set('workspaceId', workspaceId)
     if (workflowFilter) params.set('workflow', workflowFilter)
     if (providerFilter) params.set('provider', providerFilter)
-    const h = await fetch(`${API}/api/automation/health?${params}`).then((r) => r.json())
-    setHealth(h)
-    const listed = await fetch(`${API}/api/workspaces`).then((r) => r.json())
-    setWorkspaceList(listed.workspaces || [])
-    if (isWorkspaceId(workspaceId)) {
-      const s = await fetch(`${API}/api/workspaces/${workspaceId}`).then((r) => r.json())
-      if (!s.error) setSnap(s)
-      const rr = await fetch(`${API}/api/research/workspaces/${workspaceId}/runs`).then((r) => r.json())
-      const sr = await fetch(`${API}/api/scripts/workspaces/${workspaceId}/runs`).then((r) => r.json())
-      const pr = await fetch(`${API}/api/production/workspaces/${workspaceId}/runs`).then((r) => r.json())
-      const pub = await fetch(`${API}/api/publishing/workspaces/${workspaceId}/runs`).then((r) => r.json())
-      const snaps = await fetch(`${API}/api/analytics/workspaces/${workspaceId}/snapshots`).then((r) =>
-        r.json(),
+    try {
+      const h = (await fetchJson(`${API}/api/automation/health?${params}`)) as Health
+      setHealth(h)
+      setApiOnline(true)
+      const listed = (await fetchJson(`${API}/api/workspaces`)) as {
+        workspaces?: Array<{ id: string; name: string }>
+      }
+      setWorkspaceList(listed.workspaces || [])
+      if (isWorkspaceId(workspaceId)) {
+        const s = (await fetchJson(`${API}/api/workspaces/${workspaceId}`)) as Snapshot & {
+          error?: string
+        }
+        if (!s.error) setSnap(s)
+        const rr = (await fetchJson(`${API}/api/research/workspaces/${workspaceId}/runs`)) as {
+          runs?: Array<Record<string, unknown>>
+        }
+        const sr = (await fetchJson(`${API}/api/scripts/workspaces/${workspaceId}/runs`)) as {
+          runs?: Array<Record<string, unknown>>
+        }
+        const pr = (await fetchJson(`${API}/api/production/workspaces/${workspaceId}/runs`)) as {
+          runs?: Array<Record<string, unknown>>
+        }
+        const pub = (await fetchJson(`${API}/api/publishing/workspaces/${workspaceId}/runs`)) as {
+          runs?: Array<Record<string, unknown>>
+        }
+        const snaps = (await fetchJson(
+          `${API}/api/analytics/workspaces/${workspaceId}/snapshots`,
+        )) as { snapshots?: Array<Record<string, unknown>> }
+        const recs = (await fetchJson(
+          `${API}/api/strategy/workspaces/${workspaceId}/recommendations`,
+        )) as { recommendations?: Array<Record<string, unknown>> }
+        setResearchRuns(rr.runs || [])
+        setScriptRuns(sr.runs || [])
+        let runs = (pr.runs || []) as Array<Record<string, unknown>>
+        if (statusFilter) runs = runs.filter((r) => String(r.status) === statusFilter)
+        if (stageFilter) runs = runs.filter((r) => String(r.current_stage || '') === stageFilter)
+        setProductionRuns(runs)
+        setPublicationRuns(pub.runs || [])
+        setMetricSnapshots(snaps.snapshots || [])
+        setRecommendations(recs.recommendations || [])
+        const conn = (await fetchJson(
+          `${API}/api/publishing/connections?workspaceId=${workspaceId}`,
+        )) as Record<string, unknown>
+        setConnections(conn)
+        const pf = (await fetchJson(
+          `${API}/api/validation/preflight?workspaceId=${workspaceId}`,
+        )) as Record<string, unknown>
+        setPreflight(pf)
+        const ex = (await fetchJson(
+          `${API}/api/validation/experiments?workspaceId=${workspaceId}`,
+        )) as { experiments?: Array<Record<string, unknown>> }
+        setExperiments(ex.experiments || [])
+      }
+    } catch (err) {
+      setApiOnline(false)
+      const msg = err instanceof Error ? err.message : String(err)
+      setLog(
+        `API offline ou inacessível (${API}).\n${msg}\n\nNa VM: sudo docker compose ps && curl -s http://127.0.0.1:8787/health`,
       )
-      const recs = await fetch(`${API}/api/strategy/workspaces/${workspaceId}/recommendations`).then((r) =>
-        r.json(),
-      )
-      setResearchRuns(rr.runs || [])
-      setScriptRuns(sr.runs || [])
-      let runs = (pr.runs || []) as Array<Record<string, unknown>>
-      if (statusFilter) runs = runs.filter((r) => String(r.status) === statusFilter)
-      if (stageFilter) runs = runs.filter((r) => String(r.current_stage || '') === stageFilter)
-      setProductionRuns(runs)
-      setPublicationRuns(pub.runs || [])
-      setMetricSnapshots(snaps.snapshots || [])
-      setRecommendations(recs.recommendations || [])
-      const conn = await fetch(`${API}/api/publishing/connections?workspaceId=${workspaceId}`).then((r) =>
-        r.json(),
-      )
-      setConnections(conn)
-      const pf = await fetch(`${API}/api/validation/preflight?workspaceId=${workspaceId}`).then((r) =>
-        r.json(),
-      )
-      setPreflight(pf)
-      const ex = await fetch(`${API}/api/validation/experiments?workspaceId=${workspaceId}`).then((r) =>
-        r.json(),
-      )
-      setExperiments(ex.experiments || [])
     }
   }
 
