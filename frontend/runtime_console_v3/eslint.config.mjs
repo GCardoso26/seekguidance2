@@ -18,14 +18,24 @@ const designSystemRules = {
   "no-restricted-properties": "off",
 };
 
+/** Owned copies de React Bits (upstream) — mesmo tratamento de `luxury/`. */
+const reactBitsIgnore = "src/components/react-bits/**";
+
 const eslintConfig = [
   {
-    ignores: [".next/**", "node_modules/**", "out/**", "coverage/**", "src/components/luxury/**"],
+    ignores: [
+      ".next/**",
+      "node_modules/**",
+      "out/**",
+      "coverage/**",
+      "src/components/luxury/**",
+      reactBitsIgnore,
+    ],
   },
   ...compat.extends("next/core-web-vitals", "next/typescript"),
   {
     files: ["src/app/**/*.{ts,tsx}", "src/components/**/*.{ts,tsx}"],
-    ignores: ["src/components/luxury/**"],
+    ignores: ["src/components/luxury/**", reactBitsIgnore],
     rules: {
       ...designSystemRules,
       "no-restricted-imports": [
@@ -39,7 +49,7 @@ const eslintConfig = [
   },
   {
     files: ["src/app/**/*.{ts,tsx}", "src/components/**/*.{ts,tsx}"],
-    ignores: ["src/components/luxury/**", "src/styles/**"],
+    ignores: ["src/components/luxury/**", reactBitsIgnore, "src/styles/**"],
     rules: {
       "no-warning-comments": "off",
     },

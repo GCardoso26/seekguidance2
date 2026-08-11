@@ -94,6 +94,7 @@ Só hubs / coleções / lançamentos / leilão futuro. Índigo atenuado ou cor �
 7. Cores via tokens (`--selo`, `--border`, neutros) — sem hex novo; selo ≤ 2× / viewport.
 8. Hover: L ±0.06–0.12; `:focus-visible` mantém `--ring`.
 9. Não quebrar `data-testid`; cobrir fluxos animados no Playwright visual.
+10. ESLint ignora `src/components/react-bits/**` (upstream owned copy, espelha `luxury/`) — lint rigoroso fica nos wrappers de rota (`LojaHeroGallery`, etc.).
 
 ## Instalados (owned copy)
 
