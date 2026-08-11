@@ -1,0 +1,521 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-11T17:16:00.000Z",
+  "title": "Design System: JudgeTCG — Galeria",
+  "extensions": {
+    "colorMeta": {
+      "bg": {
+        "role": "neutral",
+        "displayName": "Parede da Galeria",
+        "canonical": "oklch(0.945 0.004 90)",
+        "tonalRamp": [
+          "oklch(0.15 0.004 90)",
+          "oklch(0.28 0.004 90)",
+          "oklch(0.42 0.004 90)",
+          "oklch(0.55 0.004 90)",
+          "oklch(0.68 0.004 90)",
+          "oklch(0.82 0.004 90)",
+          "oklch(0.945 0.004 90)",
+          "oklch(0.98 0.003 90)"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Superfície",
+        "canonical": "oklch(0.98 0.003 90)",
+        "tonalRamp": [
+          "oklch(0.20 0.003 90)",
+          "oklch(0.35 0.003 90)",
+          "oklch(0.50 0.003 90)",
+          "oklch(0.65 0.003 90)",
+          "oklch(0.80 0.003 90)",
+          "oklch(0.90 0.003 90)",
+          "oklch(0.98 0.003 90)",
+          "oklch(1 0.002 90)"
+        ]
+      },
+      "surface-2": {
+        "role": "neutral",
+        "displayName": "Superfície Elevada",
+        "canonical": "oklch(1 0.002 90)",
+        "tonalRamp": [
+          "oklch(0.22 0.002 90)",
+          "oklch(0.38 0.002 90)",
+          "oklch(0.52 0.002 90)",
+          "oklch(0.68 0.002 90)",
+          "oklch(0.82 0.002 90)",
+          "oklch(0.92 0.002 90)",
+          "oklch(0.97 0.002 90)",
+          "oklch(1 0.002 90)"
+        ]
+      },
+      "fg": {
+        "role": "neutral",
+        "displayName": "Tinta",
+        "canonical": "oklch(0.24 0.012 255)",
+        "tonalRamp": [
+          "oklch(0.12 0.012 255)",
+          "oklch(0.24 0.012 255)",
+          "oklch(0.36 0.014 255)",
+          "oklch(0.48 0.014 250)",
+          "oklch(0.60 0.012 250)",
+          "oklch(0.72 0.010 250)",
+          "oklch(0.84 0.008 250)",
+          "oklch(0.94 0.006 250)"
+        ]
+      },
+      "muted-ink": {
+        "role": "neutral",
+        "displayName": "Tinta Secundária",
+        "canonical": "oklch(0.44 0.018 250)",
+        "tonalRamp": [
+          "oklch(0.18 0.018 250)",
+          "oklch(0.28 0.018 250)",
+          "oklch(0.36 0.018 250)",
+          "oklch(0.44 0.018 250)",
+          "oklch(0.56 0.014 250)",
+          "oklch(0.68 0.012 250)",
+          "oklch(0.80 0.008 250)",
+          "oklch(0.92 0.006 250)"
+        ]
+      },
+      "border": {
+        "role": "neutral",
+        "displayName": "Fio de Galeria",
+        "canonical": "oklch(0.88 0.006 90)",
+        "tonalRamp": [
+          "oklch(0.30 0.006 90)",
+          "oklch(0.45 0.006 90)",
+          "oklch(0.58 0.006 90)",
+          "oklch(0.70 0.006 90)",
+          "oklch(0.80 0.006 90)",
+          "oklch(0.88 0.006 90)",
+          "oklch(0.93 0.004 90)",
+          "oklch(0.97 0.003 90)"
+        ]
+      },
+      "selo": {
+        "role": "primary",
+        "displayName": "Selo Índigo",
+        "canonical": "oklch(0.44 0.17 250)",
+        "tonalRamp": [
+          "oklch(0.18 0.12 250)",
+          "oklch(0.28 0.14 250)",
+          "oklch(0.34 0.15 250)",
+          "oklch(0.38 0.16 250)",
+          "oklch(0.44 0.17 250)",
+          "oklch(0.58 0.14 250)",
+          "oklch(0.78 0.08 250)",
+          "oklch(0.94 0.03 250)"
+        ]
+      },
+      "on-selo": {
+        "role": "primary",
+        "displayName": "Texto sobre Selo",
+        "canonical": "oklch(0.985 0.006 240)",
+        "tonalRamp": [
+          "oklch(0.40 0.006 240)",
+          "oklch(0.55 0.006 240)",
+          "oklch(0.70 0.006 240)",
+          "oklch(0.82 0.006 240)",
+          "oklch(0.90 0.006 240)",
+          "oklch(0.95 0.006 240)",
+          "oklch(0.985 0.006 240)",
+          "oklch(0.995 0.004 240)"
+        ]
+      },
+      "selo-hover": {
+        "role": "primary",
+        "displayName": "Selo Hover",
+        "canonical": "oklch(0.38 0.16 250)",
+        "tonalRamp": [
+          "oklch(0.16 0.12 250)",
+          "oklch(0.24 0.14 250)",
+          "oklch(0.30 0.15 250)",
+          "oklch(0.34 0.15 250)",
+          "oklch(0.38 0.16 250)",
+          "oklch(0.50 0.14 250)",
+          "oklch(0.70 0.08 250)",
+          "oklch(0.90 0.03 250)"
+        ]
+      },
+      "selo-press": {
+        "role": "primary",
+        "displayName": "Selo Press",
+        "canonical": "oklch(0.34 0.15 250)",
+        "tonalRamp": [
+          "oklch(0.14 0.11 250)",
+          "oklch(0.22 0.13 250)",
+          "oklch(0.28 0.14 250)",
+          "oklch(0.34 0.15 250)",
+          "oklch(0.42 0.14 250)",
+          "oklch(0.55 0.12 250)",
+          "oklch(0.72 0.07 250)",
+          "oklch(0.90 0.03 250)"
+        ]
+      },
+      "disabled-bg": {
+        "role": "neutral",
+        "displayName": "Desabilitado Fundo",
+        "canonical": "oklch(0.92 0.005 90)",
+        "tonalRamp": [
+          "oklch(0.25 0.005 90)",
+          "oklch(0.40 0.005 90)",
+          "oklch(0.55 0.005 90)",
+          "oklch(0.70 0.005 90)",
+          "oklch(0.80 0.005 90)",
+          "oklch(0.88 0.005 90)",
+          "oklch(0.92 0.005 90)",
+          "oklch(0.97 0.003 90)"
+        ]
+      },
+      "disabled-fg": {
+        "role": "neutral",
+        "displayName": "Desabilitado Texto",
+        "canonical": "oklch(0.7 0.012 250)",
+        "tonalRamp": [
+          "oklch(0.20 0.012 250)",
+          "oklch(0.35 0.012 250)",
+          "oklch(0.50 0.012 250)",
+          "oklch(0.60 0.012 250)",
+          "oklch(0.70 0.012 250)",
+          "oklch(0.80 0.010 250)",
+          "oklch(0.88 0.008 250)",
+          "oklch(0.95 0.005 250)"
+        ]
+      },
+      "success": {
+        "role": "semantic",
+        "displayName": "Sucesso",
+        "canonical": "oklch(0.48 0.13 155)",
+        "tonalRamp": [
+          "oklch(0.18 0.10 155)",
+          "oklch(0.28 0.12 155)",
+          "oklch(0.38 0.13 155)",
+          "oklch(0.48 0.13 155)",
+          "oklch(0.60 0.11 155)",
+          "oklch(0.72 0.08 155)",
+          "oklch(0.85 0.05 155)",
+          "oklch(0.95 0.02 155)"
+        ]
+      },
+      "warning": {
+        "role": "semantic",
+        "displayName": "Alerta",
+        "canonical": "oklch(0.54 0.14 75)",
+        "tonalRamp": [
+          "oklch(0.20 0.10 75)",
+          "oklch(0.32 0.12 75)",
+          "oklch(0.42 0.13 75)",
+          "oklch(0.54 0.14 75)",
+          "oklch(0.66 0.12 75)",
+          "oklch(0.78 0.08 75)",
+          "oklch(0.88 0.05 75)",
+          "oklch(0.96 0.02 75)"
+        ]
+      },
+      "danger": {
+        "role": "semantic",
+        "displayName": "Perigo",
+        "canonical": "oklch(0.50 0.18 28)",
+        "tonalRamp": [
+          "oklch(0.18 0.12 28)",
+          "oklch(0.28 0.15 28)",
+          "oklch(0.38 0.17 28)",
+          "oklch(0.50 0.18 28)",
+          "oklch(0.62 0.14 28)",
+          "oklch(0.74 0.10 28)",
+          "oklch(0.86 0.05 28)",
+          "oklch(0.96 0.02 28)"
+        ]
+      },
+      "info": {
+        "role": "semantic",
+        "displayName": "Info",
+        "canonical": "oklch(0.50 0.10 235)",
+        "tonalRamp": [
+          "oklch(0.18 0.08 235)",
+          "oklch(0.28 0.09 235)",
+          "oklch(0.38 0.10 235)",
+          "oklch(0.50 0.10 235)",
+          "oklch(0.62 0.08 235)",
+          "oklch(0.74 0.06 235)",
+          "oklch(0.86 0.03 235)",
+          "oklch(0.96 0.015 235)"
+        ]
+      },
+      "auction-bg": {
+        "role": "neutral",
+        "displayName": "Noite — Fundo",
+        "canonical": "oklch(0.20 0.02 258)",
+        "tonalRamp": [
+          "oklch(0.12 0.02 258)",
+          "oklch(0.16 0.02 258)",
+          "oklch(0.20 0.02 258)",
+          "oklch(0.27 0.022 258)",
+          "oklch(0.40 0.02 258)",
+          "oklch(0.55 0.015 258)",
+          "oklch(0.72 0.01 258)",
+          "oklch(0.90 0.008 90)"
+        ]
+      },
+      "auction-surface": {
+        "role": "neutral",
+        "displayName": "Noite — Superfície",
+        "canonical": "oklch(0.27 0.022 258)",
+        "tonalRamp": [
+          "oklch(0.14 0.02 258)",
+          "oklch(0.20 0.02 258)",
+          "oklch(0.27 0.022 258)",
+          "oklch(0.35 0.02 258)",
+          "oklch(0.48 0.018 258)",
+          "oklch(0.62 0.012 258)",
+          "oklch(0.78 0.01 90)",
+          "oklch(0.93 0.008 90)"
+        ]
+      },
+      "auction-fg": {
+        "role": "neutral",
+        "displayName": "Noite — Osso",
+        "canonical": "oklch(0.93 0.008 90)",
+        "tonalRamp": [
+          "oklch(0.30 0.008 90)",
+          "oklch(0.45 0.008 90)",
+          "oklch(0.60 0.008 90)",
+          "oklch(0.72 0.008 90)",
+          "oklch(0.82 0.008 90)",
+          "oklch(0.88 0.008 90)",
+          "oklch(0.93 0.008 90)",
+          "oklch(0.98 0.005 90)"
+        ]
+      },
+      "auction-foil": {
+        "role": "primary",
+        "displayName": "Noite — Foil",
+        "canonical": "oklch(0.76 0.10 82)",
+        "tonalRamp": [
+          "oklch(0.25 0.08 82)",
+          "oklch(0.38 0.09 82)",
+          "oklch(0.50 0.10 82)",
+          "oklch(0.62 0.10 82)",
+          "oklch(0.76 0.10 82)",
+          "oklch(0.84 0.08 82)",
+          "oklch(0.90 0.05 82)",
+          "oklch(0.96 0.02 82)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Títulos de herói, preços e números de destaque em Source Serif 4."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Cabeçalhos de seção (h1/h2) — ênfase editorial sem lavagem de cor."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Títulos de cartão e painel em IBM Plex Sans."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Corpo operacional 15px; linha ≤65ch."
+      },
+      "label": {
+        "displayName": "Label / Mono",
+        "purpose": "Selos, overlines e códigos em IBM Plex Mono; ALL CAPS com tracking."
+      }
+    },
+    "shadows": [
+      {
+        "name": "shadow-xs",
+        "value": "0 1px 0 hsl(214 15% 12% / 0.03)",
+        "purpose": "Botão sólido em repouso — elevação mínima."
+      },
+      {
+        "name": "shadow-sm",
+        "value": "0 1px 2px hsl(214 15% 12% / 0.04)",
+        "purpose": "Inputs e controles."
+      },
+      {
+        "name": "shadow-md",
+        "value": "0 2px 4px hsl(214 15% 12% / 0.05)",
+        "purpose": "Elevação rara de painel."
+      },
+      {
+        "name": "shadow-lg",
+        "value": "0 4px 12px hsl(214 15% 12% / 0.06)",
+        "purpose": "Popover / overlay leve."
+      },
+      {
+        "name": "shadow-xl",
+        "value": "0 8px 20px hsl(214 15% 12% / 0.07)",
+        "purpose": "Máxima elevação ambient; ainda quase invisível."
+      }
+    ],
+    "motion": [
+      {
+        "name": "transition-fast",
+        "value": "150ms",
+        "purpose": "Micro-estados (hover de borda)."
+      },
+      {
+        "name": "transition-base",
+        "value": "200ms",
+        "purpose": "Default de botões e superfícies."
+      },
+      {
+        "name": "transition-slow",
+        "value": "250ms",
+        "purpose": "Reveals contidos."
+      },
+      {
+        "name": "ease-out",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Saída suave — suspensão da carta."
+      },
+      {
+        "name": "ease-in-out",
+        "value": "cubic-bezier(0.4, 0, 0.2, 1)",
+        "purpose": "Transições de estado padrão."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "0ms (prefers-reduced-motion)",
+        "purpose": "Zera --transition-* sob reduced motion."
+      },
+      {
+        "name": "react-bits-allowlist",
+        "value": "docs/frontend/REACT_BITS_GALLERY_ALLOWLIST.md",
+        "purpose": "Única fonte de motion permitida; um instrumento por CTA."
+      }
+    ],
+    "breakpoints": [
+      { "name": "page-gutter", "value": "1rem" },
+      { "name": "page-max", "value": "80rem" },
+      { "name": "mobile-nav-offset", "value": "4.5rem" },
+      { "name": "control-height", "value": "2.25rem" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "CTA único por ação — fundo selo índigo, texto on-selo.",
+      "html": "<button class=\"ds-btn-primary\" type=\"button\">Comprar</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; height: 2.25rem; padding: 0.5rem 1rem; background: oklch(0.44 0.17 250); color: oklch(0.985 0.006 240); border: none; border-radius: 0.5rem; font-family: \"IBM Plex Sans\", system-ui, sans-serif; font-size: 0.875rem; font-weight: 500; letter-spacing: 0.02em; box-shadow: 0 1px 0 hsl(214 15% 12% / 0.03); transition: background 200ms cubic-bezier(0.4, 0, 0.2, 1), transform 150ms; cursor: pointer; } .ds-btn-primary:hover { background: oklch(0.38 0.16 250); } .ds-btn-primary:active { background: oklch(0.34 0.15 250); transform: scale(0.98); } .ds-btn-primary:focus-visible { outline: 3px solid oklch(0.44 0.17 250 / 0.55); outline-offset: 2px; } .ds-btn-primary:disabled { background: oklch(0.92 0.005 90); color: oklch(0.7 0.012 250); cursor: not-allowed; transform: none; }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Entry point secundário — sem fill; hover tonal na parede.",
+      "html": "<button class=\"ds-btn-ghost\" type=\"button\">Ver detalhes</button>",
+      "css": ".ds-btn-ghost { display: inline-flex; align-items: center; justify-content: center; height: 2.25rem; padding: 0.5rem 1rem; background: transparent; color: oklch(0.24 0.012 255); border: none; border-radius: 0.5rem; font-family: \"IBM Plex Sans\", system-ui, sans-serif; font-size: 0.875rem; font-weight: 500; transition: background 200ms; cursor: pointer; } .ds-btn-ghost:hover { background: oklch(0.945 0.004 90); } .ds-btn-ghost:focus-visible { outline: 3px solid oklch(0.44 0.17 250 / 0.55); outline-offset: 2px; }"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Secundário com fio de galeria.",
+      "html": "<button class=\"ds-btn-outline\" type=\"button\">Cancelar</button>",
+      "css": ".ds-btn-outline { display: inline-flex; align-items: center; justify-content: center; height: 2.25rem; padding: 0.5rem 1rem; background: oklch(0.98 0.003 90); color: oklch(0.24 0.012 255); border: 1px solid oklch(0.88 0.006 90); border-radius: 0.5rem; font-family: \"IBM Plex Sans\", system-ui, sans-serif; font-size: 0.875rem; font-weight: 500; transition: background 200ms; cursor: pointer; } .ds-btn-outline:hover { background: oklch(0.945 0.004 90); } .ds-btn-outline:focus-visible { outline: 3px solid oklch(0.44 0.17 250 / 0.55); outline-offset: 2px; }"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "Campo h-9 com fio 1px e sombra xs.",
+      "html": "<input class=\"ds-input\" type=\"search\" placeholder=\"Buscar carta\" />",
+      "css": ".ds-input { display: flex; width: 100%; max-width: 20rem; height: 2.25rem; padding: 0.5rem 0.75rem; background: oklch(0.98 0.003 90); color: oklch(0.24 0.012 255); border: 1px solid oklch(0.88 0.006 90); border-radius: 0.5rem; font-family: \"IBM Plex Sans\", system-ui, sans-serif; font-size: 0.875rem; box-shadow: 0 1px 2px hsl(214 15% 12% / 0.04); transition: border-color 200ms; } .ds-input::placeholder { color: oklch(0.44 0.018 250); } .ds-input:focus-visible { outline: 3px solid oklch(0.44 0.17 250 / 0.55); outline-offset: 2px; } .ds-input:disabled { opacity: 0.5; cursor: not-allowed; }"
+    },
+    {
+      "name": "Gallery Universe Card",
+      "kind": "card",
+      "refersTo": "card-gallery",
+      "description": "Card de universo — parede neutra + fio taxonômico 1px no topo.",
+      "html": "<a class=\"ds-card-gallery\" href=\"#\"><span class=\"ds-card-gallery__seal\" aria-hidden=\"true\"></span><strong class=\"ds-card-gallery__title\">Lorcana</strong><span class=\"ds-card-gallery__meta\">12.480 cartas</span></a>",
+      "css": ".ds-card-gallery { position: relative; display: flex; flex-direction: column; gap: 0.75rem; padding: 1.25rem; background: oklch(0.98 0.003 90); color: oklch(0.24 0.012 255); border: 1px solid oklch(0.88 0.006 90); border-radius: 0.625rem; text-decoration: none; font-family: \"IBM Plex Sans\", system-ui, sans-serif; transition: background 200ms; overflow: hidden; } .ds-card-gallery:hover { background: oklch(1 0.002 90); } .ds-card-gallery:focus-visible { outline: 3px solid oklch(0.44 0.17 250 / 0.55); outline-offset: 2px; } .ds-card-gallery__seal { position: absolute; inset-inline: 0; top: 0; height: 1px; background: hsl(270 55% 48%); } .ds-card-gallery__title { font-weight: 600; line-height: 1.2; } .ds-card-gallery__meta { font-size: 0.75rem; font-variant-numeric: tabular-nums; color: oklch(0.44 0.018 250); }"
+    },
+    {
+      "name": "Taxonomy Seal Chip",
+      "kind": "chip",
+      "refersTo": "chip-taxonomy",
+      "description": "Selo de taxonomia — mono uppercase, borda 1px, sem fill de jogo.",
+      "html": "<span class=\"ds-chip-seal\">LORCANA</span>",
+      "css": ".ds-chip-seal { display: inline-flex; align-items: center; padding: 0.125rem 0.5rem; background: transparent; color: oklch(0.24 0.012 255); border: 1px solid hsl(270 55% 48%); border-radius: 0.25rem; font-family: \"IBM Plex Mono\", ui-monospace, monospace; font-size: 0.75rem; font-weight: 400; letter-spacing: 0.08em; text-transform: uppercase; }"
+    },
+    {
+      "name": "Global Header Nav",
+      "kind": "nav",
+      "refersTo": "nav-global",
+      "description": "Barra clara com item ativo em tinta; selo só no CTA.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Principal\"><a class=\"ds-nav__link\" href=\"#\">Loja</a><a class=\"ds-nav__link ds-nav__link--active\" href=\"#\">Lorcana</a><a class=\"ds-nav__cta\" href=\"#\">Entrar</a></nav>",
+      "css": ".ds-nav { display: flex; align-items: center; gap: 1rem; padding: 0.75rem 1rem; background: oklch(0.945 0.004 90); border-bottom: 1px solid oklch(0.88 0.006 90); font-family: \"IBM Plex Sans\", system-ui, sans-serif; } .ds-nav__link { color: oklch(0.44 0.018 250); text-decoration: none; font-size: 0.875rem; font-weight: 500; padding: 0.25rem 0; border-bottom: 1px solid transparent; } .ds-nav__link:hover { color: oklch(0.24 0.012 255); } .ds-nav__link--active { color: oklch(0.24 0.012 255); border-bottom-color: oklch(0.44 0.17 250); } .ds-nav__link:focus-visible { outline: 3px solid oklch(0.44 0.17 250 / 0.55); outline-offset: 2px; } .ds-nav__cta { margin-inline-start: auto; display: inline-flex; align-items: center; height: 2rem; padding: 0 0.75rem; background: oklch(0.44 0.17 250); color: oklch(0.985 0.006 240); border-radius: 0.5rem; font-size: 0.8125rem; font-weight: 500; text-decoration: none; } .ds-nav__cta:hover { background: oklch(0.38 0.16 250); } .ds-nav__cta:focus-visible { outline: 3px solid oklch(0.44 0.17 250 / 0.55); outline-offset: 2px; }"
+    },
+    {
+      "name": "Gallery Card Frame",
+      "kind": "custom",
+      "refersTo": "card-frame",
+      "description": "Enquadramento 63/88 — fio 1px + pad 1px; a arte é a cor.",
+      "html": "<figure class=\"ds-card-frame\"><div class=\"ds-card-frame__art\" role=\"img\" aria-label=\"Arte da carta\"></div></figure>",
+      "css": ".ds-card-frame { margin: 0; display: inline-block; padding: 1px; border: 1px solid oklch(0.88 0.006 90); border-radius: 0.375rem; background: oklch(0.98 0.003 90); } .ds-card-frame__art { aspect-ratio: 63 / 88; width: 10rem; border-radius: 0.25rem; background: linear-gradient(160deg, oklch(0.72 0.08 270), oklch(0.55 0.12 250)); } .ds-card-frame:focus-within { outline: 3px solid oklch(0.44 0.17 250 / 0.55); outline-offset: 2px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Galeria — a carta é a cor",
+    "overview": "Galeria trata a carta como objeto de museu: a interface é neutra e quase desaparece; a única cor em cena vem da arte do colecionável. É a resposta anti-cor à fragmentação de skins neon por TCG e ao vão do “editorial de colecionador” que nenhum incumbente ocupa.\n\nTrês regras governam tudo: (1) concha neutra — paredes de galeria, quase monocromáticas, nunca uma superfície escura/neon por jogo; (2) arte como fonte de cor — o colecionável dá a cor; a UI apenas enquadra; (3) um selo índigo — acento único do sistema; por jogo, apenas um fio de 1px de taxonomia.\n\nO gesto único do sistema é o fio de galeria — 1px de borda com 1px de respiro interno no enquadramento. Um só floreio, reutilizado em vitrine, selos e destaques. Noite de Leilão é camada contextual opcional (hubs, coleções, lançamentos); fluxos transacionais permanecem sempre em Galeria clara. Motion segue a allowlist React Bits: o movimento suspende a carta, nunca vira o assunto.",
+    "keyCharacteristics": [
+      "Parede quente neutra (oklch em hue ~90); tinta azulada no texto",
+      "Um acento índigo (--selo) — CTA, foco e micro-selo; nunca lavagem de superfície",
+      "Tipografia serifa editorial (Source Serif 4) + IBM Plex Sans/Mono",
+      "Elevação plana: fio de 1px > sombra; sombras só ambientais e fracas",
+      "Selos taxonômicos 1px por TCG; shell nunca muda de cor por jogo",
+      "Acessibilidade obrigatória: contraste ≥4.5:1, :focus-visible, opt-in data-contrast=\"high\""
+    ],
+    "rules": [
+      {
+        "name": "The One Seal Rule",
+        "body": "O acento --selo aparece no máximo ~2× por viewport (CTA + foco/selo); nunca como fill de parede ou wash por jogo.",
+        "section": "colors"
+      },
+      {
+        "name": "The Gallery Wire Rule",
+        "body": "Cor por TCG = fio de 1px (topo de cartão / label mono), nunca fundo colorido no shell.",
+        "section": "colors"
+      },
+      {
+        "name": "The Three-Weight Rule",
+        "body": "Só 400 / 550 / 600. Tracking obrigatório em ALL CAPS e display grande.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat-By-Default Rule",
+        "body": "Superfícies em repouso são planas. Sombra responde a estado (hover/elevação), nunca define a hierarquia da página.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Gallery Frame Rule",
+        "body": "Enquadramento = 1px de fio + 1px de respiro. Esse é o único floreio geométrico do sistema.",
+        "section": "shapes"
+      }
+    ],
+    "dos": [
+      "Do tratar oklch() em design-tokens.css como fonte de cor; canais HSL são derivados para Tailwind/shadcn.",
+      "Do manter um CTA --selo por ação e entry points ghost/texto no restante.",
+      "Do usar selo taxonômico 1px por jogo; shell permanece Galeria.",
+      "Do travar /carrinho, /checkout, /pedidos, /vendedor (e busca de loja) em Galeria clara.",
+      "Do respeitar a allowlist React Bits e prefers-reduced-motion (transitions → 0ms).",
+      "Do garantir contraste ≥4.5:1 (texto) e :focus-visible com ring 3px / offset 2px."
+    ],
+    "donts": [
+      "Don't lavar superfície com cor de TCG, aurora multicor ou wash primary atrás da grade.",
+      "Don't aplicar Noite de Leilão / WebGL em fluxos transacionais ou KPIs de dashboard claro.",
+      "Don't empilhar Magnet + Spotlight no mesmo CTA.",
+      "Don't inventar hex novos em componentes; não reintroduzir brass-* como acento (aliases só de compat).",
+      "Don't mudar o shell de cor por jogo nem criar landing para hard-exit (ADR-016)."
+    ]
+  }
+}

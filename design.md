@@ -1,171 +1,241 @@
-# Judge — Sistema de Design "Galeria"
-
-> Contexto de implementação do redesign **Galeria** em todo o ecossistema Judge
-> (`frontend/runtime_console_v3`: vitrine, perfil, coleção, vendedor, judge, torneios, admin).
->
-> Fontes: `direcoes-paleta-nomes.html` (direção "Galeria — a carta é a cor", 9/10 de inovação) ·
-> `brand-spec.md` (tipografia e regras herdadas) · `auditoria-navegacao-tcg.html` (correções a aplicar junto) ·
-> código-fonte: `src/styles/design-tokens.css`, `src/styles/tcg-theme.ts`, `src/lib/luxury-routes.ts`.
-
+---
+name: JudgeTCG
+description: Galeria — parede neutra; a carta é a cor; um selo índigo.
+colors:
+  bg: "oklch(0.945 0.004 90)"
+  surface: "oklch(0.98 0.003 90)"
+  surface-2: "oklch(1 0.002 90)"
+  fg: "oklch(0.24 0.012 255)"
+  muted-ink: "oklch(0.44 0.018 250)"
+  border: "oklch(0.88 0.006 90)"
+  selo: "oklch(0.44 0.17 250)"
+  on-selo: "oklch(0.985 0.006 240)"
+  selo-hover: "oklch(0.38 0.16 250)"
+  selo-press: "oklch(0.34 0.15 250)"
+  disabled-bg: "oklch(0.92 0.005 90)"
+  disabled-fg: "oklch(0.7 0.012 250)"
+  success: "oklch(0.48 0.13 155)"
+  warning: "oklch(0.54 0.14 75)"
+  danger: "oklch(0.50 0.18 28)"
+  info: "oklch(0.50 0.10 235)"
+  auction-bg: "oklch(0.20 0.02 258)"
+  auction-surface: "oklch(0.27 0.022 258)"
+  auction-fg: "oklch(0.93 0.008 90)"
+  auction-foil: "oklch(0.76 0.10 82)"
+typography:
+  display:
+    fontFamily: "Source Serif 4, Georgia, serif"
+    fontSize: "clamp(1.75rem, 1.55rem + 0.9vw, 2.25rem)"
+    fontWeight: 400
+    lineHeight: 1.15
+    letterSpacing: "-0.01em"
+  headline:
+    fontFamily: "Source Serif 4, Georgia, serif"
+    fontSize: "clamp(1.5rem, 1.35rem + 0.7vw, 1.875rem)"
+    fontWeight: 550
+    lineHeight: 1.2
+    letterSpacing: "-0.01em"
+  title:
+    fontFamily: "IBM Plex Sans, system-ui, sans-serif"
+    fontSize: "1.0625rem"
+    fontWeight: 550
+    lineHeight: 1.3
+    letterSpacing: "0"
+  body:
+    fontFamily: "IBM Plex Sans, system-ui, sans-serif"
+    fontSize: "0.9375rem"
+    fontWeight: 400
+    lineHeight: 1.5
+    letterSpacing: "0"
+  label:
+    fontFamily: "IBM Plex Mono, ui-monospace, monospace"
+    fontSize: "0.8125rem"
+    fontWeight: 400
+    lineHeight: 1.5
+    letterSpacing: "0.06em"
+rounded:
+  sm: "0.25rem"
+  md: "0.375rem"
+  lg: "0.5rem"
+  xl: "0.625rem"
+  "2xl": "0.75rem"
+  full: "9999px"
+spacing:
+  "1": "0.25rem"
+  "2": "0.5rem"
+  "3": "0.75rem"
+  "4": "1rem"
+  "5": "1.25rem"
+  "6": "1.5rem"
+  "8": "2rem"
+  "10": "2.5rem"
+  "12": "3rem"
+  "16": "4rem"
+components:
+  button-primary:
+    backgroundColor: "{colors.selo}"
+    textColor: "{colors.on-selo}"
+    rounded: "{rounded.lg}"
+    padding: "0.5rem 1rem"
+    height: "2.25rem"
+    typography: "{typography.body}"
+  button-primary-hover:
+    backgroundColor: "{colors.selo-hover}"
+    textColor: "{colors.on-selo}"
+  button-ghost:
+    backgroundColor: "transparent"
+    textColor: "{colors.fg}"
+    rounded: "{rounded.lg}"
+    padding: "0.5rem 1rem"
+    height: "2.25rem"
+  button-outline:
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.fg}"
+    rounded: "{rounded.lg}"
+    padding: "0.5rem 1rem"
+    height: "2.25rem"
+  card-gallery:
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.fg}"
+    rounded: "{rounded.xl}"
+    padding: "1.25rem"
+  input-field:
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.fg}"
+    rounded: "{rounded.lg}"
+    padding: "0.5rem 0.75rem"
+    height: "2.25rem"
 ---
 
-## 1. Tese da direção
+# Design System: JudgeTCG — Galeria
 
-**Galeria trata a carta como objeto de museu: a interface é neutra e quase desaparece; a única cor em cena vem da arte da carta.** É a resposta "anti-cor" à fragmentação de skins neon por TCG e ao vão aberto do "editorial de colecionador" que nenhum incumbente ocupa (TCGPlayer/Cardmarket são claros e indistinguíveis; os conceitos de Dribbble/Behance são dark + neon).
+## Overview
 
-Três regras governam tudo:
+**Creative North Star: "Galeria — a carta é a cor"**
 
-1. **Concha neutra** — paredes de galeria, quase monocromáticas. Nunca mais uma superfície escura/neon por jogo.
-2. **Arte como fonte de cor** — o colecionável dá a cor; a UI apenas enquadra.
-3. **Um selo índigo** — o acento do sistema é único; por jogo, apenas um fio de 1px de taxonomia.
+Galeria trata a carta como objeto de museu: a interface é neutra e quase desaparece; a única cor em cena vem da arte do colecionável. É a resposta anti-cor à fragmentação de skins neon por TCG e ao vão do “editorial de colecionador” que nenhum incumbente ocupa.
 
-Posição frente às outras direções:
+Três regras governam tudo: (1) **concha neutra** — paredes de galeria, quase monocromáticas, nunca uma superfície escura/neon por jogo; (2) **arte como fonte de cor** — o colecionável dá a cor; a UI apenas enquadra; (3) **um selo índigo** — acento único do sistema; por jogo, apenas um fio de 1px de taxonomia.
 
-- **Galeria** = escolhida para o núcleo (vitrine, perfil, compra, painéis).
-- **Noite de Leilão** = camada contextual opcional, apenas hubs, coleções e lançamentos (§7).
-- **Tinta sobre Papel** = fallback de baixo risco se a curadoria de arte não acompanhar.
+O gesto único do sistema é o **fio de galeria** — 1px de borda com 1px de respiro interno no enquadramento. Um só floreio, reutilizado em vitrine, selos e destaques. **Noite de Leilão** é camada contextual opcional (hubs, coleções, lançamentos); fluxos transacionais permanecem sempre em Galeria clara. Motion segue a allowlist React Bits: o movimento suspende a carta, nunca vira o assunto.
 
-O gesto único do sistema: o **fio de galeria** — 1px de `--border` com 1px de respiro interno no enquadramento da carta. Um só floreio, reutilizado em vitrine, selos e destaques.
+**Key Characteristics:**
+- Parede quente neutra (`oklch` em hue ~90); tinta azulada no texto
+- Um acento índigo (`--selo`) — CTA, foco e micro-selo; nunca lavagem de superfície
+- Tipografia serifa editorial (Source Serif 4) + IBM Plex Sans/Mono
+- Elevação plana: fio de 1px > sombra; sombras só ambientais e fracas
+- Selos taxonômicos 1px por TCG; shell nunca muda de cor por jogo
+- Acessibilidade obrigatória: contraste ≥4.5:1, `:focus-visible`, opt-in `data-contrast="high"`
 
----
+## Colors
 
-## 2. Tokens de cor
+Paleta quase monocromática de galeria; o índigo do selo é micro-acento, não o tom da interface.
 
-**Fonte de verdade: `oklch()`.** Derivados são gerados por conversão a partir destes valores; nenhum hex novo entra no código.
+### Primary
+- **Selo Índigo** (`oklch(0.44 0.17 250)`): único acento do marketplace — CTA sólido, anel de foco, estados selecionados via `--selo-soft`. Hover/press movem L para `selo-hover` / `selo-press`.
+- **On-selo** (`oklch(0.985 0.006 240)`): texto/ícone sobre o CTA.
 
-### Core
+### Secondary
+Omitido como segundo acento de marca. A “tinta” (`--fg` / escala `primary-*` HSL) é tipográfica, não lavagem.
 
-| Token | Valor | Papel |
-|---|---|---|
-| `--bg` | `oklch(.945 .004 90)` | parede da galeria — quente e neutra |
-| `--surface` | `oklch(.98 .003 90)` | cartões, painéis |
-| `--surface-2` | `oklch(1 .002 90)` | elevado / hover de cartão |
-| `--fg` | `oklch(.24 .012 255)` | texto primário (tinta azulada) |
-| `--muted` | `oklch(.44 .018 250)` | texto secundário (≥4.5:1 sobre `bg`) |
-| `--border` | `oklch(.88 .006 90)` | fio de 1px — agrupa, não sombreia |
-| `--selo` | `oklch(.44 .17 250)` | **único acento** do sistema |
-| `--on-selo` | `oklch(.985 .006 240)` | texto sobre o selo |
+### Tertiary
+**Fios taxonômicos por TCG** (não acento de sistema): cada jogo contribui só `--tcg-seal` derivado do accent HSL em `tcg-theme.ts` — Magic azul, Pokémon vermelho, Yu-Gi-Oh! âmbar, Lorcana violeta, etc. Hard-exit (ADR-016: SWU, Vanguard, Union Arena) sem landing nem selo de vitrine.
 
-O índigo do selo é contido pela própria tese anti-cor: aparece como CTA, foco e fio de taxonomia, **nunca como lavagem de superfície** (a base atual tem a regra "não indigo SaaS"; ela se mantém — o selo é micro-acento, não o tom da interface).
+### Neutral
+- **Parede** (`oklch(0.945 0.004 90)`): fundo canônico da Galeria clara
+- **Superfície / Superfície-2**: cartões e hover elevado
+- **Tinta** (`oklch(0.24 0.012 255)`): texto primário
+- **Tinta secundária** (`oklch(0.44 0.018 250)`): muted ink (≥4.5:1 sobre bg)
+- **Fio** (`oklch(0.88 0.006 90)`): borda 1px — agrupa, não sombreia
+- **Semânticos**: success / warning / danger / info (oklch canônicos; canais HSL derivados no CSS)
+- **Noite de Leilão** (contextual): `auction-bg` / `auction-surface` / `auction-fg` / `auction-foil` — só via `data-shell="auction"`
 
-### Derivados de estado (L movida ±0.06–0.12)
+**The One Seal Rule.** O acento `--selo` aparece no máximo ~2× por viewport (CTA + foco/selo); nunca como fill de parede ou wash por jogo.
 
-| Token | Valor | Uso |
-|---|---|---|
-| `--selo-hover` | `oklch(.38 .16 250)` | hover do CTA primário |
-| `--selo-press` | `oklch(.34 .15 250)` | pressed |
-| `--selo-soft` | `color-mix(in oklch, var(--selo) 10%, var(--surface))` | item selecionado / ativo |
-| `--ring` | `oklch(.44 .17 250 / .55)` | `:focus-visible` — 3px, `outline-offset: 2px` |
-| `--disabled-bg` | `oklch(.92 .005 90)` | desabilitado |
-| `--disabled-fg` | `oklch(.70 .012 250)` | desabilitado (único estado que reduz contraste) |
+**The Gallery Wire Rule.** Cor por TCG = fio de 1px (topo de cartão / label mono), nunca fundo colorido no shell.
 
-### Semânticos
+## Typography
 
-| Token | Valor | Token | Valor |
-|---|---|---|---|
-| `--success` | `oklch(.48 .13 155)` | `--success-fg` | `oklch(.99 .01 255)` |
-| `--warning` | `oklch(.54 .14 75)` | `--warning-fg` | `oklch(.20 .025 255)` |
-| `--danger` | `oklch(.50 .18 28)` | `--danger-fg` | `oklch(.99 .01 255)` |
-| `--info` | `oklch(.50 .10 235)` | `--info-fg` | `oklch(.99 .01 255)` |
+**Display Font:** Source Serif 4 (Georgia)
+**Body Font:** IBM Plex Sans (system-ui)
+**Label/Mono Font:** IBM Plex Mono (ui-monospace)
 
-### Consumo Tailwind / shadcn
+**Character:** Serifa editorial para títulos, preços e números de destaque; sans operacional para UI; mono para códigos, cotações e selos uppercase.
 
-O `design-tokens.css` expõe canais HSL ("space-separated") para o Tailwind. Os tripletos devem ser **gerados por conversão a partir dos OKLch acima**, nunca digitados à mão. Manter o padrão atual: escala `neutral-*`, `primary-*` (tinta), `selo-*` substituindo `brass-*`, e aliases semânticos (`--background`, `--foreground`, `--border`, `--ring`, etc.) apontando para a nova base quente.
+### Hierarchy
+- **Display** (400, `clamp` display-m→xl, leading 1.15, tracking −0.01em a −0.02em ≥32px): heróis e preços.
+- **Headline** (550–600, `--text-h1`/`h2`, leading 1.1–1.2): seções.
+- **Title** (550, `--text-h4`/`h5`): cartões e painéis.
+- **Body** (400, 0.9375rem / 15px, leading 1.5–1.6, máx. ~65ch): leitura operacional.
+- **Label** (400, 0.75–0.8125rem, mono, ALL CAPS tracking `.06em–.1em`): selos e overlines.
+- Pesos: 400 ler / 550 ênfase / 600 anúncio. Sem “negrito sobre negrito”.
 
----
+**The Three-Weight Rule.** Só 400 / 550 / 600. Tracking obrigatório em ALL CAPS e display grande.
 
-## 3. Tipografia
+## Layout
 
-- **Display:** `"Source Serif 4", Georgia, serif` — títulos, preços, números de destaque.
-- **Body:** `"IBM Plex Sans"` — interface operacional.
-- **Mono:** `"IBM Plex Mono"` — códigos, valores, cotações, selos.
-- Escala: manter a escala `--text-*` existente (`clamp` no display, 13–14px no corpo operacional).
-- Leading: display/H1 1.1–1.2; corpo 1.5–1.6; small ≤14px 1.5.
-- Tracking (obrigatório): ALL CAPS `.06em–.1em`; display ≥32px `-.01em a -.02em`; corpo `0`; labels e botões `.02em`.
-- Linha: corpo limitado a 50–75 caracteres (`max-width: 65ch`).
-- 3 pesos: 400 ler / 550 ênfase / 600 anúncio. Sem "negrito sobre negrito".
+Duas conchas, mesma base neutra: **Luxury/Portal** (vitrine, marketing, hubs) com respiro e parede de galeria; **PanelShell** (vendedor, admin, ops) denso e tabular. Container `--page-max: 80rem`, gutter `--page-gutter: 1rem`, ritmo de spacing em escala 4 (`--space-1`…`--space-16`). Parede de vitrine: grade de cartas com respiro uniforme; a carta (proporção 63/88) domina o chrome. Rotas travadas em Galeria clara: `/carrinho`, `/checkout`, `/pedidos`, `/vendedor`, `/loja/busca` (`GALLERY_LOCKED_PREFIXES`). Copy e canônicas de URL em pt-BR.
 
----
+## Elevation & Depth
 
-## 4. Layout e conchas
+Sistema **plano por padrão**: profundidade via tonalidade (`surface` → `surface-2`) e fio de 1px, não via sombra estrutural. Sombras existem mas são ambientais e quase invisíveis.
 
-- **LuxurySiteShell** (via `MinimalProviders`/`luxury-routes.ts`): vitrine, marketing, páginas de jogo — paredes de galeria, respiro, fios de 1px.
-- **PanelShell**: vendedor, admin, observabilidade — denso, orientado a tabela, mesma base neutra.
-- Grade: manter `--page-max: 80rem`, gutter padrão, escala de 4px de spacing.
-- **Parede de vitrine**: grid de cartas com respiro uniforme; a carta (63/88) é o elemento dominante — nunca o chrome.
-- **Densidade reequilibrada**: listas de comércio ganham espaço vertical nos destaques (preço, condição, estoque saltam pela ausência de ruído) e mantêm densidade nas tabelas operacionais.
+### Shadow Vocabulary
+- **xs** (`0 1px 0 hsl(214 15% 12% / 0.03)`): botão sólido em repouso
+- **sm** (`0 1px 2px … / 0.04`): inputs / controles
+- **md–xl**: elevações raras; opacidade ≤0.07
 
----
+**The Flat-By-Default Rule.** Superfícies em repouso são planas. Sombra responde a estado (hover/elevação), nunca define a hierarquia da página.
 
-## 5. Componentes
+## Shapes
 
-- **Carta**: frame 63/88 em superfície pura; fio de galeria (1px) + 1px de respiro; hover = elevação sutil (`--surface-2`), selo de condição ancorado ao canto com inset uniforme.
-- **Selo de taxonomia** (única variação de cor por jogo): borda 1px + label mono uppercase; fio fino opcional de 2–3px no topo do cartão. Nunca um fundo.
-- **Botões**: um CTA primário por ação/viewport (fundo `--selo`, texto `--on-selo`); demais entry points em ghost/texto. Cópia dos CTAs não repetida palavra por palavra.
-- **Nav** (`GlobalHeader`, `GameMegaMenu`, `MobileLayout`): aplicar a correção de destaque ativo da auditoria (F11) — o jogo atual acende em `/{jogo}` e em `/{jogo}/cards`.
-- **Tabelas de painel**: densas, linhas separadas por 1px de `--border`, valores em mono.
+Cantos **pequenos e consistentes**: controles e botões em `rounded-lg` (0.5rem); cartões de universo em `rounded-xl` (0.625rem). Frame de carta: `--gallery-frame` + `--gallery-pad: 1px`. Sem pill clusters como linguagem de marca; `radius-full` só onde o controle exige (avatars, badges pontuais).
 
----
+**The Gallery Frame Rule.** Enquadramento = 1px de fio + 1px de respiro. Esse é o único floreio geométrico do sistema.
 
-## 6. Estados e contraste
+## Components
 
-- **Hover**: mover a L do fundo ±0.06–0.12 (ou borda/sombra/posição); nunca escurecer o texto nem levá-lo a `--muted`. Botão sólido que inverte no hover troca fg+bg na mesma regra.
-- **Focus**: todo foco navegável tem `:focus-visible` com `--ring` (3px, offset 2px).
-- **Disabled**: único estado que reduz contraste.
-- **Contraste mínimo**: texto 4.5:1; texto grande e ícones 3:1. Manter o opt-in `html[data-contrast="high"]`.
+### Buttons
+- **Shape:** `rounded-lg` (0.5rem); altura default 2.25rem (`h-9`)
+- **Primary:** fundo `--selo` / `primary` → texto `--on-selo`; um CTA primário por ação/viewport
+- **Hover / Focus:** `selo-hover` / `primary/90`; `:focus-visible` 3px `ring` offset 2px; `active:scale-[0.98]`
+- **Ghost / Outline:** entry points secundários; outline = borda `--border` em superfície
 
----
+### Chips
+- **Style:** selo de taxonomia — borda 1px + label mono uppercase; fio 1px no topo do cartão de universo
+- **State:** selecionado via `--selo-soft`, nunca fill de jogo
 
-## 7. Skins por jogo → selos de 1px
+### Cards / Containers
+- **Corner Style:** `rounded-xl` na vitrine de jogos; frames de carta com gallery-frame
+- **Background:** `--surface` / `card`; hover → `--surface-2`
+- **Shadow Strategy:** plana; GlareHover permitido no frame neutro (allowlist)
+- **Border:** 1px `--border`
+- **Internal Padding:** ~`p-5` (1.25rem) nos cards de universo
 
-**O shell nunca muda de cor por jogo.** Cada TCG contribui apenas um fio derivado do seu accent (hoje em `TCG_THEMES`, em `src/styles/tcg-theme.ts`):
+### Inputs / Fields
+- **Style:** `h-9`, `rounded-lg`, borda `input`, fundo `card`, `shadow-xs`
+- **Focus:** classe `focus-ring` / outline global Galeria
+- **Error / Disabled:** danger semântico; disabled = único estado que reduz contraste
 
-| Jogo | Accent atual (HSL) | Selo |
-|---|---|---|
-| Magic | `221 83% 42%` | azul |
-| Pokémon | `0 72% 50%` | vermelho |
-| Yu-Gi-Oh! | `38 92% 50%` | âmbar |
-| Lorcana | `270 55% 48%` | violeta |
-| One Piece | `0 82% 52%` | vermelho |
-| Flesh and Blood | `0 65% 38%` | vinho |
-| Gundam | `0 75% 46%` | vermelho |
-| Digimon | `24 95% 52%` | laranja |
-| Dragon Ball | `355 85% 52%` | vermelho |
-| Sorcery | `25 45% 38%` | âmbar escuro |
-| Riftbound | `42 96% 48%` | dourado |
+### Navigation
+- **Style:** `GlobalHeader` + mega-menu / mobile — destaque ativo do jogo em `/{jogo}` e `/{jogo}/cards`; chrome checkout distinto; sem Dock/GooeyNav da avoid-list React Bits
 
-O selo do sistema (índigo `oklch(.44 .17 250)`) permanece para a identidade do marketplace; os fios acima são reservados à taxonomia de cada jogo. Jogos em hard-exit (ADR-016: SWU, Vanguard, Union Arena) **não têm landing nem selo** no ecossistema de produto.
+### Carta (signature)
+Frame 63/88 em superfície pura; fio de galeria; selo de condição no canto com inset uniforme; motion = suspensão leve (AnimatedContent, GlareHover) — um instrumento por CTA (Magnet **ou** Spotlight, não ambos).
 
-**Noite de Leilão (contextual e opcional):** um único escuro canônico (`bg oklch(.20 .02 258)`, `surface oklch(.27 .022 258)`, `fg osso oklch(.93 .008 90)`, acento foil `oklch(.76 .10 82)`) aplicado **somente** em hubs de jogo, coleções e lançamentos. Fluxos transacionais — `/carrinho`, `/checkout`, `/pedidos`, listagem em `/vendedor` — permanecem **sempre** em Galeria clara.
+## Do's and Don'ts
 
----
+### Do:
+- **Do** tratar `oklch()` em `design-tokens.css` como fonte de cor; canais HSL são derivados para Tailwind/shadcn.
+- **Do** manter um CTA `--selo` por ação e entry points ghost/texto no restante.
+- **Do** usar selo taxonômico 1px por jogo; shell permanece Galeria.
+- **Do** travar `/carrinho`, `/checkout`, `/pedidos`, `/vendedor` (e busca de loja) em Galeria clara.
+- **Do** respeitar a allowlist React Bits e `prefers-reduced-motion` (transitions → 0ms).
+- **Do** garantir contraste ≥4.5:1 (texto) e `:focus-visible` com ring 3px / offset 2px.
 
-## 8. Implementação no Judge (`runtime_console_v3`)
-
-1. **`src/styles/design-tokens.css`** — retunar a base: `neutral-*` para os tons quentes de galeria (bg `oklch(.945 .004 90)`), `primary-*` continua tinta, `brass-*` → `selo-*` (índigo), aliases `--luxury-*` apontam para os novos tokens. Manter radius pequeno, sombras planas, escala tipográfica e spacing atuais.
-2. **`src/styles/tcg-theme.ts`** — `TCG_THEMES` deixa de injetar superfície; expõe apenas a cor de `seal` derivada do accent. `LUXURY_JUDGE_SURFACES` fica reservado para a Noite de Leilão.
-3. **Shells** (`luxury-routes.ts`, `LuxurySiteShell`, `PanelShell`, `GlobalHeader`): garantir cobertura da Galeria em vitrine/perfil/vendedor/judge e que a Noite de Leilão nunca alcance carrinho/checkout.
-4. **Navegação** — aplicar `auditoria-navegacao-tcg.html`: canônicas em pt-BR, redirects (F04/F07/F08/F09), limpeza de links legados (F03/F12/F13), destaque ativo do menu (F11).
-5. **Copy** — pt-BR em toda superfície; URLs canônicas já em pt-BR.
-
----
-
-## 9. Aceitação (scorecard de implementação)
-
-- [ ] `oklch` como única fonte de cor; nenhum hex novo em componentes.
-- [ ] Um único acento por tela (`--selo`), aparecendo no máximo 2× por viewport.
-- [ ] A vitrine em `/loja` não tem superfície colorida por jogo — apenas selos de 1px.
-- [ ] Um CTA primário por ação; demais entry points ghost/texto.
-- [ ] Contraste ≥4.5:1 (texto) e ≥3:1 (ícones) em todos os estados; `:focus-visible` com `--ring`.
-- [ ] `/carrinho`, `/checkout`, `/pedidos` e listagem de vendedor permanecem claros (Galeria), nunca escuros.
-- [ ] Navegação sem legados (`/marketplace/*`, `/store/*`, `/player/*`, `/leaderboard`) e com canônicas pt-BR.
-- [ ] Copy pt-BR em toda superfície.
-
----
-
-## Rastro
-
-- `direcoes-paleta-nomes.html` — direção Galeria (9/10): tese, tokens e riscos (arte fraca deixa a loja vazia; densidade a reequilibrar).
-- `brand-spec.md` — tipografia (serifa editorial + IBM Plex) e regras herdadas.
-- `auditoria-navegacao-tcg.html` — correções de navegação aplicadas em conjunto.
-- Código: `src/styles/design-tokens.css`, `src/styles/tcg-theme.ts`, `src/lib/luxury-routes.ts`.
+### Don't:
+- **Don't** lavar superfície com cor de TCG, aurora multicor ou wash `primary` atrás da grade.
+- **Don't** aplicar Noite de Leilão / WebGL em fluxos transacionais ou KPIs de dashboard claro.
+- **Don't** empilhar Magnet + Spotlight no mesmo CTA.
+- **Don't** inventar hex novos em componentes; não reintroduzir `brass-*` como acento (aliases só de compat).
+- **Don't** mudar o shell de cor por jogo nem criar landing para hard-exit (ADR-016).
