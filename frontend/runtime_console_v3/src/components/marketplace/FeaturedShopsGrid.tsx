@@ -17,15 +17,22 @@ export function FeaturedShopsGrid() {
     fetch("/api/featured-shops")
       .then((r) => r.json())
       .then((data: { shops?: Array<Record<string, unknown>> }) => {
-        const mapped: FeaturedSeller[] = (data.shops || []).map((s) => ({
-          id: String(s.id),
-          shopName: String(s.shop_name || "Loja"),
-          avatarUrl: (s.avatar_url as string) || null,
-          rating: Number(s.rating_average || 0),
-          reviewCount: Number(s.rating_count || 0),
-          listingCount: Number(s.listing_count || 0),
-          specialties: (s.specialties as string[]) || [],
-        }));
+        const seen = new Set<string>();
+        const mapped: FeaturedSeller[] = [];
+        for (const s of data.shops || []) {
+          const id = String(s.id);
+          if (!id || seen.has(id)) continue;
+          seen.add(id);
+          mapped.push({
+            id,
+            shopName: String(s.shop_name || "Loja"),
+            avatarUrl: (s.avatar_url as string) || null,
+            rating: Number(s.rating_average || 0),
+            reviewCount: Number(s.rating_count || 0),
+            listingCount: Number(s.listing_count || 0),
+            specialties: (s.specialties as string[]) || [],
+          });
+        }
         setShops(mapped.length ? mapped : FALLBACK);
       })
       .catch(() => setShops(FALLBACK))

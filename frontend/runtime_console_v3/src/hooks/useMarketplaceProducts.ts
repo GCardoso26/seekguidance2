@@ -62,13 +62,18 @@ export function useMarketplaceStores() {
           store_slug?: string;
         }>;
       };
+      const seen = new Set<string>();
       return (data.shops ?? [])
         .map((s) => ({
           id: String(s.id ?? ""),
           name: String(s.shop_name ?? "Loja"),
           slug: String(s.slug ?? s.store_slug ?? ""),
         }))
-        .filter((s) => s.id);
+        .filter((s) => {
+          if (!s.id || seen.has(s.id)) return false;
+          seen.add(s.id);
+          return true;
+        });
     },
     staleTime: 300_000,
   });
