@@ -273,6 +273,7 @@ Guarde `N8N_ENCRYPTION_KEY` e `CWM_CREDENTIALS_ENCRYPTION_KEY` fora da VM (passw
 | `SYSTEM_NOT_READY` | Falta `N8N_BASE_URL`/`N8N_API_KEY` ou webhook secret fraco |
 | Workflows não chamam API | Conferir `CWM_API_BASE=http://api:8787` na rede Docker |
 | Import falha 401 | API Key n8n incorreta |
+| API `Restarting` + `libnode.so` / `ERR_DLOPEN_FAILED` | `better-sqlite3` com ABI errada. `docker compose build --no-cache api && docker compose up -d api` |
 | n8n perde credenciais | `N8N_ENCRYPTION_KEY` mudou — restaurar a original |
 | Web aponta API errada | Rebuild web com `VITE_CWM_API_BASE` do domínio público |
 

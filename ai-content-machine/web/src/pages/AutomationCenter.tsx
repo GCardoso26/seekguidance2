@@ -248,6 +248,22 @@ export function AutomationCenter() {
           Modo atual: <strong>{health?.mode ?? '…'}</strong>
           {health && !health.systemReady.ok ? ` — ${health.systemReady.reason}` : ''}
         </p>
+        <p className="fine" style={{ marginTop: '0.5rem' }}>
+          API: <code>{API}</code>
+          {' · '}
+          {apiOnline === null ? 'checando…' : apiOnline ? 'online' : 'offline (ERR_CONNECTION_REFUSED?)'}
+        </p>
+        {apiOnline === false ? (
+          <pre style={{ marginTop: '0.75rem', maxWidth: '42rem' }}>
+            {`A UI (:8080) não alcança a API (:8787).
+Na VM:
+  sudo docker compose ps
+  sudo docker compose logs --tail=50 api
+  curl -s http://127.0.0.1:8787/health
+  sudo docker compose up -d api
+Firewall/OCI Security List: porta 8787 liberada.`}
+          </pre>
+        ) : null}
 
         <div className="flow-strip" style={{ marginTop: '1.5rem' }}>
           <div>
@@ -950,12 +966,23 @@ export function AutomationCenter() {
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ workspaceId }),
                 })
-                const data = await res.json()
+                const data = await res.json().catch(() => ({}))
                 setLog(JSON.stringify(data, null, 2))
-                if (!res.ok || !data.authorizeUrl) return
-                // Abre URL limpa — evita invalid_oauth_state por copy/paste do JSON
-                window.open(String(data.authorizeUrl), '_blank', 'noopener,noreferrer')
+                if (!res.ok || !(data as { authorizeUrl?: string }).authorizeUrl) {
+                  setApiOnline(res.ok)
+                  return
+                }
+                window.open(
+                  String((data as { authorizeUrl: string }).authorizeUrl),
+                  '_blank',
+                  'noopener,noreferrer',
+                )
                 await refresh()
+              } catch (err) {
+                setApiOnline(false)
+                setLog(
+                  `Falha ao iniciar OAuth (${API}): ${err instanceof Error ? err.message : String(err)}`,
+                )
               } finally {
                 setBusy(false)
               }
