@@ -64,6 +64,7 @@ export default function StoresPage() {
               averageRating={store.average_rating}
               reviewCount={store.review_count}
               verified={store.verified ?? store.verification_status === "verified"}
+              trustTier={store.trust_tier}
             />
           ))}
         </div>

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { TrustTierBadge } from "@/components/store/TrustTierBadge";
 
 type Props = {
   slug: string;
@@ -7,16 +8,29 @@ type Props = {
   averageRating?: number;
   reviewCount?: number;
   verified?: boolean;
+  trustTier?: string | { id: string; label: string; emoji?: string } | null;
 };
 
-export function StoreCard({ slug, name, city, averageRating, reviewCount, verified }: Props) {
+export function StoreCard({
+  slug,
+  name,
+  city,
+  averageRating,
+  reviewCount,
+  verified,
+  trustTier,
+}: Props) {
+  const tier = trustTier || (verified ? "verified" : null);
   return (
-    <Link href={`/stores/${slug}`} className="block rounded-xl border border-slate-700 p-4 hover:border-amber-500/40">
-      <div className="flex items-center gap-2">
+    <Link
+      href={`/stores/${slug}`}
+      className="block rounded-xl border border-border p-4 transition hover:border-primary/40"
+    >
+      <div className="flex flex-wrap items-center gap-2">
         <h3 className="font-semibold">{name}</h3>
-        {verified && <span className="text-xs text-success">✓ Verificada</span>}
+        <TrustTierBadge tier={tier} />
       </div>
-      <p className="mt-1 text-sm text-slate-400">
+      <p className="mt-1 text-sm text-muted-foreground">
         {city ?? "Brasil"} · ⭐ {Number(averageRating ?? 0).toFixed(1)} ({reviewCount ?? 0})
       </p>
     </Link>

@@ -180,3 +180,57 @@ async def admin_catalog_image_health(
     from app.catalog.image_health_service import get_image_health_dashboard
 
     return await get_image_health_dashboard(session)
+
+
+class AccreditationRejectBody(BaseModel):
+    reason: str = ""
+
+
+@router.get("/accreditation/queue")
+async def admin_accreditation_queue(
+    session: DbSession,
+    status: str | None = None,
+    admin_id: str = Depends(require_admin),
+) -> dict[str, Any]:
+    from app.stores import accreditation_applications as apps
+
+    _ = admin_id
+    items = await apps.list_queue(session, status=status)
+    return {"applications": items}
+
+
+@router.post("/accreditation/{app_id}/under-review")
+async def admin_accreditation_under_review(
+    session: DbSession,
+    app_id: str,
+    admin_id: str = Depends(require_admin),
+) -> dict[str, Any]:
+    from app.stores import accreditation_applications as apps
+
+    application = await apps.mark_under_review(session, app_id, admin_id)
+    return {"application": application}
+
+
+@router.post("/accreditation/{app_id}/approve")
+async def admin_accreditation_approve(
+    session: DbSession,
+    app_id: str,
+    admin_id: str = Depends(require_admin),
+) -> dict[str, Any]:
+    from app.stores import accreditation_applications as apps
+
+    application = await apps.approve(session, app_id, admin_id)
+    return {"application": application}
+
+
+@router.post("/accreditation/{app_id}/reject")
+async def admin_accreditation_reject(
+    session: DbSession,
+    app_id: str,
+    body: AccreditationRejectBody,
+    admin_id: str = Depends(require_admin),
+) -> dict[str, Any]:
+    from app.stores import accreditation_applications as apps
+
+    application = await apps.reject(session, app_id, admin_id, reason=body.reason)
+    return {"application": application}

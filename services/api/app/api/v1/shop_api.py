@@ -217,6 +217,8 @@ class CrmNotesBody(BaseModel):
 
 class InventoryImportBody(BaseModel):
     csv: str = Field(min_length=1)
+    kind: str = "products"  # products | cards
+    dry_run: bool = False
 
 
 @router.get("/runtime/judge/marketplace/shop/products")
@@ -990,8 +992,28 @@ async def store_inventory_import_csv(
     body: InventoryImportBody,
     x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
 ) -> dict[str, Any]:
+    from sqlalchemy import text as sa_text
+
     user_id = _require_user(x_judge_user_id)
+    kind = (body.kind or "products").strip().lower()
+    if kind in {"cards", "listings", "singles", "catalog"}:
+        from app.marketplace.catalog_listings_import import import_card_listings_csv
+
+        return await import_card_listings_csv(
+            session,
+            store_id,
+            user_id,
+            body.csv,
+            dry_run=bool(body.dry_run),
+        )
     result = await shop_inventory.import_products_csv(session, store_id, user_id, body.csv)
+    await session.execute(
+        sa_text(
+            "UPDATE tcg_judge.stores SET last_inventory_sync_at = NOW(), updated_at = NOW() WHERE id = :id"
+        ),
+        {"id": store_id},
+    )
+    await session.commit()
     return result
 
 

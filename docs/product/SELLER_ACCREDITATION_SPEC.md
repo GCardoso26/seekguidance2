@@ -3,7 +3,7 @@
 **Status:** Canonical (Fase 0)  
 **ADR:** [ADR-018](../architecture/adr/ADR-018-hobby-store-cnpj-accreditation.md)  
 **Superfície alvo (Fase 2):** `/vender` (landing) → `/vender/credenciamento` (wizard)  
-**Corte atual:** Fase 2 — wizard multi-step + `store_accreditation_applications` + tela Em análise.
+**Corte atual:** Fase 3 — pós-aprovação (CSV→match→oferta), trust tiers na vitrine, dashboard operacional.
 
 ## Objetivo
 
@@ -98,6 +98,13 @@ Tabela `store_accreditation_applications` (migration `20260812200000_…`):
 - API: `GET/POST …/accreditation`, `PATCH …/accreditation/{id}`, `POST …/accreditation/{id}/submit`
 - UI: `/vender/credenciamento`
 - Ligação a `stores.id` + `store_user_roles` (`store_owner`) na **aprovação** (Fase 3 / ops)
+
+## Entrega Fase 3
+
+- **Aprovação:** admin `approve` provisiona/ativa `stores` + `store_user_roles(store_owner)` + `trust_tier=verified`
+- **CSV cartas:** `POST …/inventory/import-csv` com `kind=cards` → match `card_catalog` → `create_listing` (preço/qty/condition); `dry_run` opcional; atualiza `last_inventory_sync_at`
+- **Trust:** colunas `stores.trust_tier` / `last_inventory_sync_at` (migration `20260812210000_…`); selo na vitrine (`TrustTierBadge`) + métricas públicas (pedidos, cancel_rate)
+- **Painel:** `post_approval_onboarding` + `stock_sync` + vendas hoje no overview existente (não shell novo)
 
 ## Gates Fase 1 (obrigatórios agora)
 

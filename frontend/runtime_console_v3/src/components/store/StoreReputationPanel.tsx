@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Shield, Truck, BadgeCheck, Clock, AlertTriangle } from "lucide-react";
 import { useStoreReputation } from "@/hooks/useBuyerExperience";
+import { TrustTierBadge } from "@/components/store/TrustTierBadge";
 
 export function StoreReputationPanel({ slug }: { slug: string }) {
   const { data, isLoading, error } = useStoreReputation(slug);
@@ -13,6 +14,8 @@ export function StoreReputationPanel({ slug }: { slug: string }) {
   if (error || !data) return null;
 
   const badges = data.badges ?? [];
+  const trustTier = (data as { trust_tier?: { id: string; label: string; emoji?: string } }).trust_tier;
+  const metrics = (data as { metrics?: { cancel_rate?: number | null; active_listings?: number } }).metrics;
 
   return (
     <section
@@ -25,12 +28,16 @@ export function StoreReputationPanel({ slug }: { slug: string }) {
           <span className="text-lg font-bold text-primary">{Math.round(data.trust_score)}</span>
         </div>
         <div>
-          <h2 className="flex items-center gap-2 font-semibold">
+          <h2 className="flex flex-wrap items-center gap-2 font-semibold">
             <Shield className="h-4 w-4 text-primary" aria-hidden />
             Trust Score
+            <TrustTierBadge tier={trustTier} />
           </h2>
           <p className="text-sm capitalize text-muted-foreground">
             Nível {data.seller_level} · {data.orders_completed} pedidos concluídos
+            {metrics?.cancel_rate != null
+              ? ` · cancelamentos ${(metrics.cancel_rate * 100).toFixed(1)}%`
+              : ""}
           </p>
         </div>
       </div>

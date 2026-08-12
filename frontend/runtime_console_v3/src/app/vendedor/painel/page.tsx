@@ -28,6 +28,10 @@ import {
 
   TicketsWidget,
 
+  PostApprovalOnboarding,
+
+  StockSyncWidget,
+
 } from "@/components/seller-dashboard/overview";
 
 import { DashboardWorkspace } from "@/components/seller-dashboard/overview/DashboardWorkspace";
@@ -215,6 +219,26 @@ export default function VendedorPainelDashboardPage() {
 
         )}
 
+        <PostApprovalOnboarding
+
+          visible={Boolean(
+
+            (overview as { post_approval_onboarding?: { visible?: boolean } } | undefined)
+
+              ?.post_approval_onboarding?.visible,
+
+          )}
+
+          steps={
+
+            (overview as { post_approval_onboarding?: { steps?: Array<{ id: string; label: string; done: boolean; href: string }> } } | undefined)
+
+              ?.post_approval_onboarding?.steps
+
+          }
+
+        />
+
 
 
         <DashboardWorkspace
@@ -266,6 +290,42 @@ export default function VendedorPainelDashboardPage() {
                 />
 
                 <div className="space-y-6">
+
+                  <StockSyncWidget
+
+                    lastSyncAt={
+
+                      (overview as { stock_sync?: { last_sync_at?: string | null } } | undefined)
+
+                        ?.stock_sync?.last_sync_at
+
+                    }
+
+                    activeListings={
+
+                      (overview as { stock_sync?: { active_listings?: number } } | undefined)
+
+                        ?.stock_sync?.active_listings ?? 0
+
+                    }
+
+                    lowStockCount={
+
+                      (overview as { stock_sync?: { low_stock_count?: number } } | undefined)
+
+                        ?.stock_sync?.low_stock_count ?? overview?.low_stock?.length ?? 0
+
+                    }
+
+                    importHref={
+
+                      (overview as { stock_sync?: { import_href?: string } } | undefined)
+
+                        ?.stock_sync?.import_href ?? "/vendedor/painel/estoque"
+
+                    }
+
+                  />
 
                   <LowStockWidget items={overview?.low_stock ?? []} />
 

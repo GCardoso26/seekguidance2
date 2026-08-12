@@ -270,6 +270,91 @@ async def get_dashboard_overview(session: AsyncSession, owner_id: str) -> dict[s
     yesterday_cents = revenue["yesterday_cents"]
     delta_cents = revenue_cents - yesterday_cents
 
+    listings_cnt = (
+        await session.execute(
+            text(
+                """
+                SELECT COUNT(*)::int AS c
+                FROM tcg_judge.card_listings
+                WHERE seller_id = :uid AND status = 'active'
+                """
+            ),
+            {"uid": owner_id},
+        )
+    ).mappings().first()
+    active_listings = int(listings_cnt["c"] if listings_cnt else 0)
+
+    from app.stores.trust_tiers import resolve_trust_tier, trust_tier_payload
+
+    trust_tier = resolve_trust_tier(
+        store,
+        orders_completed=0,
+        active_listings=active_listings,
+        review_avg=float(store.get("average_rating") or 0),
+        review_count=int(store.get("review_count") or 0),
+        trust_score=float((reputation_summary or {}).get("trust_score") or 0) or None,
+    )
+    try:
+        from app.reputation.reputation_engine import get_seller_reputation_dashboard
+
+        rep_full = await get_seller_reputation_dashboard(session, store_id)
+        oc = int(rep_full.get("orders_completed") or 0)
+        cancel_rate = None
+        ship_on_time = None
+        try:
+            cancel_row = (
+                await session.execute(
+                    text(
+                        """
+                        SELECT
+                          COUNT(*)::int AS total,
+                          COUNT(*) FILTER (WHERE status = 'cancelled')::int AS cancelled
+                        FROM tcg_judge.shop_orders
+                        WHERE store_id = :sid
+                        """
+                    ),
+                    {"sid": store_id},
+                )
+            ).mappings().first()
+            total_orders = int(cancel_row["total"] if cancel_row else 0)
+            cancelled = int(cancel_row["cancelled"] if cancel_row else 0)
+            if total_orders:
+                cancel_rate = cancelled / total_orders
+        except Exception:
+            pass
+        sla_detail = rep_full.get("sla_detail") or {}
+        if isinstance(sla_detail, dict):
+            raw_ship = sla_detail.get("on_time_rate") or sla_detail.get("ship_on_time_rate")
+            if raw_ship is not None:
+                ship_on_time = float(raw_ship)
+        trust_tier = resolve_trust_tier(
+            store,
+            orders_completed=oc,
+            active_listings=active_listings,
+            review_avg=float(rep_full.get("review_avg") or store.get("average_rating") or 0),
+            review_count=int(rep_full.get("review_count") or store.get("review_count") or 0),
+            cancel_rate=cancel_rate,
+            ship_on_time_rate=ship_on_time,
+            trust_score=float(rep_full.get("trust_score") or 0) or None,
+        )
+        if trust_tier and trust_tier != store.get("trust_tier"):
+            await session.execute(
+                text(
+                    "UPDATE tcg_judge.stores SET trust_tier = :t, updated_at = NOW() WHERE id = :id"
+                ),
+                {"t": trust_tier, "id": store_id},
+            )
+            await session.commit()
+    except Exception:
+        pass
+
+    payments_ok = bool(store.get("pix_key") or (store.get("stripe_account_id") and store.get("stripe_onboarding_complete")))
+    shipping_ok = bool(store.get("postal_code") or store.get("city"))
+    acc_status = str(store.get("accreditation_status") or "")
+    show_onboarding = acc_status == "approved" and (
+        active_listings == 0 or not payments_ok or not shipping_ok
+    )
+
     result = {
         "metrics": {
             "pending_payment": pending_payment,
@@ -277,9 +362,49 @@ async def get_dashboard_overview(session: AsyncSession, owner_id: str) -> dict[s
             "shipped_today": shipped_today,
             "revenue_today_cents": revenue_cents,
             "revenue_delta_cents": delta_cents,
+            "active_listings": active_listings,
         },
         "fulfillment_sla": fulfillment_sla,
         "reputation": reputation_summary,
+        "trust_tier": trust_tier_payload(trust_tier),
+        "stock_sync": {
+            "last_sync_at": str(store["last_inventory_sync_at"])
+            if store.get("last_inventory_sync_at")
+            else None,
+            "active_listings": active_listings,
+            "low_stock_count": len(low_stock) if isinstance(low_stock, list) else 0,
+            "import_href": "/vendedor/painel/estoque",
+        },
+        "post_approval_onboarding": {
+            "visible": show_onboarding,
+            "accreditation_status": acc_status,
+            "steps": [
+                {
+                    "id": "catalog",
+                    "label": "Conectar catálogo (CSV ou expansão)",
+                    "done": active_listings > 0,
+                    "href": "/vendedor/painel/estoque",
+                },
+                {
+                    "id": "payments",
+                    "label": "Configurar pagamentos",
+                    "done": payments_ok,
+                    "href": "/vendedor/painel/configuracoes/pagamentos",
+                },
+                {
+                    "id": "shipping",
+                    "label": "Configurar envio",
+                    "done": shipping_ok,
+                    "href": "/vendedor/painel/configuracoes",
+                },
+                {
+                    "id": "first_offer",
+                    "label": "Publicar primeiras ofertas",
+                    "done": active_listings > 0,
+                    "href": "/vendedor/painel/catalogo/cartas?action=new",
+                },
+            ],
+        },
         "recent_orders": recent_orders,
         "low_stock": low_stock,
         "open_tickets": open_tickets,

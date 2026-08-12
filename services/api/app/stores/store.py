@@ -176,7 +176,9 @@ async def list_stores(
         clauses.append("country = :country")
         params["country"] = country.upper()
     if verified_only:
-        clauses.append("verification_status = 'verified'")
+        clauses.append(
+            "(verification_status = 'verified' OR accreditation_status = 'approved' OR trust_tier IS NOT NULL)"
+        )
     sql = f"""
         SELECT * FROM tcg_judge.stores
         WHERE {' AND '.join(clauses)}
@@ -247,10 +249,14 @@ def _serialize_store(row: dict[str, Any]) -> dict[str, Any]:
     if not row:
         return row
     plan = row.get("subscription_plan") or "pending_accreditation"
+    from app.stores.trust_tiers import resolve_trust_tier, trust_tier_payload
+
+    tier_id = row.get("trust_tier") or resolve_trust_tier(row)
     return {
         **row,
         "features": PLAN_FEATURES.get(plan, []),
         "commissionPercent": COMMISSION_BY_PLAN.get(plan, 0),
         "verified": row.get("verification_status") == "verified"
         or row.get("accreditation_status") == "approved",
+        "trust_tier": trust_tier_payload(tier_id if isinstance(tier_id, str) else None),
     }

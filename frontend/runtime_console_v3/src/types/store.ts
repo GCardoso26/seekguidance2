@@ -12,6 +12,7 @@ export type Store = {
   average_rating?: number;
   review_count?: number;
   email?: string;
+  trust_tier?: string | { id: string; label: string; emoji?: string } | null;
 };
 
 export type StoresResponse = {

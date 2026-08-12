@@ -84,6 +84,8 @@ Métricas de engenharia não substituem estes selos nem North Star.
 
 ## Future
 
-- Persistência `store_accreditation_applications` + protocolo `#JTCG-…`.
-- Onboarding pós-aprovação: import CSV → match Master Catalog → oferta.
-- Selo na vitrine e dashboard operacional alinhados aos trust tiers.
+- ~~Persistência `store_accreditation_applications` + protocolo `#JTCG-…`.~~ (Fase 2)
+- ~~Onboarding pós-aprovação: import CSV → match Master Catalog → oferta.~~ (Fase 3)
+- ~~Selo na vitrine e dashboard operacional alinhados aos trust tiers.~~ (Fase 3)
+- ERP / API multi-filial; corte duro de lojas sem CNPJ após grandfather.
+- UI admin da fila de aprovação (API `…/admin/accreditation/*` já existe).

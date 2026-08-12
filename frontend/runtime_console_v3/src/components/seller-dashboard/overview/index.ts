@@ -8,3 +8,5 @@ export { DashboardKpiStrip } from "./DashboardKpiStrip";
 export { OperationalCommandCenter } from "./OperationalCommandCenter";
 export { RecentOrdersWidget } from "./RecentOrdersWidget";
 export { TicketsWidget } from "./TicketsWidget";
+export { PostApprovalOnboarding } from "./PostApprovalOnboarding";
+export { StockSyncWidget } from "./StockSyncWidget";
