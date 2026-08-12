@@ -49,7 +49,7 @@ export default function CuponsPage() {
         <PageEmpty
           variant="panel"
           title="Cadastre sua loja para gerenciar cupons"
-          action={{ label: "Cadastrar loja", href: "/stores/create" }}
+          action={{ label: "Cadastrar loja", href: "/vender" }}
         />
       </PageShell>
     );

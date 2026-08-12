@@ -11,12 +11,24 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.players.store import ensure_player_profile
+from app.stores.cnpj import require_valid_cnpj
 
 SLUG_RE = re.compile(r"^[a-z0-9-]{3,50}$")
 
 PLAN_FEATURES: dict[str, list[str]] = {
+    "pending_accreditation": [],
     "free": [],
-    "pro": ["custom_branding", "analytics_advanced", "priority_support", "commission_reduction"],
+    "lojista": ["buylist", "crm", "analytics", "commission_reduction"],
+    "pro": [
+        "custom_branding",
+        "analytics_advanced",
+        "priority_support",
+        "commission_reduction",
+        "buylist",
+        "crm",
+        "pdv",
+        "api_access",
+    ],
     "enterprise": [
         "custom_branding",
         "analytics_advanced",
@@ -24,10 +36,19 @@ PLAN_FEATURES: dict[str, list[str]] = {
         "api_access",
         "featured_listing",
         "commission_reduction",
+        "buylist",
+        "crm",
+        "pdv",
     ],
 }
 
-COMMISSION_BY_PLAN = {"free": 10, "pro": 7, "enterprise": 5}
+COMMISSION_BY_PLAN = {
+    "pending_accreditation": 0,
+    "free": 10,
+    "lojista": 0,
+    "pro": 0,
+    "enterprise": 0,
+}
 
 
 async def list_owner_stores(session: AsyncSession, owner_id: str) -> list[dict[str, Any]]:
@@ -52,6 +73,7 @@ async def create_store(
     *,
     name: str,
     slug: str,
+    cnpj: str,
     description: str | None = None,
     email: str,
     city: str | None = None,
@@ -60,6 +82,11 @@ async def create_store(
     slug = slug.lower().strip()
     if not SLUG_RE.match(slug):
         raise HTTPException(400, "Slug inválido")
+    try:
+        cnpj_fmt = require_valid_cnpj(cnpj)
+    except ValueError as exc:
+        raise HTTPException(400, "CNPJ inválido — apenas lojas com CNPJ podem se cadastrar.") from exc
+
     existing = (
         await session.execute(
             text("SELECT id FROM tcg_judge.stores WHERE LOWER(slug) = LOWER(:slug)"),
@@ -68,14 +95,37 @@ async def create_store(
     ).mappings().first()
     if existing:
         raise HTTPException(409, "Este slug já está em uso. Escolha outro.")
+
+    dup_cnpj = (
+        await session.execute(
+            text(
+                """
+                SELECT id FROM tcg_judge.stores
+                WHERE regexp_replace(COALESCE(cnpj, ''), '[^0-9]', '', 'g')
+                    = regexp_replace(:cnpj, '[^0-9]', '', 'g')
+                LIMIT 1
+                """
+            ),
+            {"cnpj": cnpj_fmt},
+        )
+    ).mappings().first()
+    if dup_cnpj:
+        raise HTTPException(409, "Já existe uma loja cadastrada com este CNPJ.")
+
     await ensure_player_profile(session, owner_id)
     try:
         row = (
             await session.execute(
                 text(
                     """
-                    INSERT INTO tcg_judge.stores (owner_id, name, slug, description, email, city, country)
-                    VALUES (:oid, :name, :slug, :desc, :email, :city, :country)
+                    INSERT INTO tcg_judge.stores (
+                      owner_id, name, slug, description, email, city, country,
+                      cnpj, subscription_plan, accreditation_status
+                    )
+                    VALUES (
+                      :oid, :name, :slug, :desc, :email, :city, :country,
+                      :cnpj, 'pending_accreditation', 'pending'
+                    )
                     RETURNING *
                     """
                 ),
@@ -87,6 +137,7 @@ async def create_store(
                     "email": email,
                     "city": city,
                     "country": country,
+                    "cnpj": cnpj_fmt,
                 },
             )
         ).mappings().first()
@@ -139,14 +190,20 @@ async def list_stores(
 async def update_store(session: AsyncSession, store_id: str, owner_id: str, fields: dict[str, Any]) -> dict[str, Any]:
     allowed = {
         "name", "description", "logo_url", "banner_url", "address", "city", "state",
-        "country", "phone", "email", "website", "discord", "lat", "lng",
+        "country", "phone", "email", "website", "discord", "lat", "lng", "cnpj",
     }
     sets = []
     params: dict[str, Any] = {"id": store_id, "oid": owner_id}
     for k, v in fields.items():
-        if k in allowed and v is not None:
-            sets.append(f"{k} = :{k}")
-            params[k] = v
+        if k not in allowed or v is None:
+            continue
+        if k == "cnpj":
+            try:
+                v = require_valid_cnpj(str(v))
+            except ValueError as exc:
+                raise HTTPException(400, "CNPJ inválido") from exc
+        sets.append(f"{k} = :{k}")
+        params[k] = v
     if not sets:
         raise HTTPException(400, "Nada para atualizar")
     row = (
@@ -189,10 +246,11 @@ async def get_store_tournaments(session: AsyncSession, store_id: str, limit: int
 def _serialize_store(row: dict[str, Any]) -> dict[str, Any]:
     if not row:
         return row
-    plan = row.get("subscription_plan", "free")
+    plan = row.get("subscription_plan") or "pending_accreditation"
     return {
         **row,
         "features": PLAN_FEATURES.get(plan, []),
-        "commissionPercent": COMMISSION_BY_PLAN.get(plan, 10),
-        "verified": row.get("verification_status") == "verified",
+        "commissionPercent": COMMISSION_BY_PLAN.get(plan, 0),
+        "verified": row.get("verification_status") == "verified"
+        or row.get("accreditation_status") == "approved",
     }

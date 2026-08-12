@@ -38,7 +38,7 @@ export default function SellerApiPage() {
   if (!hasStore) {
     return (
       <main className="p-8 text-center text-muted-foreground">
-        <Link href="/stores/create" className="text-primary underline">
+        <Link href="/vender" className="text-primary underline">
           Cadastre sua loja
         </Link>
       </main>

@@ -2,12 +2,9 @@
 
 import Link from "next/link";
 import { ArrowLeftRight, ShoppingCart, Store } from "lucide-react";
-import { useJudgeAuth } from "@/features/auth/AuthProvider";
 import { cn } from "@/lib/utils";
 
 export function HeaderNavActions() {
-  const { user } = useJudgeAuth();
-
   return (
     <nav className="hidden items-center gap-0.5 md:flex" aria-label="Comprar e vender">
       <Link
@@ -22,7 +19,7 @@ export function HeaderNavActions() {
         <span>Comprar</span>
       </Link>
       <Link
-        href={user ? "/vendedor/painel" : "/entrar?redirect=/vendedor/painel"}
+        href="/vender"
         data-testid="nav-sell"
         className={cn(
           "flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors",

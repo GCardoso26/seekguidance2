@@ -46,7 +46,7 @@ function CuponsContent() {
   if (!storeId) {
     return (
       <p className="text-muted-foreground">
-        <Link href="/stores/create" className="text-primary underline">
+        <Link href="/vender" className="text-primary underline">
           Crie uma loja
         </Link>{" "}
         para gerenciar cupons.

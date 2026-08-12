@@ -1,7 +1,10 @@
-export type SellerPlanId = "free" | "lojista" | "pro" | "enterprise";
+export type SellerPlanId = "lojista" | "pro" | "enterprise" | "pending_accreditation";
+
+/** Legado: free não é plano seller ofertável (ADR-018). Mantido só para leitura de dados antigos. */
+export type LegacySellerPlanId = SellerPlanId | "free";
 
 export type SellerPlan = {
-  id: SellerPlanId;
+  id: Exclude<SellerPlanId, "pending_accreditation">;
   name: string;
   priceCents: number;
   productLimit: number | null;
@@ -9,13 +12,6 @@ export type SellerPlan = {
 };
 
 export const SELLER_PLANS: SellerPlan[] = [
-  {
-    id: "free",
-    name: "Gratuito",
-    priceCents: 0,
-    productLimit: 50,
-    features: ["Escrow", "Listagem básica", "Até 50 produtos"],
-  },
   {
     id: "lojista",
     name: "Lojista",
@@ -39,28 +35,32 @@ export const SELLER_PLANS: SellerPlan[] = [
   },
 ];
 
+const PAID = new Set(["lojista", "pro", "enterprise"]);
+const PRO_PLUS = new Set(["pro", "enterprise"]);
+
 export function planHasFeature(plan: string | undefined, feature: string): boolean {
-  const p = plan || "free";
-  const lojistaPlus = new Set(["lojista", "pro", "enterprise"]);
-  const proPlus = new Set(["pro", "enterprise"]);
-  if (feature === "listings") return true;
-  if (["buylist", "crm", "analytics", "tournaments"].includes(feature)) return lojistaPlus.has(p);
-  if (["pdv", "api"].includes(feature)) return proPlus.has(p);
+  const p = plan || "pending_accreditation";
+  if (["buylist", "crm", "analytics", "tournaments", "listings"].includes(feature)) {
+    return PAID.has(p);
+  }
+  if (["pdv", "api"].includes(feature)) return PRO_PLUS.has(p);
   return false;
 }
 
 /** Verifica se o lojista ainda pode criar listagens dentro do limite do plano. */
 export function canCreateListing(plan: string | undefined, currentCount: number): boolean {
-  const def = SELLER_PLANS.find((item) => item.id === (plan || "free"));
-  if (!def?.productLimit) return true;
+  const def = SELLER_PLANS.find((item) => item.id === plan);
+  if (!def) return false;
+  if (!def.productLimit) return true;
   return currentCount < def.productLimit;
 }
 
 export function formatPlanPrice(cents: number): string {
-  if (cents === 0) return "Grátis";
   return `R$ ${(cents / 100).toFixed(2).replace(".", ",")}/mês`;
 }
 
 export function planLabel(plan: string | undefined): string {
-  return SELLER_PLANS.find((p) => p.id === plan)?.name ?? "Gratuito";
+  if (plan === "free") return "Legado (regularizar)";
+  if (plan === "pending_accreditation") return "Em credenciamento";
+  return SELLER_PLANS.find((p) => p.id === plan)?.name ?? "Em credenciamento";
 }

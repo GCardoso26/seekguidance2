@@ -174,13 +174,15 @@ function FinalCtaSection() {
     <section className="border-t border-border py-16">
       <div className="container mx-auto max-w-2xl px-4 text-center">
         <h2 className="text-2xl font-bold text-foreground">Comece agora</h2>
-        <p className="mt-2 text-muted-foreground">Explore o catálogo ou comece a vender suas cartas hoje.</p>
+        <p className="mt-2 text-muted-foreground">
+          Explore o catálogo ou solicite credenciamento da sua hobby store (CNPJ).
+        </p>
         <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
           <Button size="lg" asChild className="bg-primary text-primary-foreground">
             <Link href="/loja/busca">Explorar cards</Link>
           </Button>
           <Button size="lg" variant="outline" asChild className="border-primary/30">
-            <Link href="/vendedor/painel/listagens/nova">Vender cards</Link>
+            <Link href="/vender">Vender no JudgeTCG</Link>
           </Button>
         </div>
       </div>

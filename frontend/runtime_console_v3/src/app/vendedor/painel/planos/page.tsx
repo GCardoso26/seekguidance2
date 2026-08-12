@@ -6,11 +6,14 @@ import { SellerHeader } from "@/components/seller-dashboard/SellerHeader";
 import { PlanCheckout } from "@/components/store/PlanCheckout";
 import { ProBadge } from "@/components/store/ProBadge";
 import { useSellerStore } from "@/hooks/useSellerStore";
-import { SELLER_PLANS, formatPlanPrice } from "@/lib/seller-plans";
+import { SELLER_PLANS, formatPlanPrice, planLabel } from "@/lib/seller-plans";
 
 export default function PlanosPage() {
   const { storeId, hasStore, dashboard, refetchDashboard } = useSellerStore();
-  const plan = String((dashboard?.store as Record<string, unknown> | undefined)?.subscription_plan ?? "free");
+  const plan = String(
+    (dashboard?.store as Record<string, unknown> | undefined)?.subscription_plan ??
+      "pending_accreditation",
+  );
 
   const { data: storeData } = useQuery({
     queryKey: ["store-plan", storeId],
@@ -23,13 +26,14 @@ export default function PlanosPage() {
   });
 
   const currentPlan = String(storeData?.store?.subscription_plan ?? plan);
+  const needsPaid = ["free", "pending_accreditation"].includes(currentPlan);
 
   if (!hasStore || !storeId) {
     return (
       <main className="p-8 text-center">
-        <p className="text-muted-foreground">Cadastre uma loja para assinar um plano.</p>
-        <Link href="/stores/create" className="mt-4 inline-block text-primary underline">
-          Criar loja
+        <p className="text-muted-foreground">Solicite credenciamento da sua hobby store para assinar um plano.</p>
+        <Link href="/vender" className="mt-4 inline-block text-primary underline">
+          Vender no JudgeTCG
         </Link>
       </main>
     );
@@ -44,12 +48,16 @@ export default function PlanosPage() {
           <ProBadge plan={currentPlan} />
         </div>
         <p className="text-sm text-muted-foreground">
-          Plano atual: <strong>{currentPlan}</strong> — receita via assinatura, sem comissão sobre vendas.
+          Plano atual: <strong>{planLabel(currentPlan)}</strong> — receita via assinatura, sem comissão
+          sobre vendas. Não há plano gratuito para vendedores (ADR-018).
         </p>
 
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {SELLER_PLANS.map((p) => {
             const active = currentPlan === p.id;
+            const canUpgradeToLojista = needsPaid && p.id === "lojista";
+            const canUpgradeToPro =
+              p.id === "pro" && ["free", "pending_accreditation", "lojista"].includes(currentPlan);
             return (
               <div
                 key={p.id}
@@ -63,12 +71,12 @@ export default function PlanosPage() {
                   ))}
                 </ul>
                 {active && <p className="mt-3 text-xs text-primary">Plano ativo</p>}
-                {!active && p.id !== "free" && currentPlan === "free" && p.id === "lojista" && (
+                {!active && canUpgradeToLojista && (
                   <div className="mt-4">
                     <PlanCheckout storeId={storeId} plan="lojista" onSuccess={() => void refetchDashboard()} />
                   </div>
                 )}
-                {!active && p.id === "pro" && ["free", "lojista"].includes(currentPlan) && (
+                {!active && canUpgradeToPro && (
                   <div className="mt-4">
                     <PlanCheckout storeId={storeId} plan="pro" onSuccess={() => void refetchDashboard()} />
                   </div>

@@ -195,6 +195,9 @@ async def create_product(
 
     store = await _assert_store_owner(session, store_id, owner_id)
     await require_verified_merchant(session, owner_id)
+    from app.stores.accreditation import require_store_can_publish
+
+    require_store_can_publish(store)
     limit = product_limit_for_plan(effective_plan(store))
     if limit is not None:
         count_row = (
@@ -266,6 +269,19 @@ async def update_product(
     ).mappings().first()
     if not existing or existing["owner_id"] != owner_id:
         raise HTTPException(404, "Produto não encontrado")
+
+    activating = fields.get("is_active") is True
+    if activating:
+        from app.stores.accreditation import require_store_can_publish
+
+        store_row = (
+            await session.execute(
+                text("SELECT * FROM tcg_judge.stores WHERE id = :sid"),
+                {"sid": existing["store_id"]},
+            )
+        ).mappings().first()
+        if store_row:
+            require_store_can_publish(dict(store_row))
 
     allowed = {
         "name", "description", "tcg_id", "category", "price_cents",

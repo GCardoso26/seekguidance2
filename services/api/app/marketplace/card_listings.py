@@ -10,6 +10,7 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.marketplace.shop_store import store_is_sellable
+from app.stores.accreditation import require_store_can_publish
 
 VALID_CONDITIONS = frozenset({"NM", "LP", "MP", "HP", "DM"})
 LISTING_STATUSES = frozenset({"active", "sold", "reserved", "inactive"})
@@ -39,6 +40,7 @@ async def _seller_store(session: AsyncSession, seller_id: str) -> dict[str, Any]
     if not row:
         raise HTTPException(404, "Cadastre uma loja antes de listar cartas")
     store = dict(row)
+    require_store_can_publish(store)
     if not store_is_sellable(store):
         raise HTTPException(400, "Configure PIX ou Stripe na sua loja antes de vender")
     return store
@@ -433,6 +435,9 @@ async def update_listing(
     ).mappings().first()
     if not row or row["seller_id"] != seller_id:
         raise HTTPException(403, "Não autorizado")
+
+    if fields.get("status") == "active":
+        await _seller_store(session, seller_id)
 
     allowed = {"price_cents", "quantity", "status", "description"}
     updates: dict[str, Any] = {}

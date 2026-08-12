@@ -19,6 +19,7 @@ router = APIRouter(tags=["stores"])
 class StoreCreateBody(BaseModel):
     name: str = Field(min_length=3, max_length=100)
     slug: str = Field(min_length=3, max_length=50)
+    cnpj: str = Field(min_length=14, max_length=18)
     description: str | None = None
     email: str
     city: str | None = None
@@ -33,6 +34,7 @@ class StoreUpdateBody(BaseModel):
     website: str | None = None
     discord: str | None = None
     city: str | None = None
+    cnpj: str | None = None
 
 
 class VerifyBody(BaseModel):
@@ -40,7 +42,45 @@ class VerifyBody(BaseModel):
 
 
 class SubscribeBody(BaseModel):
-    plan: str = Field(pattern="^(pro|enterprise)$")
+    plan: str = Field(pattern="^(lojista|pro|enterprise)$")
+
+
+@router.get("/runtime/judge/stores/cnpj-lookup")
+async def cnpj_lookup(cnpj: str) -> dict[str, Any]:
+    """Consulta cadastral (BrasilAPI). Somente leitura — não aprova credenciamento."""
+    import httpx
+
+    from app.stores.cnpj import format_cnpj, is_valid_cnpj, only_digits
+
+    if not is_valid_cnpj(cnpj):
+        raise HTTPException(400, "CNPJ inválido")
+    digits = only_digits(cnpj)
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            res = await client.get(f"https://brasilapi.com.br/api/cnpj/v1/{digits}")
+    except httpx.HTTPError as exc:
+        raise HTTPException(503, "Consulta CNPJ indisponível") from exc
+    if res.status_code == 404:
+        raise HTTPException(404, "CNPJ não encontrado")
+    if res.status_code >= 400:
+        raise HTTPException(502, "Consulta CNPJ falhou")
+    data = res.json()
+    return {
+        "cnpj": format_cnpj(digits),
+        "razao_social": data.get("razao_social") or data.get("nome"),
+        "nome_fantasia": data.get("nome_fantasia"),
+        "descricao_situacao_cadastral": data.get("descricao_situacao_cadastral"),
+        "situacao_cadastral": data.get("situacao_cadastral"),
+        "logradouro": data.get("logradouro"),
+        "numero": data.get("numero"),
+        "bairro": data.get("bairro"),
+        "municipio": data.get("municipio"),
+        "uf": data.get("uf"),
+        "cep": data.get("cep"),
+        "cnae_fiscal_descricao": data.get("cnae_fiscal_descricao"),
+        "confirmation_required": True,
+        "auto_approved": False,
+    }
 
 
 @router.post("/runtime/judge/stores")
@@ -51,8 +91,15 @@ async def create_store(
 ) -> dict[str, Any]:
     user_id = _require_user(x_judge_user_id)
     return await store_svc.create_store(
-        session, user_id, name=body.name, slug=body.slug,
-        description=body.description, email=body.email, city=body.city, country=body.country,
+        session,
+        user_id,
+        name=body.name,
+        slug=body.slug,
+        cnpj=body.cnpj,
+        description=body.description,
+        email=body.email,
+        city=body.city,
+        country=body.country,
     )
 
 

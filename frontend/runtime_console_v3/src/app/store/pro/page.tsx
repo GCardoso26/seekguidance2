@@ -48,7 +48,7 @@ function ProPageContent() {
     return (
       <div className="surface-card p-8 text-center">
         <p className="text-muted-foreground">Cadastre uma loja para assinar o Pro.</p>
-        <Link href="/stores/create" className="mt-4 inline-block text-primary underline">
+        <Link href="/vender" className="mt-4 inline-block text-primary underline">
           Criar loja
         </Link>
       </div>

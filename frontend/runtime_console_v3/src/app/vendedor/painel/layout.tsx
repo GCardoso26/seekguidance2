@@ -14,6 +14,7 @@ import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { useSellerStore } from "@/hooks/useSellerStore";
 import { InlineLoading } from "@/components/ui/async-state";
 import { isMerchantOnboardingReturn } from "@/lib/merchant-onboarding-return";
+import { SellerAccreditationBanner } from "@/components/seller-dashboard/SellerAccreditationBanner";
 
 function VendedorPainelLayoutInner({ children }: { children: React.ReactNode }) {
   const { theme } = useSellerPanelTheme();
@@ -27,7 +28,7 @@ function VendedorPainelLayoutInner({ children }: { children: React.ReactNode }) 
   const { syncing: onboardingSyncing } = useMerchantOnboardingSync();
   const [mobileOpen, setMobileOpen] = useState(false);
   const { ownerId, storeSlug, dashboard } = useSellerStore();
-  const plan = String((dashboard?.store as Record<string, unknown> | undefined)?.subscription_plan ?? "free");
+  const plan = String((dashboard?.store as Record<string, unknown> | undefined)?.subscription_plan ?? "pending_accreditation");
 
   const kycGateActive = isBlocked && !onboardingReturn;
   const guardsPending = authLoading || kycLoading || !user || kycGateActive || onboardingSyncing;
@@ -75,7 +76,10 @@ function VendedorPainelLayoutInner({ children }: { children: React.ReactNode }) 
         ) : undefined
       }
     >
-      <SellerPanelProvider plan={plan}>{children}</SellerPanelProvider>
+      <SellerPanelProvider plan={plan}>
+        <SellerAccreditationBanner />
+        {children}
+      </SellerPanelProvider>
     </PanelShell>
   );
 }

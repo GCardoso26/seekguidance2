@@ -38,7 +38,8 @@ export function useSellerStore() {
   });
 
   const plan = String(
-    (dashboardQuery.data?.store as Record<string, unknown> | undefined)?.subscription_plan ?? "free",
+    (dashboardQuery.data?.store as Record<string, unknown> | undefined)?.subscription_plan ??
+      "pending_accreditation",
   );
 
   return {
