@@ -69,13 +69,13 @@ export default function VenderLandingPage() {
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <Link
-              href="/entrar?next=/vender"
+              href="/entrar?intent=sell&next=/vender/credenciamento"
               className="inline-flex rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition hover:opacity-90"
             >
               Solicitar credenciamento
             </Link>
             <Link
-              href="/entrar?next=/loja"
+              href="/entrar?intent=buy&next=/loja"
               className="inline-flex rounded-lg border border-border bg-card px-5 py-2.5 text-sm font-medium text-foreground transition hover:bg-muted"
             >
               Quero comprar
@@ -103,11 +103,11 @@ export default function VenderLandingPage() {
         <section className="rounded-2xl border border-border bg-card/60 p-6 sm:p-8">
           <h2 className="text-xl font-semibold tracking-tight">Próximo passo</h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            O wizard completo de credenciamento será liberado em seguida. Por enquanto, use o CTA para
-            autenticar e acompanhar o fluxo — criação de loja sem CNPJ está bloqueada (ADR-018).
+            Preencha o pedido multi-etapas: identificação, CNPJ, responsável, perfil, evidência e
+            operação. Após o envio você recebe um protocolo #JTCG-… e acompanha a análise.
           </p>
           <Link
-            href="/entrar?next=/vender"
+            href="/vender/credenciamento"
             className="mt-5 inline-flex rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground"
           >
             Solicitar credenciamento

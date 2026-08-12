@@ -8,6 +8,7 @@ from app.api.deps import DbSession
 from app.api.v1.tournament_system import _require_user
 from app.reviews.review import list_reviews
 from app.stores import store as store_svc
+from app.stores import accreditation_applications as accreditation_apps
 from app.stores.subscriptions import subscribe_store
 from app.stores.verification import request_verification
 from fastapi import APIRouter, Header, HTTPException
@@ -43,6 +44,11 @@ class VerifyBody(BaseModel):
 
 class SubscribeBody(BaseModel):
     plan: str = Field(pattern="^(lojista|pro|enterprise)$")
+
+
+class AccreditationPatchBody(BaseModel):
+    answers: dict[str, Any] | None = None
+    current_step: int | None = Field(default=None, ge=1, le=8)
 
 
 @router.get("/runtime/judge/stores/cnpj-lookup")
@@ -81,6 +87,55 @@ async def cnpj_lookup(cnpj: str) -> dict[str, Any]:
         "confirmation_required": True,
         "auto_approved": False,
     }
+
+
+@router.get("/runtime/judge/stores/accreditation/mine")
+async def accreditation_mine(
+    session: DbSession,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    app = await accreditation_apps.get_mine(session, user_id)
+    return {"application": app}
+
+
+@router.post("/runtime/judge/stores/accreditation")
+async def accreditation_create(
+    session: DbSession,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    app = await accreditation_apps.create_draft(session, user_id)
+    return {"application": app}
+
+
+@router.patch("/runtime/judge/stores/accreditation/{app_id}")
+async def accreditation_patch(
+    session: DbSession,
+    app_id: str,
+    body: AccreditationPatchBody,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    app = await accreditation_apps.update_draft(
+        session,
+        app_id,
+        user_id,
+        answers=body.answers,
+        current_step=body.current_step,
+    )
+    return {"application": app}
+
+
+@router.post("/runtime/judge/stores/accreditation/{app_id}/submit")
+async def accreditation_submit(
+    session: DbSession,
+    app_id: str,
+    x_judge_user_id: str | None = Header(default=None, alias="X-Judge-User-Id"),
+) -> dict[str, Any]:
+    user_id = _require_user(x_judge_user_id)
+    app = await accreditation_apps.submit(session, app_id, user_id)
+    return {"application": app}
 
 
 @router.post("/runtime/judge/stores")

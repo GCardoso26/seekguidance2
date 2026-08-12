@@ -63,7 +63,7 @@ export function SellerAccreditationBanner() {
               }`}
       </p>
       <div className="mt-2 flex flex-wrap gap-3">
-        <Link href="/vender" className="text-primary underline">
+        <Link href="/vender/credenciamento" className="text-primary underline">
           Credenciamento
         </Link>
         <Link href="/vendedor/painel/planos" className="text-primary underline">

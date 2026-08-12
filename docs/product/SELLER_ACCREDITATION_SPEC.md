@@ -3,7 +3,7 @@
 **Status:** Canonical (Fase 0)  
 **ADR:** [ADR-018](../architecture/adr/ADR-018-hobby-store-cnpj-accreditation.md)  
 **Superfície alvo (Fase 2):** `/vender` (landing) → `/vender/credenciamento` (wizard)  
-**Corte atual (Fase 1):** landing + gates; wizard ainda não implementado.
+**Corte atual:** Fase 2 — wizard multi-step + `store_accreditation_applications` + tela Em análise.
 
 ## Objetivo
 
@@ -91,11 +91,13 @@ Modelo: `JudgeTCG Account` → Buyer **ou** Organization (Hobby Store) com Owner
 
 ## Persistência (Fase 2)
 
-Tabela `store_accreditation_applications`:
+Tabela `store_accreditation_applications` (migration `20260812200000_…`):
 
-- `id`, `protocol` (`#JTCG-…`), `store_id` (nullable até aprovação)
-- `applicant_user_id`, `status`, `answers` JSONB, `cnpj`, timestamps
-- Ligação a `stores.id` na aprovação; membros via `store_user_roles`
+- `id`, `protocol` (`#JTCG-…` no submit), `store_id` (nullable até aprovação)
+- `applicant_user_id`, `status`, `answers` JSONB, `cnpj`, `trust_score_initial`, timestamps
+- API: `GET/POST …/accreditation`, `PATCH …/accreditation/{id}`, `POST …/accreditation/{id}/submit`
+- UI: `/vender/credenciamento`
+- Ligação a `stores.id` + `store_user_roles` (`store_owner`) na **aprovação** (Fase 3 / ops)
 
 ## Gates Fase 1 (obrigatórios agora)
 
