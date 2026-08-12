@@ -16,7 +16,7 @@ import { SellerHeader } from "@/components/seller-dashboard/SellerHeader";
 import { InlineAlert } from "@/components/ui/async-state";
 import { Button } from "@/components/ui/button";
 import { useSellerStore } from "@/hooks/useSellerStore";
-import { planHasFeature } from "@/lib/seller-plans";
+import { planHasFeature, resolveSellerPlan } from "@/lib/seller-plans";
 
 function formatBRL(cents: number) {
   return (cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -26,7 +26,9 @@ function BuylistPageContent() {
   const searchParams = useSearchParams();
   const paySubmissionId = searchParams.get("pay");
   const { storeId, hasStore, dashboard, isLoading: storeLoading } = useSellerStore();
-  const plan = String((dashboard?.store as Record<string, unknown> | undefined)?.subscription_plan ?? "free");
+  const plan = resolveSellerPlan(
+    (dashboard?.store as Record<string, unknown> | undefined)?.subscription_plan as string | undefined,
+  );
   const qc = useQueryClient();
   const [title, setTitle] = useState("Compro sua coleção");
   const [cardName, setCardName] = useState("");
@@ -149,8 +151,8 @@ function BuylistPageContent() {
       <PageShell>
         <PageEmpty
           variant="panel"
-          title="Cadastre sua loja para usar BuyList"
-          action={{ label: "Cadastrar loja", href: "/vender" }}
+          title="Solicite credenciamento para usar BuyList"
+          action={{ label: "Solicitar credenciamento", href: "/vender" }}
         />
       </PageShell>
     );

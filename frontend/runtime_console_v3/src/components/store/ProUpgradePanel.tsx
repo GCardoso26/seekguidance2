@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { ProCheckout } from "@/components/store/ProCheckout";
 import { ProBadge } from "@/components/store/ProBadge";
+import { resolveSellerPlan } from "@/lib/seller-plans";
 
 const PRO_FEATURES = [
   "Produtos ilimitados no marketplace",
@@ -22,7 +23,7 @@ type Props = {
 export function ProUpgradePanel({ storeId, plan, onSubscribed }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const current = plan ?? "free";
+  const current = resolveSellerPlan(plan);
 
   if (current === "pro" || current === "enterprise") {
     return (

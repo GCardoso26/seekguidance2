@@ -6,35 +6,38 @@ import { cn } from "@/lib/utils";
 
 export function HeaderNavActions() {
   return (
-    <nav className="hidden items-center gap-0.5 md:flex" aria-label="Comprar e vender">
+    <nav
+      className="flex items-center gap-0.5"
+      aria-label="Comprar e vender"
+    >
       <Link
         href="/loja"
         data-testid="nav-buy"
         className={cn(
-          "flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+          "flex items-center gap-1.5 rounded-lg px-2 py-2 text-sm font-medium transition-colors sm:px-3",
           "text-muted-foreground hover:bg-muted/80 hover:text-foreground",
         )}
       >
         <ShoppingCart className="h-4 w-4" />
-        <span>Comprar</span>
+        <span className="hidden sm:inline">Comprar</span>
       </Link>
       <Link
         href="/vender"
         data-testid="nav-sell"
         className={cn(
-          "flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+          "flex items-center gap-1.5 rounded-lg px-2 py-2 text-sm font-medium transition-colors sm:px-3",
           "text-muted-foreground hover:bg-muted/80 hover:text-foreground",
         )}
       >
         <Store className="h-4 w-4" />
-        <span>Vender</span>
+        <span className="hidden sm:inline">Vender</span>
       </Link>
       <button
         type="button"
         disabled
         title="Em breve"
         data-testid="nav-trade"
-        className="flex cursor-not-allowed items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground/50 opacity-60"
+        className="hidden cursor-not-allowed items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground/50 opacity-60 sm:flex"
       >
         <ArrowLeftRight className="h-4 w-4" />
         <span>Trocar</span>

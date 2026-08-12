@@ -64,3 +64,9 @@ export function planLabel(plan: string | undefined): string {
   if (plan === "pending_accreditation") return "Em credenciamento";
   return SELLER_PLANS.find((p) => p.id === plan)?.name ?? "Em credenciamento";
 }
+
+/** Default de UI quando a API omite o plano — nunca assumir free (ADR-018). */
+export function resolveSellerPlan(plan: string | null | undefined): string {
+  const value = String(plan ?? "").trim();
+  return value || "pending_accreditation";
+}

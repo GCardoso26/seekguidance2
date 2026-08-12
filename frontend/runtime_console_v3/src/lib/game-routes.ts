@@ -7,7 +7,26 @@ import type { GameId } from "@/types/card";
 
 export const ALL_GAME_SLUGS = Object.values(GAME_TOKENS).map((t) => t.slug);
 
+/** Paths de plataforma que nunca devem ser tratados como TCG em `/[gameSlug]`. */
+export const RESERVED_PLATFORM_SLUGS = new Set([
+  "vender",
+  "vendedor",
+  "stores",
+  "store",
+  "loja",
+  "marketplace",
+  "entrar",
+  "login",
+  "admin",
+  "api",
+]);
+
+export function isReservedPlatformSlug(slug: string): boolean {
+  return RESERVED_PLATFORM_SLUGS.has(slug.trim().toLowerCase());
+}
+
 export function isKnownGameSlug(slug: string): boolean {
+  if (isReservedPlatformSlug(slug)) return false;
   return gameIdFromSlug(slug) !== null;
 }
 

@@ -9,11 +9,13 @@ import { SellerHeader } from "@/components/seller-dashboard/SellerHeader";
 import { Button } from "@/components/ui/button";
 import { useSellerTournaments } from "@/hooks/useSellerTournaments";
 import { useSellerStore } from "@/hooks/useSellerStore";
-import { planHasFeature } from "@/lib/seller-plans";
+import { planHasFeature, resolveSellerPlan } from "@/lib/seller-plans";
 
 export default function TorneiosPage() {
   const { hasStore, dashboard } = useSellerStore();
-  const plan = String((dashboard?.store as Record<string, unknown> | undefined)?.subscription_plan ?? "free");
+  const plan = resolveSellerPlan(
+    (dashboard?.store as Record<string, unknown> | undefined)?.subscription_plan as string | undefined,
+  );
   const qc = useQueryClient();
   const [page, setPage] = useState(1);
   const [createOpen, setCreateOpen] = useState(false);
@@ -34,7 +36,7 @@ export default function TorneiosPage() {
     return (
       <main className="p-8 text-center text-muted-foreground">
         <Link href="/vender" className="text-primary underline">
-          Cadastre sua loja
+          Solicitar credenciamento
         </Link>
       </main>
     );

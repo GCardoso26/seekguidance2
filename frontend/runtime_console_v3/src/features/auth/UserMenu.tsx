@@ -116,11 +116,18 @@ export function UserMenu({ onHistoryClick }: Props = {}) {
               </Link>
             </DropdownMenu.Item>
           )}
-          {isSeller && (
+          {isSeller ? (
             <DropdownMenu.Item asChild>
               <Link href="/vendedor/painel" className={itemClass}>
                 <Store className="h-4 w-4" aria-hidden />
                 Painel do Vendedor
+              </Link>
+            </DropdownMenu.Item>
+          ) : (
+            <DropdownMenu.Item asChild>
+              <Link href="/vender" className={itemClass} data-testid="nav-sell-menu">
+                <Store className="h-4 w-4" aria-hidden />
+                Vender no JudgeTCG
               </Link>
             </DropdownMenu.Item>
           )}

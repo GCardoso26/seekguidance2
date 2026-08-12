@@ -10,6 +10,7 @@ import { StoreRatingBadge, StoreRatingInline } from "@/components/store/StoreRat
 import { StoreReputationPanel } from "@/components/store/StoreReputationPanel";
 import { ProBadge } from "@/components/store/ProBadge";
 import type { ShopProduct } from "@/lib/marketplace-shop";
+import { resolveSellerPlan } from "@/lib/seller-plans";
 
 export default function StorePage() {
   const params = useParams();
@@ -37,7 +38,7 @@ export default function StorePage() {
           <>
             <div className="mt-4 flex flex-wrap items-center gap-2">
               <h1 className="text-2xl font-bold">{String(store.name)}</h1>
-              <ProBadge plan={String(store.subscription_plan ?? "free")} />
+              <ProBadge plan={resolveSellerPlan(store.subscription_plan as string | undefined)} />
               <StoreRatingInline rating={Number(store.average_rating)} count={Number(store.review_count)} />
             </div>
             {Number(store.average_rating) >= 4.8 && Number(store.review_count) >= 50 && (

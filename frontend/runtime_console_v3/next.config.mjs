@@ -43,6 +43,9 @@ const marketplaceRedirects = [
   { source: "/alerts", destination: "/perfil/alertas", permanent: true },
   { source: "/decks/:deckId/edit", destination: "/decks/:deckId/build", permanent: true },
 
+  // === ADR-018: criação de loja só via credenciamento CNPJ ===
+  { source: "/stores/create", destination: "/vender", permanent: true },
+
   // === Redirects de vendedor (/store → /vendedor/painel) ===
   { source: "/store", destination: "/vendedor/painel", permanent: true },
   { source: "/store/dashboard", destination: "/vendedor/painel", permanent: true },

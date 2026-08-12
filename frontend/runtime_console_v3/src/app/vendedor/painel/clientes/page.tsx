@@ -5,7 +5,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { SellerHeader } from "@/components/seller-dashboard/SellerHeader";
 import { Button } from "@/components/ui/button";
 import { useSellerStore } from "@/hooks/useSellerStore";
-import { planHasFeature } from "@/lib/seller-plans";
+import { planHasFeature, resolveSellerPlan } from "@/lib/seller-plans";
 
 const SEGMENT_LABELS: Record<string, string> = {
   high_spender: "Alto valor",
@@ -20,7 +20,9 @@ function formatBRL(cents: number) {
 
 export default function ClientesPage() {
   const { storeId, hasStore, dashboard } = useSellerStore();
-  const plan = String((dashboard?.store as Record<string, unknown> | undefined)?.subscription_plan ?? "free");
+  const plan = resolveSellerPlan(
+    (dashboard?.store as Record<string, unknown> | undefined)?.subscription_plan as string | undefined,
+  );
   const qc = useQueryClient();
 
   const { data, isLoading } = useQuery({
@@ -48,7 +50,7 @@ export default function ClientesPage() {
     return (
       <main className="p-8 text-center text-muted-foreground">
         <Link href="/vender" className="text-primary underline">
-          Cadastre sua loja
+          Solicitar credenciamento
         </Link>
       </main>
     );

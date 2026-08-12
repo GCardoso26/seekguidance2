@@ -6,13 +6,12 @@ import { SellerHeader } from "@/components/seller-dashboard/SellerHeader";
 import { PlanCheckout } from "@/components/store/PlanCheckout";
 import { ProBadge } from "@/components/store/ProBadge";
 import { useSellerStore } from "@/hooks/useSellerStore";
-import { SELLER_PLANS, formatPlanPrice, planLabel } from "@/lib/seller-plans";
+import { SELLER_PLANS, formatPlanPrice, planLabel, resolveSellerPlan } from "@/lib/seller-plans";
 
 export default function PlanosPage() {
   const { storeId, hasStore, dashboard, refetchDashboard } = useSellerStore();
-  const plan = String(
-    (dashboard?.store as Record<string, unknown> | undefined)?.subscription_plan ??
-      "pending_accreditation",
+  const plan = resolveSellerPlan(
+    (dashboard?.store as Record<string, unknown> | undefined)?.subscription_plan as string | undefined,
   );
 
   const { data: storeData } = useQuery({

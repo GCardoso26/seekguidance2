@@ -6,11 +6,13 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { SellerHeader } from "@/components/seller-dashboard/SellerHeader";
 import { Button } from "@/components/ui/button";
 import { useSellerStore } from "@/hooks/useSellerStore";
-import { planHasFeature } from "@/lib/seller-plans";
+import { planHasFeature, resolveSellerPlan } from "@/lib/seller-plans";
 
 export default function SellerApiPage() {
   const { hasStore, dashboard } = useSellerStore();
-  const plan = String((dashboard?.store as Record<string, unknown> | undefined)?.subscription_plan ?? "free");
+  const plan = resolveSellerPlan(
+    (dashboard?.store as Record<string, unknown> | undefined)?.subscription_plan as string | undefined,
+  );
   const [newKey, setNewKey] = useState<string | null>(null);
 
   const { data, refetch } = useQuery({
@@ -39,7 +41,7 @@ export default function SellerApiPage() {
     return (
       <main className="p-8 text-center text-muted-foreground">
         <Link href="/vender" className="text-primary underline">
-          Cadastre sua loja
+          Solicitar credenciamento
         </Link>
       </main>
     );

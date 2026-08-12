@@ -18,6 +18,7 @@ import { KpiCards } from "@/components/dashboard/KpiCards";
 import { QuickActions } from "@/components/dashboard/QuickActions";
 import { ProStatusWidget } from "@/components/dashboard/ProStatusWidget";
 import { DisputeEmptyState } from "@/components/disputes/DisputeEmptyState";
+import { resolveSellerPlan } from "@/lib/seller-plans";
 import { ProductForm, type ProductFormValues } from "@/components/store/ProductForm";
 
 const SalesChart = dynamic(() => import("@/components/dashboard/SalesChart").then((m) => m.SalesChart), {
@@ -149,9 +150,9 @@ function DashboardContent() {
   if (!storeId) {
     return (
       <div className="surface-card p-8 text-center">
-        <p className="text-muted-foreground">Você ainda não tem uma loja cadastrada.</p>
+        <p className="text-muted-foreground">Você ainda não tem uma loja credenciada.</p>
         <Link href="/vender" className="mt-4 inline-block text-primary underline">
-          Cadastrar loja
+          Solicitar credenciamento
         </Link>
       </div>
     );
@@ -161,7 +162,7 @@ function DashboardContent() {
   const stats = (dashboard?.stats ?? {}) as Record<string, number>;
   const revenue = (dashboard?.revenue ?? {}) as Record<string, number>;
   const salesChart = (dashboard?.sales_chart ?? []) as Array<{ day: string; revenue_cents: number }>;
-  const plan = String(store?.subscription_plan ?? "free");
+  const plan = resolveSellerPlan(store?.subscription_plan as string | undefined);
   const hasPix = Boolean(store?.pix_key);
   const paymentsPending = !hasPix;
 
@@ -289,7 +290,7 @@ function DashboardContent() {
           <StripeConnectPanel storeId={storeId} store={store} loading={dashboardLoading} />
           <ProUpgradePanel
             storeId={storeId}
-            plan={String(store?.subscription_plan ?? "free")}
+            plan={resolveSellerPlan(store?.subscription_plan as string | undefined)}
             onSubscribed={() => void refetchDashboard()}
           />
         </div>

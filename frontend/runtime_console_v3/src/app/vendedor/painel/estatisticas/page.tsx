@@ -15,7 +15,7 @@ import { PeriodSelector } from "@/components/seller-dashboard/PeriodSelector";
 import { StatCard } from "@/components/seller-dashboard/StatCard";
 import { useSellerStore } from "@/hooks/useSellerStore";
 import { formatShopPrice } from "@/lib/marketplace-shop";
-import { planHasFeature } from "@/lib/seller-plans";
+import { planHasFeature, resolveSellerPlan } from "@/lib/seller-plans";
 
 const SalesChart = dynamic(
   () => import("@/components/dashboard/SalesChart").then((m) => m.SalesChart),
@@ -27,7 +27,9 @@ type Period = "7d" | "30d" | "90d" | "1y" | "all";
 export default function EstatisticasPage() {
   const [period, setPeriod] = useState<Period>("30d");
   const { dashboard, isLoading: storeLoading } = useSellerStore();
-  const plan = String((dashboard?.store as Record<string, unknown> | undefined)?.subscription_plan ?? "free");
+  const plan = resolveSellerPlan(
+    (dashboard?.store as Record<string, unknown> | undefined)?.subscription_plan as string | undefined,
+  );
   const hasAnalytics = planHasFeature(plan, "analytics");
 
   const { data, isLoading, isError, refetch } = useQuery({

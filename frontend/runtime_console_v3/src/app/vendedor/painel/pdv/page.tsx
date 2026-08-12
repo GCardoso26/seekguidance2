@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import { PageHeader, PageShell, PageSkeleton } from "@/components/seller-dashboard/PageShell";
 import { Button } from "@/components/ui/button";
 import { useSellerStore } from "@/hooks/useSellerStore";
-import { planHasFeature } from "@/lib/seller-plans";
+import { planHasFeature, resolveSellerPlan } from "@/lib/seller-plans";
 
 const PdvManager = dynamic(
   () => import("@/components/seller-dashboard/pdv/PdvManager").then((m) => m.PdvManager),
@@ -14,7 +14,9 @@ const PdvManager = dynamic(
 
 export default function PdvPage() {
   const { storeId, hasStore, dashboard, isLoading: storeLoading } = useSellerStore();
-  const plan = String((dashboard?.store as Record<string, unknown> | undefined)?.subscription_plan ?? "free");
+  const plan = resolveSellerPlan(
+    (dashboard?.store as Record<string, unknown> | undefined)?.subscription_plan as string | undefined,
+  );
   const storeName = String((dashboard?.store as Record<string, unknown> | undefined)?.name ?? "Minha loja");
   const hasPdv = planHasFeature(plan, "pdv");
 
@@ -26,7 +28,7 @@ export default function PdvPage() {
     return (
       <main className="p-8 text-center text-muted-foreground">
         <Link href="/vender" className="text-primary underline">
-          Cadastre sua loja
+          Solicitar credenciamento
         </Link>
       </main>
     );

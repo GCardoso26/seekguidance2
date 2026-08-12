@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import { ProCheckout } from "@/components/store/ProCheckout";
 import { ProBadge } from "@/components/store/ProBadge";
+import { resolveSellerPlan } from "@/lib/seller-plans";
 
 const BENEFITS = [
   "Produtos ilimitados no marketplace",
@@ -42,14 +43,14 @@ function ProPageContent() {
   });
 
   const store = dashboard?.store as Record<string, unknown> | undefined;
-  const plan = String(store?.subscription_plan ?? "free");
+  const plan = resolveSellerPlan(store?.subscription_plan as string | undefined);
 
   if (!storeId) {
     return (
       <div className="surface-card p-8 text-center">
-        <p className="text-muted-foreground">Cadastre uma loja para assinar o Pro.</p>
+        <p className="text-muted-foreground">Solicite credenciamento da hobby store para assinar o Pro.</p>
         <Link href="/vender" className="mt-4 inline-block text-primary underline">
-          Criar loja
+          Solicitar credenciamento
         </Link>
       </div>
     );

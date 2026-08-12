@@ -115,8 +115,8 @@ export default function EstoquePage() {
       <PageShell>
         <PageEmpty
           variant="panel"
-          title="Você ainda não tem uma loja cadastrada"
-          action={{ label: "Cadastrar loja", href: "/vender" }}
+          title="Você ainda não tem uma loja credenciada"
+          action={{ label: "Solicitar credenciamento", href: "/vender" }}
         />
       </PageShell>
     );

@@ -118,3 +118,17 @@ Tabela `store_accreditation_applications` (migration `20260812200000_…`):
 - Lojas existentes sem CNPJ ou `subscription_plan = free` recebem `accreditation_status = grandfathered` e `accreditation_deadline_at` (default 45 dias na migration)
 - Banner no painel até regularização
 - Script ops lista lojas em risco; **não** apaga lojas no corte 1
+
+## Smoke pós-deploy (Fases 1–3)
+
+Após merge em produção (frontend Vercel + API Render):
+
+1. `GET /vender` → **200** (não 404 via `[gameSlug]`)
+2. `GET /stores/create` → redirect permanente para `/vender`
+3. Nav “Vender” (desktop e mobile) → `/vender`
+4. `/vendedor/painel/onboarding` **sem loja** → redirect `/vender`; **com loja** → Stripe Connect (“pagamentos”)
+5. Empty states do painel: CTA “Solicitar credenciamento”
+6. Estoque: import CSV `kind=cards`
+7. Overview: `post_approval_onboarding` + `stock_sync` quando aprovada
+8. Vitrine `/stores` e `/marketplace/loja/[slug]`: selo `trust_tier` quando API retorna
+9. Banner grandfather para lojas `grandfathered` / `free` legado

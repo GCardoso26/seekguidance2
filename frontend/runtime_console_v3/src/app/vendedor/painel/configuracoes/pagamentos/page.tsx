@@ -6,6 +6,7 @@ import { PixWebhookStatus } from "@/components/store/PixWebhookStatus";
 import { StripeConnectPanel } from "@/components/store/StripeConnectPanel";
 import { ProUpgradePanel } from "@/components/store/ProUpgradePanel";
 import { useSellerStore } from "@/hooks/useSellerStore";
+import { resolveSellerPlan } from "@/lib/seller-plans";
 
 export default function PagamentosConfigPage() {
   const { storeId, dashboard, dashboardLoading, refetchDashboard } = useSellerStore();
@@ -23,7 +24,7 @@ export default function PagamentosConfigPage() {
             <StripeConnectPanel storeId={storeId} store={store} loading={dashboardLoading} />
             <ProUpgradePanel
               storeId={storeId}
-              plan={String(store?.subscription_plan ?? "free")}
+              plan={resolveSellerPlan(store?.subscription_plan as string | undefined)}
               onSubscribed={() => void refetchDashboard()}
             />
           </>

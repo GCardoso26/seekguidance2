@@ -5,6 +5,7 @@ import {
   gameCardsPath,
   gameLandingPath,
   isKnownGameSlug,
+  isReservedPlatformSlug,
 } from "@/lib/game-routes";
 
 describe("game-routes", () => {
@@ -12,6 +13,15 @@ describe("game-routes", () => {
     expect(isKnownGameSlug("mtg")).toBe(true);
     expect(isKnownGameSlug("pokemon")).toBe(true);
     expect(isKnownGameSlug("not-a-game")).toBe(false);
+  });
+
+  it("nunca trata paths de plataforma como gameSlug", () => {
+    expect(isReservedPlatformSlug("vender")).toBe(true);
+    expect(isReservedPlatformSlug("vendedor")).toBe(true);
+    expect(isReservedPlatformSlug("stores")).toBe(true);
+    expect(isKnownGameSlug("vender")).toBe(false);
+    expect(isKnownGameSlug("vendedor")).toBe(false);
+    expect(isKnownGameSlug("stores")).toBe(false);
   });
 
   it("gera paths estilo CardTrader", () => {

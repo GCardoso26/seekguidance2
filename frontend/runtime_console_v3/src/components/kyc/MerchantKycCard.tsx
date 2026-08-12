@@ -164,11 +164,26 @@ export function MerchantKycCard() {
   }
 
   if (status === "none") {
+    if (!storeId && !storeLoading) {
+      return (
+        <div className="surface-card p-4">
+          <h3 className="font-semibold">Verificação e pagamentos</h3>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Hobby stores entram com CNPJ e aprovação. Solicite o credenciamento antes da verificação
+            de identidade e dos pagamentos.
+          </p>
+          <Button className="mt-3" asChild>
+            <Link href="/vender">Solicitar credenciamento</Link>
+          </Button>
+        </div>
+      );
+    }
+
     return (
       <div className="surface-card p-4">
-        <h3 className="font-semibold">Quero vender</h3>
+        <h3 className="font-semibold">Completar verificação</h3>
         <p className="mt-1 text-sm text-muted-foreground">
-          Ative o perfil lojista e complete a verificação de identidade (KYC) para publicar produtos.
+          Complete a verificação de identidade (KYC) e a conta de pagamentos para publicar produtos.
         </p>
         {accountStatusError && (
           <p className="mt-2 text-sm text-warning">
@@ -181,7 +196,7 @@ export function MerchantKycCard() {
             <Link href="/completar-perfil" className="underline">
               completar seu CPF
             </Link>{" "}
-            antes de vender.
+            antes de continuar.
           </p>
         )}
         <Button
@@ -189,7 +204,7 @@ export function MerchantKycCard() {
           disabled={storeLoading || onboardingMutation.isPending}
           onClick={() => void onboardingMutation.mutate()}
         >
-          {onboardingMutation.isPending ? "Abrindo…" : "Tornar-se lojista"}
+          {onboardingMutation.isPending ? "Abrindo…" : "Completar verificação"}
         </Button>
         {(onboardingMutation.isError || onboardingError) && (
           <p className="mt-2 text-sm text-danger">

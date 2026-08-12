@@ -175,11 +175,11 @@ export default function VendedorPainelDashboardPage() {
 
         <div className="mt-6 surface-card p-8 text-center">
 
-          <p className="text-muted-foreground">Você ainda não tem uma loja cadastrada.</p>
+          <p className="text-muted-foreground">Você ainda não tem uma loja credenciada.</p>
 
           <Link href="/vender" className="mt-4 inline-block text-primary underline">
 
-            Cadastrar loja
+            Solicitar credenciamento
 
           </Link>
 
