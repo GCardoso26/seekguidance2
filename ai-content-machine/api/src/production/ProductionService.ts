@@ -20,6 +20,7 @@ import {
 } from './library/MediaAssetRepository.js'
 import { subtitleService } from './SubtitleService.js'
 import { videoComposer } from './VideoComposer.js'
+import { collectFactoryMetrics } from './FactoryMetrics.js'
 import { MockThumbnailProvider } from './thumbnail/MockThumbnailProvider.js'
 import { mediaQaService } from './MediaQAService.js'
 import { buildContentPackageManifest } from './ContentPackageBuilder.js'
@@ -550,6 +551,7 @@ export class ProductionService {
     result.storyboard = storyboard
 
     if (stage === 'VOICE') {
+      const t0 = Date.now()
       const rel = assetRelPath({
         workspaceId: ws,
         contentId,
@@ -598,6 +600,7 @@ export class ProductionService {
         version,
         provider: voice.provider,
         fallbackTrail: voice.fallbackTrail,
+        durationMs: Date.now() - t0,
       }
       emitEvent({
         workspaceId: ws,
@@ -611,6 +614,7 @@ export class ProductionService {
     }
 
     if (stage === 'VISUALS') {
+      const t0 = Date.now()
       const ids: string[] = []
       const libraryReuses: Array<{
         asset_id: string
@@ -780,6 +784,7 @@ export class ProductionService {
         assetIds: ids,
         version,
         library: { hits: libraryHits, misses: libraryMisses, reuses: libraryReuses },
+        durationMs: Date.now() - t0,
       }
       emitEvent({
         workspaceId: ws,
@@ -839,6 +844,7 @@ export class ProductionService {
     }
 
     if (stage === 'COMPOSING') {
+      const t0 = Date.now()
       const voice = assetRegistry.getCurrent(runId, 'voice') as { uri: string } | undefined
       const visuals = assetRegistry.listCurrentByType(runId, 'IMAGE') as Array<{ uri: string }>
       const srt = assetRegistry.getCurrent(runId, 'subtitle:srt') as { uri: string } | undefined
@@ -904,6 +910,7 @@ export class ProductionService {
         version,
         provider: composed.provider,
         kenBurnsScenes: composed.kenBurns.length,
+        durationMs: Date.now() - t0,
       }
       emitEvent({
         workspaceId: ws,
@@ -1101,6 +1108,20 @@ export class ProductionService {
 
       result.packageId = pkgId
       result.stages.STORAGE = { ok: true, version }
+
+      const finalAsset = assetRegistry.getCurrent(runId, 'final_video') as { uri?: string } | undefined
+      const runRow = getDb()
+        .prepare(`SELECT started_at, completed_at FROM production_runs WHERE id=?`)
+        .get(runId) as { started_at?: string; completed_at?: string } | undefined
+      result.factoryMetrics = collectFactoryMetrics({
+        productionStartedAt: runRow?.started_at,
+        productionCompletedAt: nowIso(),
+        stages: result.stages as Record<string, { ok?: boolean; durationMs?: number; provider?: string; fallbackTrail?: Array<{ status?: string }>; library?: { hits?: number; misses?: number } }>,
+        finalVideoPath: finalAsset?.uri,
+        packageStatus,
+        success: runStatus === 'COMPLETED' || runStatus === 'REQUIRES_REVIEW',
+      })
+
       getDb()
         .prepare(
           `UPDATE production_runs SET status=?, package_status=?, current_stage='STORAGE',
