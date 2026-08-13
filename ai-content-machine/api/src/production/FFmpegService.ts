@@ -51,6 +51,23 @@ export class FFmpegService {
     if (!r.ok) throw new Error(`ffmpeg_voice_failed:${r.stderr.slice(0, 200)}`)
   }
 
+  /** Convert arbitrary audio bytes on disk to mono WAV at sampleRate. */
+  transcodeToWav(inputPath: string, outPath: string, sampleRate = 44100): void {
+    fs.mkdirSync(path.dirname(outPath), { recursive: true })
+    const r = runFfmpeg([
+      '-i',
+      inputPath,
+      '-ar',
+      String(sampleRate),
+      '-ac',
+      '1',
+      '-c:a',
+      'pcm_s16le',
+      outPath,
+    ])
+    if (!r.ok) throw new Error(`ffmpeg_transcode_wav_failed:${r.stderr.slice(0, 200)}`)
+  }
+
   generateColorImage(outPath: string, width: number, height: number, color = '0x0B6E6E'): void {
     fs.mkdirSync(path.dirname(outPath), { recursive: true })
     const r = runFfmpeg([

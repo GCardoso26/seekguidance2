@@ -10,6 +10,8 @@ import { assetRegistry } from './AssetRegistry.js'
 import { LocalFilesystemStorage, assetRelPath } from './storage/LocalFilesystemStorage.js'
 import { MockVoiceProvider } from './voice/MockVoiceProvider.js'
 import { RealVoiceProvider } from './voice/RealVoiceProvider.js'
+import { KokoroVoiceProvider } from './voice/KokoroVoiceProvider.js'
+import { FallbackVoiceProvider } from './voice/FallbackVoiceProvider.js'
 import { MockVisualProvider } from './visual/MockVisualProvider.js'
 import {
   deriveTagsFromPrompt,
@@ -96,15 +98,24 @@ function mockDuration(planDuration: number, override?: number): number {
 
 export class ProductionService {
   private storage = new LocalFilesystemStorage()
-  private voice = new MockVoiceProvider()
+  private mockVoice = new MockVoiceProvider()
   private realVoice = new RealVoiceProvider()
+  private kokoroVoice = new KokoroVoiceProvider()
+  /** ProductionService only talks to the resolver — not the individual engines. */
+  private voice = new FallbackVoiceProvider(this.kokoroVoice, this.realVoice, this.mockVoice)
   private visual = new MockVisualProvider()
   private thumbnail = new MockThumbnailProvider()
   private stageFailCounters = new Map<string, number>()
 
   providersStatus() {
     return {
-      voice: { mock: this.voice.status(), real: this.realVoice.status() },
+      voice: {
+        resolver: this.voice.name,
+        kokoro: this.kokoroVoice.status(),
+        real: this.realVoice.status(),
+        mock: this.mockVoice.status(),
+        status: this.voice.status(),
+      },
       visual: {
         mock: this.visual.status(),
         imageGeneration: 'NOT_CONFIGURED',
@@ -558,7 +569,7 @@ export class ProductionService {
         contentId,
         productionId: runId,
         type: 'AUDIO',
-        sourceType: 'MOCK',
+        sourceType: voice.sourceType,
         provider: voice.provider,
         uri: voice.path,
         mimeType: voice.mimeType,
@@ -566,25 +577,35 @@ export class ProductionService {
         stage: 'VOICE',
         assetKey: 'voice',
         version,
-        license: 'MOCK',
-        metadata: { format: plan.voice.format },
+        license: voice.sourceType === 'MOCK' ? 'MOCK' : 'GENERATED',
+        metadata: {
+          format: plan.voice.format,
+          fallbackTrail: voice.fallbackTrail,
+        },
       })
       recordAiCost({
         workspaceId: ws,
         operation: 'VOICE_GENERATION',
         provider: voice.provider,
-        model: 'mock-tone',
+        model: voice.provider === 'mock_voice' ? 'mock-tone' : voice.provider,
         estimatedCostCents: voice.costCents,
         productionRunId: runId,
-        reality: 'MOCK',
+        reality: voice.sourceType === 'MOCK' ? 'MOCK' : 'REAL',
       })
-      result.stages.VOICE = { ok: true, assetIds: [registered.id], version }
+      result.stages.VOICE = {
+        ok: true,
+        assetIds: [registered.id],
+        version,
+        provider: voice.provider,
+        fallbackTrail: voice.fallbackTrail,
+      }
       emitEvent({
         workspaceId: ws,
         eventType: 'voice.generated',
         entityType: 'media_asset',
         entityId: registered.id,
-        reality: 'MOCK',
+        reality: voice.sourceType === 'MOCK' ? 'MOCK' : 'REAL',
+        payload: { provider: voice.provider, fallbackTrail: voice.fallbackTrail },
       })
       return
     }
