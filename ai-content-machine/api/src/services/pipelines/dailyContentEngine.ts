@@ -599,7 +599,15 @@ export function getWorkspaceSnapshot(workspaceId: string) {
   const niches = db.prepare(`SELECT * FROM niches WHERE workspace_id = ?`).all(workspaceId)
   const topics = db.prepare(`SELECT * FROM topics WHERE workspace_id = ?`).all(workspaceId)
   const ideas = db.prepare(`SELECT * FROM content_ideas WHERE workspace_id = ?`).all(workspaceId)
-  const scripts = db.prepare(`SELECT * FROM scripts WHERE workspace_id = ?`).all(workspaceId)
+  // status/platform live on scripts already; provider comes from the linked script_run (if any)
+  const scripts = db
+    .prepare(
+      `SELECT s.*, sr.provider as provider, sr.model as model
+       FROM scripts s
+       LEFT JOIN script_runs sr ON sr.id = s.script_run_id
+       WHERE s.workspace_id = ?`,
+    )
+    .all(workspaceId)
   const contents = db.prepare(`SELECT * FROM contents WHERE workspace_id = ?`).all(workspaceId)
   const metrics = db
     .prepare(

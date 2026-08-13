@@ -5,6 +5,7 @@ import path from 'node:path'
 import { resetDbForTests, getDb, uid, nowIso } from '../src/db/client.js'
 import { bootstrapWorkspace } from '../src/services/pipelines/dailyContentEngine.js'
 import { scriptFactoryService } from '../src/scriptFactory/ScriptFactoryService.js'
+import { resolvePlatform } from '../src/scriptFactory/PlatformProfiles.js'
 import { routeAi, resolveRouteForMode } from '../src/services/AiRouter.js'
 import { sumAiCost } from '../src/services/AiCostService.js'
 
@@ -120,6 +121,29 @@ describe('Script Factory', () => {
     })
     assert.equal(first.skipped, false)
     assert.equal(second.skipped, true)
+  })
+
+  it('resolvePlatform defaults to YOUTUBE_SHORT (never TIKTOK) when omitted/invalid', () => {
+    assert.equal(resolvePlatform(undefined), 'YOUTUBE_SHORT')
+    assert.equal(resolvePlatform(''), 'YOUTUBE_SHORT')
+    assert.equal(resolvePlatform('not_a_platform'), 'YOUTUBE_SHORT')
+    assert.equal(resolvePlatform('tiktok'), 'TIKTOK')
+    assert.equal(resolvePlatform('youtube_short'), 'YOUTUBE_SHORT')
+    assert.equal(resolvePlatform('Instagram Reel'), 'INSTAGRAM_REEL')
+  })
+
+  it('script generate defaults to YOUTUBE_SHORT platform when omitted', async () => {
+    const ideaId = insertIdea(workspaceId)
+    const result = await scriptFactoryService.run({
+      workspaceId,
+      contentIdeaId: ideaId,
+    })
+    assert.equal(result.skipped, false)
+    if (result.skipped) return
+    const row = getDb().prepare(`SELECT platform FROM scripts WHERE id = ?`).get(result.scriptId) as {
+      platform: string
+    }
+    assert.equal(row.platform, 'YOUTUBE_SHORT')
   })
 
   it('AI Router selects model for script/hook/qa and records mock provider in mock mode', () => {

@@ -7,11 +7,13 @@ import { webhookRoutes } from './routes/webhooks.js'
 import { promptRoutes } from './routes/prompts.js'
 import { workspaceRoutes } from './routes/workspaces.js'
 import { researchRoutes } from './routes/research.js'
+import { ideaRoutes } from './routes/ideas.js'
 import { scriptRoutes } from './routes/scripts.js'
 import { productionRoutes } from './routes/production.js'
 import { publishingRoutes } from './routes/publishing.js'
 import { connectionRoutes } from './routes/connections.js'
 import { validationRoutes } from './routes/validation.js'
+import { factoryRoutes } from './routes/factory.js'
 
 export async function buildServer() {
   getDb()
@@ -29,11 +31,13 @@ export async function buildServer() {
   await app.register(promptRoutes)
   await app.register(workspaceRoutes)
   await app.register(researchRoutes)
+  await app.register(ideaRoutes)
   await app.register(scriptRoutes)
   await app.register(productionRoutes)
   await app.register(publishingRoutes)
   await app.register(connectionRoutes)
   await app.register(validationRoutes)
+  await app.register(factoryRoutes)
 
   return app
 }

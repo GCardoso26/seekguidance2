@@ -17,6 +17,12 @@ import { ffmpegService } from '../src/production/FFmpegService.js'
 process.env.AUTOMATION_MODE = 'mock'
 process.env.CWM_FAST_RETRY = '1'
 
+/** 1×1 PNG — smallest valid image ffmpeg/kenburns can decode. */
+const TINY_PNG = Buffer.from(
+  '89504e470d0a1a0a0000000d49484452000000010000000108060000001f15c4890000000a49444154789c63000100000500010d0a2db40000000049454e44ae426082',
+  'hex',
+)
+
 function seedApprovedScript(workspaceId: string, platform = 'YOUTUBE_SHORT') {
   const db = getDb()
   const topicId = uid()
@@ -411,6 +417,76 @@ describe('Production unit + service', () => {
     const meta = JSON.parse(reused!.metadata)
     assert.equal(meta.library.reuse_reason, 'tag_match')
     assert.ok(meta.library.asset_id)
+  })
+
+  it('Asset Library HIT never demotes license to UNKNOWN for generated/stock sources', async () => {
+    const { mediaAssetRepository } = await import('../src/production/library/MediaAssetRepository.js')
+    const boot = await bootstrapWorkspace({ name: 'Lib License', email: 'liblicense@cwm.test' })
+    const ws = boot.workspaceId
+    const { scriptId } = seedApprovedScript(ws, 'YOUTUBE_SHORT')
+
+    const dir = path.join(os.tmpdir(), `cwm-lib-license-${Date.now()}`)
+    fs.mkdirSync(dir, { recursive: true })
+    const fakeAssetPath = path.join(dir, 'stub.png')
+    fs.writeFileSync(fakeAssetPath, TINY_PNG)
+
+    const fixedAsset = {
+      id: uid(),
+      workspaceId: ws,
+      contentId: null,
+      productionId: null,
+      path: fakeAssetPath,
+      sha256: 'a'.repeat(64),
+      type: 'image' as const,
+      source: 'generated' as const,
+      tags: ['fake'],
+      usageCount: 1,
+      metadata: {},
+      createdAt: nowIso(),
+      lastUsedAt: null,
+    }
+
+    const originalSearchBest = mediaAssetRepository.searchBest.bind(mediaAssetRepository)
+    const originalRecordReuse = mediaAssetRepository.recordReuse.bind(mediaAssetRepository)
+    mediaAssetRepository.searchBest = () => ({
+      asset: fixedAsset,
+      matchedTags: ['fake'],
+      matchScore: 1,
+      reuseReason: 'tag_match',
+    })
+    mediaAssetRepository.recordReuse = () => ({ ...fixedAsset, usageCount: fixedAsset.usageCount + 1 })
+
+    try {
+      const out = await productionService.run({
+        workspaceId: ws,
+        scriptId,
+        platform: 'YOUTUBE_SHORT',
+        targetDurationOverride: 2,
+      })
+      assert.equal(out.status, 'COMPLETED')
+      assert.equal(out.packageStatus, 'READY_FOR_PUBLISH')
+
+      const detail = productionService.getRun(out.productionRunId!)!
+      const images = (
+        detail.assets as Array<{
+          type: string
+          is_current: number
+          license: string
+          source_type: string
+          provider: string
+        }>
+      ).filter((a) => a.type === 'IMAGE' && a.is_current === 1)
+      assert.ok(images.length > 0)
+      for (const img of images) {
+        assert.equal(img.provider, 'asset_library')
+        assert.notEqual(img.license, 'UNKNOWN')
+        assert.equal(img.license, 'GENERATED')
+        assert.equal(img.source_type, 'GENERATED')
+      }
+    } finally {
+      mediaAssetRepository.searchBest = originalSearchBest
+      mediaAssetRepository.recordReuse = originalRecordReuse
+    }
   })
 
   it('Asset Library search failure falls back to visual provider', async () => {

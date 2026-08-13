@@ -17,6 +17,7 @@ import type { VisualFallbackAttempt } from './visual/FallbackVisualProvider.js'
 import {
   deriveTagsFromPrompt,
   mediaAssetRepository,
+  type LibraryAssetSource,
   type LibrarySearchHit,
 } from './library/MediaAssetRepository.js'
 import { subtitleService } from './SubtitleService.js'
@@ -91,6 +92,40 @@ function stageIdemKey(productionId: string, stage: ProductionStage, version: num
   return `production:${productionId}:${stage}:v${version}`
 }
 
+/**
+ * Library HITs are already-vetted assets (previously cataloged with a known
+ * provenance) — never demote them to license 'UNKNOWN', which would force
+ * REQUIRES_REVIEW on an otherwise-ready package.
+ */
+function libraryAssetLicense(source: LibraryAssetSource): string {
+  switch (source) {
+    case 'mock':
+      return 'MOCK'
+    case 'generated':
+      return 'GENERATED'
+    case 'stock':
+      return 'STOCK'
+    case 'uploaded':
+      return 'UPLOADED'
+    default:
+      return 'MOCK'
+  }
+}
+
+function librarySourceType(source: LibraryAssetSource): 'MOCK' | 'GENERATED' | 'STOCK' | 'UPLOADED' {
+  switch (source) {
+    case 'mock':
+      return 'MOCK'
+    case 'stock':
+      return 'STOCK'
+    case 'uploaded':
+      return 'UPLOADED'
+    case 'generated':
+    default:
+      return 'GENERATED'
+  }
+}
+
 function mockDuration(planDuration: number, override?: number): number {
   if (override) return Math.max(1, override)
   // Keep mock ffmpeg fast but verifiable
@@ -130,6 +165,9 @@ export class ProductionService {
       thumbnail: { mock: this.thumbnail.status() },
       storage: { local: 'READY', s3: 'NOT_CONFIGURED' },
       ffmpeg: ffmpegService.available() ? 'READY' : 'NOT_CONFIGURED',
+      composition: {
+        ffmpeg_kenburns: ffmpegService.available() ? 'READY' : 'NOT_CONFIGURED',
+      },
     }
   }
 
@@ -659,13 +697,13 @@ export class ProductionService {
         if (hit) {
           try {
             const reused = mediaAssetRepository.recordReuse(hit.asset.id)
-            const license = hit.asset.source === 'mock' ? 'MOCK' : 'UNKNOWN'
+            const license = libraryAssetLicense(hit.asset.source)
             const registered = assetRegistry.register({
               workspaceId: ws,
               contentId,
               productionId: runId,
               type: 'IMAGE',
-              sourceType: hit.asset.source === 'mock' ? 'MOCK' : 'GENERATED',
+              sourceType: librarySourceType(hit.asset.source),
               provider: 'asset_library',
               uri: hit.asset.path,
               mimeType: 'image/png',
