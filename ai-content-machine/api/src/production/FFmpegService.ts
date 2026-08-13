@@ -31,6 +31,34 @@ function runFfprobe(args: string[]): { ok: boolean; stdout: string; stderr: stri
   }
 }
 
+/** First installed font wins — keeps drawtext working across dev/CI images without bundling fonts. */
+function resolveFontFile(): string | null {
+  const candidates = [
+    '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf',
+    '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',
+    '/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf',
+    '/usr/share/fonts/truetype/liberation2/LiberationSans-Bold.ttf',
+  ]
+  for (const c of candidates) {
+    if (fs.existsSync(c)) return c
+  }
+  return null
+}
+
+/**
+ * drawtext is parsed by ffmpeg's own filter-graph syntax (not a shell), so rather than
+ * chase every escaping edge case we strip the handful of characters that would break the
+ * `text='...'` option (quotes, colons, backslashes, percent) and collapse whitespace/newlines.
+ */
+function sanitizeDrawText(raw: string, maxChars = 40): string {
+  return raw
+    .replace(/[\r\n]+/g, ' ')
+    .replace(/['":\\%]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, maxChars)
+}
+
 export class FFmpegService {
   available(): boolean {
     const r = spawnSync('ffmpeg', ['-version'], { encoding: 'utf8' })
@@ -82,6 +110,47 @@ export class FFmpegService {
     if (!r.ok) throw new Error(`ffmpeg_image_failed:${r.stderr.slice(0, 200)}`)
   }
 
+  /**
+   * Same as generateColorImage but burns in a short label via drawtext, so mock/fallback
+   * scenes carry the scene's actual content instead of rendering as a blank color bar.
+   * Degrades to a plain color frame if drawtext/fonts aren't available.
+   */
+  generateColorImageWithText(
+    outPath: string,
+    width: number,
+    height: number,
+    color = '0x0B6E6E',
+    text = '',
+  ): void {
+    fs.mkdirSync(path.dirname(outPath), { recursive: true })
+    const label = sanitizeDrawText(text)
+    if (!label) {
+      this.generateColorImage(outPath, width, height, color)
+      return
+    }
+    const fontFile = resolveFontFile()
+    const fontOpt = fontFile ? `fontfile=${fontFile}:` : ''
+    const fontSize = Math.max(28, Math.round(width / 16))
+    const drawtext =
+      `drawtext=${fontOpt}text='${label}':fontcolor=white:fontsize=${fontSize}:` +
+      `x=(w-text_w)/2:y=(h-text_h)/2:box=1:boxcolor=black@0.5:boxborderw=24`
+    const r = runFfmpeg([
+      '-f',
+      'lavfi',
+      '-i',
+      `color=c=${color}:s=${width}x${height}:d=1`,
+      '-vf',
+      drawtext,
+      '-frames:v',
+      '1',
+      outPath,
+    ])
+    if (!r.ok) {
+      // Font/drawtext unavailable in this environment — a plain color frame beats a failed scene.
+      this.generateColorImage(outPath, width, height, color)
+    }
+  }
+
   composeVerticalVideo(input: {
     audioPath: string
     imagePaths: string[]
@@ -123,9 +192,17 @@ export class FFmpegService {
     if (!r.ok) throw new Error(`ffmpeg_compose_failed:${r.stderr.slice(0, 300)}`)
   }
 
-  extractFrame(videoPath: string, outPath: string, atSec = 0.5): void {
+  extractFrame(
+    videoPath: string,
+    outPath: string,
+    atSec = 0.5,
+    size?: { width: number; height: number },
+  ): void {
     fs.mkdirSync(path.dirname(outPath), { recursive: true })
-    const r = runFfmpeg(['-ss', String(atSec), '-i', videoPath, '-frames:v', '1', outPath])
+    const args = ['-ss', String(atSec), '-i', videoPath, '-frames:v', '1']
+    if (size) args.push('-vf', `scale=${size.width}:${size.height}`)
+    args.push(outPath)
+    const r = runFfmpeg(args)
     if (!r.ok) throw new Error(`ffmpeg_thumbnail_failed:${r.stderr.slice(0, 200)}`)
   }
 

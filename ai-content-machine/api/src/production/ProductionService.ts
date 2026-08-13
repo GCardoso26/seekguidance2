@@ -1060,15 +1060,7 @@ export class ProductionService {
         filename: `thumb-v${version}.png`,
       })
       const abs = this.storage.resolveSafe(rel)
-      const thumbMeta = await this.thumbnail.generate({
-        hook: ctx.script.hook,
-        topic: String(body.insight || body.hook || 'topic'),
-        brand: 'NEXUS IA',
-        visualStyle: 'dark vertical',
-        outPath: abs,
-        width: plan.thumbnail.width,
-        height: plan.thumbnail.height,
-      })
+      const thumbMeta = await this.resolveThumbnailAsset({ runId, plan, ctx, body, abs })
       const tqa = mediaQaService.validateThumbnail(
         thumbMeta.path,
         plan.thumbnail.width,
@@ -1090,15 +1082,20 @@ export class ProductionService {
         assetKey: 'thumbnail',
         version,
         license: 'MOCK',
-        metadata: { concept: thumbMeta.concept, text: thumbMeta.text },
+        metadata: {
+          concept: thumbMeta.concept,
+          text: thumbMeta.text,
+          source: thumbMeta.fromVideoFrame ? 'final_video_frame' : 'mock_fallback',
+        },
       })
-      result.stages.THUMBNAIL = { ok: true, assetIds: [registered.id], version }
+      result.stages.THUMBNAIL = { ok: true, assetIds: [registered.id], version, provider: thumbMeta.provider }
       emitEvent({
         workspaceId: ws,
         eventType: 'thumbnail.generated',
         entityType: 'media_asset',
         entityId: registered.id,
         reality: 'MOCK',
+        payload: { provider: thumbMeta.provider },
       })
       return
     }
@@ -1271,6 +1268,73 @@ export class ProductionService {
         reality: 'MOCK',
         payload: { packageStatus, runStatus },
       })
+    }
+  }
+
+  /**
+   * Thumbnails should represent the actual finished Short, not a generic mock card.
+   * COMPOSING runs before THUMBNAIL in STAGE_ORDER, so by the time this runs a real
+   * final_video asset should already exist — prefer extracting a frame from it.
+   * MockThumbnailProvider is only a fallback for when no final video is available
+   * (e.g. isolated thumbnail regeneration in a run that never composed).
+   */
+  private async resolveThumbnailAsset(input: {
+    runId: string
+    plan: ProductionPlan
+    ctx: { script: { hook: string } }
+    body: Record<string, string>
+    abs: string
+  }): Promise<{
+    path: string
+    provider: string
+    mimeType: string
+    concept: string
+    text: string
+    fromVideoFrame: boolean
+  }> {
+    const { runId, plan, ctx, body, abs } = input
+    const finalAsset = assetRegistry.getCurrent(runId, 'final_video') as
+      | { uri?: string; duration?: number }
+      | undefined
+
+    if (finalAsset?.uri && fs.existsSync(finalAsset.uri)) {
+      try {
+        const duration = Number(finalAsset.duration) || plan.targetDuration
+        // Prefer 1s in, but never seek past (near) the end of very short mock clips.
+        const atSec = Math.max(0, Math.min(1.0, duration - 0.1))
+        ffmpegService.extractFrame(finalAsset.uri, abs, atSec, {
+          width: plan.thumbnail.width,
+          height: plan.thumbnail.height,
+        })
+        return {
+          path: abs,
+          provider: 'ffmpeg_frame',
+          mimeType: 'image/png',
+          concept: `final_video_frame@${atSec.toFixed(2)}s`,
+          text: ctx.script.hook.slice(0, 48) || 'NEXUS IA',
+          fromVideoFrame: true,
+        }
+      } catch {
+        // Extraction failed (corrupt/too-short video, etc.) — fall back to the mock generator.
+      }
+    }
+
+    const mock = await this.thumbnail.generate({
+      hook: ctx.script.hook,
+      topic: String(body.insight || body.hook || 'topic'),
+      brand: 'NEXUS IA',
+      visualStyle: 'dark vertical',
+      outPath: abs,
+      width: plan.thumbnail.width,
+      height: plan.thumbnail.height,
+    })
+    return {
+      path: mock.path,
+      provider: mock.provider,
+      mimeType: mock.mimeType,
+      concept: mock.concept,
+      text: mock.text,
+      fromVideoFrame: false,
     }
   }
 
