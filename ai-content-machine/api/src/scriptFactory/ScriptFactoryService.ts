@@ -6,14 +6,16 @@ import { withRetry } from '../lib/retry.js'
 import { recordAiCost } from '../services/AiCostService.js'
 import { getActivePrompt } from '../services/PromptService.js'
 import { buildScriptContext } from './ContextBuilder.js'
-import { generateHooks } from './HookGenerator.js'
-import { generateStructuredScript } from './ScriptGenerator.js'
 import { generateCta } from './CtaGenerator.js'
 import { generateCaption } from './CaptionGenerator.js'
 import { generateVisualBrief } from './VisualBriefGenerator.js'
 import { qaScript } from './ScriptQaService.js'
 import { resolvePlatform } from './PlatformProfiles.js'
 import type { PlatformKey } from './types.js'
+import { MockScriptProvider } from './providers/MockScriptProvider.js'
+import { OllamaScriptProvider } from './providers/OllamaScriptProvider.js'
+import { ApiScriptProvider } from './providers/ApiScriptProvider.js'
+import { FallbackScriptProvider } from './providers/FallbackScriptProvider.js'
 
 export type ScriptFactoryInput = {
   workspaceId: string
@@ -30,6 +32,22 @@ function scriptIdemKey(contentIdeaId: string, promptVersion: number, platform: s
 }
 
 export class ScriptFactoryService {
+  private ollama = new OllamaScriptProvider()
+  private api = new ApiScriptProvider()
+  private mock = new MockScriptProvider()
+  /** Factory only talks to the resolver — not Ollama/API/Mock directly. */
+  private scriptProvider = new FallbackScriptProvider(this.ollama, this.api, this.mock)
+
+  providersStatus() {
+    return {
+      resolver: this.scriptProvider.name,
+      ollama: this.ollama.status(),
+      api: this.api.status(),
+      mock: this.mock.status(),
+      status: this.scriptProvider.status(),
+    }
+  }
+
   async run(input: ScriptFactoryInput) {
     const db = getDb()
     const platform = resolvePlatform(input.platform)
@@ -80,22 +98,20 @@ export class ScriptFactoryService {
       if (aiAttempts <= failTimes) throw new Error(`ai_provider_fail_attempt_${aiAttempts}`)
 
       const ctx = buildScriptContext(input.workspaceId, input.contentIdeaId, platform as PlatformKey)
-      const hooksPack = generateHooks(ctx)
-      const best = [...hooksPack.hooks].sort((a, b) => b.score - a.score)[0]
-      const scriptPack = generateStructuredScript(ctx, best)
-      const cta = generateCta(ctx, scriptPack.script.cta)
-      scriptPack.script.cta = cta
-      const captionPack = generateCaption(ctx, best.text)
-      const visualBrief = generateVisualBrief(ctx, scriptPack.script)
-      const qa = qaScript(scriptPack.script, ctx, { forceFail: input.forceQaFail })
+      const pack = await this.scriptProvider.generate(ctx)
+      const cta = generateCta(ctx, pack.script.cta)
+      pack.script.cta = cta
+      const captionPack = generateCaption(ctx, pack.bestHook.text)
+      const visualBrief = generateVisualBrief(ctx, pack.script)
+      const qa = qaScript(pack.script, ctx, { forceFail: input.forceQaFail })
 
-      return { ctx, hooksPack, best, scriptPack, captionPack, visualBrief, qa }
+      return { ctx, pack, captionPack, visualBrief, qa }
     })
 
     if (!gen.ok) {
       db.prepare(
         `UPDATE script_runs SET status='FAILED', completed_at=?, error=?, provider=?, model=? WHERE id=?`,
-      ).run(nowIso(), gen.failure.error, 'mock', 'gpt-4o-mini', runId)
+      ).run(nowIso(), gen.failure.error, 'script_fallback', 'unknown', runId)
 
       db.prepare(
         `INSERT INTO automation_failures
@@ -119,7 +135,6 @@ export class ScriptFactoryService {
         reality: 'FAILED',
       })
 
-      // Do not mark idempotent on FAILED — allows retry
       return {
         skipped: false,
         scriptRunId: runId,
@@ -129,37 +144,26 @@ export class ScriptFactoryService {
       }
     }
 
-    const { hooksPack, best, scriptPack, captionPack, visualBrief, qa } = gen.value
-    const tokensIn = hooksPack.tokensIn + scriptPack.tokensIn + qa.tokensIn
-    const tokensOut = hooksPack.tokensOut + scriptPack.tokensOut + qa.tokensOut
+    const { pack, captionPack, visualBrief, qa } = gen.value
+    const reality = pack.provider === 'mock' ? ('MOCK' as const) : ('REAL' as const)
     const cost =
-      hooksPack.route.estimatedCostCents +
-      scriptPack.route.estimatedCostCents +
-      qa.route.estimatedCostCents
+      pack.estimatedCostCents ??
+      (pack.provider === 'mock' ? 5 : Math.max(1, Math.round((pack.tokensIn + pack.tokensOut) / 1000)))
+    const tokensIn = pack.tokensIn + qa.tokensIn
+    const tokensOut = pack.tokensOut + qa.tokensOut
+    const totalCost = cost + qa.route.estimatedCostCents
 
     recordAiCost({
       workspaceId: input.workspaceId,
-      operation: 'hook_generation',
-      provider: hooksPack.route.provider,
-      model: hooksPack.route.model,
-      inputTokens: hooksPack.tokensIn,
-      outputTokens: hooksPack.tokensOut,
-      estimatedCostCents: hooksPack.route.estimatedCostCents,
-      contentIdeaId: input.contentIdeaId,
-      scriptRunId: runId,
-      reality: 'MOCK',
-    })
-    recordAiCost({
-      workspaceId: input.workspaceId,
       operation: 'script_generation',
-      provider: scriptPack.route.provider,
-      model: scriptPack.route.model,
-      inputTokens: scriptPack.tokensIn,
-      outputTokens: scriptPack.tokensOut,
-      estimatedCostCents: scriptPack.route.estimatedCostCents,
+      provider: pack.provider,
+      model: pack.model,
+      inputTokens: pack.tokensIn,
+      outputTokens: pack.tokensOut,
+      estimatedCostCents: cost,
       contentIdeaId: input.contentIdeaId,
       scriptRunId: runId,
-      reality: 'MOCK',
+      reality,
     })
     recordAiCost({
       workspaceId: input.workspaceId,
@@ -176,7 +180,6 @@ export class ScriptFactoryService {
 
     const scriptStatus =
       qa.status === 'pass' ? 'ready' : qa.status === 'requires_review' ? 'requires_review' : 'failed'
-    // Never APPROVED on QA fail
     const qaStatus =
       qa.status === 'pass' ? 'passed' : qa.status === 'requires_review' ? 'requires_review' : 'failed'
 
@@ -186,26 +189,27 @@ export class ScriptFactoryService {
        (id, workspace_id, idea_id, hook, body, cta, caption, hashtags, visual_brief,
         qa_status, qa_notes, reality, created_at, platform, status, quality_score, quality_breakdown,
         script_run_id, selected_hooks)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'MOCK', ?, ?, ?, ?, ?, ?, ?)`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     ).run(
       scriptId,
       input.workspaceId,
       input.contentIdeaId,
-      scriptPack.script.hook,
-      JSON.stringify(scriptPack.script),
-      scriptPack.script.cta,
+      pack.script.hook,
+      JSON.stringify(pack.script),
+      pack.script.cta,
       captionPack.caption,
       JSON.stringify(captionPack.hashtags),
       JSON.stringify(visualBrief),
       qaStatus,
       JSON.stringify(qa.notes),
+      reality,
       nowIso(),
       platform,
       scriptStatus,
       qa.score,
       JSON.stringify(qa.breakdown),
       runId,
-      JSON.stringify(hooksPack.hooks),
+      JSON.stringify(pack.hooks),
     )
 
     emitEvent({
@@ -213,28 +217,39 @@ export class ScriptFactoryService {
       eventType: 'script.created',
       entityType: 'script',
       entityId: scriptId,
-      payload: { scriptRunId: runId, qaStatus, platform },
-      reality: 'MOCK',
+      payload: {
+        scriptRunId: runId,
+        qaStatus,
+        platform,
+        provider: pack.provider,
+        fallbackTrail: pack.fallbackTrail,
+      },
+      reality,
     })
 
     db.prepare(
       `UPDATE script_runs SET status=?, completed_at=?, model=?, provider=?, tokens_input=?, tokens_output=?,
-        estimated_cost_cents=?, result=? WHERE id=?`,
+        estimated_cost_cents=?, result=?, reality=? WHERE id=?`,
     ).run(
       qa.status === 'fail' ? 'FAILED' : 'COMPLETED',
       nowIso(),
-      scriptPack.route.model,
-      scriptPack.route.provider,
+      pack.model,
+      pack.provider,
       tokensIn,
       tokensOut,
-      cost,
+      totalCost,
       JSON.stringify({
         scriptId,
-        hooks: hooksPack.hooks.length,
-        bestHook: best,
+        hooks: pack.hooks.length,
+        bestHook: pack.bestHook,
         qaStatus,
         scriptStatus,
+        provider: pack.provider,
+        model: pack.model,
+        durationMs: pack.durationMs,
+        fallbackTrail: pack.fallbackTrail,
       }),
+      reality,
       runId,
     )
 
@@ -243,7 +258,8 @@ export class ScriptFactoryService {
       eventType: qa.status === 'fail' ? 'script.failed' : 'script.completed',
       entityType: 'script_run',
       entityId: runId,
-      reality: qa.status === 'fail' ? 'FAILED' : 'MOCK',
+      reality: qa.status === 'fail' ? 'FAILED' : reality,
+      payload: { provider: pack.provider, fallbackTrail: pack.fallbackTrail },
     })
 
     markProcessed({
@@ -261,18 +277,23 @@ export class ScriptFactoryService {
       status: qa.status === 'fail' ? 'FAILED' : 'COMPLETED',
       scriptStatus,
       qaStatus,
-      hooks: hooksPack.hooks,
-      bestHook: best,
-      script: scriptPack.script,
+      hooks: pack.hooks,
+      bestHook: pack.bestHook,
+      script: pack.script,
       caption: captionPack.caption,
       hashtags: captionPack.hashtags,
       visualBrief,
       qualityScore: qa.score,
       qualityBreakdown: qa.breakdown,
-      costCents: cost,
+      costCents: totalCost,
       tokens: tokensIn + tokensOut,
-      route: scriptPack.route,
-      reality: 'MOCK' as const,
+      provider: pack.provider,
+      model: pack.model,
+      durationMs: pack.durationMs,
+      fallbackTrail: pack.fallbackTrail,
+      providers: this.providersStatus(),
+      route: { provider: pack.provider, model: pack.model },
+      reality,
     }
   }
 
