@@ -841,6 +841,7 @@ export class ProductionService {
     if (stage === 'COMPOSING') {
       const voice = assetRegistry.getCurrent(runId, 'voice') as { uri: string } | undefined
       const visuals = assetRegistry.listCurrentByType(runId, 'IMAGE') as Array<{ uri: string }>
+      const srt = assetRegistry.getCurrent(runId, 'subtitle:srt') as { uri: string } | undefined
       if (!voice) throw new Error('compose_missing_voice_asset')
       const rel = assetRelPath({
         workspaceId: ws,
@@ -856,6 +857,8 @@ export class ProductionService {
         imagePaths: visuals.map((v) => v.uri),
         outPath: abs,
         storyboard,
+        subtitlePath: srt?.uri,
+        musicPath: null,
       })
       const registered = assetRegistry.register({
         workspaceId: ws,
@@ -863,7 +866,7 @@ export class ProductionService {
         productionId: runId,
         type: 'FINAL_VIDEO',
         sourceType: 'MOCK',
-        provider: 'ffmpeg_composer',
+        provider: composed.provider,
         uri: composed.path,
         mimeType: 'video/mp4',
         duration: composed.duration,
@@ -873,24 +876,45 @@ export class ProductionService {
         assetKey: 'final_video',
         version,
         license: 'MOCK',
-        metadata: { codec: 'h264', audio: 'aac', fps: plan.fps },
+        metadata: {
+          codec: 'h264',
+          audio: 'aac',
+          fps: plan.fps,
+          kenBurns: composed.kenBurns.map((s) => ({
+            scene: s.scene,
+            motion: s.motion,
+            durationSec: s.durationSec,
+          })),
+          usedSubtitles: composed.usedSubtitles,
+          usedMusic: composed.usedMusic,
+        },
       })
       recordAiCost({
         workspaceId: ws,
         operation: 'VIDEO_GENERATION',
-        provider: 'ffmpeg_composer',
-        model: 'libx264',
+        provider: composed.provider,
+        model: 'libx264_kenburns',
         estimatedCostCents: 0,
         productionRunId: runId,
         reality: 'MOCK',
       })
-      result.stages.COMPOSING = { ok: true, assetIds: [registered.id], version }
+      result.stages.COMPOSING = {
+        ok: true,
+        assetIds: [registered.id],
+        version,
+        provider: composed.provider,
+        kenBurnsScenes: composed.kenBurns.length,
+      }
       emitEvent({
         workspaceId: ws,
         eventType: 'video.composed',
         entityType: 'media_asset',
         entityId: registered.id,
         reality: 'MOCK',
+        payload: {
+          provider: composed.provider,
+          motions: composed.kenBurns.map((s) => s.motion),
+        },
       })
       return
     }

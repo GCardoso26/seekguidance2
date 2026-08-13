@@ -1,43 +1,35 @@
 import fs from 'node:fs'
-import { ffmpegService } from './FFmpegService.js'
 import type { ProductionPlan, StoryboardScene } from './types.js'
+import { ffmpegCompositionProvider } from './composition/FfmpegCompositionProvider.js'
+import type { CompositionResult } from './composition/CompositionProvider.js'
 
+/**
+ * Thin facade — ProductionService keeps calling videoComposer.compose(...).
+ * Ken Burns lives in CompositionProvider, not VisualProvider.
+ */
 export class VideoComposer {
+  private composer = ffmpegCompositionProvider
+
   compose(input: {
     plan: ProductionPlan
     audioPath: string
     imagePaths: string[]
     outPath: string
     storyboard: StoryboardScene[]
-  }): { path: string; duration: number; width: number; height: number; fps: number } {
-    if (!ffmpegService.available()) throw new Error('ffmpeg_not_available')
+    subtitlePath?: string | null
+    musicPath?: string | null
+  }): CompositionResult & {
+    path: string
+    duration: number
+    width: number
+    height: number
+    fps: number
+  } {
     if (!fs.existsSync(input.audioPath)) throw new Error('compose_missing_audio')
     if (!input.imagePaths.length || !fs.existsSync(input.imagePaths[0])) {
       throw new Error('compose_missing_visuals')
     }
-
-    ffmpegService.composeVerticalVideo({
-      audioPath: input.audioPath,
-      imagePaths: input.imagePaths,
-      outPath: input.outPath,
-      width: input.plan.width,
-      height: input.plan.height,
-      fps: input.plan.fps,
-      durationSec: input.plan.targetDuration,
-    })
-
-    const probe = ffmpegService.probe(input.outPath)
-    if (!(probe.duration > 0) || !probe.hasVideo || !probe.hasAudio) {
-      throw new Error('compose_invalid_output')
-    }
-
-    return {
-      path: input.outPath,
-      duration: probe.duration,
-      width: probe.width,
-      height: probe.height,
-      fps: probe.fps,
-    }
+    return this.composer.compose(input)
   }
 }
 
