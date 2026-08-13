@@ -52,7 +52,9 @@ export function buildStoryboard(input: {
     narrationSegment: seg.text,
     visualPrompt: `Dark content scene for ${seg.key}: ${seg.text.slice(0, 80)}`,
     assetType: input.plan.visual.assetType,
-    textOverlay: seg.key === 'hook' ? 'Hook' : seg.key.toUpperCase(),
+    // Truncated narration, not the section label — burn-in subtitles fall back to this
+    // when no SRT cue is available, so it must actually be readable caption text.
+    textOverlay: seg.text.slice(0, 60),
     transition: i === 0 ? 'cut' : 'fade',
   }))
 }

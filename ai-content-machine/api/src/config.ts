@@ -48,6 +48,17 @@ export const config = {
 
   /** Fallback workspace for n8n crons that omit workspaceId */
   defaultWorkspaceId: env('CWM_DEFAULT_WORKSPACE_ID', ''),
+
+  /**
+   * Test-speed cap only — never tied to AUTOMATION_MODE. When set, production
+   * clamps voice/video duration to a few seconds so mock ffmpeg stays fast.
+   * CWM_FAST_RETRY doubles as this flag since most tests already set it to skip
+   * retry backoff delays. A getter (not a value computed at import time) so
+   * test files that set the env var after other imports still take effect.
+   */
+  get fastMedia(): boolean {
+    return envBool('CWM_FAST_MEDIA', false) || envBool('CWM_FAST_RETRY', false)
+  },
 }
 
 export function systemReady(): { ok: boolean; reason?: string } {

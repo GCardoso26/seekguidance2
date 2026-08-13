@@ -143,10 +143,18 @@ function librarySourceType(source: LibraryAssetSource): 'MOCK' | 'GENERATED' | '
   }
 }
 
-function mockDuration(planDuration: number, override?: number): number {
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value))
+}
+
+/**
+ * Test-speed cap only. Not tied to AUTOMATION_MODE — a real Kokoro voice under
+ * AUTOMATION_MODE=mock must still get its full platform-profile duration
+ * (~40s for YOUTUBE_SHORT), never a hardcoded 3s.
+ */
+function capDurationForFastTests(planDuration: number, override?: number): number {
   if (override) return Math.max(1, override)
-  // Keep mock ffmpeg fast but verifiable
-  if (config.automationMode === 'mock') return Math.min(planDuration, 3)
+  if (config.fastMedia) return Math.min(planDuration, 3)
   return planDuration
 }
 
@@ -609,16 +617,12 @@ export class ProductionService {
     const contentId = ctx.contentId
 
     if (stage === 'PLANNING') {
+      const profileDuration = buildProductionPlan({ platform: ctx.platform, visualBrief }).targetDuration
       const plan = buildProductionPlan({
         platform: ctx.platform,
         visualBrief,
-        targetDurationOverride: mockDuration(
-          buildProductionPlan({ platform: ctx.platform, visualBrief }).targetDuration,
-          ctx.targetDurationOverride,
-        ),
+        targetDurationOverride: capDurationForFastTests(profileDuration, ctx.targetDurationOverride),
       })
-      // re-apply mock duration clamp
-      plan.targetDuration = mockDuration(plan.targetDuration, ctx.targetDurationOverride)
       const storyboard = buildStoryboard({ plan, scriptBody: body, visualBrief })
       result.storyboard = storyboard
       getDb()
@@ -652,12 +656,31 @@ export class ProductionService {
         filename: `voice-v${version}.wav`,
       })
       const abs = this.storage.resolveSafe(rel)
+      const voiceText = [body.hook, body.setup, body.problem, body.insight, body.value, body.proof, body.cta]
+        .filter(Boolean)
+        .join('. ')
       const voice = await this.voice.generate({
-        text: [body.hook, body.setup, body.insight, body.cta].filter(Boolean).join('. '),
+        text: voiceText,
         outPath: abs,
         durationSec: plan.targetDuration,
         sampleRate: plan.voice.sampleRate,
       })
+
+      // A real narration engine (Kokoro) decides the true runtime — the plan must
+      // follow the voice, not the other way around. Test-speed caps (fast media
+      // flag or an explicit override) opt out so mock runs stay fast and small.
+      const skipDurationAdjust = Boolean(ctx.targetDurationOverride) || config.fastMedia
+      if (!skipDurationAdjust && voice.duration > 0) {
+        const adjustedDuration = clamp(voice.duration, 15, 60)
+        if (Math.abs(adjustedDuration - plan.targetDuration) > 0.05) {
+          plan.targetDuration = adjustedDuration
+          result.storyboard = buildStoryboard({ plan, scriptBody: body, visualBrief })
+          getDb()
+            .prepare(`UPDATE production_runs SET plan=?, updated_at=? WHERE id=?`)
+            .run(JSON.stringify(plan), nowIso(), runId)
+        }
+      }
+
       const registered = assetRegistry.register({
         workspaceId: ws,
         contentId,

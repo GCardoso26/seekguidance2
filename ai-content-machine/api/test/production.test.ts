@@ -107,7 +107,9 @@ describe('Production unit + service', () => {
     })
     assert.ok(scenes.length >= 3)
     assert.ok(scenes[0].endTime > scenes[0].startTime)
-    assert.equal(scenes[0].textOverlay, 'Hook')
+    // textOverlay is a truncated narration slice (burn-in caption fallback), not a section label
+    assert.equal(scenes[0].textOverlay, scenes[0].narrationSegment.slice(0, 60))
+    assert.equal(scenes[0].narrationSegment, 'h')
   })
 
   it('AssetRegistry versions without overwrite', () => {
@@ -175,6 +177,59 @@ describe('Production unit + service', () => {
     assert.equal(ok.status, 'PASS')
     assert.ok(toSrt(cues).includes('-->'))
     assert.ok(toVtt(cues).startsWith('WEBVTT'))
+  })
+
+  it('cuesFromStoryboard captions narration, not textOverlay labels like "Hook"/"SETUP"', () => {
+    const plan = buildProductionPlan({ platform: 'YOUTUBE_SHORT', targetDurationOverride: 8 })
+    const scenes = buildStoryboard({
+      plan,
+      scriptBody: {
+        hook: 'Pare de perder duas horas por dia com ferramentas de IA sem sistema nenhum',
+        setup: 'A maioria configura tudo errado e perde tempo com prompts genéricos',
+        problem: 'Sem um fluxo claro, cada tarefa nova vira um recomeço do zero',
+        insight: 'Um fluxo simples de prompts muda completamente o resultado final',
+        cta: 'Link na descrição',
+      },
+    })
+    assert.equal(scenes[0].textOverlay, 'Hook')
+
+    const cues = cuesFromStoryboard(scenes)
+    assert.ok(cues.length >= 3)
+    for (const cue of cues) {
+      // Must never be the bare editorial label ("Hook", "SETUP", "PROBLEM", ...)
+      assert.notEqual(cue.text.trim().toUpperCase(), 'HOOK')
+      assert.ok(!/^(SETUP|PROBLEM|INSIGHT|VALUE|PROOF|CTA)$/i.test(cue.text.trim()))
+      // Cue text budget: <=100 chars pre-wrap, wrapped to at most 2 lines
+      assert.ok(cue.text.length <= 101)
+      assert.ok(cue.text.split('\n').length <= 2)
+    }
+    // First cue must actually contain narration words from the hook
+    assert.ok(cues[0].text.toLowerCase().includes('perder'))
+    assert.ok(validateSubtitles(cues, plan.targetDuration).status === 'PASS')
+  })
+
+  it('cuesFromStoryboard truncates long narration with an ellipsis and word-wraps to 2 lines', () => {
+    const longNarration =
+      'Esse é um segredo que ninguém te conta sobre produtividade com inteligência artificial ' +
+      'e vai completamente transformar a forma como você trabalha todos os dias'
+    const cues = cuesFromStoryboard([
+      {
+        scene: 1,
+        startTime: 0,
+        endTime: 5,
+        duration: 5,
+        narrationSegment: longNarration,
+        visualPrompt: 'x',
+        assetType: 'IMAGE',
+        textOverlay: 'Hook',
+        transition: 'cut',
+      },
+    ])
+    assert.equal(cues.length, 1)
+    const lines = cues[0].text.split('\n')
+    assert.ok(lines.length <= 2)
+    assert.ok(cues[0].text.length <= 101)
+    assert.ok(cues[0].text.includes('…') || cues[0].text.length < longNarration.length)
   })
 
   it('Storage blocks path injection and writes checksummed files', async () => {
@@ -360,6 +415,72 @@ describe('Production unit + service', () => {
       }>
     ).filter((a) => a.asset_key === 'thumbnail')
     assert.ok(thumbs.some((t) => t.version >= 2 && t.is_current === 1))
+  })
+
+  it('THUMBNAIL stage extracts a real frame from the composed final video (not a blank mock card)', async () => {
+    const { scriptId } = seedApprovedScript(workspaceId, 'YOUTUBE_SHORT')
+    const out = await productionService.run({
+      workspaceId,
+      scriptId,
+      platform: 'YOUTUBE_SHORT',
+      targetDurationOverride: 2,
+    })
+    assert.equal(out.status, 'COMPLETED')
+    const detail = productionService.getRun(out.productionRunId!)!
+    const thumb = (
+      detail.assets as Array<{
+        type: string
+        is_current: number
+        provider: string
+        width: number
+        height: number
+        uri: string
+        metadata: string
+      }>
+    ).find((a) => a.type === 'THUMBNAIL' && a.is_current === 1)!
+    assert.ok(thumb)
+    assert.equal(thumb.provider, 'ffmpeg_frame')
+    assert.equal(JSON.parse(thumb.metadata).source, 'final_video_frame')
+    const probe = ffmpegService.probe(thumb.uri)
+    assert.equal(probe.width, thumb.width)
+    assert.equal(probe.height, thumb.height)
+
+    const result = JSON.parse(String(detail.result))
+    assert.equal(result.stages.THUMBNAIL.provider, 'ffmpeg_frame')
+  })
+
+  it('resolveThumbnailAsset falls back to mock_thumbnail when there is no final video', async () => {
+    const runId = uid()
+    getDb()
+      .prepare(
+        `INSERT INTO production_runs
+         (id, workspace_id, content_id, script_id, status, plan, reality, created_at, updated_at)
+         VALUES (?, ?, ?, ?, 'QUEUED', '{}', 'MOCK', ?, ?)`,
+      )
+      .run(runId, workspaceId, uid(), uid(), nowIso(), nowIso())
+    const plan = buildProductionPlan({ platform: 'YOUTUBE_SHORT', targetDurationOverride: 2 })
+    const abs = path.join(os.tmpdir(), `cwm-thumb-fallback-${Date.now()}.png`)
+
+    const service = productionService as unknown as {
+      resolveThumbnailAsset: (input: {
+        runId: string
+        plan: typeof plan
+        ctx: { script: { hook: string } }
+        body: Record<string, string>
+        abs: string
+      }) => Promise<{ provider: string; fromVideoFrame: boolean; path: string }>
+    }
+    const result = await service.resolveThumbnailAsset({
+      runId,
+      plan,
+      ctx: { script: { hook: 'Hook de fallback sem vídeo final' } },
+      body: { hook: 'Hook de fallback sem vídeo final' },
+      abs,
+    })
+    assert.equal(result.fromVideoFrame, false)
+    assert.equal(result.provider, 'mock_thumbnail')
+    assert.ok(fs.existsSync(result.path))
+    assert.ok(fs.statSync(result.path).size > 0)
   })
 
   it('Asset Library: MISS catalogs then regenerate HIT reuses + usage_count++', async () => {

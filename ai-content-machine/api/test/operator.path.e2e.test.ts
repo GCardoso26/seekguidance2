@@ -8,6 +8,9 @@ import { buildServer } from '../src/server.js'
 
 process.env.AUTOMATION_MODE = 'mock'
 process.env.CWM_FAST_RETRY = '1'
+// Several production/run calls below omit targetDurationOverride — cap mock media duration
+// explicitly instead of relying on AUTOMATION_MODE=mock (which no longer caps duration).
+process.env.CWM_FAST_MEDIA = '1'
 
 /**
  * Operator critical path, exercised over HTTP exactly like AutomationCenter.tsx does:
