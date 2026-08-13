@@ -7,7 +7,7 @@ Responda APENAS com JSON válido (sem markdown) no formato:
   "hooks": [{"text":"...","type":"CURIOSITY|QUESTION|CONTRARIAN|WARNING|RESULT|LIST|SECRET|MISTAKE|COMPARISON|STORY","score":0-100,"reason":"..."}],
   "script": {"hook":"...","setup":"...","problem":"...","insight":"...","value":"...","proof":"...","cta":"..."}
 }
-Regras: português BR, CTA claro (link na bio / oferta), sem claims proibidos de renda garantida, 1-5 hooks.`
+Regras: português BR, CTA conforme ctaStrategy do user JSON (ex.: YouTube Short = link na descrição, nunca link na bio), sem claims proibidos de renda garantida, 1-5 hooks.`
 
   const user = JSON.stringify(
     {

@@ -290,7 +290,7 @@ export class PublishingService {
       reality: 'MOCK',
     })
 
-    const metadata = buildPublicationMetadata(input.contentId, input.scheduledAt)
+    const metadata = buildPublicationMetadata(input.contentId, input.scheduledAt, platform)
     const safety = evaluatePublishingSafety({
       workspaceId: input.workspaceId,
       contentId: input.contentId,

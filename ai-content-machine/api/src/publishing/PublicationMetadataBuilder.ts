@@ -1,12 +1,33 @@
 import { getDb } from '../db/client.js'
 import type { PublicationMetadata } from './types.js'
+import { resolvePlatform } from '../scriptFactory/PlatformProfiles.js'
 
-export function buildPublicationMetadata(contentId: string, scheduledAt?: string | null): PublicationMetadata {
+/**
+ * "Link na bio" is a TikTok/Reels convention that doesn't apply to YouTube — Shorts have
+ * no clickable bio link, so the CTA must point viewers to the description instead.
+ */
+const BIO_CTA_PATTERN = /link\s+na\s+bio\b/gi
+
+function sanitizeBioCtaForYoutube(text: string): string {
+  if (!text) return text
+  return text.replace(BIO_CTA_PATTERN, (match) => {
+    const firstIsUpper = match[0] !== match[0].toLowerCase()
+    return firstIsUpper ? 'Link na descrição' : 'link na descrição'
+  })
+}
+
+export function buildPublicationMetadata(
+  contentId: string,
+  scheduledAt?: string | null,
+  platform?: string,
+): PublicationMetadata {
   const db = getDb()
   const content = db.prepare(`SELECT * FROM contents WHERE id = ?`).get(contentId) as
     | { title: string; script_id: string | null; asset_meta: string }
     | undefined
   if (!content) throw new Error('content_not_found')
+
+  const isYoutube = resolvePlatform(platform) === 'YOUTUBE_SHORT'
 
   let caption = content.title
   let hashtags: string[] = []
@@ -26,12 +47,18 @@ export function buildPublicationMetadata(contentId: string, scheduledAt?: string
     if (script) {
       hook = script.hook
       caption = script.caption || script.hook
-      description = [script.hook, script.cta].filter(Boolean).join('\n\n')
+      const cta = isYoutube ? sanitizeBioCtaForYoutube(script.cta || '') : script.cta || ''
       try {
         hashtags = JSON.parse(script.hashtags || '[]') as string[]
       } catch {
         hashtags = []
       }
+      const hashtagLine = hashtags.length
+        ? hashtags.map((h) => (h.startsWith('#') ? h : `#${h}`)).join(' ')
+        : ''
+      // Description leads with caption + hashtags (what viewers actually read/search on),
+      // CTA follows so "link na descrição" makes literal sense.
+      description = [caption, cta, hashtagLine].filter(Boolean).join('\n\n')
     }
   }
 

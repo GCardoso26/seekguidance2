@@ -41,7 +41,7 @@ export class DryRunReportService {
   }): Promise<YouTubePrePublishReport> {
     const platform = resolvePlatform(input.platform || 'YOUTUBE_SHORT')
     const validation = publishingService.validateContentPackage(input.contentId, input.workspaceId)
-    const metadata = buildPublicationMetadata(input.contentId, input.scheduledAt)
+    const metadata = buildPublicationMetadata(input.contentId, input.scheduledAt, platform)
 
     let durationSec: number | null = null
     const content = getDb()
