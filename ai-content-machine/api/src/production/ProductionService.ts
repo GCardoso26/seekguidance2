@@ -12,7 +12,8 @@ import { MockVoiceProvider } from './voice/MockVoiceProvider.js'
 import { RealVoiceProvider } from './voice/RealVoiceProvider.js'
 import { KokoroVoiceProvider } from './voice/KokoroVoiceProvider.js'
 import { FallbackVoiceProvider } from './voice/FallbackVoiceProvider.js'
-import { MockVisualProvider } from './visual/MockVisualProvider.js'
+import { createVisualResolver } from './visual/createVisualResolver.js'
+import type { VisualFallbackAttempt } from './visual/FallbackVisualProvider.js'
 import {
   deriveTagsFromPrompt,
   mediaAssetRepository,
@@ -104,7 +105,8 @@ export class ProductionService {
   private kokoroVoice = new KokoroVoiceProvider()
   /** ProductionService only talks to the resolver — not the individual engines. */
   private voice = new FallbackVoiceProvider(this.kokoroVoice, this.realVoice, this.mockVoice)
-  private visual = new MockVisualProvider()
+  /** ProductionService only talks to the resolver — not ComfyUI. MISS-only. */
+  private visual = createVisualResolver()
   private thumbnail = new MockThumbnailProvider()
   private stageFailCounters = new Map<string, number>()
 
@@ -118,8 +120,10 @@ export class ProductionService {
         status: this.voice.status(),
       },
       visual: {
-        mock: this.visual.status(),
-        imageGeneration: 'NOT_CONFIGURED',
+        resolver: this.visual.name,
+        comfy: this.visual.chain()[0]?.status() ?? 'NOT_CONFIGURED',
+        mock: this.visual.chain()[1]?.status() ?? 'NOT_CONFIGURED',
+        status: this.visual.status(),
         stock: 'NOT_CONFIGURED',
         videoGeneration: 'NOT_CONFIGURED',
       },
@@ -625,6 +629,8 @@ export class ProductionService {
       }> = []
       let libraryHits = 0
       let libraryMisses = 0
+      let lastVisualProvider = 'asset_library'
+      const visualTrail: VisualFallbackAttempt[] = []
 
       for (const scene of storyboard) {
         const rel = assetRelPath({
@@ -708,7 +714,7 @@ export class ProductionService {
           }
         }
 
-        // MISS (or library unavailable) — existing visual provider behavior
+        // MISS (or library unavailable) — visual resolver; catalog stays here.
         libraryMisses += 1
         const asset = await this.visual.generate({
           prompt: scene.visualPrompt,
@@ -717,13 +723,15 @@ export class ProductionService {
           height: plan.height,
           scene: scene.scene,
         })
+        lastVisualProvider = asset.provider
+        if (asset.fallbackTrail?.length) visualTrail.push(...asset.fallbackTrail)
         const license = asset.license || 'UNKNOWN'
         const registered = assetRegistry.register({
           workspaceId: ws,
           contentId,
           productionId: runId,
           type: 'IMAGE',
-          sourceType: 'MOCK',
+          sourceType: asset.sourceType,
           provider: asset.provider,
           uri: asset.path,
           mimeType: asset.mimeType,
@@ -733,12 +741,14 @@ export class ProductionService {
           assetKey: `visual:scene:${scene.scene}`,
           version,
           license,
+          reality: asset.sourceType === 'MOCK' ? 'MOCK' : 'REAL',
           metadata: {
             ...asset.metadata,
             prompt: asset.prompt,
             sourceUrl: asset.metadata.sourceUrl,
             generatedAt: asset.metadata.generatedAt,
             library: { miss: true, tags },
+            fallbackTrail: asset.fallbackTrail,
           },
         })
         ids.push(registered.id)
@@ -758,6 +768,8 @@ export class ProductionService {
               provider: asset.provider,
               width: asset.width,
               height: asset.height,
+              sha256: asset.metadata.sha256,
+              workflow: asset.metadata.workflow,
             },
           })
         } catch {
@@ -768,10 +780,10 @@ export class ProductionService {
           workspaceId: ws,
           operation: 'IMAGE_GENERATION',
           provider: asset.provider,
-          model: 'mock-color',
+          model: String(asset.metadata.workflow || asset.provider),
           estimatedCostCents: asset.costCents,
           productionRunId: runId,
-          reality: 'MOCK',
+          reality: asset.sourceType === 'MOCK' ? 'MOCK' : 'REAL',
         })
         if (license === 'UNKNOWN') {
           getDb()
@@ -783,6 +795,8 @@ export class ProductionService {
         ok: true,
         assetIds: ids,
         version,
+        provider: libraryMisses === 0 ? 'asset_library' : lastVisualProvider,
+        fallbackTrail: visualTrail,
         library: { hits: libraryHits, misses: libraryMisses, reuses: libraryReuses },
         durationMs: Date.now() - t0,
       }

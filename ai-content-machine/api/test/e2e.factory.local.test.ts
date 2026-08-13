@@ -21,6 +21,7 @@ function clearExternalProviders() {
   delete process.env.KOKORO_BASE_URL
   delete process.env.VOICE_API_KEY
   delete process.env.ELEVENLABS_API_KEY
+  delete process.env.COMFY_BASE_URL
 }
 
 function insertIdea(workspaceId: string, title = 'Como usar IA para criar 30 conteúdos') {
@@ -102,6 +103,12 @@ describe('Factory E2E local — Idea → MP4', () => {
       result.stages.VISUALS.library.hits + result.stages.VISUALS.library.misses >= 1,
     )
     assert.equal(result.stages.COMPOSING.provider, 'ffmpeg_kenburns')
+    assert.equal(result.stages.VISUALS.provider, 'mock_visual')
+    assert.ok(
+      result.stages.VISUALS.fallbackTrail?.some(
+        (t: { provider: string; status: string }) => t.provider === 'comfyui' && t.status === 'NOT_CONFIGURED',
+      ),
+    )
     assert.ok(result.stages.QA.ok)
 
     const final = (detail.assets as Array<{ type: string; uri: string; is_current: number }>).find(
@@ -232,6 +239,7 @@ describe('Factory E2E local — Idea → MP4', () => {
       const result = JSON.parse(String(detail.result))
       assert.equal(result.stages.VOICE.provider, 'mock_voice')
       assert.equal(result.stages.VISUALS.ok, true)
+      assert.equal(result.stages.VISUALS.provider, 'mock_visual')
       assert.equal(result.stages.VISUALS.library.hits, 0)
       assert.ok(result.stages.VISUALS.library.misses >= 1)
       assert.equal(result.stages.COMPOSING.provider, 'ffmpeg_kenburns')

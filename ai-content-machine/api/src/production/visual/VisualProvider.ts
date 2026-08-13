@@ -19,6 +19,7 @@ export type VisualAsset = {
   prompt: string
   costCents: number
   metadata: Record<string, unknown>
+  fallbackTrail?: Array<{ provider: string; status: string; error?: string }>
 }
 
 export interface VisualProvider {

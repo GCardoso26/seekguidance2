@@ -117,6 +117,13 @@ services:
       KOKORO_VOICE: ${KOKORO_VOICE:-pf_dora}
       KOKORO_MODEL: ${KOKORO_MODEL:-kokoro}
       KOKORO_API_KEY: ${KOKORO_API_KEY:-}
+      # ComfyUI no host — só no MISS da Asset Library. Vazio = Visual fallback → Mock.
+      COMFY_BASE_URL: ${COMFY_BASE_URL:-}
+      COMFY_WORKFLOW: ${COMFY_WORKFLOW:-image_default}
+      COMFY_TIMEOUT_MS: ${COMFY_TIMEOUT_MS:-120000}
+      COMFY_POLL_MS: ${COMFY_POLL_MS:-1500}
+      COMFY_CHECKPOINT: ${COMFY_CHECKPOINT:-}
+      COMFY_NEGATIVE_PROMPT: ${COMFY_NEGATIVE_PROMPT:-}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     ports:

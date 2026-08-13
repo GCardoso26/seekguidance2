@@ -46,7 +46,8 @@ VISUALS é **library-first**:
 
 1. `deriveTagsFromPrompt` → tag match (sem embeddings)
 2. **HIT** → reuse path + `usage_count++` + metadata observável (`asset_id`, `reuse_reason`, `matched_tags`, `match_score`)
-3. **MISS** → provider visual atual → `catalog()`
+3. **MISS** → `FallbackVisualProvider` (ComfyUI se `COMFY_BASE_URL`, senão Mock) → `catalog()`
+4. Falha no ComfyUI (timeout/erro) **não** quebra o MISS — cai no Mock → compose → MP4
 
 Falha na library **não** quebra o `ProductionService` (fallback para o provider).
 

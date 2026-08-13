@@ -47,8 +47,9 @@ Centralizados em `PlatformProductionProfiles.ts`:
 |----------|--------|
 | MockVoiceProvider | MOCK READY (WAV lavfi verificável) |
 | RealVoiceProvider | NOT_CONFIGURED sem credenciais |
+| FallbackVisualProvider | ComfyUI → Mock (MISS only) |
 | MockVisualProvider | MOCK READY |
-| Image/Stock/Video generation | NOT_CONFIGURED |
+| ComfyUIProvider | NOT_CONFIGURED sem `COMFY_BASE_URL` |
 | MockThumbnailProvider | MOCK READY |
 | LocalFilesystemStorage | READY |
 | S3Storage | NOT_CONFIGURED |

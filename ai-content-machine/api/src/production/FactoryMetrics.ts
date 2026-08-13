@@ -11,6 +11,7 @@ export type FactoryRunMetrics = {
   assetsNew: number
   scriptProvider: string | null
   voiceProvider: string | null
+  visualProvider: string | null
   composeProvider: string | null
   fallbackCount: number
   success: boolean
@@ -56,7 +57,7 @@ export function collectFactoryMetrics(input: {
   const fallbackCount =
     countFallbacks(input.scriptFallbackTrail) +
     countFallbacks(voice?.fallbackTrail) +
-    (visuals?.library ? 0 : 0)
+    countFallbacks(visuals?.fallbackTrail)
 
   let mp4Bytes: number | null = null
   if (input.finalVideoPath && fs.existsSync(input.finalVideoPath)) {
@@ -74,6 +75,7 @@ export function collectFactoryMetrics(input: {
     assetsNew: Number(visuals?.library?.misses || 0),
     scriptProvider: input.scriptProvider ?? null,
     voiceProvider: voice?.provider ?? null,
+    visualProvider: visuals?.provider ?? null,
     composeProvider: composing?.provider ?? null,
     fallbackCount,
     success: input.success,
