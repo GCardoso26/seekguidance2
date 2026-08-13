@@ -112,6 +112,11 @@ services:
       OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-}
       OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.2:3b}
       OLLAMA_TIMEOUT_MS: ${OLLAMA_TIMEOUT_MS:-120000}
+      # Kokoro TTS no host (OpenAI-compatible /v1/audio/speech). Vazio = Voice fallback → Mock.
+      KOKORO_BASE_URL: ${KOKORO_BASE_URL:-}
+      KOKORO_VOICE: ${KOKORO_VOICE:-pf_dora}
+      KOKORO_MODEL: ${KOKORO_MODEL:-kokoro}
+      KOKORO_API_KEY: ${KOKORO_API_KEY:-}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     ports:

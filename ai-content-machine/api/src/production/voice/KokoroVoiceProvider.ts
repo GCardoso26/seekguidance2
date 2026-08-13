@@ -9,7 +9,7 @@ import type { VoiceAsset, VoiceGenerateInput, VoiceProvider } from './VoiceProvi
  *
  * Env:
  * - KOKORO_BASE_URL — e.g. http://127.0.0.1:8880 (with or without /v1)
- * - KOKORO_VOICE — default af_bella
+ * - KOKORO_VOICE — default pf_dora (PT-BR)
  * - KOKORO_MODEL — default kokoro
  * - KOKORO_API_KEY — optional Bearer
  */
@@ -36,7 +36,7 @@ export class KokoroVoiceProvider implements VoiceProvider {
     }
     if (!input.text?.trim()) throw new Error('kokoro_empty_text')
 
-    const voice = process.env.KOKORO_VOICE || 'af_bella'
+    const voice = process.env.KOKORO_VOICE || 'pf_dora'
     const model = process.env.KOKORO_MODEL || 'kokoro'
     const headers: Record<string, string> = { 'content-type': 'application/json' }
     const apiKey = process.env.KOKORO_API_KEY || process.env.VOICE_API_KEY
