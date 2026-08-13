@@ -32,13 +32,53 @@ function formatVttTime(sec: number): string {
   return `${pad(h)}:${pad(m)}:${pad(s)}.${pad(ms, 3)}`
 }
 
+/** Cue text budget — long enough for context, short enough to read on a Short. */
+const MAX_CUE_CHARS = 100
+/** Roughly what fits on one line of burned-in captions at 1080px wide. */
+const MAX_LINE_CHARS = 50
+const MAX_CUE_LINES = 2
+
+function truncateWithEllipsis(text: string, max: number): string {
+  const trimmed = text.trim()
+  if (trimmed.length <= max) return trimmed
+  return `${trimmed.slice(0, Math.max(0, max - 1)).trimEnd()}…`
+}
+
+/** Greedy word-wrap into at most `maxLines` lines of `maxLineChars` — never mid-word. */
+function wrapLines(text: string, maxLineChars = MAX_LINE_CHARS, maxLines = MAX_CUE_LINES): string {
+  const words = text.split(/\s+/).filter(Boolean)
+  const lines: string[] = []
+  let current = ''
+  for (const word of words) {
+    const candidate = current ? `${current} ${word}` : word
+    if (candidate.length <= maxLineChars || !current) {
+      current = candidate
+    } else {
+      lines.push(current)
+      current = word
+      if (lines.length >= maxLines) break
+    }
+  }
+  if (current && lines.length < maxLines) lines.push(current)
+  return lines.slice(0, maxLines).join('\n')
+}
+
+/**
+ * Subtitle text must be the spoken narration, never the scene's editorial
+ * textOverlay label (e.g. "Hook"/"SETUP") — those are storyboard/production
+ * markers, not captions a viewer should read.
+ */
 export function cuesFromStoryboard(scenes: StoryboardScene[]): SubtitleCue[] {
-  return scenes.map((sc, i) => ({
-    index: i + 1,
-    start: sc.startTime,
-    end: sc.endTime,
-    text: (sc.textOverlay || sc.narrationSegment).slice(0, 80),
-  }))
+  return scenes.map((sc, i) => {
+    const narration = (sc.narrationSegment || sc.textOverlay || '').trim()
+    const truncated = truncateWithEllipsis(narration, MAX_CUE_CHARS)
+    return {
+      index: i + 1,
+      start: sc.startTime,
+      end: sc.endTime,
+      text: wrapLines(truncated),
+    }
+  })
 }
 
 export function toSrt(cues: SubtitleCue[]): string {
