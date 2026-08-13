@@ -32,10 +32,6 @@ export class FeedbackLoopService {
       }
     }
     const publicationRunId = published.publicationRunId!
-    // Ensure deterministic winner scenario when requested
-    if (input.scenario === 'WINNER' && published.externalId) {
-      // external id already set; analytics uses scenario override
-    }
 
     const analytics = await analyticsService.sync({
       workspaceId: input.workspaceId,

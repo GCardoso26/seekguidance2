@@ -1,6 +1,6 @@
 import type { ProductionPlan } from './types.js'
-import { resolvePlatform, type PlatformKey } from '../scriptFactory/PlatformProfiles.js'
-import { PLATFORM_PROFILES } from '../scriptFactory/PlatformProfiles.js'
+import { resolvePlatform, PLATFORM_PROFILES } from '../scriptFactory/PlatformProfiles.js'
+import type { PlatformKey } from '../scriptFactory/types.js'
 
 export type PlatformProductionProfile = ProductionPlan & { key: PlatformKey }
 
