@@ -42,6 +42,8 @@ export type PublicationResult = {
   scheduledAt?: string
   error?: string
   confirmation?: string
+  /** Non-fatal issues (e.g. thumbnail upload failed) — video SUCCESS still stands. */
+  warnings?: string[]
 }
 
 export type CanonicalMetrics = {

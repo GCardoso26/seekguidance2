@@ -121,6 +121,13 @@ export class YouTubePublisher implements PlatformPublisher {
     // Prefer resumable upload; treat ambiguous network outcomes as UNKNOWN
     try {
       const uploaded = await this.resumableUpload(input, creds.accessToken)
+      if (uploaded.ok && uploaded.externalId && input.thumbnailUri && fs.existsSync(input.thumbnailUri)) {
+        const thumb = await this.uploadThumbnail(uploaded.externalId, input.thumbnailUri, creds.accessToken)
+        // Thumbnail upload is best-effort — never demote a confirmed video upload to FAILED.
+        if (!thumb.ok) {
+          return { ...uploaded, warnings: [...(uploaded.warnings || []), thumb.error] }
+        }
+      }
       return uploaded
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err)
@@ -252,6 +259,42 @@ export class YouTubePublisher implements PlatformPublisher {
       publishedAt: new Date().toISOString(),
       confirmation: 'youtube_upload_confirmed',
       uploadOutcome: 'SUCCESS',
+    }
+  }
+
+  /**
+   * thumbnails.set is a media-only upload (no JSON metadata body) — just PUT the image
+   * bytes with the right Content-Type. Best-effort: callers must not fail the whole
+   * publish when this fails, since the video upload itself already succeeded.
+   */
+  private async uploadThumbnail(
+    videoId: string,
+    thumbnailPath: string,
+    accessToken: string,
+  ): Promise<{ ok: true } | { ok: false; error: string }> {
+    try {
+      const buf = fs.readFileSync(thumbnailPath)
+      const contentType = /\.(jpe?g)$/i.test(thumbnailPath) ? 'image/jpeg' : 'image/png'
+      const res = await fetch(
+        `https://www.googleapis.com/upload/youtube/v3/thumbnails/set?videoId=${encodeURIComponent(videoId)}`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': contentType,
+            'Content-Length': String(buf.length),
+          },
+          body: buf,
+        },
+      )
+      if (!res.ok) {
+        const text = await res.text()
+        return { ok: false, error: `youtube_thumbnail_failed:${res.status}:${text.slice(0, 160)}` }
+      }
+      return { ok: true }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err)
+      return { ok: false, error: `youtube_thumbnail_error:${message}` }
     }
   }
 }
