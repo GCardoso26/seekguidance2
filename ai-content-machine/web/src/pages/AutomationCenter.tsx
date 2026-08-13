@@ -1221,9 +1221,22 @@ Firewall/OCI Security List: porta 8787 liberada.`}
           Gate de publish (Fase 5.1)
         </h3>
         <p className="fine" style={{ maxWidth: '40rem' }}>
-          Use o <code>content_id</code> do production run (não o packageId). Ordem: dry-run → approve →
-          open-window → forceReal → restore.
+          Use o <code>content_id</code> do production run (não o packageId). Ordem:{' '}
+          <strong>Usar último READY_FOR_PUBLISH</strong> → dry-run → approve → open-window → forceReal →
+          restore.
         </p>
+        {!isWorkspaceId(publishContentId) ? (
+          <p className="fine" style={{ color: 'var(--signal, #b45309)', maxWidth: '40rem' }}>
+            Content ID vazio — Dry-run / Approve / Publish REAL não têm alvo. Clique em{' '}
+            <strong>Usar último READY_FOR_PUBLISH</strong> primeiro.
+          </p>
+        ) : null}
+        {preflight && preflight.safe === false ? (
+          <p className="fine" style={{ color: 'var(--signal, #b91c1c)', maxWidth: '40rem' }}>
+            ⚠ Janela de publish ABERTA (kill switch off). Se não fores publicar agora, clique{' '}
+            <strong>Restaurar safety defaults</strong> imediatamente.
+          </p>
+        ) : null}
         <label className="fine" style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', maxWidth: '28rem' }}>
           Content ID para publish
           <input
@@ -1246,24 +1259,50 @@ Firewall/OCI Security List: porta 8787 liberada.`}
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.75rem' }}>
           <button
             type="button"
-            className="btn btn-ghost"
+            className="btn btn-signal"
             disabled={busy || !workspaceId}
             onClick={async () => {
-              const ready = productionRuns.find((r) => r.package_status === 'READY_FOR_PUBLISH')
-              const id = String(ready?.content_id || '')
-              if (!id) {
-                setLog('Nenhum production run com package_status READY_FOR_PUBLISH')
+              if (!workspaceId) {
+                setLog('❌ Seleccione um workspace antes.')
                 return
               }
-              setPublishContentId(id)
-              setDryRunOkForContentId(null)
-              if (!workspaceId) return
               setBusy(true)
               try {
+                let ready = productionRuns.find((r) => r.package_status === 'READY_FOR_PUBLISH')
+                let id = String(ready?.content_id || '')
+                // Fallback: lista filtrada / campo ausente — reconsulta a API
+                if (!isWorkspaceId(id)) {
+                  const listed = (await fetchJson(
+                    `${API}/api/production/workspaces/${workspaceId}/runs`,
+                  )) as { runs?: Array<Record<string, unknown>> }
+                  ready = (listed.runs || []).find((r) => r.package_status === 'READY_FOR_PUBLISH')
+                  id = String(ready?.content_id || '')
+                }
+                if (!isWorkspaceId(id) && ready?.id) {
+                  const detail = (await fetchJson(`${API}/api/production/runs/${String(ready.id)}`)) as {
+                    content_id?: string
+                  }
+                  id = String(detail.content_id || '')
+                }
+                if (!isWorkspaceId(id)) {
+                  setLog(
+                    '❌ Nenhum production run READY_FOR_PUBLISH com content_id.\n' +
+                      '➡ Rode Production (YOUTUBE_SHORT) até COMPLETED / READY_FOR_PUBLISH, depois tente de novo.',
+                  )
+                  return
+                }
+                setPublishContentId(id)
+                setDryRunOkForContentId(null)
                 const params = new URLSearchParams({ workspaceId, contentId: id })
-                const res = await fetch(`${API}/api/validation/preflight?${params}`).then((r) => r.json())
-                setPreflight(res)
-                setLog(`Content ID preenchido: ${id}\n\n${JSON.stringify(res, null, 2)}`)
+                const res = await fetchJson(`${API}/api/validation/preflight?${params}`)
+                setPreflight(res as Record<string, unknown>)
+                setLog(
+                  `✅ Content ID preenchido: ${id}\n` +
+                    `➡ Agora clique em "Dry-run report".\n\n` +
+                    JSON.stringify(res, null, 2),
+                )
+              } catch (err) {
+                setLog(`❌ Falha ao resolver READY_FOR_PUBLISH: ${err instanceof Error ? err.message : String(err)}`)
               } finally {
                 setBusy(false)
               }
@@ -1274,9 +1313,25 @@ Firewall/OCI Security List: porta 8787 liberada.`}
           <button
             type="button"
             className="btn btn-ghost"
-            disabled={busy || !workspaceId || !isWorkspaceId(publishContentId)}
+            disabled={busy || !workspaceId}
+            title={
+              isWorkspaceId(publishContentId)
+                ? 'Gera YouTube Pre-Publish Report (nunca faz upload)'
+                : 'Preencha o Content ID (use "Usar último READY_FOR_PUBLISH")'
+            }
             onClick={async () => {
-              if (!workspaceId || !publishContentId) return
+              if (!workspaceId) {
+                setLog('❌ Seleccione um workspace.')
+                return
+              }
+              if (!isWorkspaceId(publishContentId)) {
+                setLog(
+                  '❌ Content ID vazio — o Dry-run precisa do UUID do content.\n' +
+                    '➡ Clique primeiro em "Usar último READY_FOR_PUBLISH" (botão ao lado).\n' +
+                    'Não use o productionRunId nem o packageId.',
+                )
+                return
+              }
               setBusy(true)
               try {
                 const res = await postJson(`${API}/api/validation/dry-run-report`, {
@@ -1284,20 +1339,26 @@ Firewall/OCI Security List: porta 8787 liberada.`}
                   contentId: publishContentId,
                   platform: 'YOUTUBE_SHORT',
                 })
+                if (!res.ok) {
+                  setLog(describeApiResult(res))
+                  setDryRunOkForContentId(null)
+                  return
+                }
                 const validation = res.data.validation as
                   | { ok?: boolean; issues?: string[] }
                   | undefined
-                const ok = res.ok && validation?.ok === true
+                const ok = validation?.ok === true
                 setDryRunOkForContentId(ok ? publishContentId : null)
-                // A failed dry-run leaves Publish REAL disabled — say which checks failed
-                // instead of making the operator diff the JSON.
                 const issues = validation?.issues || []
                 const headline = ok
-                  ? '✅ Dry-run OK — Publish REAL liberado para este content_id.'
+                  ? '✅ Dry-run OK — Publish REAL liberado para este content_id (ainda precisa Approve for publish + janela).'
                   : `❌ Dry-run bloqueado${issues.length ? `: ${issues.join(', ')}` : ''}.\n` +
-                    `➡ packageOk=${String(res.data.packageOk)} · resolva os itens acima ` +
-                    '(ex.: youtube_not_connected → "Conectar YouTube (OAuth)") e rode o dry-run de novo.'
+                    `➡ packageOk=${String(res.data.packageOk)} · video=${String(res.data.video)} · ` +
+                    `title=${String(res.data.title || '').slice(0, 80)}`
                 setLog(`${headline}\n\n${JSON.stringify(res.data, null, 2)}`)
+              } catch (err) {
+                setDryRunOkForContentId(null)
+                setLog(`❌ Dry-run falhou: ${err instanceof Error ? err.message : String(err)}`)
               } finally {
                 setBusy(false)
               }
@@ -1308,9 +1369,18 @@ Firewall/OCI Security List: porta 8787 liberada.`}
           <button
             type="button"
             className="btn btn-ghost"
-            disabled={busy || !workspaceId || !isWorkspaceId(publishContentId)}
+            disabled={busy || !workspaceId}
             onClick={async () => {
-              if (!workspaceId || !publishContentId) return
+              if (!workspaceId) {
+                setLog('❌ Seleccione um workspace.')
+                return
+              }
+              if (!isWorkspaceId(publishContentId)) {
+                setLog(
+                  '❌ Content ID vazio.\n➡ Clique em "Usar último READY_FOR_PUBLISH" antes de Approve for publish.',
+                )
+                return
+              }
               setBusy(true)
               try {
                 const res = await postJson(`${API}/api/publishing/approve-for-publish`, {
@@ -1320,6 +1390,8 @@ Firewall/OCI Security List: porta 8787 liberada.`}
                 })
                 setLog(describeApiResult(res))
                 await refresh()
+              } catch (err) {
+                setLog(`❌ Approve for publish falhou: ${err instanceof Error ? err.message : String(err)}`)
               } finally {
                 setBusy(false)
               }
