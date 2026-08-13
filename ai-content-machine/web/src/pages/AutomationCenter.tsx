@@ -60,9 +60,29 @@ type Execution = {
   created_at: string
 }
 
+type Idea = {
+  id: string
+  title: string
+  status: string
+  opportunity_score?: number
+}
+
+type ScriptRow = {
+  id: string
+  idea_id: string
+  status: string
+  qa_status: string
+  platform: string | null
+  hook?: string
+  quality_score?: number | null
+  created_at: string
+}
+
 type Snapshot = {
   workspace: { id: string; name: string; approval_mode: string; daily_content_qty: number }
   contents: Array<{ id: string; title: string; status: string; performance_class: string | null; reality: string }>
+  ideas: Idea[]
+  scripts: ScriptRow[]
   war: {
     day: number
     revenue_cents: number
@@ -73,6 +93,21 @@ type Snapshot = {
     sales: number
   } | null
   runs: Execution[]
+}
+
+type FactoryStatus = {
+  script: { ollama: string; api: string; mock: string; status: string }
+  voice: { resolver: string; kokoro: string; real: string; mock: string; status: string }
+  visual: { resolver: string; comfy: string; mock: string; status: string; stock: string; videoGeneration: string }
+  composition: { ffmpeg_kenburns: string }
+  thumbnail: { mock: string }
+  storage: { local: string; s3: string }
+  ffmpeg: string
+  source: 'endpoint' | 'derived'
+}
+
+function isApprovedScript(s: Pick<ScriptRow, 'status' | 'qa_status'>): boolean {
+  return s.status === 'approved' || (s.status === 'ready' && s.qa_status === 'passed')
 }
 
 export function AutomationCenter() {
@@ -99,6 +134,14 @@ export function AutomationCenter() {
   const [statusFilter, setStatusFilter] = useState('')
   const [stageFilter, setStageFilter] = useState('')
   const [apiOnline, setApiOnline] = useState<boolean | null>(null)
+  const [ideas, setIdeas] = useState<Idea[]>([])
+  const [ideasSource, setIdeasSource] = useState<'endpoint' | 'snapshot'>('snapshot')
+  const [selectedIdeaId, setSelectedIdeaId] = useState('')
+  const [scripts, setScripts] = useState<ScriptRow[]>([])
+  const [selectedScriptId, setSelectedScriptId] = useState('')
+  const [regenerateProduction, setRegenerateProduction] = useState(false)
+  const [factoryStatus, setFactoryStatus] = useState<FactoryStatus | null>(null)
+  const [dryRunOkForContentId, setDryRunOkForContentId] = useState<string | null>(null)
 
   async function refresh() {
     const params = new URLSearchParams({ window: windowFilter })
@@ -145,18 +188,69 @@ export function AutomationCenter() {
         setPublicationRuns(pub.runs || [])
         setMetricSnapshots(snaps.snapshots || [])
         setRecommendations(recs.recommendations || [])
+        setScripts((s.scripts as ScriptRow[]) || [])
         const conn = (await fetchJson(
           `${API}/api/publishing/connections?workspaceId=${workspaceId}`,
         )) as Record<string, unknown>
         setConnections(conn)
+        const preflightParams = new URLSearchParams({ workspaceId })
+        if (isWorkspaceId(publishContentId)) preflightParams.set('contentId', publishContentId)
         const pf = (await fetchJson(
-          `${API}/api/validation/preflight?workspaceId=${workspaceId}`,
+          `${API}/api/validation/preflight?${preflightParams}`,
         )) as Record<string, unknown>
         setPreflight(pf)
         const ex = (await fetchJson(
           `${API}/api/validation/experiments?workspaceId=${workspaceId}`,
         )) as { experiments?: Array<Record<string, unknown>> }
         setExperiments(ex.experiments || [])
+
+        // Ideas: prefer a dedicated endpoint if the sibling API agent has shipped one;
+        // gracefully fall back to the workspace snapshot (already includes content_ideas).
+        try {
+          const ideasRes = (await fetchJson(
+            `${API}/api/ideas/workspaces/${workspaceId}`,
+          )) as { ideas?: Idea[] }
+          setIdeas(ideasRes.ideas || (s.ideas as Idea[]) || [])
+          setIdeasSource('endpoint')
+        } catch {
+          setIdeas((s.ideas as Idea[]) || [])
+          setIdeasSource('snapshot')
+        }
+
+        // Factory status: GET /api/factory/status (script=Ollama/mock, voice=Kokoro/real/mock,
+        // visual=Library resolver, composition=ffmpeg_kenburns). Falls back to a live production
+        // run's `.providers` field if the endpoint is momentarily unavailable.
+        try {
+          const fstatus = (await fetchJson(`${API}/api/factory/status`)) as Omit<FactoryStatus, 'source'>
+          setFactoryStatus({ ...fstatus, source: 'endpoint' })
+        } catch {
+          const latestProductionId = (runs[0] as { id?: string } | undefined)?.id
+          if (latestProductionId) {
+            try {
+              const detail = (await fetchJson(
+                `${API}/api/production/runs/${latestProductionId}`,
+              )) as { providers?: Omit<FactoryStatus, 'source' | 'script'> }
+              if (detail.providers) {
+                setFactoryStatus({
+                  script: { ollama: 'UNKNOWN', api: 'UNKNOWN', mock: 'UNKNOWN', status: 'UNKNOWN' },
+                  voice: detail.providers.voice,
+                  visual: detail.providers.visual,
+                  composition: detail.providers.composition,
+                  thumbnail: detail.providers.thumbnail,
+                  storage: detail.providers.storage,
+                  ffmpeg: detail.providers.ffmpeg,
+                  source: 'derived',
+                })
+              } else {
+                setFactoryStatus(null)
+              }
+            } catch {
+              setFactoryStatus(null)
+            }
+          } else {
+            setFactoryStatus(null)
+          }
+        }
       }
     } catch (err) {
       setApiOnline(false)
@@ -171,7 +265,19 @@ export function AutomationCenter() {
     void refresh()
     const t = setInterval(() => void refresh(), 5000)
     return () => clearInterval(t)
-  }, [workspaceId, windowFilter, workflowFilter, providerFilter, statusFilter, stageFilter])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [workspaceId, windowFilter, workflowFilter, providerFilter, statusFilter, stageFilter, publishContentId])
+
+  useEffect(() => {
+    if (!selectedIdeaId && ideas.length) setSelectedIdeaId(ideas[0].id)
+  }, [ideas, selectedIdeaId])
+
+  useEffect(() => {
+    if (!selectedScriptId && scripts.length) {
+      const approved = scripts.find((s) => isApprovedScript(s))
+      setSelectedScriptId(approved?.id || scripts[0].id)
+    }
+  }, [scripts, selectedScriptId])
 
   async function createWorkspace(e: FormEvent) {
     e.preventDefault()
@@ -226,6 +332,132 @@ export function AutomationCenter() {
       })
       const data = await res.json()
       setLog(JSON.stringify(data, null, 2))
+      await refresh()
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function createQuickIdea() {
+    if (!workspaceId) return
+    setBusy(true)
+    try {
+      const res = await fetch(`${API}/api/ideas`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          workspaceId,
+          title: `Ideia rápida ${new Date().toLocaleTimeString('pt-BR')}`,
+        }),
+      })
+      if (res.status === 404) {
+        setLog(
+          'POST /api/ideas indisponível (404) — sem tópicos de research disponíveis para esta workspace.\n' +
+            'Rode Run Research + Run Daily Engine (MOCK) primeiro, ou use o dropdown de ideas existente.',
+        )
+        return
+      }
+      const data = (await res.json()) as { id?: string; title?: string; deduped?: boolean }
+      setLog(JSON.stringify(data, null, 2))
+      if (data.id) setSelectedIdeaId(data.id)
+      await refresh()
+    } catch (err) {
+      setLog(`Falha ao criar idea rápida: ${err instanceof Error ? err.message : String(err)}`)
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function runScriptFactory() {
+    if (!workspaceId) return
+    const ideaId = selectedIdeaId || ideas[0]?.id
+    if (!ideaId) {
+      setLog('Nenhuma idea disponível — rode Run Research + Run Daily Engine (MOCK) ou "Nova idea rápida".')
+      return
+    }
+    setBusy(true)
+    try {
+      const res = await fetch(`${API}/api/scripts/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          workspaceId,
+          contentIdeaId: ideaId,
+          platform: 'YOUTUBE_SHORT',
+          await: true,
+        }),
+      })
+      const data = await res.json()
+      setLog(JSON.stringify(data, null, 2))
+      await refresh()
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function approveScript() {
+    if (!workspaceId || !selectedScriptId) return
+    setBusy(true)
+    try {
+      const res = await fetch(`${API}/api/scripts/${selectedScriptId}/approve`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ workspaceId }),
+      })
+      if (res.status === 404) {
+        setLog(
+          'POST /api/scripts/:id/approve retornou 404 (endpoint indisponível nesta API ou script inexistente).\n' +
+            'Scripts com status=ready & qa_status=passed (QA automático) já contam como aprovados para Production — ' +
+            'aprovação manual é só para requires_review/failed.',
+        )
+        return
+      }
+      const data = await res.json().catch(() => ({}))
+      setLog(JSON.stringify(data, null, 2))
+      await refresh()
+    } catch (err) {
+      setLog(`Falha ao aprovar script: ${err instanceof Error ? err.message : String(err)}`)
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function runProduction() {
+    if (!workspaceId) return
+    setBusy(true)
+    try {
+      const fresh = (await fetch(`${API}/api/workspaces/${workspaceId}`).then((r) => r.json())) as {
+        scripts?: ScriptRow[]
+      }
+      const eligible = (fresh.scripts || []).filter((s) => isApprovedScript(s))
+      const chosen =
+        (selectedScriptId && eligible.find((s) => s.id === selectedScriptId)) || eligible[0]
+      if (!chosen) {
+        setLog(
+          'Nenhum script approved OU (ready + qa_status=passed) encontrado — sem fallback para draft.\n' +
+            'Rode Script Factory (e Approve Script, se necessário) primeiro.',
+        )
+        return
+      }
+      const res = await fetch(`${API}/api/production/run`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          workspaceId,
+          scriptId: chosen.id,
+          platform: 'YOUTUBE_SHORT',
+          regenerate: regenerateProduction,
+          await: true,
+        }),
+      })
+      const data = (await res.json()) as { skipped?: boolean; reason?: string; productionRunId?: string }
+      let logText = JSON.stringify(data, null, 2)
+      if (data.skipped && data.reason === 'idempotent_skip') {
+        logText +=
+          '\n\n⚠️ idempotent_skip: já existe production run para este script+platform.\n' +
+          'Marque "Regenerate" (checkbox abaixo do botão) e clique Run Production novamente para forçar um novo run.'
+      }
+      setLog(logText)
       await refresh()
     } finally {
       setBusy(false)
@@ -343,7 +575,7 @@ Firewall/OCI Security List: porta 8787 liberada.`}
           </button>
         </div>
 
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginTop: '2rem' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginTop: '2rem', alignItems: 'center' }}>
           <button className="btn btn-signal" disabled={busy} onClick={createWorkspace}>
             Create Workspace
           </button>
@@ -351,11 +583,12 @@ Firewall/OCI Security List: porta 8787 liberada.`}
             Start 30-Day War
           </button>
           <button
-            className="btn btn-signal"
+            className="btn btn-ghost"
             disabled={busy || !workspaceId}
             onClick={() => trigger('content_daily_pipeline')}
+            title="MOCK: gera research/ideas/scripts sintéticos para popular o workspace. Não é a fábrica real (Ollama/Kokoro/ffmpeg)."
           >
-            Run Daily Engine
+            Run Daily Engine (MOCK)
           </button>
           <button
             className="btn btn-ghost"
@@ -364,75 +597,122 @@ Firewall/OCI Security List: porta 8787 liberada.`}
           >
             Run Research
           </button>
-          <button
-            className="btn btn-ghost"
-            disabled={busy || !workspaceId}
-            onClick={async () => {
-              if (!workspaceId) return
-              setBusy(true)
-              try {
-                const ws = await fetch(`${API}/api/workspaces/${workspaceId}`).then((r) => r.json())
-                const idea = (ws.ideas || [])[0]
-                if (!idea) {
-                  setLog('Nenhuma idea — rode Research + Daily primeiro')
-                  return
-                }
-                const res = await fetch(`${API}/api/scripts/generate`, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    workspaceId,
-                    contentIdeaId: idea.id,
-                    platform: 'TIKTOK',
-                    await: true,
-                  }),
-                })
-                setLog(JSON.stringify(await res.json(), null, 2))
-                await refresh()
-              } finally {
-                setBusy(false)
-              }
-            }}
-          >
-            Run Script Factory
+        </div>
+        <p className="fine" style={{ maxWidth: '42rem', marginTop: '0.35rem' }}>
+          "Run Daily Engine" é <strong>MOCK-only</strong> — útil para popular o workspace rapidamente com dados
+          sintéticos, não passa por Ollama/Kokoro/ffmpeg. O caminho real da fábrica de YouTube Shorts é:
+          Idea → Script Factory (Ollama) → Approve → Production (Kokoro + Library + ffmpeg_kenburns) → Publish gate.
+        </p>
+
+        <h3 style={{ marginTop: '1.5rem', fontFamily: 'var(--font-display)', letterSpacing: '-0.03em' }}>
+          Fábrica real — YouTube Shorts (sem ComfyUI)
+        </h3>
+        <div className="flow-strip" style={{ marginTop: '0.5rem' }}>
+          <div>
+            <strong>{factoryStatus?.script.ollama || '—'}</strong>
+            <span>Ollama (script)</span>
+          </div>
+          <div>
+            <strong>{factoryStatus?.voice.kokoro || '—'}</strong>
+            <span>Kokoro (voice)</span>
+          </div>
+          <div>
+            <strong>{factoryStatus?.visual.status || '—'}</strong>
+            <span>Visuals (Library/fallback)</span>
+          </div>
+          <div>
+            <strong>{factoryStatus?.composition.ffmpeg_kenburns || factoryStatus?.ffmpeg || '—'}</strong>
+            <span>ffmpeg_kenburns</span>
+          </div>
+        </div>
+        <p className="fine" style={{ marginTop: '0.25rem' }}>
+          {factoryStatus
+            ? factoryStatus.source === 'endpoint'
+              ? 'Fonte: GET /api/factory/status'
+              : 'Fonte: derivado (GET /api/factory/status indisponível) — abra "Detalhe" de uma Production run para status ao vivo.'
+            : 'Sem dados de status ainda — rode Script Factory / Production ou aguarde GET /api/factory/status.'}
+        </p>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginTop: '0.75rem', alignItems: 'flex-end' }}>
+          <label className="fine" style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', minWidth: '20rem' }}>
+            Idea ({ideasSource === 'endpoint' ? 'API /api/ideas' : 'workspace snapshot'})
+            <select
+              value={selectedIdeaId}
+              onChange={(e) => setSelectedIdeaId(e.target.value)}
+              style={{ padding: '0.55rem 0.75rem' }}
+            >
+              <option value="">— selecionar idea —</option>
+              {ideas.map((i) => (
+                <option key={i.id} value={i.id}>
+                  [{i.status}] {i.title}
+                </option>
+              ))}
+            </select>
+          </label>
+          <button className="btn btn-ghost" disabled={busy || !workspaceId} onClick={createQuickIdea}>
+            Nova idea rápida
           </button>
           <button
-            className="btn btn-ghost"
-            disabled={busy || !workspaceId}
-            onClick={async () => {
-              if (!workspaceId) return
-              setBusy(true)
-              try {
-                const scripts = await fetch(`${API}/api/workspaces/${workspaceId}`).then((r) => r.json())
-                const approved =
-                  (scripts.scripts || []).find(
-                    (s: { status: string; qa_status: string }) =>
-                      s.status === 'approved' || (s.status === 'ready' && s.qa_status === 'passed'),
-                  ) || (scripts.scripts || [])[0]
-                if (!approved) {
-                  setLog('Nenhum script — rode Script Factory primeiro')
-                  return
-                }
-                const res = await fetch(`${API}/api/production/run`, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    workspaceId,
-                    scriptId: approved.id,
-                    platform: approved.platform || 'YOUTUBE_SHORT',
-                    allowUnapproved: true,
-                    await: true,
-                  }),
-                })
-                setLog(JSON.stringify(await res.json(), null, 2))
-                await refresh()
-              } finally {
-                setBusy(false)
-              }
-            }}
+            className="btn btn-signal"
+            disabled={busy || !workspaceId || !selectedIdeaId}
+            onClick={runScriptFactory}
+            title="Platform fixo em YOUTUBE_SHORT (não TIKTOK)"
           >
-            Run Production
+            Run Script Factory (YOUTUBE_SHORT)
           </button>
+        </div>
+        {!ideas.length ? (
+          <p className="fine" style={{ maxWidth: '42rem', marginTop: '0.35rem' }}>
+            Sem ideas ainda para esta workspace. Rode Run Research + Run Daily Engine (MOCK) para gerar
+            tópicos, ou clique "Nova idea rápida" (POST /api/ideas a partir do último tópico).
+          </p>
+        ) : null}
+
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginTop: '1rem', alignItems: 'flex-end' }}>
+          <label className="fine" style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', minWidth: '24rem' }}>
+            Script (para Approve / Production)
+            <select
+              value={selectedScriptId}
+              onChange={(e) => setSelectedScriptId(e.target.value)}
+              style={{ padding: '0.55rem 0.75rem' }}
+            >
+              <option value="">— selecionar script —</option>
+              {scripts.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {isApprovedScript(s) ? '✓ ' : ''}[{s.status}/{s.qa_status}] {(s.hook || s.id).slice(0, 60)}
+                </option>
+              ))}
+            </select>
+          </label>
+          <button
+            className="btn btn-ghost"
+            disabled={busy || !workspaceId || !selectedScriptId}
+            onClick={approveScript}
+          >
+            Approve Script
+          </button>
+          <label className="fine" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            <input
+              type="checkbox"
+              checked={regenerateProduction}
+              onChange={(e) => setRegenerateProduction(e.target.checked)}
+            />
+            Regenerate (evita idempotent_skip)
+          </label>
+          <button
+            className="btn btn-signal"
+            disabled={busy || !workspaceId}
+            onClick={runProduction}
+            title="Platform fixo em YOUTUBE_SHORT. Só usa scripts approved OU (ready+qa passed) — nunca draft."
+          >
+            Run Production (YOUTUBE_SHORT)
+          </button>
+        </div>
+        <p className="fine" style={{ maxWidth: '46rem', marginTop: '0.35rem' }}>
+          Production nunca cai silenciosamente para um script draft: só roda com status <code>approved</code> ou{' '}
+          <code>ready</code> + <code>qa_status=passed</code>. Sem <code>allowUnapproved</code>.
+        </p>
+
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginTop: '1.25rem' }}>
           <button
             className="btn btn-ghost"
             disabled={busy || !workspaceId}
@@ -465,8 +745,9 @@ Firewall/OCI Security List: porta 8787 liberada.`}
                 setBusy(false)
               }
             }}
+            title="MOCK: simula analytics/winner detection. Não publica de verdade — use o Gate de publish (Fase 5.1) abaixo para o caminho real."
           >
-            Run Publishing Loop
+            Feedback Loop (MOCK)
           </button>
         </div>
 
@@ -630,10 +911,18 @@ Firewall/OCI Security List: porta 8787 liberada.`}
           <pre>
             {scriptRuns
               .slice(0, 10)
-              .map(
-                (r) =>
-                  `${r.created_at} | ${r.status} | ${r.platform || '-'} | cost=${r.estimated_cost_cents}¢ | tokens=${Number(r.tokens_input || 0) + Number(r.tokens_output || 0)}`,
-              )
+              .map((r) => {
+                let resultProvider = ''
+                try {
+                  resultProvider = String(
+                    (JSON.parse(String(r.result || '{}')) as { provider?: string }).provider || '',
+                  )
+                } catch {
+                  resultProvider = ''
+                }
+                const provider = r.provider || resultProvider || '-'
+                return `${r.created_at} | ${r.status} | ${r.platform || '-'} | provider=${provider} | cost=${r.estimated_cost_cents}¢ | tokens=${Number(r.tokens_input || 0) + Number(r.tokens_output || 0)}`
+              })
               .join('\n') || 'Nenhum script run.'}
           </pre>
         </div>
@@ -678,7 +967,19 @@ Firewall/OCI Security List: porta 8787 liberada.`}
                 const result = (() => {
                   try {
                     return JSON.parse(String(r.result || '{}')) as {
-                      stages?: Record<string, { ok?: boolean }>
+                      stages?: Record<
+                        string,
+                        { ok?: boolean; provider?: string; library?: { hits?: number; misses?: number } }
+                      >
+                      factoryMetrics?: {
+                        voiceProvider?: string | null
+                        visualProvider?: string | null
+                        composeProvider?: string | null
+                        assetsReused?: number
+                        assetsNew?: number
+                        fallbackCount?: number
+                        totalMs?: number
+                      }
                     }
                   } catch {
                     return {}
@@ -691,7 +992,14 @@ Firewall/OCI Security List: porta 8787 liberada.`}
                     return `○ ${s}`
                   })
                   .join(' · ')
-                return `${r.created_at} | ${r.status} | stage=${r.current_stage || '-'} | pkg=${r.package_status} | score=${r.quality_score ?? '-'}\n  ${timeline}`
+                const fm = result.factoryMetrics
+                const voiceProvider = fm?.voiceProvider || result.stages?.VOICE?.provider || '-'
+                const visualProvider = fm?.visualProvider || result.stages?.VISUALS?.provider || '-'
+                const composeProvider = fm?.composeProvider || result.stages?.COMPOSING?.provider || '-'
+                const libHits = fm?.assetsReused ?? result.stages?.VISUALS?.library?.hits ?? 0
+                const libMisses = fm?.assetsNew ?? result.stages?.VISUALS?.library?.misses ?? 0
+                const observability = `VOICE=${voiceProvider} · VISUALS=${visualProvider} (lib hits=${libHits}/misses=${libMisses}) · COMPOSING=${composeProvider}${fm ? ` · fallback=${fm.fallbackCount ?? 0} · totalMs=${fm.totalMs ?? '-'}` : ''}`
+                return `${r.created_at} | ${r.status} | stage=${r.current_stage || '-'} | pkg=${r.package_status} | score=${r.quality_score ?? '-'}\n  ${timeline}\n  ${observability}`
               })
               .join('\n\n') || 'Nenhum production run.'}
           </pre>
@@ -713,11 +1021,43 @@ Firewall/OCI Security List: porta 8787 liberada.`}
           </div>
           {selectedProduction ? (
             <pre style={{ marginTop: '0.75rem' }}>
-              Assets: {Array.isArray(selectedProduction.assets) ? selectedProduction.assets.length : 0}
-              {' · '}
-              Package: {String((selectedProduction.package as { status?: string } | null)?.status || '-')}
-              {' · '}
-              Error: {String(selectedProduction.error || '-')}
+              {(() => {
+                const sel = selectedProduction as {
+                  assets?: unknown[]
+                  package?: { status?: string } | null
+                  error?: string
+                  result?: string
+                  providers?: {
+                    voice?: { status?: string; kokoro?: string; resolver?: string }
+                    visual?: { status?: string; resolver?: string }
+                    ffmpeg?: string
+                  }
+                }
+                let parsed: {
+                  stages?: Record<
+                    string,
+                    { provider?: string; library?: { hits?: number; misses?: number } }
+                  >
+                  factoryMetrics?: Record<string, unknown>
+                } = {}
+                try {
+                  parsed = JSON.parse(String(sel.result || '{}'))
+                } catch {
+                  parsed = {}
+                }
+                const voice = parsed.stages?.VOICE
+                const visuals = parsed.stages?.VISUALS
+                const composing = parsed.stages?.COMPOSING
+                const lines = [
+                  `Assets: ${Array.isArray(sel.assets) ? sel.assets.length : 0} · Package: ${String(sel.package?.status || '-')} · Error: ${String(sel.error || '-')}`,
+                  `VOICE provider: ${voice?.provider || '-'}${sel.providers?.voice?.kokoro ? ` (kokoro=${sel.providers.voice.kokoro})` : ''}`,
+                  `VISUALS provider: ${visuals?.provider || '-'} · library hits=${visuals?.library?.hits ?? 0} misses=${visuals?.library?.misses ?? 0}`,
+                  `COMPOSING provider: ${composing?.provider || '-'}`,
+                  `ffmpeg: ${sel.providers?.ffmpeg || '-'}`,
+                  `factoryMetrics: ${parsed.factoryMetrics ? JSON.stringify(parsed.factoryMetrics) : '-'}`,
+                ]
+                return lines.join('\n')
+              })()}
             </pre>
           ) : null}
         </div>
@@ -792,9 +1132,9 @@ Firewall/OCI Security List: porta 8787 liberada.`}
               if (!workspaceId) return
               setBusy(true)
               try {
-                const res = await fetch(`${API}/api/validation/preflight?workspaceId=${workspaceId}`).then(
-                  (r) => r.json(),
-                )
+                const params = new URLSearchParams({ workspaceId })
+                if (isWorkspaceId(publishContentId)) params.set('contentId', publishContentId)
+                const res = await fetch(`${API}/api/validation/preflight?${params}`).then((r) => r.json())
                 setPreflight(res)
                 setLog(JSON.stringify(res, null, 2))
               } finally {
@@ -817,21 +1157,45 @@ Firewall/OCI Security List: porta 8787 liberada.`}
           Content ID para publish
           <input
             value={publishContentId}
-            onChange={(e) => setPublishContentId(e.target.value.trim())}
+            onChange={(e) => {
+              setPublishContentId(e.target.value.trim())
+              setDryRunOkForContentId(null)
+            }}
             placeholder="uuid do content READY_FOR_PUBLISH"
             style={{ padding: '0.55rem 0.75rem' }}
           />
         </label>
+        <p className="fine" style={{ marginTop: '0.35rem' }}>
+          Dry-run:{' '}
+          <strong>
+            {dryRunOkForContentId && dryRunOkForContentId === publishContentId ? 'OK' : 'pendente/não-OK'}
+          </strong>{' '}
+          — Publish REAL fica desabilitado até rodar Dry-run report com sucesso para este content_id.
+        </p>
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.75rem' }}>
           <button
             type="button"
             className="btn btn-ghost"
             disabled={busy || !workspaceId}
-            onClick={() => {
+            onClick={async () => {
               const ready = productionRuns.find((r) => r.package_status === 'READY_FOR_PUBLISH')
               const id = String(ready?.content_id || '')
-              if (id) setPublishContentId(id)
-              else setLog('Nenhum production run com package_status READY_FOR_PUBLISH')
+              if (!id) {
+                setLog('Nenhum production run com package_status READY_FOR_PUBLISH')
+                return
+              }
+              setPublishContentId(id)
+              setDryRunOkForContentId(null)
+              if (!workspaceId) return
+              setBusy(true)
+              try {
+                const params = new URLSearchParams({ workspaceId, contentId: id })
+                const res = await fetch(`${API}/api/validation/preflight?${params}`).then((r) => r.json())
+                setPreflight(res)
+                setLog(`Content ID preenchido: ${id}\n\n${JSON.stringify(res, null, 2)}`)
+              } finally {
+                setBusy(false)
+              }
             }}
           >
             Usar último READY_FOR_PUBLISH
@@ -844,7 +1208,7 @@ Firewall/OCI Security List: porta 8787 liberada.`}
               if (!workspaceId || !publishContentId) return
               setBusy(true)
               try {
-                const res = await fetch(`${API}/api/validation/dry-run-report`, {
+                const res = (await fetch(`${API}/api/validation/dry-run-report`, {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({
@@ -852,8 +1216,9 @@ Firewall/OCI Security List: porta 8787 liberada.`}
                     contentId: publishContentId,
                     platform: 'YOUTUBE_SHORT',
                   }),
-                }).then((r) => r.json())
+                }).then((r) => r.json())) as { validation?: { ok?: boolean; issues?: string[] } }
                 setLog(JSON.stringify(res, null, 2))
+                setDryRunOkForContentId(res.validation?.ok ? publishContentId : null)
               } finally {
                 setBusy(false)
               }
@@ -911,7 +1276,17 @@ Firewall/OCI Security List: porta 8787 liberada.`}
           <button
             type="button"
             className="btn btn-signal"
-            disabled={busy || !workspaceId || !isWorkspaceId(publishContentId)}
+            disabled={
+              busy ||
+              !workspaceId ||
+              !isWorkspaceId(publishContentId) ||
+              dryRunOkForContentId !== publishContentId
+            }
+            title={
+              dryRunOkForContentId !== publishContentId
+                ? 'Rode "Dry-run report" com sucesso para este content_id antes de publicar REAL'
+                : undefined
+            }
             onClick={async () => {
               if (!workspaceId || !publishContentId) return
               if (
