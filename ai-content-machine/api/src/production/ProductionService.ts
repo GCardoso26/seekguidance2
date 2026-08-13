@@ -11,6 +11,11 @@ import { LocalFilesystemStorage, assetRelPath } from './storage/LocalFilesystemS
 import { MockVoiceProvider } from './voice/MockVoiceProvider.js'
 import { RealVoiceProvider } from './voice/RealVoiceProvider.js'
 import { MockVisualProvider } from './visual/MockVisualProvider.js'
+import {
+  deriveTagsFromPrompt,
+  mediaAssetRepository,
+  type LibrarySearchHit,
+} from './library/MediaAssetRepository.js'
 import { subtitleService } from './SubtitleService.js'
 import { videoComposer } from './VideoComposer.js'
 import { MockThumbnailProvider } from './thumbnail/MockThumbnailProvider.js'
@@ -456,11 +461,13 @@ export class ProductionService {
       return { ok: false, error: retried.failure.error, result }
     }
 
+    const prior = result.stages[stage] || {}
     result.stages[stage] = {
+      ...prior,
       ok: true,
       completedAt: nowIso(),
       version,
-      assetIds: result.stages[stage]?.assetIds,
+      assetIds: prior.assetIds,
     }
     result.failedStage = null
     getDb()
@@ -584,6 +591,16 @@ export class ProductionService {
 
     if (stage === 'VISUALS') {
       const ids: string[] = []
+      const libraryReuses: Array<{
+        asset_id: string
+        reuse_reason: string
+        matched_tags: string[]
+        match_score: number
+        scene: number
+      }> = []
+      let libraryHits = 0
+      let libraryMisses = 0
+
       for (const scene of storyboard) {
         const rel = assetRelPath({
           workspaceId: ws,
@@ -593,6 +610,81 @@ export class ProductionService {
           filename: `scene-${scene.scene}-v${version}.png`,
         })
         const abs = this.storage.resolveSafe(rel)
+        const tags = deriveTagsFromPrompt(scene.visualPrompt)
+
+        let hit: LibrarySearchHit | null = null
+        try {
+          hit = mediaAssetRepository.searchBest({
+            workspaceId: ws,
+            type: 'image',
+            tags,
+          })
+          if (hit && !fs.existsSync(hit.asset.path)) hit = null
+        } catch {
+          // Asset Library must never block production — fall through to visual provider
+          hit = null
+        }
+
+        if (hit) {
+          try {
+            const reused = mediaAssetRepository.recordReuse(hit.asset.id)
+            const license = hit.asset.source === 'mock' ? 'MOCK' : 'UNKNOWN'
+            const registered = assetRegistry.register({
+              workspaceId: ws,
+              contentId,
+              productionId: runId,
+              type: 'IMAGE',
+              sourceType: hit.asset.source === 'mock' ? 'MOCK' : 'GENERATED',
+              provider: 'asset_library',
+              uri: hit.asset.path,
+              mimeType: 'image/png',
+              width: plan.width,
+              height: plan.height,
+              checksum: hit.asset.sha256,
+              stage: 'VISUALS',
+              assetKey: `visual:scene:${scene.scene}`,
+              version,
+              license,
+              metadata: {
+                prompt: scene.visualPrompt,
+                sourceUrl: `library://${hit.asset.id}`,
+                generatedAt: nowIso(),
+                scene: scene.scene,
+                library: {
+                  asset_id: hit.asset.id,
+                  reuse_reason: hit.reuseReason,
+                  matched_tags: hit.matchedTags,
+                  match_score: hit.matchScore,
+                  usage_count: reused.usageCount,
+                },
+              },
+            })
+            ids.push(registered.id)
+            libraryHits += 1
+            libraryReuses.push({
+              asset_id: hit.asset.id,
+              reuse_reason: hit.reuseReason,
+              matched_tags: hit.matchedTags,
+              match_score: hit.matchScore,
+              scene: scene.scene,
+            })
+            recordAiCost({
+              workspaceId: ws,
+              operation: 'IMAGE_GENERATION',
+              provider: 'asset_library',
+              model: 'reuse',
+              estimatedCostCents: 0,
+              productionRunId: runId,
+              reality: 'MOCK',
+            })
+            continue
+          } catch {
+            // Library reuse failed — fall through to provider
+          }
+        }
+
+        // MISS (or library unavailable) — existing visual provider behavior
+        libraryMisses += 1
         const asset = await this.visual.generate({
           prompt: scene.visualPrompt,
           outPath: abs,
@@ -621,9 +713,32 @@ export class ProductionService {
             prompt: asset.prompt,
             sourceUrl: asset.metadata.sourceUrl,
             generatedAt: asset.metadata.generatedAt,
+            library: { miss: true, tags },
           },
         })
         ids.push(registered.id)
+
+        try {
+          mediaAssetRepository.catalog({
+            workspaceId: ws,
+            contentId,
+            productionId: runId,
+            path: asset.path,
+            type: 'image',
+            source: asset.sourceType === 'STOCK' ? 'stock' : asset.sourceType === 'GENERATED' ? 'generated' : 'mock',
+            tags,
+            metadata: {
+              prompt: asset.prompt,
+              scene: scene.scene,
+              provider: asset.provider,
+              width: asset.width,
+              height: asset.height,
+            },
+          })
+        } catch {
+          // Catalog failure is non-fatal
+        }
+
         recordAiCost({
           workspaceId: ws,
           operation: 'IMAGE_GENERATION',
@@ -639,14 +754,19 @@ export class ProductionService {
             .run(nowIso(), runId)
         }
       }
-      result.stages.VISUALS = { ok: true, assetIds: ids, version }
+      result.stages.VISUALS = {
+        ok: true,
+        assetIds: ids,
+        version,
+        library: { hits: libraryHits, misses: libraryMisses, reuses: libraryReuses },
+      }
       emitEvent({
         workspaceId: ws,
         eventType: 'visuals.generated',
         entityType: 'production_run',
         entityId: runId,
         reality: 'MOCK',
-        payload: { count: ids.length },
+        payload: { count: ids.length, libraryHits, libraryMisses },
       })
       return
     }

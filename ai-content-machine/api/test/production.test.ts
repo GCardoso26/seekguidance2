@@ -355,4 +355,88 @@ describe('Production unit + service', () => {
     ).filter((a) => a.asset_key === 'thumbnail')
     assert.ok(thumbs.some((t) => t.version >= 2 && t.is_current === 1))
   })
+
+  it('Asset Library: MISS catalogs then regenerate HIT reuses + usage_count++', async () => {
+    const { mediaAssetRepository } = await import('../src/production/library/MediaAssetRepository.js')
+    const boot = await bootstrapWorkspace({ name: 'Asset Lib', email: 'lib@cwm.test' })
+    const ws = boot.workspaceId
+    const { scriptId } = seedApprovedScript(ws, 'YOUTUBE_SHORT')
+
+    const first = await productionService.run({
+      workspaceId: ws,
+      scriptId,
+      platform: 'YOUTUBE_SHORT',
+      targetDurationOverride: 2,
+    })
+    assert.equal(first.status, 'COMPLETED')
+    const resultA = JSON.parse(String(productionService.getRun(first.productionRunId!)!.result))
+    assert.ok(resultA.stages.VISUALS.library.misses >= 1)
+    assert.equal(resultA.stages.VISUALS.library.hits, 0)
+
+    const libRows = mediaAssetRepository.listByWorkspace(ws)
+    assert.ok(libRows.length >= 1)
+    const usageBefore = libRows.reduce((s, a) => s + a.usageCount, 0)
+
+    const second = await productionService.run({
+      workspaceId: ws,
+      scriptId,
+      platform: 'YOUTUBE_SHORT',
+      targetDurationOverride: 2,
+      regenerate: true,
+    })
+    assert.equal(second.status, 'COMPLETED')
+    assert.notEqual(first.productionRunId, second.productionRunId)
+
+    const resultB = JSON.parse(String(productionService.getRun(second.productionRunId!)!.result))
+    assert.ok(resultB.stages.VISUALS.library.hits >= 1)
+    assert.ok(resultB.stages.VISUALS.library.reuses.length >= 1)
+    assert.equal(resultB.stages.VISUALS.library.reuses[0].reuse_reason, 'tag_match')
+    assert.ok(Array.isArray(resultB.stages.VISUALS.library.reuses[0].matched_tags))
+    assert.ok(resultB.stages.VISUALS.library.reuses[0].match_score > 0)
+
+    const usageAfter = mediaAssetRepository
+      .listByWorkspace(ws)
+      .reduce((s, a) => s + a.usageCount, 0)
+    assert.ok(usageAfter > usageBefore)
+
+    const reused = (
+      productionService.getRun(second.productionRunId!)!.assets as Array<{
+        type: string
+        provider: string
+        is_current: number
+        metadata: string
+      }>
+    ).find((a) => a.type === 'IMAGE' && a.is_current === 1 && a.provider === 'asset_library')
+    assert.ok(reused)
+    const meta = JSON.parse(reused!.metadata)
+    assert.equal(meta.library.reuse_reason, 'tag_match')
+    assert.ok(meta.library.asset_id)
+  })
+
+  it('Asset Library search failure falls back to visual provider', async () => {
+    const { mediaAssetRepository } = await import('../src/production/library/MediaAssetRepository.js')
+    const boot = await bootstrapWorkspace({ name: 'Lib Fail', email: 'libfail@cwm.test' })
+    const ws = boot.workspaceId
+    const { scriptId } = seedApprovedScript(ws, 'YOUTUBE_SHORT')
+
+    const original = mediaAssetRepository.searchBest.bind(mediaAssetRepository)
+    mediaAssetRepository.searchBest = () => {
+      throw new Error('library_forced_fail')
+    }
+    try {
+      const out = await productionService.run({
+        workspaceId: ws,
+        scriptId,
+        platform: 'YOUTUBE_SHORT',
+        targetDurationOverride: 2,
+      })
+      assert.equal(out.status, 'COMPLETED')
+      const result = JSON.parse(String(productionService.getRun(out.productionRunId!)!.result))
+      assert.equal(result.stages.VISUALS.ok, true)
+      assert.equal(result.stages.VISUALS.library.hits, 0)
+      assert.ok(result.stages.VISUALS.library.misses >= 1)
+    } finally {
+      mediaAssetRepository.searchBest = original
+    }
+  })
 })
