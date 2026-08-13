@@ -14,7 +14,7 @@ export class MockVisualProvider implements VisualProvider {
   async generate(input: VisualGenerateInput): Promise<VisualAsset> {
     if (!ffmpegService.available()) throw new Error('ffmpeg_not_available')
     const color = COLORS[(input.scene - 1) % COLORS.length]
-    ffmpegService.generateColorImage(input.outPath, input.width, input.height, color)
+    ffmpegService.generateColorImageWithText(input.outPath, input.width, input.height, color, input.prompt)
     const st = fs.statSync(input.outPath)
     if (st.size <= 0) throw new Error('mock_visual_empty_file')
     return {
