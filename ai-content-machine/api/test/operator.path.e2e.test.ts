@@ -190,13 +190,28 @@ describe('Operator critical path — Idea → Script → Approve → Production 
     // --- Providers must be visible in the result (UI observability line) ---
     const stages = prod.result.result.stages as Record<
       string,
-      { ok: boolean; provider?: string; library?: { hits: number; misses: number } }
+      {
+        ok: boolean
+        provider?: string
+        fallbackTrail?: Array<{ provider: string; status: string }>
+        library?: { hits: number; misses: number }
+      }
     >
     assert.equal(stages.VOICE.provider, 'mock_voice')
     assert.equal(stages.VISUALS.ok, true)
-    assert.ok(stages.VISUALS.provider, 'VISUALS must report a provider')
     assert.equal(stages.COMPOSING.provider, 'ffmpeg_kenburns')
     assert.ok(stages.VISUALS.library, 'library hits/misses must be reported')
+
+    // Fresh workspace: every scene is a library MISS, and with ComfyUI absent the
+    // visual chain must degrade to Mock rather than stalling the run.
+    assert.ok((stages.VISUALS.library!.misses ?? 0) >= 1, 'expected library MISS on a first run')
+    assert.equal(stages.VISUALS.provider, 'mock_visual')
+    assert.ok(
+      stages.VISUALS.fallbackTrail?.some(
+        (t) => t.provider === 'comfyui' && t.status === 'NOT_CONFIGURED',
+      ),
+      'the skipped ComfyUI attempt must be recorded in the fallback trail',
+    )
     const fm = prod.result.result.factoryMetrics as {
       voiceProvider: string
       composeProvider: string

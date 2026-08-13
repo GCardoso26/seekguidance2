@@ -24,6 +24,49 @@ async function fetchJson(url: string, init?: RequestInit): Promise<unknown> {
   return res.json()
 }
 
+type ApiResult = { ok: boolean; status: number; data: Record<string, unknown> }
+
+async function postJson(url: string, body?: unknown): Promise<ApiResult> {
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: body === undefined ? undefined : JSON.stringify(body),
+  })
+  const data = (await res.json().catch(() => ({}))) as Record<string, unknown>
+  return { ok: res.ok, status: res.status, data }
+}
+
+/**
+ * The API answers operator mistakes with {error, hint, nextAction} and skipped work
+ * with {skipped, reason, hint}. Surface both as the headline instead of leaving the
+ * operator to read raw JSON.
+ */
+function describeApiResult(result: ApiResult): string {
+  const { ok, status, data } = result
+  const json = JSON.stringify(data, null, 2)
+  const hint = typeof data.hint === 'string' ? data.hint : ''
+
+  if (!ok) {
+    const code =
+      typeof data.error === 'string'
+        ? data.error
+        : typeof data.message === 'string'
+          ? data.message
+          : `HTTP ${status}`
+    return `❌ ${code}${hint ? `\n\n➡ ${hint}` : ''}\n\n${json}`
+  }
+  if (data.skipped === true) {
+    return `⚠️ ${String(data.reason || 'skipped')}${hint ? `\n\n➡ ${hint}` : ''}\n\n${json}`
+  }
+  return json
+}
+
+/** `await:true` endpoints wrap the real outcome in `result`. */
+function innerResult(data: Record<string, unknown>): Record<string, unknown> {
+  const inner = data.result
+  return inner && typeof inner === 'object' ? (inner as Record<string, unknown>) : data
+}
+
 type Health = {
   mode: string
   systemReady: { ok: boolean; reason?: string }
@@ -139,7 +182,9 @@ export function AutomationCenter() {
   const [selectedIdeaId, setSelectedIdeaId] = useState('')
   const [scripts, setScripts] = useState<ScriptRow[]>([])
   const [selectedScriptId, setSelectedScriptId] = useState('')
+  const [regenerateScript, setRegenerateScript] = useState(false)
   const [regenerateProduction, setRegenerateProduction] = useState(false)
+  const [workspaceError, setWorkspaceError] = useState('')
   const [factoryStatus, setFactoryStatus] = useState<FactoryStatus | null>(null)
   const [dryRunOkForContentId, setDryRunOkForContentId] = useState<string | null>(null)
 
@@ -148,10 +193,25 @@ export function AutomationCenter() {
     if (isWorkspaceId(workspaceId)) params.set('workspaceId', workspaceId)
     if (workflowFilter) params.set('workflow', workflowFilter)
     if (providerFilter) params.set('provider', providerFilter)
+
+    // Health decides online/offline. Everything else is workspace-scoped and must not
+    // be able to claim the API is down (an unknown workspaceId 404s, and this loop
+    // re-runs every 5s — it used to overwrite the log with a bogus offline banner).
     try {
       const h = (await fetchJson(`${API}/api/automation/health?${params}`)) as Health
       setHealth(h)
       setApiOnline(true)
+      setWorkspaceError('')
+    } catch (err) {
+      setApiOnline(false)
+      const msg = err instanceof Error ? err.message : String(err)
+      setLog(
+        `API offline ou inacessível (${API}).\n${msg}\n\nNa VM: sudo docker compose ps && curl -s http://127.0.0.1:8787/health`,
+      )
+      return
+    }
+
+    try {
       const listed = (await fetchJson(`${API}/api/workspaces`)) as {
         workspaces?: Array<{ id: string; name: string }>
       }
@@ -252,11 +312,12 @@ export function AutomationCenter() {
           }
         }
       }
+      setWorkspaceError('')
     } catch (err) {
-      setApiOnline(false)
       const msg = err instanceof Error ? err.message : String(err)
-      setLog(
-        `API offline ou inacessível (${API}).\n${msg}\n\nNa VM: sudo docker compose ps && curl -s http://127.0.0.1:8787/health`,
+      setWorkspaceError(
+        `API online, mas falhou ao carregar dados desta workspace: ${msg}. ` +
+          'Confira se o Workspace ID existe (dropdown "Existentes") ou crie um novo.',
       )
     }
   }
@@ -342,24 +403,13 @@ export function AutomationCenter() {
     if (!workspaceId) return
     setBusy(true)
     try {
-      const res = await fetch(`${API}/api/ideas`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          workspaceId,
-          title: `Ideia rápida ${new Date().toLocaleTimeString('pt-BR')}`,
-        }),
+      const res = await postJson(`${API}/api/ideas`, {
+        workspaceId,
+        title: `Ideia rápida ${new Date().toLocaleTimeString('pt-BR')}`,
       })
-      if (res.status === 404) {
-        setLog(
-          'POST /api/ideas indisponível (404) — sem tópicos de research disponíveis para esta workspace.\n' +
-            'Rode Run Research + Run Daily Engine (MOCK) primeiro, ou use o dropdown de ideas existente.',
-        )
-        return
-      }
-      const data = (await res.json()) as { id?: string; title?: string; deduped?: boolean }
-      setLog(JSON.stringify(data, null, 2))
-      if (data.id) setSelectedIdeaId(data.id)
+      setLog(describeApiResult(res))
+      const id = res.data.id
+      if (res.ok && typeof id === 'string') setSelectedIdeaId(id)
       await refresh()
     } catch (err) {
       setLog(`Falha ao criar idea rápida: ${err instanceof Error ? err.message : String(err)}`)
@@ -377,19 +427,23 @@ export function AutomationCenter() {
     }
     setBusy(true)
     try {
-      const res = await fetch(`${API}/api/scripts/generate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          workspaceId,
-          contentIdeaId: ideaId,
-          platform: 'YOUTUBE_SHORT',
-          await: true,
-        }),
+      const res = await postJson(`${API}/api/scripts/generate`, {
+        workspaceId,
+        contentIdeaId: ideaId,
+        platform: 'YOUTUBE_SHORT',
+        regenerate: regenerateScript,
+        await: true,
       })
-      const data = await res.json()
-      setLog(JSON.stringify(data, null, 2))
+      setLog(describeApiResult(res))
+      // Select whatever script this call produced — or, on an idempotent skip, the one
+      // that already existed. Leaving the previous selection in place would make the
+      // next Approve/Production click act on the wrong script.
+      const inner = innerResult(res.data)
+      const scriptId = inner.scriptId
+      if (res.ok && typeof scriptId === 'string') setSelectedScriptId(scriptId)
       await refresh()
+    } catch (err) {
+      setLog(`Falha ao gerar script: ${err instanceof Error ? err.message : String(err)}`)
     } finally {
       setBusy(false)
     }
@@ -399,21 +453,8 @@ export function AutomationCenter() {
     if (!workspaceId || !selectedScriptId) return
     setBusy(true)
     try {
-      const res = await fetch(`${API}/api/scripts/${selectedScriptId}/approve`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ workspaceId }),
-      })
-      if (res.status === 404) {
-        setLog(
-          'POST /api/scripts/:id/approve retornou 404 (endpoint indisponível nesta API ou script inexistente).\n' +
-            'Scripts com status=ready & qa_status=passed (QA automático) já contam como aprovados para Production — ' +
-            'aprovação manual é só para requires_review/failed.',
-        )
-        return
-      }
-      const data = await res.json().catch(() => ({}))
-      setLog(JSON.stringify(data, null, 2))
+      const res = await postJson(`${API}/api/scripts/${selectedScriptId}/approve`, { workspaceId })
+      setLog(describeApiResult(res))
       await refresh()
     } catch (err) {
       setLog(`Falha ao aprovar script: ${err instanceof Error ? err.message : String(err)}`)
@@ -429,7 +470,22 @@ export function AutomationCenter() {
       const fresh = (await fetch(`${API}/api/workspaces/${workspaceId}`).then((r) => r.json())) as {
         scripts?: ScriptRow[]
       }
-      const eligible = (fresh.scripts || []).filter((s) => isApprovedScript(s))
+      const scripts = fresh.scripts || []
+      const eligible = scripts.filter((s) => isApprovedScript(s))
+
+      // Never quietly produce a different script than the one on screen.
+      if (selectedScriptId) {
+        const picked = scripts.find((s) => s.id === selectedScriptId)
+        if (picked && !isApprovedScript(picked)) {
+          setLog(
+            `❌ O script selecionado está status=${picked.status}/qa_status=${picked.qa_status}.\n\n` +
+              '➡ Clique "Approve Script" para liberá-lo. Production não troca de script silenciosamente ' +
+              'nem aceita draft.',
+          )
+          return
+        }
+      }
+
       const chosen =
         (selectedScriptId && eligible.find((s) => s.id === selectedScriptId)) || eligible[0]
       if (!chosen) {
@@ -439,26 +495,25 @@ export function AutomationCenter() {
         )
         return
       }
-      const res = await fetch(`${API}/api/production/run`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          workspaceId,
-          scriptId: chosen.id,
-          platform: 'YOUTUBE_SHORT',
-          regenerate: regenerateProduction,
-          await: true,
-        }),
+
+      const res = await postJson(`${API}/api/production/run`, {
+        workspaceId,
+        scriptId: chosen.id,
+        platform: 'YOUTUBE_SHORT',
+        regenerate: regenerateProduction,
+        await: true,
       })
-      const data = (await res.json()) as { skipped?: boolean; reason?: string; productionRunId?: string }
-      let logText = JSON.stringify(data, null, 2)
-      if (data.skipped && data.reason === 'idempotent_skip') {
+      const inner = innerResult(res.data)
+      let logText = describeApiResult({ ...res, data: inner })
+      if (inner.skipped === true && inner.reason === 'idempotent_skip') {
         logText +=
-          '\n\n⚠️ idempotent_skip: já existe production run para este script+platform.\n' +
-          'Marque "Regenerate" (checkbox abaixo do botão) e clique Run Production novamente para forçar um novo run.'
+          '\n\nMarque "Regenerate" (checkbox ao lado do botão) e clique Run Production novamente ' +
+          'para forçar um novo run.'
       }
       setLog(logText)
       await refresh()
+    } catch (err) {
+      setLog(`Falha ao rodar production: ${err instanceof Error ? err.message : String(err)}`)
     } finally {
       setBusy(false)
     }
@@ -495,6 +550,9 @@ Na VM:
   sudo docker compose up -d api
 Firewall/OCI Security List: porta 8787 liberada.`}
           </pre>
+        ) : null}
+        {apiOnline && workspaceError ? (
+          <pre style={{ marginTop: '0.75rem', maxWidth: '42rem' }}>{workspaceError}</pre>
         ) : null}
 
         <div className="flow-strip" style={{ marginTop: '1.5rem' }}>
@@ -651,6 +709,14 @@ Firewall/OCI Security List: porta 8787 liberada.`}
           <button className="btn btn-ghost" disabled={busy || !workspaceId} onClick={createQuickIdea}>
             Nova idea rápida
           </button>
+          <label className="fine" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            <input
+              type="checkbox"
+              checked={regenerateScript}
+              onChange={(e) => setRegenerateScript(e.target.checked)}
+            />
+            Regenerar script (evita idempotent_skip)
+          </label>
           <button
             className="btn btn-signal"
             disabled={busy || !workspaceId || !selectedIdeaId}
@@ -660,6 +726,11 @@ Firewall/OCI Security List: porta 8787 liberada.`}
             Run Script Factory (YOUTUBE_SHORT)
           </button>
         </div>
+        <p className="fine" style={{ maxWidth: '46rem', marginTop: '0.35rem' }}>
+          Uma idea gera um script por platform. Rodar de novo na mesma idea devolve{' '}
+          <code>idempotent_skip</code> apontando o script existente — marque "Regenerar script" para
+          forçar um novo.
+        </p>
         {!ideas.length ? (
           <p className="fine" style={{ maxWidth: '42rem', marginTop: '0.35rem' }}>
             Sem ideas ainda para esta workspace. Rode Run Research + Run Daily Engine (MOCK) para gerar
@@ -1208,17 +1279,25 @@ Firewall/OCI Security List: porta 8787 liberada.`}
               if (!workspaceId || !publishContentId) return
               setBusy(true)
               try {
-                const res = (await fetch(`${API}/api/validation/dry-run-report`, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    workspaceId,
-                    contentId: publishContentId,
-                    platform: 'YOUTUBE_SHORT',
-                  }),
-                }).then((r) => r.json())) as { validation?: { ok?: boolean; issues?: string[] } }
-                setLog(JSON.stringify(res, null, 2))
-                setDryRunOkForContentId(res.validation?.ok ? publishContentId : null)
+                const res = await postJson(`${API}/api/validation/dry-run-report`, {
+                  workspaceId,
+                  contentId: publishContentId,
+                  platform: 'YOUTUBE_SHORT',
+                })
+                const validation = res.data.validation as
+                  | { ok?: boolean; issues?: string[] }
+                  | undefined
+                const ok = res.ok && validation?.ok === true
+                setDryRunOkForContentId(ok ? publishContentId : null)
+                // A failed dry-run leaves Publish REAL disabled — say which checks failed
+                // instead of making the operator diff the JSON.
+                const issues = validation?.issues || []
+                const headline = ok
+                  ? '✅ Dry-run OK — Publish REAL liberado para este content_id.'
+                  : `❌ Dry-run bloqueado${issues.length ? `: ${issues.join(', ')}` : ''}.\n` +
+                    `➡ packageOk=${String(res.data.packageOk)} · resolva os itens acima ` +
+                    '(ex.: youtube_not_connected → "Conectar YouTube (OAuth)") e rode o dry-run de novo.'
+                setLog(`${headline}\n\n${JSON.stringify(res.data, null, 2)}`)
               } finally {
                 setBusy(false)
               }
@@ -1234,16 +1313,12 @@ Firewall/OCI Security List: porta 8787 liberada.`}
               if (!workspaceId || !publishContentId) return
               setBusy(true)
               try {
-                const res = await fetch(`${API}/api/publishing/approve-for-publish`, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    workspaceId,
-                    contentId: publishContentId,
-                    approvedBy: 'operator@nexus',
-                  }),
-                }).then((r) => r.json())
-                setLog(JSON.stringify(res, null, 2))
+                const res = await postJson(`${API}/api/publishing/approve-for-publish`, {
+                  workspaceId,
+                  contentId: publishContentId,
+                  approvedBy: 'operator@nexus',
+                })
+                setLog(describeApiResult(res))
                 await refresh()
               } finally {
                 setBusy(false)
