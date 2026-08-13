@@ -28,7 +28,7 @@ Implementação: `FallbackScriptProvider`.
 |-----|-----|
 | `OLLAMA_BASE_URL` | Ex.: `http://127.0.0.1:11434` |
 | `OLLAMA_MODEL` | Default `llama3.2` |
-| `OLLAMA_TIMEOUT_MS` | Default `60000` |
+| `OLLAMA_TIMEOUT_MS` | Default `60000` (script pede JSON mode + até 4096 tokens) |
 | `OPENAI_API_KEY` / `SCRIPT_LLM_API_KEY` | Habilita API |
 | `OPENAI_BASE_URL` / `SCRIPT_LLM_BASE_URL` | Default `https://api.openai.com` |
 | `OPENAI_MODEL` / `SCRIPT_LLM_MODEL` | Default `gpt-4o-mini` |

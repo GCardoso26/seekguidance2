@@ -16,6 +16,9 @@ export async function chatCompletions(input: {
   model: string
   messages: Array<{ role: string; content: string }>
   timeoutMs: number
+  /** Ollama: top-level `format: json`. OpenAI-compatible: `response_format`. */
+  jsonMode?: boolean
+  maxTokens?: number
 }): Promise<ChatCompletionResult> {
   const base = input.baseUrl.replace(/\/$/, '')
   const url = base.endsWith('/v1') ? `${base}/chat/completions` : `${base}/v1/chat/completions`
@@ -37,6 +40,13 @@ export async function chatCompletions(input: {
         messages: input.messages,
         temperature: 0.4,
         stream: false,
+        ...(input.maxTokens != null ? { max_tokens: input.maxTokens } : {}),
+        ...(input.jsonMode
+          ? {
+              format: 'json',
+              response_format: { type: 'json_object' },
+            }
+          : {}),
       }),
     })
   } catch (err) {

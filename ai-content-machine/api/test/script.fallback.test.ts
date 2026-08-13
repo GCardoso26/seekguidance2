@@ -177,8 +177,10 @@ describe('Script fallback (Ollama → API → Mock)', () => {
     process.env.OLLAMA_MODEL = 'llama3.2'
     const originalFetch = globalThis.fetch
     let sawUrl = ''
-    globalThis.fetch = (async (url: string | URL | Request) => {
+    let sawBody: Record<string, unknown> = {}
+    globalThis.fetch = (async (url: string | URL | Request, init?: RequestInit) => {
       sawUrl = String(url)
+      sawBody = JSON.parse(String(init?.body || '{}')) as Record<string, unknown>
       return new Response(
         JSON.stringify({
           model: 'llama3.2',
@@ -194,6 +196,8 @@ describe('Script fallback (Ollama → API → Mock)', () => {
       const result = await provider.generate(sampleCtx)
       assert.equal(result.provider, 'ollama')
       assert.ok(sawUrl.includes('/v1/chat/completions'))
+      assert.equal(sawBody.format, 'json')
+      assert.equal(sawBody.max_tokens, 4096)
       assert.ok(result.script.insight.length >= 8)
       assert.ok(result.durationMs >= 0)
     } finally {

@@ -39,6 +39,8 @@ export class OllamaScriptProvider implements ScriptProvider {
       model,
       messages: buildScriptLlmMessages(ctx),
       timeoutMs: this.timeoutMs(),
+      jsonMode: true,
+      maxTokens: 4096,
     })
     const validated = validateLlmScriptContent(chat.content)
     const durationMs = Date.now() - started
