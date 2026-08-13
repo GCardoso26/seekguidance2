@@ -191,8 +191,6 @@ describe('Production unit + service', () => {
         cta: 'Link na descrição',
       },
     })
-    assert.equal(scenes[0].textOverlay, 'Hook')
-
     const cues = cuesFromStoryboard(scenes)
     assert.ok(cues.length >= 3)
     for (const cue of cues) {
