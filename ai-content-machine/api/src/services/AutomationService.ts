@@ -140,6 +140,7 @@ export class AutomationService {
           contentIdeaId,
           platform: payload.platform ? String(payload.platform) : undefined,
           executionId,
+          regenerate: Boolean(payload.regenerate),
           forceQaFail: Boolean(payload.forceQaFail),
           forceAiFailTimes: Number(payload.forceAiFailTimes || 0),
         })) as unknown as Record<string, unknown>

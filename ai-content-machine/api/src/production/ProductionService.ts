@@ -22,7 +22,7 @@ import {
 } from './library/MediaAssetRepository.js'
 import { subtitleService } from './SubtitleService.js'
 import { videoComposer } from './VideoComposer.js'
-import { collectFactoryMetrics } from './FactoryMetrics.js'
+import { collectFactoryMetrics, type FactoryRunMetrics } from './FactoryMetrics.js'
 import { MockThumbnailProvider } from './thumbnail/MockThumbnailProvider.js'
 import { mediaQaService } from './MediaQAService.js'
 import { buildContentPackageManifest } from './ContentPackageBuilder.js'
@@ -56,6 +56,22 @@ type StageState = {
   attempts?: number
   assetIds?: string[]
   version?: number
+  /** Which engine actually produced this stage (Kokoro/mock, library/ComfyUI, ffmpeg_kenburns…). */
+  provider?: string
+  fallbackTrail?: Array<{ provider?: string; status?: string }>
+  library?: {
+    hits: number
+    misses: number
+    reuses: Array<{
+      asset_id: string
+      reuse_reason: string
+      matched_tags: string[]
+      match_score: number
+      scene: number
+    }>
+  }
+  kenBurnsScenes?: number
+  durationMs?: number
 }
 
 type RunResult = {
@@ -65,6 +81,7 @@ type RunResult = {
   qa?: Record<string, unknown>
   packageId?: string
   stageVersions?: Partial<Record<ProductionStage, number>>
+  factoryMetrics?: FactoryRunMetrics
 }
 
 function parseResult(raw: string | null | undefined): RunResult {
@@ -171,6 +188,32 @@ export class ProductionService {
     }
   }
 
+  /**
+   * Approval gate as a lookup instead of a thrown error, so HTTP callers can answer
+   * 404/409 with guidance rather than turning an operator mistake into a 500 + dead letter.
+   */
+  checkScriptEligibility(
+    workspaceId: string,
+    scriptId: string,
+  ):
+    | { ok: true; scriptStatus: string; qaStatus: string }
+    | { ok: false; code: 'script_not_found' }
+    | { ok: false; code: 'script_not_approved'; scriptStatus: string; qaStatus: string } {
+    const script = getDb()
+      .prepare(`SELECT status, qa_status FROM scripts WHERE id = ? AND workspace_id = ?`)
+      .get(scriptId, workspaceId) as { status: string; qa_status: string } | undefined
+    if (!script) return { ok: false, code: 'script_not_found' }
+    if (!isScriptApproved(script)) {
+      return {
+        ok: false,
+        code: 'script_not_approved',
+        scriptStatus: script.status,
+        qaStatus: script.qa_status,
+      }
+    }
+    return { ok: true, scriptStatus: script.status, qaStatus: script.qa_status }
+  }
+
   getRun(id: string) {
     const run = getDb().prepare(`SELECT * FROM production_runs WHERE id = ?`).get(id) as
       | Record<string, unknown>
@@ -238,6 +281,13 @@ export class ProductionService {
           return {
             skipped: true,
             reason: 'idempotent_skip',
+            // An idempotent skip must never look like a failure to the operator: say what
+            // already exists and exactly how to force a new run.
+            hint:
+              `Já existe um production run ${existing.status} (package=${existing.package_status}) ` +
+              `para este script em ${platform}. Reenvie com regenerate=true para forçar um novo run.`,
+            nextAction: 'retry_with_regenerate' as const,
+            existingProductionRunId: existing.id,
             productionRunId: existing.id,
             productionRun: existing,
             status: existing.status,
@@ -407,11 +457,11 @@ export class ProductionService {
         .result,
     )
     result.stages = result.stages || {}
-    result.stageVersions = result.stageVersions || {}
+    const stageVersions = (result.stageVersions = result.stageVersions || {})
 
     for (const stage of STAGE_ORDER) {
-      const stageVersion = result.stageVersions[stage] || 1
-      result.stageVersions[stage] = stageVersion
+      const stageVersion = stageVersions[stage] || 1
+      stageVersions[stage] = stageVersion
 
       if (result.stages[stage]?.ok) continue
 
@@ -515,7 +565,7 @@ export class ProductionService {
       return { ok: false, error: retried.failure.error, result }
     }
 
-    const prior = result.stages[stage] || {}
+    const prior: Partial<StageState> = result.stages[stage] || {}
     result.stages[stage] = {
       ...prior,
       ok: true,

@@ -22,6 +22,8 @@ export type ScriptFactoryInput = {
   contentIdeaId: string
   platform?: string
   executionId?: string
+  /** Force a brand new script for an idea that already has one (escapes idempotent_skip). */
+  regenerate?: boolean
   /** test hooks */
   forceQaFail?: boolean
   forceAiFailTimes?: number
@@ -29,6 +31,16 @@ export type ScriptFactoryInput = {
 
 function scriptIdemKey(contentIdeaId: string, promptVersion: number, platform: string) {
   return `script:${contentIdeaId}:pv${promptVersion}:${platform}`
+}
+
+/** Best-effort scriptId of a previous run, so a skip can point at what already exists. */
+function scriptIdOfRun(run: unknown): string | undefined {
+  const result = (run as { result?: string } | undefined)?.result
+  try {
+    return (JSON.parse(result || '{}') as { scriptId?: string }).scriptId
+  } catch {
+    return undefined
+  }
 }
 
 export class ScriptFactoryService {
@@ -53,11 +65,26 @@ export class ScriptFactoryService {
     const platform = resolvePlatform(input.platform)
     const prompt = getActivePrompt('script_generator')
     const promptVersion = prompt?.version ?? 1
-    const idempotencyKey = scriptIdemKey(input.contentIdeaId, promptVersion, platform)
+    const baseIdemKey = scriptIdemKey(input.contentIdeaId, promptVersion, platform)
 
-    if (alreadyProcessed(idempotencyKey)) {
-      const existing = db.prepare(`SELECT * FROM script_runs WHERE idempotency_key = ?`).get(idempotencyKey)
-      return { skipped: true, reason: 'idempotent_skip', scriptRun: existing, reality: 'MOCK' as const }
+    if (!input.regenerate && alreadyProcessed(baseIdemKey)) {
+      const existing = db.prepare(`SELECT * FROM script_runs WHERE idempotency_key = ?`).get(baseIdemKey)
+      const existingScriptId = scriptIdOfRun(existing)
+      return {
+        skipped: true,
+        reason: 'idempotent_skip',
+        // Never a dead end: name the script that already exists and how to force a new one.
+        hint:
+          `Esta idea já gerou um script para ${platform}` +
+          (existingScriptId ? ` (scriptId=${existingScriptId})` : '') +
+          '. Selecione-o para Approve/Production, ou reenvie com regenerate=true para gerar outro.',
+        nextAction: 'retry_with_regenerate' as const,
+        scriptId: existingScriptId,
+        scriptRunId: (existing as { id?: string } | undefined)?.id,
+        scriptRun: existing,
+        platform,
+        reality: 'MOCK' as const,
+      }
     }
 
     const idea = db
@@ -66,6 +93,7 @@ export class ScriptFactoryService {
     if (!idea) throw new Error('content_idea_not_found')
 
     const runId = uid()
+    const idempotencyKey = input.regenerate ? `${baseIdemKey}:regen:${runId}` : baseIdemKey
     db.prepare(
       `INSERT INTO script_runs
        (id, workspace_id, content_idea_id, status, started_at, reality, execution_id, idempotency_key, platform, created_at)
@@ -274,6 +302,7 @@ export class ScriptFactoryService {
       skipped: false,
       scriptRunId: runId,
       scriptId,
+      platform,
       status: qa.status === 'fail' ? 'FAILED' : 'COMPLETED',
       scriptStatus,
       qaStatus,

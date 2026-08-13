@@ -13,15 +13,29 @@ export async function scriptRoutes(app: FastifyInstance) {
       contentIdeaId: z.string().uuid(),
       platform: z.string().optional(),
       await: z.boolean().optional(),
+      regenerate: z.boolean().optional(),
       forceQaFail: z.boolean().optional(),
       forceAiFailTimes: z.number().int().optional(),
     })
     const parsed = schema.safeParse(req.body)
     if (!parsed.success) return reply.code(400).send({ error: parsed.error.flatten() })
 
+    // A missing idea is an operator mistake, not an outage — answer 404 instead of
+    // letting the workflow throw a 500 and open a dead letter.
+    const idea = getDb()
+      .prepare(`SELECT id FROM content_ideas WHERE id = ? AND workspace_id = ?`)
+      .get(parsed.data.contentIdeaId, parsed.data.workspaceId)
+    if (!idea) {
+      return reply.code(404).send({
+        error: 'content_idea_not_found',
+        hint: 'Crie uma idea (POST /api/ideas) ou escolha uma existente no dropdown antes de gerar o script.',
+      })
+    }
+
     const payload = {
       contentIdeaId: parsed.data.contentIdeaId,
       platform: parsed.data.platform,
+      regenerate: parsed.data.regenerate,
       forceQaFail: parsed.data.forceQaFail,
       forceAiFailTimes: parsed.data.forceAiFailTimes,
     }

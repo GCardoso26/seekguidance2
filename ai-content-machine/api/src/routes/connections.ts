@@ -18,8 +18,8 @@ export async function connectionRoutes(app: FastifyInstance) {
       encryptionReady: credentialVault.encryptionReady(),
       connections: [
         {
-          platform: 'YOUTUBE',
           ...(await youtubeOAuthService.status(ws)),
+          platform: 'YOUTUBE',
           publisher: youtubePublisher.status(),
           analytics: youtubeAnalyticsProvider.status(),
         },
@@ -116,13 +116,21 @@ export async function connectionRoutes(app: FastifyInstance) {
     const { nowIso } = await import('../db/client.js')
     const at = nowIso()
     const by = parsed.data.approvedBy || 'operator'
-    getDb()
+    const updated = getDb()
       .prepare(
         `UPDATE contents SET approved_for_publishing=1, approved_for_publishing_at=?, approved_by=?,
          status='approved', updated_at=?
          WHERE id=? AND workspace_id=?`,
       )
       .run(at, by, at, parsed.data.contentId, parsed.data.workspaceId)
+    // Reporting ok:true on zero rows would let an operator believe a wrong/foreign
+    // contentId was approved, then wonder why publishing stays blocked.
+    if (updated.changes === 0) {
+      return reply.code(404).send({
+        error: 'content_not_found',
+        hint: 'Use o content_id de um production run READY_FOR_PUBLISH desta workspace (não o packageId).',
+      })
+    }
     return { ok: true, approvedForPublishing: true, approvedAt: at, approvedBy: by }
   })
 }

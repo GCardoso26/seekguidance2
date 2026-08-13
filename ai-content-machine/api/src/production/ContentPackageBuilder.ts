@@ -25,7 +25,7 @@ export type ContentPackageManifest = {
 
 export function evaluateQualityGate(gate: ContentPackageManifest['qualityGate']): PackageStatus {
   const ok = Object.values(gate).every(Boolean)
-  return ok ? 'READY_FOR_PUBLISH' : 'REQUIRES_REVIEW'
+  return ok ? 'READY_FOR_PUBLISH' : 'READY_FOR_REVIEW'
 }
 
 export function buildContentPackageManifest(input: {

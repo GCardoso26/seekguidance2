@@ -22,6 +22,34 @@ export async function productionRoutes(app: FastifyInstance) {
     const parsed = schema.safeParse(req.body)
     if (!parsed.success) return reply.code(400).send({ error: parsed.error.flatten() })
 
+    // Answer the approval gate here rather than letting ProductionService throw: a
+    // throw inside the workflow becomes a 500 plus an open dead letter, which reads
+    // like an outage instead of "approve the script first".
+    if (!parsed.data.allowUnapproved) {
+      const eligibility = productionService.checkScriptEligibility(
+        parsed.data.workspaceId,
+        parsed.data.scriptId,
+      )
+      if (!eligibility.ok && eligibility.code === 'script_not_found') {
+        return reply.code(404).send({
+          error: 'script_not_found',
+          hint: 'Rode o Script Factory para esta idea e selecione o script gerado.',
+        })
+      }
+      if (!eligibility.ok) {
+        return reply.code(409).send({
+          error: 'script_not_approved',
+          scriptStatus: eligibility.scriptStatus,
+          qaStatus: eligibility.qaStatus,
+          hint:
+            `Script está status=${eligibility.scriptStatus}/qa_status=${eligibility.qaStatus}. ` +
+            'Production só aceita approved ou (ready + qa_status=passed). ' +
+            'Use POST /api/scripts/:id/approve (botão "Approve Script") antes de produzir.',
+          nextAction: 'approve_script',
+        })
+      }
+    }
+
     const payload = {
       scriptId: parsed.data.scriptId,
       contentId: parsed.data.contentId,
