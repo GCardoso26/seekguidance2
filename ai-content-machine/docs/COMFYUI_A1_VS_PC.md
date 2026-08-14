@@ -73,6 +73,8 @@ docker compose --profile comfy up -d --force-recreate comfy
 
 Ou edita o `docker-compose.yml` do serviço `comfy` para ter `entrypoint`/`command` explícitos (já no repo) e `up -d --force-recreate comfy`.
 
+`IMPORT FAILED: nodes_audio.py` / `libcudart` / `torchaudio` nos logs é **inofensivo** para Shorts (só imagem). O sinal de sucesso é `Starting server` + `/system_stats` a responder.
+
 Porta **8188 só em 127.0.0.1**. Não abrir no NSG/Security List da OCI (igual a `:11434` / `:8880`).
 
 RAM: A1 com **12 GB**. Não corra Ollama+Kokoro+Comfy no mesmo segundo em 6 GB.

@@ -15,7 +15,11 @@ RUN git clone --depth 1 --branch "${COMFY_REF}" https://github.com/comfyanonymou
 
 RUN pip install --no-cache-dir --upgrade pip \
   && pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu \
-  && pip install --no-cache-dir -r requirements.txt
+  && pip install --no-cache-dir -r requirements.txt \
+  && (pip uninstall -y torchaudio || true)
+
+# CWM só gera imagens — torchaudio no PyPI puxa libs CUDA (libcudart) e rebenta
+# nodes_audio.py na A1 CPU. Sem áudio o ComfyUI arranca na mesma (IMPORT FAILED ok).
 
 # ComfyUI v0.3.40 does `import requests` in app/frontend_management.py but does not
 # list it in requirements.txt. Newer huggingface_hub no longer pulls it transitively.
