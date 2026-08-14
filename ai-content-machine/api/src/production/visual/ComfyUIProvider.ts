@@ -86,8 +86,13 @@ export class ComfyUIProvider implements VisualProvider {
     return process.env.COMFY_CHECKPOINT || 'v1-5-pruned-emaonly.safetensors'
   }
 
-  private negativePrompt(): string {
-    return process.env.COMFY_NEGATIVE_PROMPT || 'blurry, low quality, watermark, text, logo, deformed'
+  private negativePrompt(override?: string): string {
+    const fromInput = (override || '').trim()
+    if (fromInput) return fromInput
+    return (
+      process.env.COMFY_NEGATIVE_PROMPT ||
+      'blurry, low quality, watermark, text, logo, deformed, horror, dark web aesthetic, creepy, surreal, oversaturated, cartoon, anime'
+    )
   }
 
   private genWidth(inputWidth: number): number {
@@ -130,7 +135,7 @@ export class ComfyUIProvider implements VisualProvider {
     const height = this.genHeight(input.height)
     const graph = workflowRegistry.materialize(workflowName, {
       prompt: input.prompt,
-      negative_prompt: this.negativePrompt(),
+      negative_prompt: this.negativePrompt(input.negativePrompt),
       width,
       height,
       seed: Math.floor(Math.random() * 1_000_000_000),

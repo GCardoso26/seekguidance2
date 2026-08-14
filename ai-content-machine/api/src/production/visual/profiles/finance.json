@@ -1,0 +1,13 @@
+{
+  "id": "finance",
+  "label": "Financial documentary",
+  "style": "professional financial documentary photography",
+  "lighting": "clean studio or soft window light, balanced exposure",
+  "camera": "35mm / 50mm, medium close-up, editorial framing",
+  "palette": "neutral navy charcoal cream",
+  "realism": "photorealistic",
+  "moodDefault": "concerned but composed, credible",
+  "maxScenes": 5,
+  "forbid": ["horror aesthetic", "casino neon", "surreal money rain", "crypto vaporwave"],
+  "negative": "horror, gore, distorted face, deformed hands, dark web aesthetic, creepy, surreal, oversaturated, neon cyberpunk, casino glitter, text, watermark, logo, low quality, blurry, cartoon, anime"
+}

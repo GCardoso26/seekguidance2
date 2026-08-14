@@ -1,0 +1,13 @@
+{
+  "id": "news",
+  "label": "News reportage",
+  "style": "news reportage photography, broadcast B-roll aesthetic",
+  "lighting": "natural available light, truthful exposure",
+  "camera": "35mm reportage, eye-level, stable composition",
+  "palette": "neutral realistic",
+  "realism": "photorealistic",
+  "moodDefault": "informational, urgent but calm",
+  "maxScenes": 5,
+  "forbid": ["tabloid sensational gore", "horror"],
+  "negative": "horror, gore, distorted face, deformed hands, dark web aesthetic, creepy, surreal, oversaturated, text, watermark, logo, low quality, blurry, cartoon, anime"
+}

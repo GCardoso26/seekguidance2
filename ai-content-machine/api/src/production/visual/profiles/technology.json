@@ -1,0 +1,13 @@
+{
+  "id": "technology",
+  "label": "Technology editorial",
+  "style": "clean technology product editorial photography",
+  "lighting": "soft daylight or controlled studio, minimal glare",
+  "camera": "50mm, shallow depth of field, modern workspace framing",
+  "palette": "cool neutrals with restrained accent",
+  "realism": "photorealistic",
+  "moodDefault": "focused, modern, trustworthy",
+  "maxScenes": 5,
+  "forbid": ["cyberpunk dystopia", "matrix code rain", "horror"],
+  "negative": "horror, gore, distorted face, deformed hands, dark web aesthetic, creepy, surreal, oversaturated, heavy cyberpunk neon, text, watermark, logo, low quality, blurry, cartoon, anime"
+}

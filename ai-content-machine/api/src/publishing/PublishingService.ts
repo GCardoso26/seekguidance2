@@ -93,7 +93,7 @@ export class PublishingService {
     for (const run of runs) {
       const images = db
         .prepare(
-          `SELECT type, is_current, source_type, provider, license, asset_key FROM media_assets
+          `SELECT type, is_current, source_type, provider, license, asset_key, metadata FROM media_assets
            WHERE production_id = ? AND type='IMAGE' AND is_current=1`,
         )
         .all(run.id) as Array<Record<string, unknown>>
@@ -182,7 +182,7 @@ export class PublishingService {
 
       const images = db
         .prepare(
-          `SELECT type, is_current, source_type, provider, license, asset_key FROM media_assets
+          `SELECT type, is_current, source_type, provider, license, asset_key, metadata FROM media_assets
            WHERE production_id = ? AND type='IMAGE' AND is_current=1`,
         )
         .all(productionId) as Array<Record<string, unknown>>

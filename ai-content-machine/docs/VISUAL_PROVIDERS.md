@@ -1,21 +1,26 @@
 # Visual providers
 
+Ver também `docs/VISUAL_QUALITY.md` (VisualProfile, VisualPlan, Visual QA, Library APPROVED).
+
 ## Contrato
 
 `VisualProvider.generate(request) → Asset`
 
 `ProductionService` não escolhe o motor; no MISS fala só com o resolver.
+O prompt vem do **Visual Director** (SUBJECT/CAMERA/STYLE), não de `"Dark content scene…"`.
 
 ## Cadeia
 
 ```
-Asset Library (HIT → reuse + usage_count++)
+VisualPlan (profile + character lock)
+        ↓
+Asset Library (HIT → reuse só se APPROVED + score ≥ limiar)
         ↓ MISS
 ComfyUIProvider         (COMFY_BASE_URL → /prompt → /history → /view)
         ↓ falha / NOT_CONFIGURED / TIMEOUT / INVALID
 MockVisualProvider      (ffmpeg color — sempre READY)
         ↓
-catalog (SHA-256) → CompositionProvider → MP4
+Visual QA → catalog (APPROVED|REJECTED) → CompositionProvider → MP4
 ```
 
 ComfyUI **não** entra no CompositionProvider e **não** é importado pelo `ProductionService`.

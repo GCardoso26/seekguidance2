@@ -7,10 +7,13 @@
  * Authorize only when every current IMAGE is real provenance:
  *   GENERATED (ComfyUI or library HIT of a previously generated frame)
  *   STOCK / UPLOADED
+ * AND Visual QA did not REJECT the frame (when metadata.visualQa is present).
  *
  * Mock color-bars (`mock_visual`, source MOCK, license MOCK) → HOLD_FOR_REVIEW.
  * Never authorize "it looks like a Short" if the pixels were a fallback.
  */
+
+import { parseAssetVisualQa } from './visual/VisualQaService.js'
 
 export type PublishingVerdict = 'AUTHORIZE_PUBLISH' | 'HOLD_FOR_REVIEW' | 'REJECT'
 
@@ -21,6 +24,7 @@ export type VisualPublishReview = {
   mockVisualCount: number
   generatedVisualCount: number
   sceneCount: number
+  qaRejectedCount: number
 }
 
 const PUBLISHABLE_SOURCES = new Set(['GENERATED', 'STOCK', 'UPLOADED'])
@@ -38,6 +42,7 @@ export function reviewVisualPublishability(
   const findings: string[] = []
   let mockVisualCount = 0
   let generatedVisualCount = 0
+  let qaRejectedCount = 0
 
   if (!images.length) {
     findings.push('visuals_missing')
@@ -63,6 +68,13 @@ export function reviewVisualPublishability(
       continue
     }
 
+    const qa = parseAssetVisualQa(img.metadata)
+    if (qa && (!qa.passed || qa.status === 'REJECTED')) {
+      qaRejectedCount += 1
+      findings.push(`visuals_qa_rejected:${key}:${qa.findings[0] || 'score'}`)
+      continue
+    }
+
     generatedVisualCount += 1
   }
 
@@ -80,6 +92,7 @@ export function reviewVisualPublishability(
       mockVisualCount,
       generatedVisualCount,
       sceneCount: images.length,
+      qaRejectedCount,
     }
   }
 
@@ -90,5 +103,6 @@ export function reviewVisualPublishability(
     mockVisualCount: 0,
     generatedVisualCount,
     sceneCount: images.length,
+    qaRejectedCount: 0,
   }
 }

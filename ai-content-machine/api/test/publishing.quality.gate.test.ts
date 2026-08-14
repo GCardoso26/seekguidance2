@@ -69,6 +69,7 @@ describe('PublishingQualityGate — perfectionist visual authorizer', () => {
     assert.equal(review.authorized, true)
     assert.equal(review.verdict, 'AUTHORIZE_PUBLISH')
     assert.equal(review.generatedVisualCount, 1)
+    assert.equal(review.qaRejectedCount, 0)
   })
 
   it('AUTHORIZEs library HIT of a previously generated asset', () => {

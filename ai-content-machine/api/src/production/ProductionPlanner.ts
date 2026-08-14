@@ -1,16 +1,27 @@
 import type { ProductionPlan, StoryboardScene } from './types.js'
 import { getProductionProfile } from './PlatformProductionProfiles.js'
+import type { VisualPlan } from './visual/visualTypes.js'
+import { buildVisualPlan, retimedVisualPlan } from './visual/VisualDirector.js'
 
 export function buildProductionPlan(input: {
   platform?: string
   visualBrief?: Record<string, unknown>
   targetDurationOverride?: number
+  visualPlan?: VisualPlan | null
 }): ProductionPlan {
   const profile = getProductionProfile(input.platform)
   const duration =
     input.targetDurationOverride ||
     Number(input.visualBrief?.durationSec) ||
     profile.targetDuration
+
+  const briefShots = Number((input.visualBrief as { shots?: unknown[] })?.shots?.length || 0)
+  const planScenes = input.visualPlan?.scenes.length
+  const maxScenes = input.visualPlan?.maxScenes || profile.visual.sceneCount
+  const sceneCount = Math.max(
+    3,
+    Math.min(maxScenes, planScenes || briefShots || profile.visual.sceneCount),
+  )
 
   return {
     platform: profile.platform,
@@ -23,7 +34,8 @@ export function buildProductionPlan(input: {
     voice: profile.voice,
     visual: {
       ...profile.visual,
-      sceneCount: Math.max(3, Number((input.visualBrief as { shots?: unknown[] })?.shots?.length || profile.visual.sceneCount)),
+      sceneCount,
+      profileId: input.visualPlan?.profileId,
     },
     subtitle: profile.subtitle,
     thumbnail: profile.thumbnail,
@@ -34,14 +46,22 @@ export function buildStoryboard(input: {
   plan: ProductionPlan
   scriptBody: Record<string, string>
   visualBrief?: Record<string, unknown>
+  visualPlan?: VisualPlan | null
+  nicheName?: string | null
 }): StoryboardScene[] {
-  const sections = ['hook', 'setup', 'problem', 'insight', 'value', 'proof', 'cta'] as const
-  const texts = sections
-    .map((k) => ({ key: k, text: String(input.scriptBody[k] || '').trim() }))
-    .filter((x) => x.text)
+  const visualPlan =
+    input.visualPlan ||
+    buildVisualPlan({
+      scriptBody: input.scriptBody,
+      platform: input.plan.platform,
+      nicheName: input.nicheName,
+      targetDurationSec: input.plan.targetDuration,
+      maxScenes: input.plan.visual.sceneCount,
+    })
 
-  const count = Math.min(input.plan.visual.sceneCount, Math.max(3, texts.length))
-  const slice = texts.slice(0, count)
+  const timed = retimedVisualPlan(visualPlan, input.plan.targetDuration)
+  const count = Math.min(input.plan.visual.sceneCount, Math.max(3, timed.scenes.length))
+  const slice = timed.scenes.slice(0, count)
   const dur = input.plan.targetDuration / slice.length
 
   return slice.map((seg, i) => ({
@@ -49,12 +69,18 @@ export function buildStoryboard(input: {
     startTime: Number((i * dur).toFixed(2)),
     endTime: Number(((i + 1) * dur).toFixed(2)),
     duration: Number(dur.toFixed(2)),
-    narrationSegment: seg.text,
-    visualPrompt: `Dark content scene for ${seg.key}: ${seg.text.slice(0, 80)}`,
+    narrationSegment: String(input.scriptBody[seg.role] || seg.subject).slice(0, 400),
+    visualPrompt: seg.prompt,
+    negativePrompt: seg.negativePrompt || timed.negativeGlobal,
+    role: seg.role,
+    subject: seg.subject,
+    camera: seg.camera,
+    lighting: seg.lighting,
+    mood: seg.mood,
     assetType: input.plan.visual.assetType,
-    // Truncated narration, not the section label — burn-in subtitles fall back to this
-    // when no SRT cue is available, so it must actually be readable caption text.
-    textOverlay: seg.text.slice(0, 60),
+    textOverlay: String(input.scriptBody[seg.role] || seg.subject).slice(0, 60),
     transition: i === 0 ? 'cut' : 'fade',
   }))
 }
+
+export { buildVisualPlan, retimedVisualPlan }

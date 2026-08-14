@@ -1,6 +1,8 @@
 import fs from 'node:fs'
 import { getDb, uid, nowIso } from '../../db/client.js'
 import { assetRegistry } from '../AssetRegistry.js'
+import type { LibraryQualityStatus } from '../visual/visualTypes.js'
+import { visualQaMinScore } from '../visual/VisualQaService.js'
 
 export type LibraryAssetType = 'image' | 'audio' | 'video'
 export type LibraryAssetSource = 'generated' | 'stock' | 'uploaded' | 'mock'
@@ -17,6 +19,9 @@ export type MediaLibraryAsset = {
   tags: string[]
   usageCount: number
   metadata: Record<string, unknown>
+  qualityStatus: LibraryQualityStatus
+  qualityScore: number
+  qualityFindings: string[]
   createdAt: string
   lastUsedAt: string | null
 }
@@ -39,6 +44,9 @@ export type CatalogInput = {
   metadata?: Record<string, unknown>
   /** When omitted, checksum is computed from path if the file exists */
   sha256?: string
+  qualityStatus?: LibraryQualityStatus
+  qualityScore?: number
+  qualityFindings?: string[]
 }
 
 const STOP = new Set([
@@ -66,6 +74,63 @@ const STOP = new Set([
   'scene',
   'dark',
   'content',
+  'subject',
+  'action',
+  'environment',
+  'camera',
+  'lighting',
+  'style',
+  'mood',
+  'quality',
+  'palette',
+  'character',
+  'lock',
+  'years',
+  'old',
+  'navy',
+  'charcoal',
+  'shirt',
+  'short',
+  'dark',
+  'hair',
+  'neat',
+  'adult',
+  'professional',
+  'brazilian',
+  'european',
+  'southern',
+  'naturalistic',
+  'features',
+  'beauty',
+  'filters',
+  'logos',
+  'smart',
+  'casual',
+  'recurring',
+  'every',
+  'same',
+  'wearing',
+  'photorealistic',
+  'documentary',
+  'photography',
+  'editorial',
+  'cinematic',
+  'vertical',
+  'frame',
+  'shallow',
+  'depth',
+  'field',
+  'medium',
+  'close',
+  'shot',
+  'natural',
+  'daylight',
+  'window',
+  'soft',
+  'clean',
+  'muted',
+  'neutral',
+  'palette',
 ])
 
 /** Exact/tag tokens from a visual prompt — no embeddings. */
@@ -98,7 +163,23 @@ function parseMeta(raw: string): Record<string, unknown> {
   }
 }
 
+function parseFindings(raw: unknown): string[] {
+  if (Array.isArray(raw)) return raw.map(String)
+  if (typeof raw === 'string') {
+    try {
+      const v = JSON.parse(raw || '[]')
+      return Array.isArray(v) ? v.map(String) : []
+    } catch {
+      return []
+    }
+  }
+  return []
+}
+
 function rowToAsset(row: Record<string, unknown>): MediaLibraryAsset {
+  const statusRaw = String(row.quality_status || 'PENDING').toUpperCase()
+  const qualityStatus: LibraryQualityStatus =
+    statusRaw === 'APPROVED' || statusRaw === 'REJECTED' ? statusRaw : 'PENDING'
   return {
     id: String(row.id),
     workspaceId: String(row.workspace_id),
@@ -111,6 +192,9 @@ function rowToAsset(row: Record<string, unknown>): MediaLibraryAsset {
     tags: parseTags(String(row.tags || '[]')),
     usageCount: Number(row.usage_count || 0),
     metadata: parseMeta(String(row.metadata || '{}')),
+    qualityStatus,
+    qualityScore: Number(row.quality_score || 0),
+    qualityFindings: parseFindings(row.quality_findings),
     createdAt: String(row.created_at),
     lastUsedAt: row.last_used_at != null ? String(row.last_used_at) : null,
   }
@@ -132,6 +216,7 @@ function sourceRank(source: LibraryAssetSource): number {
 /**
  * Catalog / search / reuse for the Asset Library.
  * Does not own bytes — AssetStorage (or existing file paths) do.
+ * Reuse only APPROVED assets above the aesthetic threshold.
  */
 export class MediaAssetRepository {
   catalog(input: CatalogInput): MediaLibraryAsset {
@@ -143,6 +228,10 @@ export class MediaAssetRepository {
       sha256 = assetRegistry.computeChecksum(input.path)
     }
 
+    const qualityStatus = input.qualityStatus || 'PENDING'
+    const qualityScore = Number(input.qualityScore ?? 0)
+    const qualityFindings = JSON.stringify(input.qualityFindings ?? [])
+
     const existing = db
       .prepare(
         `SELECT * FROM media_library_assets WHERE workspace_id = ? AND sha256 = ? LIMIT 1`,
@@ -151,12 +240,36 @@ export class MediaAssetRepository {
 
     const now = nowIso()
     if (existing) {
+      // REJECTED is sticky. PENDING may be promoted to APPROVED after a fresh QA pass.
+      // APPROVED may be demoted to REJECTED if a later QA fails.
+      const prev = rowToAsset(existing)
+      let nextStatus = prev.qualityStatus
+      let nextScore = prev.qualityScore
+      if (qualityStatus === 'REJECTED') {
+        nextStatus = 'REJECTED'
+        nextScore = Math.min(prev.qualityScore || 1, qualityScore)
+      } else if (qualityStatus === 'APPROVED' && prev.qualityStatus !== 'REJECTED') {
+        nextStatus = 'APPROVED'
+        nextScore = Math.max(prev.qualityScore, qualityScore)
+      } else if (qualityStatus === 'PENDING' && prev.qualityStatus === 'PENDING') {
+        nextStatus = 'PENDING'
+        nextScore = qualityScore
+      }
       db.prepare(
         `UPDATE media_library_assets
          SET usage_count = usage_count + 1, last_used_at = ?,
-             tags = CASE WHEN length(tags) < length(?) THEN ? ELSE tags END
+             tags = CASE WHEN length(tags) < length(?) THEN ? ELSE tags END,
+             quality_status = ?, quality_score = ?, quality_findings = ?
          WHERE id = ?`,
-      ).run(now, JSON.stringify(tags), JSON.stringify(tags), String(existing.id))
+      ).run(
+        now,
+        JSON.stringify(tags),
+        JSON.stringify(tags),
+        nextStatus,
+        nextScore,
+        qualityFindings,
+        String(existing.id),
+      )
       return this.get(String(existing.id))!
     }
 
@@ -164,8 +277,8 @@ export class MediaAssetRepository {
     db.prepare(
       `INSERT INTO media_library_assets
        (id, workspace_id, content_id, production_id, path, sha256, type, source, tags,
-        usage_count, metadata, created_at, last_used_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?)`,
+        usage_count, metadata, created_at, last_used_at, quality_status, quality_score, quality_findings)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?, ?, ?)`,
     ).run(
       id,
       input.workspaceId,
@@ -179,6 +292,9 @@ export class MediaAssetRepository {
       JSON.stringify(input.metadata ?? {}),
       now,
       now,
+      qualityStatus,
+      qualityScore,
+      qualityFindings,
     )
     return this.get(id)!
   }
@@ -201,30 +317,43 @@ export class MediaAssetRepository {
 
   /**
    * Exact/tag matching only (no embeddings).
-   * Returns best hit with matchScore > 0, or null.
+   * Returns best APPROVED hit with matchScore > 0, or null.
    */
   searchBest(input: {
     workspaceId: string
     type: LibraryAssetType
     tags: string[]
     minScore?: number
+    minQualityScore?: number
   }): LibrarySearchHit | null {
     const query = [...new Set(input.tags.map((t) => t.toLowerCase()).filter(Boolean))]
     if (!query.length) return null
 
     const rows = getDb()
       .prepare(
-        `SELECT * FROM media_library_assets WHERE workspace_id = ? AND type = ? ORDER BY usage_count DESC, created_at DESC LIMIT 200`,
+        `SELECT * FROM media_library_assets
+         WHERE workspace_id = ? AND type = ? AND quality_status = 'APPROVED'
+         ORDER BY quality_score DESC, usage_count DESC, created_at DESC LIMIT 200`,
       )
       .all(input.workspaceId, input.type) as Array<Record<string, unknown>>
 
     const minScore = input.minScore ?? 0.34
+    const minQuality = input.minQualityScore ?? visualQaMinScore()
     let best: LibrarySearchHit | null = null
     for (const row of rows) {
       const asset = rowToAsset(row)
+      if (asset.qualityScore < minQuality) continue
+      if (asset.source === 'mock') continue
       const { matched, score } = scoreTagOverlap(query, asset.tags)
       if (score < minScore || matched.length === 0) continue
-      if (!best || score > best.matchScore || (score === best.matchScore && sourceRank(asset.source) > sourceRank(best.asset.source))) {
+      if (
+        !best ||
+        score > best.matchScore ||
+        (score === best.matchScore && asset.qualityScore > best.asset.qualityScore) ||
+        (score === best.matchScore &&
+          asset.qualityScore === best.asset.qualityScore &&
+          sourceRank(asset.source) > sourceRank(best.asset.source))
+      ) {
         best = {
           asset,
           matchedTags: matched,

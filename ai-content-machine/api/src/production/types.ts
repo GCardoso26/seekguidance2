@@ -51,7 +51,11 @@ export type ProductionPlan = {
   fps: number
   targetDuration: number
   voice: { format: string; sampleRate: number }
-  visual: { sceneCount: number; assetType: 'IMAGE' | 'VIDEO' }
+  visual: {
+    sceneCount: number
+    assetType: 'IMAGE' | 'VIDEO'
+    profileId?: string
+  }
   subtitle: { formats: string[]; burnIn: boolean }
   thumbnail: { width: number; height: number; format: string }
 }
@@ -63,6 +67,12 @@ export type StoryboardScene = {
   duration: number
   narrationSegment: string
   visualPrompt: string
+  negativePrompt?: string
+  role?: string
+  subject?: string
+  camera?: string
+  lighting?: string
+  mood?: string
   assetType: 'IMAGE' | 'VIDEO'
   textOverlay: string
   transition: string

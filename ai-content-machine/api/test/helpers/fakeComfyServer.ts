@@ -34,7 +34,7 @@ export async function startFakeComfyServer(opts?: {
   width?: number
   height?: number
 }): Promise<FakeComfyHandle> {
-  const png = makePng(opts?.width ?? 256, opts?.height ?? 448)
+  const png = makePng(opts?.width ?? 512, opts?.height ?? 768)
   const jobs = new Map<string, true>()
 
   const server = http.createServer((req, res) => {

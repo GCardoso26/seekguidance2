@@ -1,0 +1,13 @@
+{
+  "id": "history",
+  "label": "Historical documentary",
+  "style": "historical documentary still photography",
+  "lighting": "natural period-appropriate light, soft shadows",
+  "camera": "35mm documentary, establishing and medium shots",
+  "palette": "desaturated warm archival tones",
+  "realism": "photorealistic",
+  "moodDefault": "reflective, grounded",
+  "maxScenes": 5,
+  "forbid": ["fantasy anachronism", "horror"],
+  "negative": "horror, gore, distorted face, deformed hands, dark web aesthetic, creepy, surreal, oversaturated, text, watermark, logo, low quality, blurry, cartoon, anime"
+}

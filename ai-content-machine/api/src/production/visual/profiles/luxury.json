@@ -1,0 +1,13 @@
+{
+  "id": "luxury",
+  "label": "Luxury editorial",
+  "style": "premium lifestyle editorial photography",
+  "lighting": "refined soft light, gentle highlights",
+  "camera": "85mm portrait / 50mm lifestyle, elegant framing",
+  "palette": "warm neutrals, restrained contrast",
+  "realism": "photorealistic",
+  "moodDefault": "aspirational, calm, polished",
+  "maxScenes": 5,
+  "forbid": ["cheap stock oversaturation", "horror"],
+  "negative": "horror, gore, distorted face, deformed hands, dark web aesthetic, creepy, surreal, oversaturated, text, watermark, logo, low quality, blurry, cartoon, anime"
+}

@@ -452,68 +452,81 @@ describe('Operator critical path — Idea → Script → Approve → Production 
   })
 
   it('breaks it — idempotent_skip is never silent and regenerate escapes it', async () => {
-    const ideaRes = await app.inject({
-      method: 'POST',
-      url: '/api/ideas',
-      payload: { workspaceId, title: 'Idempotencia observavel' },
-    })
-    const ideaId = ideaRes.json().id as string
+    delete process.env.COMFY_BASE_URL
+    const { startFakeComfyServer } = await import('./helpers/fakeComfyServer.js')
+    const fake = await startFakeComfyServer()
+    process.env.COMFY_BASE_URL = fake.url
+    try {
+      const wsRes = await app.inject({
+        method: 'POST',
+        url: '/api/workspaces',
+        payload: { name: 'Idempotencia isolada', email: 'idem@cwm.test' },
+      })
+      const ws = wsRes.json().workspaceId as string
 
-    const scriptRes = await app.inject({
-      method: 'POST',
-      url: '/api/scripts/generate',
-      payload: { workspaceId, contentIdeaId: ideaId, platform: 'YOUTUBE_SHORT', await: true },
-    })
-    const scriptId = scriptRes.json().result.scriptId as string
-    await app.inject({
-      method: 'POST',
-      url: `/api/scripts/${scriptId}/approve`,
-      payload: { workspaceId },
-    })
+      const ideaRes = await app.inject({
+        method: 'POST',
+        url: '/api/ideas',
+        payload: { workspaceId: ws, title: 'Idempotencia observavel' },
+      })
+      const ideaId = ideaRes.json().id as string
 
-    const first = await app.inject({
-      method: 'POST',
-      url: '/api/production/run',
-      payload: { workspaceId, scriptId, platform: 'YOUTUBE_SHORT', await: true },
-    })
-    assert.equal(first.json().result.packageStatus, 'READY_FOR_REVIEW')
-    const firstRunId = first.json().productionRunId as string
+      const scriptRes = await app.inject({
+        method: 'POST',
+        url: '/api/scripts/generate',
+        payload: { workspaceId: ws, contentIdeaId: ideaId, platform: 'YOUTUBE_SHORT', await: true },
+      })
+      const scriptId = scriptRes.json().result.scriptId as string
+      await app.inject({
+        method: 'POST',
+        url: `/api/scripts/${scriptId}/approve`,
+        payload: { workspaceId: ws },
+      })
 
-    // Same click again: skipped, but with guidance the UI can surface.
-    const second = await app.inject({
-      method: 'POST',
-      url: '/api/production/run',
-      payload: { workspaceId, scriptId, platform: 'YOUTUBE_SHORT', await: true },
-    })
-    const skipped = second.json().result
-    assert.equal(skipped.skipped, true)
-    assert.equal(skipped.reason, 'idempotent_skip')
-    assert.ok(skipped.hint, 'idempotent_skip must explain itself')
-    assert.equal(skipped.nextAction, 'retry_with_regenerate')
-    assert.equal(skipped.productionRunId, firstRunId)
+      const first = await app.inject({
+        method: 'POST',
+        url: '/api/production/run',
+        payload: { workspaceId: ws, scriptId, platform: 'YOUTUBE_SHORT', await: true },
+      })
+      assert.equal(first.json().result.packageStatus, 'READY_FOR_PUBLISH')
+      const firstRunId = first.json().productionRunId as string
 
-    // Regenerate produces a genuinely new run that is READY again.
-    const third = await app.inject({
-      method: 'POST',
-      url: '/api/production/run',
-      payload: { workspaceId, scriptId, platform: 'YOUTUBE_SHORT', regenerate: true, await: true },
-    })
-    const regen = third.json().result
-    assert.equal(regen.skipped, false)
-    assert.notEqual(third.json().productionRunId, firstRunId)
-    assert.equal(regen.packageStatus, 'READY_FOR_REVIEW')
+      const second = await app.inject({
+        method: 'POST',
+        url: '/api/production/run',
+        payload: { workspaceId: ws, scriptId, platform: 'YOUTUBE_SHORT', await: true },
+      })
+      const skipped = second.json().result
+      assert.equal(skipped.skipped, true)
+      assert.equal(skipped.reason, 'idempotent_skip')
+      assert.ok(skipped.hint, 'idempotent_skip must explain itself')
+      assert.equal(skipped.nextAction, 'retry_with_regenerate')
+      assert.equal(skipped.productionRunId, firstRunId)
 
-    // Second run reuses the library (HIT) and must not be demoted to UNKNOWN license.
-    const regenStages = regen.result.stages as Record<string, { library?: { hits: number } }>
-    assert.ok((regenStages.VISUALS.library?.hits ?? 0) >= 1, 'library HIT expected on regenerate')
-    const regenDetail = await app.inject({
-      method: 'GET',
-      url: `/api/production/runs/${third.json().productionRunId}`,
-    })
-    const badLicense = (
-      regenDetail.json().assets as Array<{ license: string; is_current: number }>
-    ).filter((a) => a.is_current === 1 && (!a.license || a.license === 'UNKNOWN'))
-    assert.equal(badLicense.length, 0, 'library HIT must not set license=UNKNOWN')
+      const third = await app.inject({
+        method: 'POST',
+        url: '/api/production/run',
+        payload: { workspaceId: ws, scriptId, platform: 'YOUTUBE_SHORT', regenerate: true, await: true },
+      })
+      const regen = third.json().result
+      assert.equal(regen.skipped, false)
+      assert.notEqual(third.json().productionRunId, firstRunId)
+      assert.equal(regen.packageStatus, 'READY_FOR_PUBLISH')
+
+      const regenStages = regen.result.stages as Record<string, { library?: { hits: number } }>
+      assert.ok((regenStages.VISUALS.library?.hits ?? 0) >= 1, 'library HIT expected on regenerate')
+      const regenDetail = await app.inject({
+        method: 'GET',
+        url: `/api/production/runs/${third.json().productionRunId}`,
+      })
+      const badLicense = (
+        regenDetail.json().assets as Array<{ license: string; is_current: number }>
+      ).filter((a) => a.is_current === 1 && (!a.license || a.license === 'UNKNOWN'))
+      assert.equal(badLicense.length, 0, 'library HIT must not set license=UNKNOWN')
+    } finally {
+      delete process.env.COMFY_BASE_URL
+      await fake.close()
+    }
   })
 
   it('breaks it — script factory idempotent_skip carries the existing scriptId and a way out', async () => {

@@ -1,0 +1,20 @@
+{
+  "id": "documentary",
+  "label": "Documentary cinematic",
+  "style": "professional documentary photography, realistic editorial frame",
+  "lighting": "soft natural daylight, clean key light, no horror shadows",
+  "camera": "35mm lens, shallow depth of field, eye-level medium shot",
+  "palette": "muted but clean natural colors",
+  "realism": "photorealistic commercial photography",
+  "moodDefault": "serious, grounded, realistic",
+  "maxScenes": 5,
+  "forbid": [
+    "horror aesthetic",
+    "surrealism",
+    "cyberpunk",
+    "deep web",
+    "gore",
+    "distorted faces"
+  ],
+  "negative": "horror, gore, distorted face, deformed hands, dark web aesthetic, creepy, surreal, oversaturated, neon cyberpunk, text, watermark, logo, low quality, blurry, cartoon, anime"
+}

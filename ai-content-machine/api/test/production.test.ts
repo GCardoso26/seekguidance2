@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
+import { spawnSync } from 'node:child_process'
 import { resetDbForTests, getDb, uid, nowIso } from '../src/db/client.js'
 import { bootstrapWorkspace } from '../src/services/pipelines/dailyContentEngine.js'
 import { buildProductionPlan, buildStoryboard } from '../src/production/ProductionPlanner.js'
@@ -484,59 +485,71 @@ describe('Production unit + service', () => {
 
   it('Asset Library: MISS catalogs then regenerate HIT reuses + usage_count++', async () => {
     const { mediaAssetRepository } = await import('../src/production/library/MediaAssetRepository.js')
-    const boot = await bootstrapWorkspace({ name: 'Asset Lib', email: 'lib@cwm.test' })
-    const ws = boot.workspaceId
-    const { scriptId } = seedApprovedScript(ws, 'YOUTUBE_SHORT')
+    const { startFakeComfyServer } = await import('./helpers/fakeComfyServer.js')
+    const fake = await startFakeComfyServer()
+    process.env.COMFY_BASE_URL = fake.url
+    try {
+      const boot = await bootstrapWorkspace({ name: 'Asset Lib', email: 'lib@cwm.test' })
+      const ws = boot.workspaceId
+      const { scriptId } = seedApprovedScript(ws, 'YOUTUBE_SHORT')
 
-    const first = await productionService.run({
-      workspaceId: ws,
-      scriptId,
-      platform: 'YOUTUBE_SHORT',
-      targetDurationOverride: 2,
-    })
-    assert.equal(first.status, 'REQUIRES_REVIEW')
-    const resultA = JSON.parse(String(productionService.getRun(first.productionRunId!)!.result))
-    assert.ok(resultA.stages.VISUALS.library.misses >= 1)
-    assert.equal(resultA.stages.VISUALS.library.hits, 0)
+      const first = await productionService.run({
+        workspaceId: ws,
+        scriptId,
+        platform: 'YOUTUBE_SHORT',
+        targetDurationOverride: 2,
+      })
+      assert.equal(first.status, 'COMPLETED')
+      const resultA = JSON.parse(String(productionService.getRun(first.productionRunId!)!.result))
+      assert.ok(resultA.stages.VISUALS.library.misses >= 1)
+      // First scene is always a MISS on an empty library; later scenes may HIT if
+      // narration tags overlap — that is OK. The contract is APPROVED catalog reuse.
+      assert.ok(
+        resultA.stages.VISUALS.library.hits + resultA.stages.VISUALS.library.misses >= 3,
+      )
 
-    const libRows = mediaAssetRepository.listByWorkspace(ws)
-    assert.ok(libRows.length >= 1)
-    const usageBefore = libRows.reduce((s, a) => s + a.usageCount, 0)
+      const libRows = mediaAssetRepository.listByWorkspace(ws)
+      assert.ok(libRows.some((a) => a.qualityStatus === 'APPROVED'))
+      const usageBefore = libRows.reduce((s, a) => s + a.usageCount, 0)
 
-    const second = await productionService.run({
-      workspaceId: ws,
-      scriptId,
-      platform: 'YOUTUBE_SHORT',
-      targetDurationOverride: 2,
-      regenerate: true,
-    })
-    assert.equal(second.status, 'REQUIRES_REVIEW')
-    assert.notEqual(first.productionRunId, second.productionRunId)
+      const second = await productionService.run({
+        workspaceId: ws,
+        scriptId,
+        platform: 'YOUTUBE_SHORT',
+        targetDurationOverride: 2,
+        regenerate: true,
+      })
+      assert.equal(second.status, 'COMPLETED')
+      assert.notEqual(first.productionRunId, second.productionRunId)
 
-    const resultB = JSON.parse(String(productionService.getRun(second.productionRunId!)!.result))
-    assert.ok(resultB.stages.VISUALS.library.hits >= 1)
-    assert.ok(resultB.stages.VISUALS.library.reuses.length >= 1)
-    assert.equal(resultB.stages.VISUALS.library.reuses[0].reuse_reason, 'tag_match')
-    assert.ok(Array.isArray(resultB.stages.VISUALS.library.reuses[0].matched_tags))
-    assert.ok(resultB.stages.VISUALS.library.reuses[0].match_score > 0)
+      const resultB = JSON.parse(String(productionService.getRun(second.productionRunId!)!.result))
+      assert.ok(resultB.stages.VISUALS.library.hits >= 1)
+      assert.ok(resultB.stages.VISUALS.library.reuses.length >= 1)
+      assert.equal(resultB.stages.VISUALS.library.reuses[0].reuse_reason, 'tag_match')
+      assert.ok(Array.isArray(resultB.stages.VISUALS.library.reuses[0].matched_tags))
+      assert.ok(resultB.stages.VISUALS.library.reuses[0].match_score > 0)
 
-    const usageAfter = mediaAssetRepository
-      .listByWorkspace(ws)
-      .reduce((s, a) => s + a.usageCount, 0)
-    assert.ok(usageAfter > usageBefore)
+      const usageAfter = mediaAssetRepository
+        .listByWorkspace(ws)
+        .reduce((s, a) => s + a.usageCount, 0)
+      assert.ok(usageAfter > usageBefore)
 
-    const reused = (
-      productionService.getRun(second.productionRunId!)!.assets as Array<{
-        type: string
-        provider: string
-        is_current: number
-        metadata: string
-      }>
-    ).find((a) => a.type === 'IMAGE' && a.is_current === 1 && a.provider === 'asset_library')
-    assert.ok(reused)
-    const meta = JSON.parse(reused!.metadata)
-    assert.equal(meta.library.reuse_reason, 'tag_match')
-    assert.ok(meta.library.asset_id)
+      const reused = (
+        productionService.getRun(second.productionRunId!)!.assets as Array<{
+          type: string
+          provider: string
+          is_current: number
+          metadata: string
+        }>
+      ).find((a) => a.type === 'IMAGE' && a.is_current === 1 && a.provider === 'asset_library')
+      assert.ok(reused)
+      const meta = JSON.parse(reused!.metadata)
+      assert.equal(meta.library.reuse_reason, 'tag_match')
+      assert.ok(meta.library.asset_id)
+    } finally {
+      delete process.env.COMFY_BASE_URL
+      await fake.close()
+    }
   })
 
   it('Asset Library HIT never demotes license to UNKNOWN for generated/stock sources', async () => {
@@ -548,7 +561,12 @@ describe('Production unit + service', () => {
     const dir = path.join(os.tmpdir(), `cwm-lib-license-${Date.now()}`)
     fs.mkdirSync(dir, { recursive: true })
     const fakeAssetPath = path.join(dir, 'stub.png')
-    fs.writeFileSync(fakeAssetPath, TINY_PNG)
+    const mk = spawnSync(
+      'ffmpeg',
+      ['-y', '-f', 'lavfi', '-i', 'color=c=0x334455:s=512x768', '-frames:v', '1', fakeAssetPath],
+      { encoding: 'utf8' },
+    )
+    assert.equal(mk.status, 0, mk.stderr)
 
     const fixedAsset = {
       id: uid(),
@@ -561,7 +579,12 @@ describe('Production unit + service', () => {
       source: 'generated' as const,
       tags: ['fake'],
       usageCount: 1,
-      metadata: {},
+      metadata: {
+        prompt: 'SUBJECT: man at laptop\nCAMERA: medium close-up\nSTYLE: documentary',
+      },
+      qualityStatus: 'APPROVED' as const,
+      qualityScore: 0.9,
+      qualityFindings: [] as string[],
       createdAt: nowIso(),
       lastUsedAt: null,
     }

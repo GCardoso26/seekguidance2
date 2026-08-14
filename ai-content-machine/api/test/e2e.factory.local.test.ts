@@ -144,69 +144,78 @@ describe('Factory E2E local — Idea → MP4', () => {
   })
 
   it('E2E #2 — regenerate/remix: Library HIT → usage_count++ → novo MP4', async () => {
-    // Fresh idea but same visual prompts come from script body structure — use regenerate
-    // on the production from E2E #1's script shape: seed identical approved script text via factory
-    const ideaId = insertIdea(workspaceId, 'E2E2 remix mesma necessidade visual')
-    // Force identical visual prompts by copying body from a known production script pattern
-    // via factory then overwrite body to match a prior cataloged prompt set is brittle.
-    // Instead: run production A in isolated ws, then regenerate on same script.
-    const boot = await bootstrapWorkspace({ name: 'Factory Remix', email: 'remix@cwm.test' })
-    const ws = boot.workspaceId
-    const idea = insertIdea(ws, 'Remix Ken Burns assets')
-    const scriptOut = await ideaToApprovedScript(ws, idea)
+    const { startFakeComfyServer } = await import('./helpers/fakeComfyServer.js')
+    const fake = await startFakeComfyServer()
+    process.env.COMFY_BASE_URL = fake.url
+    try {
+      const boot = await bootstrapWorkspace({ name: 'Factory Remix', email: 'remix@cwm.test' })
+      const ws = boot.workspaceId
+      const idea = insertIdea(ws, 'Remix Ken Burns assets')
+      const scriptOut = await ideaToApprovedScript(ws, idea)
 
-    const first = await productionService.run({
-      workspaceId: ws,
-      scriptId: scriptOut.scriptId!,
-      platform: 'YOUTUBE_SHORT',
-      targetDurationOverride: 2,
-    })
-    assert.equal(first.status, 'REQUIRES_REVIEW')
-    assert.equal(first.packageStatus, 'READY_FOR_REVIEW')
-    const r1 = JSON.parse(String(productionService.getRun(first.productionRunId!)!.result))
-    assert.ok(r1.stages.VISUALS.library.misses >= 1)
+      const first = await productionService.run({
+        workspaceId: ws,
+        scriptId: scriptOut.scriptId!,
+        platform: 'YOUTUBE_SHORT',
+        targetDurationOverride: 2,
+      })
+      assert.equal(first.status, 'COMPLETED')
+      assert.equal(first.packageStatus, 'READY_FOR_PUBLISH')
+      const r1 = JSON.parse(String(productionService.getRun(first.productionRunId!)!.result))
+      assert.ok(r1.stages.VISUALS.library.misses >= 1)
+      assert.ok(mediaAssetRepository.listByWorkspace(ws).some((a) => a.qualityStatus === 'APPROVED'))
 
-    const usageBefore = mediaAssetRepository
-      .listByWorkspace(ws)
-      .reduce((s, a) => s + a.usageCount, 0)
-    const libIdsBefore = new Set(mediaAssetRepository.listByWorkspace(ws).map((a) => a.id))
+      const usageBefore = mediaAssetRepository
+        .listByWorkspace(ws)
+        .reduce((s, a) => s + a.usageCount, 0)
+      const libIdsBefore = new Set(mediaAssetRepository.listByWorkspace(ws).map((a) => a.id))
 
-    const second = await productionService.run({
-      workspaceId: ws,
-      scriptId: scriptOut.scriptId!,
-      platform: 'YOUTUBE_SHORT',
-      targetDurationOverride: 2,
-      regenerate: true,
-    })
-    assert.equal(second.status, 'REQUIRES_REVIEW')
-    assert.equal(second.packageStatus, 'READY_FOR_REVIEW')
-    assert.notEqual(first.productionRunId, second.productionRunId)
+      const second = await productionService.run({
+        workspaceId: ws,
+        scriptId: scriptOut.scriptId!,
+        platform: 'YOUTUBE_SHORT',
+        targetDurationOverride: 2,
+        regenerate: true,
+      })
+      assert.equal(second.status, 'COMPLETED')
+      assert.equal(second.packageStatus, 'READY_FOR_PUBLISH')
+      assert.notEqual(first.productionRunId, second.productionRunId)
 
-    const detail2 = productionService.getRun(second.productionRunId!)!
-    const r2 = JSON.parse(String(detail2.result))
-    assert.ok(r2.stages.VISUALS.library.hits >= 1)
-    assert.ok(r2.stages.VISUALS.library.reuses.length >= 1)
-    assert.equal(r2.stages.VISUALS.library.reuses[0].reuse_reason, 'tag_match')
+      const detail2 = productionService.getRun(second.productionRunId!)!
+      const r2 = JSON.parse(String(detail2.result))
+      assert.ok(r2.stages.VISUALS.library.hits >= 1)
+      assert.ok(r2.stages.VISUALS.library.reuses.length >= 1)
+      assert.equal(r2.stages.VISUALS.library.reuses[0].reuse_reason, 'tag_match')
 
-    const usageAfter = mediaAssetRepository.listByWorkspace(ws).reduce((s, a) => s + a.usageCount, 0)
-    assert.ok(usageAfter > usageBefore)
+      const usageAfter = mediaAssetRepository.listByWorkspace(ws).reduce((s, a) => s + a.usageCount, 0)
+      assert.ok(usageAfter > usageBefore)
 
-    const reused = (
-      detail2.assets as Array<{ type: string; provider: string; is_current: number }>
-    ).find((a) => a.type === 'IMAGE' && a.is_current === 1 && a.provider === 'asset_library')
-    assert.ok(reused)
+      const reused = (
+        detail2.assets as Array<{ type: string; provider: string; is_current: number }>
+      ).find((a) => a.type === 'IMAGE' && a.is_current === 1 && a.provider === 'asset_library')
+      assert.ok(reused)
 
-    // Same library catalog ids (no explosion of new assets required for HIT path)
-    const libIdsAfter = mediaAssetRepository.listByWorkspace(ws).map((a) => a.id)
-    assert.ok(libIdsAfter.every((id) => libIdsBefore.has(id) || libIdsBefore.size >= 1))
+      const libIdsAfter = mediaAssetRepository.listByWorkspace(ws).map((a) => a.id)
+      assert.ok(libIdsAfter.every((id) => libIdsBefore.has(id) || libIdsBefore.size >= 1))
 
-    const final2 = (detail2.assets as Array<{ type: string; uri: string; is_current: number }>).find(
-      (a) => a.type === 'FINAL_VIDEO' && a.is_current === 1,
-    )
-    assert.ok(final2 && fs.existsSync(final2.uri))
-    assert.notEqual(final2!.uri, (productionService.getRun(first.productionRunId!)!.assets as Array<{ type: string; uri: string; is_current: number }>).find((a) => a.type === 'FINAL_VIDEO' && a.is_current === 1)?.uri)
-
-    void ideaId
+      const final2 = (detail2.assets as Array<{ type: string; uri: string; is_current: number }>).find(
+        (a) => a.type === 'FINAL_VIDEO' && a.is_current === 1,
+      )
+      assert.ok(final2 && fs.existsSync(final2.uri))
+      assert.notEqual(
+        final2!.uri,
+        (
+          productionService.getRun(first.productionRunId!)!.assets as Array<{
+            type: string
+            uri: string
+            is_current: number
+          }>
+        ).find((a) => a.type === 'FINAL_VIDEO' && a.is_current === 1)?.uri,
+      )
+    } finally {
+      delete process.env.COMFY_BASE_URL
+      await fake.close()
+    }
   })
 
   it('degradação: Ollama OFF + Kokoro OFF + Library OFF → Mock ainda completa MP4', async () => {

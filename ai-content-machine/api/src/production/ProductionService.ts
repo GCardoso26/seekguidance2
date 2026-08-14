@@ -5,7 +5,7 @@ import { emitEvent } from '../services/EventService.js'
 import { alreadyProcessed, markProcessed } from '../lib/idempotency.js'
 import { withRetry } from '../lib/retry.js'
 import { recordAiCost } from '../services/AiCostService.js'
-import { buildProductionPlan, buildStoryboard } from './ProductionPlanner.js'
+import { buildProductionPlan, buildStoryboard, buildVisualPlan, retimedVisualPlan } from './ProductionPlanner.js'
 import { assetRegistry } from './AssetRegistry.js'
 import { LocalFilesystemStorage, assetRelPath } from './storage/LocalFilesystemStorage.js'
 import { MockVoiceProvider } from './voice/MockVoiceProvider.js'
@@ -14,6 +14,7 @@ import { KokoroVoiceProvider } from './voice/KokoroVoiceProvider.js'
 import { FallbackVoiceProvider } from './voice/FallbackVoiceProvider.js'
 import { createVisualResolver } from './visual/createVisualResolver.js'
 import type { VisualFallbackAttempt } from './visual/FallbackVisualProvider.js'
+import { reviewGeneratedImage } from './visual/VisualQaService.js'
 import {
   deriveTagsFromPrompt,
   mediaAssetRepository,
@@ -73,11 +74,13 @@ type StageState = {
   }
   kenBurnsScenes?: number
   durationMs?: number
+  visualProfileId?: string
 }
 
 type RunResult = {
   stages: Partial<Record<ProductionStage, StageState>>
   storyboard?: StoryboardScene[]
+  visualPlan?: import('./visual/visualTypes.js').VisualPlan
   failedStage?: ProductionStage | null
   qa?: Record<string, unknown>
   packageId?: string
@@ -627,13 +630,21 @@ export class ProductionService {
 
     if (stage === 'PLANNING') {
       const profileDuration = buildProductionPlan({ platform: ctx.platform, visualBrief }).targetDuration
+      const visualPlan = buildVisualPlan({
+        scriptBody: body,
+        platform: ctx.platform,
+        targetDurationSec: capDurationForFastTests(profileDuration, ctx.targetDurationOverride),
+        maxScenes: 5,
+      })
       const plan = buildProductionPlan({
         platform: ctx.platform,
         visualBrief,
         targetDurationOverride: capDurationForFastTests(profileDuration, ctx.targetDurationOverride),
+        visualPlan,
       })
-      const storyboard = buildStoryboard({ plan, scriptBody: body, visualBrief })
+      const storyboard = buildStoryboard({ plan, scriptBody: body, visualBrief, visualPlan })
       result.storyboard = storyboard
+      result.visualPlan = visualPlan
       getDb()
         .prepare(`UPDATE production_runs SET plan=?, updated_at=? WHERE id=?`)
         .run(JSON.stringify(plan), nowIso(), runId)
@@ -643,7 +654,11 @@ export class ProductionService {
         entityType: 'production_run',
         entityId: runId,
         reality: 'MOCK',
-        payload: { platform: plan.platform, scenes: storyboard.length },
+        payload: {
+          platform: plan.platform,
+          scenes: storyboard.length,
+          visualProfileId: visualPlan.profileId,
+        },
       })
       return
     }
@@ -652,8 +667,23 @@ export class ProductionService {
       (getDb().prepare(`SELECT plan FROM production_runs WHERE id=?`).get(runId) as { plan: string })
         .plan,
     ) as ProductionPlan
-    const storyboard = result.storyboard || buildStoryboard({ plan, scriptBody: body, visualBrief })
+    const storyboard =
+      result.storyboard ||
+      buildStoryboard({
+        plan,
+        scriptBody: body,
+        visualBrief,
+        visualPlan: result.visualPlan,
+      })
     result.storyboard = storyboard
+    if (!result.visualPlan) {
+      result.visualPlan = buildVisualPlan({
+        scriptBody: body,
+        platform: ctx.platform,
+        targetDurationSec: plan.targetDuration,
+        maxScenes: plan.visual.sceneCount,
+      })
+    }
 
     if (stage === 'VOICE') {
       const t0 = Date.now()
@@ -683,7 +713,15 @@ export class ProductionService {
         const adjustedDuration = clamp(voice.duration, 15, 60)
         if (Math.abs(adjustedDuration - plan.targetDuration) > 0.05) {
           plan.targetDuration = adjustedDuration
-          result.storyboard = buildStoryboard({ plan, scriptBody: body, visualBrief })
+          if (result.visualPlan) {
+            result.visualPlan = retimedVisualPlan(result.visualPlan, adjustedDuration)
+          }
+          result.storyboard = buildStoryboard({
+            plan,
+            scriptBody: body,
+            visualBrief,
+            visualPlan: result.visualPlan,
+          })
           getDb()
             .prepare(`UPDATE production_runs SET plan=?, updated_at=? WHERE id=?`)
             .run(JSON.stringify(plan), nowIso(), runId)
@@ -763,7 +801,12 @@ export class ProductionService {
           filename: `scene-${scene.scene}-v${version}.png`,
         })
         const abs = this.storage.resolveSafe(rel)
-        const tags = deriveTagsFromPrompt(scene.visualPrompt)
+        // Tag search must NOT index character-lock / profile boilerplate — those tokens
+        // are identical across every Short and would make the first APPROVED frame
+        // poison every later production as a false HIT.
+        const tags = deriveTagsFromPrompt(
+          [scene.role, scene.subject, scene.narrationSegment].filter(Boolean).join(' '),
+        )
 
         let hit: LibrarySearchHit | null = null
         try {
@@ -786,59 +829,93 @@ export class ProductionService {
 
         if (hit) {
           try {
-            const reused = mediaAssetRepository.recordReuse(hit.asset.id)
             const license = libraryAssetLicense(hit.asset.source)
-            const registered = assetRegistry.register({
-              workspaceId: ws,
-              contentId,
-              productionId: runId,
-              type: 'IMAGE',
-              sourceType: librarySourceType(hit.asset.source),
+            const hitQa = reviewGeneratedImage({
+              path: hit.asset.path,
               provider: 'asset_library',
-              uri: hit.asset.path,
-              mimeType: 'image/png',
+              sourceType: librarySourceType(hit.asset.source),
               width: plan.width,
               height: plan.height,
-              checksum: hit.asset.sha256,
-              stage: 'VISUALS',
-              assetKey: `visual:scene:${scene.scene}`,
-              version,
-              license,
-              metadata: {
-                prompt: scene.visualPrompt,
-                sourceUrl: `library://${hit.asset.id}`,
-                generatedAt: nowIso(),
-                scene: scene.scene,
-                library: {
-                  asset_id: hit.asset.id,
-                  reuse_reason: hit.reuseReason,
-                  matched_tags: hit.matchedTags,
-                  match_score: hit.matchScore,
-                  usage_count: reused.usageCount,
+              prompt: String(hit.asset.metadata?.prompt || scene.visualPrompt),
+            })
+            if (!hitQa.passed || hitQa.status !== 'APPROVED') {
+              try {
+                mediaAssetRepository.catalog({
+                  workspaceId: ws,
+                  path: hit.asset.path,
+                  type: 'image',
+                  source: hit.asset.source,
+                  tags: hit.asset.tags,
+                  sha256: hit.asset.sha256,
+                  qualityStatus: 'REJECTED',
+                  qualityScore: hitQa.score,
+                  qualityFindings: hitQa.findings,
+                  metadata: hit.asset.metadata,
+                })
+              } catch {
+                // demote best-effort
+              }
+              hit = null
+            } else {
+              const reused = mediaAssetRepository.recordReuse(hit.asset.id)
+              const registered = assetRegistry.register({
+                workspaceId: ws,
+                contentId,
+                productionId: runId,
+                type: 'IMAGE',
+                sourceType: librarySourceType(hit.asset.source),
+                provider: 'asset_library',
+                uri: hit.asset.path,
+                mimeType: 'image/png',
+                width: plan.width,
+                height: plan.height,
+                checksum: hit.asset.sha256,
+                stage: 'VISUALS',
+                assetKey: `visual:scene:${scene.scene}`,
+                version,
+                license,
+                metadata: {
+                  prompt: scene.visualPrompt,
+                  negativePrompt: scene.negativePrompt,
+                  sourceUrl: `library://${hit.asset.id}`,
+                  generatedAt: nowIso(),
+                  scene: scene.scene,
+                  library: {
+                    asset_id: hit.asset.id,
+                    reuse_reason: hit.reuseReason,
+                    matched_tags: hit.matchedTags,
+                    match_score: hit.matchScore,
+                    usage_count: reused.usageCount,
+                    quality_status: hit.asset.qualityStatus,
+                    quality_score: hit.asset.qualityScore,
+                  },
+                  visualQa: hitQa,
+                  visualProfileId: plan.visual.profileId || result.visualPlan?.profileId,
                 },
-              },
-            })
-            ids.push(registered.id)
-            libraryHits += 1
-            libraryReuses.push({
-              asset_id: hit.asset.id,
-              reuse_reason: hit.reuseReason,
-              matched_tags: hit.matchedTags,
-              match_score: hit.matchScore,
-              scene: scene.scene,
-            })
-            recordAiCost({
-              workspaceId: ws,
-              operation: 'IMAGE_GENERATION',
-              provider: 'asset_library',
-              model: 'reuse',
-              estimatedCostCents: 0,
-              productionRunId: runId,
-              reality: 'MOCK',
-            })
-            continue
+              })
+              ids.push(registered.id)
+              libraryHits += 1
+              libraryReuses.push({
+                asset_id: hit.asset.id,
+                reuse_reason: hit.reuseReason,
+                matched_tags: hit.matchedTags,
+                match_score: hit.matchScore,
+                scene: scene.scene,
+              })
+              recordAiCost({
+                workspaceId: ws,
+                operation: 'IMAGE_GENERATION',
+                provider: 'asset_library',
+                model: 'reuse',
+                estimatedCostCents: 0,
+                productionRunId: runId,
+                reality: 'MOCK',
+              })
+              continue
+            }
           } catch {
             // Library reuse failed — fall through to provider
+            hit = null
           }
         }
 
@@ -846,6 +923,7 @@ export class ProductionService {
         libraryMisses += 1
         const asset = await this.visual.generate({
           prompt: scene.visualPrompt,
+          negativePrompt: scene.negativePrompt,
           outPath: abs,
           width: plan.width,
           height: plan.height,
@@ -853,6 +931,16 @@ export class ProductionService {
         })
         lastVisualProvider = asset.provider
         if (asset.fallbackTrail?.length) visualTrail.push(...asset.fallbackTrail)
+
+        const visualQa = reviewGeneratedImage({
+          path: asset.path,
+          provider: asset.provider,
+          sourceType: asset.sourceType,
+          width: asset.width,
+          height: asset.height,
+          prompt: asset.prompt || scene.visualPrompt,
+        })
+
         const license = asset.license || 'UNKNOWN'
         const registered = assetRegistry.register({
           workspaceId: ws,
@@ -873,10 +961,13 @@ export class ProductionService {
           metadata: {
             ...asset.metadata,
             prompt: asset.prompt,
+            negativePrompt: scene.negativePrompt,
             sourceUrl: asset.metadata.sourceUrl,
             generatedAt: asset.metadata.generatedAt,
             library: { miss: true, tags },
             fallbackTrail: asset.fallbackTrail,
+            visualQa,
+            visualProfileId: plan.visual.profileId || result.visualPlan?.profileId,
           },
         })
         ids.push(registered.id)
@@ -890,6 +981,9 @@ export class ProductionService {
             type: 'image',
             source: asset.sourceType === 'STOCK' ? 'stock' : asset.sourceType === 'GENERATED' ? 'generated' : 'mock',
             tags,
+            qualityStatus: visualQa.status,
+            qualityScore: visualQa.score,
+            qualityFindings: visualQa.findings,
             metadata: {
               prompt: asset.prompt,
               scene: scene.scene,
@@ -898,6 +992,8 @@ export class ProductionService {
               height: asset.height,
               sha256: asset.metadata.sha256,
               workflow: asset.metadata.workflow,
+              visualQa,
+              visualProfileId: plan.visual.profileId || result.visualPlan?.profileId,
             },
           })
         } catch {
@@ -927,6 +1023,7 @@ export class ProductionService {
         fallbackTrail: visualTrail,
         library: { hits: libraryHits, misses: libraryMisses, reuses: libraryReuses },
         durationMs: Date.now() - t0,
+        visualProfileId: plan.visual.profileId || result.visualPlan?.profileId,
       }
       emitEvent({
         workspaceId: ws,

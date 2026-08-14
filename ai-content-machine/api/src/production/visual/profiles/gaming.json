@@ -1,0 +1,13 @@
+{
+  "id": "gaming",
+  "label": "Gaming lifestyle",
+  "style": "modern gaming lifestyle photography, real desk setup",
+  "lighting": "soft room light with subtle screen glow, not neon overload",
+  "camera": "35mm lifestyle, medium shots of player and setup",
+  "palette": "cool neutrals with one accent color",
+  "realism": "photorealistic",
+  "moodDefault": "engaged, energetic but clean",
+  "maxScenes": 5,
+  "forbid": ["anime character swap mid-video", "surreal glitch horror"],
+  "negative": "horror, gore, distorted face, deformed hands, dark web aesthetic, creepy, surreal, oversaturated neon mess, text, watermark, logo, low quality, blurry, random anime style shift"
+}
