@@ -161,6 +161,9 @@ services:
     build:
       context: .
       dockerfile: comfy/Dockerfile
+    # Explicit — a hotfix com `docker commit` + `--entrypoint pip` envenena o CMD da imagem.
+    entrypoint: ["sh", "-c"]
+    command: ["exec python main.py $$CLI_ARGS"]
     ports:
       - "127.0.0.1:8188:8188"
     volumes:

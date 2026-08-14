@@ -43,6 +43,8 @@ fetch("http://127.0.0.1:8787/api/factory/status", { signal: AbortSignal.timeout(
 echo
 echo "Expect visual.comfy=READY and comfyProbe.status=READY."
 echo "NOT_CONFIGURED → falta COMFY_BASE_URL=http://comfy:8188 (rode ./scripts/comfy-enable-a1.sh)."
-echo "ERROR → Comfy crash-loop (ex. ModuleNotFoundError: requests) ou ainda a arrancar."
+echo "ERROR → Comfy crash-loop ou ainda a arrancar."
 echo "  docker compose --profile comfy logs --tail 80 comfy"
-echo "  Se faltar requests: git pull && docker compose --profile comfy up -d --build comfy"
+echo "  ModuleNotFoundError: requests → git pull && docker compose --profile comfy up -d --build comfy"
+echo "  logs só com 'Requirement already satisfied: requests' → CMD envenenado por docker commit;"
+echo "    force entrypoint no compose ou restaura CMD (ver docs/COMFYUI_A1_VS_PC.md)."

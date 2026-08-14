@@ -58,6 +58,21 @@ Se os logs mostrarem `ModuleNotFoundError: No module named 'requests'`, a imagem
 docker compose --profile comfy up -d --build comfy
 ```
 
+Se os logs forem só `Requirement already satisfied: requests` em loop (exit 0), um `docker commit` após `--entrypoint pip` envenenou o CMD. Sem git pull:
+
+```bash
+# Restaura ENTRYPOINT/CMD sem rebuild (mantém o requests já instalado)
+cid=$(docker create ai-content-machine-comfy:latest)
+docker commit \
+  --change='ENTRYPOINT ["sh","-c"]' \
+  --change='CMD ["exec python main.py $CLI_ARGS"]' \
+  "$cid" ai-content-machine-comfy:latest
+docker rm "$cid"
+docker compose --profile comfy up -d --force-recreate comfy
+```
+
+Ou edita o `docker-compose.yml` do serviço `comfy` para ter `entrypoint`/`command` explícitos (já no repo) e `up -d --force-recreate comfy`.
+
 Porta **8188 só em 127.0.0.1**. Não abrir no NSG/Security List da OCI (igual a `:11434` / `:8880`).
 
 RAM: A1 com **12 GB**. Não corra Ollama+Kokoro+Comfy no mesmo segundo em 6 GB.
