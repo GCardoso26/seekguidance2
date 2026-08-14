@@ -7,6 +7,7 @@ import { youtubePublisher } from '../publishing/youtube/YouTubePublisher.js'
 import { extractContentDNA, winnerDetectionService } from '../winner/WinnerDetectionService.js'
 import { strategyService } from '../strategy/StrategyService.js'
 import { restoreSafetyDefaults } from './SafetyDefaults.js'
+import { publishingService } from '../publishing/PublishingService.js'
 
 export type ExperimentStatus =
   | 'PLANNED'
@@ -134,6 +135,10 @@ export class ExperimentService {
     if (!exp) throw new Error('experiment_not_found')
     if (!exp.content_id) throw new Error('experiment_missing_content')
     if (!approvedBy?.trim()) throw new Error('approved_by_required')
+    const validation = publishingService.validateContentPackage(exp.content_id, exp.workspace_id)
+    if (!validation.ok) {
+      throw new Error(`package_not_publishable:${validation.issues.join(',')}`)
+    }
     const now = nowIso()
     getDb()
       .prepare(

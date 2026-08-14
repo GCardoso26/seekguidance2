@@ -7,6 +7,7 @@ import {
 } from '../services/pipelines/dailyContentEngine.js'
 import { getDb, nowIso, uid } from '../db/client.js'
 import { emitEvent } from '../services/EventService.js'
+import { publishingService } from '../publishing/PublishingService.js'
 
 export async function workspaceRoutes(app: FastifyInstance) {
   app.get('/api/workspaces', async () => {
@@ -135,10 +136,23 @@ export async function workspaceRoutes(app: FastifyInstance) {
     return { ok: true }
   })
 
-  app.post('/api/contents/:contentId/approve', async (req) => {
+  app.post('/api/contents/:contentId/approve', async (req, reply) => {
     const { contentId } = req.params as { contentId: string }
     const body = (req.body || {}) as { forPublishing?: boolean; approvedBy?: string }
     if (body.forPublishing) {
+      const content = getDb()
+        .prepare(`SELECT workspace_id FROM contents WHERE id=?`)
+        .get(contentId) as { workspace_id: string } | undefined
+      if (!content) return reply.code(404).send({ error: 'content_not_found' })
+
+      const validation = publishingService.validateContentPackage(contentId, content.workspace_id)
+      if (!validation.ok) {
+        return reply.code(409).send({
+          error: 'package_not_publishable',
+          issues: validation.issues,
+        })
+      }
+
       const at = nowIso()
       getDb()
         .prepare(
