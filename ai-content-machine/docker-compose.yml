@@ -126,7 +126,7 @@ services:
       COMFY_HTTP_TIMEOUT_MS: ${COMFY_HTTP_TIMEOUT_MS:-30000}
       COMFY_HEALTH_TIMEOUT_MS: ${COMFY_HEALTH_TIMEOUT_MS:-5000}
       COMFY_POLL_MS: ${COMFY_POLL_MS:-3000}
-      COMFY_CHECKPOINT: ${COMFY_CHECKPOINT:-}
+      COMFY_CHECKPOINT: ${COMFY_CHECKPOINT:-v1-5-pruned-emaonly.safetensors}
       COMFY_NEGATIVE_PROMPT: ${COMFY_NEGATIVE_PROMPT:-}
       COMFY_WIDTH: ${COMFY_WIDTH:-}
       COMFY_HEIGHT: ${COMFY_HEIGHT:-}
@@ -164,7 +164,8 @@ services:
     ports:
       - "127.0.0.1:8188:8188"
     volumes:
-      - ./data/comfy/models:/opt/ComfyUI/models
+      # Só checkpoints — não tapar o resto de /opt/ComfyUI/models do clone.
+      - ./data/comfy/models/checkpoints:/opt/ComfyUI/models/checkpoints
       - cwm_comfy_output:/opt/ComfyUI/output
     environment:
       CLI_ARGS: "--listen 0.0.0.0 --port 8188 --cpu"

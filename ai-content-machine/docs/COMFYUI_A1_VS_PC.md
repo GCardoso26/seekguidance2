@@ -40,7 +40,17 @@ COMFY_HEIGHT=768
 COMFY_STEPS=4
 
 docker compose --profile comfy up -d --build
+./scripts/comfy-enable-a1.sh   # grava COMFY_BASE_URL=http://comfy:8188 no .env e recria a API
+./scripts/comfy-status.sh      # espera visual.comfy=READY
 ```
+
+O `up --build` **não** liga a API ao Comfy por si. Sem `COMFY_BASE_URL=http://comfy:8188` o strip fica `NOT_CONFIGURED` e os Shorts novos caem em Mock. Depois de gravar o `.env`, recrie só a API (não precisa rebuild):
+
+```bash
+docker compose --profile comfy up -d api
+```
+
+Primeiro boot CPU: 1–3 min até `/system_stats` responder. Checkpoint em `data/comfy/models/checkpoints/`. O compose monta **só** essa pasta — se o volume antigo era `data/comfy/models` inteiro, `up -d comfy` (sem rebuild) chega para aplicar o bind novo.
 
 Porta **8188 só em 127.0.0.1**. Não abrir no NSG/Security List da OCI (igual a `:11434` / `:8880`).
 

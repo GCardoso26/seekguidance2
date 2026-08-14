@@ -26,4 +26,10 @@ fi
 
 ls -lh "$DEST"
 echo "Set COMFY_CHECKPOINT=v1-5-pruned-emaonly.safetensors"
-echo "Done. Restart: docker compose --profile comfy up -d"
+echo
+echo "NEXT — the API does not see Comfy until COMFY_BASE_URL is set:"
+echo "  ./scripts/comfy-enable-a1.sh"
+echo "  ./scripts/comfy-status.sh"
+echo "Or by hand: add COMFY_BASE_URL=http://comfy:8188 to .env, then"
+echo "  docker compose --profile comfy up -d api"
+
