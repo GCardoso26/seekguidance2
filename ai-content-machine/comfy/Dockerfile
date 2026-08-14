@@ -17,6 +17,12 @@ RUN pip install --no-cache-dir --upgrade pip \
   && pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu \
   && pip install --no-cache-dir -r requirements.txt
 
+# ComfyUI v0.3.40 does `import requests` in app/frontend_management.py but does not
+# list it in requirements.txt. Newer huggingface_hub no longer pulls it transitively.
+# Separate layer so the torch/requirements cache on the VPS stays valid.
+RUN pip install --no-cache-dir requests typing_extensions \
+  && python -c "import requests; import app.frontend_management"
+
 RUN mkdir -p /opt/ComfyUI/models/checkpoints /opt/ComfyUI/output /opt/ComfyUI/input
 
 EXPOSE 8188

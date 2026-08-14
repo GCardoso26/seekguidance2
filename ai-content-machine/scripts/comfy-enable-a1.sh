@@ -34,7 +34,7 @@ upsert COMFY_STEPS '4'
 echo "Wrote Comfy A1 keys to $ENV_FILE"
 grep -E '^COMFY_' "$ENV_FILE" || true
 
-docker compose --profile comfy --env-file "$ENV_FILE" up -d api comfy
+docker compose --profile comfy --env-file "$ENV_FILE" up -d --force-recreate api comfy
 echo
 echo "Waiting for Comfy /system_stats (first CPU boot can take 1–3 min)…"
 ready=0
