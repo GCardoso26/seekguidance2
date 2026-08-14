@@ -117,13 +117,21 @@ services:
       KOKORO_VOICE: ${KOKORO_VOICE:-pf_dora}
       KOKORO_MODEL: ${KOKORO_MODEL:-kokoro}
       KOKORO_API_KEY: ${KOKORO_API_KEY:-}
-      # ComfyUI no host — só no MISS da Asset Library. Vazio = Visual fallback → Mock.
+      # ComfyUI — só no MISS da Asset Library. Vazio = Visual fallback → Mock.
+      # A1 (profile comfy): http://comfy:8188
+      # Host / ponte PC (SSH -R 8188): http://host.docker.internal:8188
       COMFY_BASE_URL: ${COMFY_BASE_URL:-}
-      COMFY_WORKFLOW: ${COMFY_WORKFLOW:-image_default}
-      COMFY_TIMEOUT_MS: ${COMFY_TIMEOUT_MS:-120000}
-      COMFY_POLL_MS: ${COMFY_POLL_MS:-1500}
+      COMFY_WORKFLOW: ${COMFY_WORKFLOW:-image_a1_cpu}
+      COMFY_TIMEOUT_MS: ${COMFY_TIMEOUT_MS:-900000}
+      COMFY_HTTP_TIMEOUT_MS: ${COMFY_HTTP_TIMEOUT_MS:-30000}
+      COMFY_HEALTH_TIMEOUT_MS: ${COMFY_HEALTH_TIMEOUT_MS:-5000}
+      COMFY_POLL_MS: ${COMFY_POLL_MS:-3000}
       COMFY_CHECKPOINT: ${COMFY_CHECKPOINT:-}
       COMFY_NEGATIVE_PROMPT: ${COMFY_NEGATIVE_PROMPT:-}
+      COMFY_WIDTH: ${COMFY_WIDTH:-}
+      COMFY_HEIGHT: ${COMFY_HEIGHT:-}
+      COMFY_STEPS: ${COMFY_STEPS:-}
+      COMFY_CFG: ${COMFY_CFG:-}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     ports:
@@ -146,9 +154,26 @@ services:
       - api
     restart: unless-stopped
 
+  # Opt-in: docker compose --profile comfy up -d --build
+  # Porta 8188 só em 127.0.0.1 — NÃO abrir no NSG/Security List da OCI.
+  comfy:
+    profiles: ["comfy"]
+    build:
+      context: .
+      dockerfile: comfy/Dockerfile
+    ports:
+      - "127.0.0.1:8188:8188"
+    volumes:
+      - ./data/comfy/models:/opt/ComfyUI/models
+      - cwm_comfy_output:/opt/ComfyUI/output
+    environment:
+      CLI_ARGS: "--listen 0.0.0.0 --port 8188 --cpu"
+    restart: unless-stopped
+
 volumes:
   cwm_pg:
   cwm_n8n_pg:
   cwm_redis:
   cwm_n8n_data:
   cwm_api_data:
+  cwm_comfy_output:

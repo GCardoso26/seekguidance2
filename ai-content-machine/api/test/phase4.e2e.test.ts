@@ -1,4 +1,4 @@
-import { describe, it, before } from 'node:test'
+import { describe, it, before, after } from 'node:test'
 import assert from 'node:assert/strict'
 import os from 'node:os'
 import path from 'node:path'
@@ -13,6 +13,7 @@ import { strategyService } from '../src/strategy/StrategyService.js'
 import { mockAnalyticsProvider } from '../src/analytics/MockAnalyticsProvider.js'
 import { DEFAULT_WINNER_CRITERIA, DEFAULT_PERFORMANCE_WEIGHTS } from '../src/publishing/types.js'
 import { automationService } from '../src/services/AutomationService.js'
+import { startFakeComfyServer, type FakeComfyHandle } from './helpers/fakeComfyServer.js'
 
 process.env.AUTOMATION_MODE = 'mock'
 process.env.CWM_FAST_RETRY = '1'
@@ -76,12 +77,20 @@ describe('Phase 4 Publishing + Feedback Loop', () => {
   const tmp = path.join(os.tmpdir(), `cwm-p4-${Date.now()}.sqlite`)
   let app: Awaited<ReturnType<typeof buildServer>>
   let workspaceId = ''
+  let fakeComfy: FakeComfyHandle
 
   before(async () => {
+    fakeComfy = await startFakeComfyServer()
+    process.env.COMFY_BASE_URL = fakeComfy.url
     resetDbForTests(tmp)
     app = await buildServer()
     const boot = await bootstrapWorkspace({ name: 'P4 E2E', email: 'p4@cwm.test' })
     workspaceId = boot.workspaceId
+  })
+
+  after(async () => {
+    delete process.env.COMFY_BASE_URL
+    await fakeComfy?.close()
   })
 
   it('MockPublisher: READY_FOR_PUBLISH → PUBLISHED with MOCK reality', async () => {

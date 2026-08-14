@@ -67,7 +67,7 @@ describe('Phase 3 E2E production API', () => {
     workspaceId = boot.workspaceId
   })
 
-  it('POST /api/production/run await=true → READY_FOR_PUBLISH package', async () => {
+  it('POST /api/production/run await=true → MP4 + READY_FOR_REVIEW when ComfyUI is off', async () => {
     const scriptId = seedApprovedScript(workspaceId)
     const res = await app.inject({
       method: 'POST',
@@ -84,13 +84,13 @@ describe('Phase 3 E2E production API', () => {
     const body = res.json()
     assert.ok(body.executionId)
     assert.ok(body.productionRunId)
-    assert.equal(body.result.status, 'COMPLETED')
-    assert.equal(body.result.packageStatus, 'READY_FOR_PUBLISH')
+    assert.equal(body.result.status, 'REQUIRES_REVIEW')
+    assert.equal(body.result.packageStatus, 'READY_FOR_REVIEW')
 
     const run = await app.inject({ method: 'GET', url: `/api/production/runs/${body.productionRunId}` })
     assert.equal(run.statusCode, 200)
     const detail = run.json()
-    assert.equal(detail.package_status, 'READY_FOR_PUBLISH')
+    assert.equal(detail.package_status, 'READY_FOR_REVIEW')
     assert.ok(detail.assets.length >= 5)
     for (const a of detail.assets.filter((x: { is_current: number }) => x.is_current)) {
       assert.ok(fs.existsSync(a.uri))

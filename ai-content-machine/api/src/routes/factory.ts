@@ -7,10 +7,15 @@ export async function factoryRoutes(app: FastifyInstance) {
   app.get('/api/factory/status', async () => {
     const script = scriptFactoryService.providersStatus()
     const production = productionService.providersStatus()
+    const comfyProbe = await productionService.probeComfy()
     return {
       script,
       voice: production.voice,
-      visual: production.visual,
+      visual: {
+        ...production.visual,
+        comfy: comfyProbe.status,
+        comfyProbe,
+      },
       composition: production.composition,
       thumbnail: production.thumbnail,
       storage: production.storage,

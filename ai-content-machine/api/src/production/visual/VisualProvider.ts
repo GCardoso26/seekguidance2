@@ -1,4 +1,4 @@
-import type { ProviderStatus } from '../types.js'
+import type { ProviderStatus, ComfyProbeResult } from '../types.js'
 
 export type VisualGenerateInput = {
   prompt: string
@@ -26,4 +26,5 @@ export interface VisualProvider {
   name: string
   status(): ProviderStatus
   generate(input: VisualGenerateInput): Promise<VisualAsset>
+  probe?(): Promise<ComfyProbeResult>
 }

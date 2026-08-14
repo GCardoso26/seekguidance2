@@ -12,10 +12,10 @@ APPROVED SCRIPT
   → THUMBNAIL
   → MEDIA QA
   → STORAGE
-  → CONTENT PACKAGE (READY_FOR_PUBLISH)
+  → CONTENT PACKAGE (READY_FOR_PUBLISH se visuais GENERATED; senão READY_FOR_REVIEW)
 ```
 
-**Não publica.** `READY_FOR_PUBLISH` = tecnicamente pronto para a Fase 4.
+**Não publica.** `READY_FOR_PUBLISH` = tecnicamente pronto **e** visuais reais (ComfyUI / library GENERATED). Mock visual ⇒ `READY_FOR_REVIEW`.
 
 ## Serviço
 

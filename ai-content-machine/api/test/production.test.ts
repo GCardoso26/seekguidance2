@@ -16,6 +16,7 @@ import { ffmpegService } from '../src/production/FFmpegService.js'
 
 process.env.AUTOMATION_MODE = 'mock'
 process.env.CWM_FAST_RETRY = '1'
+delete process.env.COMFY_BASE_URL
 
 /** 1×1 PNG — smallest valid image ffmpeg/kenburns can decode. */
 const TINY_PNG = Buffer.from(
@@ -261,7 +262,7 @@ describe('Production unit + service', () => {
     assert.ok(qa.qualityScore >= 0)
   })
 
-  it('E2E service: approved script → READY_FOR_PUBLISH with verifiable artifacts', async () => {
+  it('E2E service: approved script → READY_FOR_REVIEW when visuals are mock (not publishable)', async () => {
     const { scriptId } = seedApprovedScript(workspaceId, 'YOUTUBE_SHORT')
     const out = await productionService.run({
       workspaceId,
@@ -271,8 +272,8 @@ describe('Production unit + service', () => {
     })
     assert.equal(out.skipped, false)
     assert.ok(out.productionRunId)
-    assert.equal(out.status, 'COMPLETED')
-    assert.equal(out.packageStatus, 'READY_FOR_PUBLISH')
+    assert.equal(out.status, 'REQUIRES_REVIEW')
+    assert.equal(out.packageStatus, 'READY_FOR_REVIEW')
 
     const detail = productionService.getRun(out.productionRunId!)!
     const assets = detail.assets as Array<{
@@ -423,7 +424,7 @@ describe('Production unit + service', () => {
       platform: 'YOUTUBE_SHORT',
       targetDurationOverride: 2,
     })
-    assert.equal(out.status, 'COMPLETED')
+    assert.equal(out.status, 'REQUIRES_REVIEW')
     const detail = productionService.getRun(out.productionRunId!)!
     const thumb = (
       detail.assets as Array<{
@@ -493,7 +494,7 @@ describe('Production unit + service', () => {
       platform: 'YOUTUBE_SHORT',
       targetDurationOverride: 2,
     })
-    assert.equal(first.status, 'COMPLETED')
+    assert.equal(first.status, 'REQUIRES_REVIEW')
     const resultA = JSON.parse(String(productionService.getRun(first.productionRunId!)!.result))
     assert.ok(resultA.stages.VISUALS.library.misses >= 1)
     assert.equal(resultA.stages.VISUALS.library.hits, 0)
@@ -509,7 +510,7 @@ describe('Production unit + service', () => {
       targetDurationOverride: 2,
       regenerate: true,
     })
-    assert.equal(second.status, 'COMPLETED')
+    assert.equal(second.status, 'REQUIRES_REVIEW')
     assert.notEqual(first.productionRunId, second.productionRunId)
 
     const resultB = JSON.parse(String(productionService.getRun(second.productionRunId!)!.result))
@@ -625,7 +626,7 @@ describe('Production unit + service', () => {
         platform: 'YOUTUBE_SHORT',
         targetDurationOverride: 2,
       })
-      assert.equal(out.status, 'COMPLETED')
+      assert.equal(out.status, 'REQUIRES_REVIEW')
       const result = JSON.parse(String(productionService.getRun(out.productionRunId!)!.result))
       assert.equal(result.stages.VISUALS.ok, true)
       assert.equal(result.stages.VISUALS.library.hits, 0)

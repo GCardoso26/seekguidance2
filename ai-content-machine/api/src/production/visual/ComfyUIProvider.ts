@@ -1,25 +1,61 @@
 import { createHash } from 'node:crypto'
 import fs from 'node:fs'
 import path from 'node:path'
+import type { ComfyProbeResult } from '../types.js'
 import type { VisualAsset, VisualGenerateInput, VisualProvider } from './VisualProvider.js'
 import { workflowRegistry } from './WorkflowRegistry.js'
 
-const PNG_MAGIC = Buffer.from([0x89, 0x50, 0x4e, 0x47])
+const PNG_MAGIC = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])
 const JPEG_MAGIC = Buffer.from([0xff, 0xd8, 0xff])
-const MIN_BYTES = 32
+const DEFAULT_JOB_TIMEOUT_MS = 900_000
+const DEFAULT_HTTP_TIMEOUT_MS = 30_000
+const DEFAULT_HEALTH_TIMEOUT_MS = 5_000
+const DEFAULT_POLL_MS = 3_000
+const DEFAULT_MIN_BYTES = 64
+const DEFAULT_MIN_EDGE = 64
 
 /**
- * Local ComfyUI via HTTP (prompt → history → view).
+ * Local / remote ComfyUI via HTTP (prompt → history → view).
  * Image generation only — no Wan/LTX/video.
  *
- * Env: COMFY_BASE_URL, COMFY_WORKFLOW, COMFY_TIMEOUT_MS, COMFY_POLL_MS,
- *      COMFY_CHECKPOINT, COMFY_NEGATIVE_PROMPT
+ * Env: COMFY_BASE_URL, COMFY_WORKFLOW, COMFY_TIMEOUT_MS, COMFY_HTTP_TIMEOUT_MS,
+ *      COMFY_HEALTH_TIMEOUT_MS, COMFY_POLL_MS, COMFY_CHECKPOINT,
+ *      COMFY_NEGATIVE_PROMPT, COMFY_WIDTH, COMFY_HEIGHT, COMFY_STEPS, COMFY_CFG
  */
 export class ComfyUIProvider implements VisualProvider {
   name = 'comfyui'
+  /** After a job TIMEOUT / unreachable, skip Comfy until a live probe succeeds. */
+  private circuitOpen = false
 
   status() {
-    return this.baseUrl() ? ('READY' as const) : ('NOT_CONFIGURED' as const)
+    if (!this.baseUrl()) return 'NOT_CONFIGURED' as const
+    if (this.circuitOpen) return 'ERROR' as const
+    return 'READY' as const
+  }
+
+  async probe(): Promise<ComfyProbeResult> {
+    if (!this.baseUrl()) {
+      return { status: 'NOT_CONFIGURED', latencyMs: 0, detail: 'COMFY_BASE_URL empty' }
+    }
+    const t0 = Date.now()
+    try {
+      const json = (await this.requestJson('GET', '/system_stats', undefined, this.healthTimeoutMs())) as {
+        system?: unknown
+      }
+      const latencyMs = Date.now() - t0
+      if (!json || typeof json !== 'object') {
+        return { status: 'ERROR', latencyMs, endpoint: '/system_stats', detail: 'comfy_health_empty' }
+      }
+      this.circuitOpen = false
+      return { status: 'READY', latencyMs, endpoint: '/system_stats', detail: 'ok' }
+    } catch (err) {
+      return {
+        status: 'ERROR',
+        latencyMs: Date.now() - t0,
+        endpoint: '/system_stats',
+        detail: err instanceof Error ? err.message : String(err),
+      }
+    }
   }
 
   private baseUrl(): string {
@@ -31,13 +67,19 @@ export class ComfyUIProvider implements VisualProvider {
   }
 
   private timeoutMs(): number {
-    const n = Number(process.env.COMFY_TIMEOUT_MS || 120000)
-    return Number.isFinite(n) && n > 0 ? n : 120000
+    return positiveInt(process.env.COMFY_TIMEOUT_MS, DEFAULT_JOB_TIMEOUT_MS)
+  }
+
+  private httpTimeoutMs(): number {
+    return positiveInt(process.env.COMFY_HTTP_TIMEOUT_MS, DEFAULT_HTTP_TIMEOUT_MS)
+  }
+
+  private healthTimeoutMs(): number {
+    return positiveInt(process.env.COMFY_HEALTH_TIMEOUT_MS, DEFAULT_HEALTH_TIMEOUT_MS)
   }
 
   private pollMs(): number {
-    const n = Number(process.env.COMFY_POLL_MS || 1500)
-    return Number.isFinite(n) && n > 0 ? n : 1500
+    return positiveInt(process.env.COMFY_POLL_MS, DEFAULT_POLL_MS)
   }
 
   private checkpoint(): string {
@@ -45,29 +87,69 @@ export class ComfyUIProvider implements VisualProvider {
   }
 
   private negativePrompt(): string {
-    return process.env.COMFY_NEGATIVE_PROMPT || 'blurry, low quality, watermark, text, logo'
+    return process.env.COMFY_NEGATIVE_PROMPT || 'blurry, low quality, watermark, text, logo, deformed'
+  }
+
+  private genWidth(inputWidth: number): number {
+    const n = Number(process.env.COMFY_WIDTH || 0)
+    return Number.isFinite(n) && n >= 64 ? Math.round(n) : inputWidth
+  }
+
+  private genHeight(inputHeight: number): number {
+    const n = Number(process.env.COMFY_HEIGHT || 0)
+    return Number.isFinite(n) && n >= 64 ? Math.round(n) : inputHeight
+  }
+
+  private steps(): number {
+    const name = this.workflowName()
+    const fallback = name === 'image_a1_cpu' ? 4 : name === 'image_cinematic' ? 20 : 8
+    return positiveInt(process.env.COMFY_STEPS, fallback)
+  }
+
+  private cfg(): number {
+    const name = this.workflowName()
+    const fallback = name === 'image_a1_cpu' ? 2.5 : name === 'image_cinematic' ? 6.5 : 4
+    const n = Number(process.env.COMFY_CFG)
+    return Number.isFinite(n) && n > 0 ? n : fallback
   }
 
   async generate(input: VisualGenerateInput): Promise<VisualAsset> {
-    if (this.status() === 'NOT_CONFIGURED') {
+    if (!this.baseUrl()) {
       throw Object.assign(new Error('provider_not_configured:comfyui'), { code: 'NOT_CONFIGURED' })
     }
     if (!input.prompt?.trim()) throw new Error('comfy_empty_prompt')
 
+    const health = await this.probe()
+    if (health.status !== 'READY') {
+      this.tripCircuit()
+      throw Object.assign(new Error(`comfy_unreachable:${health.detail || health.status}`), { code: 'ERROR' })
+    }
+
     const workflowName = this.workflowName()
+    const width = this.genWidth(input.width)
+    const height = this.genHeight(input.height)
     const graph = workflowRegistry.materialize(workflowName, {
       prompt: input.prompt,
       negative_prompt: this.negativePrompt(),
-      width: input.width,
-      height: input.height,
+      width,
+      height,
       seed: Math.floor(Math.random() * 1_000_000_000),
       filename_prefix: `cwm_scene_${input.scene}`,
       checkpoint: this.checkpoint(),
+      steps: this.steps(),
+      cfg: this.cfg(),
     })
     const saveId = workflowRegistry.findSaveImageNodeId(graph)
 
     const promptId = await this.submitPrompt(graph)
-    const imageRef = await this.waitForImage(promptId, saveId)
+    let imageRef: { filename: string; subfolder: string; type: string }
+    try {
+      imageRef = await this.waitForImage(promptId, saveId)
+    } catch (err) {
+      const code = err && typeof err === 'object' && 'code' in err ? String((err as { code?: string }).code) : ''
+      if (code === 'TIMEOUT') this.tripCircuit()
+      throw err
+    }
     const buf = await this.fetchView(imageRef)
     validateImageBuffer(buf)
 
@@ -75,11 +157,12 @@ export class ComfyUIProvider implements VisualProvider {
     fs.writeFileSync(input.outPath, buf)
     const sha256 = createHash('sha256').update(buf).digest('hex')
     const mimeType = looksJpeg(buf) ? 'image/jpeg' : 'image/png'
+    const dims = pngSize(buf) || jpegSize(buf)
 
     return {
       path: input.outPath,
-      width: input.width,
-      height: input.height,
+      width: dims?.width || width,
+      height: dims?.height || height,
       sourceType: 'GENERATED',
       provider: this.name,
       mimeType,
@@ -93,8 +176,17 @@ export class ComfyUIProvider implements VisualProvider {
         workflow: workflowName,
         promptId,
         sha256,
+        jobTimeoutMs: this.timeoutMs(),
+        requestedWidth: width,
+        requestedHeight: height,
+        steps: this.steps(),
+        healthMs: health.latencyMs,
       },
     }
+  }
+
+  private tripCircuit() {
+    this.circuitOpen = true
   }
 
   private async submitPrompt(prompt: Record<string, unknown>): Promise<string> {
@@ -150,12 +242,21 @@ export class ComfyUIProvider implements VisualProvider {
     return Buffer.from(await res.arrayBuffer())
   }
 
-  private async requestJson(method: 'GET' | 'POST', pathname: string, body?: unknown): Promise<unknown> {
-    const res = await this.request(pathname, {
-      method,
-      headers: body ? { 'content-type': 'application/json' } : undefined,
-      body: body ? JSON.stringify(body) : undefined,
-    })
+  private async requestJson(
+    method: 'GET' | 'POST',
+    pathname: string,
+    body?: unknown,
+    timeoutMs?: number,
+  ): Promise<unknown> {
+    const res = await this.request(
+      pathname,
+      {
+        method,
+        headers: body ? { 'content-type': 'application/json' } : undefined,
+        body: body ? JSON.stringify(body) : undefined,
+      },
+      timeoutMs,
+    )
     const text = await res.text()
     if (!res.ok) {
       throw Object.assign(new Error(`comfy_http_${res.status}:${text.slice(0, 200)}`), { code: 'ERROR' })
@@ -168,16 +269,21 @@ export class ComfyUIProvider implements VisualProvider {
     }
   }
 
-  private async request(pathname: string, init?: RequestInit): Promise<Response> {
+  private async request(pathname: string, init?: RequestInit, timeoutMs?: number): Promise<Response> {
+    const ms = timeoutMs ?? this.httpTimeoutMs()
     const controller = new AbortController()
-    const timer = setTimeout(() => controller.abort(), this.timeoutMs())
+    const timer = setTimeout(() => controller.abort(), ms)
     try {
       return await fetch(`${this.baseUrl()}${pathname}`, { ...init, signal: controller.signal })
     } catch (err) {
       const aborted = err instanceof Error && err.name === 'AbortError'
       throw Object.assign(
-        new Error(aborted ? `comfy_timeout:${this.timeoutMs()}` : `comfy_fetch_failed:${err instanceof Error ? err.message : String(err)}`),
-        { code: aborted ? 'TIMEOUT' : 'ERROR' },
+        new Error(
+          aborted
+            ? `comfy_http_timeout:${ms}`
+            : `comfy_fetch_failed:${err instanceof Error ? err.message : String(err)}`,
+        ),
+        { code: 'ERROR' },
       )
     } finally {
       clearTimeout(timer)
@@ -215,21 +321,83 @@ function extractImage(
   return null
 }
 
-export function validateImageBuffer(buf: Buffer): void {
-  if (!buf || buf.length < MIN_BYTES) {
+export function validateImageBuffer(
+  buf: Buffer,
+  opts?: { minBytes?: number; minEdge?: number },
+): void {
+  const minBytes = opts?.minBytes ?? Number(process.env.COMFY_MIN_IMAGE_BYTES || DEFAULT_MIN_BYTES)
+  const minEdge = opts?.minEdge ?? Number(process.env.COMFY_MIN_EDGE || DEFAULT_MIN_EDGE)
+  if (!buf || buf.length < minBytes) {
     throw Object.assign(new Error('comfy_image_too_small'), { code: 'INVALID' })
   }
   if (!looksPng(buf) && !looksJpeg(buf)) {
     throw Object.assign(new Error('comfy_image_invalid_magic'), { code: 'INVALID' })
   }
+  if (looksPng(buf)) {
+    const size = pngSize(buf)
+    if (!size) {
+      throw Object.assign(new Error('comfy_image_invalid_ihdr'), { code: 'INVALID' })
+    }
+    if (size.width < minEdge || size.height < minEdge) {
+      throw Object.assign(
+        new Error(`comfy_image_too_small_edge:${size.width}x${size.height}`),
+        { code: 'INVALID' },
+      )
+    }
+  } else if (looksJpeg(buf)) {
+    const size = jpegSize(buf)
+    if (!size) {
+      throw Object.assign(new Error('comfy_image_invalid_jpeg'), { code: 'INVALID' })
+    }
+    if (size.width < minEdge || size.height < minEdge) {
+      throw Object.assign(
+        new Error(`comfy_image_too_small_edge:${size.width}x${size.height}`),
+        { code: 'INVALID' },
+      )
+    }
+  }
+}
+
+export function pngSize(buf: Buffer): { width: number; height: number } | null {
+  if (!looksPng(buf) || buf.length < 24) return null
+  const width = buf.readUInt32BE(16)
+  const height = buf.readUInt32BE(20)
+  if (!width || !height || width > 8192 || height > 8192) return null
+  return { width, height }
 }
 
 function looksPng(buf: Buffer): boolean {
-  return buf.length >= 4 && buf.subarray(0, 4).equals(PNG_MAGIC)
+  return buf.length >= 8 && buf.subarray(0, 8).equals(PNG_MAGIC)
 }
 
 function looksJpeg(buf: Buffer): boolean {
   return buf.length >= 3 && buf.subarray(0, 3).equals(JPEG_MAGIC)
+}
+
+/** SOF0/SOF2 width×height. Returns null if the JPEG is truncated. */
+export function jpegSize(buf: Buffer): { width: number; height: number } | null {
+  if (!looksJpeg(buf) || buf.length < 10) return null
+  let i = 2
+  while (i + 9 < buf.length) {
+    if (buf[i] !== 0xff) return null
+    const marker = buf[i + 1]
+    if (marker === 0xd9) return null
+    if (marker === 0xc0 || marker === 0xc1 || marker === 0xc2) {
+      const height = buf.readUInt16BE(i + 5)
+      const width = buf.readUInt16BE(i + 7)
+      if (!width || !height || width > 8192 || height > 8192) return null
+      return { width, height }
+    }
+    const len = buf.readUInt16BE(i + 2)
+    if (len < 2) return null
+    i += 2 + len
+  }
+  return null
+}
+
+function positiveInt(raw: string | undefined, fallback: number): number {
+  const n = Number(raw)
+  return Number.isFinite(n) && n > 0 ? Math.round(n) : fallback
 }
 
 function sleep(ms: number): Promise<void> {

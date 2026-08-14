@@ -28,6 +28,13 @@ export type AssetType = 'AUDIO' | 'IMAGE' | 'VIDEO' | 'SUBTITLE' | 'THUMBNAIL' |
 export type SourceType = 'MOCK' | 'GENERATED' | 'STOCK' | 'UPLOADED'
 export type ProviderStatus = 'READY' | 'NOT_CONFIGURED' | 'ERROR'
 
+export type ComfyProbeResult = {
+  status: ProviderStatus
+  latencyMs: number
+  endpoint?: string
+  detail?: string
+}
+
 export type PackageStatus =
   | 'INCOMPLETE'
   | 'READY_FOR_REVIEW'

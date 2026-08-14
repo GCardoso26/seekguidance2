@@ -33,6 +33,7 @@ import {
   type ProductionStage,
   type StoryboardScene,
   type PackageStatus,
+  type ComfyProbeResult,
 } from './types.js'
 
 export type ProductionRunInput = {
@@ -194,6 +195,14 @@ export class ProductionService {
         ffmpeg_kenburns: ffmpegService.available() ? 'READY' : 'NOT_CONFIGURED',
       },
     }
+  }
+
+  /** Live ComfyUI ping for GET /api/factory/status. Never imported as ComfyUIProvider. */
+  async probeComfy(): Promise<ComfyProbeResult> {
+    const first = this.visual.chain()[0]
+    if (first?.probe) return first.probe()
+    const st = first?.status() ?? 'NOT_CONFIGURED'
+    return { status: st, latencyMs: 0, detail: 'no_probe' }
   }
 
   /**
@@ -730,6 +739,8 @@ export class ProductionService {
 
     if (stage === 'VISUALS') {
       const t0 = Date.now()
+      // Re-probe at the start of the stage so a previous TIMEOUT circuit can close if Comfy recovered.
+      await this.probeComfy()
       const ids: string[] = []
       const libraryReuses: Array<{
         asset_id: string
@@ -762,6 +773,12 @@ export class ProductionService {
             tags,
           })
           if (hit && !fs.existsSync(hit.asset.path)) hit = null
+          // Mock catalog entries are fine when Comfy is off (factory still completes).
+          // When Comfy is configured they must not block real generation — otherwise the
+          // first mock run poisons every later Short with color bars.
+          if (hit?.asset.source === 'mock' && this.visual.chain()[0]?.status() === 'READY') {
+            hit = null
+          }
         } catch {
           // Asset Library must never block production — fall through to visual provider
           hit = null
@@ -1123,6 +1140,7 @@ export class ProductionService {
             result.stages.COMPOSING?.ok &&
             result.stages.THUMBNAIL?.ok,
         ),
+        assets,
       })
       result.qa = qa as unknown as Record<string, unknown>
       getDb()

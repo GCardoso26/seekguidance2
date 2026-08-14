@@ -1,4 +1,4 @@
-import { describe, it, before } from 'node:test'
+import { describe, it, before, after } from 'node:test'
 import assert from 'node:assert/strict'
 import os from 'node:os'
 import path from 'node:path'
@@ -17,6 +17,7 @@ import {
 } from '../src/validation/SafetyDefaults.js'
 import { buildServer } from '../src/server.js'
 import { config } from '../src/config.js'
+import { startFakeComfyServer, type FakeComfyHandle } from './helpers/fakeComfyServer.js'
 
 process.env.AUTOMATION_MODE = 'mock'
 process.env.CWM_FAST_RETRY = '1'
@@ -82,16 +83,24 @@ describe('Phase 5.1 controlled production validation', () => {
   const tmp = path.join(os.tmpdir(), `cwm-p51-${Date.now()}.sqlite`)
   let workspaceId = ''
   let app: Awaited<ReturnType<typeof buildServer>>
+  let fakeComfy: FakeComfyHandle
 
   before(async () => {
     process.env.CWM_CREDENTIALS_ENCRYPTION_KEY = 'phase5-test-encryption-key-32chars!!'
     ;(config as { credentialsEncryptionKey: string }).credentialsEncryptionKey =
       process.env.CWM_CREDENTIALS_ENCRYPTION_KEY
     restoreSafetyDefaults()
+    fakeComfy = await startFakeComfyServer()
+    process.env.COMFY_BASE_URL = fakeComfy.url
     resetDbForTests(tmp)
     app = await buildServer()
     const boot = await bootstrapWorkspace({ name: 'P51', email: 'p51@cwm.test' })
     workspaceId = boot.workspaceId
+  })
+
+  after(async () => {
+    delete process.env.COMFY_BASE_URL
+    await fakeComfy?.close()
   })
 
   it('ProductionPreflight returns READY/NOT_READY without secrets', async () => {

@@ -1,4 +1,5 @@
 import type { PackageStatus } from './types.js'
+import { reviewVisualPublishability, type VisualPublishReview } from './PublishingQualityGate.js'
 
 export type ContentPackageManifest = {
   scriptId: string
@@ -20,7 +21,9 @@ export type ContentPackageManifest = {
     checksumsValid: boolean
     licensesKnown: boolean
     noUnresolvedFailure: boolean
+    visualsPublishable: boolean
   }
+  visualReview?: VisualPublishReview
 }
 
 export function evaluateQualityGate(gate: ContentPackageManifest['qualityGate']): PackageStatus {
@@ -43,6 +46,7 @@ export function buildContentPackageManifest(input: {
   const subs = byType('SUBTITLE')
   const thumb = byType('THUMBNAIL')[0]
   const final = byType('FINAL_VIDEO')[0]
+  const visualReview = reviewVisualPublishability(input.assets)
 
   const checksumsValid = input.assets
     .filter((a) => a.is_current)
@@ -58,12 +62,14 @@ export function buildContentPackageManifest(input: {
     checksumsValid,
     licensesKnown: input.licensesKnown,
     noUnresolvedFailure: input.noUnresolvedFailure && input.qaStatus !== 'FAIL',
+    visualsPublishable: visualReview.authorized,
   }
 
   let status = evaluateQualityGate(gate)
   if (input.qaStatus === 'REQUIRES_REVIEW') status = 'READY_FOR_REVIEW'
   if (input.qaStatus === 'FAIL') status = 'FAILED'
   if (status === 'READY_FOR_PUBLISH' && !gate.noUnresolvedFailure) status = 'READY_FOR_REVIEW'
+  if (status === 'READY_FOR_PUBLISH' && !visualReview.authorized) status = 'READY_FOR_REVIEW'
 
   return {
     status,
@@ -81,8 +87,10 @@ export function buildContentPackageManifest(input: {
       metadata: {
         assetCount: input.assets.length,
         qaStatus: input.qaStatus,
+        visualReview,
       },
       qualityGate: gate,
+      visualReview,
     },
   }
 }

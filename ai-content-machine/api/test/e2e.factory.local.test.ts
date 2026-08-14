@@ -92,8 +92,8 @@ describe('Factory E2E local — Idea → MP4', () => {
       platform: 'YOUTUBE_SHORT',
       targetDurationOverride: 2,
     })
-    assert.equal(prod.status, 'COMPLETED')
-    assert.equal(prod.packageStatus, 'READY_FOR_PUBLISH')
+    assert.equal(prod.status, 'REQUIRES_REVIEW')
+    assert.equal(prod.packageStatus, 'READY_FOR_REVIEW')
 
     const detail = productionService.getRun(prod.productionRunId!)!
     const result = JSON.parse(String(detail.result))
@@ -161,7 +161,8 @@ describe('Factory E2E local — Idea → MP4', () => {
       platform: 'YOUTUBE_SHORT',
       targetDurationOverride: 2,
     })
-    assert.equal(first.status, 'COMPLETED')
+    assert.equal(first.status, 'REQUIRES_REVIEW')
+    assert.equal(first.packageStatus, 'READY_FOR_REVIEW')
     const r1 = JSON.parse(String(productionService.getRun(first.productionRunId!)!.result))
     assert.ok(r1.stages.VISUALS.library.misses >= 1)
 
@@ -177,7 +178,8 @@ describe('Factory E2E local — Idea → MP4', () => {
       targetDurationOverride: 2,
       regenerate: true,
     })
-    assert.equal(second.status, 'COMPLETED')
+    assert.equal(second.status, 'REQUIRES_REVIEW')
+    assert.equal(second.packageStatus, 'READY_FOR_REVIEW')
     assert.notEqual(first.productionRunId, second.productionRunId)
 
     const detail2 = productionService.getRun(second.productionRunId!)!
@@ -232,8 +234,8 @@ describe('Factory E2E local — Idea → MP4', () => {
         platform: 'YOUTUBE_SHORT',
         targetDurationOverride: 2,
       })
-      assert.equal(prod.status, 'COMPLETED')
-      assert.equal(prod.packageStatus, 'READY_FOR_PUBLISH')
+      assert.equal(prod.status, 'REQUIRES_REVIEW')
+      assert.equal(prod.packageStatus, 'READY_FOR_REVIEW')
 
       const detail = productionService.getRun(prod.productionRunId!)!
       const result = JSON.parse(String(detail.result))

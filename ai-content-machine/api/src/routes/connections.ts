@@ -6,6 +6,7 @@ import { credentialVault } from '../credentials/CredentialVault.js'
 import { youtubePublisher } from '../publishing/youtube/YouTubePublisher.js'
 import { youtubeAnalyticsProvider } from '../analytics/YouTubeAnalyticsProvider.js'
 import { getDb } from '../db/client.js'
+import { publishingService } from '../publishing/PublishingService.js'
 
 export async function connectionRoutes(app: FastifyInstance) {
   app.get('/api/publishing/connections', async (req) => {
@@ -116,6 +117,27 @@ export async function connectionRoutes(app: FastifyInstance) {
     const { nowIso } = await import('../db/client.js')
     const at = nowIso()
     const by = parsed.data.approvedBy || 'operator'
+    const exists = getDb()
+      .prepare(`SELECT id FROM contents WHERE id=? AND workspace_id=?`)
+      .get(parsed.data.contentId, parsed.data.workspaceId)
+    if (!exists) {
+      return reply.code(404).send({
+        error: 'content_not_found',
+        hint: 'Use o content_id de um production run READY_FOR_PUBLISH desta workspace (não o packageId).',
+      })
+    }
+    const validation = publishingService.validateContentPackage(
+      parsed.data.contentId,
+      parsed.data.workspaceId,
+    )
+    if (!validation.ok) {
+      return reply.code(409).send({
+        error: 'package_not_publishable',
+        issues: validation.issues,
+        hint:
+          'Só conteúdos READY_FOR_PUBLISH com visuais ComfyUI/library GENERATED podem ser aprovados. Mock visual → READY_FOR_REVIEW.',
+      })
+    }
     const updated = getDb()
       .prepare(
         `UPDATE contents SET approved_for_publishing=1, approved_for_publishing_at=?, approved_by=?,

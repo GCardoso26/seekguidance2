@@ -141,7 +141,7 @@ type Snapshot = {
 type FactoryStatus = {
   script: { ollama: string; api: string; mock: string; status: string }
   voice: { resolver: string; kokoro: string; real: string; mock: string; status: string }
-  visual: { resolver: string; comfy: string; mock: string; status: string; stock: string; videoGeneration: string }
+  visual: { resolver: string; comfy: string; mock: string; status: string; stock: string; videoGeneration: string; comfyProbe?: { status: string; latencyMs: number; detail?: string } }
   composition: { ffmpeg_kenburns: string }
   thumbnail: { mock: string }
   storage: { local: string; s3: string }
@@ -658,12 +658,13 @@ Firewall/OCI Security List: porta 8787 liberada.`}
         </div>
         <p className="fine" style={{ maxWidth: '42rem', marginTop: '0.35rem' }}>
           "Run Daily Engine" é <strong>MOCK-only</strong> — útil para popular o workspace rapidamente com dados
-          sintéticos, não passa por Ollama/Kokoro/ffmpeg. O caminho real da fábrica de YouTube Shorts é:
-          Idea → Script Factory (Ollama) → Approve → Production (Kokoro + Library + ffmpeg_kenburns) → Publish gate.
+          sintéticos, não passa por Ollama/Kokoro/ffmpeg.           O caminho real da fábrica de YouTube Shorts é:
+          Idea → Script Factory (Ollama) → Approve → Production (Kokoro + Library + ComfyUI + ffmpeg_kenburns) → Publish gate.
+          Sem ComfyUI READY, o MP4 nasce com Mock e **não** fica READY_FOR_PUBLISH.
         </p>
 
         <h3 style={{ marginTop: '1.5rem', fontFamily: 'var(--font-display)', letterSpacing: '-0.03em' }}>
-          Fábrica real — YouTube Shorts (sem ComfyUI)
+          Fábrica real — YouTube Shorts
         </h3>
         <div className="flow-strip" style={{ marginTop: '0.5rem' }}>
           <div>
@@ -675,6 +676,10 @@ Firewall/OCI Security List: porta 8787 liberada.`}
             <span>Kokoro (voice)</span>
           </div>
           <div>
+            <strong>{factoryStatus?.visual.comfy || '—'}</strong>
+            <span>ComfyUI (MISS)</span>
+          </div>
+          <div>
             <strong>{factoryStatus?.visual.status || '—'}</strong>
             <span>Visuals (Library/fallback)</span>
           </div>
@@ -683,6 +688,14 @@ Firewall/OCI Security List: porta 8787 liberada.`}
             <span>ffmpeg_kenburns</span>
           </div>
         </div>
+        {factoryStatus?.visual.comfy && factoryStatus.visual.comfy !== 'READY' ? (
+          <p className="fine" style={{ color: 'var(--signal, #b45309)', maxWidth: '46rem', marginTop: '0.35rem' }}>
+            ComfyUI {factoryStatus.visual.comfy}
+            {factoryStatus.visual.comfyProbe?.detail ? ` — ${factoryStatus.visual.comfyProbe.detail}` : ''}.
+            Cenas novas caem em <code>mock_visual</code> → pacote <strong>READY_FOR_REVIEW</strong>, não publicável no YouTube.
+            Ver <code>docs/COMFYUI_A1_VS_PC.md</code> (A1 CPU vs ponte GPU no PC).
+          </p>
+        ) : null}
         <p className="fine" style={{ marginTop: '0.25rem' }}>
           {factoryStatus
             ? factoryStatus.source === 'endpoint'
@@ -1100,7 +1113,7 @@ Firewall/OCI Security List: porta 8787 liberada.`}
                   result?: string
                   providers?: {
                     voice?: { status?: string; kokoro?: string; resolver?: string }
-                    visual?: { status?: string; resolver?: string }
+                    visual?: { status?: string; resolver?: string; comfy?: string }
                     ffmpeg?: string
                   }
                 }
@@ -1122,7 +1135,7 @@ Firewall/OCI Security List: porta 8787 liberada.`}
                 const lines = [
                   `Assets: ${Array.isArray(sel.assets) ? sel.assets.length : 0} · Package: ${String(sel.package?.status || '-')} · Error: ${String(sel.error || '-')}`,
                   `VOICE provider: ${voice?.provider || '-'}${sel.providers?.voice?.kokoro ? ` (kokoro=${sel.providers.voice.kokoro})` : ''}`,
-                  `VISUALS provider: ${visuals?.provider || '-'} · library hits=${visuals?.library?.hits ?? 0} misses=${visuals?.library?.misses ?? 0}`,
+                  `VISUALS provider: ${visuals?.provider || '-'} · library hits=${visuals?.library?.hits ?? 0} misses=${visuals?.library?.misses ?? 0}${sel.providers?.visual?.comfy ? ` (comfy=${sel.providers.visual.comfy})` : ''}`,
                   `COMPOSING provider: ${composing?.provider || '-'}`,
                   `ffmpeg: ${sel.providers?.ffmpeg || '-'}`,
                   `factoryMetrics: ${parsed.factoryMetrics ? JSON.stringify(parsed.factoryMetrics) : '-'}`,
@@ -1223,7 +1236,7 @@ Firewall/OCI Security List: porta 8787 liberada.`}
         <p className="fine" style={{ maxWidth: '40rem' }}>
           Use o <code>content_id</code> do production run (não o packageId). Ordem:{' '}
           <strong>Usar último READY_FOR_PUBLISH</strong> → dry-run → approve → open-window → forceReal →
-          restore.
+          restore. Pacotes com <code>mock_visual</code> não aparecem aqui — precisam de ComfyUI (A1 ou PC).
         </p>
         {!isWorkspaceId(publishContentId) ? (
           <p className="fine" style={{ color: 'var(--signal, #b45309)', maxWidth: '40rem' }}>
@@ -1287,7 +1300,9 @@ Firewall/OCI Security List: porta 8787 liberada.`}
                 if (!isWorkspaceId(id)) {
                   setLog(
                     '❌ Nenhum production run READY_FOR_PUBLISH com content_id.\n' +
-                      '➡ Rode Production (YOUTUBE_SHORT) até COMPLETED / READY_FOR_PUBLISH, depois tente de novo.',
+                      '➡ Visuais Mock não são publicáveis. Confirme ComfyUI READY no strip (A1 ou ponte PC),\n' +
+                      'rode Production (YOUTUBE_SHORT) até COMPLETED / READY_FOR_PUBLISH, depois tente de novo.\n' +
+                      'Ver docs/COMFYUI_A1_VS_PC.md',
                   )
                   return
                 }

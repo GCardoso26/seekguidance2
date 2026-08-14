@@ -5,6 +5,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { resetDbForTests, getDb, uid, nowIso } from '../src/db/client.js'
 import { buildServer } from '../src/server.js'
+import { startFakeComfyServer } from './helpers/fakeComfyServer.js'
 
 process.env.AUTOMATION_MODE = 'mock'
 process.env.CWM_FAST_RETRY = '1'
@@ -16,10 +17,11 @@ process.env.CWM_FAST_MEDIA = '1'
  * Operator critical path, exercised over HTTP exactly like AutomationCenter.tsx does:
  *
  *   Idea → Script (YOUTUBE_SHORT) → Approve → Production (no allowUnapproved)
- *   → READY_FOR_PUBLISH → Dry-run → Approve-for-publish
+ *   → READY_FOR_REVIEW when ComfyUI is off (mock visuals are not publishable)
+ *   → READY_FOR_PUBLISH only when ComfyUI (or library GENERATED) supplies scenes
  *
- * No ComfyUI, no Ollama, no Kokoro: every external engine is off, so the run must
- * still land on READY_FOR_PUBLISH through the Mock fallbacks.
+ * No ComfyUI, no Ollama, no Kokoro: the factory still produces a playable MP4
+ * through Mock fallbacks, but PublishingQualityGate must HOLD the YouTube seal.
  */
 
 function clearExternalProviders() {
@@ -115,7 +117,7 @@ describe('Operator critical path — Idea → Script → Approve → Production 
     assert.equal(typeof mine!.title, 'string')
   })
 
-  it('step 3 — full path: script → approve → production → READY_FOR_PUBLISH (no allowUnapproved)', async () => {
+  it('step 3 — full path: script → approve → production → READY_FOR_REVIEW without ComfyUI', async () => {
     const ideaRes = await app.inject({
       method: 'POST',
       url: '/api/ideas',
@@ -181,11 +183,11 @@ describe('Operator critical path — Idea → Script → Approve → Production 
     assert.equal(prodRes.statusCode, 200)
     const prod = prodRes.json()
     assert.equal(prod.result.skipped, false)
-    assert.equal(prod.result.status, 'COMPLETED')
+    assert.equal(prod.result.status, 'REQUIRES_REVIEW')
     assert.equal(
       prod.result.packageStatus,
-      'READY_FOR_PUBLISH',
-      `expected READY_FOR_PUBLISH, got ${prod.result.packageStatus}: ${JSON.stringify(prod.result.result?.qa || {})}`,
+      'READY_FOR_REVIEW',
+      `expected READY_FOR_REVIEW (mock visuals), got ${prod.result.packageStatus}: ${JSON.stringify(prod.result.result?.qa || {})}`,
     )
     const productionRunId = prod.productionRunId as string
     assert.ok(productionRunId)
@@ -223,19 +225,19 @@ describe('Operator critical path — Idea → Script → Approve → Production 
     }
     assert.ok(fm, 'factoryMetrics must be present for the UI summary')
     assert.equal(fm.composeProvider, 'ffmpeg_kenburns')
-    assert.equal(fm.packageStatus, 'READY_FOR_PUBLISH')
+    assert.equal(fm.packageStatus, 'READY_FOR_REVIEW')
 
     // --- Platform is YOUTUBE_SHORT end to end, and TIKTOK appears nowhere ---
     const runRow = getDb()
       .prepare(`SELECT plan, content_id, package_status FROM production_runs WHERE id=?`)
       .get(productionRunId) as { plan: string; content_id: string; package_status: string }
     assert.equal(JSON.parse(runRow.plan).platform, 'YOUTUBE_SHORT')
-    assert.equal(runRow.package_status, 'READY_FOR_PUBLISH')
+    assert.equal(runRow.package_status, 'READY_FOR_REVIEW')
 
     const pkgRow = getDb()
       .prepare(`SELECT status, manifest FROM content_packages WHERE production_id=?`)
       .get(productionRunId) as { status: string; manifest: string }
-    assert.equal(pkgRow.status, 'READY_FOR_PUBLISH')
+    assert.equal(pkgRow.status, 'READY_FOR_REVIEW')
     assert.equal(JSON.parse(pkgRow.manifest).platform, 'YOUTUBE_SHORT')
     assert.equal(
       /TIKTOK/i.test(pkgRow.manifest),
@@ -264,17 +266,19 @@ describe('Operator critical path — Idea → Script → Approve → Production 
     )
     assert.equal(unknown.length, 0, 'no current asset may have an UNKNOWN license')
 
-    // --- "Usar último READY_FOR_PUBLISH" needs content_id on the runs list ---
+    // --- "Usar último READY_FOR_PUBLISH" must NOT pick a mock-visual package ---
     const runsRes = await app.inject({
       method: 'GET',
       url: `/api/production/workspaces/${workspaceId}/runs`,
     })
     const runs = runsRes.json().runs as Array<{ id: string; package_status: string; content_id: string }>
     const ready = runs.find((r) => r.package_status === 'READY_FOR_PUBLISH')
-    assert.ok(ready?.content_id, 'the UI resolves the publish contentId from this field')
-    const contentId = ready!.content_id
+    assert.equal(ready, undefined, 'mock visuals must never surface as READY_FOR_PUBLISH')
+    const held = runs.find((r) => r.package_status === 'READY_FOR_REVIEW')
+    assert.ok(held?.content_id, 'the held package still has a content_id for review')
+    const contentId = held!.content_id
 
-    // --- Dry-run report ---
+    // --- Dry-run report must refuse to authorize publish ---
     const dryRes = await app.inject({
       method: 'POST',
       url: '/api/validation/dry-run-report',
@@ -284,40 +288,35 @@ describe('Operator critical path — Idea → Script → Approve → Production 
     const dry = dryRes.json()
     assert.equal(dry.wouldUpload, false)
     assert.equal(dry.platform, 'YOUTUBE_SHORT')
-    // The media package itself must be flawless. The only blocker allowed here is the
-    // YouTube OAuth connection, which no test environment has (and which correctly
-    // keeps the UI's "Publish REAL" button disabled).
-    assert.equal(dry.packageOk, true, `package not ok: ${JSON.stringify(dry.validation)}`)
-    const blockers = (dry.validation.issues as string[]).filter((i) => i !== 'youtube_not_connected')
-    assert.deepEqual(
-      blockers,
-      [],
-      `only the OAuth connection may block the dry-run: ${JSON.stringify(dry.validation.issues)}`,
+    assert.equal(dry.packageOk, false, 'mock visuals must fail the publish package gate')
+    assert.ok(
+      (dry.validation.issues as string[]).some((i) => i.startsWith('visuals_mock_not_publishable')),
+      `expected visuals_mock_not_publishable, got ${JSON.stringify(dry.validation.issues)}`,
     )
 
-    // --- Approve for publish (no SQL hack required) ---
+    // --- Approve for publish is blocked until visuals are generated ---
     const apRes = await app.inject({
       method: 'POST',
       url: '/api/publishing/approve-for-publish',
       payload: { workspaceId, contentId, approvedBy: 'operator@nexus' },
     })
-    assert.equal(apRes.statusCode, 200)
-    assert.equal(apRes.json().approvedForPublishing, true)
+    assert.equal(apRes.statusCode, 409)
+    assert.equal(apRes.json().error, 'package_not_publishable')
 
     const contentRow = getDb()
       .prepare(`SELECT approved_for_publishing FROM contents WHERE id=?`)
       .get(contentId) as { approved_for_publishing: number }
-    assert.equal(contentRow.approved_for_publishing, 1)
+    assert.equal(contentRow.approved_for_publishing, 0)
 
-    // --- Preflight sees both gates ---
+    // --- Preflight sees the visual hold ---
     const pfRes = await app.inject({
       method: 'GET',
       url: `/api/validation/preflight?workspaceId=${workspaceId}&contentId=${contentId}`,
     })
     assert.equal(pfRes.statusCode, 200)
     const checks = pfRes.json().checks as Array<{ id: string; status: string; detail?: string }>
-    assert.equal(checks.find((c) => c.id === 'content_package')?.status, 'PASS')
-    assert.equal(checks.find((c) => c.id === 'human_approval')?.status, 'PASS')
+    assert.equal(checks.find((c) => c.id === 'content_package')?.status, 'FAIL')
+    assert.equal(checks.find((c) => c.id === 'visual_publish_gate')?.status, 'FAIL')
     assert.equal(checks.find((c) => c.id === 'ffmpeg')?.status, 'PASS')
 
     // --- Kill switches stay safe by default ---
@@ -328,6 +327,73 @@ describe('Operator critical path — Idea → Script → Approve → Production 
     assert.equal(safety.snapshot.publishingEnabled, false)
     assert.equal(pfRes.json().safe, true)
     assert.equal(pfRes.json().readyToPublish, false, 'never ready-to-publish while safe defaults hold')
+  })
+
+  it('step 3b — ComfyUI success → READY_FOR_PUBLISH and the publish gate opens', async () => {
+    const fake = await startFakeComfyServer()
+    process.env.COMFY_BASE_URL = fake.url
+    try {
+      const statusRes = await app.inject({ method: 'GET', url: '/api/factory/status' })
+      assert.equal(statusRes.json().visual.comfy, 'READY')
+      assert.equal(statusRes.json().visual.comfyProbe.status, 'READY')
+
+      const ideaRes = await app.inject({
+        method: 'POST',
+        url: '/api/ideas',
+        payload: { workspaceId, title: 'Short com visuais ComfyUI' },
+      })
+      const ideaId = ideaRes.json().id as string
+      const scriptRes = await app.inject({
+        method: 'POST',
+        url: '/api/scripts/generate',
+        payload: { workspaceId, contentIdeaId: ideaId, platform: 'YOUTUBE_SHORT', await: true },
+      })
+      const scriptId = scriptRes.json().result.scriptId as string
+      await app.inject({
+        method: 'POST',
+        url: `/api/scripts/${scriptId}/approve`,
+        payload: { workspaceId },
+      })
+      const prodRes = await app.inject({
+        method: 'POST',
+        url: '/api/production/run',
+        payload: { workspaceId, scriptId, platform: 'YOUTUBE_SHORT', await: true },
+      })
+      assert.equal(prodRes.statusCode, 200)
+      const prod = prodRes.json()
+      assert.equal(prod.result.status, 'COMPLETED')
+      assert.equal(prod.result.packageStatus, 'READY_FOR_PUBLISH')
+      const stages = prod.result.result.stages as {
+        VISUALS: { provider: string; fallbackTrail?: Array<{ provider: string; status: string }> }
+      }
+      assert.equal(stages.VISUALS.provider, 'comfyui')
+      assert.ok(stages.VISUALS.fallbackTrail?.some((t) => t.provider === 'comfyui' && t.status === 'READY'))
+
+      const runRow = getDb()
+        .prepare(`SELECT content_id, package_status FROM production_runs WHERE id=?`)
+        .get(prod.productionRunId) as { content_id: string; package_status: string }
+      assert.equal(runRow.package_status, 'READY_FOR_PUBLISH')
+
+      const dryRes = await app.inject({
+        method: 'POST',
+        url: '/api/validation/dry-run-report',
+        payload: { workspaceId, contentId: runRow.content_id, platform: 'YOUTUBE_SHORT' },
+      })
+      assert.equal(dryRes.json().packageOk, true, JSON.stringify(dryRes.json().validation))
+      const blockers = (dryRes.json().validation.issues as string[]).filter((i) => i !== 'youtube_not_connected')
+      assert.deepEqual(blockers, [])
+
+      const apRes = await app.inject({
+        method: 'POST',
+        url: '/api/publishing/approve-for-publish',
+        payload: { workspaceId, contentId: runRow.content_id, approvedBy: 'operator@nexus' },
+      })
+      assert.equal(apRes.statusCode, 200)
+      assert.equal(apRes.json().approvedForPublishing, true)
+    } finally {
+      delete process.env.COMFY_BASE_URL
+      await fake.close()
+    }
   })
 
   it('breaks it — production refuses a draft script with an actionable 409, no DLQ noise', async () => {
@@ -410,7 +476,7 @@ describe('Operator critical path — Idea → Script → Approve → Production 
       url: '/api/production/run',
       payload: { workspaceId, scriptId, platform: 'YOUTUBE_SHORT', await: true },
     })
-    assert.equal(first.json().result.packageStatus, 'READY_FOR_PUBLISH')
+    assert.equal(first.json().result.packageStatus, 'READY_FOR_REVIEW')
     const firstRunId = first.json().productionRunId as string
 
     // Same click again: skipped, but with guidance the UI can surface.
@@ -435,7 +501,7 @@ describe('Operator critical path — Idea → Script → Approve → Production 
     const regen = third.json().result
     assert.equal(regen.skipped, false)
     assert.notEqual(third.json().productionRunId, firstRunId)
-    assert.equal(regen.packageStatus, 'READY_FOR_PUBLISH')
+    assert.equal(regen.packageStatus, 'READY_FOR_REVIEW')
 
     // Second run reuses the library (HIT) and must not be demoted to UNKNOWN license.
     const regenStages = regen.result.stages as Record<string, { library?: { hits: number } }>

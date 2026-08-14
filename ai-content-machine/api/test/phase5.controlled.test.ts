@@ -11,6 +11,7 @@ import { youtubeOAuthService } from '../src/publishing/youtube/YouTubeOAuthServi
 import { encryptSecret, decryptSecret, encryptionReady } from '../src/credentials/crypto.js'
 import { buildServer } from '../src/server.js'
 import { config } from '../src/config.js'
+import { startFakeComfyServer, type FakeComfyHandle } from './helpers/fakeComfyServer.js'
 
 process.env.AUTOMATION_MODE = 'mock'
 process.env.CWM_FAST_RETRY = '1'
@@ -76,19 +77,23 @@ describe('Phase 5 controlled publishing safety', () => {
   const tmp = path.join(os.tmpdir(), `cwm-p5-${Date.now()}.sqlite`)
   let workspaceId = ''
   let app: Awaited<ReturnType<typeof buildServer>>
+  let fakeComfy: FakeComfyHandle
 
   before(async () => {
     process.env.CWM_CREDENTIALS_ENCRYPTION_KEY = 'phase5-test-encryption-key-32chars!!'
     ;(config as { credentialsEncryptionKey: string }).credentialsEncryptionKey =
       process.env.CWM_CREDENTIALS_ENCRYPTION_KEY
+    fakeComfy = await startFakeComfyServer()
+    process.env.COMFY_BASE_URL = fakeComfy.url
     resetDbForTests(tmp)
     app = await buildServer()
     const boot = await bootstrapWorkspace({ name: 'P5', email: 'p5@cwm.test' })
     workspaceId = boot.workspaceId
   })
 
-  after(() => {
-    // leave env as-is for other suites run in isolation
+  after(async () => {
+    delete process.env.COMFY_BASE_URL
+    await fakeComfy?.close()
   })
 
   it('encryption roundtrip never stores plaintext helper', () => {

@@ -103,6 +103,15 @@ export class ProductionPreflightService {
         status: pkg.ok ? 'PASS' : 'FAIL',
         detail: pkg.ok ? 'READY_FOR_PUBLISH' : pkg.issues.join(','),
       })
+      const visualIssues = (pkg.issues || []).filter((i) => i.startsWith('visuals_'))
+      checks.push({
+        id: 'visual_publish_gate',
+        label: 'Visual publish gate (ComfyUI / generated)',
+        status: visualIssues.length ? 'FAIL' : pkg.ok || !pkg.issues.includes('package_missing') ? 'PASS' : 'FAIL',
+        detail: visualIssues.length
+          ? visualIssues.join(',')
+          : 'visuals_publishable',
+      })
       const content = getDb()
         .prepare(`SELECT approved_for_publishing, approved_by FROM contents WHERE id=?`)
         .get(input.contentId) as
@@ -229,6 +238,7 @@ export class ProductionPreflightService {
       'analytics_provider',
     ])
     if (input.contentId) infraIds.add('content_package')
+    if (input.contentId) infraIds.add('visual_publish_gate')
 
     const infrastructureReady = checks
       .filter((c) => infraIds.has(c.id))

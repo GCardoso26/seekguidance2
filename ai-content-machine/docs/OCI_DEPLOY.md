@@ -46,7 +46,8 @@ Abrir inbound:
 | 80 | HTTP |
 | 443 | HTTPS |
 
-**Não** expor 5432/5433/6379/8787/5678 na internet. Só via reverse proxy.
+**Não** expor 5432/5433/6379/8787/5678/11434/8880/8188 na internet. Só via reverse proxy.
+ComfyUI (`--profile comfy`) publica `127.0.0.1:8188` — ver `docs/COMFYUI_A1_VS_PC.md`.
 
 ---
 

@@ -15,7 +15,7 @@ IDEA → FallbackScript → SCRIPT → FallbackVoice → WAV
 |---|---------|-------------|
 | 1 | Primeira produção | Library MISS → catalog → MP4 real |
 | 2 | Regenerate/remix | Library HIT → `usage_count++` → novo MP4 |
-| 3 | Ollama+Kokoro+Comfy+Library OFF | Mock → produção ainda `COMPLETED` |
+| 3 | Ollama+Kokoro+Comfy+Library OFF | Mock → produção `REQUIRES_REVIEW`, pacote `READY_FOR_REVIEW`, MP4 existe |
 
 ## Métricas (`factoryMetrics`)
 
@@ -25,4 +25,4 @@ Servem para estimar vídeos/dia sustentáveis na VPS A1.
 
 ## ComfyUI
 
-Upgrade **opcional** de qualidade no MISS (`docs/VISUAL_PROVIDERS.md`). Sem `COMFY_BASE_URL` a fábrica continua. Sem Wan/LTX.
+Upgrade de qualidade no MISS (`docs/VISUAL_PROVIDERS.md`, `docs/COMFYUI_A1_VS_PC.md`). Sem `COMFY_BASE_URL` a fábrica continua mas **não publica**. Sem Wan/LTX.

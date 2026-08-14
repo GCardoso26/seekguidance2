@@ -5,6 +5,7 @@ import { emitEvent } from '../services/EventService.js'
 import { alreadyProcessed, markProcessed } from '../lib/idempotency.js'
 import { withRetry } from '../lib/retry.js'
 import { recordAiCost } from '../services/AiCostService.js'
+import { reviewVisualPublishability } from '../production/PublishingQualityGate.js'
 import { resolvePlatform } from '../scriptFactory/PlatformProfiles.js'
 import { MockPublisher } from './MockPublisher.js'
 import { youtubePublisher } from './youtube/YouTubePublisher.js'
@@ -129,6 +130,17 @@ export class PublishingService {
       else thumbnailUri = thumb.uri
       if (video && (!video.checksum || video.checksum.length !== 64)) issues.push('checksum_invalid')
       if (video?.license === 'UNKNOWN') issues.push('license_unknown')
+
+      const images = db
+        .prepare(
+          `SELECT type, is_current, source_type, provider, license, asset_key FROM media_assets
+           WHERE production_id = ? AND type='IMAGE' AND is_current=1`,
+        )
+        .all(productionId) as Array<Record<string, unknown>>
+      const visualReview = reviewVisualPublishability(images)
+      if (!visualReview.authorized) {
+        issues.push(...visualReview.findings)
+      }
 
       const prod = db.prepare(`SELECT * FROM production_runs WHERE id = ?`).get(productionId) as
         | { status: string; quality_score: number | null; error: string | null }

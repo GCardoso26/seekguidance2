@@ -47,8 +47,8 @@ Heurísticas de “beleza” ficam fora do QA técnico binário.
 
 ### Quality gate → READY_FOR_PUBLISH
 
-Somente quando voice/visuals/subtitles/final/thumbnail/storage/checksums/licenses estão válidos e não há falha aberta.  
-Caso contrário: `REQUIRES_REVIEW` / `READY_FOR_REVIEW`.
+Somente quando voice/visuals/subtitles/final/thumbnail/storage/checksums/licenses estão válidos, **visuais não são mock**, e não há falha aberta.  
+`PublishingQualityGate` recusa `mock_visual`. Caso contrário: `REQUIRES_REVIEW` / `READY_FOR_REVIEW`.
 
 ## Publication validation (Fase 4)
 

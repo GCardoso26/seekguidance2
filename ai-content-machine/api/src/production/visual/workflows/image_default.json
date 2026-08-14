@@ -3,8 +3,8 @@
     "class_type": "KSampler",
     "inputs": {
       "seed": "{{seed}}",
-      "steps": 8,
-      "cfg": 4,
+      "steps": "{{steps}}",
+      "cfg": "{{cfg}}",
       "sampler_name": "euler",
       "scheduler": "normal",
       "denoise": 1,

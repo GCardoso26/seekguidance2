@@ -123,6 +123,12 @@ function scoreTagOverlap(query: string[], candidate: string[]): { matched: strin
   return { matched, score: matched.length / query.length }
 }
 
+/** Prefer real provenance when tag scores tie — never let mock bars outrank Comfy frames. */
+function sourceRank(source: LibraryAssetSource): number {
+  if (source === 'generated' || source === 'stock' || source === 'uploaded') return 2
+  return 1
+}
+
 /**
  * Catalog / search / reuse for the Asset Library.
  * Does not own bytes — AssetStorage (or existing file paths) do.
@@ -218,7 +224,7 @@ export class MediaAssetRepository {
       const asset = rowToAsset(row)
       const { matched, score } = scoreTagOverlap(query, asset.tags)
       if (score < minScore || matched.length === 0) continue
-      if (!best || score > best.matchScore) {
+      if (!best || score > best.matchScore || (score === best.matchScore && sourceRank(asset.source) > sourceRank(best.asset.source))) {
         best = {
           asset,
           matchedTags: matched,

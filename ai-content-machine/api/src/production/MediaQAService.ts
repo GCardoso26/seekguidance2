@@ -2,6 +2,7 @@ import fs from 'node:fs'
 import { ffmpegService } from './FFmpegService.js'
 import type { ProductionPlan, ProductionQualityBreakdown } from './types.js'
 import { validateSubtitles, type SubtitleCue } from './SubtitleService.js'
+import { reviewVisualPublishability } from './PublishingQualityGate.js'
 
 export type MediaQaStatus = 'PASS' | 'FAIL' | 'REQUIRES_REVIEW'
 
@@ -38,6 +39,7 @@ export class MediaQAService {
     thumbnailPath?: string
     licensesKnown: boolean
     assetsComplete: boolean
+    assets?: Array<Record<string, unknown>>
   }): MediaQaResult {
     const issues: string[] = []
 
@@ -96,10 +98,17 @@ export class MediaQAService {
     if (!input.licensesKnown) issues.push('license_unknown')
     if (!input.assetsComplete) issues.push('assets_incomplete')
 
+    const visualReview = input.assets ? reviewVisualPublishability(input.assets) : null
+    if (visualReview && !visualReview.authorized) {
+      issues.push(...visualReview.findings)
+    }
+
     const hardFails = issues.filter((i) =>
       /missing|corrupt|empty|zero|incomplete/i.test(i),
     )
-    const reviewOnly = issues.filter((i) => /license_unknown|mismatch|unexpected/i.test(i))
+    const reviewOnly = issues.filter((i) =>
+      /license_unknown|mismatch|unexpected|visuals_mock|visuals_source|visuals_all_mock/i.test(i),
+    )
 
     let status: MediaQaStatus = 'PASS'
     if (hardFails.length) status = 'FAIL'
@@ -109,7 +118,7 @@ export class MediaQAService {
       technicalQuality: hardFails.length ? 40 : issues.length ? 75 : 95,
       audioQuality: probe?.hasAudio ? 90 : 20,
       subtitleQuality: input.hasSubtitles ? 90 : 20,
-      visualCompleteness: input.assetsComplete ? 90 : 40,
+      visualCompleteness: visualReview && !visualReview.authorized ? 40 : input.assetsComplete ? 90 : 40,
       platformFit: issues.some((i) => i.includes('mismatch')) ? 55 : 92,
       assetTraceability: input.licensesKnown ? 95 : 40,
     })

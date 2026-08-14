@@ -218,6 +218,8 @@ describe('Ideas bridge + Script approve + Factory status API', () => {
     assert.ok(body.voice)
     assert.ok(body.visual)
     assert.ok(body.composition)
+    assert.ok(['READY', 'NOT_CONFIGURED', 'ERROR'].includes(body.visual.comfy))
+    assert.ok(body.visual.comfyProbe)
     assert.ok(['READY', 'NOT_CONFIGURED'].includes(body.composition.ffmpeg_kenburns))
   })
 
