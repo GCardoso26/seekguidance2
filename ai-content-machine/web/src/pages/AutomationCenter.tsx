@@ -8,6 +8,38 @@ function isWorkspaceId(value: string): boolean {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)
 }
 
+function visualProviderOfRun(r: Record<string, unknown>): string {
+  let result: Record<string, unknown> = {}
+  const raw = r.result
+  if (typeof raw === 'string') {
+    try {
+      result = JSON.parse(raw) as Record<string, unknown>
+    } catch {
+      result = {}
+    }
+  } else if (raw && typeof raw === 'object') {
+    result = raw as Record<string, unknown>
+  }
+  const fm = result.factoryMetrics as { visualProvider?: string } | undefined
+  const stages = result.stages as Record<string, { provider?: string }> | undefined
+  return String(fm?.visualProvider || stages?.VISUALS?.provider || '')
+}
+
+/** Pre-gate mock runs can still say READY_FOR_PUBLISH — never pick those for YouTube. */
+function isVisuallyPublishableRun(r: Record<string, unknown>): boolean {
+  const pkg = String(r.package_status || '')
+  if (pkg !== 'READY_FOR_PUBLISH' && pkg !== 'PUBLISHED') return false
+  const provider = visualProviderOfRun(r)
+  if (provider === 'mock_visual') return false
+  return provider === 'comfyui' || provider === 'asset_library'
+}
+
+function findPublishableRun(
+  runs: Array<Record<string, unknown>> | undefined,
+): Record<string, unknown> | undefined {
+  return (runs || []).find(isVisuallyPublishableRun)
+}
+
 function readStoredWorkspaceId(): string {
   const v = localStorage.getItem('cwm_workspace') || ''
   if (isWorkspaceId(v)) return v
@@ -805,10 +837,10 @@ Firewall/OCI Security List: porta 8787 liberada.`}
               setBusy(true)
               try {
                 const ready = (snap?.contents || []).find((c) => c.status === 'qa' || c.status === 'published')
-                const prod = productionRuns.find((r) => r.package_status === 'READY_FOR_PUBLISH')
+                const prod = findPublishableRun(productionRuns)
                 const contentId = ready?.id || (prod as { content_id?: string } | undefined)?.content_id
                 if (!contentId) {
-                  setLog('Nenhum content READY_FOR_PUBLISH — rode Production primeiro')
+                  setLog('Nenhum content READY_FOR_PUBLISH com visuais Comfy/library — rode Production primeiro')
                   return
                 }
                 const res = await fetch(`${API}/api/publishing/run`, {
@@ -1281,14 +1313,14 @@ Firewall/OCI Security List: porta 8787 liberada.`}
               }
               setBusy(true)
               try {
-                let ready = productionRuns.find((r) => r.package_status === 'READY_FOR_PUBLISH')
+                let ready = findPublishableRun(productionRuns)
                 let id = String(ready?.content_id || '')
                 // Fallback: lista filtrada / campo ausente — reconsulta a API
                 if (!isWorkspaceId(id)) {
                   const listed = (await fetchJson(
                     `${API}/api/production/workspaces/${workspaceId}/runs`,
                   )) as { runs?: Array<Record<string, unknown>> }
-                  ready = (listed.runs || []).find((r) => r.package_status === 'READY_FOR_PUBLISH')
+                  ready = findPublishableRun(listed.runs)
                   id = String(ready?.content_id || '')
                 }
                 if (!isWorkspaceId(id) && ready?.id) {

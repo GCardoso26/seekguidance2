@@ -78,6 +78,31 @@ export class PublishingService {
     return this.run(input)
   }
 
+  /**
+   * Newest content_packages row is not always the publishable one: pre-gate mock
+   * runs stayed READY_FOR_PUBLISH, and a later retry of that mock can outrank a
+   * ComfyUI run that shares the same content_id.
+   */
+  resolvePublishableProductionId(contentId: string, fallback?: string): string | undefined {
+    const db = getDb()
+    const runs = db
+      .prepare(
+        `SELECT id FROM production_runs WHERE content_id = ? ORDER BY created_at DESC`,
+      )
+      .all(contentId) as Array<{ id: string }>
+    for (const run of runs) {
+      const images = db
+        .prepare(
+          `SELECT type, is_current, source_type, provider, license, asset_key FROM media_assets
+           WHERE production_id = ? AND type='IMAGE' AND is_current=1`,
+        )
+        .all(run.id) as Array<Record<string, unknown>>
+      if (!images.length) continue
+      if (reviewVisualPublishability(images).authorized) return run.id
+    }
+    return fallback
+  }
+
   validateContentPackage(contentId: string, workspaceId: string) {
     const db = getDb()
     const issues: string[] = []
@@ -86,20 +111,17 @@ export class PublishingService {
       .get(contentId, workspaceId) as
       | { id: string; asset_meta: string; status: string }
       | undefined
-    if (!content) return { ok: false, issues: ['content_not_found'], requiresReview: true }
+    if (!content) {
+      return { ok: false, issues: ['content_not_found'], requiresReview: true, productionRunId: undefined }
+    }
 
-    const pkg = db
+    const latestPkg = db
       .prepare(
         `SELECT * FROM content_packages WHERE content_id = ? ORDER BY created_at DESC LIMIT 1`,
       )
       .get(contentId) as
       | { id: string; status: string; production_id: string; manifest: string }
       | undefined
-
-    if (!pkg) issues.push('package_missing')
-    else if (pkg.status !== 'READY_FOR_PUBLISH' && pkg.status !== 'PUBLISHED') {
-      issues.push(`package_not_ready:${pkg.status}`)
-    }
 
     const assetMeta = (() => {
       try {
@@ -108,7 +130,34 @@ export class PublishingService {
         return {}
       }
     })()
-    const productionId = pkg?.production_id || assetMeta.productionId
+    const productionId = this.resolvePublishableProductionId(
+      contentId,
+      latestPkg?.production_id || assetMeta.productionId,
+    )
+    const pkg = productionId
+      ? (db
+          .prepare(`SELECT * FROM content_packages WHERE production_id = ?`)
+          .get(productionId) as
+          | { id: string; status: string; production_id: string; manifest: string }
+          | undefined)
+      : latestPkg
+
+    const runPackageStatus = productionId
+      ? (db
+          .prepare(`SELECT package_status FROM production_runs WHERE id = ?`)
+          .get(productionId) as { package_status?: string } | undefined)?.package_status
+      : undefined
+    const effectivePkgStatus = pkg?.status || runPackageStatus
+    if (!pkg && effectivePkgStatus !== 'READY_FOR_PUBLISH' && effectivePkgStatus !== 'PUBLISHED') {
+      issues.push('package_missing')
+    } else if (
+      effectivePkgStatus &&
+      effectivePkgStatus !== 'READY_FOR_PUBLISH' &&
+      effectivePkgStatus !== 'PUBLISHED'
+    ) {
+      issues.push(`package_not_ready:${effectivePkgStatus}`)
+    }
+
     if (!productionId) issues.push('production_missing')
 
     let videoUri: string | undefined

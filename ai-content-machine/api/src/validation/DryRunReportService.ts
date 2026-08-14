@@ -11,6 +11,7 @@ export type YouTubePrePublishReport = {
   wouldUpload: false
   contentId: string
   workspaceId: string
+  productionRunId: string | null
   platform: string
   publicationVersion: number
   title: string
@@ -80,6 +81,7 @@ export class DryRunReportService {
       wouldUpload: false,
       contentId: input.contentId,
       workspaceId: input.workspaceId,
+      productionRunId: validation.productionRunId ?? null,
       platform,
       publicationVersion: input.publicationVersion ?? 1,
       title: String(metadata.title || ''),
