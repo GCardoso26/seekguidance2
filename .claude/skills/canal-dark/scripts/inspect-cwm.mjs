@@ -87,8 +87,11 @@ const report = {
   invariants: cwm
     ? {
         productionServiceDoesNotImportComfyUIProvider: productionSrc
-          ? !fs.readFileSync(productionSrc, 'utf8').includes('ComfyUIProvider')
-          : false,
+      ? !fs
+          .readFileSync(productionSrc, 'utf8')
+          .split('\n')
+          .some((line) => /^\s*import\s+/.test(line) && line.includes('ComfyUIProvider'))
+      : false,
         productionServiceUsesVisualResolver: fileIncludes(
           cwm,
           'api/src/production/ProductionService.ts',
