@@ -31,7 +31,7 @@ export function planEditorialDryRun(input: EditorialDryRunInput = {}): {
   const exec: DryRunStagePlan[] = [
     {
       stage: 'SCRIPT',
-      provider: `FallbackScriptProvider:${script.ollama}/${script.api}/${script.mock}`,
+      provider: `FallbackScriptProvider:gemini=${script.gemini}/groq=${script.groq}/ollama=${script.ollama}/api=${script.api}/mock=${script.mock}`,
       status: statusOf(script.status),
       expectedOutput: 'scripts row + structured JSON (hook/setup/problem/insight/value/proof/cta)',
       dependencies: ['content_idea'],
@@ -55,11 +55,11 @@ export function planEditorialDryRun(input: EditorialDryRunInput = {}): {
     },
     {
       stage: 'VISUALS',
-      provider: `createVisualResolver:library HIT|MISS→comfy=${production.visual.comfy}|mock=${production.visual.mock}`,
+      provider: `createVisualResolver:library→pexels=${production.visual.pexels}|pixabay=${production.visual.pixabay}|comfy=${production.visual.comfy}|manual=${production.visual.manual}|mock=${production.visual.mock}`,
       status: statusOf(production.visual.status),
       expectedOutput: 'IMAGE frames + library usage_count; mock_visual never publishable',
       dependencies: ['PLANNING'],
-      estimatedWork: 'library lookup then Comfy or mock',
+      estimatedWork: 'library lookup then stock, optional Comfy, or manual fallback',
     },
     {
       stage: 'SUBTITLES',

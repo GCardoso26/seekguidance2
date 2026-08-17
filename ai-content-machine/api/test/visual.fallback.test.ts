@@ -120,6 +120,7 @@ describe('Visual fallback (ComfyUI → Mock) + WorkflowRegistry', () => {
     assert.ok(fs.existsSync(outPath))
     assert.ok(asset.fallbackTrail?.some((t) => t.provider === 'comfyui' && t.status === 'NOT_CONFIGURED'))
     assert.ok(asset.fallbackTrail?.some((t) => t.provider === 'mock_visual' && t.status === 'READY'))
+    assert.ok(asset.fallbackTrail?.some((t) => t.provider === 'pexels'))
   })
 
   it('Fallback prefers ComfyUI when it succeeds', async () => {

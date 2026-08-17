@@ -33,6 +33,8 @@ export type VisualScenePlan = {
   mood: string
   prompt: string
   negativePrompt: string
+  visualIntent?: string
+  searchQueries?: string[]
 }
 
 export type VisualPlan = {

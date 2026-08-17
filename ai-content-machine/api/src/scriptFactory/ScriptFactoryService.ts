@@ -16,6 +16,7 @@ import { MockScriptProvider } from './providers/MockScriptProvider.js'
 import { OllamaScriptProvider } from './providers/OllamaScriptProvider.js'
 import { ApiScriptProvider } from './providers/ApiScriptProvider.js'
 import { FallbackScriptProvider } from './providers/FallbackScriptProvider.js'
+import { GeminiScriptProvider, GroqScriptProvider } from './providers/GeminiGroqProviders.js'
 
 export type ScriptFactoryInput = {
   workspaceId: string
@@ -44,15 +45,25 @@ function scriptIdOfRun(run: unknown): string | undefined {
 }
 
 export class ScriptFactoryService {
+  private gemini = new GeminiScriptProvider()
+  private groq = new GroqScriptProvider()
   private ollama = new OllamaScriptProvider()
   private api = new ApiScriptProvider()
   private mock = new MockScriptProvider()
-  /** Factory only talks to the resolver — not Ollama/API/Mock directly. */
-  private scriptProvider = new FallbackScriptProvider(this.ollama, this.api, this.mock)
+  /** Factory only talks to the resolver — not individual engines. */
+  private scriptProvider = new FallbackScriptProvider(
+    this.gemini,
+    this.groq,
+    this.ollama,
+    this.api,
+    this.mock,
+  )
 
   providersStatus() {
     return {
       resolver: this.scriptProvider.name,
+      gemini: this.gemini.status(),
+      groq: this.groq.status(),
       ollama: this.ollama.status(),
       api: this.api.status(),
       mock: this.mock.status(),

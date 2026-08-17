@@ -18,6 +18,7 @@ export class VideoComposer {
     storyboard: StoryboardScene[]
     subtitlePath?: string | null
     musicPath?: string | null
+    sfxPath?: string | null
   }): CompositionResult & {
     path: string
     duration: number

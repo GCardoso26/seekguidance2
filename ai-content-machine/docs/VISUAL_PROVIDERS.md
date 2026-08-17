@@ -12,20 +12,26 @@ O prompt vem do **Visual Director** (SUBJECT/CAMERA/STYLE), não de `"Dark conte
 ## Cadeia
 
 ```
-VisualPlan (profile + character lock)
+VisualPlan (profile + character lock + search_queries)
         ↓
 Asset Library (HIT → reuse só se APPROVED + score ≥ limiar)
         ↓ MISS
-ComfyUIProvider         (COMFY_BASE_URL → /prompt → /history → /view)
-        ↓ falha / NOT_CONFIGURED / TIMEOUT / INVALID
-MockVisualProvider      (ffmpeg color — sempre READY)
+PexelsProvider
+        ↓ MISS / RATE_LIMIT / TIMEOUT
+PixabayProvider
+        ↓ MISS
+ComfyUIProvider         (OPTIONAL — só se COMFY_BASE_URL)
         ↓
-Visual QA → catalog (APPROVED|REJECTED) → CompositionProvider → MP4
+AUTOMATION_MODE=mock    → MockVisualProvider (dev/test)
+AUTOMATION_MODE=production → ManualFallback → WAITING_ASSETS
+        ↓
+Visual QA → catalog → CompositionProvider → MP4
 ```
 
 ComfyUI **não** entra no CompositionProvider e **não** é importado pelo `ProductionService`.
+ComfyUI desligado **não** é erro de saúde.
 
-ComfyUI indisponível **não** quebra o MISS: fallback visual existente → compose → MP4 → `READY_FOR_REVIEW`.
+Em produção, MISS total **não** pinta color-bars. Cria `MANUAL_ASSET_REQUEST`.
 
 ## WorkflowRegistry
 

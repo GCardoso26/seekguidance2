@@ -2,6 +2,7 @@ import type { ProductionPlan, StoryboardScene } from './types.js'
 import { getProductionProfile } from './PlatformProductionProfiles.js'
 import type { VisualPlan } from './visual/visualTypes.js'
 import { buildVisualPlan, retimedVisualPlan } from './visual/VisualDirector.js'
+import { motionForAsset } from './composition/KenBurnsPlanner.js'
 
 export function buildProductionPlan(input: {
   platform?: string
@@ -77,6 +78,9 @@ export function buildStoryboard(input: {
     camera: seg.camera,
     lighting: seg.lighting,
     mood: seg.mood,
+    visualIntent: seg.visualIntent,
+    searchQueries: seg.searchQueries,
+    motion: motionForAsset(i + 1, seg.searchQueries?.[0] || seg.role),
     assetType: input.plan.visual.assetType,
     textOverlay: String(input.scriptBody[seg.role] || seg.subject).slice(0, 60),
     transition: i === 0 ? 'cut' : 'fade',

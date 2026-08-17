@@ -140,4 +140,30 @@ export async function productionRoutes(app: FastifyInstance) {
     const { contentId } = req.params as { contentId: string }
     return { assets: productionService.listAssetsByContent(contentId) }
   })
+
+  app.post('/api/production/runs/:id/scenes/:scene/upload', async (req, reply) => {
+    const { id, scene } = req.params as { id: string; scene: string }
+    const schema = z.object({
+      imageBase64: z.string().min(16),
+      filename: z.string().optional(),
+      workspaceId: z.string().uuid().optional(),
+    })
+    const parsed = schema.safeParse(req.body)
+    if (!parsed.success) return reply.code(400).send({ error: parsed.error.flatten() })
+    const raw = parsed.data.imageBase64.replace(/^data:image\/\w+;base64,/, '')
+    const buffer = Buffer.from(raw, 'base64')
+    if (buffer.length < 32) return reply.code(400).send({ error: 'invalid_image' })
+    try {
+      const result = await productionService.attachSceneAsset({
+        productionId: id,
+        scene: Number(scene),
+        buffer,
+        filename: parsed.data.filename,
+        workspaceId: parsed.data.workspaceId,
+      })
+      return result
+    } catch (err) {
+      return reply.code(400).send({ error: err instanceof Error ? err.message : String(err) })
+    }
+  })
 }

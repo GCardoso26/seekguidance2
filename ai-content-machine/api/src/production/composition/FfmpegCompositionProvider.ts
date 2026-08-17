@@ -104,17 +104,26 @@ export class FfmpegCompositionProvider implements CompositionProvider {
       if (!concat.ok) throw new Error(`kenburns_concat_failed:${concat.stderr.slice(0, 240)}`)
 
       const usedMusic = Boolean(input.musicPath && fs.existsSync(input.musicPath))
+      const usedSfx = Boolean(input.sfxPath && fs.existsSync(input.sfxPath))
       const usedSubtitles = Boolean(
         input.plan.subtitle.burnIn && input.subtitlePath && fs.existsSync(input.subtitlePath),
       )
 
       const muxArgs: string[] = ['-i', silentVideo, '-i', input.audioPath]
       if (usedMusic) muxArgs.push('-i', input.musicPath!)
+      if (usedSfx) muxArgs.push('-i', input.sfxPath!)
 
-      // Audio: narration (+ optional quiet music bed)
+      // Audio: narration (+ optional quiet music bed + optional sting)
       let filterComplex = ''
-      if (usedMusic) {
-        filterComplex = '[1:a]volume=1.0[narr];[2:a]volume=0.18[bed];[narr][bed]amix=inputs=2:duration=first:dropout_transition=0[aout]'
+      if (usedMusic && usedSfx) {
+        filterComplex =
+          '[1:a]volume=1.0[narr];[2:a]volume=0.18[bed];[3:a]volume=0.22[sfx];[narr][bed][sfx]amix=inputs=3:duration=first:dropout_transition=0[aout]'
+      } else if (usedMusic) {
+        filterComplex =
+          '[1:a]volume=1.0[narr];[2:a]volume=0.18[bed];[narr][bed]amix=inputs=2:duration=first:dropout_transition=0[aout]'
+      } else if (usedSfx) {
+        filterComplex =
+          '[1:a]volume=1.0[narr];[2:a]volume=0.22[sfx];[narr][sfx]amix=inputs=2:duration=first:dropout_transition=0[aout]'
       }
 
       const vf: string[] = []
@@ -167,6 +176,7 @@ export class FfmpegCompositionProvider implements CompositionProvider {
         kenBurns: scenes,
         usedSubtitles,
         usedMusic,
+        usedSfx,
       }
     } finally {
       try {

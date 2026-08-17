@@ -28,6 +28,10 @@ export async function withRetry<T>(
       return { ok: true, value, attempts: attempt }
     } catch (err) {
       lastError = err instanceof Error ? err.message : String(err)
+      const code = err && typeof err === 'object' && 'code' in err ? String((err as { code?: string }).code) : ''
+      if (code === 'AWAITING_USER' || code === 'NO_RETRY') {
+        return { ok: false, failure: { attempts: attempt, error: lastError } }
+      }
       if (attempt < maxAttempts) {
         const wait = delays[Math.min(attempt - 1, delays.length - 1)] ?? 0
         if (wait > 0) await new Promise((r) => setTimeout(r, wait))

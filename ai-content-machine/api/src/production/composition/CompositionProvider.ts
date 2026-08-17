@@ -11,6 +11,8 @@ export type CompositionInput = {
   subtitlePath?: string | null
   /** Optional bed music — mixed under narration when present */
   musicPath?: string | null
+  /** Optional sting/SFX — mixed under narration when present */
+  sfxPath?: string | null
 }
 
 export type CompositionResult = {
@@ -23,6 +25,7 @@ export type CompositionResult = {
   kenBurns: KenBurnsScenePlan[]
   usedSubtitles: boolean
   usedMusic: boolean
+  usedSfx?: boolean
 }
 
 export interface CompositionProvider {

@@ -49,6 +49,8 @@ N8N_BASE_URL=... N8N_API_KEY=... npm run n8n:import
 
 Arquivos em `n8n/workflows/*.json`.
 
+Para criar um Short a partir do n8n, importe `16-cwm-create-short.json` (webhook → `POST /api/shorts` → resposta). Sem IFs de negócio no workflow.
+
 ## Credenciais n8n
 
 Nunca coloque API keys nos JSONs. Use:

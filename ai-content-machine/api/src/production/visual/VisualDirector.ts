@@ -1,6 +1,7 @@
 import type { VisualCharacterBible, VisualPlan, VisualProfile, VisualScenePlan } from './visualTypes.js'
 import { getVisualProfile } from './VisualProfileRegistry.js'
 import { buildScenePrompt } from './VisualPromptBuilder.js'
+import { expandStockQueries } from './stockQueries.js'
 
 const SECTION_ENV: Record<string, string> = {
   hook: 'tight vertical frame that stops the scroll, real-world subject',
@@ -129,6 +130,7 @@ export function buildScenePlan(input: {
     characterLock: `${input.character.description}. ${input.character.appearance}. ${input.character.clothing}. Age ${input.character.age}. Hair: ${input.character.hair}.`,
     palette: input.profile.palette,
   })
+  const visualIntent = `${input.role}: ${action} in ${environment}`
   return {
     scene: input.scene,
     role: input.role,
@@ -141,6 +143,14 @@ export function buildScenePlan(input: {
     mood,
     prompt,
     negativePrompt: input.profile.negative,
+    visualIntent,
+    searchQueries: expandStockQueries({
+      role: input.role,
+      subject,
+      environment,
+      visualIntent,
+      narration: input.narration,
+    }),
   }
 }
 

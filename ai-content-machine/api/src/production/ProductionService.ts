@@ -15,6 +15,8 @@ import { FallbackVoiceProvider } from './voice/FallbackVoiceProvider.js'
 import { createVisualResolver } from './visual/createVisualResolver.js'
 import type { VisualFallbackAttempt } from './visual/FallbackVisualProvider.js'
 import { reviewGeneratedImage } from './visual/VisualQaService.js'
+import type { ManualAssetRequest } from './visual/stockQueries.js'
+import { resolveMusic, resolveSfx } from './audio/AudioAssetResolver.js'
 import {
   deriveTagsFromPrompt,
   mediaAssetRepository,
@@ -86,6 +88,7 @@ type RunResult = {
   packageId?: string
   stageVersions?: Partial<Record<ProductionStage, number>>
   factoryMetrics?: FactoryRunMetrics
+  manualAssetRequests?: ManualAssetRequest[]
 }
 
 function parseResult(raw: string | null | undefined): RunResult {
@@ -175,6 +178,13 @@ export class ProductionService {
   private stageFailCounters = new Map<string, number>()
 
   providersStatus() {
+    const named = (name: string) => this.visual.chain().find((p) => p.name === name)
+    const pexels = named('pexels')
+    const pixabay = named('pixabay')
+    const comfy = named('comfyui')
+    const mock = named('mock_visual')
+    const manual = named('manual_fallback')
+    const stockReady = pexels?.status() === 'READY' || pixabay?.status() === 'READY'
     return {
       voice: {
         resolver: this.voice.name,
@@ -185,10 +195,13 @@ export class ProductionService {
       },
       visual: {
         resolver: this.visual.name,
-        comfy: this.visual.chain()[0]?.status() ?? 'NOT_CONFIGURED',
-        mock: this.visual.chain()[1]?.status() ?? 'NOT_CONFIGURED',
+        pexels: pexels?.status() ?? 'NOT_CONFIGURED',
+        pixabay: pixabay?.status() ?? 'NOT_CONFIGURED',
+        comfy: comfy?.status() ?? 'NOT_CONFIGURED',
+        mock: mock?.status() ?? 'NOT_CONFIGURED',
+        manual: manual?.status() ?? 'NOT_CONFIGURED',
         status: this.visual.status(),
-        stock: 'NOT_CONFIGURED',
+        stock: stockReady ? 'READY' : 'NOT_CONFIGURED',
         videoGeneration: 'NOT_CONFIGURED',
       },
       thumbnail: { mock: this.thumbnail.status() },
@@ -202,9 +215,9 @@ export class ProductionService {
 
   /** Live ComfyUI ping for GET /api/factory/status. Never imported as ComfyUIProvider. */
   async probeComfy(): Promise<ComfyProbeResult> {
-    const first = this.visual.chain()[0]
-    if (first?.probe) return first.probe()
-    const st = first?.status() ?? 'NOT_CONFIGURED'
+    const comfy = this.visual.chain().find((p) => p.name === 'comfyui')
+    if (comfy?.probe) return comfy.probe()
+    const st = comfy?.status() ?? 'NOT_CONFIGURED'
     return { status: st, latencyMs: 0, detail: 'no_probe' }
   }
 
@@ -493,25 +506,26 @@ export class ProductionService {
       result = stageOut.result
 
       if (!stageOut.ok) {
-        const status = stage === 'PLANNING' ? 'FAILED' : 'PARTIAL'
+        const waiting = stageOut.error === 'waiting_assets' || String(stageOut.error || '').startsWith('waiting_assets')
+        const status = waiting ? 'WAITING_ASSETS' : stage === 'PLANNING' ? 'FAILED' : 'PARTIAL'
         db.prepare(
           `UPDATE production_runs SET status=?, error=?, completed_at=?, updated_at=?, result=? WHERE id=?`,
-        ).run(status, stageOut.error, nowIso(), nowIso(), JSON.stringify(result), runId)
+        ).run(status, stageOut.error, waiting ? null : nowIso(), nowIso(), JSON.stringify(result), runId)
 
         emitEvent({
           workspaceId: ctx.workspaceId,
-          eventType: status === 'FAILED' ? 'production.failed' : 'production.failed',
+          eventType: waiting ? 'production.waiting_assets' : 'production.failed',
           entityType: 'production_run',
           entityId: runId,
-          reality: 'FAILED',
-          payload: { stage, error: stageOut.error, partial: status === 'PARTIAL' },
+          reality: waiting ? 'PENDING' : 'FAILED',
+          payload: { stage, error: stageOut.error, waiting },
         })
 
         return {
           status,
           packageStatus: 'INCOMPLETE' as PackageStatus,
           qualityScore: null,
-          reality: 'FAILED' as const,
+          reality: waiting ? ('PENDING' as const) : ('FAILED' as const),
           result,
         }
       }
@@ -565,23 +579,26 @@ export class ProductionService {
     })
 
     if (!retried.ok) {
+      const waiting = retried.failure.error.startsWith('waiting_assets')
       result.stages[stage] = {
         ok: false,
         error: retried.failure.error,
         attempts: retried.failure.attempts,
       }
       result.failedStage = stage
-      this.toDlq(
-        runId,
-        stage,
-        ctx.executionId,
-        retried.failure.error,
-        retried.failure.attempts,
-        ctx,
-      )
+      if (!waiting) {
+        this.toDlq(
+          runId,
+          stage,
+          ctx.executionId,
+          retried.failure.error,
+          retried.failure.attempts,
+          ctx,
+        )
+      }
       getDb()
         .prepare(`UPDATE production_runs SET result=?, retry_count=retry_count+?, updated_at=? WHERE id=?`)
-        .run(JSON.stringify(result), retried.failure.attempts, nowIso(), runId)
+        .run(JSON.stringify(result), waiting ? 0 : retried.failure.attempts, nowIso(), runId)
       return { ok: false, error: retried.failure.error, result }
     }
 
@@ -791,8 +808,27 @@ export class ProductionService {
       let libraryMisses = 0
       let lastVisualProvider = 'asset_library'
       const visualTrail: VisualFallbackAttempt[] = []
+      const pendingManual: ManualAssetRequest[] = []
+      const realVisualReady = this.visual
+        .chain()
+        .some((p) => !['mock_visual', 'manual_fallback'].includes(p.name) && p.status() === 'READY')
 
       for (const scene of storyboard) {
+        const already = (
+          assetRegistry.listByProduction(runId) as Array<Record<string, unknown>>
+        ).find(
+          (a) =>
+            a.type === 'IMAGE' &&
+            a.is_current &&
+            String(a.asset_key || '') === `visual:scene:${scene.scene}` &&
+            a.uri &&
+            fs.existsSync(String(a.uri)),
+        )
+        if (already) {
+          ids.push(String(already.id))
+          lastVisualProvider = String(already.provider || lastVisualProvider)
+          continue
+        }
         const rel = assetRelPath({
           workspaceId: ws,
           contentId,
@@ -819,7 +855,7 @@ export class ProductionService {
           // Mock catalog entries are fine when Comfy is off (factory still completes).
           // When Comfy is configured they must not block real generation — otherwise the
           // first mock run poisons every later Short with color bars.
-          if (hit?.asset.source === 'mock' && this.visual.chain()[0]?.status() === 'READY') {
+          if (hit?.asset.source === 'mock' && realVisualReady) {
             hit = null
           }
         } catch {
@@ -921,14 +957,58 @@ export class ProductionService {
 
         // MISS (or library unavailable) — visual resolver; catalog stays here.
         libraryMisses += 1
-        const asset = await this.visual.generate({
-          prompt: scene.visualPrompt,
-          negativePrompt: scene.negativePrompt,
-          outPath: abs,
-          width: plan.width,
-          height: plan.height,
-          scene: scene.scene,
-        })
+        let asset: {
+          path: string
+          width: number
+          height: number
+          sourceType: 'MOCK' | 'GENERATED' | 'STOCK'
+          provider: string
+          mimeType: string
+          license: string
+          prompt: string
+          costCents: number
+          metadata: Record<string, unknown>
+          fallbackTrail?: VisualFallbackAttempt[]
+        }
+        try {
+          asset = await this.visual.generate({
+            prompt: scene.visualPrompt,
+            negativePrompt: scene.negativePrompt,
+            outPath: abs,
+            width: plan.width,
+            height: plan.height,
+            scene: scene.scene,
+            searchQueries: scene.searchQueries,
+            visualIntent: scene.visualIntent,
+            role: scene.role,
+            subject: scene.subject,
+          })
+        } catch (err) {
+          const code = err && typeof err === 'object' && 'code' in err ? String((err as { code?: string }).code) : ''
+          if (code === 'AWAITING_USER') {
+            const request = (err as { request?: ManualAssetRequest }).request
+            if (request) pendingManual.push(request)
+            else {
+              pendingManual.push({
+                scene_id: `S${String(scene.scene).padStart(2, '0')}`,
+                scene_number: scene.scene,
+                scene_description: scene.visualIntent || scene.subject || '',
+                visual_intent: scene.visualIntent || '',
+                search_queries: scene.searchQueries || [],
+                recommended_provider: 'pexels',
+                required_format: '9:16',
+                required_orientation: 'portrait',
+                minimum_resolution: `${plan.width}x${plan.height}`,
+                suggested_duration: `${Math.round(scene.duration)}s`,
+                reason: 'waiting_assets',
+                pexelsUrl: '',
+                pixabayUrl: '',
+              })
+            }
+            continue
+          }
+          throw err
+        }
         lastVisualProvider = asset.provider
         if (asset.fallbackTrail?.length) visualTrail.push(...asset.fallbackTrail)
 
@@ -1014,6 +1094,11 @@ export class ProductionService {
             .prepare(`UPDATE production_runs SET status='REQUIRES_REVIEW', updated_at=? WHERE id=?`)
             .run(nowIso(), runId)
         }
+      }
+      if (pendingManual.length) {
+        result.manualAssetRequests = pendingManual
+        this.persistManualRequests(ws, runId, contentId, pendingManual)
+        throw Object.assign(new Error('waiting_assets'), { code: 'AWAITING_USER' })
       }
       result.stages.VISUALS = {
         ok: true,
@@ -1103,7 +1188,8 @@ export class ProductionService {
         outPath: abs,
         storyboard,
         subtitlePath: srt?.uri,
-        musicPath: null,
+        musicPath: resolveMusic(ws)?.path || null,
+        sfxPath: resolveSfx(ws)?.path || null,
       })
       const registered = assetRegistry.register({
         workspaceId: ws,
@@ -1132,6 +1218,7 @@ export class ProductionService {
           })),
           usedSubtitles: composed.usedSubtitles,
           usedMusic: composed.usedMusic,
+          usedSfx: composed.usedSfx || false,
         },
       })
       recordAiCost({
@@ -1562,6 +1649,134 @@ export class ProductionService {
       productionId,
     )
     return this.retryStage(productionId, stage)
+  }
+
+  private persistManualRequests(
+    workspaceId: string,
+    productionId: string,
+    contentId: string,
+    requests: ManualAssetRequest[],
+  ) {
+    const db = getDb()
+    for (const req of requests) {
+      const existing = db
+        .prepare(`SELECT id FROM manual_asset_requests WHERE production_id=? AND scene=?`)
+        .get(productionId, req.scene_number) as { id: string } | undefined
+      if (existing) {
+        db.prepare(
+          `UPDATE manual_asset_requests SET scene_description=?, visual_intent=?, search_queries=?, reason=?, status='AWAITING_USER', updated_at=? WHERE id=?`,
+        ).run(
+          req.scene_description,
+          req.visual_intent,
+          JSON.stringify(req.search_queries),
+          req.reason,
+          nowIso(),
+          existing.id,
+        )
+        continue
+      }
+      db.prepare(
+        `INSERT INTO manual_asset_requests
+         (id, workspace_id, production_id, content_id, scene, scene_description, visual_intent,
+          search_queries, recommended_provider, required_format, required_orientation,
+          minimum_resolution, suggested_duration, reason, status, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'AWAITING_USER', ?, ?)`,
+      ).run(
+        uid(),
+        workspaceId,
+        productionId,
+        contentId,
+        req.scene_number,
+        req.scene_description,
+        req.visual_intent,
+        JSON.stringify(req.search_queries),
+        req.recommended_provider,
+        req.required_format,
+        req.required_orientation,
+        req.minimum_resolution,
+        req.suggested_duration,
+        req.reason,
+        nowIso(),
+        nowIso(),
+      )
+    }
+  }
+
+  listManualRequests(productionId: string) {
+    return getDb()
+      .prepare(`SELECT * FROM manual_asset_requests WHERE production_id=? ORDER BY scene ASC`)
+      .all(productionId)
+  }
+
+  async attachSceneAsset(input: {
+    productionId: string
+    scene: number
+    buffer: Buffer
+    filename?: string
+    workspaceId?: string
+  }) {
+    const run = this.getRun(input.productionId) as
+      | { workspace_id: string; content_id: string; plan: string; result: string }
+      | null
+    if (!run) throw new Error('production_run_not_found')
+    const workspaceId = input.workspaceId || run.workspace_id
+    const plan = JSON.parse(run.plan || '{}') as { width?: number; height?: number }
+    const rel = assetRelPath({
+      workspaceId,
+      contentId: run.content_id,
+      productionId: input.productionId,
+      folder: 'visuals',
+      filename: `scene-${input.scene}-upload.png`,
+    })
+    const abs = this.storage.resolveSafe(rel)
+    await this.storage.put(rel, input.buffer)
+    const visualQa = reviewGeneratedImage({
+      path: abs,
+      provider: 'manual_upload',
+      sourceType: 'UPLOADED',
+      width: plan.width,
+      height: plan.height,
+    })
+    assetRegistry.register({
+      workspaceId,
+      contentId: run.content_id,
+      productionId: input.productionId,
+      type: 'IMAGE',
+      sourceType: 'UPLOADED',
+      provider: 'manual_upload',
+      uri: abs,
+      mimeType: 'image/png',
+      width: plan.width || 1080,
+      height: plan.height || 1920,
+      stage: 'VISUALS',
+      assetKey: `visual:scene:${input.scene}`,
+      version: 1,
+      license: 'USER_OWNED',
+      metadata: { visualQa, uploaded: true, filename: input.filename },
+    })
+    try {
+      mediaAssetRepository.catalog({
+        workspaceId,
+        contentId: run.content_id,
+        productionId: input.productionId,
+        path: abs,
+        type: 'image',
+        source: 'uploaded',
+        tags: ['uploaded', `scene-${input.scene}`],
+        qualityStatus: visualQa.status,
+        qualityScore: visualQa.score,
+        qualityFindings: visualQa.findings,
+        metadata: { provider: 'manual_upload', scene: input.scene },
+      })
+    } catch {
+      /* catalog optional */
+    }
+    getDb()
+      .prepare(
+        `UPDATE manual_asset_requests SET status='UPLOADED', updated_at=? WHERE production_id=? AND scene=?`,
+      )
+      .run(nowIso(), input.productionId, input.scene)
+    return this.retryStage(input.productionId, 'VISUALS')
   }
 
   cancelRun(productionId: string) {

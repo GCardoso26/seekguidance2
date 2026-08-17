@@ -7,17 +7,16 @@ import type {
 } from './ScriptProvider.js'
 
 /**
- * Ollama → OpenAI-compatible API → Mock.
- * ScriptFactoryService only talks to this resolver.
+ * Configurable chain. Default factory: Gemini → Groq → Ollama → API → Mock.
+ * Tests may still construct `new FallbackScriptProvider(ollama, api, mock)`.
  */
 export class FallbackScriptProvider implements ScriptProvider {
   name = 'script_fallback'
+  private readonly providers: ScriptProvider[]
 
-  constructor(
-    private readonly ollama: ScriptProvider,
-    private readonly api: ScriptProvider,
-    private readonly mock: ScriptProvider,
-  ) {}
+  constructor(...providers: ScriptProvider[]) {
+    this.providers = providers
+  }
 
   status(): ScriptProviderStatus {
     for (const p of this.chain()) {
@@ -27,7 +26,7 @@ export class FallbackScriptProvider implements ScriptProvider {
   }
 
   chain(): ScriptProvider[] {
-    return [this.ollama, this.api, this.mock]
+    return this.providers
   }
 
   async generate(ctx: ScriptGenerationContext): Promise<ScriptProviderResult> {

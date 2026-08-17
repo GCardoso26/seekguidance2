@@ -23,7 +23,9 @@ export const config = {
   dbPath: env('CWM_DB_PATH', path.join(root, 'data', 'cwm.sqlite')),
   /** Media assets (voice/visual/final). Prefer a volume path in Docker. */
   assetsPath: env('CWM_ASSETS_PATH', path.join(root, 'data', 'assets')),
-  automationMode: (env('AUTOMATION_MODE', 'mock') as AutomationMode),
+  get automationMode(): AutomationMode {
+    return (env('AUTOMATION_MODE', 'mock') as AutomationMode)
+  },
   n8nBaseUrl: env('N8N_BASE_URL', ''),
   n8nApiKey: env('N8N_API_KEY', ''),
   n8nWebhookSecret: env('N8N_WEBHOOK_SECRET', 'dev-webhook-secret-change-me'),

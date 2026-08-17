@@ -3,22 +3,22 @@ import type { VisualAsset, VisualGenerateInput, VisualProvider } from './VisualP
 
 export type VisualFallbackAttempt = {
   provider: string
-  status: ProviderStatus | 'ERROR' | 'TIMEOUT' | 'INVALID'
+  status: ProviderStatus | 'ERROR' | 'TIMEOUT' | 'INVALID' | 'AWAITING_USER' | 'RATE_LIMIT' | 'AUTH_ERROR' | 'NOT_FOUND'
   error?: string
 }
 
 /**
- * ComfyUI → Mock.
- * ProductionService only talks to this resolver — ComfyUI must not leak there.
- * Library HIT/MISS stays in ProductionService; this chain runs only on MISS.
+ * MISS chain only. Library HIT stays in ProductionService.
+ * Default wiring: Pexels → Pixabay → optional Comfy → Mock(dev) | Manual(prod).
+ * Legacy constructor `new FallbackVisualProvider(comfy, mock)` still works.
  */
 export class FallbackVisualProvider implements VisualProvider {
   name = 'visual_fallback'
+  private readonly providers: VisualProvider[]
 
-  constructor(
-    private readonly comfy: VisualProvider,
-    private readonly mock: VisualProvider,
-  ) {}
+  constructor(first: VisualProvider | VisualProvider[], second?: VisualProvider) {
+    this.providers = Array.isArray(first) ? first : [first, ...(second ? [second] : [])]
+  }
 
   status(): ProviderStatus {
     for (const p of this.chain()) {
@@ -28,7 +28,7 @@ export class FallbackVisualProvider implements VisualProvider {
   }
 
   chain(): VisualProvider[] {
-    return [this.comfy, this.mock]
+    return this.providers
   }
 
   async generate(input: VisualGenerateInput): Promise<VisualAsset & { fallbackTrail: VisualFallbackAttempt[] }> {
@@ -46,12 +46,26 @@ export class FallbackVisualProvider implements VisualProvider {
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err)
         const code = err && typeof err === 'object' && 'code' in err ? String((err as { code?: string }).code) : ''
+        if (code === 'AWAITING_USER') {
+          trail.push({ provider: provider.name, status: 'AWAITING_USER', error: msg })
+          throw Object.assign(err instanceof Error ? err : new Error(msg), {
+            code: 'AWAITING_USER',
+            trail,
+            request: err && typeof err === 'object' && 'request' in err ? (err as { request?: unknown }).request : undefined,
+          })
+        }
         const status =
           code === 'TIMEOUT' || msg.startsWith('comfy_timeout:')
             ? ('TIMEOUT' as const)
             : code === 'INVALID' || msg.startsWith('comfy_image_')
               ? ('INVALID' as const)
-              : ('ERROR' as const)
+              : code === 'RATE_LIMIT'
+                ? ('RATE_LIMIT' as const)
+                : code === 'AUTH_ERROR'
+                  ? ('AUTH_ERROR' as const)
+                  : code === 'NOT_FOUND'
+                    ? ('NOT_FOUND' as const)
+                    : ('ERROR' as const)
         trail.push({ provider: provider.name, status, error: msg })
       }
     }

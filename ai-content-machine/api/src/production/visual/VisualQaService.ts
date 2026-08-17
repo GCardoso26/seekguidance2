@@ -63,7 +63,13 @@ export function reviewGeneratedImage(input: {
   if (provider === 'mock_visual' || source === 'MOCK') {
     findings.push('visual_qa_mock_not_approvable')
     score = Math.min(score, 0.25)
-  } else if (provider === 'comfyui' || provider === 'asset_library') {
+  } else if (
+    provider === 'comfyui' ||
+    provider === 'asset_library' ||
+    provider === 'pexels' ||
+    provider === 'pixabay' ||
+    provider === 'manual_upload'
+  ) {
     score += 0.12
   }
 

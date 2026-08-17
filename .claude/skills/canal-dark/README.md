@@ -47,4 +47,9 @@ Com `AUTOMATION_MODE=mock` a cadeia CWM usa mocks reais (script/voz/visual). Um 
 - YouTube OAuth, ComfyUI, Kokoro, Ollama: `NOT_CONFIGURED` quando ausentes.
 - Monetização nunca é afirmada.
 
-Leia `SKILL.md` e `references/operating-model.md` antes de produzir.
+- `ai-content-machine/docs/CWM_ARCHITECTURE.md`
+- `ai-content-machine/docs/ASSET_PIPELINE.md`
+- `ai-content-machine/docs/SHORTS_PIPELINE.md`
+- `ai-content-machine/docs/UI_SETUP.md`
+
+Studio: `/studio` (Criar Short). Automation Center permanece avançado.

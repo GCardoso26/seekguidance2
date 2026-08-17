@@ -41,7 +41,10 @@ docker compose --env-file .env up -d --build
 Abra (local dev):
 
 - Funil: `http://localhost:5173/`
-- Automation Center: `http://localhost:5173/app/automation`
+- **Studio (Criar Short):** `http://localhost:5173/studio`
+- Automation Center (avançado): `http://localhost:5173/app/automation`
+
+Arquitetura Shorts: `docs/CWM_ARCHITECTURE.md`, `docs/SHORTS_PIPELINE.md`, `docs/ASSET_PIPELINE.md`.
 
 Abra (Docker/OCI):
 

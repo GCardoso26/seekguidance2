@@ -8,6 +8,10 @@ export type VisualGenerateInput = {
   scene: number
   /** Profile / VisualPlan negative — overrides COMFY_NEGATIVE_PROMPT when set */
   negativePrompt?: string
+  searchQueries?: string[]
+  visualIntent?: string
+  role?: string
+  subject?: string
 }
 
 export type VisualAsset = {

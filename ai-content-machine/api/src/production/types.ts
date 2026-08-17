@@ -13,6 +13,7 @@ export type ProductionStatus =
   | 'FAILED'
   | 'REQUIRES_REVIEW'
   | 'CANCELLED'
+  | 'WAITING_ASSETS'
 
 export type ProductionStage =
   | 'PLANNING'
@@ -73,6 +74,9 @@ export type StoryboardScene = {
   camera?: string
   lighting?: string
   mood?: string
+  visualIntent?: string
+  searchQueries?: string[]
+  motion?: string
   assetType: 'IMAGE' | 'VIDEO'
   textOverlay: string
   transition: string

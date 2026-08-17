@@ -1,0 +1,57 @@
+{
+  "name": "CWM — Create Short",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "cwm/create-short",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [200, 320]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.CWM_API_BASE}}/api/shorts",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ (() => { const body = ($json && $json.body) ? $json.body : $json; return { workspaceId: (body && body.workspaceId) || $env.CWM_DEFAULT_WORKSPACE_ID, topic: body && body.topic, style: body && body.style, durationSec: body && body.durationSec, language: (body && body.language) || 'pt-BR' }; })() }}",
+        "options": { "timeout": 300000 }
+      },
+      "id": "create-short",
+      "name": "Create Short",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [480, 320]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{$json}}"
+      },
+      "id": "respond",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [740, 320]
+    }
+  ],
+  "connections": {
+    "Webhook": { "main": [[{ "node": "Create Short", "type": "main", "index": 0 }]] },
+    "Create Short": { "main": [[{ "node": "Respond", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "meta": {
+    "cwm": {
+      "workflowKey": "create_short",
+      "version": 1,
+      "purpose": "Thin orchestration: POST /api/shorts. Business logic stays in CWM.",
+      "controlPlane": "/api/shorts"
+    }
+  }
+}

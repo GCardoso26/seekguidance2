@@ -31,7 +31,7 @@ function isVisuallyPublishableRun(r: Record<string, unknown>): boolean {
   if (pkg !== 'READY_FOR_PUBLISH' && pkg !== 'PUBLISHED') return false
   const provider = visualProviderOfRun(r)
   if (provider === 'mock_visual') return false
-  return provider === 'comfyui' || provider === 'asset_library'
+  return provider === 'comfyui' || provider === 'asset_library' || provider === 'pexels' || provider === 'pixabay' || provider === 'manual_upload'
 }
 
 function findPublishableRun(
