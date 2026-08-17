@@ -25,7 +25,8 @@ export function resolveMusic(workspaceId: string): ResolvedAudio {
       type: 'audio',
       tags: ['music', 'bed'],
     })
-    if (hit?.asset.path && fs.existsSync(hit.asset.path)) {
+    if (hit?.asset.path && fs.existsSync(hit.asset.path) && hit.asset.type === 'audio') {
+      if (/\.(png|jpe?g|webp|gif|mp4|mov)$/i.test(hit.asset.path)) return null
       return {
         path: hit.asset.path,
         kind: 'music',
