@@ -1,0 +1,25 @@
+{
+  "name": "Nexus Faceless Lab",
+  "language": "pt-BR",
+  "country": "BR",
+  "niche": "IA produtiva faceless",
+  "subniche": "sistemas de trabalho com IA sem aparecer",
+  "audience": "profissionais 25-45 que querem usar IA para poupar tempo sem se expor",
+  "tone": "direto, curioso, honesto, sem guru",
+  "visual_style": "documentary_cinematic",
+  "voice_style": "pt-BR narrador calmo",
+  "long_form": {
+    "targetDurationSec": 480,
+    "structure": "HOOK CONTEXT OPEN_LOOP ACT1 ESCALATION ACT2 REVELATION ACT3 PAYOFF CTA"
+  },
+  "shorts": {
+    "targetDurationSec": 40,
+    "platform": "YOUTUBE_SHORT",
+    "structure": "HOOK CONTEXT ESCALATION PAYOFF CTA"
+  },
+  "publishing": {
+    "platform": "YOUTUBE",
+    "visibility": "unlisted",
+    "autoPublish": false
+  }
+}

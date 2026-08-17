@@ -1,0 +1,8 @@
+title=
+description=
+tags=
+status=READY_FOR_REVIEW
+
+O pacote foi preparado para publicação; elegibilidade para monetização depende das políticas da plataforma, direitos, originalidade, histórico do canal e outros fatores.
+
+Nunca: MOCK_VISUAL → PUBLISH

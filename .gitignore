@@ -20,7 +20,9 @@ htmlcov/
 *.tsbuildinfo
 
 # Cursor / IDE local (não versionar)
-.cursor/
+.cursor/*
+!.cursor/skills/
+!.cursor/skills/**
 
 # Archives / dumps locais de referência
 *.rar

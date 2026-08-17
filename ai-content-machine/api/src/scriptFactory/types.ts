@@ -62,4 +62,6 @@ export type QualityBreakdown = {
   platformFit: number
   ctaQuality: number
   factualRisk: number
+  originalityScore?: number
+  repetitionScore?: number
 }

@@ -2,6 +2,7 @@ import { getActivePrompt } from '../services/PromptService.js'
 import { resolveRouteForMode } from '../services/AiRouter.js'
 import { config } from '../config.js'
 import type { QualityBreakdown, StructuredScript, ScriptGenerationContext } from './types.js'
+import { scoreOriginalityFromScript } from '../editorial/OriginalityService.js'
 
 export type QaResult = {
   status: 'pass' | 'requires_review' | 'fail'
@@ -64,6 +65,12 @@ export function qaScript(
     status = 'requires_review'
   }
 
+  const originality = scoreOriginalityFromScript(script, ctx)
+  if (originality.reviewRequired) {
+    notes.push(...originality.findings)
+    if (status === 'pass') status = 'requires_review'
+  }
+
   const breakdown: QualityBreakdown = {
     hookStrength: clamp(script.hook.length > 20 ? 80 : 50),
     clarity: clamp(sections.every((k) => script[k]) ? 85 : 40),
@@ -72,6 +79,8 @@ export function qaScript(
     platformFit: clamp(75),
     ctaQuality: clamp(script.cta.length > 20 ? 85 : 40),
     factualRisk: notes.includes('prohibited_claims') || notes.includes('hallucination_markers') ? 20 : 80,
+    originalityScore: originality.originalityScore,
+    repetitionScore: originality.repetitionScore,
   }
 
   const score = clamp(
