@@ -1,0 +1,25 @@
+{
+  "name": "",
+  "language": "",
+  "country": "",
+  "niche": "",
+  "subniche": "",
+  "audience": "",
+  "tone": "",
+  "visual_style": "",
+  "voice_style": "",
+  "long_form": {
+    "targetDurationSec": null,
+    "structure": "HOOK CONTEXT OPEN_LOOP ACT1 ESCALATION ACT2 REVELATION ACT3 PAYOFF CTA"
+  },
+  "shorts": {
+    "targetDurationSec": 40,
+    "platform": "YOUTUBE_SHORT",
+    "structure": "HOOK CONTEXT ESCALATION PAYOFF CTA"
+  },
+  "publishing": {
+    "platform": "YOUTUBE",
+    "visibility": "unlisted",
+    "autoPublish": false
+  }
+}

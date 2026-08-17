@@ -1,0 +1,17 @@
+{
+  "name": "content-war-machine",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "api:dev": "npm run dev --prefix api",
+    "api:start": "npm run start --prefix api",
+    "api:test": "npm run test --prefix api",
+    "web:dev": "npm run dev --prefix web",
+    "web:build": "npm run build --prefix web",
+    "n8n:validate": "node scripts/n8n/validate.mjs",
+    "n8n:import": "node scripts/n8n/import.mjs",
+    "n8n:export": "node scripts/n8n/export.mjs",
+    "test": "npm run n8n:validate && npm run api:test"
+  }
+}

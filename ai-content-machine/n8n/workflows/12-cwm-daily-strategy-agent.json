@@ -1,0 +1,83 @@
+{
+  "name": "CWM — Daily Strategy Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [{ "field": "cronExpression", "expression": "0 5 * * *" }]
+        }
+      },
+      "id": "cron",
+      "name": "Morning Strategy",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "cwm/daily-strategy-agent",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [200, 480]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{$env.CWM_API_BASE}}/api/ai/prompts/strategy_agent"
+      },
+      "id": "prompt",
+      "name": "Load Strategy Prompt",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 390]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.CWM_API_BASE}}/api/strategy/analyze",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"workspaceId\": \"{{$('Webhook').item.json.body.workspaceId || $env.CWM_DEFAULT_WORKSPACE_ID}}\",\n  \"minimumEvidence\": 3,\n  \"feedResearch\": true,\n  \"await\": true\n}",
+        "options": { "timeout": 180000 }
+      },
+      "id": "analyze",
+      "name": "Analyze Strategy",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [700, 390]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{$json}}"
+      },
+      "id": "respond",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [960, 480]
+    }
+  ],
+  "connections": {
+    "Morning Strategy": { "main": [[{ "node": "Load Strategy Prompt", "type": "main", "index": 0 }]] },
+    "Webhook": { "main": [[{ "node": "Load Strategy Prompt", "type": "main", "index": 0 }]] },
+    "Load Strategy Prompt": { "main": [[{ "node": "Analyze Strategy", "type": "main", "index": 0 }]] },
+    "Analyze Strategy": { "main": [[{ "node": "Respond", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "meta": {
+    "cwm": {
+      "workflowKey": "daily_strategy_agent",
+      "version": 2,
+      "purpose": "Winner patterns → strategy_recommendations → research feedback",
+      "tables": ["strategy_recommendations", "contents", "metric_snapshots"],
+      "controlPlane": "/api/strategy/analyze"
+    }
+  }
+}

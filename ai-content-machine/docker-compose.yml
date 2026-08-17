@@ -1,0 +1,183 @@
+# Content War Machine stack — local + OCI
+# Usage:
+#   cp .env.oci.example .env
+#   docker compose --env-file .env up -d --build
+# Docs: docs/OCI_DEPLOY.md
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    profiles: ["full-postgres"]
+    environment:
+      POSTGRES_USER: cwm
+      POSTGRES_PASSWORD: ${POSTGRES_CWM_PASSWORD:-cwm_dev}
+      POSTGRES_DB: content_war
+    ports:
+      - "5433:5432"
+    volumes:
+      - cwm_pg:/var/lib/postgresql/data
+      - ./db/migrations/001_init.sql:/docker-entrypoint-initdb.d/001_init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cwm -d content_war"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  postgres_n8n:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: n8n
+      POSTGRES_PASSWORD: ${POSTGRES_N8N_PASSWORD:-n8n_dev}
+      POSTGRES_DB: n8n
+    volumes:
+      - cwm_n8n_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U n8n -d n8n"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - cwm_redis:/data
+    restart: unless-stopped
+
+  n8n:
+    image: n8nio/n8n:1.72.1
+    ports:
+      - "5678:5678"
+    environment:
+      DB_TYPE: postgresdb
+      DB_POSTGRESDB_HOST: postgres_n8n
+      DB_POSTGRESDB_DATABASE: n8n
+      DB_POSTGRESDB_USER: n8n
+      DB_POSTGRESDB_PASSWORD: ${POSTGRES_N8N_PASSWORD:-n8n_dev}
+      N8N_HOST: ${N8N_HOST:-localhost}
+      N8N_PORT: 5678
+      N8N_PROTOCOL: ${N8N_PROTOCOL:-http}
+      WEBHOOK_URL: ${WEBHOOK_URL:-http://localhost:5678/}
+      N8N_EDITOR_BASE_URL: ${N8N_EDITOR_BASE_URL:-}
+      N8N_PATH: ${N8N_PATH:-/}
+      # false = necessário quando acessa por http://IP (sem HTTPS)
+      N8N_SECURE_COOKIE: ${N8N_SECURE_COOKIE:-false}
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY:-}
+      N8N_BASIC_AUTH_ACTIVE: "true"
+      N8N_BASIC_AUTH_USER: ${N8N_USER:-admin}
+      N8N_BASIC_AUTH_PASSWORD: ${N8N_PASSWORD:-change-me}
+      GENERIC_TIMEZONE: America/Sao_Paulo
+      TZ: America/Sao_Paulo
+      CWM_API_BASE: http://api:8787
+      # Workspace usado pelos crons n8n quando o body não traz workspaceId
+      CWM_DEFAULT_WORKSPACE_ID: ${CWM_DEFAULT_WORKSPACE_ID:-}
+      # Permite $env.* nas expressões dos workflows (CWM_API_BASE, CWM_DEFAULT_WORKSPACE_ID)
+      N8N_BLOCK_ENV_ACCESS_IN_NODE: "false"
+      N8N_WEBHOOK_SECRET: ${N8N_WEBHOOK_SECRET:-dev-webhook-secret-change-me}
+    depends_on:
+      postgres_n8n:
+        condition: service_healthy
+      api:
+        condition: service_started
+    volumes:
+      - cwm_n8n_data:/home/node/.n8n
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    environment:
+      AUTOMATION_MODE: ${AUTOMATION_MODE:-mock}
+      PORT: 8787
+      CWM_DB_PATH: /data/cwm.sqlite
+      CWM_ASSETS_PATH: /data/assets
+      N8N_BASE_URL: http://n8n:5678
+      N8N_API_KEY: ${N8N_API_KEY:-}
+      N8N_WEBHOOK_SECRET: ${N8N_WEBHOOK_SECRET:-dev-webhook-secret-change-me}
+      CWM_API_BASE: http://api:8787
+      CWM_DEFAULT_WORKSPACE_ID: ${CWM_DEFAULT_WORKSPACE_ID:-}
+      DRY_RUN: ${DRY_RUN:-true}
+      PUBLISHING_ENABLED: ${PUBLISHING_ENABLED:-false}
+      YOUTUBE_PUBLISHING_ENABLED: ${YOUTUBE_PUBLISHING_ENABLED:-false}
+      GLOBAL_PUBLISHING_KILL_SWITCH: ${GLOBAL_PUBLISHING_KILL_SWITCH:-true}
+      MAX_PUBLICATIONS_PER_DAY: ${MAX_PUBLICATIONS_PER_DAY:-1}
+      YOUTUBE_CLIENT_ID: ${YOUTUBE_CLIENT_ID:-}
+      YOUTUBE_CLIENT_SECRET: ${YOUTUBE_CLIENT_SECRET:-}
+      YOUTUBE_REDIRECT_URI: ${YOUTUBE_REDIRECT_URI:-}
+      CWM_CREDENTIALS_ENCRYPTION_KEY: ${CWM_CREDENTIALS_ENCRYPTION_KEY:-}
+      # Ollama no host (OpenAI-compatible). Vazio = Script fallback → Mock.
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.2:3b}
+      OLLAMA_TIMEOUT_MS: ${OLLAMA_TIMEOUT_MS:-120000}
+      # Kokoro TTS no host (OpenAI-compatible /v1/audio/speech). Vazio = Voice fallback → Mock.
+      KOKORO_BASE_URL: ${KOKORO_BASE_URL:-}
+      KOKORO_VOICE: ${KOKORO_VOICE:-pf_dora}
+      KOKORO_MODEL: ${KOKORO_MODEL:-kokoro}
+      KOKORO_API_KEY: ${KOKORO_API_KEY:-}
+      # ComfyUI — só no MISS da Asset Library. Vazio = Visual fallback → Mock.
+      # A1 (profile comfy): http://comfy:8188
+      # Host / ponte PC (SSH -R 8188): http://host.docker.internal:8188
+      COMFY_BASE_URL: ${COMFY_BASE_URL:-}
+      COMFY_WORKFLOW: ${COMFY_WORKFLOW:-image_a1_cpu}
+      COMFY_TIMEOUT_MS: ${COMFY_TIMEOUT_MS:-900000}
+      COMFY_HTTP_TIMEOUT_MS: ${COMFY_HTTP_TIMEOUT_MS:-30000}
+      COMFY_HEALTH_TIMEOUT_MS: ${COMFY_HEALTH_TIMEOUT_MS:-5000}
+      COMFY_POLL_MS: ${COMFY_POLL_MS:-3000}
+      COMFY_CHECKPOINT: ${COMFY_CHECKPOINT:-v1-5-pruned-emaonly.safetensors}
+      COMFY_NEGATIVE_PROMPT: ${COMFY_NEGATIVE_PROMPT:-}
+      COMFY_WIDTH: ${COMFY_WIDTH:-}
+      COMFY_HEIGHT: ${COMFY_HEIGHT:-}
+      COMFY_STEPS: ${COMFY_STEPS:-}
+      COMFY_CFG: ${COMFY_CFG:-}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "8787:8787"
+    volumes:
+      - cwm_api_data:/data
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: web/Dockerfile
+      args:
+        VITE_CWM_API_BASE: ${VITE_CWM_API_BASE:-http://127.0.0.1:8787}
+    ports:
+      - "8080:8080"
+    depends_on:
+      - api
+    restart: unless-stopped
+
+  # Opt-in: docker compose --profile comfy up -d --build
+  # Porta 8188 só em 127.0.0.1 — NÃO abrir no NSG/Security List da OCI.
+  comfy:
+    profiles: ["comfy"]
+    build:
+      context: .
+      dockerfile: comfy/Dockerfile
+    # Explicit — a hotfix com `docker commit` + `--entrypoint pip` envenena o CMD da imagem.
+    entrypoint: ["sh", "-c"]
+    command: ["exec python main.py $$CLI_ARGS"]
+    ports:
+      - "127.0.0.1:8188:8188"
+    volumes:
+      # Só checkpoints — não tapar o resto de /opt/ComfyUI/models do clone.
+      - ./data/comfy/models/checkpoints:/opt/ComfyUI/models/checkpoints
+      - cwm_comfy_output:/opt/ComfyUI/output
+    environment:
+      CLI_ARGS: "--listen 0.0.0.0 --port 8188 --cpu"
+    restart: unless-stopped
+
+volumes:
+  cwm_pg:
+  cwm_n8n_pg:
+  cwm_redis:
+  cwm_n8n_data:
+  cwm_api_data:
+  cwm_comfy_output:

@@ -1,0 +1,44 @@
+{
+  "name": "CWM — Human Approval Gate",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "cwm/human-approval-gate",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "webhook",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.CWM_API_BASE}}/api/automation/trigger",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"workflow\": \"human_approval_gate\",\n  \"workspaceId\": \"{{$json.body.workspaceId}}\",\n  \"payload\": {\n    \"contentId\": \"{{$json.body.contentId}}\",\n    \"mode\": \"{{$json.body.mode || 'SEMI_AUTO'}}\"\n  }\n}"
+      },
+      "id": "trigger",
+      "name": "Trigger Approval Gate",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [520, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": { "main": [[{ "node": "Trigger Approval Gate", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "meta": {
+    "cwm": {
+      "workflowKey": "human_approval_gate",
+      "version": 1,
+      "purpose": "MANUAL / SEMI_AUTO / FULL_AUTO approval routing",
+      "tables": ["contents", "workspaces"]
+    }
+  }
+}

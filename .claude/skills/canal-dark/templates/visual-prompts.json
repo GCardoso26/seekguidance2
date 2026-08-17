@@ -1,0 +1,12 @@
+{
+  "profileId": "",
+  "negativeGlobal": "horror, gore, deformed eyes, deformed hands, glitch, VHS, watermark, AI slop, deep web",
+  "scenes": [
+    {
+      "scene": 1,
+      "role": "hook",
+      "prompt": "SUBJECT:\nCAMERA:\nSTYLE:",
+      "negativePrompt": ""
+    }
+  ]
+}

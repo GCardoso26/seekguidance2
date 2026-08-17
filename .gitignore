@@ -20,7 +20,9 @@ htmlcov/
 *.tsbuildinfo
 
 # Cursor / IDE local (não versionar)
-.cursor/
+.cursor/*
+!.cursor/skills/
+!.cursor/skills/**
 
 # Archives / dumps locais de referência
 *.rar
@@ -37,6 +39,8 @@ scripts/node_modules/
 scripts/output/
 !.env.production.example
 !.env.supabase.example
+!.env.oci.example
+!**/.env.oci.example
 
 # Ingestão manual (PDFs oficiais — não versionar binários)
 data/ingest/**/*.pdf

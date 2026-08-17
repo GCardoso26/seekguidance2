@@ -1,0 +1,168 @@
+{
+  "name": "CWM — Daily Content Engine",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [{ "field": "cronExpression", "expression": "0 7 * * *" }]
+        }
+      },
+      "id": "cron-daily",
+      "name": "Cron Daily 07:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "cwm/content-daily-pipeline",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "webhook-manual",
+      "name": "Webhook Manual Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [200, 520]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{$env.CWM_API_BASE}}/api/automation/health",
+        "options": {}
+      },
+      "id": "health",
+      "name": "Check System Ready",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 400]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json.systemReady.ok}}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "if-ready",
+      "name": "IF System Ready",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [680, 400]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.CWM_API_BASE}}/api/automation/trigger",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"workflow\": \"content_daily_pipeline\",\n  \"workspaceId\": \"{{$json.body.workspaceId || $env.CWM_DEFAULT_WORKSPACE_ID}}\",\n  \"payload\": {\n    \"source\": \"n8n\",\n    \"workflowName\": \"CWM — Daily Content Engine\"\n  }\n}"
+      },
+      "id": "trigger-api",
+      "name": "Trigger Control Plane Pipeline",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [920, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{$env.CWM_API_BASE}}/api/automation/executions/{{$json.executionId}}",
+        "options": {}
+      },
+      "id": "poll-status",
+      "name": "Load Execution Status",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1160, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.CWM_API_BASE}}/api/webhooks/n8n",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"signature\": \"{{$env.N8N_WEBHOOK_SIGNATURE_PLACEHOLDER}}\",\n  \"event\": \"workflow.completed\",\n  \"timestamp\": {{Math.floor(Date.now()/1000)}},\n  \"executionId\": \"{{$json.execution_id || $json.executionId}}\",\n  \"payload\": {\n    \"workflow\": \"content_daily_pipeline\",\n    \"reality\": \"{{$json.reality || 'MOCK'}}\",\n    \"eventId\": \"n8n-complete-{{$json.execution_id || $json.executionId}}\"\n  }\n}"
+      },
+      "id": "callback",
+      "name": "Callback Signed Webhook",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1400, 300],
+      "notes": "Replace signature via Code node HMAC in production; never hardcode secrets."
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "error",
+              "value": "SYSTEM_NOT_READY"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "not-ready",
+      "name": "Emit Not Ready",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [920, 520]
+    }
+  ],
+  "connections": {
+    "Cron Daily 07:00": {
+      "main": [[{ "node": "Check System Ready", "type": "main", "index": 0 }]]
+    },
+    "Webhook Manual Trigger": {
+      "main": [[{ "node": "Check System Ready", "type": "main", "index": 0 }]]
+    },
+    "Check System Ready": {
+      "main": [[{ "node": "IF System Ready", "type": "main", "index": 0 }]]
+    },
+    "IF System Ready": {
+      "main": [
+        [{ "node": "Trigger Control Plane Pipeline", "type": "main", "index": 0 }],
+        [{ "node": "Emit Not Ready", "type": "main", "index": 0 }]
+      ]
+    },
+    "Trigger Control Plane Pipeline": {
+      "main": [[{ "node": "Load Execution Status", "type": "main", "index": 0 }]]
+    },
+    "Load Execution Status": {
+      "main": [[{ "node": "Callback Signed Webhook", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "cwm": {
+      "workflowKey": "content_daily_pipeline",
+      "version": 1,
+      "purpose": "Daily research→ideas→scripts→content→qa→publish(mock/real) loop",
+      "credentials": ["CWM_API_BASE env", "optional N8N API key"],
+      "tables": [
+        "topics",
+        "content_ideas",
+        "scripts",
+        "contents",
+        "content_metrics",
+        "automation_runs",
+        "domain_events"
+      ]
+    }
+  }
+}

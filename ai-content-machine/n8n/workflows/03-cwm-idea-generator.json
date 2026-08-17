@@ -1,0 +1,60 @@
+{
+  "name": "CWM — Idea Generator",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "cwm/idea-generator",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "webhook",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{$env.CWM_API_BASE}}/api/ai/prompts/idea_generator"
+      },
+      "id": "load-prompt",
+      "name": "Load Prompt Version",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [480, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.CWM_API_BASE}}/api/automation/trigger",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"workflow\": \"idea_generator\",\n  \"workspaceId\": \"{{$('Webhook').item.json.body.workspaceId}}\",\n  \"payload\": {\n    \"topicId\": \"{{$('Webhook').item.json.body.topicId}}\",\n    \"promptVersion\": {{$json.version}}\n  }\n}"
+      },
+      "id": "trigger",
+      "name": "Trigger Idea Generator",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [720, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [[{ "node": "Load Prompt Version", "type": "main", "index": 0 }]]
+    },
+    "Load Prompt Version": {
+      "main": [[{ "node": "Trigger Idea Generator", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": { "executionOrder": "v1" },
+  "meta": {
+    "cwm": {
+      "workflowKey": "idea_generator",
+      "version": 1,
+      "purpose": "topic → 10 ideas + hooks/angles/formats",
+      "tables": ["content_ideas", "topics"]
+    }
+  }
+}

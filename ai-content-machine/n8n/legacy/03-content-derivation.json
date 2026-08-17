@@ -1,0 +1,47 @@
+{
+  "name": "NEXUS — Derivação 1→12",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "nexus-derive",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "webhook-derive",
+      "name": "Webhook Roteiro",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [260, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.LLM_API_URL}}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$env.OPENAI_API_KEY}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"gpt-4o-mini\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Você opera a fábrica NEXUS IA. A partir de UM roteiro, gere 12 derivados substancialmente transformados: shorts_yt, tiktok, reel, pinterest, carrossel, quote, thread, artigo, parte2, resposta, comparativo, faq. Cada um com gancho novo e CTA. JSON puro.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"{{$json.body.script}}\"\n    }\n  ]\n}"
+      },
+      "id": "llm-derive",
+      "name": "LLM Derivação",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [540, 300]
+    }
+  ],
+  "connections": {
+    "Webhook Roteiro": {
+      "main": [[{ "node": "LLM Derivação", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": { "executionOrder": "v1" }
+}

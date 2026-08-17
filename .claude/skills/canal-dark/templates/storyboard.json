@@ -1,0 +1,20 @@
+{
+  "note": "Contrato canónico CWM: ProductionPlanner.buildStoryboard / VisualScenePlan. Este ficheiro é o envelope editorial.",
+  "scenes": [
+    {
+      "scene": 1,
+      "startTime": 0,
+      "endTime": 5,
+      "role": "hook",
+      "subject": "",
+      "action": "",
+      "environment": "",
+      "camera": "",
+      "lighting": "",
+      "mood": "",
+      "visualPrompt": "",
+      "negativePrompt": "",
+      "assetType": "IMAGE"
+    }
+  ]
+}

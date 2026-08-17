@@ -1,0 +1,13 @@
+{
+  "id": "mystery",
+  "label": "Mystery editorial",
+  "style": "tasteful mystery editorial photography, suspense without horror",
+  "lighting": "controlled low-key but clean, never muddy",
+  "camera": "35mm / 50mm, deliberate framing",
+  "palette": "cool neutrals, restrained contrast",
+  "realism": "photorealistic",
+  "moodDefault": "curious, tense but tasteful",
+  "maxScenes": 5,
+  "forbid": ["gore", "jump-scare horror", "deep web"],
+  "negative": "horror gore, jump scare, distorted face, deformed hands, dark web aesthetic, creepy occult, surreal, oversaturated, text, watermark, logo, low quality, blurry, cartoon, anime"
+}

@@ -1,0 +1,86 @@
+{
+  "name": "CWM — Content Publisher",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "cwm/content-publisher",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [200, 320]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.CWM_API_BASE}}/api/publishing/run",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"workspaceId\": \"{{$json.body.workspaceId}}\",\n  \"contentId\": \"{{$json.body.contentId}}\",\n  \"platform\": \"{{$json.body.platform || 'YOUTUBE_SHORT'}}\",\n  \"await\": true\n}",
+        "options": { "timeout": 180000 }
+      },
+      "id": "publish",
+      "name": "Publish Content Package",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 320]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{$env.CWM_API_BASE}}/api/publishing/runs/{{$json.publicationRunId}}"
+      },
+      "id": "load-run",
+      "name": "Load Publication Run",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [700, 320]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.CWM_API_BASE}}/api/analytics/sync",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"workspaceId\": \"{{$('Webhook').item.json.body.workspaceId}}\",\n  \"publicationId\": \"{{$('Publish Content Package').item.json.publicationRunId}}\",\n  \"await\": true\n}",
+        "options": { "timeout": 120000 }
+      },
+      "id": "schedule-analytics",
+      "name": "Schedule Analytics Collection",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [940, 320]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { publication: $('Load Publication Run').item.json, analytics: $json } }}"
+      },
+      "id": "respond",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1180, 320]
+    }
+  ],
+  "connections": {
+    "Webhook": { "main": [[{ "node": "Publish Content Package", "type": "main", "index": 0 }]] },
+    "Publish Content Package": { "main": [[{ "node": "Load Publication Run", "type": "main", "index": 0 }]] },
+    "Load Publication Run": { "main": [[{ "node": "Schedule Analytics Collection", "type": "main", "index": 0 }]] },
+    "Schedule Analytics Collection": { "main": [[{ "node": "Respond", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "meta": {
+    "cwm": {
+      "workflowKey": "content_publisher",
+      "version": 2,
+      "purpose": "Validate READY_FOR_PUBLISH package → Mock publish → persist external id → emit published → collect analytics",
+      "tables": ["publication_runs", "content_packages", "contents", "metric_snapshots"],
+      "controlPlane": "/api/publishing/run"
+    }
+  }
+}

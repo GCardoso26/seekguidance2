@@ -1,0 +1,122 @@
+{
+  "name": "CWM — Research Engine",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "cwm/research-engine",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [{ "field": "cronExpression", "expression": "0 6 * * *" }]
+        }
+      },
+      "id": "cron",
+      "name": "Cron Daily 06:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [200, 520]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{$env.CWM_API_BASE}}/api/workspaces/{{$json.body.workspaceId || $env.CWM_DEFAULT_WORKSPACE_ID}}"
+      },
+      "id": "validate-workspace",
+      "name": "Validate Workspace",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 400]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{$env.CWM_API_BASE}}/api/ai/prompts/research_topic_extractor"
+      },
+      "id": "load-prompt",
+      "name": "Load Topic Extractor Prompt",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [660, 400]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.CWM_API_BASE}}/api/research/run",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ (() => { const src = $('Webhook').item.json.body || {}; const workspaceId = src.workspaceId || $env.CWM_DEFAULT_WORKSPACE_ID; const out = { workspaceId, await: true }; if (src.nicheId) out.nicheId = src.nicheId; return out; })() }}",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "id": "run-research",
+      "name": "Create Research Run + Execute",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [880, 400]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{$env.CWM_API_BASE}}/api/research/runs/{{$json.researchRunId}}"
+      },
+      "id": "load-run",
+      "name": "Load Research Run",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1100, 400]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{$json}}"
+      },
+      "id": "respond",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1320, 400]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [[{ "node": "Validate Workspace", "type": "main", "index": 0 }]]
+    },
+    "Cron Daily 06:00": {
+      "main": [[{ "node": "Validate Workspace", "type": "main", "index": 0 }]]
+    },
+    "Validate Workspace": {
+      "main": [[{ "node": "Load Topic Extractor Prompt", "type": "main", "index": 0 }]]
+    },
+    "Load Topic Extractor Prompt": {
+      "main": [[{ "node": "Create Research Run + Execute", "type": "main", "index": 0 }]]
+    },
+    "Create Research Run + Execute": {
+      "main": [[{ "node": "Load Research Run", "type": "main", "index": 0 }]]
+    },
+    "Load Research Run": {
+      "main": [[{ "node": "Respond", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": { "executionOrder": "v1" },
+  "meta": {
+    "cwm": {
+      "workflowKey": "research_engine",
+      "version": 2,
+      "purpose": "Independent research pipeline with provider abstraction, dedupe, scoring, PARTIAL support",
+      "tables": ["research_runs", "topics", "automation_failures", "domain_events"],
+      "failureModes": ["provider_not_configured", "all_providers_failed", "partial_provider_failure"],
+      "retry": "maxAttempts=3 with backoff in Control Plane ResearchService"
+    }
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "name": "CWM — Winner Engine",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [{ "field": "cronExpression", "expression": "30 8 * * *" }]
+        }
+      },
+      "id": "cron",
+      "name": "Daily 08:30",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "cwm/winner-engine",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [200, 480]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.CWM_API_BASE}}/api/winners/detect",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ (() => { const body = ($json && $json.body) ? $json.body : $json; const workspaceId = (body && body.workspaceId) || $env.CWM_DEFAULT_WORKSPACE_ID; const publicationId = body && body.publicationId; const out = { workspaceId, await: true }; if (publicationId) out.publicationId = publicationId; return out; })() }}",
+        "options": { "timeout": 120000 }
+      },
+      "id": "detect",
+      "name": "Detect Winners",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [480, 390]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{$json}}"
+      },
+      "id": "respond",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [720, 480]
+    }
+  ],
+  "connections": {
+    "Daily 08:30": { "main": [[{ "node": "Detect Winners", "type": "main", "index": 0 }]] },
+    "Webhook": { "main": [[{ "node": "Detect Winners", "type": "main", "index": 0 }]] },
+    "Detect Winners": { "main": [[{ "node": "Respond", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "meta": {
+    "cwm": {
+      "workflowKey": "winner_engine",
+      "version": 2,
+      "purpose": "Composite PerformanceScore → WINNER/NORMAL/LOSER/INSUFFICIENT_DATA + ContentDNA",
+      "tables": ["contents", "metric_snapshots", "publication_runs"],
+      "controlPlane": "/api/winners/detect"
+    }
+  }
+}

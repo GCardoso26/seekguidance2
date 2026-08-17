@@ -1,0 +1,70 @@
+{
+  "name": "CWM — Content Production",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "cwm/content-production",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [200, 320]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.CWM_API_BASE}}/api/production/run",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ (() => { const body = ($json && $json.body) ? $json.body : $json; const workspaceId = (body && body.workspaceId) || $env.CWM_DEFAULT_WORKSPACE_ID; const out = { workspaceId, scriptId: body && body.scriptId, platform: (body && body.platform) || 'YOUTUBE_SHORT', await: true }; if (body && body.contentId) out.contentId = body.contentId; if (body && body.allowUnapproved) out.allowUnapproved = body.allowUnapproved; if (body && body.regenerate) out.regenerate = body.regenerate; return out; })() }}",
+        "options": { "timeout": 300000 }
+      },
+      "id": "run-production",
+      "name": "Create Production Run",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [480, 320]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{$env.CWM_API_BASE}}/api/production/runs/{{$json.productionRunId}}"
+      },
+      "id": "load-run",
+      "name": "Load Production Run",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [740, 320]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{$json}}"
+      },
+      "id": "respond",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1000, 320]
+    }
+  ],
+  "connections": {
+    "Webhook": { "main": [[{ "node": "Create Production Run", "type": "main", "index": 0 }]] },
+    "Create Production Run": { "main": [[{ "node": "Load Production Run", "type": "main", "index": 0 }]] },
+    "Load Production Run": { "main": [[{ "node": "Respond", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "meta": {
+    "cwm": {
+      "workflowKey": "content_production",
+      "version": 2,
+      "purpose": "Approved script → plan → voice → visuals → subtitles → compose → thumbnail → QA → storage → content package READY_FOR_PUBLISH",
+      "tables": ["production_runs", "media_assets", "content_packages", "ai_cost_events"],
+      "controlPlane": "/api/production/run"
+    }
+  }
+}
