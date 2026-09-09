@@ -4,12 +4,15 @@ Gerado por `python3 scripts/generate_onboarding_visio.py` (stencil `stencils/Jud
 
 | Arquivo | Uso |
 |---------|-----|
-| `JudgeTCG_Onboarding_Consultas.vsdx` | Abrir no **Microsoft Visio** (uma aba por fluxo de consulta) |
+| `JudgeTCG_Painel_Vendedor_Investidor.vsdx` | Painel do vendedor para **investidor** (capacidades, gates, due diligence) |
+| `JudgeTCG_Painel_Vendedor_Investidor.xlsx` | Tabela de módulos + como importar |
+| `JudgeTCG_Onboarding_Consultas.vsdx` | Abrir no **Microsoft Visio** (consultas HTTP/SQL do onboarding) |
 | `JudgeTCG_Onboarding_Consultas.xlsx` | **Transpor** no Visio: Visualizador de Dados, ou copiar linhas da aba `Catalogo_Consultas` |
 | `JudgeTCG_Onboarding_Consultas.drawio` | diagrams.net |
-| `JudgeTCG_Onboarding_Consultas.html` | Prévia sem Visio |
+| `JudgeTCG_Painel_Vendedor_Investidor.html` | Prévia do painel (investidor) sem Visio |
 
-Fonte de conteúdo: [`docs/engineering/TEAM_ONBOARDING_ESTADO_ATUAL.md`](../../engineering/TEAM_ONBOARDING_ESTADO_ATUAL.md).
+Fonte de conteúdo (onboarding): [`docs/engineering/TEAM_ONBOARDING_ESTADO_ATUAL.md`](../../engineering/TEAM_ONBOARDING_ESTADO_ATUAL.md).  
+Fonte (painel vendedor / investidor): [`docs/product/PAINEL_VENDEDOR_INVESTIDOR.md`](../../product/PAINEL_VENDEDOR_INVESTIDOR.md).
 
 ## Transpor no MS Visio (Excel)
 
@@ -29,4 +32,5 @@ Fonte de conteúdo: [`docs/engineering/TEAM_ONBOARDING_ESTADO_ATUAL.md`](../../e
 ```bash
 unzip -qo docs/architecture/visio/stencils/Judge_doc.vsdx -d /tmp/visio_vsdx
 python3 scripts/generate_onboarding_visio.py
+python3 scripts/generate_seller_painel_visio.py
 ```

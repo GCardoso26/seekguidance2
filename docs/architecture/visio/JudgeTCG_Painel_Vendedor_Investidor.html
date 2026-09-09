@@ -1,0 +1,61 @@
+<!DOCTYPE html><html lang='pt-BR'><head><meta charset='utf-8'/><title>JudgeTCG — Fluxograma E2E</title><style>
+    body{font-family:Segoe UI,system-ui,sans-serif;background:#0f1720;color:#e8eef4;margin:0}
+    header{padding:24px 32px;border-bottom:1px solid #2a3b4d}
+    h1{margin:0 0 6px;font-size:22px}
+    .sub{opacity:.8;font-size:14px}
+    section{padding:28px 32px;border-bottom:1px solid #22303d}
+    h2{margin:0 0 16px;font-size:18px;color:#7eb8da}
+    .flow{display:flex;flex-wrap:wrap;gap:10px;align-items:stretch}
+    .col{display:flex;flex-direction:column;gap:8px;min-width:180px}
+    .box{border-radius:10px;padding:10px 12px;font-size:13px;line-height:1.35;white-space:pre-line;color:#102018}
+    .start,.end{background:#e89ab8;border-radius:999px;text-align:center}
+    .process{background:#7eb8da}
+    .sub{background:#7dbe7d}
+    .decision{background:#e89ab8;transform:none;text-align:center}
+    .data{background:#e8a05c}
+    .ext{background:#d9894a}
+    .note{background:#eef3f7}
+    .arrow{text-align:center;color:#7eb8da;font-size:18px}
+    table{border-collapse:collapse;width:100%;font-size:13px}
+    td,th{border:1px solid #2a3b4d;padding:8px 10px;text-align:left}
+    th{background:#1a2733}
+    </style></head><body><header><h1>JudgeTCG — Painel do vendedor (investidor)</h1><p class='sub'>Modelo Visio (Judge_doc.vsdx) + planilha E2E + arquitetura do repositório. MS Visio: docs/architecture/visio/JudgeTCG_Painel_Vendedor_Investidor.vsdx</p></header><section><h2>Legenda de formas</h2><table><tr><th>Forma</th><th>Uso</th><th>Público</th></tr><tr><td>Início/Fim (rosa)</td><td>Terminador</td><td>Gestores e devs</td></tr><tr><td>Processo (azul)</td><td>Atividade da plataforma</td><td>Ambos</td></tr><tr><td>Subprocesso (verde)</td><td>Detalhe em outra página</td><td>Ambos</td></tr><tr><td>Decisão (losango rosa)</td><td>Regra de negócio / gate</td><td>Gestores</td></tr><tr><td>Dados (laranja)</td><td>SQL Postgres / Redis</td><td>Devs</td></tr><tr><td>Dados externos (laranja)</td><td>OpenAI, Scryfall, Stripe, BrasilAPI…</td><td>Ambos</td></tr></table></section><section><h2>Página Visio: Legenda</h2><div class='flow'><div class='col'><div class='box start'>Início / Fim</div><div class='arrow'>↓</div><div class='box data'>Dado interno (SQL)</div></div><div class='col'><div class='box process'>Capacidade do produto</div></div><div class='col'><div class='box ext'>Parceiro (Stripe, PIX…)</div></div><div class='col'><div class='box sub'>Detalhe em outra página</div></div><div class='col'><div class='box note'>Painel do vendedor
+UI no ar · API Render fora</div></div><div class='col'><div class='box decision'>Decisão / gate</div></div></div></section><section><h2>Página Visio: Tese investidor</h2><div class='flow'><div class='col'><div class='box note'>LPC hoje = 0
+Beta não iniciado</div></div><div class='col'><div class='box start'>Investidor: o que este painel é</div><div class='arrow'>↓</div><div class='box process'>JudgeTCG = marketplace TCG BR
++ loja CNPJ na oferta (não CPF-seller)</div><div class='arrow'>↓</div><div class='box process'>Painel /vendedor/painel
+ferramenta da loja para publicar oferta
+e cumprir pedido sem a equipe no meio</div><div class='arrow'>↓</div><div class='box decision'>Métrica que importa: LPC
+oferta × procura sem intervenção humana</div><div class='arrow'>↓</div><div class='box sub'>Mapa de módulos</div></div><div class='col'><div class='box note'>UI Vercel no ar
+FastAPI/Render fora — KPIs podem ser mock</div></div></div></section><section><h2>Página Visio: Entrada e gates</h2><div class='flow'><div class='col'><div class='box start'>Lojista abre /vendedor/painel</div><div class='arrow'>↓</div><div class='box ext'>Login Supabase
+/entrar se anônimo</div><div class='arrow'>↓</div><div class='box ext'>GET /api/account/status
+KYC merchant</div><div class='arrow'>↓</div><div class='box decision'>Status da conta leu?</div><div class='arrow'>↓</div><div class='box decision'>KYC bloqueia publicar?
+/loja/suspensa</div><div class='arrow'>↓</div><div class='box decision'>GET /api/stores/mine
+Há loja cadastrada?</div><div class='arrow'>↓</div><div class='box sub'>Dashboard com KPIs</div><div class='arrow'>↓</div><div class='box end'>Fim entrada</div></div><div class='col'><div class='box process'>Banner vermelho
+Status indisponível
+O painel permanece disponível</div><div class='arrow'>↓</div><div class='box sub'>Empty state
+Cadastrar loja</div><div class='arrow'>↓</div><div class='box note'>Fail-open 12s: painel abre
+mesmo se auth/KYC atrasar</div></div></div></section><section><h2>Página Visio: Mapa módulos</h2><div class='flow'><div class='col'><div class='box process'>Dashboard · Operação · Inbox</div><div class='arrow'>↓</div><div class='box process'>Catálogo
+cartas · produtos · expansões · jogos</div><div class='arrow'>↓</div><div class='box process'>Clientes (lista / CRM plano)</div><div class='arrow'>↓</div><div class='box process'>Marketing: cupons · buylist · ingressos</div></div><div class='col'><div class='box process'>Insights (plano analytics)</div><div class='arrow'>↓</div><div class='box process'>Estoque + import CSV</div><div class='arrow'>↓</div><div class='box process'>Atendimento tickets
+badge = tickets abertos</div><div class='arrow'>↓</div><div class='box process'>Reputação + Estatísticas</div><div class='arrow'>↓</div><div class='box process'>Ver loja pública  ·  Voltar ao site</div><div class='arrow'>↓</div><div class='box note'>Ocultos (comingSoon): chat, CRM avançado,
+reclamações, promoções, movimentações</div><div class='arrow'>↓</div><div class='box end'>Valor: a loja opera o ciclo sozinha</div></div><div class='col'><div class='box start'>Painel do vendedor</div></div><div class='col'><div class='box sub'>Anúncios + Novo anúncio</div><div class='arrow'>↓</div><div class='box sub'>Pedidos (pipeline)
+badge = pendentes de pagamento</div><div class='arrow'>↓</div><div class='box sub'>Financeiro
+receitas · repasses · Stripe · PIX</div><div class='arrow'>↓</div><div class='box process'>Equipe + Configurações + PDV</div></div></div></section><section><h2>Página Visio: Cadastrar loja</h2><div class='flow'><div class='col'><div class='box start'>CTA Cadastrar loja</div><div class='arrow'>↓</div><div class='box process'>Empty state do dashboard
+(sem GET /api/stores/mine)</div><div class='arrow'>↓</div><div class='box decision'>Para onde o botão leva?</div><div class='arrow'>↓</div><div class='box data'>/stores/create
+POST /api/stores
+cria a loja de verdade</div><div class='arrow'>↓</div><div class='box process'>Configurações / pagamentos</div><div class='arrow'>↓</div><div class='box end'>Loja pronta para anunciar</div></div><div class='col'><div class='box ext'>/vendedor/painel/onboarding
+Stripe Connect
+NÃO cria a loja</div><div class='arrow'>↓</div><div class='box note'>Investidor: onboarding de oferta
+= entidade loja + CNPJ + Connect</div></div></div></section><section><h2>Página Visio: Publicar oferta</h2><div class='flow'><div class='col'><div class='box start'>+ Novo anúncio</div><div class='arrow'>↓</div><div class='box process'>Header → catálogo/cartas
+(?action=new ainda não abre wizard)</div><div class='arrow'>↓</div><div class='box process'>Caminho completo:
+/listagens/nova</div><div class='arrow'>↓</div><div class='box ext'>Busca carta no catálogo master</div><div class='arrow'>↓</div><div class='box data'>POST /api/seller/listings</div><div class='arrow'>↓</div><div class='box decision'>Limite de plano / KYC?</div><div class='arrow'>↓</div><div class='box end'>Anúncio no ar
+oferta visível ao buyer</div></div><div class='col'><div class='box end'>Bloqueio /loja/suspensa
+ou upsell /planos</div><div class='arrow'>↓</div><div class='box note'>Sem FastAPI: listagens 503
+Catálogo pode degradar com mock</div></div></div></section><section><h2>Página Visio: Pedido ao $</h2><div class='flow'><div class='col'><div class='box start'>Buyer paga no marketplace</div><div class='arrow'>↓</div><div class='box process'>Pedido entra no pipeline</div><div class='arrow'>↓</div><div class='box process'>Aguardando pagamento → Pago</div><div class='arrow'>↓</div><div class='box process'>Separação → Enviado → Entregue</div><div class='arrow'>↓</div><div class='box ext'>Stripe / PIX / Connect</div><div class='arrow'>↓</div><div class='box end'>Dinheiro na loja</div></div><div class='col'><div class='box process'>Tickets se houver disputa</div><div class='arrow'>↓</div><div class='box ext'>Repasses ao lojista</div><div class='arrow'>↓</div><div class='box note'>LPC: este ciclo sem a equipe JudgeTCG</div></div><div class='col'><div class='box note'>Badges 12 / 3 no print:
+mock se overview API falhar</div><div class='arrow'>↓</div><div class='box process'>Chargeback / reconciliação</div></div></div></section><section><h2>Página Visio: Due diligence</h2><div class='flow'><div class='col'><div class='box process'>Pronto na UI (Vercel)
+shell, nav, empty states, wizard, PDV, cupons…</div><div class='arrow'>↓</div><div class='box process'>Não está no menu (comingSoon)
+chat · CRM · promoções · movimentações</div></div><div class='col'><div class='box start'>Due diligence — o que está no ar</div></div><div class='col'><div class='box ext'>Precisa FastAPI + Postgres
+listagens, pedidos, estoque, stats</div><div class='arrow'>↓</div><div class='box decision'>Não vender como liquidez:
+seed ≠ loja; mock ≠ pedido real</div><div class='arrow'>↓</div><div class='box end'>Tese intacta: software de loja TCG
+para fechar LPC com CNPJ</div></div><div class='col'><div class='box note'>Degrada com mock
+dashboard, financeiro, tickets, reputação</div><div class='arrow'>↓</div><div class='box note'>Decisão de orçamento:
+1 runtime FastAPI + API_PROXY_TARGET</div></div></div></section></body></html>
