@@ -420,3 +420,18 @@ Quando Render voltar **ou** o proxy mudar:
 3. Não apagar a seção de orçamento: os timeouts Vercel e o híbrido SQL continuam sendo o teto mesmo com API paga.
 
 Não use métricas de `testing/reports/*` de julho/2026 como se fossem o estado de hoje.
+
+---
+
+## 16. Fluxograma Visio das consultas
+
+Para transpor **todas** as consultas deste documento no Microsoft Visio:
+
+| Arquivo | Caminho |
+|---------|---------|
+| Visio | [`docs/architecture/visio/JudgeTCG_Onboarding_Consultas.vsdx`](../architecture/visio/JudgeTCG_Onboarding_Consultas.vsdx) |
+| Excel (Visualizador de Dados) | [`docs/architecture/visio/JudgeTCG_Onboarding_Consultas.xlsx`](../architecture/visio/JudgeTCG_Onboarding_Consultas.xlsx) |
+| Como importar | aba `Como_importar_Visio` no Excel; guia [`visio/README.md`](../architecture/visio/README.md) |
+
+Abas Visio: Legenda, Foto produção, Health BFF, Proxy Render, Games, Judge BFF, Judge RAG, Dois bancos, Auth, Marketplace, Catálogo, Stack local, Crons orçamento, Inventário.
+

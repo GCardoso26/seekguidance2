@@ -1,0 +1,95 @@
+<!DOCTYPE html><html lang='pt-BR'><head><meta charset='utf-8'/><title>JudgeTCG — Fluxograma E2E</title><style>
+    body{font-family:Segoe UI,system-ui,sans-serif;background:#0f1720;color:#e8eef4;margin:0}
+    header{padding:24px 32px;border-bottom:1px solid #2a3b4d}
+    h1{margin:0 0 6px;font-size:22px}
+    .sub{opacity:.8;font-size:14px}
+    section{padding:28px 32px;border-bottom:1px solid #22303d}
+    h2{margin:0 0 16px;font-size:18px;color:#7eb8da}
+    .flow{display:flex;flex-wrap:wrap;gap:10px;align-items:stretch}
+    .col{display:flex;flex-direction:column;gap:8px;min-width:180px}
+    .box{border-radius:10px;padding:10px 12px;font-size:13px;line-height:1.35;white-space:pre-line;color:#102018}
+    .start,.end{background:#e89ab8;border-radius:999px;text-align:center}
+    .process{background:#7eb8da}
+    .sub{background:#7dbe7d}
+    .decision{background:#e89ab8;transform:none;text-align:center}
+    .data{background:#e8a05c}
+    .ext{background:#d9894a}
+    .note{background:#eef3f7}
+    .arrow{text-align:center;color:#7eb8da;font-size:18px}
+    table{border-collapse:collapse;width:100%;font-size:13px}
+    td,th{border:1px solid #2a3b4d;padding:8px 10px;text-align:left}
+    th{background:#1a2733}
+    </style></head><body><header><h1>JudgeTCG — Consultas E2E (onboarding)</h1><p class='sub'>Modelo Visio (Judge_doc.vsdx) + planilha E2E + arquitetura do repositório. MS Visio: docs/architecture/visio/JudgeTCG_Onboarding_Consultas.vsdx · Excel: JudgeTCG_Onboarding_Consultas.xlsx</p></header><section><h2>Legenda de formas</h2><table><tr><th>Forma</th><th>Uso</th><th>Público</th></tr><tr><td>Início/Fim (rosa)</td><td>Terminador</td><td>Gestores e devs</td></tr><tr><td>Processo (azul)</td><td>Atividade da plataforma</td><td>Ambos</td></tr><tr><td>Subprocesso (verde)</td><td>Detalhe em outra página</td><td>Ambos</td></tr><tr><td>Decisão (losango rosa)</td><td>Regra de negócio / gate</td><td>Gestores</td></tr><tr><td>Dados (laranja)</td><td>SQL Postgres / Redis</td><td>Devs</td></tr><tr><td>Dados externos (laranja)</td><td>OpenAI, Scryfall, Stripe, BrasilAPI…</td><td>Ambos</td></tr></table></section><section><h2>Página Visio: Legenda</h2><div class='flow'><div class='col'><div class='box start'>Início / Fim</div><div class='arrow'>↓</div><div class='box data'>SQL / Redis interno</div></div><div class='col'><div class='box process'>Processo (BFF / FastAPI)</div></div><div class='col'><div class='box ext'>API / banco externo</div></div><div class='col'><div class='box sub'>Subprocesso (outra página)</div></div><div class='col'><div class='box note'>Onboarding 2026-09-09
+Render FORA · Vercel no ar</div></div><div class='col'><div class='box decision'>Decisão</div></div></div></section><section><h2>Página Visio: Foto produção</h2><div class='flow'><div class='col'><div class='box start'>Browser</div><div class='arrow'>↓</div><div class='box process'>GET https://judgetcg.com.br/
+Cloudflare + Vercel HTML 200</div><div class='arrow'>↓</div><div class='box process'>Homepage prerender
+x-nextjs-prerender: 1</div><div class='arrow'>↓</div><div class='box process'>BFF Next /api/*</div><div class='arrow'>↓</div><div class='box note'>LPC = 0 · Beta not started</div><div class='arrow'>↓</div><div class='box end'>Fim (site no ar,
+API morta)</div></div><div class='col'><div class='box sub'>GET /api/health</div><div class='arrow'>↓</div><div class='box sub'>GET /api/games</div><div class='arrow'>↓</div><div class='box sub'>POST /api/judge/query</div><div class='arrow'>↓</div><div class='box sub'>GET /api/proxy/:path*
+rewrite → Render</div></div><div class='col'><div class='box ext'>API_PROXY_TARGET
+seekguidance.onrender.com</div><div class='arrow'>↓</div><div class='box decision'>Render no-server / 404
+ou Service Suspended</div></div></div></section><section><h2>Página Visio: Health BFF</h2><div class='flow'><div class='col'><div class='box start'>GET /api/health</div><div class='arrow'>↓</div><div class='box process'>health/route.ts
+Promise.all 3 checks</div><div class='arrow'>↓</div><div class='box process'>checkSupabaseCatalog</div><div class='arrow'>↓</div><div class='box decision'>card_catalog ok?</div><div class='arrow'>↓</div><div class='box ext'>checkApiHealth
+GET {API_PROXY_TARGET}/v1/health</div><div class='arrow'>↓</div><div class='box decision'>HTTP 200 FastAPI?</div><div class='arrow'>↓</div><div class='box process'>catalog_api: HTTP 404
+(Render no-server)</div></div><div class='col'><div class='box end'>HTTP 503 degraded
+API+DB offline · Redis online</div></div><div class='col'><div class='box data'>SQL PostgREST
+SELECT id FROM tcg_judge.card_catalog LIMIT 1</div><div class='arrow'>↓</div><div class='box process'>database: error
+(observado 2026-09-09)</div></div><div class='col'><div class='box ext'>checkRedis
+Upstash REST PING</div><div class='arrow'>↓</div><div class='box decision'>PING ok?</div><div class='arrow'>↓</div><div class='box process'>redis: ok</div></div></div></section><section><h2>Página Visio: Proxy Render</h2><div class='flow'><div class='col'><div class='box start'>Cliente ou BFF</div><div class='arrow'>↓</div><div class='box process'>GET /api/proxy/:path*
+next.config.mjs rewrite</div><div class='arrow'>↓</div><div class='box ext'>Destino API_PROXY_TARGET
++ /:path*</div><div class='arrow'>↓</div><div class='box ext'>seekguidance.onrender.com
+x-render-routing: no-server</div><div class='arrow'>↓</div><div class='box decision'>Serviço existe?</div><div class='arrow'>↓</div><div class='box end'>404 Not Found
+GET /api/proxy/v1/health</div></div><div class='col'><div class='box end'>seekguidance2-66dz
+503 Service Suspended</div><div class='arrow'>↓</div><div class='box end'>tcg-judge-api.onrender.com
+404</div></div></div></section><section><h2>Página Visio: Games</h2><div class='flow'><div class='col'><div class='box start'>GET /api/games</div><div class='arrow'>↓</div><div class='box process'>BFF api/games/route.ts</div><div class='arrow'>↓</div><div class='box ext'>GET {API}/runtime/judge/catalog/games</div><div class='arrow'>↓</div><div class='box decision'>res.ok?</div><div class='arrow'>↓</div><div class='box decision'>JSON games[]?</div><div class='arrow'>↓</div><div class='box end'>catch → HTTP 503
+{ games: [] }</div></div><div class='col'><div class='box ext'>GET {API}/runtime/judge/games</div><div class='arrow'>↓</div><div class='box end'>200 lista de jogos
+(só com FastAPI up)</div></div></div></section><section><h2>Página Visio: Judge BFF</h2><div class='flow'><div class='col'><div class='box start'>POST /api/judge/query</div><div class='arrow'>↓</div><div class='box decision'>Body JSON tem tcg?</div><div class='arrow'>↓</div><div class='box ext'>getAuthenticatedUserId
+Supabase SSR cookie</div><div class='arrow'>↓</div><div class='box process'>resolveRulesAccess(userId)</div><div class='arrow'>↓</div><div class='box decision'>rules.allowed?</div><div class='arrow'>↓</div><div class='box data'>checkAndReserveQuestion
+plano / cookie diário</div><div class='arrow'>↓</div><div class='box sub'>POST {API_BASE}/runtime/judge/query</div></div><div class='col'><div class='box end'>400 Campo tcg é obrigatório</div><div class='arrow'>↓</div><div class='box end'>403 login_required
+(observado sem sessão)</div><div class='arrow'>↓</div><div class='box end'>Upstream Render morto
+falha após login</div></div></div></section><section><h2>Página Visio: Judge RAG</h2><div class='flow'><div class='col'><div class='box start'>POST /runtime/judge/query</div><div class='arrow'>↓</div><div class='box process'>Middlewares FastAPI</div><div class='arrow'>↓</div><div class='box decision'>JWT fail-closed (prod)
+X-Judge-User-Id RBAC</div><div class='arrow'>↓</div><div class='box decision'>GameConfiguration
+TCG válido?</div><div class='arrow'>↓</div><div class='box decision'>Cache semântico Redis HIT?</div><div class='arrow'>↓</div><div class='box process'>RagOrchestrator</div><div class='arrow'>↓</div><div class='box process'>HybridRetriever</div><div class='arrow'>↓</div><div class='box decision'>Há hits?</div><div class='arrow'>↓</div><div class='box ext'>LLM OpenAI
+chat.completions</div><div class='arrow'>↓</div><div class='box data'>INSERT feedback / cache</div><div class='arrow'>↓</div><div class='box end'>JSON JudgeQueryResponse</div></div><div class='col'><div class='box data'>Rate limit Redis
+REDIS_URL</div><div class='arrow'>↓</div><div class='box process'>Resposta cache</div><div class='arrow'>↓</div><div class='box data'>SQL pgvector
+embedding &lt;=&gt; vector</div><div class='arrow'>↓</div><div class='box note'>Sem OPENAI_API_KEY
+stub confiança baixa</div></div><div class='col'><div class='box data'>SQL FTS
+to_tsvector / plainto_tsquery</div></div></div></section><section><h2>Página Visio: Dois bancos</h2><div class='flow'><div class='col'><div class='box data'>Postgres tcg_judge
+infra/db/*.sql</div><div class='arrow'>↓</div><div class='box data'>SELECT games / documents / chunks
+pgvector FTS</div><div class='arrow'>↓</div><div class='box process'>Local: Docker/cluster
+DATABASE_URL asyncpg</div><div class='arrow'>↓</div><div class='box end'>API Render FORA
+consultas Judge indisponíveis</div></div><div class='col'><div class='box decision'>Qual banco?</div></div><div class='col'><div class='box data'>Supabase public+auth
+migrations RLS</div><div class='arrow'>↓</div><div class='box data'>listings · stores · companies
+card_catalog PostgREST</div><div class='arrow'>↓</div><div class='box process'>Prod health: erro
+card_catalog inacessível</div><div class='arrow'>↓</div><div class='box end'>Auth UI pode viver
+sem FastAPI</div></div></div></section><section><h2>Página Visio: Auth</h2><div class='flow'><div class='col'><div class='box start'>GET /entrar</div><div class='arrow'>↓</div><div class='box ext'>Supabase Auth GoTrue
+NEXT_PUBLIC_SUPABASE_*</div><div class='arrow'>↓</div><div class='box process'>Cookie @supabase/ssr</div><div class='arrow'>↓</div><div class='box decision'>Sessão?</div><div class='arrow'>↓</div><div class='box process'>BFF Authorization Bearer
++ X-Judge-User-Id</div><div class='arrow'>↓</div><div class='box process'>FastAPI JWT fail-closed
+(ENVIRONMENT=production)</div><div class='arrow'>↓</div><div class='box end'>Fim autenticado</div></div><div class='col'><div class='box end'>Gate /judge /decks /seller</div></div></div></section><section><h2>Página Visio: Marketplace</h2><div class='flow'><div class='col'><div class='box start'>Buyer home / PDP RSC</div><div class='arrow'>↓</div><div class='box process'>BFF listings / catalog cards</div><div class='arrow'>↓</div><div class='box data'>SQL public + RLS
+listings stores</div><div class='arrow'>↓</div><div class='box decision'>Seller CNPJ?
+identity_platform</div><div class='arrow'>↓</div><div class='box ext'>Stripe Checkout / Connect
+PIX webhook</div><div class='arrow'>↓</div><div class='box process'>Evento LPC
+sem intervenção humana</div><div class='arrow'>↓</div><div class='box end'>LPC hoje = 0</div></div><div class='col'><div class='box data'>SQL companies
+validação local dígitos</div><div class='arrow'>↓</div><div class='box ext'>Melhor Envio
+freight_quote.py</div><div class='arrow'>↓</div><div class='box end'>Prod: FastAPI fora
+checkout morto</div></div><div class='col'><div class='box ext'>GET /api/geo/cep/[cep]
+BrasilAPI /api/cep/v2</div></div></div></section><section><h2>Página Visio: Catálogo</h2><div class='flow'><div class='col'><div class='box start'>Job / request catálogo</div><div class='arrow'>↓</div><div class='box process'>Product Catalog Sync
+PRODUCT_CATALOG_DATABASE_URL</div><div class='arrow'>↓</div><div class='box decision'>Tipo?</div><div class='arrow'>↓</div><div class='box data'>SQL product_catalog
++ media.assets</div><div class='arrow'>↓</div><div class='box end'>Prod: job nunca verde
+Render + secret ausentes</div></div><div class='col'><div class='box ext'>Cartas
+Scryfall pokemontcg.io
+YGOPRODeck lorcast OPTCG</div><div class='arrow'>↓</div><div class='box ext'>Meilisearch (opcional)</div></div><div class='col'><div class='box ext'>Selados
+TCGCSV → TCGplayer CDN</div></div><div class='col'><div class='box ext'>Cron catalog-health-ping
+GET /runtime/judge/catalog/health?lite=1</div></div><div class='col'><div class='box ext'>Acessórios
+Shopify Woo Shopware Tray</div></div></div></section><section><h2>Página Visio: Stack local</h2><div class='flow'><div class='col'><div class='box start'>Dev local (caminho oficial)</div><div class='arrow'>↓</div><div class='box data'>Postgres 16 + pgvector
+psql seed infra/db/*.sql</div><div class='arrow'>↓</div><div class='box data'>Redis 6379 ou compose 6380
+REDIS_URL alinhado</div><div class='arrow'>↓</div><div class='box process'>uvicorn :8000
+GET /health GET /v1/health</div><div class='arrow'>↓</div><div class='box data'>GET /v1/games
+14 slugs do seed</div><div class='arrow'>↓</div><div class='box process'>GET /docs OpenAPI</div><div class='arrow'>↓</div><div class='box process'>Next :3000
+API_PROXY_TARGET=http://127.0.0.1:8000</div><div class='arrow'>↓</div><div class='box process'>Rewrite /api/proxy/* → :8000</div><div class='arrow'>↓</div><div class='box end'>Judge stub se sem OPENAI_API_KEY</div></div></div></section><section><h2>Página Visio: Crons orçamento</h2><div class='flow'><div class='col'><div class='box start'>GitHub Actions crons</div><div class='arrow'>↓</div><div class='box ext'>catalog-health-ping */14
+GET …/catalog/health?lite=1</div><div class='arrow'>↓</div><div class='box decision'>Minutos Actions esgotados
+steps: [] sem logs</div></div><div class='col'><div class='box ext'>expire-checkouts */5
+POST …/checkout/expire-stale</div><div class='arrow'>↓</div><div class='box process'>expire: 401 sem JWT
+(prefixo mutação)</div><div class='arrow'>↓</div><div class='box end'>Não religar crons
+para mascarar 503</div></div><div class='col'><div class='box data'>catalog-sync
+PRODUCT_CATALOG_DATABASE_URL</div><div class='arrow'>↓</div><div class='box process'>Vercel Hobby 10s
+API_FETCH_TIMEOUT_MS=7000</div></div></div></section><section><h2>Página Visio: Inventário</h2><div class='flow'><div class='col'><div class='box process'>GET /  ·  GET /api/health</div><div class='arrow'>↓</div><div class='box ext'>GET /v1/health  /health</div><div class='arrow'>↓</div><div class='box data'>SQL card_catalog LIMIT 1</div><div class='arrow'>↓</div><div class='box ext'>Upstash PING</div><div class='arrow'>↓</div><div class='box ext'>BrasilAPI CEP</div><div class='arrow'>↓</div><div class='box ext'>GET catalog/health?lite=1</div></div><div class='col'><div class='box process'>GET /api/games</div><div class='arrow'>↓</div><div class='box ext'>GET /v1/games  /docs</div><div class='arrow'>↓</div><div class='box data'>SQL chunks &lt;=&gt; vector</div><div class='arrow'>↓</div><div class='box data'>Redis cache / rate limit</div><div class='arrow'>↓</div><div class='box ext'>Stripe / PIX</div><div class='arrow'>↓</div><div class='box ext'>POST checkout/expire-stale</div></div><div class='col'><div class='box note'>Inventário de consultas
+(transpor no Visio via Excel)</div></div><div class='col'><div class='box process'>POST /api/judge/query</div><div class='arrow'>↓</div><div class='box ext'>POST /runtime/judge/query</div><div class='arrow'>↓</div><div class='box data'>SQL to_tsvector FTS</div><div class='arrow'>↓</div><div class='box ext'>OpenAI embeddings+chat</div><div class='arrow'>↓</div><div class='box ext'>Melhor Envio</div><div class='arrow'>↓</div><div class='box ext'>Meilisearch</div></div><div class='col'><div class='box process'>GET /api/proxy/*</div><div class='arrow'>↓</div><div class='box ext'>GET catalog/games · games</div><div class='arrow'>↓</div><div class='box data'>SQL companies / listings</div><div class='arrow'>↓</div><div class='box ext'>Supabase GoTrue</div><div class='arrow'>↓</div><div class='box ext'>Scryfall / TCGCSV / Shopify</div><div class='arrow'>↓</div><div class='box note'>Planilha Catalogo_Consultas.xlsx</div></div></div></section></body></html>
