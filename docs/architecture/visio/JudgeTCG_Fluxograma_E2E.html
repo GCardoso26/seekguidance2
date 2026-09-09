@@ -1,0 +1,78 @@
+<!DOCTYPE html><html lang='pt-BR'><head><meta charset='utf-8'/><title>JudgeTCG — Fluxograma E2E</title><style>
+    body{font-family:Segoe UI,system-ui,sans-serif;background:#0f1720;color:#e8eef4;margin:0}
+    header{padding:24px 32px;border-bottom:1px solid #2a3b4d}
+    h1{margin:0 0 6px;font-size:22px}
+    .sub{opacity:.8;font-size:14px}
+    section{padding:28px 32px;border-bottom:1px solid #22303d}
+    h2{margin:0 0 16px;font-size:18px;color:#7eb8da}
+    .flow{display:flex;flex-wrap:wrap;gap:10px;align-items:stretch}
+    .col{display:flex;flex-direction:column;gap:8px;min-width:180px}
+    .box{border-radius:10px;padding:10px 12px;font-size:13px;line-height:1.35;white-space:pre-line;color:#102018}
+    .start,.end{background:#e89ab8;border-radius:999px;text-align:center}
+    .process{background:#7eb8da}
+    .sub{background:#7dbe7d}
+    .decision{background:#e89ab8;transform:none;text-align:center}
+    .data{background:#e8a05c}
+    .ext{background:#d9894a}
+    .note{background:#eef3f7}
+    .arrow{text-align:center;color:#7eb8da;font-size:18px}
+    table{border-collapse:collapse;width:100%;font-size:13px}
+    td,th{border:1px solid #2a3b4d;padding:8px 10px;text-align:left}
+    th{background:#1a2733}
+    </style></head><body><header><h1>JudgeTCG — Fluxograma funcional E2E</h1><p class='sub'>Modelo Visio (Judge_doc.vsdx) + planilha E2E + arquitetura do repositório. Arquivo MS Visio: docs/architecture/visio/JudgeTCG_Fluxograma_E2E.vsdx</p></header><section><h2>Legenda de formas</h2><table><tr><th>Forma</th><th>Uso</th><th>Público</th></tr><tr><td>Início/Fim (rosa)</td><td>Terminador</td><td>Gestores e devs</td></tr><tr><td>Processo (azul)</td><td>Atividade da plataforma</td><td>Ambos</td></tr><tr><td>Subprocesso (verde)</td><td>Detalhe em outra página</td><td>Ambos</td></tr><tr><td>Decisão (losango rosa)</td><td>Regra de negócio / gate</td><td>Gestores</td></tr><tr><td>Dados (laranja)</td><td>SQL Postgres / Redis</td><td>Devs</td></tr><tr><td>Dados externos (laranja)</td><td>OpenAI, Scryfall, Stripe, BrasilAPI…</td><td>Ambos</td></tr></table></section><section><h2>Página Visio: Legenda</h2><div class='flow'><div class='col'><div class='box start'>Início / Fim</div><div class='arrow'>↓</div><div class='box data'>Dados / SQL interno</div></div><div class='col'><div class='box process'>Processo (atividade)</div><div class='arrow'>↓</div><div class='box ext'>API / banco externo</div></div><div class='col'><div class='box sub'>Subprocesso (página)</div></div><div class='col'><div class='box note'>JudgeTCG — modelo documental E2E</div></div><div class='col'><div class='box decision'>Decisão</div></div></div></section><section><h2>Página Visio: Início</h2><div class='flow'><div class='col'><div class='box start'>Início</div><div class='arrow'>↓</div><div class='box process'>Acesso hero — judgetcg.com.br
+Next.js 15 (Vercel)</div><div class='arrow'>↓</div><div class='box process'>BFF /api/* e /api/proxy/*
+API_PROXY_TARGET</div><div class='arrow'>↓</div><div class='box sub'>Validação de API</div><div class='arrow'>↓</div><div class='box ext'>Carga API TCG
+GET /v1/games · catálogo</div><div class='arrow'>↓</div><div class='box decision'>Jornada do usuário</div><div class='arrow'>↓</div><div class='box end'>Fim / próxima jornada</div></div><div class='col'><div class='box sub'>Mesa de Regras
+Judge RAG</div><div class='arrow'>↓</div><div class='box sub'>Marketplace LPC
+Oferta CNPJ</div><div class='arrow'>↓</div><div class='box sub'>Catálogo e fontes
+cartas · selados · acessórios</div></div><div class='col'><div class='box sub'>Visão Tudo
+camadas e sistemas</div></div></div></section><section><h2>Página Visio: Validação API</h2><div class='flow'><div class='col'><div class='box start'>Da página Início</div><div class='arrow'>↓</div><div class='box process'>Health BFF
+GET /api/health → /v1/health</div><div class='arrow'>↓</div><div class='box decision'>FastAPI sobe?
+middlewares + CORS</div><div class='arrow'>↓</div><div class='box ext'>Retorna dados TCG
+GET /v1/games (14 TCGs)</div><div class='arrow'>↓</div><div class='box decision'>Auth fail-closed (prod)
+Supabase JWT / RBAC</div><div class='arrow'>↓</div><div class='box process'>Rate limit Redis
+X-Judge-User-Id</div><div class='arrow'>↓</div><div class='box process'>Rota autenticada
+/runtime/judge/*</div><div class='arrow'>↓</div><div class='box end'>Volta ao Início</div></div><div class='col'><div class='box ext'>API_Fallback
+Render cold start / timeout</div><div class='arrow'>↓</div><div class='box decision'>Fallback ok?</div><div class='arrow'>↓</div><div class='box sub'>Return error = market off
+ErrorBoundary / PageError</div><div class='arrow'>↓</div><div class='box end'>Fim (indisponível)</div></div></div></section><section><h2>Página Visio: Judge RAG</h2><div class='flow'><div class='col'><div class='box start'>S01 Início</div><div class='arrow'>↓</div><div class='box process'>S02 Usuário envia
+pergunta de regra</div><div class='arrow'>↓</div><div class='box process'>S03 Frontend/BFF
+POST /api/proxy/runtime/judge/query</div><div class='arrow'>↓</div><div class='box process'>S04 API recebe
+middlewares FastAPI</div><div class='arrow'>↓</div><div class='box decision'>S05 Auth / rate limit
+/ segurança OK?</div><div class='arrow'>↓</div><div class='box process'>S06 Endpoint
+Runtime Judge</div><div class='arrow'>↓</div><div class='box decision'>S07 TCG válido?
+GameConfiguration</div><div class='arrow'>↓</div><div class='box decision'>S08 Cache semântico
+Redis HIT?</div><div class='arrow'>↓</div><div class='box decision'>S10 RagOrchestrator
+jogo habilitado?</div><div class='arrow'>↓</div><div class='box process'>S11 Interpretar /
+rotear pergunta</div><div class='arrow'>↓</div><div class='box process'>S12 HybridRetriever</div><div class='arrow'>↓</div><div class='box decision'>S15 Há hits?
+combinar / ranquear</div><div class='arrow'>↓</div><div class='box process'>S16 Contexto +
+citações</div><div class='arrow'>↓</div><div class='box process'>S21 JSON JudgeQueryResponse</div><div class='arrow'>↓</div><div class='box process'>S97 UI apresenta
+resposta + fontes</div><div class='arrow'>↓</div><div class='box end'>S99 Fim</div></div><div class='col'><div class='box data'>S13 Busca vetorial
+Postgres + pgvector</div><div class='arrow'>↓</div><div class='box ext'>S17 LLM OpenAI
+chat.completions</div><div class='arrow'>↓</div><div class='box process'>S20 Grava cache</div></div><div class='col'><div class='box end'>S99 Fim</div><div class='arrow'>↓</div><div class='box process'>S98 Erro /
+indisponibilidade</div><div class='arrow'>↓</div><div class='box process'>S09 Resposta em cache</div></div><div class='col'><div class='box data'>S14 Busca lexical
+to_tsvector FTS</div><div class='arrow'>↓</div><div class='box process'>S18 Confiança +
+veredito</div><div class='arrow'>↓</div><div class='box data'>S19 Feedback / métricas</div></div></div></section><section><h2>Página Visio: Marketplace</h2><div class='flow'><div class='col'><div class='box start'>Início jornada marketplace</div><div class='arrow'>↓</div><div class='box process'>Buyer navega home / PDP
+Next.js RSC</div><div class='arrow'>↓</div><div class='box process'>BFF catálogo / listings</div><div class='arrow'>↓</div><div class='box data'>Postgres public schema
+listings · stores · RLS</div><div class='arrow'>↓</div><div class='box ext'>Checkout Stripe / PIX</div><div class='arrow'>↓</div><div class='box process'>Evento LPC
+oferta × procura sem intervenção</div><div class='arrow'>↓</div><div class='box end'>Fim</div></div><div class='col'><div class='box ext'>Melhor Envio (frete)</div></div><div class='col'><div class='box decision'>Seller CNPJ?
+ADR-018 acreditação</div><div class='arrow'>↓</div><div class='box process'>Recusar CPF-seller
+pending_accreditation</div></div><div class='col'><div class='box ext'>BrasilAPI CNPJ
+/api/stores/cnpj-lookup</div></div></div></section><section><h2>Página Visio: Catálogo</h2><div class='flow'><div class='col'><div class='box start'>Job / request catálogo</div><div class='arrow'>↓</div><div class='box process'>Product Catalog Sync
+services/api product-catalog</div><div class='arrow'>↓</div><div class='box decision'>Tipo de produto?</div><div class='arrow'>↓</div><div class='box data'>product_catalog DB
++ media.assets</div><div class='arrow'>↓</div><div class='box process'>UI catálogo / PDP
+next/image hosts</div><div class='arrow'>↓</div><div class='box end'>Fim</div></div><div class='col'><div class='box ext'>Cartas
+Scryfall · pokemontcg.io
+YGOPRODeck · lorcast · OPTCG</div><div class='arrow'>↓</div><div class='box ext'>Meilisearch (opcional)
+busca de cartas</div></div><div class='col'><div class='box ext'>Selados
+TCGCSV → TCGplayer CDN</div></div><div class='col'><div class='box ext'>Acessórios
+Shopify · Woo · Shopware · Tray</div></div></div></section><section><h2>Página Visio: Tudo</h2><div class='flow'><div class='col'><div class='box process'>Cliente web
+localhost:3000 / Vercel</div><div class='arrow'>↓</div><div class='box data'>Postgres tcg_judge
+chunks · documents · pgvector</div><div class='arrow'>↓</div><div class='box ext'>Stripe / PIX</div><div class='arrow'>↓</div><div class='box sub'>Worker jobs
+worker_main · catalog.sync</div></div><div class='col'><div class='box process'>BFF Next
+/api/bff /api/proxy /api/games</div><div class='arrow'>↓</div><div class='box data'>Postgres public
+marketplace · stores · RLS</div><div class='arrow'>↓</div><div class='box ext'>BrasilAPI CNPJ</div><div class='arrow'>↓</div><div class='box process'>Render API + Vercel web</div></div><div class='col'><div class='box end'>Ver páginas: Início · Validação API · Judge RAG · Marketplace · Catálogo</div></div><div class='col'><div class='box process'>FastAPI :8000
+46 routers /runtime /v1 /public</div><div class='arrow'>↓</div><div class='box data'>Redis
+cache · rate limit · revoke</div><div class='arrow'>↓</div><div class='box ext'>APIs TCG cartas</div></div><div class='col'><div class='box note'>North Star R1 LPC
+liquidez oferta CNPJ</div></div><div class='col'><div class='box ext'>Supabase Auth
+JWT fail-closed prod</div><div class='arrow'>↓</div><div class='box ext'>OpenAI
+embeddings + chat</div><div class='arrow'>↓</div><div class='box ext'>TCGCSV / Shopify…</div></div></div></section></body></html>
