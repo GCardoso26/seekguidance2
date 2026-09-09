@@ -77,6 +77,7 @@ Ingestão deve respeitar **ToS**, **robots.txt**, **rate limits** e **direitos a
 
 | Documento | Conteúdo |
 |-----------|----------|
+| [docs/engineering/TEAM_ONBOARDING_ESTADO_ATUAL.md](docs/engineering/TEAM_ONBOARDING_ESTADO_ATUAL.md) | **Onboarding:** estado real (produção, Render, orçamento) |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Serviços, eventos, diagramas |
 | [docs/DATABASE.md](docs/DATABASE.md) | Esquema Postgres / pgvector |
 | [docs/RAG_STRATEGY.md](docs/RAG_STRATEGY.md) | Chunking, híbrido, rerank |

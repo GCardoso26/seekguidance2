@@ -1,6 +1,7 @@
 # JudgeTCG — Guia de Configuração do Ambiente de Desenvolvimento
 
-Plataforma TCG brasileira integrada com Judge RAG, marketplace, torneios e painel lojista.
+Este guia descreve **como configurar** um ambiente. O **estado do que está no ar** (Vercel up, Render fora, health 503) está em [docs/engineering/TEAM_ONBOARDING_ESTADO_ATUAL.md](docs/engineering/TEAM_ONBOARDING_ESTADO_ATUAL.md) — leia esse arquivo primeiro se você é novo no time.
+
 
 **Repositório:** `seekguidance2` / `S:\tcg-judge`  
 **Produção:** https://judgetcg.com.br

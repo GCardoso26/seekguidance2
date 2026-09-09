@@ -4,6 +4,7 @@ Regras de engenharia pós-fundação (ADR-015). **Não** são novos componentes 
 
 | Documento | Uso |
 |-----------|-----|
+| [TEAM_ONBOARDING_ESTADO_ATUAL.md](./TEAM_ONBOARDING_ESTADO_ATUAL.md) | **Novo membro:** o que funciona hoje (Render fora, Vercel no ar, orçamento) |
 | [DEFINITION_OF_DONE.md](./DEFINITION_OF_DONE.md) | Checklist de PR |
 | [RFC_PROCESS.md](./RFC_PROCESS.md) | Mudanças estruturais |
 | [RELEASE_TRAIN.md](./RELEASE_TRAIN.md) | Separação Architecture / Infra / Business / Hotfix |
