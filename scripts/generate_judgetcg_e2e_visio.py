@@ -287,6 +287,25 @@ def col(x0: float, y_top: float, gap: float, items: list[tuple]) -> tuple[list[N
 def build_pages() -> list[Page]:
     pages: list[Page] = []
 
+    # ---- Página-1 (capa = modelo Judge_doc.vsdx do gestor) ----
+    n, e = col(
+        5.4,
+        7.35,
+        1.15,
+        [
+            ("p0", "Início", "start"),
+            ("p1", "Acesso hero — judgetcg\nNext.js 15 · Vercel", "process"),
+            ("p2", "Validação de API", "sub", "Validação API"),
+            ("p3", "Carga API TCG\nGET /v1/games", "ext"),
+        ],
+    )
+    n += [
+        Node("p4", "Continua em Início\njornadas do produto", "sub", 8.6, 2.9, 2.4, 0.7, "Início"),
+        Node("p5", "Modelo documental\nJudge_doc.vsdx", "note", 2.2, 7.35, 2.3, 0.7),
+    ]
+    e += [Edge("p3", "p4")]
+    pages.append(Page("Página-1", "Página-1", 11.7, 8.5, n, e))
+
     # ---- Legenda ----
     legend = [
         Node("l1", "Início / Fim", "start", 2.2, 7.4, 2.3, 0.5),
@@ -327,22 +346,31 @@ def build_pages() -> list[Page]:
         ],
     )
     n += [
-        Node("i6", "Mesa de Regras\nJudge RAG", "sub", 6.2, 5.3, 2.3, 0.7, "Judge RAG"),
-        Node("i7", "Marketplace LPC\nOferta CNPJ", "sub", 6.2, 4.1, 2.3, 0.7, "Marketplace"),
-        Node("i8", "Catálogo e fontes\ncartas · selados · acessórios", "sub", 6.2, 2.9, 2.4, 0.75, "Catálogo"),
+        Node("i6", "Mesa de Regras\nJudge RAG", "sub", 6.2, 5.35, 2.3, 0.7, "Judge RAG"),
+        Node("i7", "Marketplace LPC\nOferta CNPJ (ADR-018)", "sub", 6.2, 4.15, 2.4, 0.7, "Marketplace"),
+        Node("i8", "Catálogo e fontes\ncartas · selados · acessórios", "sub", 6.2, 2.95, 2.4, 0.75, "Catálogo"),
+        Node("i11", "Auth / identidade\nSupabase JWT", "sub", 9.4, 5.35, 2.4, 0.7, "Auth"),
+        Node("i12", "Checkout e frete\nStripe · PIX · Melhor Envio", "sub", 9.4, 4.15, 2.5, 0.7, "Checkout"),
+        Node("i13", "Ingestão do corpus\nRAG admin", "sub", 9.4, 2.95, 2.4, 0.7, "Ingestão"),
         Node("i9", "Fim / próxima jornada", "end", 3.2, 1.5, 2.2, 0.5),
-        Node("i10", "Visão Tudo\ncamadas e sistemas", "sub", 9.4, 5.3, 2.4, 0.7, "Tudo"),
+        Node("i10", "Visão Tudo\ncamadas e sistemas", "sub", 6.2, 1.5, 2.4, 0.55, "Tudo"),
     ]
     e += [
         Edge("i5", "i6", "Regra de jogo"),
         Edge("i5", "i7", "Comprar / vender"),
         Edge("i5", "i8", "Buscar produto"),
+        Edge("i5", "i11", "Entrar / loja"),
+        Edge("i7", "i12", "Pagar"),
+        Edge("i6", "i13", "Corpus"),
         Edge("i6", "i9"),
         Edge("i7", "i9"),
         Edge("i8", "i9"),
+        Edge("i11", "i9"),
+        Edge("i12", "i9"),
+        Edge("i13", "i9"),
         Edge("i5", "i10", "Arquitetura"),
     ]
-    pages.append(Page("Início", "Início", 12.5, 11.5, n, e))
+    pages.append(Page("Início", "Início", 12.8, 11.8, n, e))
 
     # ---- Validação API ----
     n, e = col(
@@ -457,25 +485,27 @@ def build_pages() -> list[Page]:
     )
     n += [
         Node("m4", "Seller CNPJ?\nADR-018 acreditação", "decision", 6.6, 9.4, 2.4, 0.8),
-        Node("m5", "BrasilAPI CNPJ\n/api/stores/cnpj-lookup", "ext", 9.6, 9.4, 2.4, 0.75),
-        Node("m6", "Checkout Stripe / PIX", "ext", 3.0, 6.6, 2.3, 0.7),
-        Node("m7", "Melhor Envio (frete)", "ext", 6.0, 6.6, 2.3, 0.7),
+        Node("m5", "Valida CNPJ local\nidentity_platform + companies", "data", 9.6, 9.4, 2.6, 0.8),
+        Node("m6", "Checkout Stripe / PIX", "sub", 3.0, 6.6, 2.3, 0.7, "Checkout"),
+        Node("m7", "Melhor Envio (frete)\nfreight_quote", "ext", 6.0, 6.6, 2.4, 0.7),
         Node("m8", "Evento LPC\noferta × procura sem intervenção", "process", 3.0, 5.4, 2.5, 0.75),
         Node("m9", "Recusar CPF-seller\npending_accreditation", "process", 6.6, 8.1, 2.5, 0.7),
         Node("m10", "Fim", "end", 3.0, 4.2, 1.8, 0.45),
+        Node("m11", "CEP BrasilAPI\nGET /api/geo/cep/[cep]", "ext", 9.6, 8.1, 2.5, 0.7),
     ]
     e += [
         Edge("m3", "m4"),
         Edge("m4", "m5", "Credenciar loja"),
         Edge("m4", "m6", "Buyer compra", "#75d175"),
         Edge("m4", "m9", "Não CNPJ", "#e51400"),
-        Edge("m5", "m3", "grava stores"),
+        Edge("m5", "m3", "grava companies"),
+        Edge("m1", "m11", "endereço"),
         Edge("m6", "m7"),
         Edge("m6", "m8"),
         Edge("m8", "m10"),
         Edge("m9", "m10"),
     ]
-    pages.append(Page("Marketplace", "Marketplace", 12.6, 13.2, n, e))
+    pages.append(Page("Marketplace", "Marketplace", 13.2, 13.2, n, e))
 
     # ---- Catálogo ----
     n = [
@@ -505,6 +535,103 @@ def build_pages() -> list[Page]:
     ]
     pages.append(Page("Catálogo", "Catálogo", 14.5, 10.8, n, e))
 
+    # ---- Auth ----
+    n, e = col(
+        3.2,
+        10.4,
+        0.95,
+        [
+            ("a0", "Usuário abre /entrar", "start"),
+            ("a1", "Next.js Auth UI\n@supabase/ssr cookies", "process"),
+            ("a2", "Supabase Auth\nGoTrue JWT", "ext"),
+        ],
+    )
+    n += [
+        Node("a3", "Sessão válida?", "decision", 3.2, 6.6, 2.2, 0.7),
+        Node("a4", "BFF encaminha JWT\nAuthorization / cookie", "process", 3.2, 5.4, 2.5, 0.7),
+        Node("a5", "FastAPI fail-closed (prod)\nRBAC + X-Judge-User-Id", "process", 3.2, 4.2, 2.6, 0.75),
+        Node("a6", "Redis revoke / rate limit", "data", 6.6, 4.2, 2.4, 0.7),
+        Node("a7", "Gate de login\nsem keys = UI bloqueada", "process", 6.6, 6.6, 2.5, 0.7),
+        Node("a8", "identity_platform\ncompanies · KYC", "data", 3.2, 3.0, 2.4, 0.7),
+        Node("a9", "Fim (autenticado)", "end", 3.2, 1.8, 2.1, 0.5),
+        Node("a10", "Fim (anônimo)", "end", 6.6, 5.4, 2.1, 0.45),
+    ]
+    e += [
+        Edge("a2", "a3"),
+        Edge("a3", "a4", "Sim", "#75d175"),
+        Edge("a3", "a7", "Não", "#e51400"),
+        Edge("a7", "a10"),
+        Edge("a4", "a5"),
+        Edge("a5", "a6"),
+        Edge("a5", "a8"),
+        Edge("a8", "a9"),
+    ]
+    pages.append(Page("Auth", "Auth", 10.5, 11.5, n, e))
+
+    # ---- Checkout ----
+    n, e = col(
+        3.0,
+        11.2,
+        0.92,
+        [
+            ("k0", "Carrinho / PDP", "start"),
+            ("k1", "CheckoutClient\n/checkout", "process"),
+            ("k2", "BFF checkout\n→ FastAPI shop_checkout", "process"),
+            ("k3", "Reserva crédito / listing\nPostgres public", "data"),
+        ],
+    )
+    n += [
+        Node("k4", "Meio de pagamento?", "decision", 3.0, 6.6, 2.3, 0.75),
+        Node("k5", "Stripe Checkout\n+ Connect (seller)", "ext", 6.2, 6.6, 2.4, 0.75),
+        Node("k6", "PIX (chave loja)", "ext", 9.2, 6.6, 2.2, 0.7),
+        Node("k7", "Webhook Stripe\npayment_intent", "ext", 6.2, 5.3, 2.4, 0.7),
+        Node("k8", "Cotação Melhor Envio", "ext", 9.2, 5.3, 2.3, 0.7),
+        Node("k9", "Pedido / orders\nSQL marketplace", "data", 3.0, 5.3, 2.3, 0.7),
+        Node("k10", "LPC possível\nsem intervenção humana", "process", 3.0, 4.0, 2.5, 0.7),
+        Node("k11", "Fim", "end", 3.0, 2.8, 1.8, 0.45),
+    ]
+    e += [
+        Edge("k3", "k4"),
+        Edge("k4", "k5", "cartão"),
+        Edge("k4", "k6", "PIX"),
+        Edge("k5", "k7"),
+        Edge("k5", "k8", "frete"),
+        Edge("k6", "k9"),
+        Edge("k7", "k9"),
+        Edge("k9", "k10"),
+        Edge("k10", "k11"),
+    ]
+    pages.append(Page("Checkout", "Checkout", 12.4, 12.4, n, e))
+
+    # ---- Ingestão ----
+    n, e = col(
+        3.2,
+        10.6,
+        0.95,
+        [
+            ("g0", "Admin / job ingestão", "start"),
+            ("g1", "POST /runtime/admin/ingestion\nworker_main", "process"),
+            ("g2", "Documento de regras\nPDF / HTML oficial", "ext"),
+        ],
+    )
+    n += [
+        Node("g3", "Chunking + metadados\nGameConfiguration", "process", 3.2, 6.8, 2.5, 0.75),
+        Node("g4", "Embeddings OpenAI", "ext", 6.6, 6.8, 2.3, 0.7),
+        Node("g5", "INSERT documents/chunks\ntcg_judge + pgvector", "data", 3.2, 5.5, 2.6, 0.8),
+        Node("g6", "FTS to_tsvector", "data", 6.6, 5.5, 2.3, 0.7),
+        Node("g7", "Corpus utilizável\nno Judge RAG", "sub", 3.2, 4.2, 2.4, 0.7, "Judge RAG"),
+        Node("g8", "Fim", "end", 3.2, 3.0, 1.8, 0.45),
+    ]
+    e += [
+        Edge("g2", "g3"),
+        Edge("g3", "g4"),
+        Edge("g4", "g5"),
+        Edge("g5", "g6"),
+        Edge("g5", "g7"),
+        Edge("g7", "g8"),
+    ]
+    pages.append(Page("Ingestão", "Ingestão", 10.5, 11.5, n, e))
+
     # ---- Tudo ----
     n = [
         Node("t0", "Cliente web\nlocalhost:3000 / Vercel", "process", 2.4, 10.2, 2.4, 0.75),
@@ -515,14 +642,15 @@ def build_pages() -> list[Page]:
         Node("t5", "Postgres public\nmarketplace · stores · RLS", "data", 5.2, 8.4, 2.5, 0.8),
         Node("t6", "Redis\ncache · rate limit · revoke", "data", 8.1, 8.4, 2.5, 0.8),
         Node("t7", "OpenAI\nembeddings + chat", "ext", 11.0, 8.4, 2.4, 0.8),
-        Node("t8", "Stripe / PIX", "ext", 2.4, 6.6, 2.3, 0.7),
-        Node("t9", "BrasilAPI CNPJ", "ext", 5.2, 6.6, 2.3, 0.7),
+        Node("t8", "Stripe / PIX / Connect", "ext", 2.4, 6.6, 2.4, 0.7),
+        Node("t9", "BrasilAPI CEP", "ext", 5.2, 6.6, 2.3, 0.7),
         Node("t10", "APIs TCG cartas", "ext", 8.1, 6.6, 2.3, 0.7),
         Node("t11", "TCGCSV / Shopify…", "ext", 11.0, 6.6, 2.4, 0.7),
-        Node("t12", "Worker jobs\nworker_main · catalog.sync", "sub", 2.4, 4.9, 2.4, 0.75),
+        Node("t12", "Worker jobs\ningestão · catalog.sync", "sub", 2.4, 4.9, 2.4, 0.75, "Ingestão"),
         Node("t13", "Render API + Vercel web", "process", 5.2, 4.9, 2.5, 0.75),
-        Node("t14", "North Star R1 LPC\nliquidez oferta CNPJ", "note", 8.8, 4.9, 4.4, 0.75),
-        Node("t15", "Ver páginas: Início · Validação API · Judge RAG · Marketplace · Catálogo", "end", 6.6, 3.4, 5.5, 0.55),
+        Node("t16", "Melhor Envio", "ext", 8.1, 4.9, 2.3, 0.7),
+        Node("t14", "North Star R1 LPC\nliquidez oferta CNPJ", "note", 11.0, 4.9, 2.5, 0.75),
+        Node("t15", "Páginas: Página-1 · Início · Validação API · Judge RAG · Marketplace · Catálogo · Auth · Checkout · Ingestão", "end", 7.0, 3.3, 7.0, 0.6),
     ]
     e = [
         Edge("t0", "t1", "HTTPS"),
@@ -536,12 +664,13 @@ def build_pages() -> list[Page]:
         Edge("t2", "t9"),
         Edge("t2", "t10"),
         Edge("t2", "t11"),
+        Edge("t2", "t16"),
         Edge("t12", "t2"),
         Edge("t12", "t4"),
         Edge("t13", "t0"),
         Edge("t13", "t2"),
     ]
-    pages.append(Page("Tudo", "Tudo", 14.2, 11.5, n, e))
+    pages.append(Page("Tudo", "Tudo", 14.4, 11.6, n, e))
     return pages
 
 
@@ -785,6 +914,13 @@ def write_vsdx(pages: list[Page], dest: Path) -> None:
 <dcterms:modified xsi:type="dcterms:W3CDTF">2026-09-09T00:00:00Z</dcterms:modified>
 </cp:coreProperties>"""
     (work / "docProps" / "core.xml").write_text(core, encoding="utf-8")
+
+    doc = (work / "visio" / "document.xml").read_text(encoding="utf-8")
+    doc = doc.replace("TopPage='9'", "TopPage='0'")
+    (work / "visio" / "document.xml").write_text(doc, encoding="utf-8")
+    win = (work / "visio" / "windows.xml").read_text(encoding="utf-8")
+    win = win.replace("Page='9'", "Page='0'")
+    (work / "visio" / "windows.xml").write_text(win, encoding="utf-8")
 
     dest.parent.mkdir(parents=True, exist_ok=True)
     if dest.exists():
