@@ -26,4 +26,12 @@ Cadastrar loja (CNPJ) → Publicar anúncio → Buyer encontra oferta
 
 Isso é o desenho do painel. Em produção hoje o **front existe**; a execução desse ciclo depende de religar a FastAPI.
 
+## Abas do Visio (fluxograma real)
+
+Comece por **Ciclo E2E** (login → KYC → loja → overview → catálogo → listing → estoque → checkout → pedidos → fulfillment → $ → LPC).
+
+Depois: Entrada e gates · Dashboard · Operação Inbox · Catálogo · Estoque · Publicar oferta · Pedidos · Pedido ao $ · Financeiro · Marketing CRM · Equipe PDV · Cadastrar loja · Due diligence.
+
+Excel: aba `F01_Ciclo_E2E` no formato Visualizador de Dados do Visio.
+
 Fonte de menu: `frontend/runtime_console_v3/src/lib/seller-sidebar-nav.ts`.
