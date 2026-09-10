@@ -11,3 +11,5 @@ All future money movement should route through Financial Platform. Day-1: dual-r
 ## Stack
 
 Ledger (double-entry) → Wallet → Escrow → Split → Settlement → Payout → Credits/Cashback/Gift → Analytics
+
+Perguntas da apresentação a desenvolvedores (Liga/MyP, por que gateway de loja não faz escrow de marketplace): [`MARKETPLACE_PSP_ESCROW.md`](./MARKETPLACE_PSP_ESCROW.md).
