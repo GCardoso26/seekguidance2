@@ -2,10 +2,14 @@
 
 from __future__ import annotations
 
+import base64
 import hashlib
 import hmac
 
-from app.api.v1.carrier_api import _verify_melhor_envio_signature
+from fastapi.testclient import TestClient
+
+from app.api.v1.carrier_api import MELHOR_ENVIO_WEBHOOK_PATH, _verify_melhor_envio_signature
+from app.main import app
 
 
 def test_melhor_envio_rejects_missing_secret():
@@ -20,7 +24,24 @@ def test_melhor_envio_rejects_missing_signature():
 def test_melhor_envio_accepts_valid_hmac():
     secret = "s3cret"
     raw = b'{"event":"order.created"}'
-    sig = hmac.new(secret.encode(), raw, hashlib.sha256).hexdigest()
-    assert _verify_melhor_envio_signature(raw, sig, secret) is True
-    assert _verify_melhor_envio_signature(raw, f"sha256={sig}", secret) is True
+    digest = hmac.new(secret.encode(), raw, hashlib.sha256).digest()
+    sig_hex = digest.hex()
+    sig_b64 = base64.b64encode(digest).decode()
+    assert _verify_melhor_envio_signature(raw, sig_hex, secret) is True
+    assert _verify_melhor_envio_signature(raw, f"sha256={sig_hex}", secret) is True
+    assert _verify_melhor_envio_signature(raw, sig_b64, secret) is True
     assert _verify_melhor_envio_signature(raw, "deadbeef", secret) is False
+
+
+def test_melhor_envio_webhook_probe_get_returns_200():
+    """Cadastro no painel Melhor Envio sonda a URL; POST-only gerava E-WBH-0002 / 405."""
+    client = TestClient(app)
+    r = client.get(MELHOR_ENVIO_WEBHOOK_PATH)
+    assert r.status_code == 200
+    assert r.json()["status"] == "ok"
+
+
+def test_melhor_envio_webhook_probe_head_returns_200():
+    client = TestClient(app)
+    r = client.head(MELHOR_ENVIO_WEBHOOK_PATH)
+    assert r.status_code == 200

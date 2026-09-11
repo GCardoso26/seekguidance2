@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import base64
 import hashlib
 import hmac
 import json
@@ -16,26 +17,48 @@ from fastapi import APIRouter, HTTPException, Request
 router = APIRouter(tags=["carriers"])
 logger = structlog.get_logger(__name__)
 
+MELHOR_ENVIO_WEBHOOK_PATH = "/runtime/judge/carriers/melhor-envio/webhook"
+
 
 def _verify_melhor_envio_signature(raw: bytes, signature: str | None, secret: str | None) -> bool:
-    """Fail-closed: sem secret configurado, rejeita (nunca aceitar unsigned)."""
+    """Fail-closed: sem secret configurado, rejeita (nunca aceitar unsigned).
+
+    Melhor Envio documenta HMAC-SHA256 do body com o secret do app e envia
+    ``X-ME-Signature`` em Base64 (não hex).
+    """
     if not secret:
         return False
     if not signature:
         return False
-    expected = hmac.new(secret.encode(), raw, hashlib.sha256).hexdigest()
-    return hmac.compare_digest(expected, signature.replace("sha256=", ""))
+    sig = signature.strip()
+    if sig.lower().startswith("sha256="):
+        sig = sig[7:]
+    digest = hmac.new(secret.encode(), raw, hashlib.sha256).digest()
+    candidates = (
+        digest.hex(),
+        base64.b64encode(digest).decode("ascii"),
+        base64.urlsafe_b64encode(digest).decode("ascii"),
+    )
+    for expected in candidates:
+        if len(expected) == len(sig) and hmac.compare_digest(expected, sig):
+            return True
+    return False
 
 
-@router.post("/runtime/judge/carriers/melhor-envio/webhook")
+@router.api_route(MELHOR_ENVIO_WEBHOOK_PATH, methods=["GET", "HEAD"])
+async def melhor_envio_webhook_probe() -> dict[str, str]:
+    """Sonda de cadastro do Melhor Envio (E-WBH-0002). Eventos reais usam POST."""
+    return {"status": "ok", "provider": "melhor_envio"}
+
+
+@router.post(MELHOR_ENVIO_WEBHOOK_PATH)
 async def melhor_envio_webhook(request: Request, session: DbSession) -> dict[str, Any]:
     """Recebe eventos Melhor Envio — processamento assíncrono via Background Job."""
     settings = get_settings()
-    if not (settings.melhor_envio_webhook_secret or "").strip():
-        raise HTTPException(503, "MELHOR_ENVIO_WEBHOOK_SECRET não configurado")
-
     raw = await request.body()
     signature = request.headers.get("X-ME-Signature") or request.headers.get("X-Signature")
+    if not (settings.melhor_envio_webhook_secret or "").strip():
+        raise HTTPException(503, "MELHOR_ENVIO_WEBHOOK_SECRET não configurado")
 
     if not _verify_melhor_envio_signature(raw, signature, settings.melhor_envio_webhook_secret):
         raise HTTPException(401, "Assinatura inválida")
