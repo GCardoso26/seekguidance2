@@ -53,3 +53,15 @@ def test_melhor_envio_webhook_probe_head_returns_200():
     client = TestClient(app)
     r = client.head(MELHOR_ENVIO_WEBHOOK_PATH)
     assert r.status_code == 200
+
+
+def test_melhor_envio_webhook_unsigned_post_is_probe_200():
+    """Cadastro no painel POSTa sem HMAC; não pode abrir Postgres (500 / E-WBH-0002)."""
+    client = TestClient(app)
+    r = client.post(
+        MELHOR_ENVIO_WEBHOOK_PATH,
+        content=b'{"event":"order.created"}',
+        headers={"Content-Type": "application/json", "User-Agent": "Melhor Envio Webhooks/1.0"},
+    )
+    assert r.status_code == 200
+    assert r.json()["probe"] is True

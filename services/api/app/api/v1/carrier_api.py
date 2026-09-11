@@ -9,8 +9,8 @@ import json
 from typing import Any
 
 import structlog
-from app.api.deps import DbSession
 from app.core.config import get_settings
+from app.infrastructure.db.session import get_session_factory
 from app.marketplace import seller_fulfillment as seller_ff
 from fastapi import APIRouter, HTTPException, Request
 
@@ -52,11 +52,16 @@ async def melhor_envio_webhook_probe() -> dict[str, str]:
 
 
 @router.post(MELHOR_ENVIO_WEBHOOK_PATH)
-async def melhor_envio_webhook(request: Request, session: DbSession) -> dict[str, Any]:
-    """Recebe eventos Melhor Envio — processamento assíncrono via Background Job."""
+async def melhor_envio_webhook(request: Request) -> dict[str, Any]:
+    """Eventos assinados vão ao banco. Sonda de cadastro (sem X-ME-Signature) não abre Postgres."""
     settings = get_settings()
     raw = await request.body()
     signature = request.headers.get("X-ME-Signature") or request.headers.get("X-Signature")
+    # Painel Melhor Envio POSTa uma sonda sem HMAC. Depends(DbSession) nisso era 500
+    # com database:error (E-WBH-0002). Eventos reais sempre trazem X-ME-Signature.
+    if not (signature or "").strip():
+        return {"status": "ok", "provider": "melhor_envio", "probe": True}
+
     if not (settings.melhor_envio_webhook_secret or "").strip():
         raise HTTPException(503, "MELHOR_ENVIO_WEBHOOK_SECRET não configurado")
 
@@ -72,10 +77,11 @@ async def melhor_envio_webhook(request: Request, session: DbSession) -> dict[str
     data = payload.get("data") if isinstance(payload.get("data"), dict) else {}
     external_event_id = f"{event_type}:{data.get('id', '')}:{data.get('posted_at') or data.get('updated_at') or ''}"
 
-    return await seller_ff.ingest_carrier_webhook(
-        session,
-        provider="melhor_envio",
-        event_type=event_type,
-        external_event_id=external_event_id,
-        payload=payload,
-    )
+    async with get_session_factory()() as session:
+        return await seller_ff.ingest_carrier_webhook(
+            session,
+            provider="melhor_envio",
+            event_type=event_type,
+            external_event_id=external_event_id,
+            payload=payload,
+        )
