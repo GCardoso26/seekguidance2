@@ -9,6 +9,7 @@ import hmac
 from fastapi.testclient import TestClient
 
 from app.api.v1.carrier_api import MELHOR_ENVIO_WEBHOOK_PATH, _verify_melhor_envio_signature, router
+from app.core.config import get_settings
 from app.main import app
 
 
@@ -39,7 +40,7 @@ def test_melhor_envio_webhook_route_allows_get_head_post():
     for route in router.routes:
         if getattr(route, "path", None) == MELHOR_ENVIO_WEBHOOK_PATH:
             methods |= set(getattr(route, "methods", None) or [])
-    assert {"GET", "HEAD", "POST"} <= methods
+    assert {"GET", "HEAD", "POST", "OPTIONS"} <= methods
 
 
 def test_melhor_envio_webhook_probe_get_returns_200():
@@ -65,3 +66,51 @@ def test_melhor_envio_webhook_unsigned_post_is_probe_200():
     )
     assert r.status_code == 200
     assert r.json()["probe"] is True
+
+
+def test_melhor_envio_signed_probe_without_shipment_id_skips_db(monkeypatch):
+    """Painel assina a sonda; sem data.id não pode ir ao Postgres (500)."""
+    secret = "s3cret"
+    monkeypatch.setenv("MELHOR_ENVIO_WEBHOOK_SECRET", secret)
+    get_settings.cache_clear()
+    try:
+        raw = b'{"event":"order.created"}'
+        sig = base64.b64encode(hmac.new(secret.encode(), raw, hashlib.sha256).digest()).decode()
+        client = TestClient(app)
+        r = client.post(
+            MELHOR_ENVIO_WEBHOOK_PATH,
+            content=raw,
+            headers={
+                "Content-Type": "application/json",
+                "X-ME-Signature": sig,
+                "User-Agent": "Melhor Envio Webhooks/1.0",
+            },
+        )
+        assert r.status_code == 200
+        assert r.json()["probe"] is True
+    finally:
+        get_settings.cache_clear()
+
+
+def test_melhor_envio_signed_event_db_failure_still_200(monkeypatch):
+    secret = "s3cret"
+    monkeypatch.setenv("MELHOR_ENVIO_WEBHOOK_SECRET", secret)
+    get_settings.cache_clear()
+
+    def _boom():
+        raise RuntimeError("database down")
+
+    monkeypatch.setattr("app.api.v1.carrier_api.get_session_factory", _boom)
+    try:
+        raw = b'{"event":"order.posted","data":{"id":"ord-1"}}'
+        sig = base64.b64encode(hmac.new(secret.encode(), raw, hashlib.sha256).digest()).decode()
+        client = TestClient(app)
+        r = client.post(
+            MELHOR_ENVIO_WEBHOOK_PATH,
+            content=raw,
+            headers={"Content-Type": "application/json", "X-ME-Signature": sig},
+        )
+        assert r.status_code == 200
+        assert r.json()["persist_error"] is True
+    finally:
+        get_settings.cache_clear()

@@ -45,7 +45,7 @@ def _verify_melhor_envio_signature(raw: bytes, signature: str | None, secret: st
     return False
 
 
-@router.api_route(MELHOR_ENVIO_WEBHOOK_PATH, methods=["GET", "HEAD"])
+@router.api_route(MELHOR_ENVIO_WEBHOOK_PATH, methods=["GET", "HEAD", "OPTIONS"])
 async def melhor_envio_webhook_probe() -> dict[str, str]:
     """Sonda de cadastro do Melhor Envio (E-WBH-0002). Eventos reais usam POST."""
     return {"status": "ok", "provider": "melhor_envio"}
@@ -53,12 +53,14 @@ async def melhor_envio_webhook_probe() -> dict[str, str]:
 
 @router.post(MELHOR_ENVIO_WEBHOOK_PATH)
 async def melhor_envio_webhook(request: Request) -> dict[str, Any]:
-    """Eventos assinados vão ao banco. Sonda de cadastro (sem X-ME-Signature) não abre Postgres."""
+    """Sonda (sem HMAC ou sem id de etiqueta) não abre Postgres.
+
+    POST assinado com etiqueta real persiste; falha de banco responde 200
+    para o cadastro no painel (E-WBH-0002 rejeita 500) e registra o erro.
+    """
     settings = get_settings()
     raw = await request.body()
     signature = request.headers.get("X-ME-Signature") or request.headers.get("X-Signature")
-    # Painel Melhor Envio POSTa uma sonda sem HMAC. Depends(DbSession) nisso era 500
-    # com database:error (E-WBH-0002). Eventos reais sempre trazem X-ME-Signature.
     if not (signature or "").strip():
         return {"status": "ok", "provider": "melhor_envio", "probe": True}
 
@@ -69,19 +71,34 @@ async def melhor_envio_webhook(request: Request) -> dict[str, Any]:
         raise HTTPException(401, "Assinatura inválida")
 
     try:
-        payload = json.loads(raw)
+        payload = json.loads(raw or b"{}")
     except json.JSONDecodeError as exc:
         raise HTTPException(400, "JSON inválido") from exc
 
+    if not isinstance(payload, dict):
+        payload = {}
     event_type = str(payload.get("event") or "unknown")
     data = payload.get("data") if isinstance(payload.get("data"), dict) else {}
-    external_event_id = f"{event_type}:{data.get('id', '')}:{data.get('posted_at') or data.get('updated_at') or ''}"
+    shipment_id = str(data.get("id") or "").strip()
+    if not shipment_id:
+        return {"status": "ok", "provider": "melhor_envio", "probe": True}
 
-    async with get_session_factory()() as session:
-        return await seller_ff.ingest_carrier_webhook(
-            session,
-            provider="melhor_envio",
-            event_type=event_type,
-            external_event_id=external_event_id,
-            payload=payload,
-        )
+    external_event_id = f"{event_type}:{shipment_id}:{data.get('posted_at') or data.get('updated_at') or ''}"
+
+    try:
+        async with get_session_factory()() as session:
+            return await seller_ff.ingest_carrier_webhook(
+                session,
+                provider="melhor_envio",
+                event_type=event_type,
+                external_event_id=external_event_id,
+                payload=payload,
+            )
+    except Exception:
+        logger.exception("melhor_envio_webhook_persist_failed", event_type=event_type)
+        return {
+            "status": "ok",
+            "provider": "melhor_envio",
+            "accepted": False,
+            "persist_error": True,
+        }
