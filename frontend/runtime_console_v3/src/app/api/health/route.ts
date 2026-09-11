@@ -7,7 +7,7 @@ import { FEATURES } from "@/lib/feature-flags";
 
 export type { ServiceHealth, ServiceHealthStatus };
 
-const API_BASE = (process.env.API_PROXY_TARGET || "https://seekguidance.onrender.com").replace(/\/$/, "");
+const API_BASE = (process.env.API_PROXY_TARGET || "https://seekguidance2-0iw4.onrender.com").replace(/\/$/, "");
 
 type CheckResult = { status: string; latency: number; error?: string };
 

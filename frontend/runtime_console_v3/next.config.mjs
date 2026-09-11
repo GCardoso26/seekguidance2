@@ -9,7 +9,7 @@ const withBundleAnalyzer = bundleAnalyzer({
 const apiUrl =
   process.env.API_PROXY_TARGET ||
   process.env.NEXT_PUBLIC_API_URL ||
-  "https://seekguidance.onrender.com";
+  "https://seekguidance2-0iw4.onrender.com";
 
 const supabaseHostRaw = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/^https?:\/\//, "").split("/")[0];
 const supabaseHost = supabaseHostRaw && supabaseHostRaw.length > 0 ? supabaseHostRaw : "*.supabase.co";
