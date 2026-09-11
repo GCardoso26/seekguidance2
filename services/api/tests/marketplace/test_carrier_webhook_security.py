@@ -8,7 +8,7 @@ import hmac
 
 from fastapi.testclient import TestClient
 
-from app.api.v1.carrier_api import MELHOR_ENVIO_WEBHOOK_PATH, _verify_melhor_envio_signature
+from app.api.v1.carrier_api import MELHOR_ENVIO_WEBHOOK_PATH, _verify_melhor_envio_signature, router
 from app.main import app
 
 
@@ -33,8 +33,16 @@ def test_melhor_envio_accepts_valid_hmac():
     assert _verify_melhor_envio_signature(raw, "deadbeef", secret) is False
 
 
-def test_melhor_envio_webhook_probe_get_returns_200():
+def test_melhor_envio_webhook_route_allows_get_head_post():
     """Cadastro no painel Melhor Envio sonda a URL; POST-only gerava E-WBH-0002 / 405."""
+    methods: set[str] = set()
+    for route in router.routes:
+        if getattr(route, "path", None) == MELHOR_ENVIO_WEBHOOK_PATH:
+            methods |= set(getattr(route, "methods", None) or [])
+    assert {"GET", "HEAD", "POST"} <= methods
+
+
+def test_melhor_envio_webhook_probe_get_returns_200():
     client = TestClient(app)
     r = client.get(MELHOR_ENVIO_WEBHOOK_PATH)
     assert r.status_code == 200
