@@ -39,7 +39,7 @@
   "rewrites": [
     {
       "source": "/api/proxy/:path*",
-      "destination": "https://seekguidance.onrender.com/:path*"
+      "destination": "https://seekguidance2-0iw4.onrender.com/:path*"
     }
   ],
   "crons": [

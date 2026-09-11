@@ -2,7 +2,8 @@
 export const API_PROXY_BASE = (
   process.env.API_PROXY_TARGET ||
   process.env.NEXT_PUBLIC_API_URL ||
-  "https://seekguidance.onrender.com"
+  "https://seekguidance2-0iw4.onrender.com"
+)
 ).replace(/\/$/, "");
 
 /** Vercel Hobby: funções serverless ~10s. Budget total para retries. */
